@@ -2165,3 +2165,82 @@ body{padding-top:0!important}
   setTimeout(initAllDrags,500);
 })();
 </script>
+
+
+<!-- ===== UNIVERSAL TOPMOST DRAG + 3D UI + NEW MEDIA PLAYER ===== -->
+<style id="universal-window-player-3d-2026-09-20">
+/* Every application window stays above the dashboard and can be moved horizontally/downward. */
+.window{position:fixed!important;z-index:100000!important;max-width:96vw!important;box-shadow:0 14px 35px rgba(0,0,0,.45),0 4px 0 rgba(120,70,0,.35)!important}
+.window .win-head{position:sticky!important;top:0!important;z-index:20!important;cursor:grab!important;user-select:none!important;touch-action:none!important;background:linear-gradient(180deg,#ffe99a,#d9a72e)!important;color:#321b00!important;border:2px solid #a80000!important;box-shadow:inset 0 2px 0 #fff4b8,inset 0 -3px 0 #8b5a00,0 3px 7px #0005!important}
+.window .win-head:active{cursor:grabbing!important}
+/* 3D controls throughout the system */
+button,.btn,.primary,.secondary,.module,.mode,.icon-btn,.search-btn,.header-home-final,
+input,select,textarea,.field,.box,.card,.panel,.quick-box,.stat,.feature-box,.control-box,.search-box{
+ box-shadow:inset 0 2px 0 rgba(255,255,255,.55),inset 0 -3px 0 rgba(0,0,0,.22),0 4px 7px rgba(0,0,0,.25)!important;
+}
+button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode:active{transform:translateY(2px)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 -1px 0 rgba(0,0,0,.25),0 1px 3px rgba(0,0,0,.25)!important}
+/* New media player */
+#mediaStageContent{position:relative!important;width:100%!important;height:245px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:linear-gradient(145deg,#ffe58a,#d8a62c 55%,#f7d96a)!important;border:3px solid #a80000!important;box-shadow:inset 0 3px 10px rgba(255,255,255,.55),inset 0 -8px 18px rgba(110,60,0,.25),0 8px 16px rgba(0,0,0,.3)!important;overflow:hidden!important}
+#mediaStageContent img{width:100%!important;height:100%!important;object-fit:contain!important;background:#f4d56b!important}
+#mediaStageContent video{width:100%!important;height:100%!important;object-fit:contain!important;background:#f4d56b!important}
+#mediaStageContent audio{width:min(82%,700px)!important}
+.media-player-controls{display:flex!important;align-items:center!important;justify-content:center!important;gap:10px!important;background:linear-gradient(180deg,#ffe99a,#d9a72e)!important;border:2px solid #a80000!important;border-top:0!important;padding:8px!important;box-shadow:inset 0 2px 0 #fff4b8,0 6px 12px #0004!important}
+.media-player-controls button{min-width:95px!important;min-height:40px!important;background:linear-gradient(180deg,#fff0ad,#d5a32b)!important;color:#281600!important;border:2px solid #a80000!important;font-weight:900!important}
+.media-arrow-new{position:absolute!important;top:50%!important;transform:translateY(-50%)!important;width:48px!important;height:48px!important;min-width:48px!important;border-radius:50%!important;z-index:30!important;background:linear-gradient(145deg,#fff1aa,#d19a20)!important;color:#5b0000!important;border:3px solid #a80000!important;font-size:25px!important;font-weight:1000!important;box-shadow:inset 0 3px 0 #fff8ce,0 5px 10px #0006!important}
+.media-arrow-new.left{left:8px!important}.media-arrow-new.right{right:8px!important}
+.media-arrow-new:hover{transform:translateY(-50%) scale(1.08)!important}
+#mediaStageContent .media-center-badge{position:absolute;top:8px;left:50%;transform:translateX(-50%);padding:4px 13px;border-radius:20px;background:rgba(255,232,139,.92);border:2px solid #a80000;color:#4a2400;font-weight:900;box-shadow:0 3px 7px #0004;z-index:10}
+@media(max-width:650px){#mediaStageContent{height:190px!important}.media-arrow-new{width:40px!important;height:40px!important;min-width:40px!important;font-size:20px!important}.media-player-controls{gap:5px!important}.media-player-controls button{min-width:75px!important;padding:5px!important}}
+</style>
+<script id="universal-window-player-3d-2026-09-20-js">
+(function(){
+ var oldDrag=window.dragWindow;
+ function makeDrag(w){
+   if(!w)return;
+   var head=w.querySelector('.win-head');if(!head||head.dataset.universalDrag==='1')return;
+   head.dataset.universalDrag='1';
+   head.onmousedown=function(e){
+     if(e.target.closest('button,input,select,textarea,a'))return;
+     e.preventDefault();
+     var r=w.getBoundingClientRect(),sx=e.clientX,sy=e.clientY;
+     w.style.transform='none';w.style.left=r.left+'px';w.style.top=r.top+'px';
+     function move(ev){
+       var x=r.left+ev.clientX-sx,y=r.top+ev.clientY-sy;
+       var maxX=Math.max(0,window.innerWidth-w.offsetWidth),maxY=Math.max(0,window.innerHeight-8);
+       w.style.left=Math.max(0,Math.min(maxX,x))+'px';w.style.top=Math.max(0,Math.min(maxY,y))+'px';
+     }
+     function up(){document.removeEventListener('mousemove',move);document.removeEventListener('mouseup',up)}
+     document.addEventListener('mousemove',move);document.addEventListener('mouseup',up);
+   };
+ }
+ function all(){document.querySelectorAll('.window').forEach(makeDrag)}
+ window.makeAllWindowsDraggable=all;
+ document.addEventListener('DOMContentLoaded',all);setTimeout(all,300);setTimeout(all,1000);
+ /* Replace the old media rendering visually without changing the Drive-backed storage. */
+ var oldRender=window.renderMedia;
+ window.renderMedia=function(){
+   var box=document.getElementById('mediaStageContent');if(!box)return;
+   if(!window.media||!media.length){box.innerHTML='<span class="media-center-badge">মিডিয়া আপলোড করে স্লাইড দেখুন</span>';return}
+   var i=((window.mediaIndex||0)%media.length+media.length)%media.length,x=media[i],u=String(x.DataURL||'');
+   var badge='<span class="media-center-badge">'+(x.Name||('Media '+(i+1)))+'</span>';
+   if(x.Type==='image')box.innerHTML=badge+'<img src="'+esc(u)+'" alt="">';
+   else if(x.Type==='video')box.innerHTML=badge+'<video src="'+esc(u)+'" controls preload="metadata"></video>';
+   else box.innerHTML=badge+'<audio src="'+esc(u)+'" controls preload="metadata"></audio>';
+   box.insertAdjacentHTML('beforeend','<button class="media-arrow-new left" type="button" onclick="previousMedia()" aria-label="Previous">❮</button><button class="media-arrow-new right" type="button" onclick="nextMedia()" aria-label="Next">❯</button>');
+   var controls=document.querySelector('.media-player-controls');
+   if(!controls){
+     controls=document.createElement('div');controls.className='media-player-controls';
+     controls.innerHTML='<button type="button" onclick="openModule(\'gallery\')">⬆️ আপলোড</button><button id="newMediaPlay" type="button" onclick="toggleMediaPlay()">▶️ প্লে</button><button type="button" onclick="deleteCurrentMedia()">🗑️ ডিলেট</button>';
+     box.parentElement.appendChild(controls);
+   }
+ };
+ window.nextMedia=function(){if(!media||!media.length)return;mediaIndex=(mediaIndex+1)%media.length;renderMedia()};
+ window.previousMedia=function(){if(!media||!media.length)return;mediaIndex=(mediaIndex-1+media.length)%media.length;renderMedia()};
+ window.toggleMediaPlay=function(){
+   var box=document.getElementById('mediaStageContent'),el=box&&box.querySelector('video,audio'),b=document.getElementById('newMediaPlay');
+   if(el){if(el.paused){el.play().then(function(){if(b)b.textContent='⏸️ Pause'}).catch(function(){toast('প্লে করা যাচ্ছে না।')})}else{el.pause();if(b)b.textContent='▶️ প্লে'}}
+   else {clearInterval(window._newMediaTimer);window._newMediaTimer=setInterval(function(){nextMedia()},5000);if(b)b.textContent='⏸️ Pause'}
+ };
+ window.deleteCurrentMedia=function(){if(!media||!media.length)return toast('ডিলেট করার মিডিয়া নেই।');deleteMediaByIndex(mediaIndex)};
+})();
+</script>
