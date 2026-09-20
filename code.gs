@@ -480,6 +480,64 @@ function mediaDriveFolder_(){
   return it.hasNext()?it.next():DriveApp.createFolder(name);
 }
 function mediaDriveUrl_(fileId){ return 'https://drive.google.com/uc?export=download&id='+encodeURIComponent(fileId); }
+function mediaTempFolder_(){
+  const name='Jannatul Baqi Digital Platform - Media Upload Temp 2026';
+  const it=DriveApp.getFoldersByName(name);
+  return it.hasNext()?it.next():DriveApp.createFolder(name);
+}
+function startMediaUpload(token,meta){
+  auth_(token); requireFeature_(token,'gallery');
+  meta=meta||{};
+  const type=String(meta.type||'').toLowerCase(), rules=getMediaRules_()[type];
+  if(!rules)return {ok:false,message:'মিডিয়া টাইপ সঠিক নয়।'};
+  const size=Number(meta.size||0);
+  if(size<=0||size>rules.maxMB*1024*1024)return {ok:false,message:type==='image'?'ফটোর সর্বোচ্চ সীমা 20 MB।':'ভিডিও/অডিওর সর্বোচ্চ সীমা 50 MB।'};
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
+  const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
+  if(rows.length>=rules.maxCount)return {ok:false,message:type==='image'?'সর্বোচ্চ 100টি ফটো রাখা যাবে।':'সর্বোচ্চ 50টি '+(type==='video'?'ভিডিও':'অডিও')+' রাখা যাবে।'};
+  const uploadId=Utilities.getUuid();
+  const folder=mediaTempFolder_();
+  folder.createFile(Utilities.newBlob(JSON.stringify({uploadId,type,name:String(meta.name||'media'),mimeType:String(meta.mimeType||'application/octet-stream'),size:size,created:Date.now()}),'application/json','META-'+uploadId+'.json'));
+  return {ok:true,uploadId:uploadId};
+}
+function uploadMediaChunk(token,uploadId,index,base64){
+  auth_(token); requireFeature_(token,'gallery');
+  uploadId=String(uploadId||''); index=Number(index);
+  if(!uploadId||!isFinite(index)||index<0)return {ok:false,message:'Chunk তথ্য সঠিক নয়।'};
+  const raw=String(base64||''); if(!raw)return {ok:false,message:'Chunk ডাটা পাওয়া যায়নি।'};
+  const folder=mediaTempFolder_();
+  folder.createFile(Utilities.newBlob(Utilities.base64Decode(raw),'application/octet-stream','CHUNK-'+uploadId+'-'+String(index).padStart(6,'0')));
+  return {ok:true,index:index};
+}
+function finishMediaUpload(token,uploadId){
+  auth_(token); requireFeature_(token,'gallery');
+  uploadId=String(uploadId||''); if(!uploadId)return {ok:false,message:'Upload ID পাওয়া যায়নি।'};
+  const folder=mediaTempFolder_(), files=folder.getFiles(), chunks=[], metas=[];
+  while(files.hasNext()){
+    const f=files.next(), n=f.getName();
+    if(n==='META-'+uploadId+'.json')metas.push(f);
+    else if(n.indexOf('CHUNK-'+uploadId+'-')===0)chunks.push(f);
+  }
+  if(!metas.length||!chunks.length)return {ok:false,message:'আপলোডের অংশগুলো সম্পূর্ণ পাওয়া যায়নি।'};
+  let meta;
+  try{meta=JSON.parse(metas[0].getBlob().getDataAsString());}catch(e){return {ok:false,message:'Upload metadata নষ্ট হয়েছে।'};}
+  const type=String(meta.type||'').toLowerCase(),rules=getMediaRules_()[type];
+  if(!rules)return {ok:false,message:'মিডিয়া টাইপ সঠিক নয়।'};
+  chunks.sort((a,b)=>a.getName().localeCompare(b.getName()));
+  let total=0,bytes=[];
+  chunks.forEach(function(f){const b=f.getBlob().getBytes();total+=b.length;bytes=bytes.concat(b);});
+  if(total!==Number(meta.size||0))return {ok:false,message:'ফাইলের আকার মিলছে না। '+total+' / '+meta.size};
+  if(total>rules.maxMB*1024*1024)return {ok:false,message:'ফাইলের আকার অনুমোদিত সীমার বেশি।'};
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
+  const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
+  if(rows.length>=rules.maxCount)return {ok:false,message:type==='image'?'সর্বোচ্চ 100টি ফটো রাখা যাবে।':'সর্বোচ্চ 50টি '+(type==='video'?'ভিডিও':'অডিও')+' রাখা যাবে।'};
+  const file=mediaDriveFolder_().createFile(Utilities.newBlob(bytes,meta.mimeType||'application/octet-stream',meta.name||('media-'+Date.now())));
+  try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
+  const serial=nextSerial_(sh),mediaId='MED-'+Date.now();
+  sh.appendRow([serial,mediaId,type,meta.name||'','DRIVE:'+file.getId(),meta.mimeType||'',total,0,'ACTIVE',now_()]);
+  chunks.forEach(function(f){try{f.setTrashed(true);}catch(e){}}); metas.forEach(function(f){try{f.setTrashed(true);}catch(e){}});
+  return {ok:true,serial:serial,mediaId:mediaId};
+}
 function saveMedia(token,item) {
   auth_(token); requireFeature_(token,'gallery');
   if(!item || !item.dataUrl) return {ok:false,message:'ফাইল পাওয়া যায়নি।'};
