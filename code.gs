@@ -544,8 +544,7 @@ function saveMediaForm(form){
   const blob=form&&form.mediaFile;
   if(!blob || typeof blob.getBytes!=='function') return {ok:false,message:'ফাইল পাওয়া যায়নি।'};
   const mime=String(blob.getContentType()||'application/octet-stream');
-  const type=String(form.type||'').toLowerCase();
-  const rules=getMediaRules_()[type];
+  const type=String(form.type||'').toLowerCase(),rules=getMediaRules_()[type];
   if(!rules)return {ok:false,message:'মিডিয়া টাইপ সঠিক নয়।'};
   const size=Number(blob.getBytes().length||0);
   if(size<=0)return {ok:false,message:'ফাইল খালি।'};
