@@ -2289,3 +2289,59 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
   setTimeout(lift,300);setTimeout(lift,1000);
 })();
 </script>
+
+<!-- ===== FINAL AUTHORITATIVE WINDOW DRAG — 2026-09-20 ===== -->
+<style id="final-authoritative-window-drag-css">
+.window .win-head{position:relative!important;top:auto!important;cursor:move!important;user-select:none!important}
+</style>
+<script id="final-authoritative-window-drag-js">
+(function(){
+  function install(w){
+    if(!w)return;
+    var h=w.querySelector('.win-head');
+    if(!h)return;
+    h.onmousedown=null;
+    h.onpointerdown=null;
+    h.onmousedown=function(e){
+      if(e.button!==0)return;
+      if(e.target.closest('button,input,select,textarea,a'))return;
+      e.preventDefault();
+      var r=w.getBoundingClientRect();
+      var sx=e.clientX,sy=e.clientY,ox=r.left,oy=r.top;
+      w.style.setProperty('position','fixed','important');
+      w.style.setProperty('transform','none','important');
+      w.style.setProperty('left',ox+'px','important');
+      w.style.setProperty('top',oy+'px','important');
+      w.style.setProperty('right','auto','important');
+      w.style.setProperty('bottom','auto','important');
+      w.style.setProperty('margin','0','important');
+      w.style.setProperty('z-index','2147483646','important');
+      function move(ev){
+        var x=ox+(ev.clientX-sx),y=oy+(ev.clientY-sy);
+        var maxX=Math.max(0,window.innerWidth-w.getBoundingClientRect().width);
+        x=Math.max(0,Math.min(maxX,x));
+        y=Math.max(0,y);
+        w.style.setProperty('left',x+'px','important');
+        w.style.setProperty('top',y+'px','important');
+      }
+      function stop(){
+        document.removeEventListener('mousemove',move,true);
+        document.removeEventListener('mouseup',stop,true);
+      }
+      document.addEventListener('mousemove',move,true);
+      document.addEventListener('mouseup',stop,true);
+    };
+  }
+  function installAll(){
+    document.querySelectorAll('.window').forEach(install);
+  }
+  window.installFinalWindowDrag=installAll;
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installAll);
+  else installAll();
+  setTimeout(installAll,100);
+  setTimeout(installAll,500);
+  setTimeout(installAll,1200);
+  setTimeout(installAll,2500);
+  new MutationObserver(function(){installAll()}).observe(document.body,{childList:true,subtree:true});
+})();
+</script>
