@@ -2615,3 +2615,55 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
  setTimeout(cleanMediaBox,300);setTimeout(cleanMediaBox,1000);
 })();
 </script>
+<!-- ===== MEDIA FINAL POSITION FIX 2026-09-20 ===== -->
+<style id="media-final-position-fix-2026-09-20">
+/* Remove every dashboard summary box from the media area. */
+#mediaStage + #summary,
+#mediaStage + .dashboard-summary,
+#mediaStage + .dashboard-summary-inside,
+#mediaStage ~ #summary,
+#mediaStage .dashboard-summary,
+#mediaStage .dashboard-summary-inside{display:none!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;box-shadow:none!important;background:transparent!important}
+/* Keep the delete list inside the media player area; never let it hang below the module. */
+#mediaStage{position:relative!important;overflow:visible!important}
+#mediaDeleteList{
+ position:absolute!important;
+ left:10px!important;right:10px!important;
+ bottom:58px!important;top:auto!important;
+ z-index:20000!important;
+ max-height:175px!important;overflow-y:auto!important;
+ margin:0!important;padding:7px!important;
+ background:#fff!important;border:2px solid #a80000!important;
+ border-radius:8px!important;box-shadow:0 6px 18px rgba(0,0,0,.55)!important
+}
+#mediaDeleteList:not(.show){display:none!important}
+#mediaDeleteList.show{display:block!important}
+#mediaDeleteList .media-delete-row{background:#fff!important;color:#111!important}
+/* Only the two navigation arrows inside the player are visible. */
+#mediaStage .dashboard-slider-controls>.slider-arrow{display:none!important}
+#mediaStageContent .media-inner-arrow{display:flex!important;position:absolute!important;top:50%!important;transform:translateY(-50%)!important}
+#mediaStageContent .media-inner-arrow.left{left:7px!important}
+#mediaStageContent .media-inner-arrow.right{right:7px!important}
+</style>
+<script id="media-final-position-fix-js-2026-09-20">
+(function(){
+  function fixMedia(){
+    document.querySelectorAll('#mediaStage + #summary,#mediaStage + .dashboard-summary,#mediaStage + .dashboard-summary-inside').forEach(function(e){e.remove()});
+    var stage=document.getElementById('mediaStage');
+    if(!stage)return;
+    stage.style.setProperty('position','relative','important');
+    var list=document.getElementById('mediaDeleteList');
+    if(list){
+      stage.appendChild(list);
+      list.style.setProperty('position','absolute','important');
+      list.style.setProperty('left','10px','important');
+      list.style.setProperty('right','10px','important');
+      list.style.setProperty('bottom','58px','important');
+      list.style.setProperty('top','auto','important');
+      list.style.setProperty('z-index','20000','important');
+    }
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fixMedia);else fixMedia();
+  setTimeout(fixMedia,300);setTimeout(fixMedia,1000);setTimeout(fixMedia,2000);
+})();
+</script>
