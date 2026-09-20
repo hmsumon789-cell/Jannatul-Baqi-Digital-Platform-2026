@@ -2770,3 +2770,29 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
   if(document.body)mo.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['style','class']});
 })();
 </script>
+
+<!-- ===== DASHBOARD SUMMARY VISIBILITY FINAL FIX 2026-09-20 ===== -->
+<style id="dashboard-summary-visibility-final-2026-09-20">
+.dashboard-slider{overflow:visible!important;height:auto!important;min-height:0!important;}
+.dashboard-slider > section#summary.dashboard-summary.dashboard-summary-inside{display:grid!important;visibility:visible!important;opacity:1!important;height:auto!important;min-height:82px!important;overflow:visible!important;}
+</style>
+<script id="dashboard-summary-visibility-final-js-2026-09-20">
+(function(){
+ function forceSummary(){
+   var s=document.getElementById('summary');
+   if(!s)return;
+   var p=s.closest('.dashboard-slider');
+   if(!p)return;
+   p.style.setProperty('overflow','visible','important');
+   p.style.setProperty('height','auto','important');
+   p.style.setProperty('min-height','0','important');
+   s.style.setProperty('display','grid','important');
+   s.style.setProperty('visibility','visible','important');
+   s.style.setProperty('opacity','1','important');
+   s.style.setProperty('height','auto','important');
+   s.style.setProperty('min-height','82px','important');
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',forceSummary);else forceSummary();
+ [100,500,1200,2500].forEach(function(t){setTimeout(forceSummary,t)});
+})();
+</script>
