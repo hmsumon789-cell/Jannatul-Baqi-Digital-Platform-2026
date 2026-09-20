@@ -579,6 +579,44 @@ body.gold #formWin .form-language-fixed span{border-radius:999px!important}
 <style id="login-working-final-fix-2026-09-18">
 #mainLoginBtn:disabled{opacity:.7!important;cursor:wait!important;pointer-events:none!important}
 </style>
+<style id="summary-module-final-v140">
+/* ===== VERSION 140: SUMMARY MODULE UNDER PLAYER ===== */
+.dashboard-slider{overflow:visible!important;height:auto!important;min-height:0!important;}
+.dashboard-slider #summary.dashboard-summary-inside{
+  display:grid!important;visibility:visible!important;opacity:1!important;
+  width:100%!important;height:auto!important;min-height:0!important;overflow:visible!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;
+  margin:9px 0 0!important;padding:0!important;
+}
+.dashboard-slider #summary.dashboard-summary-inside .stat{
+  display:flex!important;visibility:visible!important;opacity:1!important;
+  min-height:58px!important;height:auto!important;padding:7px!important;
+  align-items:center!important;justify-content:center!important;
+}
+.dashboard-slider #summary.dashboard-summary-inside .stat b{font-size:21px!important;line-height:1.05!important;}
+@media(max-width:600px){
+  .dashboard-slider #summary.dashboard-summary-inside{grid-template-columns:1fr 1fr!important;gap:5px!important;}
+  .dashboard-slider #summary.dashboard-summary-inside .stat{min-height:52px!important;font-size:10px!important;}
+  .dashboard-slider #summary.dashboard-summary-inside .stat b{font-size:18px!important;}
+}
+</style>
+<script id="summary-module-final-v140-js">
+(function(){
+  function forceSummary(){
+    var s=document.getElementById('summary'), p=document.querySelector('.dashboard-slider');
+    if(!s||!p)return;
+    if(s.parentElement!==p)p.appendChild(s);
+    s.style.setProperty('display','grid','important');
+    s.style.setProperty('visibility','visible','important');
+    s.style.setProperty('opacity','1','important');
+    s.style.setProperty('height','auto','important');
+    p.style.setProperty('overflow','visible','important');
+    p.style.setProperty('height','auto','important');
+  }
+  document.addEventListener('DOMContentLoaded',forceSummary);
+  [300,800,1500].forEach(function(t){setTimeout(forceSummary,t);});
+})();
+</script>
 </head>
 <body>
 <div id="welcomeScreen">
@@ -806,16 +844,23 @@ async function loadApp(){const r=await call('getBootstrap',token);if(!r||!r.ok)r
 function renderModules(){const l=$('leftModules'),r=$('rightModules');l.innerHTML='';r.innerHTML='';modules.forEach((m,i)=>{const b=document.createElement('button');b.className='module';b.textContent=m[1];b.onclick=()=>openModule(m[0]);(i<Math.ceil(modules.length/2)?l:r).appendChild(b)})}
 function fillFeatureSelect(){const s=$('featureSelect');modules.forEach(m=>{const o=document.createElement('option');o.value=m[0];o.textContent=m[1];s.appendChild(o)})}
 function renderStats(x){
-  const arr=[['আয়',x.income],['ব্যয়',x.expense],['মোট ক্যাশ',x.cash],['মোট বকেয়া',x.due],['মোট ছাত্র/ছাত্রী',x.students],['মোট শিক্ষক/শিক্ষিকা',x.teachers],['নির্বাহী পরিষদ সদস্য',x.executives],['নিবন্ধিত মহিলা মাদ্রাসা',x.femaleMadrasa],['নিবন্ধিত পুরুষ মাদ্রাসা',x.maleMadrasa],['আজ উপস্থিত',x.attendanceToday.present],['আজ অনুপস্থিত',x.attendanceToday.absent]];
-  $('summary').innerHTML=arr.map(a=>`<div class="stat"><b>${a[1]??0}</b>${a[0]}</div>`).join('');
-var sum=$('summary'); if(sum) sum.classList.add('dashboard-slider-summary');
-var attendanceBox=[...sum.querySelectorAll('.stat')].find(function(el){return el.textContent.indexOf('আজ উপস্থিত')>=0;});
-if(attendanceBox){
-  var exam=document.createElement('div');exam.className='stat';exam.innerHTML='<b>0</b>পরীক্ষার্থী';attendanceBox.insertAdjacentElement('afterend',exam);
-  var adminBox=document.createElement('div');adminBox.className='stat';adminBox.innerHTML='<b>'+((x.activeAdmins!=null)?x.activeAdmins:0)+'</b>মোট একটিভ/অনলাইন অ্যাডমিন সংখ্যা';exam.insertAdjacentElement('afterend',adminBox);
-  var helpBox=document.createElement('div');helpBox.className='stat quick-help-stat';helpBox.innerHTML='<button class="quick-help-dashboard-btn" onclick="openWindow(\'quickWin\')">🆘 দ্রুত সেবা / হেল্প</button>';attendanceBox.insertAdjacentElement('afterend',helpBox);
-}
-
+  x=x||{};
+  var at=x.attendanceToday||{};
+  var arr=[
+    ['আয়',x.income],['ব্যয়',x.expense],['মোট ক্যাশ',x.cash],['মোট বকেয়া',x.due],
+    ['মোট ছাত্র/ছাত্রী',x.students],['মোট শিক্ষক/শিক্ষিকা',x.teachers],
+    ['নির্বাহী পরিষদ সদস্য',x.executives],['নিবন্ধিত মহিলা মাদ্রাসা',x.femaleMadrasa],
+    ['নিবন্ধিত পুরুষ মাদ্রাসা',x.maleMadrasa],['আজ উপস্থিত',at.present],['আজ অনুপস্থিত',at.absent]
+  ];
+  var sum=$('summary'); if(!sum)return;
+  sum.classList.add('dashboard-slider-summary');
+  sum.innerHTML=arr.map(a=>`<div class="stat"><b>${a[1]??0}</b>${a[0]}</div>`).join('');
+  var attendanceBox=[...sum.querySelectorAll('.stat')].find(function(el){return el.textContent.indexOf('আজ উপস্থিত')>=0;});
+  if(attendanceBox){
+    var exam=document.createElement('div');exam.className='stat';exam.innerHTML='<b>'+((x.examinees!=null)?x.examinees:0)+'</b>পরীক্ষার্থী';attendanceBox.insertAdjacentElement('afterend',exam);
+    var adminBox=document.createElement('div');adminBox.className='stat';adminBox.innerHTML='<b>'+((x.activeAdmins!=null)?x.activeAdmins:0)+'</b>মোট একটিভ/অনলাইন অ্যাডমিন সংখ্যা';exam.insertAdjacentElement('afterend',adminBox);
+    var helpBox=document.createElement('div');helpBox.className='stat quick-help-stat';helpBox.innerHTML='<button class="quick-help-dashboard-btn" onclick="openWindow(\'quickWin\')">🆘 দ্রুত সেবা / হেল্প</button>';attendanceBox.insertAdjacentElement('afterend',helpBox);
+  }
   renderDashboardCharts(x);
 }
 function renderDashboardCharts(x){
