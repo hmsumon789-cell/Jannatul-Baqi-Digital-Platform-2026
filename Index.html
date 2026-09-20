@@ -697,8 +697,7 @@ body.gold #formWin .form-language-fixed span{border-radius:999px!important}
           <option value="">সকল ফিচার তালিকা</option>
         </select>
       </div>
-      <h2>প্রশাসনিক ড্যাশবোর্ড</h2>
-      <div class="dashboard-title-right">
+      <h2>প্রশাসনিক ড্যাশবোর্ড</h2>      <div class="dashboard-title-right">
         <button id="accountManagerBtn" class="primary" style="display:none" onclick="openAccountManager()">🔐 Account অনুমোদন</button>
         <select class="field dashboard-lang" id="appLang" onchange="setLang(this.value)">
           <option value="bn">বাংলা</option>
@@ -807,7 +806,8 @@ async function loadApp(){const r=await call('getBootstrap',token);if(!r||!r.ok)r
 function renderModules(){const l=$('leftModules'),r=$('rightModules');l.innerHTML='';r.innerHTML='';modules.forEach((m,i)=>{const b=document.createElement('button');b.className='module';b.textContent=m[1];b.onclick=()=>openModule(m[0]);(i<Math.ceil(modules.length/2)?l:r).appendChild(b)})}
 function fillFeatureSelect(){const s=$('featureSelect');modules.forEach(m=>{const o=document.createElement('option');o.value=m[0];o.textContent=m[1];s.appendChild(o)})}
 function renderStats(x){
-  const arr=[['আয়',x.income],['ব্যয়',x.expense],['মোট ক্যাশ',x.cash],['মোট বকেয়া',x.due],['মোট ছাত্র/ছাত্রী',x.students],['মোট শিক্ষক/শিক্ষিকা',x.teachers],['নির্বাহী পরিষদ সদস্য',x.executives],['নিবন্ধিত মহিলা মাদ্রাসা',x.femaleMadrasa],['নিবন্ধিত পুরুষ মাদ্রাসা',x.maleMadrasa],['আজ উপস্থিত',x.attendanceToday.present],['আজ অনুপস্থিত',x.attendanceToday.absent]];
+  x=x||{}; var at=x.attendanceToday||{};
+  const arr=[['আয়',x.income],['ব্যয়',x.expense],['মোট ক্যাশ',x.cash],['মোট বকেয়া',x.due],['মোট ছাত্র/ছাত্রী',x.students],['মোট শিক্ষক/শিক্ষিকা',x.teachers],['নির্বাহী পরিষদ সদস্য',x.executives],['নিবন্ধিত মহিলা মাদ্রাসা',x.femaleMadrasa],['নিবন্ধিত পুরুষ মাদ্রাসা',x.maleMadrasa],['আজ উপস্থিত',at.present],['আজ অনুপস্থিত',at.absent]];
   $('summary').innerHTML=arr.map(a=>`<div class="stat"><b>${a[1]??0}</b>${a[0]}</div>`).join('');
 var sum=$('summary'); if(sum) sum.classList.add('dashboard-slider-summary');
 var attendanceBox=[...sum.querySelectorAll('.stat')].find(function(el){return el.textContent.indexOf('আজ উপস্থিত')>=0;});
@@ -823,7 +823,7 @@ function renderDashboardCharts(x){
   const income=Number(x.income)||0, expense=Number(x.expense)||0, cash=Number(x.cash)||0, due=Number(x.due)||0;
   const max=Math.max(income,expense,cash,due,1);
   const pct=v=>Math.max(4,Math.round(v/max*100));
-  const p=Number(x.attendanceToday.present)||0, a=Number(x.attendanceToday.absent)||0, total=p+a, pp=total?Math.round(p/total*100):0;
+  const p=Number(at.present)||0, a=Number(at.absent)||0, total=p+a, pp=total?Math.round(p/total*100):0;
   const periods=['দৈনিক','সাপ্তাহিক','মাসিক','বাৎসরিক'];
   $('dashboardCharts').innerHTML=`
     <div class="chart-card">
@@ -1072,7 +1072,36 @@ function downloadCurrentForm(){
     span.style.padding='3px';
     el.replaceWith(span);
   });
-  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title></head><body><h2>'+($('winTitle').textContent||'ফর্ম')+'</h2>'+body.innerHTML+'</body></html>';
+  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title></head><body><h2>'+($('winTitle').textContent||'ফর্ম')+'</h2>'+body.innerHTML+'
+<!-- ===== DASHBOARD SUMMARY ROBUST FIX 2026-09-20 ===== -->
+<style id="dashboard-summary-robust-fix-2026-09-20">
+.dashboard-slider{overflow:visible!important;height:auto!important;min-height:0!important;}
+.dashboard-slider #summary.dashboard-summary-inside{display:grid!important;visibility:visible!important;opacity:1!important;height:auto!important;min-height:82px!important;overflow:visible!important;margin:10px 0 0!important;}
+.dashboard-slider #summary.dashboard-summary-inside .stat{display:flex!important;visibility:visible!important;opacity:1!important;min-height:82px!important;align-items:center!important;justify-content:center!important;}
+</style>
+<script id="dashboard-summary-robust-fix-js-2026-09-20">
+(function(){
+  function showDashboardSummary(){
+    var s=document.getElementById('summary');
+    if(!s)return;
+    var p=s.closest('.dashboard-slider');
+    if(p){
+      p.style.setProperty('overflow','visible','important');
+      p.style.setProperty('height','auto','important');
+      p.style.setProperty('min-height','0','important');
+    }
+    s.style.setProperty('display','grid','important');
+    s.style.setProperty('visibility','visible','important');
+    s.style.setProperty('opacity','1','important');
+    s.style.setProperty('height','auto','important');
+    s.style.setProperty('min-height','82px','important');
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',showDashboardSummary);else showDashboardSummary();
+  [100,500,1200,2500].forEach(function(t){setTimeout(showDashboardSummary,t)});
+})();
+</script>
+
+</body></html>';
   var blob=new Blob([html],{type:'text/html;charset=utf-8'});
   var url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url;a.download=title+'.html';document.body.appendChild(a);a.click();a.remove();
@@ -1397,8 +1426,7 @@ body.gold .form-grid input.field{border-radius:0!important}
 .header-logout-final{min-height:52px!important;font-size:16px!important;font-weight:900!important;white-space:nowrap!important;}
 
 body.dark .header-search-row-final{background:#000!important;border-color:#ff1f2f!important;}
-body.dark .header-signal,body.dark .header-all-search-input{background:#111!important;color:#fff!important;border-color:#ffcc33!important;}
-body.dark .header-all-search-label{color:#ffe95c!important;}
+body.dark .header-signal,body.dark .header-all-search-input{background:#111!important;color:#fff!important;border-color:#ffcc33!important;}body.dark .header-all-search-label{color:#ffe95c!important;}
 
 @media(max-width:900px){
  .header-control-row{flex-wrap:wrap!important;}
@@ -2097,8 +2125,7 @@ body{padding-top:0!important}
 .dashboard-slider .slider-center-controls{background:#f4d56b!important;color:#171000!important}
 .dashboard-slider .media-stage{border:3px solid #d40000!important;border-radius:0!important;position:relative!important;display:block!important;background:#f4d56b!important}
 .dashboard-slider .media-stage-content{width:100%!important;height:210px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:#f4d56b!important}
-.dashboard-slider .media-stage-content img{max-width:100%!important;max-height:100%!important;object-fit:contain!important}
-.dashboard-slider .media-stage-content video{max-width:100%!important;max-height:100%!important;background:#f4d56b!important}
+.dashboard-slider .media-stage-content img{max-width:100%!important;max-height:100%!important;object-fit:contain!important}.dashboard-slider .media-stage-content video{max-width:100%!important;max-height:100%!important;background:#f4d56b!important}
 .dashboard-slider .media-stage-content audio{width:min(90%,700px)!important}
 .dashboard-slider .dashboard-slider-controls{position:relative!important;left:auto!important;right:auto!important;bottom:auto!important;margin:0!important;padding:7px!important;border-top:2px solid #d40000!important;z-index:5!important;justify-content:center!important;gap:8px!important}
 .dashboard-slider .slider-arrow{position:absolute!important;top:50%!important;transform:translateY(-50%)!important;z-index:6!important;background:#f4d56b!important;color:#111!important;border-color:#d40000!important}
@@ -2596,7 +2623,7 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
 (function(){
  function cleanMediaBox(){
    var s=document.getElementById('summary');
-   if(s)s.style.setProperty('display','none','important');
+   if(s)s.style.removeProperty('display');
    var p=document.getElementById('mediaStageContent');
    if(p)p.querySelectorAll('.media-center-badge,.media-arrow-new').forEach(function(x){x.remove()});
    var stage=document.getElementById('mediaStage');
