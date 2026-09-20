@@ -2244,3 +2244,24 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
  window.deleteCurrentMedia=function(){if(!media||!media.length)return toast('ডিলেট করার মিডিয়া নেই।');deleteMediaByIndex(mediaIndex)};
 })();
 </script>
+
+<!-- ===== ALL WINDOWS ABOVE HEADER — SAFE Z-INDEX ONLY ===== -->
+<style id="all-windows-above-header-safe-2026-09-20">
+/* Windows/forms/search profile appear above the header without changing login layout. */
+.window,.window.show,#formWin,#searchWin,.search-profile{
+  position:fixed!important;
+  z-index:2147483000!important;
+}
+.window .win-head{z-index:2147483001!important;}
+</style>
+<script id="all-windows-above-header-safe-js-2026-09-20">
+(function(){
+  function lift(){
+    document.querySelectorAll('.window').forEach(function(w){
+      w.style.zIndex='2147483000';
+    });
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',lift);else lift();
+  setTimeout(lift,300);setTimeout(lift,1000);
+})();
+</script>
