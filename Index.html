@@ -2536,3 +2536,52 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
 })();
 </script>
 <style id="final-drive-frame-css-2026-09-20">#mediaStageContent .drive-media-frame{width:100%!important;height:100%!important;border:0!important;background:#111!important;display:block!important}</style>
+
+<!-- ===== MEDIA FINAL LAYOUT + PLAYBACK + INNER ARROWS 2026-09-20 ===== -->
+<style id="media-final-layout-2026-09-20">
+/* বড় হলুদ summary/box সরানো; player ও controls পরিষ্কার রাখা */
+#mediaStage>.dashboard-summary-inside,#mediaStage #summary{display:none!important}
+#mediaStageContent{background:#111!important;border:2px solid #a80000!important;border-radius:6px!important;position:relative!important}
+#mediaStageContent .media-inner-arrow{position:absolute!important;top:50%!important;transform:translateY(-50%)!important;z-index:50!important;width:44px!important;height:58px!important;border-radius:8px!important;background:rgba(255,210,40,.9)!important;color:#8b0000!important;border:2px solid #a80000!important;font-size:30px!important;font-weight:900!important;display:flex!important;align-items:center!important;justify-content:center!important;cursor:pointer!important}
+#mediaStageContent .media-inner-arrow.left{left:8px!important}.media-inner-arrow.right{right:8px!important}
+#mediaStageContent .media-center-badge{display:none!important}
+.dashboard-slider-controls>.slider-arrow{display:none!important}
+#mediaStageContent video{width:100%!important;height:100%!important;object-fit:contain!important;background:#111!important}
+#mediaStageContent .drive-media-frame{width:100%!important;height:100%!important;border:0!important;background:#111!important;display:block!important}
+</style>
+<script id="media-final-layout-js-2026-09-20">
+(function(){
+ function driveId(u){var m=String(u||'').match(/[?&]id=([^&]+)/);if(m)return m[1];m=String(u||'').match(/\/d\/([^/]+)/);return m?m[1]:''}
+ function draw(){
+   var box=document.getElementById('mediaStageContent');if(!box)return;
+   box.querySelectorAll('.media-inner-arrow').forEach(function(x){x.remove()});
+   if(!window.media||!media.length)return;
+   box.insertAdjacentHTML('beforeend','<button type="button" class="media-inner-arrow left" onclick="prevMedia()" aria-label="আগের">❮</button><button type="button" class="media-inner-arrow right" onclick="nextMedia()" aria-label="পরের">❯</button>');
+ }
+ window.renderMedia=function(){
+   var box=document.getElementById('mediaStageContent');if(!box)return;
+   if(!window.media||!media.length){box.innerHTML='<span>মিডিয়া লোড করে দেখুন</span>';return;}
+   mediaIndex=((Number(mediaIndex)||0)%media.length+media.length)%media.length;
+   var x=media[mediaIndex],u=String(x.DataURL||''),t=String(x.Type||'').toLowerCase(),id=driveId(u);
+   if(t==='image')box.innerHTML='<img src="'+u+'" alt="" style="width:100%;height:100%;object-fit:contain;background:#111">';
+   else if(t==='video'){
+     /* Drive preview বাদ দিয়ে native video; দ্রুত play/seek support */
+     var src=id?'https://drive.google.com/uc?export=download&id='+encodeURIComponent(id):u;
+     box.innerHTML='<video src="'+src+'" controls playsinline preload="metadata" style="width:100%;height:100%;object-fit:contain;background:#111"></video>';
+   }else{
+     var src2=id?'https://drive.google.com/uc?export=download&id='+encodeURIComponent(id):u;
+     box.innerHTML='<audio src="'+src2+'" controls preload="metadata" style="width:90%"></audio>';
+   }
+   draw();
+ };
+ window.toggleMediaPlay=function(){
+   var el=document.querySelector('#mediaStageContent video,#mediaStageContent audio');
+   if(!el)return;
+   if(el.paused){var p=el.play();if(p&&p.catch)p.catch(function(){toast('মিডিয়া চালু হয়নি—একবার প্লেয়ারের ▶ চাপুন।')});}
+   else el.pause();
+ };
+ function start(){draw()}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
+ setTimeout(start,500);setTimeout(start,1200);
+})();
+</script>
