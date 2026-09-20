@@ -2667,3 +2667,50 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
   setTimeout(fixMedia,300);setTimeout(fixMedia,1000);setTimeout(fixMedia,2000);
 })();
 </script>
+
+<!-- ===== RESTORE DASHBOARD SUMMARY BOXES 2026-09-20 ===== -->
+<style id="restore-dashboard-summary-2026-09-20">
+/* Restore the dashboard statistic boxes directly below the media player. */
+#mediaStage + #summary,
+#mediaStage + .dashboard-summary,
+#mediaStage + .dashboard-summary-inside{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:8px!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  margin:10px 0 0!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+#mediaStage + #summary .stat,
+#mediaStage + .dashboard-summary .stat,
+#mediaStage + .dashboard-summary-inside .stat{
+  display:block!important;
+  min-height:72px!important;
+  padding:12px 8px!important;
+  border:3px solid var(--border)!important;
+  background:var(--panel)!important;
+  color:var(--text)!important;
+  text-align:center!important;
+}
+#mediaStage + #summary .stat b,
+#mediaStage + .dashboard-summary .stat b,
+#mediaStage + .dashboard-summary-inside .stat b{
+  display:block!important;
+  font-size:24px!important;
+}
+@media(max-width:900px){
+ #mediaStage + #summary,
+ #mediaStage + .dashboard-summary,
+ #mediaStage + .dashboard-summary-inside{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:520px){
+ #mediaStage + #summary,
+ #mediaStage + .dashboard-summary,
+ #mediaStage + .dashboard-summary-inside{grid-template-columns:1fr!important}
+}
+</style>
