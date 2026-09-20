@@ -2049,3 +2049,119 @@ body.dark .all-search-label-final{background:#000!important;color:#ffe95c!import
 </script>
 </body>
 </html>
+
+
+
+<!-- ===== REQUESTED FINAL RESTORE: HOME / FIXED TOP BAR / DRAG ALL WINDOWS / MEDIA / LISTS ===== -->
+<style id="requested-final-restore-2026-09-20">
+.header-search-row-final{
+  position:fixed!important;top:0!important;left:50%!important;transform:translateX(-50%)!important;
+  width:min(1450px,calc(100vw - 24px))!important;z-index:999999!important;
+  box-shadow:0 5px 18px #0006!important;
+}
+body{padding-top:0!important}
+#app{padding-top:70px!important}
+.header-search-row-final .header-home-final{display:inline-flex!important;align-items:center!important;justify-content:center!important}
+.header-search-row-final .header-mode-icons{display:flex!important;align-items:center!important;justify-content:center!important}
+/* Player and its controls are always GOLDEN, independent of Light/Dark/Golden mode. */
+.dashboard-slider,.dashboard-slider .media-stage,.dashboard-slider .dashboard-slider-controls,
+.dashboard-slider .slider-center-controls{background:#f4d56b!important;color:#171000!important}
+.dashboard-slider .media-stage{border:3px solid #d40000!important;border-radius:0!important;position:relative!important;flex-direction:column!important}
+.dashboard-slider .media-stage-content{width:100%!important;height:100%!important;display:flex!important;align-items:center!important;justify-content:center!important;background:#f4d56b!important}
+.dashboard-slider .media-stage-content img{max-width:100%!important;max-height:100%!important;object-fit:contain!important}
+.dashboard-slider .media-stage-content video{max-width:100%!important;max-height:100%!important;background:#f4d56b!important}
+.dashboard-slider .media-stage-content audio{width:min(90%,700px)!important}
+.dashboard-slider .dashboard-slider-controls{position:absolute!important;left:0!important;right:0!important;bottom:0!important;margin:0!important;padding:7px!important;border-top:2px solid #d40000!important;z-index:5!important;justify-content:center!important;gap:8px!important}
+.dashboard-slider .slider-arrow{position:absolute!important;top:50%!important;transform:translateY(-50%)!important;z-index:6!important;background:#f4d56b!important;color:#111!important;border-color:#d40000!important}
+.dashboard-slider .slider-arrow:first-child{left:6px!important}.dashboard-slider .slider-arrow:last-child{right:6px!important}
+.dashboard-slider .slider-center-controls{display:flex!important;gap:6px!important;justify-content:center!important;padding:0!important}
+.dashboard-slider .slider-action{background:#f4d56b!important;color:#111!important;border:2px solid #d40000!important;border-radius:6px!important;font-weight:900!important}
+.media-list-item{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px;border:2px solid #d40000;background:#f4d56b;color:#111;margin-top:5px}
+/* Every popup window can be dragged with the mouse by its title bar. */
+.window{touch-action:none}
+.window .win-head{cursor:move!important}
+/* Dashboard list */
+.module-list-window{width:min(1250px,97vw)!important}
+.module-list-table th,.module-list-table td{white-space:nowrap;vertical-align:top}
+.list-actions{display:flex;flex-wrap:wrap;gap:4px;min-width:420px}
+.list-actions button{padding:5px 8px!important;border-radius:5px!important;font-size:12px!important}
+.list-edit-input{min-width:110px;width:100%;padding:5px;border:1px solid #d40000;background:#fff;color:#111}
+.list-detail-card{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;padding:10px;border:2px solid #d40000;background:#fffdf0;color:#111;margin-bottom:8px}
+.list-detail-card .detail-item{border:1px solid #d40000;padding:6px}.list-detail-card b{display:block;font-size:11px}.list-detail-card span{font-weight:700;word-break:break-word}
+@media(max-width:900px){.header-search-row-final{width:calc(100vw - 10px)!important}.list-actions{min-width:300px}.list-detail-card{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){#app{padding-top:125px!important}.header-search-row-final{flex-wrap:wrap!important}.list-detail-card{grid-template-columns:1fr}}
+</style>
+<script id="requested-final-restore-2026-09-20-js">
+(function(){
+  var baseOpenModule=window.openModule;
+  var baseOpenWindow=window.openWindow;
+  var LIST_LABELS={students:'ছাত্র/ছাত্রী তালিকা',teachers:'শিক্ষক/শিক্ষিকা তালিকা',exams:'পরীক্ষার্থী তালিকা',admins:'অ্যাডমিন তালিকা',madrasas:'নতুন নিবন্ধনকৃত মাদ্রাসার তালিকা'};
+  var LIST_SHEETS={students:'STUDENTS',teachers:'TEACHERS',exams:'EXAM_REG',admins:'ADMINS',madrasas:'MADRASAS'};
+  var LIST_HEADS={
+    students:['StudentID','NameBN','NameAR','NameEN','Mobile','Class','Department','Branch'],
+    teachers:['TeacherID','NameBN','NameAR','NameEN','Mobile','Department','Branch'],
+    exams:['ExamRegID','StudentID','Exam','Class','Branch','Status'],
+    admins:['AdminID','NameBN','Username','Email','Mobile','Role','Status'],
+    madrasas:['MadrasaID','Name','FoundedYear','Address','Mobile','StaffCount','StudentCount','Status','Username']
+  };
+  var currentListKey='',currentListRows=[];
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]})}
+  window.escapeHtml=window.escapeHtml||esc;
+  function ensureListWindow(){
+    var w=document.getElementById('moduleListWin');
+    if(w)return w;
+    w=document.createElement('div');w.id='moduleListWin';w.className='window module-list-window';
+    w.innerHTML='<div class="win-head"><b id="moduleListTitle">তালিকা</b><span><button class="secondary" type="button" onclick="printModuleList()">🖨️</button><button class="secondary" type="button" onclick="downloadModuleList()">⬇️</button><button class="secondary" type="button" onclick="closeWindow(\'moduleListWin\')">✕</button></span></div><div class="win-body" id="moduleListBody"></div>';
+    document.body.appendChild(w);dragWindow(w);return w;
+  }
+  function showList(key){
+    currentListKey=key;var w=ensureListWindow();
+    $('moduleListTitle').textContent=LIST_LABELS[key]||key;
+    $('moduleListBody').innerHTML='<p>⏳ তালিকা লোড হচ্ছে...</p>';baseOpenWindow('moduleListWin');
+    call('getModuleList',token,key).then(function(r){
+      if(!r||!r.ok){$('moduleListBody').innerHTML='<p>'+esc((r&&r.message)||'তালিকা পাওয়া যায়নি।')+'</p>';return}
+      currentListRows=r.rows||[];renderList();
+    }).catch(function(e){$('moduleListBody').innerHTML='<p>সার্ভার ত্রুটি: '+esc(e&&e.message?e.message:e)+'</p>'});
+  }
+  function renderList(){
+    var rows=currentListRows,heads=LIST_HEADS[currentListKey]||[];
+    var h='<div class="table-wrap"><table class="data-table module-list-table"><thead><tr>'+heads.map(function(x){return '<th>'+esc(x)+'</th>'}).join('')+'<th>কার্যক্রম</th></tr></thead><tbody>';
+    if(!rows.length)h+='<tr><td colspan="'+(heads.length+1)+'">কোন তথ্য পাওয়া যায়নি।</td></tr>';
+    rows.forEach(function(r,i){h+='<tr id="listRow'+i+'">'+heads.map(function(k){return '<td data-key="'+esc(k)+'">'+esc(r[k])+'</td>'}).join('')+'<td><div class="list-actions"><button class="secondary" onclick="listDetail('+i+')">📄 বিস্তারিত</button><button class="secondary" onclick="listEdit('+i+')">✏️ এডিট</button><button class="primary" onclick="listSave('+i+')">💾 সেভ/সংরক্ষণ</button><button class="secondary" onclick="listPrintOne('+i+')">🖨️ প্রিন্ট</button><button class="secondary" onclick="listDownloadOne('+i+')">⬇️ ডাউনলোড</button><button class="secondary" onclick="listPayment('+i+')">💳 পেমেন্ট</button></div></td></tr>'});
+    $('moduleListBody').innerHTML=h+'</tbody></table></div>';
+  }
+  window.loadModuleList=showList;window.renderModuleList=renderList;
+  window.listDetail=function(i){var r=currentListRows[i]||{},heads=LIST_HEADS[currentListKey]||Object.keys(r);var html='<div class="list-detail-card">'+heads.map(function(k){return '<div class="detail-item"><b>'+esc(k)+'</b><span>'+esc(r[k])+'</span></div>'}).join('')+'</div><button class="secondary" onclick="renderList()">↩ তালিকায় ফিরুন</button>';$('moduleListBody').innerHTML=html};
+  window.listEdit=function(i){var r=currentListRows[i]||{},heads=LIST_HEADS[currentListKey]||Object.keys(r),row=document.getElementById('listRow'+i);if(!row)return;heads.forEach(function(k){var td=row.querySelector('[data-key="'+CSS.escape(k)+'"]');if(td)td.innerHTML='<input class="list-edit-input" data-edit-key="'+esc(k)+'" value="'+esc(r[k])+'">'});toast('✏️ এডিট মোড চালু হয়েছে। শেষে সেভ/সংরক্ষণ চাপুন।')};
+  window.listSave=function(i){var r=currentListRows[i]||{},row=document.getElementById('listRow'+i);if(!row)return;var data={},heads=LIST_HEADS[currentListKey]||[];heads.forEach(function(k){var x=row.querySelector('[data-edit-key="'+CSS.escape(k)+'"]');if(x)data[k]=x.value});if(!Object.keys(data).length)return toast('আগে ✏️ এডিট চাপুন।');var serial=r.Serial;call('updateRecord',token,LIST_SHEETS[currentListKey],serial,data).then(function(v){if(v&&v.ok){Object.keys(data).forEach(function(k){r[k]=data[k]});toast('সেভ/সংরক্ষণ সফল হয়েছে।');renderList()}else toast((v&&v.message)||'সেভ ব্যর্থ হয়েছে।')}).catch(function(e){toast('সেভ সার্ভার ত্রুটি: '+(e&&e.message?e.message:e))})};
+  window.listPrintOne=function(i){var r=currentListRows[i]||{};var title=LIST_LABELS[currentListKey]||'তালিকা';var html='<h2>'+esc(title)+'</h2><table border="1" cellspacing="0" cellpadding="6">'+Object.keys(r).map(function(k){return '<tr><th>'+esc(k)+'</th><td>'+esc(r[k])+'</td></tr>'}).join('')+'</table>';var w=window.open('','_blank');w.document.write('<!doctype html><html><body>'+html+'</body></html>');w.document.close();w.print()};
+  window.listDownloadOne=function(i){var r=currentListRows[i]||{};var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(r,null,2)],{type:'application/json'}));a.download=(LIST_LABELS[currentListKey]||'record')+'-'+(r.Serial||i+1)+'.json';document.body.appendChild(a);a.click();a.remove()};
+  window.printModuleList=function(){var box=$('moduleListBody');if(!box)return;var w=window.open('','_blank');w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>'+esc(LIST_LABELS[currentListKey]||'List')+'</title><style>body{font-family:Arial}.data-table{border-collapse:collapse;width:100%}.data-table th,.data-table td{border:1px solid #333;padding:5px}.list-actions{display:none!important}</style></head><body><h2>'+esc(LIST_LABELS[currentListKey]||'List')+'</h2>'+box.innerHTML+'</body></html>');w.document.close();setTimeout(function(){w.print()},300)};
+  window.downloadModuleList=function(){var data=JSON.stringify(currentListRows,null,2),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type:'application/json'}));a.download=(LIST_LABELS[currentListKey]||'List')+'.json';document.body.appendChild(a);a.click();a.remove()};
+  window.listPayment=function(i){var r=currentListRows[i]||{};baseOpenModule('payment');setTimeout(function(){if($('pStudent'))$('pStudent').value=r.StudentID||r.StudentID||r.MadrasaID||r.AdminID||'';if($('pName'))$('pName').value=r.NameBN||r.Name||''},50)};
+  window.openModule=function(key){if(LIST_LABELS[key])return showList(key);return baseOpenModule(key)};
+  window.openWindow=function(id){baseOpenWindow(id);var w=document.getElementById(id);if(w&&!w.dataset.dragReady){dragWindow(w);w.dataset.dragReady='1'}};
+  function initAllDrags(){document.querySelectorAll('.window').forEach(function(w){if(!w.dataset.dragReady){dragWindow(w);w.dataset.dragReady='1'}})}
+  function playCurrent(){
+    if(!media.length)return toast('কোন মিডিয়া নেই।');
+    var box=$('mediaStageContent');if(!box)return;
+    var el=box.querySelector('video,audio');
+    if(el){if(el.paused){el.play().then(function(){$('mediaPlayBtn').textContent='⏸ Pause'}).catch(function(){toast('এই মিডিয়া প্লে করার অনুমতি পাওয়া যায়নি।')})}else{el.pause();$('mediaPlayBtn').textContent='▶ Play'}}
+    else {startImageSlide()}
+  }
+  var slideTimer=null;
+  function startImageSlide(){clearInterval(slideTimer);if(!media.length)return;slideTimer=setInterval(function(){nextMedia()},5000);$('mediaPlayBtn').textContent='⏸ Pause'}
+  window.toggleMediaPlay=playCurrent;
+  window.renderMedia=function(){
+    var box=$('mediaStageContent');if(!box)return;if(!media.length){box.innerHTML='<span>মিডিয়া আপলোড করে স্লাইড দেখুন</span>';return}
+    clearInterval(slideTimer);var x=media[mediaIndex%media.length],u=String(x.DataURL||'');
+    if(x.Type==='image')box.innerHTML='<img src="'+esc(u)+'" alt="'+esc(x.Name||'')+'">';
+    else if(x.Type==='video')box.innerHTML='<video src="'+esc(u)+'" controls preload="metadata"></video>';
+    else box.innerHTML='<audio src="'+esc(u)+'" controls preload="metadata"></audio>';
+    var b=$('mediaPlayBtn');if(b)b.textContent='▶ Play';
+    if(typeof renderMediaList==='function')renderMediaList();
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initAllDrags);else initAllDrags();
+  setTimeout(initAllDrags,500);
+})();
+</script>
