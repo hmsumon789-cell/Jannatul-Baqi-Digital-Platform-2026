@@ -256,6 +256,21 @@ function getModulesForSession_(token){
   const allowed=String(a.Permissions||'').split(',').map(x=>x.trim()).filter(Boolean);
   return all.filter(x=>allowed.includes(x[0]) || x[0]==='institution' || x[0]==='help');
 }
+function getModuleList(token,key){
+  auth_(token);
+  const map={
+    students:[SHEETS.STUDENTS,'student'],
+    teachers:[SHEETS.TEACHERS,'teacher'],
+    exams:[SHEETS.EXAM_REG,'exam'],
+    admins:[SHEETS.ADMINS,'admin'],
+    madrasas:[SHEETS.MADRASAS,'madrasa']
+  };
+  const item=map[String(key||'')];
+  if(!item) return {ok:false,message:'তালিকা ফিচার পাওয়া যায়নি।'};
+  requireFeature_(token,item[1]);
+  return {ok:true,key:String(key),rows:listRows_(item[0],token,5000)};
+}
+
 function isSuperAdmin_(token){
   const s=auth_(token), a=findBy_(SHEETS.ADMINS,'Username',s.username)||{};
   return String(a.Role||'').toUpperCase()==='SUPER_ADMIN' || String(a.Role||'').toUpperCase()==='SUPERADMIN';
@@ -618,7 +633,7 @@ function getModules_(){
     ['result','রেজাল্ট কার্ড'],['contact','কন্টাক্ট ম্যানেজ'],['tc','টিসি/ছাড়পত্র'],['admin','নতুন অ্যাডমিন একাউন্ট'],
     ['madrasa','নতুন মাদ্রাসা নিবন্ধন'],['admission','অনলাইন ভর্তি'],['payment','অনলাইন পেমেন্ট'],['attendance','ডিজিটাল হাজিরা'],
     ['gallery','ফটো গ্যালারি'],['files','অল ডকুমেন্টস/ফাইল'],['excel','Excel শীট'],['sms','SMS পোর্টাল'],
-    ['students','ছাত্র/ছাত্রী তালিকা'],['admins','অ্যাডমিন তালিকা'],['exams','পরীক্ষার্থী তালিকা'],['certificate','সার্টিফিকেট'],
+    ['students','ছাত্র/ছাত্রী তালিকা'],['teachers','শিক্ষক/শিক্ষিকা তালিকা'],['exams','পরীক্ষার্থী তালিকা'],['admins','অ্যাডমিন তালিকা'],['madrasas','নতুন নিবন্ধনকৃত মাদ্রাসার তালিকা'],['certificate','সার্টিফিকেট'],
     ['receipt','মানিরিসিট'],['accountControl','অনুমোদন + ফিচার পারমিশন'],['maleMadrasa','নিবন্ধনকৃত পুরুষ মাদ্রাসা'],['femaleMadrasa','নিবন্ধনকৃত মহিলা মাদ্রাসা'],['help','পরামর্শ+যোগ+অভিযোগ']
   ];
 }
