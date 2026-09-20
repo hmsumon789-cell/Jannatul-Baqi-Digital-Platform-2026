@@ -2345,3 +2345,72 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
   new MutationObserver(function(){installAll()}).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
+
+<!-- ===== CLEAN MEDIA PLAYER + BUTTON LAYOUT FIX 2026-09-20 ===== -->
+<style id="clean-media-player-fix-2026-09-20">
+#mediaStage{background:linear-gradient(145deg,#ffe58a,#d8a62c 55%,#f7d96a)!important;border:3px solid #a80000!important;padding:8px!important}
+#mediaStageContent{position:relative!important;height:245px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:#e8bd45!important;border:3px solid #a80000!important;overflow:hidden!important}
+#mediaStageContent img,#mediaStageContent video{width:100%!important;height:100%!important;object-fit:contain!important}
+#mediaStageContent audio{width:82%!important}
+.dashboard-slider-controls{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;margin-top:8px!important;padding:8px!important;background:linear-gradient(180deg,#ffe99a,#d9a72e)!important;border:2px solid #a80000!important}
+.dashboard-slider-controls .slider-center-controls{display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;flex:1!important}
+.dashboard-slider-controls button{position:static!important;transform:none!important;min-width:95px!important;min-height:40px!important;background:linear-gradient(180deg,#fff0ad,#d5a32b)!important;color:#281600!important;border:2px solid #a80000!important;font-weight:900!important}
+.dashboard-slider-controls .slider-arrow{width:46px!important;min-width:46px!important;height:42px!important}
+.media-center-badge{position:absolute!important;top:8px!important;left:50%!important;transform:translateX(-50%)!important;z-index:5!important;padding:4px 12px!important;border-radius:20px!important;background:#ffe98a!important;border:2px solid #a80000!important;color:#4a2400!important;font-weight:900!important}
+</style>
+<script id="clean-media-player-fix-js-2026-09-20">
+(function(){
+  function cleanExtraControls(){
+    document.querySelectorAll('.media-player-controls').forEach(function(x){x.remove()});
+  }
+  function renderClean(){
+    var box=document.getElementById('mediaStageContent');
+    if(!box)return;
+    cleanExtraControls();
+    if(!window.media||!media.length){
+      box.innerHTML='<span class="media-center-badge">মিডিয়া আপলোড করে স্লাইড দেখুন</span>';
+      var pb=document.getElementById('mediaPlayBtn');if(pb)pb.textContent='▶ Play';
+      return;
+    }
+    mediaIndex=((Number(mediaIndex)||0)%media.length+media.length)%media.length;
+    var x=media[mediaIndex],u=String(x.DataURL||'');
+    var badge='<span class="media-center-badge">'+(typeof esc==='function'?esc(x.Name||('Media '+(mediaIndex+1))):'Media')+'</span>';
+    if(x.Type==='image')box.innerHTML=badge+'<img src="'+u+'" alt="">';
+    else if(x.Type==='video')box.innerHTML=badge+'<video src="'+u+'" controls playsinline preload="metadata"></video>';
+    else box.innerHTML=badge+'<audio src="'+u+'" controls preload="metadata"></audio>';
+    box.insertAdjacentHTML('beforeend','<button class="media-arrow-new left" type="button" onclick="prevMedia()">❮</button><button class="media-arrow-new right" type="button" onclick="nextMedia()">❯</button>');
+    var pb=document.getElementById('mediaPlayBtn');if(pb)pb.textContent='▶ Play';
+    if(typeof renderMediaList==='function')renderMediaList();
+  }
+  window.renderMedia=renderClean;
+  window.toggleMediaPlay=function(){
+    var el=document.querySelector('#mediaStageContent video,#mediaStageContent audio');
+    var pb=document.getElementById('mediaPlayBtn');
+    if(el){
+      if(el.paused){
+        var p=el.play();
+        if(p&&p.then)p.then(function(){if(pb)pb.textContent='⏸ Pause'}).catch(function(){if(pb)pb.textContent='▶ Play';toast('এই মিডিয়া প্লে করা যাচ্ছে না।')});
+      }else{el.pause();if(pb)pb.textContent='▶ Play'}
+    }else if(window.media&&media.length){
+      if(window.dashboardMediaPlaying){
+        window.dashboardMediaPlaying=false;clearInterval(window.dashboardMediaTimer);if(pb)pb.textContent='▶ Play';
+      }else{
+        window.dashboardMediaPlaying=true;clearInterval(window.dashboardMediaTimer);
+        window.dashboardMediaTimer=setInterval(function(){nextMedia()},5000);
+        if(pb)pb.textContent='⏸ Pause';
+      }
+    }
+  };
+  window.nextMedia=function(){if(window.media&&media.length){mediaIndex=(Number(mediaIndex)+1)%media.length;renderClean()}};
+  window.prevMedia=function(){if(window.media&&media.length){mediaIndex=(Number(mediaIndex)-1+media.length)%media.length;renderClean()}};
+  window.deleteCurrentMedia=async function(){
+    if(!window.media||!media.length)return toast('ডিলেট করার মিডিয়া নেই।');
+    var x=media[mediaIndex];
+    var r=await call('deleteMedia',token,x.Serial);
+    if(r&&r.ok){media.splice(mediaIndex,1);mediaIndex=media.length?mediaIndex%media.length:0;renderClean();toast('মিডিয়া মুছে ফেলা হয়েছে।')}else toast((r&&r.message)||'ডিলিট ব্যর্থ');
+  };
+  function start(){cleanExtraControls();if(window.media&&media.length)renderClean()}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
+  setTimeout(start,500);setTimeout(start,1500);
+})();
+</script>
