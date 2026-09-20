@@ -2206,7 +2206,7 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
      w.style.transform='none';w.style.left=r.left+'px';w.style.top=r.top+'px';
      function move(ev){
        var x=r.left+ev.clientX-sx,y=r.top+ev.clientY-sy;
-       var maxX=Math.max(0,window.innerWidth-w.offsetWidth),maxY=Math.max(0,window.innerHeight-8);
+       var maxX=Math.max(0,window.innerWidth-w.offsetWidth),maxY=Math.max(0,window.innerHeight-1);
        w.style.left=Math.max(0,Math.min(maxX,x))+'px';w.style.top=Math.max(0,Math.min(maxY,y))+'px';
      }
      function up(){document.removeEventListener('mousemove',move);document.removeEventListener('mouseup',up)}
