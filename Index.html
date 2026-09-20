@@ -806,8 +806,7 @@ async function loadApp(){const r=await call('getBootstrap',token);if(!r||!r.ok)r
 function renderModules(){const l=$('leftModules'),r=$('rightModules');l.innerHTML='';r.innerHTML='';modules.forEach((m,i)=>{const b=document.createElement('button');b.className='module';b.textContent=m[1];b.onclick=()=>openModule(m[0]);(i<Math.ceil(modules.length/2)?l:r).appendChild(b)})}
 function fillFeatureSelect(){const s=$('featureSelect');modules.forEach(m=>{const o=document.createElement('option');o.value=m[0];o.textContent=m[1];s.appendChild(o)})}
 function renderStats(x){
-  x=x||{}; var at=x.attendanceToday||{};
-  const arr=[['আয়',x.income],['ব্যয়',x.expense],['মোট ক্যাশ',x.cash],['মোট বকেয়া',x.due],['মোট ছাত্র/ছাত্রী',x.students],['মোট শিক্ষক/শিক্ষিকা',x.teachers],['নির্বাহী পরিষদ সদস্য',x.executives],['নিবন্ধিত মহিলা মাদ্রাসা',x.femaleMadrasa],['নিবন্ধিত পুরুষ মাদ্রাসা',x.maleMadrasa],['আজ উপস্থিত',at.present],['আজ অনুপস্থিত',at.absent]];
+  const arr=[['আয়',x.income],['ব্যয়',x.expense],['মোট ক্যাশ',x.cash],['মোট বকেয়া',x.due],['মোট ছাত্র/ছাত্রী',x.students],['মোট শিক্ষক/শিক্ষিকা',x.teachers],['নির্বাহী পরিষদ সদস্য',x.executives],['নিবন্ধিত মহিলা মাদ্রাসা',x.femaleMadrasa],['নিবন্ধিত পুরুষ মাদ্রাসা',x.maleMadrasa],['আজ উপস্থিত',x.attendanceToday.present],['আজ অনুপস্থিত',x.attendanceToday.absent]];
   $('summary').innerHTML=arr.map(a=>`<div class="stat"><b>${a[1]??0}</b>${a[0]}</div>`).join('');
 var sum=$('summary'); if(sum) sum.classList.add('dashboard-slider-summary');
 var attendanceBox=[...sum.querySelectorAll('.stat')].find(function(el){return el.textContent.indexOf('আজ উপস্থিত')>=0;});
@@ -823,7 +822,7 @@ function renderDashboardCharts(x){
   const income=Number(x.income)||0, expense=Number(x.expense)||0, cash=Number(x.cash)||0, due=Number(x.due)||0;
   const max=Math.max(income,expense,cash,due,1);
   const pct=v=>Math.max(4,Math.round(v/max*100));
-  const p=Number(at.present)||0, a=Number(at.absent)||0, total=p+a, pp=total?Math.round(p/total*100):0;
+  const p=Number(x.attendanceToday.present)||0, a=Number(x.attendanceToday.absent)||0, total=p+a, pp=total?Math.round(p/total*100):0;
   const periods=['দৈনিক','সাপ্তাহিক','মাসিক','বাৎসরিক'];
   $('dashboardCharts').innerHTML=`
     <div class="chart-card">
@@ -1072,36 +1071,7 @@ function downloadCurrentForm(){
     span.style.padding='3px';
     el.replaceWith(span);
   });
-  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title></head><body><h2>'+($('winTitle').textContent||'ফর্ম')+'</h2>'+body.innerHTML+'
-<!-- ===== DASHBOARD SUMMARY ROBUST FIX 2026-09-20 ===== -->
-<style id="dashboard-summary-robust-fix-2026-09-20">
-.dashboard-slider{overflow:visible!important;height:auto!important;min-height:0!important;}
-.dashboard-slider #summary.dashboard-summary-inside{display:grid!important;visibility:visible!important;opacity:1!important;height:auto!important;min-height:82px!important;overflow:visible!important;margin:10px 0 0!important;}
-.dashboard-slider #summary.dashboard-summary-inside .stat{display:flex!important;visibility:visible!important;opacity:1!important;min-height:82px!important;align-items:center!important;justify-content:center!important;}
-</style>
-<script id="dashboard-summary-robust-fix-js-2026-09-20">
-(function(){
-  function showDashboardSummary(){
-    var s=document.getElementById('summary');
-    if(!s)return;
-    var p=s.closest('.dashboard-slider');
-    if(p){
-      p.style.setProperty('overflow','visible','important');
-      p.style.setProperty('height','auto','important');
-      p.style.setProperty('min-height','0','important');
-    }
-    s.style.setProperty('display','grid','important');
-    s.style.setProperty('visibility','visible','important');
-    s.style.setProperty('opacity','1','important');
-    s.style.setProperty('height','auto','important');
-    s.style.setProperty('min-height','82px','important');
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',showDashboardSummary);else showDashboardSummary();
-  [100,500,1200,2500].forEach(function(t){setTimeout(showDashboardSummary,t)});
-})();
-</script>
-
-</body></html>';
+  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title></head><body><h2>'+($('winTitle').textContent||'ফর্ম')+'</h2>'+body.innerHTML+'</body></html>';
   var blob=new Blob([html],{type:'text/html;charset=utf-8'});
   var url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url;a.download=title+'.html';document.body.appendChild(a);a.click();a.remove();
@@ -2623,7 +2593,7 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
 (function(){
  function cleanMediaBox(){
    var s=document.getElementById('summary');
-   if(s)s.style.removeProperty('display');
+   if(s)s.style.setProperty('display','none','important');
    var p=document.getElementById('mediaStageContent');
    if(p)p.querySelectorAll('.media-center-badge,.media-arrow-new').forEach(function(x){x.remove()});
    var stage=document.getElementById('mediaStage');
