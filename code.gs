@@ -238,19 +238,24 @@ function createDirectSession_(username,type){
 }
 
 function getModulesForSession_(token){
-  const s=auth_(token), all=getModules_();
+  const s = auth_(token);
+  // Role check is intentionally first so Super Admin always receives the
+  // complete feature list even if the ADMIN row has incomplete Permissions.
+  if(s.accountType !== 'madrasa'){
+    const a = findBy_(SHEETS.ADMINS,'Username',s.username)||{};
+    const role = String(a.Role||'').toUpperCase().replace(/\\s+/g,'_');
+    if(role==='SUPER_ADMIN' || role==='SUPERADMIN') return getModules_();
+  }
+  const all = getModules_();
   if(s.accountType==='madrasa'){
     const m=findBy_(SHEETS.MADRASAS,'Username',s.username)||{};
     const allowed=String(m.Permissions||'').split(',').map(x=>x.trim()).filter(Boolean);
     return all.filter(x=>allowed.includes(x[0]) || x[0]==='institution' || x[0]==='help');
   }
   const a=findBy_(SHEETS.ADMINS,'Username',s.username)||{};
-  const role=String(a.Role||'').toUpperCase();
-  if(role==='SUPER_ADMIN' || role==='SUPERADMIN') return all;
   const allowed=String(a.Permissions||'').split(',').map(x=>x.trim()).filter(Boolean);
   return all.filter(x=>allowed.includes(x[0]) || x[0]==='institution' || x[0]==='help');
 }
-
 function isSuperAdmin_(token){
   const s=auth_(token), a=findBy_(SHEETS.ADMINS,'Username',s.username)||{};
   return String(a.Role||'').toUpperCase()==='SUPER_ADMIN' || String(a.Role||'').toUpperCase()==='SUPERADMIN';
@@ -342,12 +347,19 @@ function logout(token) {
 
 function getBootstrap(token) {
   auth_(token);
+  // Dashboard bootstrap must never lose the Feature buttons because one
+  // optional dashboard component (stats/media/notices) failed.
+  const modules = getModulesForSession_(token);
+  let stats = {income:0,expense:0,cash:0,due:0,students:0,teachers:0,executives:0,femaleMadrasa:0,maleMadrasa:0,attendanceToday:{present:0,absent:0}};
+  let media = [];
+  let notices = [];
+  try { stats = getStats(token); } catch(e) {}
+  try { media = listMedia(token); } catch(e) {}
+  try { notices = listRows_(SHEETS.NOTICES,token,20); } catch(e) {}
   return {
     ok:true, institution:APP,
-    stats:getStats(token),
-    media:listMedia(token),
-    notices:listRows_(SHEETS.NOTICES,token,20),
-    modules:getModulesForSession_(token),
+    stats, media, notices,
+    modules,
     classes:getClasses_()
   };
 }
