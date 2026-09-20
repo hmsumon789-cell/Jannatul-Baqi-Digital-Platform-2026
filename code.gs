@@ -444,20 +444,50 @@ function sendQuickService(token,data) {
   return {ok:true,message:'মেসেজ পাঠানো হয়েছে।'};
 }
 
+function getMediaRules_(){
+  return {video:{maxMB:50,maxCount:50},audio:{maxMB:50,maxCount:50},image:{maxMB:20,maxCount:100}};
+}
+function mediaDriveFolder_(){
+  const name='Jannatul Baqi Digital Platform - Media 2026';
+  const it=DriveApp.getFoldersByName(name);
+  return it.hasNext()?it.next():DriveApp.createFolder(name);
+}
+function mediaDriveUrl_(fileId){ return 'https://drive.google.com/uc?export=download&id='+encodeURIComponent(fileId); }
 function saveMedia(token,item) {
   auth_(token); requireFeature_(token,'gallery');
   if(!item || !item.dataUrl) return {ok:false,message:'ফাইল পাওয়া যায়নি।'};
+  const type=String(item.type||'').toLowerCase(), rules=getMediaRules_()[type];
+  if(!rules) return {ok:false,message:'শুধু ফটো, ভিডিও বা অডিও ফাইল অনুমোদিত।'};
+  const size=Number(item.size||0);
+  if(size>rules.maxMB*1024*1024) return {ok:false,message:type==='image'?'ফটোর সর্বোচ্চ সীমা 20 MB।':'ভিডিও/অডিওর সর্বোচ্চ সীমা 50 MB।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
-  sh.appendRow([nextSerial_(sh),'MED-'+Date.now(),item.type,item.name||'',item.dataUrl,item.mimeType||'',item.size||0,item.sort||0,'ACTIVE',now_()]);
-  return {ok:true};
+  const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
+  if(rows.length>=rules.maxCount) return {ok:false,message:type==='image'?'সর্বোচ্চ 100টি ফটো রাখা যাবে।':'সর্বোচ্চ 50টি '+(type==='video'?'ভিডিও':'অডিও')+' রাখা যাবে।'};
+  const raw=String(item.dataUrl).split(',')[1]||''; if(!raw)return {ok:false,message:'ফাইল ডাটা পাওয়া যায়নি।'};
+  const blob=Utilities.newBlob(Utilities.base64Decode(raw),item.mimeType||'application/octet-stream',item.name||('media-'+Date.now()));
+  const file=mediaDriveFolder_().createFile(blob);
+  try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
+  const serial=nextSerial_(sh), mediaId='MED-'+Date.now();
+  sh.appendRow([serial,mediaId,type,item.name||'','DRIVE:'+file.getId(),item.mimeType||'',size,item.sort||0,'ACTIVE',now_()]);
+  return {ok:true,serial:serial,mediaId:mediaId};
 }
-
 function listMedia(token) {
   auth_(token);
-  return listRows_(SHEETS.MEDIA,token,200).filter(x=>String(x.Status).toUpperCase()==='ACTIVE');
+  return listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE').map(function(x){
+    if(String(x.DataURL||'').indexOf('DRIVE:')===0){const id=String(x.DataURL).slice(6);x.DataURL=mediaDriveUrl_(id);x.DriveFileId=id;}
+    return x;
+  });
 }
-
-function deleteMedia(token,serial) { return deleteRecord(token,SHEETS.MEDIA,serial); }
+function deleteMedia(token,serial) {
+  auth_(token); requireFeature_(token,'gallery');
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA), last=sh.getLastRow();
+  if(last<2)return {ok:false,message:'মিডিয়া পাওয়া যায়নি।'};
+  const vals=sh.getRange(2,1,last-1,10).getValues(), idx=vals.findIndex(function(r){return String(r[0])===String(serial);});
+  if(idx<0)return {ok:false,message:'মিডিয়া পাওয়া যায়নি।'};
+  const dataUrl=String(vals[idx][4]||'');
+  if(dataUrl.indexOf('DRIVE:')===0){try{DriveApp.getFileById(dataUrl.slice(6)).setTrashed(true);}catch(e){}}
+  sh.deleteRow(idx+2); return {ok:true};
+}
 
 function uploadFile(token,item) {
   auth_(token); requireFeature_(token,'files');
