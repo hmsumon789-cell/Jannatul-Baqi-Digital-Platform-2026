@@ -598,62 +598,6 @@ function getSignals_(){
     ['idc','আইডি কার্ড'],['adc','এডমিট কার্ড'],['rct','রিসিট'],['tcp','টিসি/ছাড়পত্র'],['sjs','শ্রেনি/ক্লাশ-জামাত']
   ];
 }
-function getListData(token,listType){
-  auth_(token);
-  const cfg={
-    students:{sheet:SHEETS.STUDENTS,feature:'student',title:'ছাত্র/ছাত্রী তালিকা'},
-    teachers:{sheet:SHEETS.TEACHERS,feature:'teacher',title:'শিক্ষক/শিক্ষিকা তালিকা'},
-    exams:{sheet:SHEETS.EXAM_REG,feature:'exam',title:'পরীক্ষার্থী তালিকা'},
-    admins:{sheet:SHEETS.ADMINS,feature:'admin',title:'অ্যাডমিন তালিকা'},
-    madrasas:{sheet:SHEETS.MADRASAS,feature:'madrasa',title:'নতুন নিবন্ধনকৃত মাদ্রাসার তালিকা'}
-  };
-  const c=cfg[String(listType||'').toLowerCase()];
-  if(!c) return {ok:false,message:'তালিকার ধরন সঠিক নয়।'};
-  if(c.sheet===SHEETS.ADMINS || c.sheet===SHEETS.MADRASAS){
-    if(!isSuperAdmin_(token)) return {ok:false,message:'এই তালিকা দেখার অনুমতি শুধু Super Admin-এর।'};
-  }else requireFeature_(token,c.feature);
-  return {ok:true,title:c.title,sheet:c.sheet,headers:HEADERS[c.sheet]||[],rows:listRows_(c.sheet,token,5000)};
-}
-
-function updateListData(token,listType,serial,data){
-  auth_(token);
-  const cfg={
-    students:{sheet:SHEETS.STUDENTS,feature:'student'},
-    teachers:{sheet:SHEETS.TEACHERS,feature:'teacher'},
-    exams:{sheet:SHEETS.EXAM_REG,feature:'exam'},
-    admins:{sheet:SHEETS.ADMINS,feature:'admin'},
-    madrasas:{sheet:SHEETS.MADRASAS,feature:'madrasa'}
-  };
-  const c=cfg[String(listType||'').toLowerCase()];
-  if(!c) return {ok:false,message:'তালিকার ধরন সঠিক নয়।'};
-  if(c.sheet===SHEETS.ADMINS || c.sheet===SHEETS.MADRASAS){
-    if(!isSuperAdmin_(token)) return {ok:false,message:'এই তালিকা সংরক্ষণ করার অনুমতি শুধু Super Admin-এর।'};
-  }else requireFeature_(token,c.feature);
-  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(c.sheet);
-  if(!sh) return {ok:false,message:'শিট পাওয়া যায়নি।'};
-  const vals=sh.getDataRange().getValues(), h=vals[0];
-  const idx=vals.findIndex((row,i)=>i>0 && String(row[0])===String(serial));
-  if(idx<1) return {ok:false,message:'রেকর্ড পাওয়া যায়নি।'};
-  Object.keys(data||{}).forEach(function(k){
-    const j=h.indexOf(k);
-    if(j>0) sh.getRange(idx+1,j+1).setValue(data[k]);
-  });
-  log_(sessionUser_(token),'update_list',c.sheet,String(serial));
-  return {ok:true,message:'সংরক্ষণ হয়েছে।'};
-}
-
-function getModuleList(token,key){
-  try{
-    auth_(token);
-    key=String(key||'').trim().toLowerCase();
-    const map={students:[SHEETS.STUDENTS,'student'],teachers:[SHEETS.TEACHERS,'teacher'],exams:[SHEETS.EXAM_REG,'exam'],admins:[SHEETS.ADMINS,'admin'],madrasas:[SHEETS.MADRASAS,'madrasa']};
-    const item=map[key];
-    if(!item) return {ok:false,message:'তালিকা সঠিক নয়।'};
-    requireFeature_(token,item[1]);
-    return {ok:true,key:key,rows:listRows_(item[0],token,5000)};
-  }catch(e){return {ok:false,message:'তালিকা লোড ত্রুটি: '+(e&&e.message?e.message:e)};}
-}
-
 function getModules_(){
   return [
     ['institution','প্রতিষ্ঠান পরিচিতি'],['student','ছাত্র/ছাত্রী অ্যাড করুন'],['teacher','শিক্ষক/শিক্ষিকা অ্যাড করুন'],['donor','দাতা সদস্য অ্যাড করুন'],
@@ -661,9 +605,8 @@ function getModules_(){
     ['finance','আয়+ব্যয়'],['marks','মার্কশিট'],['idcard','আইডি কার্ড'],['admit','অ্যাডমিট কার্ড'],['entry','প্রবেশ পত্র'],
     ['result','রেজাল্ট কার্ড'],['contact','কন্টাক্ট ম্যানেজ'],['tc','টিসি/ছাড়পত্র'],['admin','নতুন অ্যাডমিন একাউন্ট'],
     ['madrasa','নতুন মাদ্রাসা নিবন্ধন'],['admission','অনলাইন ভর্তি'],['payment','অনলাইন পেমেন্ট'],['attendance','ডিজিটাল হাজিরা'],
-    ['gallery','ফটো গ্যালারি'],['files','অল ডকুমেন্টস/ফাইল'],['excel','Excel শীট'],
-    ['students','ছাত্র/ছাত্রী তালিকা'],['teachers','শিক্ষক/শিক্ষিকা তালিকা'],['exams','পরীক্ষার্থী তালিকা'],['admins','অ্যাডমিন তালিকা'],['madrasas','নতুন নিবন্ধনকৃত মাদ্রাসার তালিকা'],
-    ['sms','SMS পোর্টাল'],['certificate','সার্টিফিকেট'],['receipt','মানিরিসিট'],['accountControl','অনুমোদন + ফিচার পারমিশন'],
-    ['maleMadrasa','নিবন্ধনকৃত পুরুষ মাদ্রাসা'],['femaleMadrasa','নিবন্ধনকৃত মহিলা মাদ্রাসা'],['help','পরামর্শ+যোগ+অভিযোগ']
+    ['gallery','ফটো গ্যালারি'],['files','অল ডকুমেন্টস/ফাইল'],['excel','Excel শীট'],['sms','SMS পোর্টাল'],
+    ['students','ছাত্র/ছাত্রী তালিকা'],['admins','অ্যাডমিন তালিকা'],['exams','পরীক্ষার্থী তালিকা'],['certificate','সার্টিফিকেট'],
+    ['receipt','মানিরিসিট'],['accountControl','অনুমোদন + ফিচার পারমিশন'],['maleMadrasa','নিবন্ধনকৃত পুরুষ মাদ্রাসা'],['femaleMadrasa','নিবন্ধনকৃত মহিলা মাদ্রাসা'],['help','পরামর্শ+যোগ+অভিযোগ']
   ];
 }
