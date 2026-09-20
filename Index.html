@@ -948,32 +948,45 @@ async function saveResult(k){const d={StudentID:$('rStudent').value,Name:$('rNam
 async function uploadMedia(){
   const input=$('mediaFiles');
   if(!input||!input.files||!input.files.length)return toast('প্রথমে ফটো/ভিডিও/অডিও নির্বাচন করুন।');
-  const fs=[...input.files];
+  const CHUNK=256*1024;
   let uploaded=0,failed=0;
+  const fs=[...input.files];
   try{
     for(const f of fs){
       const type=f.type.startsWith('image/')?'image':f.type.startsWith('video/')?'video':f.type.startsWith('audio/')?'audio':'';
       if(!type){failed++;toast(f.name+' অনুমোদিত নয়।');continue}
       const max=type==='image'?20:50;
       if(f.size>max*1024*1024){failed++;toast(f.name+' — সর্বোচ্চ '+max+' MB।');continue}
-      toast('আপলোড হচ্ছে: '+f.name);
-      const data=await readFile(f);
-      const r=await call('saveMedia',token,{type:type,name:f.name,mimeType:f.type,size:f.size,dataUrl:data});
-      if(!r||!r.ok){failed++;toast((r&&r.message)||('আপলোড ব্যর্থ: '+f.name));continue}
-      uploaded++;
+      toast('আপলোড শুরু: '+f.name);
+      const begin=await call('startMediaUpload',token,{type:type,name:f.name,mimeType:f.type,size:f.size});
+      if(!begin||!begin.ok){failed++;toast((begin&&begin.message)||'আপলোড শুরু হয়নি।');continue}
+      let ok=true, index=0;
+      for(let offset=0;offset<f.size;offset+=CHUNK){
+        const blob=f.slice(offset,Math.min(offset+CHUNK,f.size));
+        const data=await new Promise(function(resolve,reject){
+          const rd=new FileReader();
+          rd.onload=function(){try{resolve(String(rd.result).split(',')[1]||'')}catch(e){reject(e)}};
+          rd.onerror=reject;rd.readAsDataURL(blob);
+        });
+        const r=await call('uploadMediaChunk',token,begin.uploadId,index,data);
+        if(!r||!r.ok){ok=false;toast((r&&r.message)||('Chunk '+(index+1)+' আপলোড ব্যর্থ'));break}
+        index++;
+        const pct=Math.min(99,Math.round(offset/f.size*100));
+        toast('আপলোড হচ্ছে: '+f.name+' — '+pct+'%');
+      }
+      if(!ok){failed++;continue}
+      const finish=await call('finishMediaUpload',token,begin.uploadId);
+      if(!finish||!finish.ok){failed++;toast((finish&&finish.message)||('ফাইল সম্পন্ন করা যায়নি: '+f.name));continue}
+      uploaded++;toast('আপলোড সম্পন্ন: '+f.name);
     }
-    media=await call('listMedia',token);
-    media=Array.isArray(media)?media:[];
+    media=await call('listMedia',token);media=Array.isArray(media)?media:[];
     mediaIndex=media.length?Math.min(mediaIndex,media.length-1):0;
-    renderMedia();
-    if(typeof renderMediaList==='function')renderMediaList();
+    renderMedia();if(typeof renderMediaList==='function')renderMediaList();
     if(uploaded&&failed)toast(uploaded+'টি আপলোড হয়েছে, '+failed+'টি ব্যর্থ।');
     else if(uploaded)toast(uploaded+'টি মিডিয়া সফলভাবে আপলোড হয়েছে।');
     else toast('কোনো মিডিয়া আপলোড হয়নি।');
     input.value='';
-  }catch(e){
-    toast('আপলোডে সার্ভার ত্রুটি: '+(e&&e.message?e.message:String(e)));
-  }
+  }catch(e){toast('আপলোডে সার্ভার ত্রুটি: '+(e&&e.message?e.message:String(e)))}
 }
 function renderMediaList(){const box=$('mediaList');if(!box)return;box.innerHTML=media.map(function(x,i){return '<div class="media-list-item"><span>'+escapeHtml(x.Name||('Media '+(i+1)))+'</span><button type="button" class="secondary" onclick="deleteMediaByIndex('+i+')">🗑 Delete</button></div>';}).join('');}
 async function deleteMediaByIndex(i){if(!media[i])return;const r=await call('deleteMedia',token,media[i].Serial);if(r&&r.ok){media.splice(i,1);if(mediaIndex>=media.length)mediaIndex=Math.max(0,media.length-1);renderMedia();renderMediaList();toast('মিডিয়া মুছে ফেলা হয়েছে।')}else toast((r&&r.message)||'ডিলিট ব্যর্থ')}
