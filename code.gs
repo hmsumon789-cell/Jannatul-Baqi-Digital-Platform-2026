@@ -538,6 +538,28 @@ function finishMediaUpload(token,uploadId){
   chunks.forEach(function(f){try{f.setTrashed(true);}catch(e){}}); metas.forEach(function(f){try{f.setTrashed(true);}catch(e){}});
   return {ok:true,serial:serial,mediaId:mediaId};
 }
+function saveMediaForm(form){
+  const token=String(form&&form.token||'');
+  auth_(token); requireFeature_(token,'gallery');
+  const blob=form&&form.mediaFile;
+  if(!blob || typeof blob.getBytes!=='function') return {ok:false,message:'ফাইল পাওয়া যায়নি।'};
+  const mime=String(blob.getContentType()||'application/octet-stream');
+  const type=String(form.type||'').toLowerCase();
+  const rules=getMediaRules_()[type];
+  if(!rules)return {ok:false,message:'মিডিয়া টাইপ সঠিক নয়।'};
+  const size=Number(blob.getBytes().length||0);
+  if(size<=0)return {ok:false,message:'ফাইল খালি।'};
+  if(size>rules.maxMB*1024*1024)return {ok:false,message:type==='image'?'ফটোর সর্বোচ্চ সীমা 20 MB।':'ভিডিও/অডিওর সর্বোচ্চ সীমা 50 MB।'};
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
+  const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
+  if(rows.length>=rules.maxCount)return {ok:false,message:type==='image'?'সর্বোচ্চ 100টি ফটো রাখা যাবে।':'সর্বোচ্চ 50টি '+(type==='video'?'ভিডিও':'অডিও')+' রাখা যাবে।'};
+  const name=String(blob.getName()||('media-'+Date.now()));
+  const file=mediaDriveFolder_().createFile(blob.setName(name));
+  try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
+  const serial=nextSerial_(sh),mediaId='MED-'+Date.now();
+  sh.appendRow([serial,mediaId,type,name,'DRIVE:'+file.getId(),mime,size,0,'ACTIVE',now_()]);
+  return {ok:true,serial:serial,mediaId:mediaId};
+}
 function saveMedia(token,item) {
   auth_(token); requireFeature_(token,'gallery');
   if(!item || !item.dataUrl) return {ok:false,message:'ফাইল পাওয়া যায়নি।'};
