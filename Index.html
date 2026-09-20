@@ -670,6 +670,7 @@ body.gold #formWin .form-language-fixed span{border-radius:999px!important}
 
     <!-- HEADER LINE 3: ৩ মোড | সংকেত+বিষয় | ID SEARCH | ডানে Logout -->
     <div class="header-search-row-final">
+      <button class="primary header-home-final" onclick="goHome()" title="Home">🏠 হোম</button>
       <div class="header-modes header-mode-icons">
         <button class="mode" onclick="setMode('dark')" title="Dark">🌙</button>
         <button class="mode" onclick="setMode('light')" title="Light">☀️</button>
@@ -1041,7 +1042,7 @@ function dragWindow(el){
     el.style.left=r.left+'px';el.style.top=r.top+'px';
     function mv(ev){
       let x=r.left+ev.clientX-sx, y=r.top+ev.clientY-sy;
-      const maxX=Math.max(0,window.innerWidth-el.offsetWidth), maxY=Math.max(0,window.innerHeight-48);
+      const maxX=Math.max(0,window.innerWidth-el.offsetWidth), maxY=Math.max(0,window.innerHeight-8);
       x=Math.max(0,Math.min(maxX,x)); y=Math.max(0,Math.min(maxY,y));
       el.style.left=x+'px';el.style.top=y+'px';
     }
@@ -1913,6 +1914,81 @@ body.gold #formWin select.field,body.gold #formWin input.field{border-radius:7px
 body.gold .all-search-label-final{background:#ffd54a!important;color:#111!important;border-color:#b00000!important}
 body.dark .all-search-label-final{background:#000!important;color:#ffe95c!important;border-color:#ff1f2f!important}
 @media(max-width:700px){.header-search-row-final{flex-wrap:wrap!important}.all-search-label-final{width:100%!important}.header-search-row-final>*{min-width:0!important}}
+<style id="header-home-sticky-and-window-drag-2026-09-20">
+/* ===== USER REQUEST: HOME + MODES + SIGNAL + ID/MOBILE/EMAIL SEARCH + LOGOUT ALWAYS VISIBLE ===== */
+.header-search-row-final{
+  position:sticky!important;
+  top:0!important;
+  z-index:9999!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  width:100%!important;
+  min-height:58px!important;
+  padding:6px!important;
+  background:var(--panel)!important;
+  border:2px solid var(--border)!important;
+  box-shadow:0 5px 14px #0004!important;
+  overflow:visible!important;
+}
+.header-home-final{
+  flex:0 0 auto!important;
+  min-width:92px!important;
+  min-height:44px!important;
+  font-weight:900!important;
+  white-space:nowrap!important;
+}
+.header-search-row-final .header-mode-icons{
+  flex:0 0 auto!important;
+  display:flex!important;
+  gap:5px!important;
+}
+.header-search-row-final .header-signal-wrap{
+  flex:0 1 190px!important;
+  min-width:145px!important;
+}
+.header-search-row-final .header-id-search-wrap{
+  flex:1 1 auto!important;
+  display:flex!important;
+  gap:6px!important;
+  min-width:220px!important;
+}
+.header-search-row-final .header-all-search-input{
+  flex:1 1 auto!important;
+  min-width:120px!important;
+  min-height:44px!important;
+}
+.header-search-row-final .header-id-search-btn{
+  flex:0 0 auto!important;
+  min-width:82px!important;
+  min-height:44px!important;
+  white-space:nowrap!important;
+}
+.header-search-row-final .header-logout-final{
+  flex:0 0 auto!important;
+  min-width:105px!important;
+  min-height:44px!important;
+  white-space:nowrap!important;
+}
+@media(max-width:900px){
+  .header-search-row-final{flex-wrap:wrap!important}
+  .header-home-final{min-width:86px!important}
+  .header-search-row-final .header-signal-wrap{flex:1 1 180px!important}
+  .header-search-row-final .header-id-search-wrap{flex:1 1 300px!important}
+}
+@media(max-width:600px){
+  .header-search-row-final{position:sticky!important;top:0!important}
+  .header-search-row-final>*{min-width:0!important}
+  .header-search-row-final .header-id-search-wrap{flex-basis:100%!important}
+  .header-search-row-final .header-signal-wrap{flex:1 1 150px!important}
+  .header-search-row-final .header-logout-final{flex:1 1 90px!important}
+}
+
+/* ===== USER REQUEST: ALL FORM / SEARCH-PROFILE WINDOWS DRAGGABLE ===== */
+.window{will-change:left,top!important}
+.window .win-head{cursor:move!important;user-select:none!important}
+.search-profile{max-width:100%!important}
+</style>
 </style>
 <script id="safe-location-allsearch-fix-js-2026-09-18">
 (function(){
@@ -1942,7 +2018,7 @@ body.dark .all-search-label-final{background:#000!important;color:#ffe95c!import
   function ensurePost(p){var u=el(p,'Union'),w=el(p,'Ward');if(u&&!el(p,'Post')){var lab=document.createElement('label');lab.innerHTML='ডাকঘর<select id="'+p+'PostSelect" class="field"></select><input id="'+p+'PostManual" class="field location-manual" placeholder="হাতে লিখুন / অন্যটি">';if(w&&w.closest('label'))w.closest('label').before(lab)}}
   function bind(p){ensurePost(p);['Division','District','Upazila','Union'].forEach(function(k){var x=el(p,k);if(x&&!x.dataset.safeLocBound){x.dataset.safeLocBound='1';x.addEventListener('change',function(){cascade(p,k)})}});setList(p,'Division',rows().map(function(r){return r.division}));}
   function bindAll(){['f','ad','r'].forEach(function(p){if(el(p,'Division'))bind(p)})}
-  function addAllSearch(){var row=document.querySelector('.header-search-row-final');if(!row)return;if(!row.querySelector('.all-search-label-final')){var x=document.createElement('div');x.className='all-search-label-final';x.textContent='All Search';row.insertBefore(x,row.firstChild)}row.style.display='flex';row.style.visibility='visible';row.style.opacity='1'}
+  function addAllSearch(){var row=document.querySelector('.header-search-row-final');if(!row)return;var old=row.querySelector('.all-search-label-final');if(old)old.remove();if(!row.querySelector('.header-home-final')){var x=document.createElement('button');x.className='primary header-home-final';x.type='button';x.title='Home';x.textContent='🏠 হোম';x.onclick=function(){goHome()};row.insertBefore(x,row.firstChild)}row.style.display='flex';row.style.visibility='visible';row.style.opacity='1'}
   async function loadLoc(){try{var r=await call('getLocations');LOC=Array.isArray(r)?r:(r&&Array.isArray(r.data)?r.data:[])}catch(e){LOC=[]}addAllSearch();bindAll()}
   function start(){addAllSearch();loadLoc();bindAll()}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
