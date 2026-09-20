@@ -2443,3 +2443,63 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
   setTimeout(start,500);setTimeout(start,1500);
 })();
 </script>
+
+<!-- ===== FINAL MEDIA PLAYER / QUICK LOAD / DELETE LIST 2026-09-20 ===== -->
+<style id="final-media-player-2026-09-20">
+#mediaStage{background:transparent!important;border:0!important;padding:0!important;box-shadow:none!important}
+#mediaStageContent{position:relative!important;width:100%!important;height:260px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:#111!important;border:2px solid #a80000!important;border-radius:8px!important;overflow:hidden!important;box-shadow:0 8px 20px rgba(0,0,0,.35)!important}
+#mediaStageContent img,#mediaStageContent video{display:block!important;width:100%!important;height:100%!important;object-fit:contain!important;background:#111!important}
+#mediaStageContent audio{width:90%!important}
+.media-center-badge{background:rgba(255,255,255,.9)!important;color:#222!important;border:1px solid #a80000!important}
+.dashboard-slider-controls{background:transparent!important;border:0!important;padding:8px 0 0!important;margin:0!important;display:flex!important;justify-content:center!important;gap:8px!important}
+.dashboard-slider-controls .slider-center-controls{display:flex!important;gap:8px!important;flex:0 0 auto!important}
+.dashboard-slider-controls button{min-width:88px!important;min-height:38px!important;position:static!important;transform:none!important}
+.media-delete-list{display:none;margin-top:8px;padding:8px;border:2px solid #a80000;background:#fff;border-radius:8px;max-height:220px;overflow:auto}
+.media-delete-list.show{display:block}
+.media-delete-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px;border-bottom:1px solid #ccc;font-size:13px}
+.media-delete-row:last-child{border-bottom:0}.media-delete-row button{min-width:70px}
+</style>
+<script id="final-media-player-2026-09-20-js">
+(function(){
+  function setup(){
+    var controls=document.querySelector('#mediaStage .dashboard-slider-controls');if(!controls)return;
+    var del=controls.querySelector('[onclick*="deleteCurrentMedia"]');
+    if(del){del.textContent='🗑️ ডিলেট';del.title='ডিলেট করলে তালিকা দেখাবে';}
+    var list=document.getElementById('mediaDeleteList');
+    if(!list){list=document.createElement('div');list.id='mediaDeleteList';list.className='media-delete-list';controls.parentElement.appendChild(list);}
+  }
+  window.deleteCurrentMedia=function(){
+    setup();var list=document.getElementById('mediaDeleteList');if(!list)return;
+    if(!media||!media.length){list.innerHTML='<div>ডিলেট করার কোনো মিডিয়া নেই।</div>';list.classList.add('show');return;}
+    list.innerHTML='<b>ডিলেট করার জন্য একটি মিডিয়া নির্বাচন করুন:</b>'+media.map(function(x,i){
+      var n=typeof escapeHtml==='function'?escapeHtml(x.Name||('Media '+(i+1))):String(x.Name||('Media '+(i+1)));
+      return '<div class="media-delete-row"><span>'+n+'</span><button type="button" class="secondary" onclick="deleteMediaByIndex('+i+')">🗑️ ডিলেট</button></div>';
+    }).join('');list.classList.add('show');
+  };
+  var oldDel=window.deleteMediaByIndex;
+  window.deleteMediaByIndex=async function(i){
+    if(!media||!media[i])return;var x=media[i];
+    var r=await call('deleteMedia',token,x.Serial);
+    if(r&&r.ok){media.splice(i,1);if(mediaIndex>=media.length)mediaIndex=Math.max(0,media.length-1);renderMedia();setup();window.deleteCurrentMedia();toast('মিডিয়া মুছে ফেলা হয়েছে।')}
+    else toast((r&&r.message)||'ডিলেট ব্যর্থ');
+  };
+  window.toggleMediaPlay=function(){
+    var el=document.querySelector('#mediaStageContent video,#mediaStageContent audio');
+    if(!el){if(media&&media.length)nextMedia();return;}
+    if(el.paused){var p=el.play();if(p&&p.catch)p.catch(function(){toast('এই মিডিয়া ব্রাউজারে চালানো যাচ্ছে না।')});}
+    else el.pause();
+  };
+  window.renderMedia=function(){
+    var box=document.getElementById('mediaStageContent');if(!box)return;
+    if(!media||!media.length){box.innerHTML='<span class="media-center-badge">মিডিয়া আপলোড করে দেখুন</span>';return}
+    mediaIndex=((Number(mediaIndex)||0)%media.length+media.length)%media.length;var x=media[mediaIndex],u=String(x.DataURL||'');
+    var badge='<span class="media-center-badge">'+(typeof escapeHtml==='function'?escapeHtml(x.Name||('Media '+(mediaIndex+1))):'Media')+'</span>';
+    if(String(x.Type).toLowerCase()==='image')box.innerHTML=badge+'<img src="'+u+'" alt="">';
+    else if(String(x.Type).toLowerCase()==='video')box.innerHTML=badge+'<video src="'+u+'" controls playsinline preload="auto"></video>';
+    else box.innerHTML=badge+'<audio src="'+u+'" controls preload="auto"></audio>';
+    box.insertAdjacentHTML('beforeend','<button class="media-arrow-new left" type="button" onclick="prevMedia()">❮</button><button class="media-arrow-new right" type="button" onclick="nextMedia()">❯</button>');setup();
+  };
+  function start(){setup();if(window.media&&media.length)renderMedia()}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();setTimeout(start,300);setTimeout(start,1000);
+})();
+</script>
