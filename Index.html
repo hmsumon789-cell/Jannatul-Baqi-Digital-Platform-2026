@@ -2569,3 +2569,49 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
  setTimeout(clean,300);setTimeout(clean,1000);setTimeout(clean,2000);
 })();
 </script>
+<!-- ===== MEDIA BOX CLEANUP + DELETE LIST POSITION FIX 2026-09-20 ===== -->
+<style id="media-box-cleanup-final-2026-09-20">
+/* Remove the large yellow/summary box under the media controls. */
+#mediaStage + .dashboard-summary-inside,
+#mediaStage .dashboard-summary-inside,
+#mediaStage #summary{display:none!important}
+/* Delete list stays attached to the media player, not below the module. */
+#mediaStage{position:relative!important}
+#mediaDeleteList{
+ position:absolute!important;
+ left:12px!important;right:12px!important;top:52px!important;
+ z-index:10000!important;
+ max-height:190px!important;overflow:auto!important;
+ margin:0!important;padding:8px!important;
+ background:#fff8c7!important;border:3px solid #a80000!important;
+ border-radius:8px!important;box-shadow:0 8px 20px #0008!important;
+}
+#mediaDeleteList:not(.show){display:none!important}
+#mediaDeleteList.show{display:block!important}
+#mediaStageContent .media-inner-arrow{display:flex!important}
+#mediaStageContent .media-inner-arrow.left{left:7px!important}
+#mediaStageContent .media-inner-arrow.right{right:7px!important}
+</style>
+<script id="media-box-cleanup-final-js-2026-09-20">
+(function(){
+ function cleanMediaBox(){
+   var s=document.getElementById('summary');
+   if(s)s.style.setProperty('display','none','important');
+   var p=document.getElementById('mediaStageContent');
+   if(p)p.querySelectorAll('.media-center-badge,.media-arrow-new').forEach(function(x){x.remove()});
+   var stage=document.getElementById('mediaStage');
+   if(stage)stage.style.setProperty('position','relative','important');
+   var list=document.getElementById('mediaDeleteList');
+   if(list){
+     list.style.setProperty('position','absolute','important');
+     list.style.setProperty('left','12px','important');
+     list.style.setProperty('right','12px','important');
+     list.style.setProperty('top','52px','important');
+     list.style.setProperty('z-index','10000','important');
+   }
+   if(typeof window.addArrowsForSinglePlayer==='function')window.addArrowsForSinglePlayer();
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',cleanMediaBox);else cleanMediaBox();
+ setTimeout(cleanMediaBox,300);setTimeout(cleanMediaBox,1000);
+})();
+</script>
