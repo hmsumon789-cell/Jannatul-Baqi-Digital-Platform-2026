@@ -948,36 +948,27 @@ async function saveResult(k){const d={StudentID:$('rStudent').value,Name:$('rNam
 async function uploadMedia(){
   const input=$('mediaFiles');
   if(!input||!input.files||!input.files.length)return toast('প্রথমে ফটো/ভিডিও/অডিও নির্বাচন করুন।');
-  const CHUNK=256*1024;
   let uploaded=0,failed=0;
-  const fs=[...input.files];
   try{
-    for(const f of fs){
+    for(const f of [...input.files]){
       const type=f.type.startsWith('image/')?'image':f.type.startsWith('video/')?'video':f.type.startsWith('audio/')?'audio':'';
       if(!type){failed++;toast(f.name+' অনুমোদিত নয়।');continue}
       const max=type==='image'?20:50;
       if(f.size>max*1024*1024){failed++;toast(f.name+' — সর্বোচ্চ '+max+' MB।');continue}
-      toast('আপলোড শুরু: '+f.name);
-      const begin=await call('startMediaUpload',token,{type:type,name:f.name,mimeType:f.type,size:f.size});
-      if(!begin||!begin.ok){failed++;toast((begin&&begin.message)||'আপলোড শুরু হয়নি।');continue}
-      let ok=true, index=0;
-      for(let offset=0;offset<f.size;offset+=CHUNK){
-        const blob=f.slice(offset,Math.min(offset+CHUNK,f.size));
-        const data=await new Promise(function(resolve,reject){
-          const rd=new FileReader();
-          rd.onload=function(){try{resolve(String(rd.result).split(',')[1]||'')}catch(e){reject(e)}};
-          rd.onerror=reject;rd.readAsDataURL(blob);
-        });
-        const r=await call('uploadMediaChunk',token,begin.uploadId,index,data);
-        if(!r||!r.ok){ok=false;toast((r&&r.message)||('Chunk '+(index+1)+' আপলোড ব্যর্থ'));break}
-        index++;
-        const pct=Math.min(99,Math.round(offset/f.size*100));
-        toast('আপলোড হচ্ছে: '+f.name+' — '+pct+'%');
-      }
-      if(!ok){failed++;continue}
-      const finish=await call('finishMediaUpload',token,begin.uploadId);
-      if(!finish||!finish.ok){failed++;toast((finish&&finish.message)||('ফাইল সম্পন্ন করা যায়নি: '+f.name));continue}
-      uploaded++;toast('আপলোড সম্পন্ন: '+f.name);
+      toast('আপলোড হচ্ছে: '+f.name+' — 0%');
+      const form=document.createElement('form');
+      form.style.display='none'; form.enctype='multipart/form-data';
+      const tk=document.createElement('input'); tk.name='token'; tk.value=token||''; form.appendChild(tk);
+      const tp=document.createElement('input'); tp.name='type'; tp.value=type; form.appendChild(tp);
+      const fi=input.cloneNode(true); fi.name='mediaFile';
+      const dt=new DataTransfer(); dt.items.add(f); fi.files=dt.files; form.appendChild(fi);
+      document.body.appendChild(form);
+      const r=await new Promise(function(resolve,reject){
+        google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).saveMediaForm(form);
+      });
+      form.remove();
+      if(r&&r.ok){uploaded++;toast('আপলোড 100% সম্পন্ন: '+f.name);}
+      else{failed++;toast((r&&r.message)||('আপলোড ব্যর্থ: '+f.name));}
     }
     media=await call('listMedia',token);media=Array.isArray(media)?media:[];
     mediaIndex=media.length?Math.min(mediaIndex,media.length-1):0;
