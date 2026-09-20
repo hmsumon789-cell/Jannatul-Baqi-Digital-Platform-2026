@@ -2495,11 +2495,20 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
     mediaIndex=((Number(mediaIndex)||0)%media.length+media.length)%media.length;var x=media[mediaIndex],u=String(x.DataURL||'');
     var badge='<span class="media-center-badge">'+(typeof escapeHtml==='function'?escapeHtml(x.Name||('Media '+(mediaIndex+1))):'Media')+'</span>';
     if(String(x.Type).toLowerCase()==='image')box.innerHTML=badge+'<img src="'+u+'" alt="">';
-    else if(String(x.Type).toLowerCase()==='video')box.innerHTML=badge+'<video src="'+u+'" controls playsinline preload="auto"></video>';
-    else box.innerHTML=badge+'<audio src="'+u+'" controls preload="auto"></audio>';
+    else if(String(x.Type).toLowerCase()==='video'){
+      var vid=(u.match(/[?&]id=([^&]+)/)||[])[1]||'';
+      if(!vid){var m=u.match(/\/d\/([^/]+)/);vid=m?m[1]:'';}
+      box.innerHTML=badge+(vid?'<iframe class="drive-media-frame" src="https://drive.google.com/file/d/'+encodeURIComponent(vid)+'/preview" allow="autoplay; fullscreen" allowfullscreen></iframe>':'<div>ভিডিও লিংক সঠিক নয়।</div>');
+    } else {
+      var aid=(u.match(/[?&]id=([^&]+)/)||[])[1]||'';
+      if(!aid){var am=u.match(/\/d\/([^/]+)/);aid=am?am[1]:'';}
+      box.innerHTML=badge+(aid?'<iframe class="drive-media-frame drive-audio-frame" src="https://drive.google.com/file/d/'+encodeURIComponent(aid)+'/preview" allow="autoplay"></iframe>':'<div>অডিও লিংক সঠিক নয়।</div>');
+    }
     box.insertAdjacentHTML('beforeend','<button class="media-arrow-new left" type="button" onclick="prevMedia()">❮</button><button class="media-arrow-new right" type="button" onclick="nextMedia()">❯</button>');setup();
   };
   function start(){setup();if(window.media&&media.length)renderMedia()}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();setTimeout(start,300);setTimeout(start,1000);
 })();
 </script>
+
+<style id="drive-preview-media-fix-2026-09-20">#mediaStageContent .drive-media-frame{width:100%!important;height:100%!important;border:0!important;background:#111!important;display:block!important}.drive-audio-frame{height:100%!important}</style>
