@@ -1043,7 +1043,53 @@ function downloadCurrentForm(){
     span.style.padding='3px';
     el.replaceWith(span);
   });
-  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title></head><body><h2>'+($('winTitle').textContent||'ফর্ম')+'</h2>'+body.innerHTML+'</body></html>';
+  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title></head><body><h2>'+($('winTitle').textContent||'ফর্ম')+'</h2>'+body.innerHTML+'
+
+<!-- ===== WINDOW ABOVE HEADER FIX — 2026-09-20 ===== -->
+<style id="window-above-header-final-2026-09-20">
+/* ALL forms, windows and Search Profile must open above the header. */
+.window,
+.window.show,
+#formWin,
+#searchWin,
+.search-profile{
+  position:fixed!important;
+  z-index:2147483000!important;
+  top:10px!important;
+  max-height:calc(100vh - 20px)!important;
+  isolation:isolate!important;
+}
+/* The header remains visible only behind an opened window; the window can be dragged over it. */
+.header{z-index:900!important}
+.header-search-row-final{z-index:9999!important}
+.window .win-head{z-index:2147483001!important}
+/* Keep enough room for dragging the window completely below the taskbar. */
+.window.show{overflow:auto!important}
+</style>
+<script id="window-above-header-final-js-2026-09-20">
+(function(){
+  function liftWindows(){
+    document.querySelectorAll('.window').forEach(function(w){
+      w.style.zIndex='2147483000';
+      if(w.classList.contains('show') && !w.dataset.windowPositioned){
+        var r=w.getBoundingClientRect();
+        /* Reposition only when the window is hidden behind the header at its default location. */
+        if(r.top>60 || r.top<0){
+          w.style.transform='none';
+          w.style.left=Math.max(0,Math.min(window.innerWidth-w.offsetWidth,window.innerWidth/2-w.offsetWidth/2))+'px';
+          w.style.top='10px';
+        }
+        w.dataset.windowPositioned='1';
+      }
+    });
+  }
+  document.addEventListener('DOMContentLoaded',liftWindows);
+  setTimeout(liftWindows,300);
+  setTimeout(liftWindows,800);
+  new MutationObserver(liftWindows).observe(document.body,{childList:true,subtree:true});
+})();
+</script>
+</body></html>';
   var blob=new Blob([html],{type:'text/html;charset=utf-8'});
   var url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url;a.download=title+'.html';document.body.appendChild(a);a.click();a.remove();
