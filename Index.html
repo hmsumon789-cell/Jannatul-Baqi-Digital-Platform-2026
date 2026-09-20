@@ -2714,3 +2714,59 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
  #mediaStage + .dashboard-summary-inside{grid-template-columns:1fr!important}
 }
 </style>
+
+<!-- ===== ACTUAL DASHBOARD SUMMARY RESTORE — 2026-09-20 ===== -->
+<style id="actual-dashboard-summary-restore-2026-09-20">
+/* The summary is INSIDE .dashboard-slider, immediately after the player. */
+.dashboard-slider > section#summary.dashboard-summary.dashboard-summary-inside,
+.dashboard-slider > #summary.dashboard-summary.dashboard-summary-inside{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:8px!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:82px!important;
+  margin:10px 0 0!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+.dashboard-slider > section#summary.dashboard-summary.dashboard-summary-inside .stat{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  min-height:82px!important;
+  padding:9px!important;
+  border:3px solid var(--border)!important;
+  background:var(--panel)!important;
+  color:var(--text)!important;
+  text-align:center!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+.dashboard-slider > section#summary.dashboard-summary.dashboard-summary-inside .stat b{
+  display:block!important;font-size:24px!important;
+}
+@media(max-width:900px){.dashboard-slider > section#summary.dashboard-summary.dashboard-summary-inside{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:520px){.dashboard-slider > section#summary.dashboard-summary.dashboard-summary-inside{grid-template-columns:1fr!important}}
+</style>
+<script id="actual-dashboard-summary-restore-js-2026-09-20">
+(function(){
+  function restoreSummary(){
+    var s=document.querySelector('.dashboard-slider > section#summary.dashboard-summary.dashboard-summary-inside');
+    if(!s)return;
+    s.style.setProperty('display','grid','important');
+    s.style.setProperty('visibility','visible','important');
+    s.style.setProperty('opacity','1','important');
+    s.style.setProperty('height','auto','important');
+    s.style.setProperty('min-height','82px','important');
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',restoreSummary);else restoreSummary();
+  [250,700,1500,2500,4000].forEach(function(t){setTimeout(restoreSummary,t)});
+  var mo=new MutationObserver(function(){restoreSummary()});
+  if(document.body)mo.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['style','class']});
+})();
+</script>
