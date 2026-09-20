@@ -2167,6 +2167,56 @@ body{padding-top:0!important}
 </script>
 
 
+<!-- ===== UNIVERSAL ALL-WINDOW DRAG FIX 2026-09-20 ===== -->
+<style id="universal-all-window-drag-fix-2026-09-20">
+.window{position:fixed!important;overflow:auto!important}
+.window .win-head{position:relative!important;top:auto!important;cursor:move!important;touch-action:none!important}
+</style>
+<script id="universal-all-window-drag-fix-js-2026-09-20">
+(function(){
+  function bind(w){
+    if(!w)return;
+    var h=w.querySelector('.win-head');
+    if(!h||h.dataset.dragAllFix==='1')return;
+    h.dataset.dragAllFix='1';
+    h.onmousedown=function(e){
+      if(e.target.closest('button,input,select,textarea,a'))return;
+      e.preventDefault();
+      var r=w.getBoundingClientRect(),sx=e.clientX,sy=e.clientY;
+      var ox=r.left,oy=r.top;
+      w.style.setProperty('transform','none','important');
+      w.style.setProperty('left',ox+'px','important');
+      w.style.setProperty('top',oy+'px','important');
+      function move(ev){
+        var x=ox+(ev.clientX-sx);
+        var y=oy+(ev.clientY-sy);
+        var maxX=Math.max(0,window.innerWidth-w.offsetWidth);
+        x=Math.max(0,Math.min(maxX,x));
+        y=Math.max(70,y);
+        w.style.setProperty('left',x+'px','important');
+        w.style.setProperty('top',y+'px','important');
+      }
+      function up(){
+        document.removeEventListener('mousemove',move);
+        document.removeEventListener('mouseup',up);
+      }
+      document.addEventListener('mousemove',move);
+      document.addEventListener('mouseup',up);
+    };
+  }
+  function bindAll(){
+    document.querySelectorAll('.window').forEach(bind);
+  }
+  window.bindAllWindowDrag=bindAll;
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindAll);
+  else bindAll();
+  setTimeout(bindAll,300);
+  setTimeout(bindAll,800);
+  setTimeout(bindAll,1500);
+  new MutationObserver(bindAll).observe(document.body,{childList:true});
+})();
+</script>
+
 <!-- ===== UNIVERSAL TOPMOST DRAG + 3D UI + NEW MEDIA PLAYER ===== -->
 <style id="universal-window-player-3d-2026-09-20">
 /* Every application window stays above the dashboard and can be moved horizontally/downward. */
