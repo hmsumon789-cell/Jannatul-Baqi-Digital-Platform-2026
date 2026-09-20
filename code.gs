@@ -642,6 +642,18 @@ function updateListData(token,listType,serial,data){
   return {ok:true,message:'সংরক্ষণ হয়েছে।'};
 }
 
+function getModuleList(token,key){
+  try{
+    auth_(token);
+    key=String(key||'').trim().toLowerCase();
+    const map={students:[SHEETS.STUDENTS,'student'],teachers:[SHEETS.TEACHERS,'teacher'],exams:[SHEETS.EXAM_REG,'exam'],admins:[SHEETS.ADMINS,'admin'],madrasas:[SHEETS.MADRASAS,'madrasa']};
+    const item=map[key];
+    if(!item) return {ok:false,message:'তালিকা সঠিক নয়।'};
+    requireFeature_(token,item[1]);
+    return {ok:true,key:key,rows:listRows_(item[0],token,5000)};
+  }catch(e){return {ok:false,message:'তালিকা লোড ত্রুটি: '+(e&&e.message?e.message:e)};}
+}
+
 function getModules_(){
   return [
     ['institution','প্রতিষ্ঠান পরিচিতি'],['student','ছাত্র/ছাত্রী অ্যাড করুন'],['teacher','শিক্ষক/শিক্ষিকা অ্যাড করুন'],['donor','দাতা সদস্য অ্যাড করুন'],
