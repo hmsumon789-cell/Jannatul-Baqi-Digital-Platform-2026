@@ -3542,3 +3542,282 @@ body #topActionBar{top:0!important;}
   setTimeout(fix,100);setTimeout(fix,700);setTimeout(fix,1600);
 })();
 </script>
+
+
+<!-- ===== FINAL TARGETED UI FIX — LOGO / TOP BAR / FORM CLEARANCE / NEWS MIC / FULL-LENGTH NEWS 2026-09-21 ===== -->
+<style id="final-targeted-ui-fix-2026-09-21">
+/* 1) Top action line is a real fixed row. Nothing in the header/dashboard can cover it. */
+#app{position:relative!important;}
+#app > #topActionBar{
+  position:fixed!important;
+  top:0!important;
+  left:0!important;
+  right:0!important;
+  width:100%!important;
+  min-height:58px!important;
+  height:auto!important;
+  margin:0!important;
+  z-index:2147483647!important;
+  box-sizing:border-box!important;
+}
+#app > .header{
+  margin-top:70px!important;
+  position:relative!important;
+  z-index:20!important;
+}
+/* Keep dashboard content below the action row. */
+#app > main,#app > .dashboard,#app > .content{
+  position:relative!important;
+  z-index:10!important;
+}
+
+/* 2) Every form/window opens BELOW the action line, never behind it. */
+#app .window,
+#app .form-window,
+#app #formWin,
+#app [id$="Win"].window{
+  position:fixed!important;
+  top:78px!important;
+  z-index:2147483646!important;
+  max-height:calc(100vh - 88px)!important;
+  overflow:auto!important;
+}
+/* Dragged windows still remain below the fixed action line. */
+#app .window.show,
+#app .form-window.show,
+#app #formWin.show{
+  z-index:2147483646!important;
+}
+
+/* 3) Header logo: always visible above the slide images, no white panel/border. */
+#app > .header .header-top,
+#app > .header .header-content{
+  position:relative!important;
+}
+#app > .header .header-content{z-index:1000!important;}
+#app > .header #headerLogo{
+  position:relative!important;
+  z-index:1001!important;
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  width:110px!important;
+  height:125px!important;
+  max-width:none!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  background:transparent!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  padding:0!important;
+  margin:0 auto 6px!important;
+  mix-blend-mode:multiply!important;
+}
+/* Do not let the old logo scripts hide/replace the visible logo. */
+#app > .header .header-slides{z-index:0!important;}
+#app > .header .header-content{isolation:isolate!important;}
+
+/* 4) Running-news microphone: force it to the far RIGHT. */
+.header-news{
+  display:flex!important;
+  align-items:center!important;
+  width:100%!important;
+  overflow:hidden!important;
+}
+.header-news .running-news-text{
+  order:1!important;
+  flex:1 1 auto!important;
+  min-width:0!important;
+  display:block!important;
+  overflow:hidden!important;
+  white-space:nowrap!important;
+}
+.header-news .news-mic{
+  order:2!important;
+  margin-left:auto!important;
+  margin-right:2px!important;
+  flex:0 0 40px!important;
+  width:40px!important;
+  min-width:40px!important;
+  height:36px!important;
+  z-index:2000!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+#loginPage .ticker{
+  display:flex!important;
+  align-items:center!important;
+  overflow:hidden!important;
+}
+#loginPage .ticker .ticker-text{
+  order:1!important;
+  flex:1 1 auto!important;
+  min-width:0!important;
+  overflow:hidden!important;
+  white-space:nowrap!important;
+}
+#loginPage .ticker .news-mic{
+  order:2!important;
+  margin-left:auto!important;
+  margin-right:2px!important;
+  flex:0 0 40px!important;
+  width:40px!important;
+  min-width:40px!important;
+  height:36px!important;
+  z-index:2000!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+
+/* 5) Do NOT use the old fixed 18-second news animation. */
+.header-news .running-news-text,
+#loginPage .ticker .ticker-text{
+  animation:none!important;
+  transform:none!important;
+}
+
+/* JS below assigns duration from the actual text width, so the whole sentence
+   exits before it starts again. */
+.news-full-run{
+  display:inline-block!important;
+  width:max-content!important;
+  white-space:nowrap!important;
+  will-change:transform!important;
+  animation-name:newsFullRunFinal20260921!important;
+  animation-timing-function:linear!important;
+  animation-iteration-count:infinite!important;
+  animation-fill-mode:both!important;
+}
+@keyframes newsFullRunFinal20260921{
+  0%{transform:translateX(100%)}
+  100%{transform:translateX(-100%)}
+}
+@media(max-width:900px){
+  #app > .header{margin-top:72px!important;}
+  #app .window,#app .form-window,#app #formWin,#app [id$="Win"].window{
+    top:82px!important;
+    max-height:calc(100vh - 92px)!important;
+  }
+}
+</style>
+
+<script id="final-targeted-ui-fix-js-2026-09-21">
+(function(){
+  function findLogo(){
+    return document.getElementById('headerLogo');
+  }
+
+  /* Keep the already-embedded project logo visible; never substitute a new
+     placeholder image. */
+  function lockLogo(){
+    var h=findLogo();
+    if(!h)return;
+    h.style.display='block';
+    h.style.visibility='visible';
+    h.style.opacity='1';
+    h.style.background='transparent';
+    h.style.border='0';
+    h.style.borderRadius='0';
+    h.style.boxShadow='none';
+    h.style.mixBlendMode='multiply';
+    h.style.zIndex='1001';
+    h.setAttribute('aria-label','Jannatul Baqi logo');
+  }
+
+  function lockFormsBelowBar(){
+    var bar=document.getElementById('topActionBar');
+    if(!bar)return;
+    var h=Math.ceil(bar.getBoundingClientRect().height||58);
+    var top=Math.max(72,h+10);
+    document.querySelectorAll('#app .window,#app .form-window,#app #formWin,#app [id$="Win"].window').forEach(function(w){
+      if(w.dataset.userDragActive!=='1') w.style.setProperty('top',top+'px','important');
+      w.style.setProperty('z-index','2147483646','important');
+    });
+  }
+
+  function prepareNews(el, text){
+    if(!el)return;
+    var span=el.querySelector('.running-news-text') || el.querySelector('.ticker-text');
+    if(!span)return;
+    var old=span.querySelector('.news-full-run');
+    if(old)old.remove();
+    var value=String(text||span.textContent||'').trim();
+    span.textContent='';
+    var runner=document.createElement('span');
+    runner.className='news-full-run';
+    runner.textContent=value || 'জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম';
+    span.appendChild(runner);
+
+    /* Speed is based on the real sentence width. The complete text travels
+       from outside the right edge to outside the left edge before looping. */
+    requestAnimationFrame(function(){
+      var box=span.getBoundingClientRect();
+      var rw=runner.getBoundingClientRect().width;
+      var distance=Math.max(300,box.width+rw);
+      var seconds=Math.max(8,Math.min(45,distance/65));
+      runner.style.animationDuration=seconds+'s';
+    });
+  }
+
+  function lockMic(el){
+    if(!el)return;
+    var mic=el.querySelector('.news-mic');
+    if(!mic){
+      mic=document.createElement('button');
+      mic.type='button';
+      mic.className='news-mic';
+      mic.title='নতুন নিউজ যোগ করুন';
+      mic.textContent='🎙️';
+      mic.onclick=function(){
+        if(typeof window.openRunningNewsEditor==='function')window.openRunningNewsEditor();
+      };
+      el.appendChild(mic);
+    }
+    mic.style.order='2';
+    mic.style.marginLeft='auto';
+    mic.style.marginRight='2px';
+    mic.style.display='inline-flex';
+    mic.style.visibility='visible';
+  }
+
+  function fix(){
+    lockLogo();
+    lockFormsBelowBar();
+    document.querySelectorAll('.header-news').forEach(function(el){
+      lockMic(el);
+      prepareNews(el);
+    });
+    document.querySelectorAll('#loginPage .ticker').forEach(function(el){
+      lockMic(el);
+      prepareNews(el);
+    });
+  }
+
+  /* When the existing news editor refreshes text, rebuild only the animation,
+     not the microphone/editor wiring. */
+  var oldRefresh=window.refreshRunningNewsUI;
+  window.refreshRunningNewsUI=function(text){
+    if(typeof oldRefresh==='function')oldRefresh(text);
+    setTimeout(function(){fix();},30);
+  };
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fix);else fix();
+  setTimeout(fix,100);
+  setTimeout(fix,500);
+  setTimeout(fix,1200);
+  setInterval(function(){
+    lockLogo();
+    lockFormsBelowBar();
+    document.querySelectorAll('.header-news,#loginPage .ticker').forEach(function(el){
+      lockMic(el);
+      var runner=el.querySelector('.news-full-run');
+      if(!runner)prepareNews(el);
+    });
+  },1000);
+})();
+</script>
