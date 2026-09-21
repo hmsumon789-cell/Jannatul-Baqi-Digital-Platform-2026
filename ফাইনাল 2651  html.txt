@@ -3039,3 +3039,208 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
   to{transform:translateX(-100%)}
 }
 </style>
+
+
+<!-- ===== USER TASK 1 FINAL LAYOUT — 2026-09-21 ===== -->
+<style id="user-task-1-final-layout-2026-09-21">
+/* TOP: Home + 3 modes + Signal | ALL SEARCH | Logout — always one line */
+#app .top-action-bar{
+  position:fixed!important;
+  top:0!important;left:0!important;right:0!important;
+  z-index:1000000!important;
+  width:100%!important;
+  min-height:48px!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:5px!important;
+  padding:4px 7px!important;
+  margin:0!important;
+  box-sizing:border-box!important;
+  background:var(--panel)!important;
+  border:2px solid var(--border)!important;
+  border-radius:0!important;
+  box-shadow:0 4px 12px #0005!important;
+  overflow:hidden!important;
+}
+#app .top-action-bar .header-home-final{
+  flex:0 0 auto!important;min-width:58px!important;width:auto!important;
+  min-height:34px!important;padding:3px 7px!important;
+  font-size:12px!important;white-space:nowrap!important;
+}
+#app .top-action-bar .header-mode-icons{
+  flex:0 0 auto!important;display:flex!important;gap:3px!important;
+}
+#app .top-action-bar .header-mode-icons .mode{
+  width:29px!important;min-width:29px!important;height:29px!important;
+  padding:1px!important;font-size:13px!important;border-radius:7px!important;
+}
+#app .top-action-bar .header-signal-wrap{
+  flex:0 1 145px!important;min-width:105px!important;
+}
+#app .top-action-bar .header-signal{
+  width:100%!important;min-height:34px!important;
+  padding:3px 6px!important;font-size:12px!important;
+}
+#app .top-action-bar .header-id-search-wrap{
+  flex:1 1 auto!important;min-width:0!important;
+  display:flex!important;gap:4px!important;
+}
+#app .top-action-bar .header-all-search-input{
+  flex:1 1 auto!important;min-width:0!important;
+  min-height:34px!important;padding:4px 8px!important;font-size:13px!important;
+}
+#app .top-action-bar .header-id-search-btn{
+  flex:0 0 auto!important;min-width:55px!important;
+  min-height:34px!important;padding:3px 7px!important;font-size:12px!important;
+}
+#app .top-action-bar .header-logout-final{
+  flex:0 0 auto!important;min-width:62px!important;
+  min-height:34px!important;padding:3px 7px!important;
+  font-size:12px!important;white-space:nowrap!important;
+}
+/* Dashboard title: small controls left | title center | approval + languages right */
+#app .dashboard-title-bar{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) max-content minmax(0,1fr)!important;
+  align-items:center!important;
+  gap:6px!important;
+  min-height:42px!important;
+  height:42px!important;
+  padding:3px 6px!important;
+  margin:7px 0!important;
+}
+#app .dashboard-title-left{
+  justify-self:start!important;
+  display:flex!important;align-items:center!important;gap:4px!important;
+  min-width:0!important;
+}
+#app .dashboard-title-left .primary,
+#app .dashboard-title-left .field,
+#app #featureSelect{
+  min-height:32px!important;height:32px!important;
+  padding:2px 7px!important;font-size:11px!important;
+}
+#app #featureSelect{min-width:105px!important;width:105px!important}
+#app .dashboard-title-bar h2{
+  justify-self:center!important;
+  margin:0!important;padding:0!important;
+  font-size:20px!important;line-height:1!important;
+  white-space:nowrap!important;
+}
+#app .dashboard-title-right{
+  justify-self:end!important;
+  display:flex!important;align-items:center!important;gap:4px!important;
+  min-width:0!important;
+}
+#app .dashboard-title-right #accountManagerBtn,
+#app .dashboard-title-right .dashboard-lang{
+  min-height:32px!important;height:32px!important;
+  padding:2px 7px!important;font-size:11px!important;
+  white-space:nowrap!important;
+}
+#app .dashboard-title-right .dashboard-lang{min-width:72px!important;width:72px!important}
+/* Header: logo + Sheet left | running news + mic center | time/date right */
+#app .header-content #headerLogo{
+  width:105px!important;height:105px!important;
+  object-fit:contain!important;object-position:center!important;
+  display:block!important;margin:0 auto 2px!important;
+  padding:0!important;background:transparent!important;
+  border:0!important;border-radius:0!important;box-shadow:none!important;
+  mix-blend-mode:normal!important;
+}
+#app .header-mainline{
+  display:grid!important;
+  grid-template-columns:max-content minmax(0,1fr) max-content!important;
+  align-items:center!important;gap:5px!important;
+  width:100%!important;
+}
+#app .header-mainline .sheet-btn{
+  min-width:0!important;min-height:32px!important;
+  height:32px!important;padding:2px 7px!important;
+  font-size:11px!important;white-space:nowrap!important;
+}
+#app .header-mainline .header-news{
+  min-width:0!important;width:100%!important;height:34px!important;
+  min-height:34px!important;padding:0 5px!important;
+  display:flex!important;align-items:center!important;
+  flex-wrap:nowrap!important;overflow:hidden!important;
+  border-radius:8px!important;
+}
+#app .header-mainline .header-news .running-news-text{
+  flex:1 1 auto!important;min-width:0!important;
+  overflow:hidden!important;white-space:nowrap!important;
+  font-size:13px!important;line-height:32px!important;
+}
+#app .header-mainline .header-news .news-mic{
+  flex:0 0 31px!important;width:31px!important;height:29px!important;
+  margin:0 1px 0 4px!important;padding:0!important;
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  font-size:15px!important;border-radius:6px!important;
+}
+#app .header-mainline .header-datetime{
+  min-width:max-content!important;
+  text-align:right!important;white-space:nowrap!important;
+}
+#app .header-mainline .header-datetime .clock{
+  font-size:16px!important;line-height:1!important;
+}
+#app .header-mainline .header-datetime .date-line{
+  font-size:10px!important;line-height:1.1!important;margin-top:2px!important;
+}
+/* Keep the first duplicate standalone header ticker hidden; the requested one is the middle line. */
+#app .header > .header-running-row:first-of-type{display:none!important}
+/* Keep the top action bar above the app content without changing login/OTP logic. */
+#app{padding-top:54px!important}
+@media(max-width:900px){
+  #app .top-action-bar{gap:3px!important;padding:3px!important}
+  #app .top-action-bar .header-signal-wrap{flex-basis:105px!important}
+  #app .top-action-bar .header-home-final{min-width:50px!important}
+  #app .top-action-bar .header-logout-final{min-width:55px!important}
+  #app .dashboard-title-bar{grid-template-columns:1fr!important;height:auto!important;min-height:42px!important}
+  #app .dashboard-title-left,#app .dashboard-title-bar h2,#app .dashboard-title-right{justify-self:center!important}
+  #app .header-mainline{grid-template-columns:max-content minmax(0,1fr) max-content!important}
+}
+@media(max-width:600px){
+  #app .top-action-bar .header-mode-icons .mode{width:25px!important;min-width:25px!important;height:27px!important}
+  #app .top-action-bar .header-signal-wrap{flex-basis:90px!important;min-width:75px!important}
+  #app .top-action-bar .header-id-search-btn{min-width:45px!important;padding:2px 4px!important}
+  #app .top-action-bar .header-logout-final{min-width:50px!important;font-size:10px!important}
+  #app .header-mainline .header-datetime .clock{font-size:13px!important}
+  #app .header-mainline .header-datetime .date-line{font-size:8px!important}
+}
+</style>
+<script id="user-task-1-final-layout-js-2026-09-21">
+(function(){
+  function fix(){
+    var bar=document.querySelector('#app .top-action-bar');
+    if(bar){
+      bar.style.position='fixed';
+      bar.style.top='0';
+      bar.style.left='0';
+      bar.style.right='0';
+      bar.style.zIndex='1000000';
+    }
+    var rows=document.querySelectorAll('#app .header > .header-running-row');
+    if(rows.length>1) rows[0].style.display='none';
+    var news=document.querySelector('#app .header-mainline .header-news');
+    if(news && !news.querySelector('.news-mic')){
+      var mic=document.createElement('button');
+      mic.type='button';mic.className='news-mic';mic.textContent='🎙️';
+      mic.title='নতুন নিউজ যোগ করুন';
+      mic.onclick=function(){if(window.openRunningNewsEditor)window.openRunningNewsEditor();};
+      news.appendChild(mic);
+    }
+    var logo=document.getElementById('headerLogo');
+    if(logo){
+      logo.style.width='105px';
+      logo.style.height='105px';
+      logo.style.objectFit='contain';
+      logo.style.background='transparent';
+      logo.style.border='0';
+    }
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fix);
+  else fix();
+  setTimeout(fix,300);setTimeout(fix,1000);setInterval(fix,2500);
+})();
+</script>
