@@ -2490,8 +2490,13 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
    }
    ensureList();
  }
- window.deleteCurrentMedia=function(){
+ window.deleteCurrentMedia=async function(){
    var list=ensureList(); if(!list)return;
+   /* Always refresh from server first, so media uploaded in Gallery is visible here. */
+   try{
+     var fresh=await call('listMedia',token);
+     if(Array.isArray(fresh))window.media=fresh;
+   }catch(e){}
    if(!window.media||!media.length){
      list.innerHTML='<div>ডিলেট করার কোনো মিডিয়া নেই।</div>';list.classList.add('show');return;
    }
@@ -2501,6 +2506,8 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
        return '<div class="media-delete-row"><span>'+n+'</span><button type="button" class="secondary" onclick="deleteMediaByIndex('+i+')">🗑️ ডিলেট</button></div>';
      }).join('');
    list.classList.add('show');
+   mediaIndex=((Number(mediaIndex)||0)%media.length+media.length)%media.length;
+   renderAuthoritative();
  };
  window.deleteMediaByIndex=async function(i){
    if(!window.media||!media[i])return;
