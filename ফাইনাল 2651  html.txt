@@ -3114,3 +3114,22 @@ body.dark .header-news,body.dark .header-news *{color:#111!important}
   }
 }
 </style>
+
+
+<!-- ===== PERMANENT USER LOGO IN HEADER 2026-09-21 ===== -->
+<script id="permanent-user-logo-2026-09-21">
+(function(){
+  var LOGO='data:image/webp;base64,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';
+  function apply(){
+    var h=document.getElementById('headerLogo');
+    var l=document.getElementById('loginLogo');
+    if(h)h.src=LOGO;
+    if(l)l.src=LOGO;
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply);else apply();
+  setTimeout(apply,300);setTimeout(apply,1000);
+})();
+</script>
+<style id="permanent-user-logo-style-2026-09-21">
+#app #headerLogo{display:block!important;width:92px!important;height:92px!important;object-fit:contain!important;margin:0 auto 5px!important;visibility:visible!important;opacity:1!important}
+</style>
