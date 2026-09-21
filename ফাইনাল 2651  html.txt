@@ -2823,3 +2823,41 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
 .header button:active,.header .mode:active{transform:translateY(4px)!important;box-shadow:inset 2px 2px 5px #7a5600,0 1px 0 #7a5600,0 3px 6px #0005!important}
 .header .title-bn,.header .title-ar,.header .title-en,.header .date-line,.header .news,.header h2,.header label,.header span{color:#d4a017!important}
 </style>
+<style id="FORCE-3D-LOGIN-DASHBOARD-2026-09-21">
+/* FORCE 3D — login + dashboard */
+#loginPage button,#loginPage input,#loginPage select,#loginPage textarea,#loginPage .field,#loginPage .mode,#loginPage .quick button,#loginPage .otp-box,#loginPage .searchbar,#loginPage .ticker,
+.app button,.app input,.app select,.app textarea,.app .field,.app .mode,.app .module,.app .card,.app .slider,.app .stat,.app .window,.app .win-head,.app .data-table,.app .toast{
+ border-width:2px!important;
+ border-style:solid!important;
+ box-shadow:inset 3px 3px 5px rgba(255,255,255,.8)!important;
+}
+#loginPage button,#loginPage .mode,#loginPage .quick button,.app button,.app .mode,.app .module,.app .card,.app .slider,.app .stat{
+ box-shadow:
+ inset 3px 3px 5px rgba(255,255,255,.75),
+ inset -4px -4px 6px rgba(0,0,0,.32),
+ 0 6px 0 rgba(0,0,0,.55),
+ 0 10px 18px rgba(0,0,0,.28)!important;
+ transform:translateY(0)!important;
+}
+#loginPage button:hover,#loginPage .mode:hover,#loginPage .quick button:hover,
+.app button:hover,.app .module:hover,.app .card:hover,.app .stat:hover{
+ filter:brightness(1.05)!important;
+ transform:translateY(-2px)!important;
+}
+#loginPage button:active,#loginPage .mode:active,#loginPage .quick button:active,
+.app button:active,.app .mode:active{
+ transform:translateY(5px)!important;
+ box-shadow:
+ inset 3px 3px 6px rgba(0,0,0,.35),
+ 0 1px 0 rgba(0,0,0,.55),
+ 0 3px 6px rgba(0,0,0,.22)!important;
+}
+#loginPage .login,#loginPage .login-tools,#loginPage .login-grid,#loginPage .otp,#loginPage .searchbar,
+.app .header,.app .dashboard-nav,.app .slider,.app .summary,.app .window{
+ box-shadow:
+ inset 4px 4px 8px rgba(255,255,255,.55),
+ inset -5px -5px 9px rgba(0,0,0,.25),
+ 0 8px 0 rgba(0,0,0,.42),
+ 0 14px 25px rgba(0,0,0,.25)!important;
+}
+</style>
