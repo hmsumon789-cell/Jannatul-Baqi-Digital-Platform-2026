@@ -1087,6 +1087,58 @@ function downloadCurrentForm(){
   setTimeout(bindMediaButtons,300);setTimeout(bindMediaButtons,1000);
 })();
 </script>
+
+<style id="final-media-only-controls">
+/* শুধু dashboard-এর Load / Play / Delete থাকবে; নিচের অতিরিক্ত হলুদ box থাকবে না */
+.media-player-controls{display:none!important}
+</style>
+<script id="final-media-only-controls-js">
+(function(){
+  function wire(){
+    document.querySelectorAll('.media-player-controls').forEach(function(e){e.remove();});
+    var root=document.querySelector('.dashboard-slider');
+    if(!root)return;
+    var buttons=root.querySelectorAll('.dashboard-slider-controls .slider-action');
+    if(buttons.length>=3){
+      buttons[0].onclick=function(e){e.preventDefault();if(typeof toggleMediaPlay==='function')toggleMediaPlay();};
+      buttons[1].onclick=function(e){e.preventDefault();if(typeof openModule==='function')openModule('gallery');};
+      buttons[2].onclick=function(e){e.preventDefault();if(typeof deleteCurrentMedia==='function')deleteCurrentMedia();};
+    }
+  }
+  window.renderMedia=function(){
+    var box=document.getElementById('mediaStageContent');
+    if(!box)return;
+    document.querySelectorAll('.media-player-controls').forEach(function(e){e.remove();});
+    if(!window.media||!media.length){
+      box.innerHTML='<span>মিডিয়া আপলোড করে স্লাইড দেখুন</span>';
+      wire(); return;
+    }
+    var i=((window.mediaIndex||0)%media.length+media.length)%media.length;
+    var x=media[i],u=String(x.DataURL||'');
+    if(x.Type==='image')box.innerHTML='<img src="'+esc(u)+'" alt="">';
+    else if(x.Type==='video')box.innerHTML='<video src="'+esc(u)+'" controls preload="metadata"></video>';
+    else box.innerHTML='<audio src="'+esc(u)+'" controls preload="metadata"></audio>';
+    var pb=document.getElementById('mediaPlayBtn');if(pb)pb.textContent='▶ Play';
+    wire();
+  };
+  window.toggleMediaPlay=function(){
+    if(!window.media||!media.length)return toast('আগে মিডিয়া আপলোড করুন।');
+    var box=document.getElementById('mediaStageContent'),el=box&&box.querySelector('video,audio'),pb=document.getElementById('mediaPlayBtn');
+    if(el){
+      if(el.paused){el.play().then(function(){if(pb)pb.textContent='⏸ Pause';}).catch(function(){toast('প্লে করা যাচ্ছে না।');});}
+      else{el.pause();if(pb)pb.textContent='▶ Play';}
+    }else{
+      clearInterval(window._finalMediaTimer);
+      window._finalMediaTimer=setInterval(function(){if(media.length){mediaIndex=(mediaIndex+1)%media.length;renderMedia();}},5000);
+      if(pb)pb.textContent='⏸ Pause';
+    }
+  };
+  window.nextMedia=function(){if(window.media&&media.length){mediaIndex=(mediaIndex+1)%media.length;renderMedia();}};
+  window.prevMedia=function(){if(window.media&&media.length){mediaIndex=(mediaIndex-1+media.length)%media.length;renderMedia();}};
+  document.addEventListener('DOMContentLoaded',wire);
+  setTimeout(wire,300);setTimeout(wire,1000);
+})();
+</script>
 </body></html>';
   var blob=new Blob([html],{type:'text/html;charset=utf-8'});
   var url=URL.createObjectURL(blob),a=document.createElement('a');
