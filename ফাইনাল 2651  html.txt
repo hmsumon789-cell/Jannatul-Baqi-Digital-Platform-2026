@@ -2161,7 +2161,39 @@ body{padding-top:0!important}
   window.listSave=function(i){var r=currentListRows[i]||{},row=document.getElementById('listRow'+i);if(!row)return;var data={},heads=LIST_HEADS[currentListKey]||[];heads.forEach(function(k){var x=row.querySelector('[data-edit-key="'+CSS.escape(k)+'"]');if(x)data[k]=x.value});if(!Object.keys(data).length)return toast('আগে ✏️ এডিট চাপুন।');var serial=r.Serial;call('updateRecord',token,LIST_SHEETS[currentListKey],serial,data).then(function(v){if(v&&v.ok){Object.keys(data).forEach(function(k){r[k]=data[k]});toast('সেভ/সংরক্ষণ সফল হয়েছে।');renderList()}else toast((v&&v.message)||'সেভ ব্যর্থ হয়েছে।')}).catch(function(e){toast('সেভ সার্ভার ত্রুটি: '+(e&&e.message?e.message:e))})};
   window.listPrintOne=function(i){var r=currentListRows[i]||{};var title=LIST_LABELS[currentListKey]||'তালিকা';var html='<h2>'+esc(title)+'</h2><table border="1" cellspacing="0" cellpadding="6">'+Object.keys(r).map(function(k){return '<tr><th>'+esc(k)+'</th><td>'+esc(r[k])+'</td></tr>'}).join('')+'</table>';var w=window.open('','_blank');w.document.write('<!doctype html><html><body>'+html+'</body></html>');w.document.close();w.print()};
   window.listDownloadOne=function(i){var r=currentListRows[i]||{};var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(r,null,2)],{type:'application/json'}));a.download=(LIST_LABELS[currentListKey]||'record')+'-'+(r.Serial||i+1)+'.json';document.body.appendChild(a);a.click();a.remove()};
-  window.printModuleList=function(){var box=$('moduleListBody');if(!box)return;var w=window.open('','_blank');w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>'+esc(LIST_LABELS[currentListKey]||'List')+'</title><style>body{font-family:Arial}.data-table{border-collapse:collapse;width:100%}.data-table th,.data-table td{border:1px solid #333;padding:5px}.list-actions{display:none!important}</style></head><body><h2>'+esc(LIST_LABELS[currentListKey]||'List')+'</h2>'+box.innerHTML+'</body></html>');w.document.close();setTimeout(function(){w.print()},300)};
+  window.printModuleList=function(){var box=$('moduleListBody');if(!box)return;var w=window.open('','_blank');w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>'+esc(LIST_LABELS[currentListKey]||'List')+'</title><style>body{font-family:Arial}.data-table{border-collapse:collapse;width:100%}.data-table th,.data-table td{border:1px solid #333;padding:5px}.list-actions{display:none!important}</style></head><body><h2>'+esc(LIST_LABELS[currentListKey]||'List')+'</h2>'+box.innerHTML+'<style id="login-dashboard-all-3d-final-2026-09-21">
+/* LOGIN + DASHBOARD: all boxes and buttons 3D */
+#loginPage button,#loginPage .field,#loginPage input,#loginPage select,#loginPage textarea,#loginPage .mode,#loginPage .quick button,#loginPage .otp-box,#loginPage .searchbar,#loginPage .ticker,
+.app .header button,.app .header input,.app .header select,.app .header textarea,.app .header .field,.app .header .mode,
+.app .dashboard-nav button,.app .dashboard-nav input,.app .dashboard-nav select,.app .dashboard-nav .field,
+.app .module,.app .card,.app .slider,.app .stat,.app .window,.app .toast,
+.app button,.app input,.app select,.app textarea{
+  box-shadow:inset 2px 2px 5px rgba(255,255,255,.65),
+             inset -3px -3px 6px rgba(70,45,0,.38),
+             0 5px 0 rgba(80,50,0,.75),
+             0 8px 15px rgba(0,0,0,.25)!important;
+  transform:translateY(0);
+  transition:transform .12s ease,box-shadow .12s ease!important;
+}
+#loginPage button:active,#loginPage .mode:active,#loginPage .quick button:active,
+.app button:active,.app .mode:active{
+  transform:translateY(4px)!important;
+  box-shadow:inset 2px 2px 5px rgba(70,45,0,.5),
+             0 1px 0 rgba(80,50,0,.75),
+             0 3px 7px rgba(0,0,0,.25)!important;
+}
+#loginPage .login,#loginPage .login-tools,#loginPage .login-grid,#loginPage .otp,#loginPage .searchbar,
+.app .header,.app .dashboard-nav,.app .slider,.app .summary,.app .window,.app .form-window{
+  box-shadow:inset 2px 2px 7px rgba(255,255,255,.45),
+             inset -4px -4px 8px rgba(70,45,0,.25),
+             0 7px 0 rgba(80,50,0,.55),
+             0 12px 22px rgba(0,0,0,.22)!important;
+}
+.app .module:hover,.app .card:hover,.app .stat:hover{
+  transform:translateY(-2px)!important;
+}
+</style>
+</body></html>');w.document.close();setTimeout(function(){w.print()},300)};
   window.downloadModuleList=function(){var data=JSON.stringify(currentListRows,null,2),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type:'application/json'}));a.download=(LIST_LABELS[currentListKey]||'List')+'.json';document.body.appendChild(a);a.click();a.remove()};
   window.listPayment=function(i){var r=currentListRows[i]||{};baseOpenModule('payment');setTimeout(function(){if($('pStudent'))$('pStudent').value=r.StudentID||r.StudentID||r.MadrasaID||r.AdminID||'';if($('pName'))$('pName').value=r.NameBN||r.Name||''},50)};
   window.openModule=function(key){if(LIST_LABELS[key])return showList(key);return baseOpenModule(key)};
