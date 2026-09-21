@@ -2673,3 +2673,59 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
   setTimeout(start,400);setTimeout(start,1000);
 })();
 </script>
+<!-- ===== FINAL MEDIA PLAYBACK FIX — DIRECT DRIVE MEDIA URL 2026-09-21 ===== -->
+<style id="final-direct-media-playback-fix-2026-09-21">
+#mediaStageContent video,#mediaStageContent audio{width:100%!important;height:100%!important;object-fit:contain!important;background:#111!important;display:block!important}
+#mediaStageContent audio{width:90%!important;height:auto!important;max-height:80px!important}
+</style>
+<script id="final-direct-media-playback-js-2026-09-21">
+(function(){
+  function fileId(u){
+    var s=String(u||''),m=s.match(/[?&]id=([^&]+)/);
+    if(m)return decodeURIComponent(m[1]);
+    m=s.match(/\/d\/([^/]+)/);
+    return m?m[1]:'';
+  }
+  function directUrl(u){
+    var s=String(u||'');
+    if(/^https?:\/\//i.test(s) && s.indexOf('drive.google.com/uc?')>=0)return s;
+    var id=fileId(s);
+    return id?'https://drive.google.com/uc?export=download&id='+encodeURIComponent(id):s;
+  }
+  function renderFinal(){
+    var box=document.getElementById('mediaStageContent');
+    if(!box)return;
+    if(!window.media||!media.length){box.innerHTML='<span class="media-empty">মিডিয়া লোড করে দেখুন</span>';return}
+    mediaIndex=((Number(mediaIndex)||0)%media.length+media.length)%media.length;
+    var x=media[mediaIndex]||{},u=directUrl(x.DataURL||''),t=String(x.Type||'').toLowerCase();
+    box.innerHTML='';
+    if(t==='image'){
+      var im=document.createElement('img');im.src=u;im.alt='';
+      im.style.cssText='width:100%;height:100%;object-fit:contain;background:#111;display:block';box.appendChild(im);
+    }else if(t==='video'){
+      var v=document.createElement('video');v.src=u;v.controls=true;v.playsInline=true;v.preload='metadata';
+      v.style.cssText='width:100%;height:100%;object-fit:contain;background:#111;display:block';box.appendChild(v);
+    }else if(t==='audio'){
+      var a=document.createElement('audio');a.src=u;a.controls=true;a.preload='metadata';
+      a.style.cssText='width:90%;max-height:80px';box.appendChild(a);
+    }else box.innerHTML='<span class="media-empty">মিডিয়ার ধরন পাওয়া যায়নি।</span>';
+  }
+  window.renderMedia=renderFinal;
+  window.nextMedia=function(){if(window.media&&media.length){mediaIndex=(Number(mediaIndex)+1)%media.length;renderFinal()}};
+  window.prevMedia=function(){if(window.media&&media.length){mediaIndex=(Number(mediaIndex)-1+media.length)%media.length;renderFinal()}};
+  window.toggleMediaPlay=function(){
+    var el=document.querySelector('#mediaStageContent video,#mediaStageContent audio');
+    if(!el){renderFinal();return}
+    if(el.paused){var p=el.play();if(p&&p.catch)p.catch(function(){toast('ভিডিওটি চালানো যাচ্ছে না। Drive ফাইলটি Anyone with the link — Viewer হতে হবে।')})}else el.pause();
+  };
+  function auto(){
+    clearInterval(window.finalMediaAutoSlideTimer);window.finalMediaAutoSlideTimer=null;
+    if(window.media&&media.length>1)window.finalMediaAutoSlideTimer=setInterval(function(){
+      if(window.media&&media.length>1){mediaIndex=(Number(mediaIndex)+1)%media.length;renderFinal()}
+    },5000);
+  }
+  function start(){if(window.media&&media.length)renderFinal();auto()}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
+  setTimeout(start,700);setTimeout(start,1800);
+})();
+</script>
