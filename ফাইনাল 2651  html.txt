@@ -3440,3 +3440,105 @@ body #topActionBar{top:0!important;}
   margin:0 auto 6px!important;
 }
 </style>
+<!-- ===== DEFINITIVE HEADER LOGO / FRONT BAR / NEWS 2026-09-21 ===== -->
+<style id="definitive-header-fixes-2026-09-21">
+/* লোগোর সাদা অংশ দৃশ্যত স্বচ্ছ: darken blend-এ সাদা background মিশে যায় */
+#app .header #headerLogo{
+  mix-blend-mode:darken!important;
+  background:transparent!important;
+  isolation:auto!important;
+  position:relative!important;
+  z-index:50!important;
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  width:110px!important;height:125px!important;
+  object-fit:contain!important;
+}
+/* পুরোনো WebP script যেন আবার লোগো বদলাতে না পারে */
+#app .header #headerLogo[src^="data:image/webp"]{mix-blend-mode:darken!important;}
+
+/* Action line সত্যিই Header-এর বাইরে এবং সর্বদা সামনে */
+#app > #topActionBar{
+  position:fixed!important;
+  top:0!important;
+  left:0!important;
+  right:0!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+  z-index:2147483647!important;
+  margin:0!important;
+  transform:none!important;
+}
+/* fixed bar-এর নিচে Header শুরু হবে */
+#app > .header{
+  margin-top:60px!important;
+  clear:both!important;
+}
+/* Dashboard-ও action line-এর নিচে থাকবে */
+#app > main{position:relative!important;z-index:1!important;}
+
+/* চলমান নিউজ: শুধু একটিই seamless animation */
+.header-news,
+#loginPage .ticker{
+  position:relative!important;
+  display:flex!important;
+  align-items:center!important;
+  overflow:hidden!important;
+}
+.header-news > *:not(.news-track):not(.news-mic),
+#loginPage .ticker > *:not(.news-track):not(.news-mic){
+  animation:none!important;
+}
+.news-track{
+  flex:1 1 auto!important;
+  min-width:0!important;
+  overflow:hidden!important;
+  white-space:nowrap!important;
+}
+.news-marquee{
+  display:inline-flex!important;
+  width:max-content!important;
+  white-space:nowrap!important;
+  animation:newsSeamlessFinal 18s linear infinite!important;
+}
+.news-marquee span{
+  display:inline-block!important;
+  flex:0 0 auto!important;
+  padding-right:100px!important;
+  white-space:nowrap!important;
+}
+@keyframes newsSeamlessFinal{
+  from{transform:translate3d(0,0,0)}
+  to{transform:translate3d(-50%,0,0)}
+}
+.header-news .news-mic,
+#loginPage .ticker .news-mic{
+  position:relative!important;
+  order:99!important;
+  margin-left:auto!important;
+  margin-right:3px!important;
+  flex:0 0 40px!important;
+  width:40px!important;
+  height:36px!important;
+  z-index:100!important;
+}
+</style>
+<script id="definitive-header-logo-news-2026-09-21">
+(function(){
+  function fix(){
+    var h=document.getElementById('headerLogo');
+    if(h){
+      h.style.mixBlendMode='darken';
+      h.style.background='transparent';
+      h.style.display='block';
+      h.style.visibility='visible';
+      h.style.opacity='1';
+    }
+    var bar=document.getElementById('topActionBar'),app=document.getElementById('app'),header=app&&app.querySelector('.header');
+    if(app&&bar&&header&&bar.parentNode!==app)app.insertBefore(bar,header);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fix);else fix();
+  setTimeout(fix,100);setTimeout(fix,700);setTimeout(fix,1600);
+})();
+</script>
