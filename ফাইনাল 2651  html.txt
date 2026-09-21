@@ -3244,3 +3244,189 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
   setTimeout(fix,300);setTimeout(fix,1000);setInterval(fix,2500);
 })();
 </script>
+
+
+<!-- ===== USER TASK 1 CORRECTION — NEWS WIDTH + MIC WINDOW + DASHBOARD GROUPING — 2026-09-21 ===== -->
+<style id="user-task-1-correction-2026-09-21">
+/* 1) চলমান নিউজ: চওড়া কম, কিন্তু একই লাইনে থাকবে */
+#app .header-mainline{
+  display:grid!important;
+  grid-template-columns:max-content minmax(260px,62%) max-content!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:8px!important;
+  width:100%!important;
+}
+#app .header-mainline .header-news{
+  width:100%!important;
+  max-width:none!important;
+  min-width:260px!important;
+  height:34px!important;
+  display:flex!important;
+  align-items:center!important;
+  flex-wrap:nowrap!important;
+  overflow:hidden!important;
+}
+#app .header-mainline .header-news .running-news-text{
+  flex:1 1 auto!important;
+  min-width:0!important;
+  overflow:hidden!important;
+  white-space:nowrap!important;
+}
+#app .header-mainline .header-news .news-mic{
+  flex:0 0 32px!important;
+  width:32px!important;
+  min-width:32px!important;
+  height:30px!important;
+  margin:0 1px 0 4px!important;
+  padding:0!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  z-index:20!important;
+  cursor:pointer!important;
+}
+/* 2) Dashboard: Home + সকল ফিচার বামে | শিরোনাম মাঝে | Account অনুমোদন + ৩ ভাষা ডানে */
+#app .dashboard-title-bar,
+#app .dashboard-nav{
+  display:grid!important;
+  grid-template-columns:max-content minmax(0,1fr) max-content!important;
+  align-items:center!important;
+  gap:8px!important;
+  width:100%!important;
+}
+#app .dashboard-title-left{
+  justify-self:start!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:5px!important;
+  white-space:nowrap!important;
+}
+#app .dashboard-title-bar>h2,
+#app .dashboard-nav>h2{
+  justify-self:center!important;
+  margin:0!important;
+  text-align:center!important;
+  white-space:nowrap!important;
+}
+#app .dashboard-title-right{
+  justify-self:end!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:4px!important;
+  white-space:nowrap!important;
+}
+@media(max-width:900px){
+  #app .header-mainline{grid-template-columns:max-content minmax(180px,1fr) max-content!important}
+  #app .header-mainline .header-news{min-width:180px!important}
+  #app .dashboard-title-bar,#app .dashboard-nav{grid-template-columns:1fr!important}
+  #app .dashboard-title-left,#app .dashboard-title-bar>h2,#app .dashboard-nav>h2,#app .dashboard-title-right{justify-self:center!important}
+}
+</style>
+
+<script id="user-task-1-news-window-fix-2026-09-21">
+(function(){
+  var DEFAULT_NEWS='জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম';
+
+  function getNewsText(){
+    var saved=localStorage.getItem('jannatulBaqiRunningNews');
+    if(saved)return saved;
+    var el=document.querySelector('#app .header-mainline .header-news .running-news-text');
+    return (el&&el.textContent.trim())||DEFAULT_NEWS;
+  }
+
+  function applyNews(text){
+    text=String(text||'').trim()||DEFAULT_NEWS;
+    localStorage.setItem('jannatulBaqiRunningNews',text);
+    document.querySelectorAll('#app .header-news .running-news-text').forEach(function(el){
+      var run=el.querySelector('.news-full-run');
+      if(run)run.textContent=text;
+      else el.textContent=text;
+    });
+    document.querySelectorAll('#app .header-news').forEach(function(box){
+      box.setAttribute('data-news',text);
+    });
+  }
+
+  window.openRunningNewsEditor=function(){
+    var id='runningNewsEditorWin';
+    var old=document.getElementById(id);
+    if(!old){
+      old=document.createElement('div');
+      old.id=id;
+      old.className='window running-news-editor-window';
+      old.style.cssText='position:fixed;z-index:1000002;display:block;width:min(620px,92vw);top:110px;left:50%;transform:translateX(-50%);';
+      old.innerHTML=
+        '<div class="win-head" style="cursor:move"><b>📢 চলমান নিউজ লিখুন</b>'+
+        '<button class="secondary" type="button" id="closeRunningNewsEditor">✕</button></div>'+
+        '<div class="win-body">'+
+        '<label style="display:flex;flex-direction:column;gap:6px;font-weight:800">নিউজ / ঘোষণা'+
+        '<textarea id="runningNewsEditorText" class="field" rows="6" placeholder="চলমান নিউজ লিখুন..."></textarea></label>'+
+        '<div style="display:flex;justify-content:flex-end;gap:7px;margin-top:10px">'+
+        '<button class="secondary" type="button" id="cancelRunningNewsEditor">বাতিল</button>'+
+        '<button class="primary" type="button" id="saveRunningNewsEditor">💾 সংরক্ষণ</button>'+
+        '</div></div>';
+      document.body.appendChild(old);
+      document.getElementById('closeRunningNewsEditor').onclick=function(){old.remove();};
+      document.getElementById('cancelRunningNewsEditor').onclick=function(){old.remove();};
+      document.getElementById('saveRunningNewsEditor').onclick=function(){
+        applyNews(document.getElementById('runningNewsEditorText').value);
+        old.remove();
+        if(window.toast)toast('চলমান নিউজ সংরক্ষণ হয়েছে।');
+      };
+      var head=old.querySelector('.win-head');
+      head.addEventListener('mousedown',function(e){
+        if(e.target.closest('button'))return;
+        var r=old.getBoundingClientRect(),sx=e.clientX,sy=e.clientY,ox=r.left,oy=r.top;
+        function mv(ev){
+          old.style.transform='none';
+          old.style.left=Math.max(0,Math.min(innerWidth-old.offsetWidth,ox+ev.clientX-sx))+'px';
+          old.style.top=Math.max(0,Math.min(innerHeight-20,oy+ev.clientY-sy))+'px';
+        }
+        function up(){document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);}
+        document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);
+        e.preventDefault();
+      });
+    }
+    var ta=document.getElementById('runningNewsEditorText');
+    if(ta)ta.value=getNewsText();
+    old.style.display='block';
+    if(ta){ta.focus();ta.select();}
+  };
+
+  function ensureMic(){
+    var news=document.querySelector('#app .header-mainline .header-news');
+    if(!news)return;
+    var mic=news.querySelector('.news-mic');
+    if(!mic){
+      mic=document.createElement('button');
+      mic.type='button';
+      mic.className='news-mic';
+      mic.textContent='🎙️';
+      mic.title='নতুন নিউজ লিখুন';
+      news.appendChild(mic);
+    }
+    mic.onclick=window.openRunningNewsEditor;
+  }
+
+  function applySaved(){
+    var saved=localStorage.getItem('jannatulBaqiRunningNews');
+    if(saved){
+      document.querySelectorAll('#app .header-news .running-news-text').forEach(function(el){
+        var run=el.querySelector('.news-full-run');
+        if(run)run.textContent=saved;
+        else el.textContent=saved;
+      });
+    }
+  }
+
+  function init(){
+    ensureMic();
+    applySaved();
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+  setTimeout(init,300);
+  setTimeout(init,1000);
+  setInterval(init,2500);
+})();
+</script>
