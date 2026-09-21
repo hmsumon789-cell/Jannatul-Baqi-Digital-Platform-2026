@@ -956,17 +956,13 @@ async function uploadMedia(){
       const max=type==='image'?20:50;
       if(f.size>max*1024*1024){failed++;toast(f.name+' — সর্বোচ্চ '+max+' MB।');continue}
       toast('আপলোড হচ্ছে: '+f.name+' — 0%');
-      const form=document.createElement('form');
-      form.style.display='none'; form.enctype='multipart/form-data';
-      const tk=document.createElement('input'); tk.name='token'; tk.value=token||''; form.appendChild(tk);
-      const tp=document.createElement('input'); tp.name='type'; tp.value=type; form.appendChild(tp);
-      const fi=input.cloneNode(true); fi.name='mediaFile';
-      const dt=new DataTransfer(); dt.items.add(f); fi.files=dt.files; form.appendChild(fi);
-      document.body.appendChild(form);
-      const r=await new Promise(function(resolve,reject){
-        google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).saveMediaForm(form);
+      const dataUrl=await new Promise(function(resolve,reject){
+        const fr=new FileReader();
+        fr.onload=function(){resolve(fr.result||'');};
+        fr.onerror=function(){reject(new Error('ফাইল পড়া যায়নি।'));};
+        fr.readAsDataURL(f);
       });
-      form.remove();
+      const r=await call('saveMedia',token,{name:f.name,type:type,size:f.size,mimeType:f.type,dataUrl:dataUrl,sort:0});
       if(r&&r.ok){uploaded++;toast('আপলোড 100% সম্পন্ন: '+f.name);}
       else{failed++;toast((r&&r.message)||('আপলোড ব্যর্থ: '+f.name));}
     }
