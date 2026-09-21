@@ -3026,3 +3026,91 @@ body.dark .header-news,body.dark .header-news *{color:#111!important}
   setTimeout(move,300);setTimeout(move,1000);
 })();
 </script>
+
+
+<!-- ===== FINAL HEADER HEIGHT + TOP ACTION FRONT + NEWS MIC RIGHT 2026-09-21 ===== -->
+<style id="final-header-height-top-action-front-2026-09-21">
+/* হিডার বড় ও পরিষ্কার */
+#app > .header{
+  position:relative!important;
+  z-index:10!important;
+  min-height:310px!important;
+}
+#app > .header .header-top{
+  min-height:225px!important;
+  padding-top:14px!important;
+  padding-bottom:14px!important;
+}
+#app > .header .header-content{
+  position:relative!important;
+  z-index:20!important;
+}
+#app > .header .header-running-row{
+  position:relative!important;
+  z-index:25!important;
+}
+
+/* হোম + ৩ মোড + সংকেত + অল সার্চ + লগআউট
+   হিডারের ভিতরে যাবে না — সবসময় হিডারের সামনে/উপরে থাকবে */
+#app > #topActionBar{
+  position:relative!important;
+  z-index:9999!important;
+  isolation:isolate!important;
+  display:flex!important;
+  flex-shrink:0!important;
+  order:-1!important;
+  margin-bottom:10px!important;
+}
+#app > #topActionBar *{
+  position:relative;
+  z-index:10000;
+}
+
+/* চলমান নিউজের মাইক ডান পাশে */
+.header-news{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+}
+.header-news .running-news-text{
+  order:1!important;
+  flex:1 1 auto!important;
+  min-width:0!important;
+}
+.header-news .news-mic{
+  order:2!important;
+  flex:0 0 38px!important;
+  margin-left:auto!important;
+  margin-right:2px!important;
+}
+
+/* মাইক ডান পাশে থাকবে, নিউজের লেখা মাঝখানে চলবে */
+#loginPage .ticker{
+  display:flex!important;
+  align-items:center!important;
+}
+#loginPage .ticker .ticker-text{
+  order:1!important;
+  flex:1 1 auto!important;
+}
+#loginPage .ticker .news-mic{
+  order:2!important;
+  margin-left:auto!important;
+  margin-right:2px!important;
+  flex:0 0 38px!important;
+}
+
+/* মোবাইলেও Action line আলাদা থাকবে */
+@media(max-width:900px){
+  #app > #topActionBar{
+    position:relative!important;
+    z-index:9999!important;
+  }
+  #app > .header{
+    min-height:290px!important;
+  }
+  #app > .header .header-top{
+    min-height:205px!important;
+  }
+}
+</style>
