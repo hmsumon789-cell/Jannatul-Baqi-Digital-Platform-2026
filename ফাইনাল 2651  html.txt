@@ -3376,3 +3376,34 @@ body.dark .header-news,body.dark .header-news *{color:#111!important}
   setTimeout(applyActualLogo,100);setTimeout(applyActualLogo,500);setTimeout(applyActualLogo,1500);
 })();
 </script>
+
+<!-- ===== LOCK TOP ACTION BAR OUTSIDE HEADER 2026-09-21 ===== -->
+<style id="lock-top-action-bar-2026-09-21">
+/* All Search/action line must occupy its own fixed row above header */
+#topActionBar{
+  position:relative!important;
+  display:flex!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:54px!important;
+  margin:0 0 10px 0!important;
+  padding:6px 10px!important;
+  box-sizing:border-box!important;
+  z-index:2147483647!important;
+  transform:none!important;
+  clear:both!important;
+  float:none!important;
+}
+#topActionBar *{position:relative!important;}
+/* prevent header from pulling/overlapping the action row */
+#topActionBar + .header,
+#topActionBar ~ .header{
+  position:relative!important;
+  top:auto!important;
+  margin-top:0!important;
+  transform:none!important;
+  clear:both!important;
+}
+#app > #topActionBar{position:relative!important;top:0!important;}
+body #topActionBar{top:0!important;}
+</style>
