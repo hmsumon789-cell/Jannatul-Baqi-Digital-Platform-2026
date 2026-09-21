@@ -634,6 +634,24 @@ body.gold #formWin .form-language-fixed span{border-radius:999px!important}
 </div>
 
 <div id="app" class="app shell">
+  <div id="topActionBar" class="top-action-bar">
+    <button class="primary header-home-final" onclick="goHome()" title="Home">🏠 হোম</button>
+    <div class="header-modes header-mode-icons">
+      <button class="mode" onclick="setMode('dark')" title="Dark">🌙</button>
+      <button class="mode" onclick="setMode('light')" title="Light">☀️</button>
+      <button class="mode" onclick="setMode('gold')" title="Golden">🟡</button>
+    </div>
+    <div class="header-signal-wrap">
+      <select id="appSignal" class="field header-signal" onchange="syncSearchSignal('app')">
+        <option value="">সংকেত — বিষয় নির্বাচন করুন</option>
+      </select>
+    </div>
+    <div class="header-id-search-wrap">
+      <input id="appSearch" class="field header-all-search-input" placeholder="ID / মোবাইল / ইমেইল" onkeydown="if(event.key==='Enter')doSearch('app')">
+      <button class="primary header-id-search-btn" onclick="doSearch('app')" title="ID Search">🔎 ID</button>
+    </div>
+    <button class="primary header-logout-final" onclick="logout()" title="Logout">🚪 লগআউট</button>
+  </div>
   <header class="header card">
     <!-- স্থায়ী Header Background Photo Slider -->
     <div id="headerBackgroundSlides" class="header-background-slides" aria-hidden="true"></div>
@@ -668,25 +686,7 @@ body.gold #formWin .form-language-fixed span{border-radius:999px!important}
       </div>
     </div>
 
-    <!-- HEADER LINE 3: ৩ মোড | সংকেত+বিষয় | ID SEARCH | ডানে Logout -->
-    <div class="header-search-row-final">
-      <button class="primary header-home-final" onclick="goHome()" title="Home">🏠 হোম</button>
-      <div class="header-modes header-mode-icons">
-        <button class="mode" onclick="setMode('dark')" title="Dark">🌙</button>
-        <button class="mode" onclick="setMode('light')" title="Light">☀️</button>
-        <button class="mode" onclick="setMode('gold')" title="Golden">🟡</button>
-      </div>
-      <div class="header-signal-wrap">
-        <select id="appSignal" class="field header-signal" onchange="syncSearchSignal('app')">
-          <option value="">সংকেত — বিষয় নির্বাচন করুন</option>
-        </select>
-      </div>
-      <div class="header-id-search-wrap">
-        <input id="appSearch" class="field header-all-search-input" placeholder="ID / মোবাইল / ইমেইল" onkeydown="if(event.key==='Enter')doSearch('app')">
-        <button class="primary header-id-search-btn" onclick="doSearch('app')" title="ID Search">🔎 ID</button>
-      </div>
-      <button class="primary header-logout-final" onclick="logout()" title="Logout">🚪 লগআউট</button>
-    </div>
+
   </header>
 
   <main>
@@ -1068,7 +1068,172 @@ function downloadCurrentForm(){
     span.style.padding='3px';
     el.replaceWith(span);
   });
-  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title></head><body><h2>'+($('winTitle').textContent||'ফর্ম')+'</h2>'+body.innerHTML+'</body></html>';
+  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title></head><body><h2>'+($('winTitle').textContent||'ফর্ম')+'</h2>'+body.innerHTML+'
+<style id="top-action-bar-and-running-news-final-2026-09-21">
+/* ===== TOP ACTION LINE: OUTSIDE + ABOVE HEADER ===== */
+#topActionBar{
+  display:flex!important;align-items:center!important;gap:8px!important;
+  width:100%!important;min-height:56px!important;padding:6px 8px!important;
+  margin:0 0 8px!important;box-sizing:border-box!important;
+  border:3px solid #b88408!important;border-radius:12px!important;
+  background:linear-gradient(145deg,#fff8d6,#d9b64a)!important;
+  box-shadow:inset 3px 3px 6px #fff9,inset -4px -4px 7px #7a5600,0 6px 0 #7a5600,0 10px 18px #0005!important;
+}
+#topActionBar .header-home-final{min-height:42px!important;min-width:105px!important}
+#topActionBar .header-modes{display:flex!important;gap:5px!important;align-items:center!important}
+#topActionBar .header-modes .mode{width:38px!important;height:38px!important;min-width:38px!important}
+#topActionBar .header-signal-wrap{min-width:190px!important;flex:0 0 190px!important}
+#topActionBar .header-signal{width:100%!important;min-height:42px!important}
+#topActionBar .header-id-search-wrap{display:flex!important;gap:6px!important;align-items:center!important;min-width:0!important;flex:1 1 auto!important}
+#topActionBar .header-all-search-input{width:100%!important;min-height:42px!important}
+#topActionBar .header-id-search-btn{min-height:42px!important;min-width:82px!important}
+#topActionBar .header-logout-final{min-height:42px!important;min-width:105px!important}
+#topActionBar button,#topActionBar input,#topActionBar select{
+  box-shadow:inset 2px 2px 4px rgba(255,255,255,.75),inset -3px -3px 5px rgba(0,0,0,.28),0 4px 0 rgba(80,50,0,.65),0 7px 12px rgba(0,0,0,.22)!important;
+}
+#topActionBar button:active{transform:translateY(3px)!important;box-shadow:inset 2px 2px 4px rgba(0,0,0,.3),0 1px 0 rgba(80,50,0,.65)!important}
+body.dark #topActionBar{background:#000!important;border-color:#ff1f2f!important}
+body.dark #topActionBar button,body.dark #topActionBar input,body.dark #topActionBar select{
+  background:#000!important;color:#ffe95c!important;border-color:#ff1f2f!important;
+}
+body.dark #topActionBar input{color:#fff!important}
+body.gold #topActionBar{border-color:#a80000!important;background:linear-gradient(145deg,#fff2a8,#d5a52b)!important}
+@media(max-width:900px){
+  #topActionBar{flex-wrap:wrap!important}
+  #topActionBar .header-signal-wrap{flex:1 1 180px!important;min-width:150px!important}
+  #topActionBar .header-id-search-wrap{flex:1 1 300px!important}
+  #topActionBar .header-logout-final{flex:1 1 100px!important}
+}
+@media(max-width:600px){
+  #topActionBar{gap:5px!important;padding:5px!important}
+  #topActionBar .header-home-final,#topActionBar .header-logout-final{min-width:90px!important}
+  #topActionBar .header-modes .mode{width:34px!important;min-width:34px!important;height:34px!important}
+  #topActionBar .header-signal-wrap{flex:1 1 145px!important}
+  #topActionBar .header-id-search-wrap{flex-basis:100%!important}
+}
+
+/* ===== RUNNING NEWS: BLACK TEXT + CLICKABLE MICROPHONE ===== */
+.header-news,.header-news *{
+  color:#111!important;
+}
+.header-news{position:relative!important;display:flex!important;align-items:center!important;gap:7px!important;text-align:left!important;overflow:hidden!important}
+.header-news .news-mic{
+  flex:0 0 38px!important;width:38px!important;height:34px!important;
+  margin-left:5px!important;border:2px solid #7a4f00!important;border-radius:8px!important;
+  background:linear-gradient(145deg,#fff2a8,#d5a52b)!important;color:#111!important;
+  font-size:18px!important;font-weight:900!important;line-height:1!important;
+  box-shadow:inset 2px 2px 4px #fff9,inset -2px -2px 4px #7a5600,0 3px 0 #7a5600!important;
+  cursor:pointer!important;z-index:5!important;
+}
+.header-news .news-mic:active{transform:translateY(2px)!important;box-shadow:inset 2px 2px 4px #7a5600,0 1px 0 #7a5600!important}
+.header-news .running-news-text{color:#111!important;font-weight:1000!important}
+#loginPage .ticker .news-mic{display:inline-flex!important}
+#loginPage .ticker{color:#111!important}
+body.dark .header-news,body.dark .header-news *{color:#111!important}
+</style>
+
+<div id="runningNewsWin" class="window news-editor-window">
+  <div class="win-head"><b>📢 নতুন চলমান নিউজ</b><button class="secondary" type="button" onclick="closeWindow('runningNewsWin')">✕</button></div>
+  <div class="win-body">
+    <label style="display:flex;flex-direction:column;gap:6px;font-weight:900">
+      নতুন নিউজ লিখুন
+      <textarea id="runningNewsInput" class="field" rows="5" placeholder="যে নিউজটি সব পেজে চলমান দেখাতে চান লিখুন..."></textarea>
+    </label>
+    <div style="display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap">
+      <button class="primary" type="button" onclick="saveRunningNews()">💾 Save</button>
+      <button class="secondary" type="button" onclick="closeWindow('runningNewsWin')">বন্ধ করুন</button>
+    </div>
+    <div id="runningNewsMsg" class="small" style="text-align:center;margin-top:8px"></div>
+  </div>
+</div>
+
+<script id="running-news-editor-final-2026-09-21">
+(function(){
+  function openEditor(){
+    var w=document.getElementById('runningNewsWin');
+    var inp=document.getElementById('runningNewsInput');
+    if(inp){
+      var src=document.querySelector('.header-news .running-news-text,.ticker-text');
+      inp.value=src?src.textContent.trim():'';
+    }
+    if(w)w.classList.add('show');
+  }
+  window.openRunningNewsEditor=openEditor;
+
+  function wireNews(el){
+    if(!el||el.dataset.newsWired==='1')return;
+    el.dataset.newsWired='1';
+    var old=el.querySelector('.running-news-text');
+    var text=old?old.textContent.trim():el.textContent.trim();
+    el.innerHTML='';
+    var mic=document.createElement('button');
+    mic.type='button';mic.className='news-mic';mic.title='নতুন নিউজ যোগ করুন';mic.textContent='🎙️';
+    mic.onclick=openEditor;
+    el.appendChild(mic);
+    var span=document.createElement('span');
+    span.className='running-news-text';span.textContent=text||'জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম';
+    el.appendChild(span);
+  }
+  window.refreshRunningNewsUI=function(text){
+    text=String(text||'').trim();
+    if(!text)return;
+    document.querySelectorAll('.header-news').forEach(function(el){
+      el.dataset.newsWired='0';wireNews(el);
+      var s=el.querySelector('.running-news-text');if(s)s.textContent=text;
+    });
+    var lt=document.querySelector('#loginPage .ticker-text');
+    if(lt)lt.textContent=text;
+  };
+  async function loadRunningNews(){
+    try{
+      var r=await call('getPublicConfig');
+      if(r&&r.runningNews)window.refreshRunningNewsUI(r.runningNews);
+    }catch(e){}
+  }
+  window.saveRunningNews=async function(){
+    var inp=document.getElementById('runningNewsInput'),msg=document.getElementById('runningNewsMsg');
+    var text=inp?String(inp.value||'').trim():'';
+    if(!text){if(msg)msg.textContent='নিউজ লিখুন।';return}
+    try{
+      if(msg)msg.textContent='সেভ হচ্ছে...';
+      var r=await call('setRunningNews',token,text);
+      if(r&&r.ok){
+        window.refreshRunningNewsUI(text);
+        if(msg)msg.textContent='নতুন নিউজ সব পেজে আপডেট হয়েছে।';
+        setTimeout(function(){closeWindow('runningNewsWin')},700);
+      }else if(msg)msg.textContent=(r&&r.message)||'নিউজ সেভ হয়নি।';
+    }catch(e){if(msg)msg.textContent='সার্ভার ত্রুটি: '+(e.message||e);}
+  };
+  function start(){
+    document.querySelectorAll('.header-news').forEach(wireNews);
+    var t=document.querySelector('#loginPage .ticker');
+    if(t && !t.querySelector('.news-mic')){
+      t.dataset.newsWired='1';
+      var old=t.querySelector('.ticker-text');
+      var text=old?old.textContent.trim():t.textContent.trim();
+      t.innerHTML='';
+      var mic=document.createElement('button');mic.type='button';mic.className='news-mic';mic.title='নতুন নিউজ যোগ করুন';mic.textContent='🎙️';mic.onclick=openEditor;t.appendChild(mic);
+      var span=document.createElement('span');span.className='ticker-text';span.textContent=text;t.appendChild(span);
+    }
+    loadRunningNews();
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
+  setTimeout(start,600);setTimeout(start,1800);
+  setInterval(loadRunningNews,10000);
+})();
+</script>
+
+<script id="move-top-action-line-outside-header-2026-09-21">
+(function(){
+  function move(){
+    var app=document.getElementById('app'),bar=document.getElementById('topActionBar'),header=document.querySelector('#app .header');
+    if(app&&bar&&header&&bar.parentNode!==app)app.insertBefore(bar,header);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',move);else move();
+  setTimeout(move,300);setTimeout(move,1000);
+})();
+</script>
+</body></html>';
   var blob=new Blob([html],{type:'text/html;charset=utf-8'});
   var url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url;a.download=title+'.html';document.body.appendChild(a);a.click();a.remove();
