@@ -2729,3 +2729,57 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
   setTimeout(start,700);setTimeout(start,1800);
 })();
 </script>
+
+<!-- ===== FINAL MEDIA DIRECT PLAYBACK — NO URI FIELD 2026-09-21 ===== -->
+<script id="final-media-direct-playback-2026-09-21">
+(function(){
+  function direct(x){
+    var u=String((x&&x.DirectURL)||'');
+    if(!u) u=String((x&&x.DataURL)||'');
+    if(u)return u;
+    var id=String((x&&x.FileID)||'');
+    return id?'https://drive.google.com/uc?export=download&id='+encodeURIComponent(id):'';
+  }
+  function render(){
+    var box=document.getElementById('mediaStageContent');
+    if(!box)return;
+    if(!window.media||!media.length){box.innerHTML='<span class="media-empty">মিডিয়া লোড করে দেখুন</span>';return;}
+    mediaIndex=((Number(mediaIndex)||0)%media.length+media.length)%media.length;
+    var x=media[mediaIndex]||{},u=direct(x),t=String(x.Type||'').toLowerCase();
+    box.innerHTML='';
+    if(!u){box.innerHTML='<span class="media-empty">মিডিয়া পাওয়া যায়নি।</span>';return;}
+    if(t==='image'){
+      var im=new Image(); im.src=u; im.alt=''; im.style.cssText='width:100%;height:100%;object-fit:contain;background:#111;display:block';
+      im.onerror=function(){box.innerHTML='<span class="media-empty">ফটো চালানো যাচ্ছে না।</span>';};
+      box.appendChild(im);
+    }else if(t==='video'){
+      var v=document.createElement('video'); v.controls=true;v.playsInline=true;v.preload='auto';v.src=u;
+      v.style.cssText='width:100%;height:100%;object-fit:contain;background:#111;display:block';
+      v.onerror=function(){toast('ভিডিও চালানো যাচ্ছে না। আপলোড করা ফাইলের access পরীক্ষা করুন।');};
+      box.appendChild(v);
+    }else if(t==='audio'){
+      var a=document.createElement('audio');a.controls=true;a.preload='auto';a.src=u;
+      a.style.cssText='width:90%;max-height:80px';a.onerror=function(){toast('অডিও চালানো যাচ্ছে না।');};box.appendChild(a);
+    }
+  }
+  window.renderMedia=render;
+  window.nextMedia=function(){if(window.media&&media.length){mediaIndex=(Number(mediaIndex)+1)%media.length;render();}};
+  window.prevMedia=function(){if(window.media&&media.length){mediaIndex=(Number(mediaIndex)-1+media.length)%media.length;render();}};
+  window.toggleMediaPlay=function(){
+    var el=document.querySelector('#mediaStageContent video,#mediaStageContent audio');
+    if(!el){render();return;}
+    if(el.paused){var p=el.play();if(p&&p.catch)p.catch(function(){toast('মিডিয়া চালানো যাচ্ছে না।');});}else el.pause();
+  };
+  function load(){
+    if(typeof call==='function'&&token){
+      call('listMedia',token).then(function(r){
+        if(Array.isArray(r)){window.media=r;mediaIndex=Math.min(Number(mediaIndex)||0,Math.max(0,media.length-1));render();}
+        else if(r&&Array.isArray(r.media)){window.media=r.media;render();}
+      }).catch(function(){});
+    }else if(window.media&&media.length)render();
+  }
+  function start(){load();}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
+  setTimeout(start,900);setTimeout(start,2200);
+})();
+</script>
