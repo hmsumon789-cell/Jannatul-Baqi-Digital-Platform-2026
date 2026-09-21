@@ -2779,3 +2779,29 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
   setTimeout(start,900);setTimeout(start,2200);
 })();
 </script>
+<style id="header-golden-3d-final-2026-09-21">
+/* Header: all text golden + 3D boxes/buttons */
+.header,.header *{color:#d4a017!important;text-shadow:0 2px 1px #5b4100!important}
+.header input,.header select,.header textarea,.header button,.header .news,.header .card,.header .dashboard-nav,.header .header-tools,.header .mode,.header .field{
+ color:#d4a017!important;border-color:#d4a017!important;
+ background:linear-gradient(145deg,#fff8d6,#d9b64a)!important;
+ box-shadow:inset 2px 2px 4px #fff9,inset -3px -3px 6px #7a5600,0 5px 0 #7a5600,0 8px 14px #0005!important;
+ transform:translateY(0);transition:transform .12s,box-shadow .12s!important;
+}
+.header button:active,.header .mode:active{transform:translateY(4px)!important;box-shadow:inset 2px 2px 5px #7a5600,0 1px 0 #7a5600,0 3px 6px #0005!important}
+.header .title-bn,.header .title-ar,.header .title-en,.header .date-line,.header .news,.header h2,.header label,.header span{color:#d4a017!important}
+/* Disable media playback temporarily — leave the media area inactive */
+#mediaStageContent{position:relative!important}
+#mediaStageContent img,#mediaStageContent video,#mediaStageContent audio{display:none!important}
+#mediaStageContent::after{content:'মিডিয়া প্লেব্যাক আপাতত বন্ধ';display:block;color:#d4a017;font-weight:900;font-size:20px;text-align:center;padding:80px 10px}
+</style>
+<script id="media-playback-off-final-2026-09-21">
+(function(){
+ function off(){
+   var b=document.getElementById('mediaStageContent'); if(!b)return;
+   var m=b.querySelectorAll('img,video,audio'); for(var i=0;i<m.length;i++){try{m[i].pause&&m[i].pause()}catch(e){}m[i].remove();}
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',off);else off();
+ setTimeout(off,500);setTimeout(off,1500);setTimeout(off,3000);
+})();
+</script>
