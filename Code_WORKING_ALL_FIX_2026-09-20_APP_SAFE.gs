@@ -525,7 +525,7 @@ function mediaDirectUrl_(dataUrl){
   const s=String(dataUrl||'');
   const m=s.match(/[?&]id=([^&]+)/);
   if(m) return 'https://drive.google.com/uc?export=download&id='+encodeURIComponent(decodeURIComponent(m[1]));
-  const d=s.match(/\\/d\\/([^/]+)/);
+  const d=s.match(/\/d\/([^/]+)/);
   if(d) return 'https://drive.google.com/uc?export=download&id='+encodeURIComponent(d[1]);
   return s;
 }
