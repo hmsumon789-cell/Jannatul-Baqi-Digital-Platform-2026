@@ -2790,18 +2790,4 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
 }
 .header button:active,.header .mode:active{transform:translateY(4px)!important;box-shadow:inset 2px 2px 5px #7a5600,0 1px 0 #7a5600,0 3px 6px #0005!important}
 .header .title-bn,.header .title-ar,.header .title-en,.header .date-line,.header .news,.header h2,.header label,.header span{color:#d4a017!important}
-/* Disable media playback temporarily — leave the media area inactive */
-#mediaStageContent{position:relative!important}
-#mediaStageContent img,#mediaStageContent video,#mediaStageContent audio{display:none!important}
-#mediaStageContent::after{content:'মিডিয়া প্লেব্যাক আপাতত বন্ধ';display:block;color:#d4a017;font-weight:900;font-size:20px;text-align:center;padding:80px 10px}
 </style>
-<script id="media-playback-off-final-2026-09-21">
-(function(){
- function off(){
-   var b=document.getElementById('mediaStageContent'); if(!b)return;
-   var m=b.querySelectorAll('img,video,audio'); for(var i=0;i<m.length;i++){try{m[i].pause&&m[i].pause()}catch(e){}m[i].remove();}
- }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',off);else off();
- setTimeout(off,500);setTimeout(off,1500);setTimeout(off,3000);
-})();
-</script>
