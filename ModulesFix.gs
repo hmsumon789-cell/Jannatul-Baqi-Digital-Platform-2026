@@ -1,0 +1,45 @@
+/** Jannatul Baqi — Dashboard module recovery
+ * Restores the complete dashboard module registry without touching Index.html,
+ * login/OTP, Code.gs, Version 60, or existing functions.
+ */
+function getModules_(){
+  return [
+    ['institution','প্রতিষ্ঠান পরিচিতি'],
+    ['student','ছাত্র/ছাত্রী অ্যাড করুন'],
+    ['teacher','শিক্ষক/শিক্ষিকা অ্যাড করুন'],
+    ['donor','দাতা সদস্য অ্যাড করুন'],
+    ['exam','পরীক্ষার্থী নিবন্ধন করুন'],
+    ['fees','বেতন-ফি আদায়'],
+    ['salary','বেতন প্রদান'],
+    ['notice','অল নোটিশ'],
+    ['report','অল রিপোর্ট'],
+    ['finance','আয়+ব্যয়'],
+    ['marks','মার্কশিট'],
+    ['idcard','আইডি কার্ড'],
+    ['admit','অ্যাডমিট কার্ড'],
+    ['entry','প্রবেশ পত্র'],
+    ['result','রেজাল্ট কার্ড'],
+    ['contact','কন্টাক্ট ম্যানেজ'],
+    ['tc','টিসি/ছাড়পত্র'],
+    ['admin','নতুন অ্যাডমিন একাউন্ট'],
+    ['madrasa','নতুন মাদ্রাসা নিবন্ধন'],
+    ['admission','অনলাইন ভর্তি'],
+    ['payment','অনলাইন পেমেন্ট'],
+    ['attendance','ডিজিটাল হাজিরা'],
+    ['gallery','ফটো গ্যালারি'],
+    ['files','অল ডকুমেন্টস/ফাইল'],
+    ['excel','Excel শীট'],
+    ['sms','SMS পোর্টাল'],
+    ['students','ছাত্র/ছাত্রী তালিকা'],
+    ['teachers','শিক্ষক/শিক্ষিকা তালিকা'],
+    ['exams','পরীক্ষার্থী তালিকা'],
+    ['admins','অ্যাডমিন তালিকা'],
+    ['madrasas','নতুন নিবন্ধনকৃত মাদ্রাসার তালিকা'],
+    ['certificate','সার্টিফিকেট'],
+    ['receipt','মানিরিসিট'],
+    ['accountControl','অনুমোদন + ফিচার পারমিশন'],
+    ['maleMadrasa','নিবন্ধনকৃত পুরুষ মাদ্রাসা'],
+    ['femaleMadrasa','নিবন্ধনকৃত মহিলা মাদ্রাসা'],
+    ['help','পরামর্শ+যোগ+অভিযোগ']
+  ];
+}
