@@ -4000,3 +4000,66 @@ body #topActionBar{top:0!important;}
   100%{transform:translateX(calc(-100% - 100vw))}
 }
 </style>
+
+
+<!-- ===== WINDOW DRAG TASKBAR BOUNDARY FIX 2026-09-21 ===== -->
+<style id="window-taskbar-boundary-fix-2026-09-21">
+#app .window,#app .form-window,#app [class*="form-window"]{
+  position:fixed!important;
+  max-height:calc(100vh - 86px)!important;
+}
+</style>
+<script id="window-taskbar-boundary-fix-js-2026-09-21">
+(function(){
+  function clampWindow(w){
+    if(!w)return;
+    var bar=document.getElementById('topActionBar');
+    var topMin=Math.max(72,(bar?bar.getBoundingClientRect().height:58)+8);
+    var head=w.querySelector('.win-head');
+    var headH=head?head.getBoundingClientRect().height:42;
+    var bottomLimit=window.innerHeight;
+    var rect=w.getBoundingClientRect();
+    var maxTop=Math.max(topMin,bottomLimit-headH-8);
+    var top=parseFloat(w.style.top);
+    if(!isFinite(top))top=rect.top;
+    top=Math.max(topMin,Math.min(top,maxTop));
+    w.style.setProperty('top',top+'px','important');
+    w.style.setProperty('max-height',Math.max(180,bottomLimit-top-8)+'px','important');
+  }
+  function markDrag(w){
+    if(!w||w.dataset.taskbarDragBound==='1')return;
+    var head=w.querySelector('.win-head');
+    if(!head)return;
+    w.dataset.taskbarDragBound='1';
+    var dragging=false,startY=0,startTop=0;
+    head.addEventListener('mousedown',function(e){
+      if(e.button!==0)return;
+      dragging=true;startY=e.clientY;
+      var r=w.getBoundingClientRect();startTop=r.top;
+      w.dataset.userDragActive='1';
+      e.preventDefault();
+    });
+    document.addEventListener('mousemove',function(e){
+      if(!dragging)return;
+      var top=startTop+(e.clientY-startY);
+      var bar=document.getElementById('topActionBar');
+      var minTop=Math.max(72,(bar?bar.getBoundingClientRect().height:58)+8);
+      var r=w.getBoundingClientRect();
+      var h=Math.min(r.height,window.innerHeight-10);
+      var maxTop=Math.max(minTop,window.innerHeight-h-4);
+      top=Math.max(minTop,Math.min(top,maxTop));
+      w.style.setProperty('top',top+'px','important');
+      w.style.setProperty('transform','translateX(-50%)','important');
+    });
+    document.addEventListener('mouseup',function(){
+      if(dragging){dragging=false;clampWindow(w);}
+    });
+  }
+  function scan(){
+    document.querySelectorAll('#app .window,#app .form-window,#app [class*="form-window"]').forEach(function(w){markDrag(w);if(w.classList.contains('show'))clampWindow(w);});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
+  setTimeout(scan,300);setTimeout(scan,1000);setInterval(scan,1200);
+  window.addEventListener('resize',function(){scan();document.querySelectorAll('#app .window.show,#app .form-window.show').forEach(clampWindow);});
+})();
+</script>
