@@ -2644,6 +2644,17 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
   function start(){
     if(window.media&&media.length)renderAuthoritative();
     else arrows();
+    // ===== AUTO SLIDE / PLAYER RUNNING — 5 SECOND =====
+    clearInterval(window.finalMediaAutoSlideTimer);
+    window.finalMediaAutoSlideTimer=null;
+    if(window.media&&media.length>1){
+      window.finalMediaAutoSlideTimer=setInterval(function(){
+        if(window.media&&media.length>1){
+          mediaIndex=(Number(mediaIndex)+1)%media.length;
+          renderAuthoritative();
+        }
+      },5000);
+    }
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
   setTimeout(start,400);setTimeout(start,1000);
