@@ -2930,3 +2930,158 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 setTimeout(fix,300);setTimeout(fix,1000);setInterval(function(){logo();topBar();drag()},1500);
 })();
 </script>
+
+
+<!-- ===== USER FINAL UI FIX — ONE-ROW SEARCH + LOGO BACKGROUND + FORM CLOSE/DRAG 2026-09-21 ===== -->
+<style id="user-final-ui-fix-2026-09-21">
+/* Logo: remove visible white image background where the source contains white */
+#app .header #headerLogo,#loginPage #loginLogo{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  border-radius:0!important;
+  mix-blend-mode:multiply!important;
+}
+/* All Search action line: one compact row on desktop */
+#app #topActionBar,
+#app .header-search-row-final{
+  display:flex!important;
+  flex-wrap:nowrap!important;
+  align-items:center!important;
+  width:100%!important;
+  max-width:none!important;
+  gap:6px!important;
+  overflow:visible!important;
+  white-space:nowrap!important;
+}
+#app #topActionBar>*,
+#app .header-search-row-final>*{
+  flex:0 1 auto!important;
+  min-width:0!important;
+  white-space:nowrap!important;
+}
+#app #topActionBar .header-id-search-wrap,
+#app .header-search-row-final .header-id-search-wrap{
+  flex:1 1 260px!important;
+  min-width:160px!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:5px!important;
+}
+#app #topActionBar .header-all-search-input,
+#app .header-search-row-final .header-all-search-input{
+  flex:1 1 auto!important;
+  min-width:100px!important;
+}
+#app #topActionBar .header-signal-wrap,
+#app .header-search-row-final .header-signal-wrap{flex:0 1 150px!important;min-width:110px!important}
+#app #topActionBar .header-mode-icons,
+#app .header-search-row-final .header-mode-icons{display:flex!important;flex:0 0 auto!important;gap:4px!important}
+#app #topActionBar button,#app #topActionBar select,
+#app #topActionBar input,#app .header-search-row-final button,
+#app .header-search-row-final select,#app .header-search-row-final input{
+  flex-shrink:1!important;
+  min-height:40px!important;
+}
+/* Form window: always below action bar, fully draggable X/Y, never beyond viewport/taskbar */
+#app .window,#app .form-window{
+  position:fixed!important;
+  max-height:calc(100vh - 86px)!important;
+  overflow:auto!important;
+}
+#app #formWin{
+  left:50%!important;
+  top:var(--ui-form-top,72px)!important;
+  transform:translateX(-50%)!important;
+  width:min(794px,96vw)!important;
+  max-height:calc(100vh - 80px)!important;
+}
+#app #formWin .win-head{cursor:move!important;touch-action:none!important}
+#app #formWin .win-body{max-height:calc(100vh - 135px)!important;overflow:auto!important}
+@media(max-width:900px){
+  #app #topActionBar,#app .header-search-row-final{flex-wrap:nowrap!important;overflow-x:auto!important}
+  #app #formWin{max-width:96vw!important;max-height:calc(100vh - 80px)!important}
+}
+</style>
+<script id="user-final-ui-fix-js-2026-09-21">
+(function(){
+  function barHeight(){
+    var b=document.getElementById('topActionBar');
+    return b?Math.max(52,Math.ceil(b.getBoundingClientRect().height)+6):70;
+  }
+  function keepFormInViewport(w){
+    if(!w)return;
+    var b=barHeight(),r=w.getBoundingClientRect(),ww=w.offsetWidth,hh=w.offsetHeight;
+    var maxX=Math.max(0,window.innerWidth-ww),maxY=Math.max(b,window.innerHeight-hh-2);
+    var x=parseFloat(w.style.left);
+    var y=parseFloat(w.style.top);
+    if(!isFinite(x))x=(window.innerWidth-ww)/2;
+    if(!isFinite(y))y=b;
+    x=Math.max(0,Math.min(maxX,x)); y=Math.max(b,Math.min(maxY,y));
+    w.style.setProperty('left',x+'px','important');
+    w.style.setProperty('top',y+'px','important');
+    w.style.setProperty('transform','none','important');
+  }
+  function placeFormTop(){
+    var w=document.getElementById('formWin');if(!w)return;
+    if(w.dataset.userDragActive!=='1'){
+      var b=barHeight();
+      w.style.setProperty('top',b+'px','important');
+      w.style.setProperty('left','50%','important');
+      w.style.setProperty('transform','translateX(-50%)','important');
+    }else keepFormInViewport(w);
+  }
+  function bindClose(){
+    var w=document.getElementById('formWin');if(!w)return;
+    var btn=w.querySelector('.win-actions button[title="Close"]');
+    if(btn&&!btn.dataset.closeFix){
+      btn.dataset.closeFix='1';
+      btn.addEventListener('click',function(e){
+        e.preventDefault();e.stopPropagation();
+        w.classList.remove('show','minimized');
+        w.style.height='';
+        w.dataset.userDragActive='0';
+      },true);
+    }
+  }
+  function bindDrag(){
+    var w=document.getElementById('formWin');if(!w||w.dataset.xyDragFix==='1')return;
+    var h=w.querySelector('.win-head');if(!h)return;
+    w.dataset.xyDragFix='1';
+    h.addEventListener('mousedown',function(e){
+      if(e.button!==0||e.target.closest('button'))return;
+      var r=w.getBoundingClientRect(),sx=e.clientX,sy=e.clientY;
+      var startX=r.left,startY=r.top,dragging=true;
+      w.dataset.userDragActive='1';
+      w.style.setProperty('left',startX+'px','important');
+      w.style.setProperty('top',startY+'px','important');
+      w.style.setProperty('transform','none','important');
+      function move(ev){
+        if(!dragging)return;
+        var b=barHeight(),maxX=Math.max(0,innerWidth-w.offsetWidth),maxY=Math.max(b,innerHeight-w.offsetHeight-2);
+        var x=Math.max(0,Math.min(maxX,startX+ev.clientX-sx));
+        var y=Math.max(b,Math.min(maxY,startY+ev.clientY-sy));
+        w.style.setProperty('left',x+'px','important');
+        w.style.setProperty('top',y+'px','important');
+      }
+      function up(){
+        dragging=false;
+        document.removeEventListener('mousemove',move);
+        document.removeEventListener('mouseup',up);
+        keepFormInViewport(w);
+      }
+      document.addEventListener('mousemove',move);
+      document.addEventListener('mouseup',up);
+      e.preventDefault();
+    },true);
+  }
+  function fix(){
+    placeFormTop();bindClose();bindDrag();
+    var b=document.getElementById('topActionBar');
+    if(b)b.style.setProperty('flex-wrap','nowrap','important');
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fix);else fix();
+  setTimeout(fix,200);setTimeout(fix,700);setTimeout(fix,1500);
+  window.addEventListener('resize',function(){var w=document.getElementById('formWin');if(w&&w.classList.contains('show'))keepFormInViewport(w);});
+})();
+</script>
