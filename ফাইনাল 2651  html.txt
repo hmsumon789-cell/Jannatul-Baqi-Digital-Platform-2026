@@ -3085,3 +3085,150 @@ setTimeout(fix,300);setTimeout(fix,1000);setInterval(function(){logo();topBar();
   window.addEventListener('resize',function(){var w=document.getElementById('formWin');if(w&&w.classList.contains('show'))keepFormInViewport(w);});
 })();
 </script>
+
+
+<!-- ===== FINAL USER LAYOUT PASS 2026-09-21 ===== -->
+<style id="final-user-layout-pass-2026-09-21">
+/* 1. Logo: transparent surroundings */
+#app #headerLogo{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  mix-blend-mode:multiply!important;
+}
+/* 2. Header: sheet on left, running news in middle with mic at right, clock/date on far right */
+#app .header-mainbar{
+  display:grid!important;
+  grid-template-columns:auto minmax(0,1fr) auto!important;
+  align-items:center!important;
+  gap:8px!important;
+}
+#app .header-mainbar .sheet-btn{justify-self:start!important;white-space:nowrap!important}
+#app .header-mainbar .header-news{
+  min-width:0!important;
+  display:flex!important;
+  align-items:center!important;
+  flex-wrap:nowrap!important;
+  overflow:hidden!important;
+}
+#app .header-mainbar .header-news .running-news-text{
+  flex:1 1 auto!important;
+  min-width:0!important;
+  overflow:hidden!important;
+}
+#app .header-mainbar .header-news .news-mic{
+  flex:0 0 40px!important;
+  width:40px!important;
+  min-width:40px!important;
+  margin-left:6px!important;
+  margin-right:2px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  z-index:5!important;
+}
+#app .header-mainbar .header-datetime{
+  justify-self:end!important;
+  white-space:nowrap!important;
+  min-width:max-content!important;
+}
+#app .header-mainbar .header-datetime .clock,
+#app .header-mainbar .header-datetime .date-line{
+  white-space:nowrap!important;
+}
+/* 3. Dashboard navigation: Home/all-features left; admin approval + language right */
+#app .dashboard-nav{
+  display:grid!important;
+  grid-template-columns:auto minmax(0,1fr) auto auto!important;
+  align-items:center!important;
+  gap:8px!important;
+  width:100%!important;
+  margin:10px 0!important;
+}
+#app .dashboard-nav .home-btn,
+#app .dashboard-nav .dashboard-home,
+#app .dashboard-nav .all-features,
+#app .dashboard-nav .features-select{
+  justify-self:start!important;
+  white-space:nowrap!important;
+}
+#app .dashboard-nav .admin-approval,
+#app .dashboard-nav .account-approval,
+#app .dashboard-nav .approval-btn,
+#app .dashboard-nav .header-lang{
+  justify-self:end!important;
+  white-space:nowrap!important;
+}
+/* 4. Every window/form: free X/Y movement, including to the bottom edge/taskbar area */
+#app .window,#app .form-window{
+  position:fixed!important;
+  max-width:96vw!important;
+  max-height:calc(100vh - 4px)!important;
+  overflow:auto!important;
+  transform:none!important;
+}
+#app .window.show,#app .form-window.show{
+  display:block!important;
+}
+#app .window .win-head,#app .form-window .win-head{
+  cursor:move!important;
+  user-select:none!important;
+  touch-action:none!important;
+}
+</style>
+<script id="final-user-layout-pass-js-2026-09-21">
+(function(){
+  function qs(s){return document.querySelector(s)}
+  function barBottom(){
+    var b=qs('#topActionBar');
+    return b?Math.ceil(b.getBoundingClientRect().bottom):0;
+  }
+  function clampWindow(w,x,y){
+    if(!w)return;
+    var ww=w.offsetWidth,hh=w.offsetHeight;
+    var minX=Math.min(0,innerWidth-ww), maxX=Math.max(0,innerWidth-ww);
+    var minY=Math.max(barBottom(),0), maxY=Math.max(minY,innerHeight-2);
+    /* allow bottom/taskbar area: top can reach the bottom so the lower part is naturally under the taskbar */
+    x=Math.max(minX,Math.min(maxX,x));
+    y=Math.max(minY,Math.min(maxY,y));
+    w.style.setProperty('left',x+'px','important');
+    w.style.setProperty('top',y+'px','important');
+    w.style.setProperty('transform','none','important');
+  }
+  function bindOne(w){
+    if(!w||w.dataset.freeXY==='1')return;
+    var h=w.querySelector('.win-head');if(!h)return;
+    w.dataset.freeXY='1';
+    h.addEventListener('mousedown',function(e){
+      if(e.button!==0 || e.target.closest('button,input,select,textarea,a,label'))return;
+      var r=w.getBoundingClientRect(),sx=e.clientX,sy=e.clientY;
+      var startX=r.left,startY=r.top,dragging=true;
+      function move(ev){
+        if(!dragging)return;
+        clampWindow(w,startX+ev.clientX-sx,startY+ev.clientY-sy);
+      }
+      function up(){
+        dragging=false;
+        document.removeEventListener('mousemove',move);
+        document.removeEventListener('mouseup',up);
+        w.dataset.userDragActive='1';
+      }
+      document.addEventListener('mousemove',move);
+      document.addEventListener('mouseup',up);
+      e.preventDefault();e.stopPropagation();
+    },true);
+  }
+  function init(){
+    document.querySelectorAll('#app .window,#app .form-window').forEach(bindOne);
+    var w=qs('#formWin');
+    if(w && !w.dataset.userDragActive){
+      var b=barBottom(),r=w.getBoundingClientRect();
+      w.style.setProperty('left',((innerWidth-w.offsetWidth)/2)+'px','important');
+      w.style.setProperty('top',b+'px','important');
+      w.style.setProperty('transform','none','important');
+    }
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+  setTimeout(init,300);setTimeout(init,1000);setInterval(init,2000);
+})();
+</script>
