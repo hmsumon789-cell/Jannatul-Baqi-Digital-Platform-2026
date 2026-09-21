@@ -521,9 +521,34 @@ function saveMedia(token,item) {
   return finishMediaUpload(token,c.fileId,item);
 }
 
+function mediaDirectUrl_(dataUrl){
+  const s=String(dataUrl||'');
+  const m=s.match(/[?&]id=([^&]+)/);
+  if(m) return 'https://drive.google.com/uc?export=download&id='+encodeURIComponent(decodeURIComponent(m[1]));
+  const d=s.match(/\\/d\\/([^/]+)/);
+  if(d) return 'https://drive.google.com/uc?export=download&id='+encodeURIComponent(d[1]);
+  return s;
+}
+function ensureMediaAccess_(rows){
+  return rows.map(function(x){
+    const url=String(x.DataURL||'');
+    const m=url.match(/[?&]id=([^&]+)/);
+    if(m){
+      const id=decodeURIComponent(m[1]);
+      try{ DriveApp.getFileById(id).setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW); }catch(e){}
+      x.DirectURL='https://drive.google.com/uc?export=download&id='+encodeURIComponent(id);
+      x.FileID=id;
+    }else{
+      x.DirectURL=mediaDirectUrl_(url);
+      x.FileID='';
+    }
+    return x;
+  });
+}
 function listMedia(token) {
   auth_(token);
-  return listRows_(SHEETS.MEDIA,token,500).filter(x=>String(x.Status).toUpperCase()==='ACTIVE');
+  const rows=listRows_(SHEETS.MEDIA,token,500).filter(x=>String(x.Status).toUpperCase()==='ACTIVE');
+  return ensureMediaAccess_(rows);
 }
 
 function deleteMedia(token,serial) {
