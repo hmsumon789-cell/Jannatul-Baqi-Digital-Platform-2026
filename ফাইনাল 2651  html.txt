@@ -2446,7 +2446,10 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
 
 <!-- ===== FINAL CLEAN MEDIA CONTROLS 2026-09-20 ===== -->
 <style id="final-clean-media-controls-2026-09-20">
-#mediaStage{background:transparent!important;border:0!important;padding:0!important;box-shadow:none!important}
+#mediaStage{background:transparent!important;border:0!important;padding:0!important;box-shadow:none!important;display:block!important;position:relative!important;overflow:visible!important}
+#mediaStage .dashboard-slider-controls{width:100%!important;display:flex!important;position:relative!important;z-index:5!important}
+#mediaDeleteList{width:100%!important;box-sizing:border-box!important;position:relative!important;display:none!important;clear:both!important;z-index:20!important}
+#mediaDeleteList.show{display:block!important}
 #mediaStageContent{position:relative!important;width:100%!important;height:260px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:#111!important;border:2px solid #a80000!important;border-radius:8px!important;overflow:hidden!important;box-shadow:0 8px 20px rgba(0,0,0,.35)!important}
 #mediaStageContent img,#mediaStageContent video{width:100%!important;height:100%!important;object-fit:contain!important;background:#111!important;display:block!important}
 #mediaStageContent audio{width:90%!important}
@@ -2627,6 +2630,7 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
     var pb=document.getElementById('mediaPlayBtn');
     if(pb)pb.textContent='▶ প্লে';
     if(typeof renderMediaList==='function')renderMediaList();
+    ensureAutoSlide();
   }
   window.renderMedia=renderAuthoritative;
   window.nextMedia=function(){
@@ -2641,10 +2645,7 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
     try{frame.contentWindow.postMessage({type:'play'},'*');}catch(e){}
     frame.focus();
   };
-  function start(){
-    if(window.media&&media.length)renderAuthoritative();
-    else arrows();
-    // ===== AUTO SLIDE / PLAYER RUNNING — 5 SECOND =====
+  function ensureAutoSlide(){
     clearInterval(window.finalMediaAutoSlideTimer);
     window.finalMediaAutoSlideTimer=null;
     if(window.media&&media.length>1){
@@ -2655,6 +2656,11 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
         }
       },5000);
     }
+  }
+  function start(){
+    if(window.media&&media.length)renderAuthoritative();
+    else arrows();
+    ensureAutoSlide();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
   setTimeout(start,400);setTimeout(start,1000);
