@@ -1139,6 +1139,66 @@ function downloadCurrentForm(){
   setTimeout(wire,300);setTimeout(wire,1000);
 })();
 </script>
+
+<style id="brand-new-media-player-only-2026-09-20">
+/* পুরোনো Load/Play/Delete controls ও পুরোনো player UI সম্পূর্ণ নিষ্ক্রিয় */
+.dashboard-slider .dashboard-slider-controls,
+.media-player-controls{display:none!important}
+.dashboard-slider .media-stage{position:relative!important;padding:0!important;background:#f4d56b!important;border:3px solid #a80000!important;border-radius:0!important;overflow:hidden!important}
+#mediaStageContent{position:relative!important;width:100%!important;height:300px!important;margin:0!important;padding:0!important;display:flex!important;align-items:center!important;justify-content:center!important;background:#f4d56b!important;border:0!important;overflow:hidden!important}
+#mediaStageContent img,#mediaStageContent video{width:100%!important;height:100%!important;object-fit:contain!important;background:#f4d56b!important}
+#mediaStageContent audio{width:80%!important}
+.jb-new-media-arrow{position:absolute!important;top:50%!important;transform:translateY(-50%)!important;width:52px!important;height:52px!important;border-radius:50%!important;border:3px solid #a80000!important;background:#ffe58a!important;color:#5b0000!important;font-size:27px!important;font-weight:1000!important;z-index:100!important;cursor:pointer!important}
+.jb-new-media-arrow.left{left:10px!important}.jb-new-media-arrow.right{right:10px!important}
+.jb-new-media-arrow:hover{transform:translateY(-50%) scale(1.08)!important}
+.jb-new-media-caption{position:absolute!important;left:50%!important;bottom:10px!important;transform:translateX(-50%)!important;background:rgba(0,0,0,.65)!important;color:#fff!important;border:2px solid #d40000!important;border-radius:6px!important;padding:5px 12px!important;font-weight:900!important;z-index:101!important}
+@media(max-width:650px){#mediaStageContent{height:220px!important}.jb-new-media-arrow{width:42px!important;height:42px!important;font-size:21px!important}}
+</style>
+<script id="brand-new-media-player-only-2026-09-20-js">
+(function(){
+  var timer=null;
+  function esc2(v){return String(v==null?'':v).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]})}
+  function clean(){
+    document.querySelectorAll('.dashboard-slider .dashboard-slider-controls,.media-player-controls').forEach(function(e){e.remove();});
+  }
+  function draw(){
+    clean();
+    var box=document.getElementById('mediaStageContent');
+    if(!box)return;
+    clearInterval(timer);
+    if(!window.media||!media.length){
+      box.innerHTML='<span>মিডিয়া আপলোড করলে এখানে স্লাইড/প্লেয়ার দেখা যাবে</span>';
+      return;
+    }
+    var i=((window.mediaIndex||0)%media.length+media.length)%media.length;
+    window.mediaIndex=i;
+    var x=media[i]||{},u=String(x.DataURL||'');
+    var html='';
+    if(x.Type==='video')html='<video src="'+esc2(u)+'" controls autoplay muted playsinline preload="metadata"></video>';
+    else if(x.Type==='audio')html='<audio src="'+esc2(u)+'" controls autoplay preload="metadata"></audio>';
+    else html='<img src="'+esc2(u)+'" alt="'+esc2(x.Name||'')+'">';
+    html+='<button type="button" class="jb-new-media-arrow left" onclick="jbPrevMedia()">❮</button>';
+    html+='<button type="button" class="jb-new-media-arrow right" onclick="jbNextMedia()">❯</button>';
+    if(x.Name)html+='<div class="jb-new-media-caption">'+esc2(x.Name)+'</div>';
+    box.innerHTML=html;
+    var el=box.querySelector('video,audio');
+    if(el){
+      el.addEventListener('ended',function(){jbNextMedia();});
+    }else{
+      timer=setInterval(function(){jbNextMedia();},5000);
+    }
+  }
+  window.jbNextMedia=function(){
+    if(window.media&&media.length){mediaIndex=(mediaIndex+1)%media.length;draw();}
+  };
+  window.jbPrevMedia=function(){
+    if(window.media&&media.length){mediaIndex=(mediaIndex-1+media.length)%media.length;draw();}
+  };
+  window.renderMedia=draw;
+  document.addEventListener('DOMContentLoaded',function(){setTimeout(draw,300);setTimeout(draw,1000);});
+  setTimeout(draw,1500);
+})();
+</script>
 </body></html>';
   var blob=new Blob([html],{type:'text/html;charset=utf-8'});
   var url=URL.createObjectURL(blob),a=document.createElement('a');
