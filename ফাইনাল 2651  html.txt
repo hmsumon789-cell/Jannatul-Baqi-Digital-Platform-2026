@@ -3821,3 +3821,182 @@ body #topActionBar{top:0!important;}
   },1000);
 })();
 </script>
+
+
+<!-- ===== ACTUAL FINAL FIX v2 — DO NOT RESET NEWS / FORCE FORM CLEARANCE 2026-09-21 ===== -->
+<style id="actual-final-fix-v2-2026-09-21">
+/* ACTION BAR occupies its own layer. Forms can never start above it. */
+#app > #topActionBar{
+  position:fixed!important;
+  top:0!important;left:0!important;right:0!important;
+  z-index:2147483647!important;
+}
+#app > .header{
+  margin-top:76px!important;
+}
+#app .window,
+#app .form-window,
+#app [class*="form-window"],
+#app [id*="FormWin"],
+#app [id*="formWin"]{
+  position:fixed!important;
+  top:76px!important;
+  z-index:2147483646!important;
+  max-height:calc(100vh - 86px)!important;
+}
+/* Header news: text gets the available width, mic is always the last item. */
+.header-news{
+  display:flex!important;
+  align-items:center!important;
+  width:100%!important;
+  overflow:hidden!important;
+}
+.header-news .running-news-text{
+  order:1!important;
+  flex:1 1 auto!important;
+  min-width:0!important;
+  overflow:hidden!important;
+}
+.header-news .news-mic{
+  order:999!important;
+  flex:0 0 42px!important;
+  width:42px!important;
+  min-width:42px!important;
+  height:36px!important;
+  margin-left:auto!important;
+  margin-right:2px!important;
+  display:inline-flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  z-index:9999!important;
+}
+#loginPage .ticker{
+  display:flex!important;
+  align-items:center!important;
+  width:100%!important;
+  overflow:hidden!important;
+}
+#loginPage .ticker .ticker-text{
+  order:1!important;
+  flex:1 1 auto!important;
+  min-width:0!important;
+  overflow:hidden!important;
+}
+#loginPage .ticker .news-mic{
+  order:999!important;
+  flex:0 0 42px!important;
+  width:42px!important;
+  min-width:42px!important;
+  margin-left:auto!important;
+  display:inline-flex!important;
+  visibility:visible!important;
+}
+</style>
+
+<script id="actual-final-fix-v2-js-2026-09-21">
+(function(){
+  var lastNews='';
+
+  function putNews(el, text){
+    if(!el)return;
+    var span=el.querySelector('.running-news-text')||el.querySelector('.ticker-text');
+    if(!span)return;
+    var cls=span.classList.contains('ticker-text')?'ticker-text':'running-news-text';
+    var value=String(text||span.dataset.newsText||span.textContent||'').trim();
+    if(!value)value='জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম';
+    /* Do not rebuild the animation every 10 seconds when the text is unchanged. */
+    if(span.dataset.newsText===value && span.querySelector('.news-full-run'))return;
+    span.dataset.newsText=value;
+    span.innerHTML='';
+    var run=document.createElement('span');
+    run.className='news-full-run';
+    run.textContent=value;
+    run.style.display='inline-block';
+    run.style.whiteSpace='nowrap';
+    run.style.position='relative';
+    run.style.left='100%';
+    run.style.animation='none';
+    span.appendChild(run);
+    requestAnimationFrame(function(){
+      var box=span.getBoundingClientRect();
+      var width=run.getBoundingClientRect().width;
+      var distance=box.width+width;
+      var seconds=Math.max(10,Math.min(60,distance/55));
+      run.style.animation='newsCompleteJourney20260921 '+seconds+'s linear infinite';
+    });
+  }
+
+  function mic(el){
+    if(!el)return;
+    var m=el.querySelector('.news-mic');
+    if(!m){
+      m=document.createElement('button');
+      m.type='button';
+      m.className='news-mic';
+      m.title='নতুন নিউজ যোগ করুন';
+      m.textContent='🎙️';
+      m.onclick=function(){
+        if(window.openRunningNewsEditor)window.openRunningNewsEditor();
+      };
+      el.appendChild(m);
+    }
+    m.style.order='999';
+    m.style.marginLeft='auto';
+    m.style.display='inline-flex';
+    m.style.visibility='visible';
+  }
+
+  function fixForms(){
+    var bar=document.getElementById('topActionBar');
+    var h=bar?Math.ceil(bar.getBoundingClientRect().height):60;
+    var top=Math.max(76,h+8);
+    document.querySelectorAll('#app .window,#app .form-window,#app [class*="form-window"],#app [id*="FormWin"],#app [id*="formWin"]').forEach(function(w){
+      w.style.setProperty('top',top+'px','important');
+      w.style.setProperty('z-index','2147483646','important');
+      w.style.setProperty('max-height','calc(100vh - '+(top+10)+'px)','important');
+    });
+    var header=document.querySelector('#app > .header');
+    if(header)header.style.setProperty('margin-top',(top)+'px','important');
+  }
+
+  function fix(){
+    fixForms();
+    document.querySelectorAll('.header-news').forEach(function(e){
+      mic(e);putNews(e,lastNews||undefined);
+    });
+    document.querySelectorAll('#loginPage .ticker').forEach(function(e){
+      mic(e);putNews(e,lastNews||undefined);
+    });
+  }
+
+  /* Override the previous refresh function so server polling updates the text
+     without restarting an unchanged news sentence. */
+  window.refreshRunningNewsUI=function(text){
+    text=String(text||'').trim();
+    if(!text)return;
+    lastNews=text;
+    document.querySelectorAll('.header-news').forEach(function(e){
+      mic(e);putNews(e,text);
+    });
+    document.querySelectorAll('#loginPage .ticker').forEach(function(e){
+      mic(e);putNews(e,text);
+    });
+  };
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fix);else fix();
+  setTimeout(fix,200);
+  setTimeout(fix,700);
+  setTimeout(fix,1500);
+  setInterval(function(){
+    fixForms();
+    document.querySelectorAll('.header-news,#loginPage .ticker').forEach(mic);
+  },1000);
+})();
+</script>
+
+<style id="news-complete-journey-animation-2026-09-21">
+@keyframes newsCompleteJourney20260921{
+  0%{transform:translateX(0)}
+  100%{transform:translateX(calc(-100% - 100vw))}
+}
+</style>
