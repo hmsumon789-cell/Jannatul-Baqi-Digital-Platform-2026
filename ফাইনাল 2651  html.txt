@@ -3232,3 +3232,62 @@ setTimeout(fix,300);setTimeout(fix,1000);setInterval(function(){logo();topBar();
   setTimeout(init,300);setTimeout(init,1000);setInterval(init,2000);
 })();
 </script>
+
+
+<!-- ===== WINDOW BOTTOM EXTENSION — 2026-09-21 ===== -->
+<style id="window-bottom-extension-2026-09-21">
+#app .window,#app .form-window{
+  max-height:100vh!important;
+  overflow:auto!important;
+}
+</style>
+<script id="window-bottom-extension-js-2026-09-21">
+(function(){
+  function bottomFix(w){
+    if(!w)return;
+    var ww=w.offsetWidth;
+    var maxX=Math.max(0,innerWidth-ww);
+    var x=parseFloat(w.style.left);
+    if(!isFinite(x))x=(innerWidth-ww)/2;
+    x=Math.max(0,Math.min(maxX,x));
+    /* No taskbar/viewport-bottom stop: top may move all the way to the bottom edge. */
+    var y=parseFloat(w.style.top);
+    if(!isFinite(y))y=0;
+    y=Math.max(0,Math.min(innerHeight,y));
+    w.style.setProperty('left',x+'px','important');
+    w.style.setProperty('top',y+'px','important');
+    w.style.setProperty('transform','none','important');
+  }
+  function bind(){
+    document.querySelectorAll('#app .window,#app .form-window').forEach(function(w){
+      var h=w.querySelector('.win-head');
+      if(!h||h.dataset.bottomDrag==='1')return;
+      h.dataset.bottomDrag='1';
+      h.addEventListener('mousedown',function(e){
+        if(e.button!==0||e.target.closest('button,input,select,textarea,a,label'))return;
+        var r=w.getBoundingClientRect(),sx=e.clientX,sy=e.clientY;
+        var ox=r.left,oy=r.top,drag=true;
+        function move(ev){
+          if(!drag)return;
+          bottomFix(w);
+          var x=ox+ev.clientX-sx;
+          var y=oy+ev.clientY-sy;
+          w.style.setProperty('left',Math.max(0,Math.min(innerWidth-w.offsetWidth,x))+'px','important');
+          /* Allow the window's top edge to reach the very bottom of the screen. */
+          w.style.setProperty('top',Math.max(0,Math.min(innerHeight,y))+'px','important');
+        }
+        function up(){
+          drag=false;
+          document.removeEventListener('mousemove',move);
+          document.removeEventListener('mouseup',up);
+        }
+        document.addEventListener('mousemove',move);
+        document.addEventListener('mouseup',up);
+        e.preventDefault();
+      },true);
+    });
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();
+  setTimeout(bind,300);setTimeout(bind,1000);
+})();
+</script>
