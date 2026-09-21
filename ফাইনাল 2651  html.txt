@@ -3430,3 +3430,106 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
   setInterval(init,2500);
 })();
 </script>
+
+
+<!-- ===== USER TASK 1 FINAL CORRECTION V2 — 2026-09-21 ===== -->
+<style id="task1-final-correction-v2">
+/* চলমান নিউজের চওড়া কম */
+#app .header-mainline{
+  grid-template-columns:max-content minmax(220px,48%) max-content!important;
+  justify-content:space-between!important;
+  gap:8px!important;
+}
+#app .header-mainline .header-news{
+  width:100%!important;
+  min-width:220px!important;
+  max-width:520px!important;
+  position:relative!important;
+  pointer-events:auto!important;
+}
+#app .header-mainline .header-news .running-news-text,
+#app .header-mainline .header-news .news-full-run{
+  padding-right:38px!important;
+}
+#app .header-mainline .header-news .news-mic{
+  position:absolute!important;
+  right:3px!important;
+  top:2px!important;
+  z-index:999999!important;
+  pointer-events:auto!important;
+  cursor:pointer!important;
+}
+/* হোম + সকল ফিচার বামে | প্রশাসনিক ড্যাশবোর্ড মাঝে | অনুমোদন + ৩ ভাষা ডানে */
+#app .dashboard-nav.dashboard-title-bar{
+  display:grid!important;
+  grid-template-columns:max-content minmax(0,1fr) max-content!important;
+  align-items:center!important;
+  width:100%!important;
+}
+#app .dashboard-title-left{
+  justify-self:start!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:4px!important;
+}
+#app .dashboard-title-left>button,
+#app .dashboard-title-left>#featureSelect{
+  min-height:30px!important;
+  height:30px!important;
+  padding:2px 6px!important;
+  font-size:11px!important;
+}
+#app .dashboard-title-left>#featureSelect{width:120px!important;min-width:120px!important}
+#app .dashboard-nav.dashboard-title-bar>h2{
+  justify-self:center!important;
+  text-align:center!important;
+  margin:0!important;
+  white-space:nowrap!important;
+  font-size:20px!important;
+}
+#app .dashboard-title-right{
+  justify-self:end!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:4px!important;
+}
+#app .dashboard-title-right #accountManagerBtn,
+#app .dashboard-title-right #appLang{
+  height:30px!important;
+  min-height:30px!important;
+  padding:2px 6px!important;
+  font-size:11px!important;
+}
+@media(max-width:900px){
+  #app .header-mainline{grid-template-columns:max-content minmax(180px,1fr) max-content!important}
+  #app .header-mainline .header-news{min-width:180px!important;max-width:100%!important}
+}
+</style>
+<script id="task1-final-mic-v2">
+(function(){
+  function bindMic(){
+    document.querySelectorAll('#app .header-mainline .header-news').forEach(function(news){
+      var mic=news.querySelector('.news-mic');
+      if(!mic){
+        mic=document.createElement('button');
+        mic.type='button';
+        mic.className='news-mic';
+        mic.textContent='🎙️';
+        mic.title='নতুন নিউজ লিখুন';
+        news.appendChild(mic);
+      }
+      mic.onclick=function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        if(typeof window.openRunningNewsEditor==='function'){
+          window.openRunningNewsEditor();
+        }else{
+          alert('চলমান নিউজ উইন্ডো প্রস্তুত হচ্ছে। আবার মাইকে চাপুন।');
+        }
+      };
+    });
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindMic);else bindMic();
+  setTimeout(bindMic,300);setTimeout(bindMic,1000);setInterval(bindMic,2000);
+})();
+</script>
