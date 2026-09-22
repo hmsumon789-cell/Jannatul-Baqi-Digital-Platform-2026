@@ -6106,3 +6106,129 @@ body.dark .dashboard-period-dot{border-color:#ffe95c!important}
   flex:0 0 100%!important;
 }
 </style>
+
+<!-- ===== FINAL MEDIA CONTROLS + SEQUENTIAL AUTOPLAY + LOAD FIX — 2026-09-23 ===== -->
+<style id="final-media-controls-clean-2026-09-23">
+/* Play এবং দুই পাশের Arrow বাদ — শুধু Load ও Delete থাকবে */
+#mediaStage .dashboard-slider-controls .slider-arrow,
+#mediaStage #mediaPlayBtn{
+  display:none!important;
+}
+#mediaStage .slider-center-controls{
+  display:flex!important;
+  justify-content:center!important;
+  align-items:center!important;
+  gap:10px!important;
+  width:100%!important;
+}
+#mediaStage .slider-center-controls .slider-action{
+  display:inline-flex!important;
+}
+</style>
+
+<script id="final-media-sequential-load-fix-2026-09-23">
+(function(){
+  var seqTimer=null, loadBusy=false;
+
+  function list(){
+    return Array.isArray(window.media)?window.media:[];
+  }
+
+  function normalise(){
+    var m=list();
+    if(!m.length){window.media=[];return;}
+    var n=Number(window.mediaIndex);
+    if(!isFinite(n))n=0;
+    window.mediaIndex=((n%m.length)+m.length)%m.length;
+  }
+
+  function playCurrent(){
+    var box=document.getElementById('mediaStageContent');
+    if(!box)return;
+    var el=box.querySelector('video,audio');
+    if(el){
+      el.autoplay=true;
+      el.playsInline=true;
+      el.preload='auto';
+      var p=el.play();
+      if(p&&p.catch)p.catch(function(){
+        try{el.muted=true;var q=el.play();if(q&&q.catch)q.catch(function(){})}catch(e){}
+      });
+    }
+  }
+
+  function scheduleNext(){
+    clearTimeout(seqTimer);
+    var m=list();
+    if(m.length<=1)return;
+    var box=document.getElementById('mediaStageContent');
+    if(!box)return;
+    var el=box.querySelector('video,audio');
+    if(el){
+      el.onended=function(){
+        window.mediaIndex=(Number(window.mediaIndex||0)+1)%list().length;
+        if(typeof window.renderMedia==='function')window.renderMedia();
+        setTimeout(function(){playCurrent();scheduleNext();},120);
+      };
+    }else{
+      /* ছবি নির্দিষ্ট সময় পরে পরের মিডিয়ায় যাবে */
+      seqTimer=setTimeout(function(){
+        window.mediaIndex=(Number(window.mediaIndex||0)+1)%list().length;
+        if(typeof window.renderMedia==='function')window.renderMedia();
+        setTimeout(function(){scheduleNext();},120);
+      },6000);
+    }
+  }
+
+  function renderAndPlay(){
+    normalise();
+    if(!list().length)return;
+    if(typeof window.renderMedia==='function')window.renderMedia();
+    setTimeout(function(){playCurrent();scheduleNext();},100);
+  }
+
+  async function refresh(){
+    if(loadBusy||typeof window.call!=='function'||!window.token)return;
+    loadBusy=true;
+    try{
+      var r=await window.call('listMedia',window.token);
+      var m=Array.isArray(r)?r:(r&&Array.isArray(r.media)?r.media:(r&&Array.isArray(r.rows)?r.rows:[]));
+      window.media=m||[];
+      normalise();
+      if(window.media.length)renderAndPlay();
+    }catch(e){}
+    loadBusy=false;
+  }
+
+  /* Login/token হওয়ার পর Delete চাপা ছাড়াই মিডিয়া নিজে লোড হবে */
+  function boot(){
+    refresh();
+    [700,1600,3000].forEach(function(ms){setTimeout(refresh,ms)});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+
+  /* Load বাটনে চাপলে আগে মিডিয়া refresh হবে; Delete লাগবে না */
+  document.addEventListener('click',function(e){
+    var b=e.target.closest&&e.target.closest('#mediaStage .slider-center-controls .slider-action');
+    if(!b)return;
+    var title=(b.getAttribute('title')||'').toLowerCase();
+    var txt=(b.textContent||'').toLowerCase();
+    if(title.indexOf('upload')>=0||txt.indexOf('load')>=0){
+      setTimeout(refresh,350);
+      setTimeout(refresh,1400);
+    }
+    if(title.indexOf('delete')>=0||txt.indexOf('delete')>=0){
+      setTimeout(refresh,600);
+    }
+  },true);
+
+  /* renderMedia অন্য স্ক্রিপ্ট থেকে কল হলেও sequential autoplay সচল থাকবে */
+  var oldRender=window.renderMedia;
+  if(typeof oldRender==='function'){
+    window.renderMedia=function(){
+      oldRender.apply(this,arguments);
+      setTimeout(function(){playCurrent();scheduleNext();},80);
+    };
+  }
+})();
+</script>
