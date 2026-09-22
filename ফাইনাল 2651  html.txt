@@ -5573,3 +5573,38 @@ body #app .header-news *{
   window.addEventListener('resize',fix);
 })();
 </script>
+
+
+<!-- ===== MEDIA AUTO PLAY + INCOME EXPENSE BUTTON POSITION FIX — 2026-09-22 ===== -->
+<style id="media-autoplay-income-expense-fix-2026-09-22">
+/* আয়-ব্যয়সহ নিচের Dashboard action buttons আরও নিচে */
+#dashboardActions,
+.dashboard-actions,
+#incomeExpenseButtons,
+.income-expense-buttons,
+.income-expense-section{
+  position:relative!important;
+  margin-top:28px!important;
+  z-index:50!important;
+}
+</style>
+<script id="media-autoplay-income-expense-fix-js-2026-09-22">
+(function(){
+  /* ডিলেট তালিকা না খুলেও প্রথম মিডিয়া/ভিডিও স্বাভাবিকভাবে দেখাবে */
+  function autoRenderMedia(){
+    try{
+      if(typeof window.renderMedia==='function') window.renderMedia();
+      else if(typeof renderMedia==='function') renderMedia();
+    }catch(e){}
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){setTimeout(autoRenderMedia,900)});
+  else setTimeout(autoRenderMedia,900);
+  [1800,3000].forEach(function(ms){setTimeout(autoRenderMedia,ms)});
+
+  /* ডিলেট উইন্ডো খোলা/বন্ধ হওয়া মিডিয়া প্লেয়ারের উপর আর নির্ভর করবে না */
+  document.addEventListener('click',function(e){
+    var b=e.target.closest && e.target.closest('#mediaDeleteBtn,[data-action="delete-media"],.media-delete-btn');
+    if(b){ setTimeout(autoRenderMedia,500); }
+  },true);
+})();
+</script>
