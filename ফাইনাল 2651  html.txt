@@ -3533,3 +3533,180 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
   setTimeout(bindMic,300);setTimeout(bindMic,1000);setInterval(bindMic,2000);
 })();
 </script>
+
+
+<!-- ===== USER TASK 2: ALL WINDOWS FULLSCREEN + FOUR-SIDE RESIZE ARROWS — 2026-09-22 ===== -->
+<style id="all-window-fullscreen-resize-2026-09-22">
+/* Every application window gets a fullscreen control in the header and four edge shrink/expand controls. */
+.window{position:fixed!important;box-sizing:border-box!important}
+.window .win-head{position:sticky!important;top:0!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important}
+.window .win-head .win-tools-2026{display:flex!important;align-items:center!important;gap:4px!important;margin-left:auto!important}
+.window .win-head .win-fullscreen-2026{
+  min-width:34px!important;width:34px!important;height:30px!important;padding:0!important;
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  border:2px solid var(--border)!important;border-radius:7px!important;
+  background:var(--panel)!important;color:inherit!important;font-weight:900!important;cursor:pointer!important;
+}
+.window .win-edge-arrow-2026{
+  position:absolute!important;z-index:20!important;width:26px!important;height:26px!important;
+  padding:0!important;display:flex!important;align-items:center!important;justify-content:center!important;
+  border:2px solid var(--border)!important;border-radius:7px!important;
+  background:var(--panel)!important;color:inherit!important;font-weight:900!important;
+  line-height:1!important;cursor:pointer!important;opacity:.9!important;
+}
+.window .win-edge-arrow-2026:hover{opacity:1!important;transform:scale(1.05)}
+.window .win-edge-left-2026{left:2px!important;top:50%!important;transform:translateY(-50%)!important}
+.window .win-edge-right-2026{right:2px!important;top:50%!important;transform:translateY(-50%)!important}
+.window .win-edge-up-2026{top:2px!important;left:50%!important;transform:translateX(-50%)!important}
+.window .win-edge-down-2026{bottom:2px!important;left:50%!important;transform:translateX(-50%)!important}
+.window.win-fullscreen-2026{
+  left:0!important;top:0!important;width:100vw!important;height:100vh!important;
+  max-width:none!important;max-height:none!important;transform:none!important;
+  border-radius:0!important;
+}
+.window.win-fullscreen-2026 .win-body{max-height:calc(100vh - 55px)!important;overflow:auto!important}
+.window.win-fullscreen-2026 .win-edge-arrow-2026{display:none!important}
+@media(max-width:700px){
+  .window .win-edge-arrow-2026{width:24px!important;height:24px!important}
+  .window .win-head .win-fullscreen-2026{width:32px!important;min-width:32px!important}
+}
+</style>
+<script id="all-window-fullscreen-resize-js-2026-09-22">
+(function(){
+  var MIN_W=320, MIN_H=180, STEP=80, initialized=new WeakSet();
+
+  function isWindow(el){
+    return el && el.classList && el.classList.contains('window');
+  }
+  function ensureControls(w){
+    if(!isWindow(w))return;
+    var head=w.querySelector(':scope > .win-head') || w.querySelector('.win-head');
+    if(!head)return;
+
+    /* Convert the existing top-right close control into fullscreen, without deleting it. */
+    var oldFs=w.querySelector('.win-fullscreen-2026');
+    if(!oldFs){
+      oldFs=document.createElement('button');
+      oldFs.type='button';
+      oldFs.className='win-fullscreen-2026';
+      oldFs.title='ফুল স্ক্রিন / স্বাভাবিক';
+      oldFs.setAttribute('aria-label','ফুল স্ক্রিন / স্বাভাবিক');
+      oldFs.textContent='⛶';
+      var tools=head.querySelector('.win-tools-2026');
+      if(!tools){
+        tools=document.createElement('span');
+        tools.className='win-tools-2026';
+        head.appendChild(tools);
+      }
+      var close=head.querySelector('button');
+      if(close && !close.classList.contains('win-fullscreen-2026')){
+        /* The first header button is the previous close button in the existing windows. */
+        close.textContent='⛶';
+        close.title='ফুল স্ক্রিন / স্বাভাবিক';
+        close.setAttribute('aria-label','ফুল স্ক্রিন / স্বাভাবিক');
+        close.classList.add('win-fullscreen-2026');
+        oldFs=close;
+      }else{
+        tools.appendChild(oldFs);
+      }
+    }
+    if(!oldFs.dataset.fsBound){
+      oldFs.dataset.fsBound='1';
+      oldFs.addEventListener('click',function(e){
+        e.preventDefault();e.stopPropagation();
+        toggleFullscreen(w);
+      });
+    }
+
+    var specs=[
+      ['left','‹','বাম দিক থেকে ছোট / বড়','win-edge-left-2026'],
+      ['right','›','ডান দিক থেকে ছোট / বড়','win-edge-right-2026'],
+      ['up','⌃','উপর থেকে ছোট / বড়','win-edge-up-2026'],
+      ['down','⌄','নিচ থেকে ছোট / বড়','win-edge-down-2026']
+    ];
+    specs.forEach(function(s){
+      if(w.querySelector('.'+s[3]))return;
+      var b=document.createElement('button');
+      b.type='button';b.className='win-edge-arrow-2026 '+s[3];
+      b.textContent=s[1];b.title=s[2];b.setAttribute('aria-label',s[2]);
+      b.addEventListener('click',function(e){
+        e.preventDefault();e.stopPropagation();
+        resizeFromEdge(w,s[0]);
+      });
+      w.appendChild(b);
+    });
+
+    if(!w.dataset.edgeState){
+      w.dataset.edgeState='1';
+      w.dataset.edgeW=Math.round(w.getBoundingClientRect().width||700);
+      w.dataset.edgeH=Math.round(w.getBoundingClientRect().height||450);
+    }
+  }
+
+  function clamp(v,min,max){return Math.max(min,Math.min(max,v));}
+  function resizeFromEdge(w,side){
+    if(w.classList.contains('win-fullscreen-2026'))return;
+    var r=w.getBoundingClientRect();
+    var vw=window.innerWidth, vh=window.innerHeight;
+    var w0=r.width, h0=r.height, l=r.left, t=r.top;
+    if(side==='left'){
+      var nw=clamp(w0-STEP,MIN_W,vw-20);
+      w.style.width=nw+'px';
+      w.style.left=clamp(l+STEP,0,vw-nw)+'px';
+      w.style.transform='none';
+    }else if(side==='right'){
+      w.style.width=clamp(w0-STEP,MIN_W,vw-20)+'px';
+      w.style.transform='none';
+      w.style.left=clamp(l,0,vw-w.offsetWidth)+'px';
+    }else if(side==='up'){
+      var nh=clamp(h0-STEP,MIN_H,vh-20);
+      w.style.height=nh+'px';w.style.maxHeight=nh+'px';
+      w.style.top=clamp(t+STEP,0,vh-nh)+'px';w.style.transform='none';
+    }else if(side==='down'){
+      var nh2=clamp(h0-STEP,MIN_H,vh-20);
+      w.style.height=nh2+'px';w.style.maxHeight=nh2+'px';
+      w.style.top=clamp(t,0,vh-nh2)+'px';w.style.transform='none';
+    }
+  }
+
+  function toggleFullscreen(w){
+    if(!w)return;
+    if(w.classList.contains('win-fullscreen-2026')){
+      w.classList.remove('win-fullscreen-2026');
+      w.style.width=w.dataset.prevWidth||'';
+      w.style.height=w.dataset.prevHeight||'';
+      w.style.maxHeight=w.dataset.prevMaxHeight||'82vh';
+      w.style.left=w.dataset.prevLeft||'50%';
+      w.style.top=w.dataset.prevTop||'90px';
+      w.style.transform=w.dataset.prevTransform||'translateX(-50%)';
+    }else{
+      var r=w.getBoundingClientRect();
+      w.dataset.prevWidth=r.width+'px';
+      w.dataset.prevHeight=r.height+'px';
+      w.dataset.prevMaxHeight=w.style.maxHeight||'82vh';
+      w.dataset.prevLeft=r.left+'px';
+      w.dataset.prevTop=r.top+'px';
+      w.dataset.prevTransform=w.style.transform||'none';
+      w.classList.add('win-fullscreen-2026');
+    }
+  }
+
+  function scan(){
+    document.querySelectorAll('.window').forEach(ensureControls);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
+  setTimeout(scan,300);setTimeout(scan,1000);setInterval(scan,2000);
+
+  /* Newly-created form windows are covered automatically. */
+  var mo=new MutationObserver(function(list){
+    list.forEach(function(m){
+      m.addedNodes&&m.addedNodes.forEach(function(n){
+        if(n.nodeType!==1)return;
+        if(isWindow(n))ensureControls(n);
+        n.querySelectorAll&&n.querySelectorAll('.window').forEach(ensureControls);
+      });
+    });
+  });
+  if(document.body)mo.observe(document.body,{childList:true,subtree:true});
+})();
+</script>
