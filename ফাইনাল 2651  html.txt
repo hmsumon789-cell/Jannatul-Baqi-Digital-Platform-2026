@@ -5334,3 +5334,110 @@ body #app .header-news *{
   setTimeout(fixMainMediaControls,2500);
 })();
 </script>
+
+
+<!-- ===== MEDIA PLAYER + CONTROLS FINAL DOWN POSITION — 2026-09-22 ===== -->
+<style id="media-player-controls-final-down-2026-09-22">
+/* মূল প্লেয়ারকে একটু নিচে নামানো */
+#mediaStage{
+  position:relative!important;
+  overflow:visible!important;
+  margin-top:28px!important;
+  padding-bottom:0!important;
+  min-height:0!important;
+}
+/* প্লেয়ারের বক্সটি সম্পূর্ণ আলাদা জায়গায় থাকবে */
+#mediaStageContent{
+  position:relative!important;
+  top:0!important;
+  margin-top:0!important;
+  margin-bottom:20px!important;
+  height:245px!important;
+  overflow:hidden!important;
+  z-index:10!important;
+}
+/* Play / Load / Delete — প্লেয়ারের নিচে, কোনো overlay নয় */
+#mediaStage .dashboard-slider-controls{
+  position:relative!important;
+  left:auto!important;
+  right:auto!important;
+  top:auto!important;
+  bottom:auto!important;
+  transform:none!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:58px!important;
+  margin:0!important;
+  padding:14px 0 10px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  z-index:2147483007!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  clear:both!important;
+}
+#mediaStage .dashboard-slider-controls .slider-center-controls{
+  position:relative!important;
+  z-index:2147483008!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:12px!important;
+  width:auto!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+#mediaStage .dashboard-slider-controls button,
+#mediaStage .dashboard-slider-controls .slider-action,
+#mediaStage #mediaPlayBtn{
+  position:relative!important;
+  z-index:2147483009!important;
+  visibility:visible!important;
+  opacity:1!important;
+  transform:none!important;
+  min-height:44px!important;
+}
+/* আগের absolute/padding rule যেন আর controls ঢেকে না দেয় */
+#mediaStage .dashboard-slider-controls::before,
+#mediaStage .dashboard-slider-controls::after,
+#mediaStage .slider-center-controls::before,
+#mediaStage .slider-center-controls::after{display:none!important;content:none!important}
+</style>
+<script id="media-player-controls-final-down-js-2026-09-22">
+(function(){
+  function fix(){
+    var stage=document.getElementById('mediaStage');
+    if(!stage)return;
+    stage.style.setProperty('margin-top','28px','important');
+    stage.style.setProperty('padding-bottom','0','important');
+    stage.style.setProperty('overflow','visible','important');
+    var box=document.getElementById('mediaStageContent');
+    if(box){
+      box.style.setProperty('margin-bottom','20px','important');
+      box.style.setProperty('height','245px','important');
+      box.style.setProperty('overflow','hidden','important');
+      box.style.setProperty('z-index','10','important');
+    }
+    var c=stage.querySelector('.dashboard-slider-controls');
+    if(c){
+      c.style.setProperty('position','relative','important');
+      c.style.setProperty('left','auto','important');
+      c.style.setProperty('right','auto','important');
+      c.style.setProperty('top','auto','important');
+      c.style.setProperty('bottom','auto','important');
+      c.style.setProperty('transform','none','important');
+      c.style.setProperty('width','100%','important');
+      c.style.setProperty('margin','0','important');
+      c.style.setProperty('padding','14px 0 10px','important');
+      c.style.setProperty('z-index','2147483007','important');
+      c.style.setProperty('visibility','visible','important');
+      c.style.setProperty('opacity','1','important');
+    }
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fix);else fix();
+  [150,400,800,1200,2000,3000].forEach(function(ms){setTimeout(fix,ms)});
+})();
+</script>
