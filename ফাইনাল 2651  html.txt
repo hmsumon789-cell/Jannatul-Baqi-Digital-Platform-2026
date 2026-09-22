@@ -6021,3 +6021,11 @@ body.dark .dashboard-period-dot{border-color:#ffe95c!important}
   padding-bottom:0!important;
 }
 </style>
+
+<style id="raise-border-under-dynamic-boxes-2026-09-22">
+/* ডায়নামিক দুই বক্স অপরিবর্তিত রেখে, তাদের নিচের পরবর্তী বক্সের নিচের খালি অংশ কমানো */
+#app main > .footer.card{
+  margin-top:-60px!important;
+  padding-bottom:0!important;
+}
+</style>
