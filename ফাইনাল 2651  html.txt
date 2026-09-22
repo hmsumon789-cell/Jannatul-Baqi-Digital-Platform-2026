@@ -4999,3 +4999,209 @@ body #app .header-news *{
   setTimeout(loadMediaFixed,1800);
 })();
 </script>
+\n
+<!-- ===== FINAL MEDIA WINDOW + ARROWS + MINIMIZE/CLOSE/TASKBAR FIX 2026-09-22 ===== -->
+<style id="final-media-window-arrows-fix-2026-09-22">
+#mediaStageContent{position:relative!important}
+#mediaStageContent .final-media-arrow{
+ position:absolute!important;top:50%!important;transform:translateY(-50%)!important;
+ z-index:2147483005!important;width:48px!important;height:58px!important;
+ min-width:48px!important;padding:0!important;border:3px solid #a80000!important;
+ border-radius:10px!important;background:#f4d56b!important;color:#7a0000!important;
+ font-size:30px!important;font-weight:900!important;line-height:1!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ cursor:pointer!important;box-shadow:0 4px 10px #0008!important
+}
+#mediaStageContent .final-media-arrow.left{left:7px!important}
+#mediaStageContent .final-media-arrow.right{right:7px!important}
+#mediaDeleteList{display:none!important}
+#finalMediaDeleteWin{width:min(700px,94vw)!important;max-height:80vh!important}
+#finalMediaDeleteWin .win-body{max-height:calc(80vh - 58px)!important;overflow:auto!important}
+.final-media-delete-row{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;padding:9px!important;border-bottom:1px solid #bbb!important}
+.final-media-delete-row button{min-width:90px!important}
+.final-win-tools{display:flex!important;align-items:center!important;gap:5px!important}
+.final-win-tools button{min-width:38px!important;height:34px!important;padding:3px 8px!important}
+.final-media-taskbar{
+ position:fixed!important;left:10px!important;right:10px!important;bottom:8px!important;
+ z-index:2147483640!important;display:none!important;gap:6px!important;
+ padding:5px!important;border:2px solid #a80000!important;border-radius:10px!important;
+ background:#f4d56b!important;box-shadow:0 5px 18px #0006!important
+}
+.final-media-taskbar.show{display:flex!important}
+.final-media-taskbar button{font-weight:900!important;border:2px solid #a80000!important}
+</style>
+<script id="final-media-window-arrows-fix-js-2026-09-22">
+(function(){
+  function ensureArrows(){
+    var box=document.getElementById('mediaStageContent');
+    if(!box)return;
+    box.querySelectorAll('.final-media-arrow').forEach(function(b){b.remove()});
+    if(!window.media||!media.length)return;
+    box.insertAdjacentHTML('beforeend',
+      '<button type="button" class="final-media-arrow left" onclick="prevMedia()" aria-label="আগের মিডিয়া">❮</button>'+
+      '<button type="button" class="final-media-arrow right" onclick="nextMedia()" aria-label="পরের মিডিয়া">❯</button>');
+  }
+
+  function ensureTaskbar(){
+    var t=document.getElementById('finalMediaTaskbar');
+    if(t)return t;
+    t=document.createElement('div');
+    t.id='finalMediaTaskbar';
+    t.className='final-media-taskbar';
+    t.innerHTML='<button type="button" onclick="restoreFinalMediaDelete()">🗑️ মিডিয়া ডিলেট উইন্ডো</button>';
+    document.body.appendChild(t);
+    return t;
+  }
+
+  function makeWindowDrag(w){
+    if(!w||w.dataset.finalMediaDrag==='1')return;
+    var h=w.querySelector('.win-head');if(!h)return;
+    w.dataset.finalMediaDrag='1';
+    h.onmousedown=function(e){
+      if(e.target.closest('button,input,select,textarea,a'))return;
+      e.preventDefault();
+      var r=w.getBoundingClientRect(),sx=e.clientX,sy=e.clientY,ox=r.left,oy=r.top;
+      w.style.setProperty('position','fixed','important');
+      w.style.setProperty('transform','none','important');
+      w.style.setProperty('left',ox+'px','important');
+      w.style.setProperty('top',oy+'px','important');
+      w.style.setProperty('right','auto','important');
+      w.style.setProperty('bottom','auto','important');
+      function move(ev){
+        var x=ox+ev.clientX-sx,y=oy+ev.clientY-sy;
+        var maxX=Math.max(0,window.innerWidth-w.offsetWidth);
+        x=Math.max(0,Math.min(maxX,x));
+        w.style.setProperty('left',x+'px','important');
+        w.style.setProperty('top',Math.max(0,y)+'px','important');
+      }
+      function up(){document.removeEventListener('mousemove',move,true);document.removeEventListener('mouseup',up,true)}
+      document.addEventListener('mousemove',move,true);document.addEventListener('mouseup',up,true);
+    };
+  }
+
+  function ensureDeleteWindow(){
+    var w=document.getElementById('finalMediaDeleteWin');
+    if(w){makeWindowDrag(w);return w;}
+    w=document.createElement('div');
+    w.id='finalMediaDeleteWin';
+    w.className='window';
+    w.innerHTML=
+      '<div class="win-head"><b>🗑️ মিডিয়া ডিলেট তালিকা</b>'+
+      '<span class="final-win-tools">'+
+      '<button type="button" title="মিনিমাইজ" onclick="minimizeFinalMediaDelete()">—</button>'+
+      '<button type="button" title="Taskbar-এর নিচে" onclick="moveFinalMediaDeleteBelow()">▾</button>'+
+      '<button type="button" title="ক্লোজ" onclick="closeFinalMediaDelete()">✕</button>'+
+      '</span></div>'+
+      '<div class="win-body" id="finalMediaDeleteBody"><p>⏳ তালিকা লোড হচ্ছে...</p></div>';
+    document.body.appendChild(w);
+    makeWindowDrag(w);
+    return w;
+  }
+
+  async function fillDeleteWindow(){
+    var w=ensureDeleteWindow(),body=document.getElementById('finalMediaDeleteBody');
+    if(!body)return;
+    body.innerHTML='<p>⏳ মিডিয়া তালিকা লোড হচ্ছে...</p>';
+    try{
+      var fresh=await call('listMedia',token);
+      if(Array.isArray(fresh))window.media=fresh;
+      else if(fresh&&Array.isArray(fresh.media))window.media=fresh.media;
+    }catch(e){}
+    if(!window.media||!media.length){
+      body.innerHTML='<p style="font-weight:900">ডিলেট করার কোনো মিডিয়া নেই।</p>';
+      return;
+    }
+    body.innerHTML='<div style="font-weight:900;margin-bottom:8px">প্রতিটি মিডিয়া আলাদা করে ডিলেট করুন:</div>'+
+      media.map(function(x,i){
+        var name=typeof escapeHtml==='function'?escapeHtml(x.Name||('Media '+(i+1))):String(x.Name||('Media '+(i+1)));
+        var typ=escapeHtml?escapeHtml(String(x.Type||'')):'';
+        return '<div class="final-media-delete-row"><span><b>'+name+'</b> <small>('+typ+')</small></span>'+
+          '<button type="button" class="secondary" onclick="deleteFinalMediaItem('+i+')">🗑️ ডিলেট</button></div>';
+      }).join('');
+  }
+
+  window.openFinalMediaDelete=async function(){
+    var w=ensureDeleteWindow();
+    var t=ensureTaskbar();t.classList.remove('show');
+    w.style.display='block';
+    w.classList.add('show');
+    w.style.setProperty('z-index','2147483646','important');
+    w.style.removeProperty('left');w.style.removeProperty('top');
+    w.style.setProperty('left','50%','important');
+    w.style.setProperty('top','90px','important');
+    w.style.setProperty('transform','translateX(-50%)','important');
+    await fillDeleteWindow();
+  };
+
+  window.deleteCurrentMedia=window.openFinalMediaDelete;
+
+  window.deleteFinalMediaItem=async function(i){
+    if(!window.media||!media[i])return;
+    var x=media[i];
+    try{
+      var r=await call('deleteMedia',token,x.Serial);
+      if(r&&r.ok){
+        media.splice(i,1);
+        if(mediaIndex>=media.length)mediaIndex=Math.max(0,media.length-1);
+        if(typeof renderMedia==='function')renderMedia();
+        setTimeout(ensureArrows,80);
+        await fillDeleteWindow();
+        if(typeof toast==='function')toast('মিডিয়া মুছে ফেলা হয়েছে।');
+      }else if(typeof toast==='function')toast((r&&r.message)||'ডিলেট ব্যর্থ হয়েছে।');
+    }catch(e){if(typeof toast==='function')toast('ডিলেট সার্ভার ত্রুটি: '+(e&&e.message?e.message:e))}
+  };
+
+  window.minimizeFinalMediaDelete=function(){
+    var w=document.getElementById('finalMediaDeleteWin');if(!w)return;
+    w.style.display='none';w.classList.remove('show');
+    ensureTaskbar().classList.add('show');
+  };
+  window.closeFinalMediaDelete=function(){
+    var w=document.getElementById('finalMediaDeleteWin');if(w){w.style.display='none';w.classList.remove('show')}
+    var t=ensureTaskbar();t.classList.remove('show');
+  };
+  window.moveFinalMediaDeleteBelow=function(){
+    var w=document.getElementById('finalMediaDeleteWin');if(!w)return;
+    w.classList.add('show');w.style.display='block';
+    w.style.setProperty('transform','none','important');
+    w.style.setProperty('left','20px','important');
+    w.style.setProperty('top',(window.innerHeight+25)+'px','important');
+    ensureTaskbar().classList.add('show');
+  };
+  window.restoreFinalMediaDelete=function(){
+    var w=ensureDeleteWindow(),t=ensureTaskbar();t.classList.remove('show');
+    w.classList.add('show');w.style.display='block';
+    w.style.setProperty('left','50%','important');
+    w.style.setProperty('top','90px','important');
+    w.style.setProperty('transform','translateX(-50%)','important');
+    makeWindowDrag(w);
+  };
+
+  function bindDeleteButton(){
+    document.querySelectorAll('#mediaStage .dashboard-slider-controls button').forEach(function(b){
+      var txt=(b.textContent||'').trim();
+      if(txt.indexOf('ডিলেট')>=0 || txt.indexOf('Delete')>=0){
+        b.onclick=function(e){e.preventDefault();openFinalMediaDelete();};
+      }
+    });
+  }
+
+  function refresh(){
+    ensureArrows();
+    bindDeleteButton();
+    makeWindowDrag(document.getElementById('finalMediaDeleteWin'));
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refresh);else refresh();
+  setTimeout(refresh,300);setTimeout(refresh,800);setTimeout(refresh,1600);
+  var oldRender=window.renderMedia;
+  var tries=0;
+  var timer=setInterval(function(){
+    if(window.renderMedia!==oldRender){
+      oldRender=window.renderMedia;
+      tries++;
+    }
+    ensureArrows();bindDeleteButton();
+    if(tries>30)clearInterval(timer);
+  },250);
+})();
+</script>
