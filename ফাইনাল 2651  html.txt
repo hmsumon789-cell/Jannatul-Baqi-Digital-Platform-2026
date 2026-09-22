@@ -5441,3 +5441,135 @@ body #app .header-news *{
   [150,400,800,1200,2000,3000].forEach(function(ms){setTimeout(fix,ms)});
 })();
 </script>
+
+
+<!-- ===== MEDIA PLAYER BOX FINAL SIZE + CONTROLS VISIBILITY FIX — 2026-09-22 ===== -->
+<style id="media-player-box-final-size-2026-09-22">
+/* মূল ভিডিওর লাল বর্ডার শুধু ভিডিও/মিডিয়া বক্সে থাকবে */
+#mediaStage{
+  position:relative!important;
+  overflow:visible!important;
+  border:0!important;
+  background:transparent!important;
+  padding:0!important;
+  margin-top:20px!important;
+}
+/* ভিডিওর লাল বর্ডার বক্স নিচের দিকে বড় করা হয়েছে */
+#mediaStageContent{
+  position:relative!important;
+  width:100%!important;
+  height:340px!important;
+  min-height:340px!important;
+  max-height:none!important;
+  overflow:hidden!important;
+  border:4px solid #a80000!important;
+  border-radius:12px!important;
+  background:#000!important;
+  box-sizing:border-box!important;
+  margin:0 0 10px 0!important;
+  z-index:20!important;
+}
+#mediaStageContent video,
+#mediaStageContent iframe,
+#mediaStageContent img{
+  width:100%!important;
+  height:100%!important;
+  max-width:none!important;
+  max-height:none!important;
+  object-fit:contain!important;
+  display:block!important;
+  border:0!important;
+}
+#mediaStageContent audio{width:90%!important;max-height:80px!important}
+/* Play / Load / Delete / arrows — ভিডিও বক্সের নিচে পরিষ্কার */
+#mediaStage .dashboard-slider-controls{
+  position:relative!important;
+  width:100%!important;
+  height:62px!important;
+  min-height:62px!important;
+  margin:0!important;
+  padding:8px 0!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:10px!important;
+  z-index:2147483007!important;
+  overflow:visible!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  clear:both!important;
+}
+#mediaStage .dashboard-slider-controls .slider-center-controls{
+  position:relative!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:10px!important;
+  z-index:2147483008!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+#mediaStage .dashboard-slider-controls button,
+#mediaStage .dashboard-slider-controls .slider-action,
+#mediaStage #mediaPlayBtn{
+  position:relative!important;
+  display:inline-flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  z-index:2147483009!important;
+  min-height:44px!important;
+  height:auto!important;
+}
+/* আগের absolute/overlay rule সম্পূর্ণ বাতিল */
+#mediaStage .dashboard-slider-controls,
+#mediaStage .dashboard-slider-controls *{
+  transform:none!important;
+}
+#mediaStageContent .final-media-arrow{
+  top:50%!important;
+  z-index:2147483010!important;
+}
+@media(max-width:700px){
+  #mediaStageContent{height:280px!important;min-height:280px!important}
+  #mediaStage .dashboard-slider-controls{height:auto!important;min-height:58px!important;flex-wrap:wrap!important}
+}
+</style>
+<script id="media-player-box-final-size-js-2026-09-22">
+(function(){
+  function fix(){
+    var stage=document.getElementById('mediaStage');
+    var box=document.getElementById('mediaStageContent');
+    if(!stage||!box)return;
+    stage.style.setProperty('border','0','important');
+    stage.style.setProperty('padding','0','important');
+    stage.style.setProperty('overflow','visible','important');
+    box.style.setProperty('height',innerWidth<=700?'280px':'340px','important');
+    box.style.setProperty('min-height',innerWidth<=700?'280px':'340px','important');
+    box.style.setProperty('width','100%','important');
+    box.style.setProperty('border','4px solid #a80000','important');
+    box.style.setProperty('margin','0 0 10px 0','important');
+    var c=stage.querySelector('.dashboard-slider-controls');
+    if(c){
+      c.style.setProperty('position','relative','important');
+      c.style.setProperty('left','auto','important');
+      c.style.setProperty('right','auto','important');
+      c.style.setProperty('top','auto','important');
+      c.style.setProperty('bottom','auto','important');
+      c.style.setProperty('transform','none','important');
+      c.style.setProperty('width','100%','important');
+      c.style.setProperty('height','62px','important');
+      c.style.setProperty('min-height','62px','important');
+      c.style.setProperty('margin','0','important');
+      c.style.setProperty('padding','8px 0','important');
+      c.style.setProperty('z-index','2147483007','important');
+      c.style.setProperty('visibility','visible','important');
+      c.style.setProperty('opacity','1','important');
+    }
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fix);else fix();
+  [100,300,700,1200,2000,3000].forEach(function(ms){setTimeout(fix,ms)});
+  window.addEventListener('resize',fix);
+})();
+</script>
