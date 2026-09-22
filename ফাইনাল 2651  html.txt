@@ -6005,6 +6005,6 @@ body.dark .dashboard-period-dot{border-color:#ffe95c!important}
   margin-top:0!important;
 }
 #dashboardCharts{
-  margin-bottom:0!important;
+  margin-bottom:-288px!important;
 }
 </style>
