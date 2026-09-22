@@ -5608,3 +5608,20 @@ body #app .header-news *{
   },true);
 })();
 </script>
+
+<!-- FINAL MEDIA LOAD AUTOPLAY + 3-INCH LOWER BOXES 2026-09-22 -->
+<style>
+#app #dashboardCharts{margin-top:288px!important}
+#app #dashboardCharts~.footer{margin-top:288px!important}
+</style>
+<script>
+(function(){
+ var busy=false;
+ function norm(){if(!Array.isArray(window.media))window.media=[];if(media.length)mediaIndex=((Number(mediaIndex)||0)%media.length+media.length)%media.length}
+ function attach(){var b=document.getElementById('mediaStageContent');if(!b)return;var e=b.querySelector('video,audio');if(e){e.onended=function(){if(media&&media.length>1){mediaIndex=(Number(mediaIndex)+1)%media.length;renderMedia();setTimeout(attach,150)}};var p=e.play();if(p&&p.catch)p.catch(function(){})}}
+ async function load(){if(busy)return;busy=true;try{var r=await call('listMedia',token);if(Array.isArray(r))window.media=r;else if(r&&Array.isArray(r.rows))window.media=r.rows;norm();if(media.length&&typeof renderMedia==='function'){renderMedia();setTimeout(attach,100)}}catch(e){}busy=false}
+ function boot(){load();setTimeout(load,800);setTimeout(load,1800);setTimeout(attach,2500)}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+ document.addEventListener('click',function(e){var x=e.target.closest&&e.target.closest('[onclick*="deleteCurrentMedia"],[onclick*="deleteMediaByIndex"]');if(x)setTimeout(load,700)},true);
+})();
+</script>
