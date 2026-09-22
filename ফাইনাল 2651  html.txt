@@ -5271,3 +5271,66 @@ body #app .header-news *{
   setTimeout(fix,200);setTimeout(fix,700);setTimeout(fix,1500);
 })();
 </script>
+
+
+<!-- ===== MAIN MEDIA PLAYER BORDER + CONTROLS DOWN FIX — 2026-09-22 ===== -->
+<style id="main-media-player-border-controls-down-fix-2026-09-22">
+/* Player-এর লাল বর্ডারের নিচে অতিরিক্ত জায়গা রাখুন, যাতে Play/Upload/Delete দেখা যায়। */
+#mediaStage{
+  position:relative!important;
+  overflow:visible!important;
+  padding-bottom:72px!important;
+  border-bottom:3px solid #a80000!important;
+}
+/* মূল প্লেয়ারের ভেতরের লাল বর্ডার ঠিক রেখে নিচের কন্ট্রোলকে নিচে নামানো। */
+#mediaStageContent{
+  overflow:hidden!important;
+  margin-bottom:0!important;
+}
+/* Play / Upload / Delete বাটন এখন বর্ডারের নিচে পরিষ্কারভাবে দৃশ্যমান। */
+#mediaStage .dashboard-slider-controls{
+  position:absolute!important;
+  left:8px!important;
+  right:8px!important;
+  bottom:10px!important;
+  margin:0!important;
+  padding:6px 0!important;
+  z-index:2147483006!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+/* বাটনের উপর কোনো অংশ ঢেকে রাখবে না। */
+#mediaStage .dashboard-slider-controls,
+#mediaStage .dashboard-slider-controls *{
+  visibility:visible!important;
+  opacity:1!important;
+}
+</style>
+<script id="main-media-player-border-controls-down-fix-js-2026-09-22">
+(function(){
+  function fixMainMediaControls(){
+    var stage=document.getElementById('mediaStage');
+    if(!stage)return;
+    stage.style.setProperty('overflow','visible','important');
+    stage.style.setProperty('padding-bottom','72px','important');
+    var c=stage.querySelector('.dashboard-slider-controls');
+    if(c){
+      c.style.setProperty('position','absolute','important');
+      c.style.setProperty('left','8px','important');
+      c.style.setProperty('right','8px','important');
+      c.style.setProperty('bottom','10px','important');
+      c.style.setProperty('margin','0','important');
+      c.style.setProperty('z-index','2147483006','important');
+      c.style.setProperty('visibility','visible','important');
+      c.style.setProperty('opacity','1','important');
+    }
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fixMainMediaControls);
+  else fixMainMediaControls();
+  setTimeout(fixMainMediaControls,200);
+  setTimeout(fixMainMediaControls,700);
+  setTimeout(fixMainMediaControls,1500);
+  setTimeout(fixMainMediaControls,2500);
+})();
+</script>
