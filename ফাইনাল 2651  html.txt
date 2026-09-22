@@ -4722,3 +4722,80 @@ body #app .header-news *{
   setTimeout(start,500);setTimeout(start,1500);setTimeout(start,3000);
 })();
 </script>
+
+<!-- ===== FINAL MEDIA PLAYER OVERRIDE — DRIVE PREVIEW PRIMARY 2026-09-22 ===== -->
+<style id="final-media-player-override-2026-09-22">
+#mediaStageContent .media-drive-player{width:100%!important;height:100%!important;border:0!important;background:#111!important;display:block!important}
+</style>
+<script id="final-media-player-override-js-2026-09-22">
+(function(){
+  function idOf(x){
+    var s=String((x&&x.FileID)|| (x&&x.DriveFileId)|| (x&&x.DataURL)||'');
+    var m=s.match(/[?&]id=([^&]+)/i); if(m)return decodeURIComponent(m[1]);
+    m=s.match(/\\/d\\/([^/]+)/i); return m?m[1]:'';
+  }
+  function previewOf(x){
+    var id=idOf(x); if(!id)return '';
+    var rk=String((x&&x.ResourceKey)||'').trim();
+    return 'https://drive.google.com/file/'+encodeURIComponent(id)+'/preview'+(rk?'?resourcekey='+encodeURIComponent(rk):'');
+  }
+  function directOf(x){
+    var u=String((x&&x.DirectURL)||'').trim();
+    if(u)return u;
+    var id=idOf(x),rk=String((x&&x.ResourceKey)||'').trim();
+    return id?'https://drive.google.com/uc?export=download&id='+encodeURIComponent(id)+(rk?'&resourcekey='+encodeURIComponent(rk):''):'';
+  }
+  function renderFixed(){
+    var box=document.getElementById('mediaStageContent');
+    if(!box)return;
+    if(!window.media||!media.length){box.innerHTML='<span class="media-empty">মিডিয়া লোড করে দেখুন</span>';return;}
+    mediaIndex=((Number(mediaIndex)||0)%media.length+media.length)%media.length;
+    var x=media[mediaIndex]||{},t=String(x.Type||'').toLowerCase(),p=previewOf(x),u=directOf(x);
+    box.innerHTML='';
+    if(t==='image'){
+      var im=document.createElement('img'); im.src=u; im.alt=x.Name||'';
+      im.style.cssText='width:100%;height:100%;object-fit:contain;background:#111;display:block';
+      im.onerror=function(){if(p)showFrame(box,p);else box.innerHTML='<span class="media-empty">ফটো চালানো যাচ্ছে না।</span>';};
+      box.appendChild(im);
+    }else if(t==='video' || t==='audio'){
+      /* Google Drive preview is primary. The previous direct-download <video> failed because Drive download responses are not a reliable browser streaming endpoint. */
+      if(p) showFrame(box,p);
+      else box.innerHTML='<span class="media-empty">ভিডিও/অডিওর Preview লিংক পাওয়া যায়নি।</span>';
+    }else{
+      box.innerHTML='<span class="media-empty">মিডিয়ার ধরন সঠিক নয়।</span>';
+    }
+    if(typeof renderMediaList==='function')renderMediaList();
+  }
+  function showFrame(box,url){
+    box.innerHTML='';
+    var fr=document.createElement('iframe');
+    fr.className='media-drive-player';
+    fr.src=url;
+    fr.allow='autoplay; fullscreen; encrypted-media; picture-in-picture';
+    fr.setAttribute('allowfullscreen','');
+    fr.setAttribute('referrerpolicy','no-referrer-when-downgrade');
+    fr.setAttribute('title','Media Player');
+    box.appendChild(fr);
+  }
+  window.renderMedia=renderFixed;
+  window.nextMedia=function(){if(window.media&&media.length){mediaIndex=(Number(mediaIndex)+1)%media.length;renderFixed();}};
+  window.prevMedia=function(){if(window.media&&media.length){mediaIndex=(Number(mediaIndex)-1+media.length)%media.length;renderFixed();}};
+  window.toggleMediaPlay=function(){
+    var fr=document.querySelector('#mediaStageContent .media-drive-player');
+    if(fr){fr.focus();return;}
+    var el=document.querySelector('#mediaStageContent video,#mediaStageContent audio');
+    if(el){if(el.paused)el.play().catch(function(){toast('মিডিয়া চালানো যাচ্ছে না।')});else el.pause();}
+  };
+  function loadFixed(){
+    if(typeof call==='function'&&window.token){
+      call('listMedia',token).then(function(r){
+        if(Array.isArray(r))window.media=r;
+        else if(r&&Array.isArray(r.media))window.media=r.media;
+        if(window.media&&media.length)renderFixed();
+      }).catch(function(e){toast('মিডিয়া লোড হয়নি। আবার চেষ্টা করুন।');});
+    }else if(window.media&&media.length)renderFixed();
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',loadFixed);else loadFixed();
+  setTimeout(loadFixed,800);setTimeout(loadFixed,1800);
+})();
+</script>
