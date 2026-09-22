@@ -1452,6 +1452,14 @@ body.gold .header-background-overlay{background:linear-gradient(180deg,rgba(255,
       img.src=item.src; img.alt=item.label||'Header background'; img.loading='eager';
       box.appendChild(img);
     });
+    var del=document.createElement('button');
+    del.type='button';
+    del.id='headerSlideDeleteBtn';
+    del.className='header-slide-delete-btn';
+    del.title='বর্তমান Header স্লাইড ডিলেট করুন';
+    del.textContent='🗑 ডিলেট';
+    del.onclick=function(){ window.deleteCurrentHeaderSlide(); };
+    box.appendChild(del);
     var overlay=document.createElement('div');
     overlay.className='header-background-overlay';
     box.appendChild(overlay);
@@ -1475,6 +1483,23 @@ body.gold .header-background-overlay{background:linear-gradient(180deg,rgba(255,
       userPhotos.push({src:url,label:file.name});
     });
     render();
+  };
+  window.deleteCurrentHeaderSlide=function(){
+    var all=defaults.concat(userPhotos);
+    if(!all.length)return;
+    var current=all[idx]||all[0];
+    var isUser=idx>=defaults.length;
+    if(isUser){
+      var ui=idx-defaults.length;
+      if(ui>=0&&ui<userPhotos.length)userPhotos.splice(ui,1);
+    }else{
+      if(idx>=0&&idx<defaults.length)defaults.splice(idx,1);
+    }
+    idx=0;
+    render();
+    try{
+      if(typeof window.toast==='function')window.toast('Header-এর বর্তমান স্লাইড ডিলেট করা হয়েছে।');
+    }catch(e){}
   };
   function init(){render();}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
@@ -6260,5 +6285,56 @@ body.dark .dashboard-period-dot{border-color:#ffe95c!important}
     }
     return oldUpload.apply(this,arguments);
   };
+})();
+</script>
+
+<style id="header-logo-tight-and-slide-delete-2026-09-23">
+/* Header logo-এর নিচের ফাঁকা জায়গা কমানো এবং alt-এর Logo লেখা সরানো */
+#headerLogo{
+  height:82px!important;
+  margin:0 auto!important;
+  display:block!important;
+}
+.header-content #headerLogo + .title-bn{
+  margin-top:0!important;
+  line-height:1.08!important;
+}
+/* Header-এর ভিতরে উপরে-বামে Delete */
+#headerSlideDeleteBtn{
+  position:absolute!important;
+  top:7px!important;
+  left:9px!important;
+  z-index:30!important;
+  min-width:70px!important;
+  height:28px!important;
+  padding:2px 9px!important;
+  border:2px solid #f2c94c!important;
+  border-radius:999px!important;
+  background:rgba(0,0,0,.72)!important;
+  color:#ffe78a!important;
+  font-size:12px!important;
+  font-weight:900!important;
+  cursor:pointer!important;
+  box-shadow:0 2px 8px #0007!important;
+}
+#headerSlideDeleteBtn:hover{transform:scale(1.04)!important}
+body.dark #headerSlideDeleteBtn{
+  border-color:#ff1f2f!important;
+  background:#000!important;
+  color:#ffe95c!important;
+}
+body.gold #headerSlideDeleteBtn{
+  border-color:#111!important;
+  background:#f4d56b!important;
+  color:#111!important;
+}
+</style>
+<script id="remove-header-logo-alt-text-2026-09-23">
+(function(){
+  function clean(){
+    var x=document.getElementById('headerLogo');
+    if(x)x.alt='';
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',clean);else clean();
 })();
 </script>
