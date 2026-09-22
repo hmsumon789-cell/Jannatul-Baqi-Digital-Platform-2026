@@ -3793,3 +3793,216 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
   new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes&&m.addedNodes.forEach(function(n){if(n.nodeType===1){if(n.matches&&n.matches('.window'))add(n);n.querySelectorAll&&n.querySelectorAll('.window').forEach(add)}})})}).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
+
+
+<!-- ===== USER TASK 3 — RUNNING NEWS + UNIVERSAL 3 WINDOW BUTTONS — 2026-09-22 ===== -->
+<style id="user-task3-news-window-controls-2026-09-22">
+/* চলমান নিউজ: আরও লম্বা/চওড়া, কালো লেখা, মাঝ থেকে চলা */
+#app .header-mainline{
+  grid-template-columns:max-content minmax(360px,70%) max-content!important;
+}
+#app .header-mainline .header-news{
+  min-width:360px!important;
+  max-width:850px!important;
+  min-height:42px!important;
+  padding:8px 44px 8px 14px!important;
+}
+#app .header-mainline .header-news .running-news-text,
+#app .header-mainline .header-news .news-full-run{
+  color:#000!important;
+  text-align:center!important;
+  padding-right:0!important;
+  font-weight:900!important;
+}
+/* scrolling starts from the middle of the ticker box */
+#app .header-mainline .header-news .news-full-run{
+  display:inline-block!important;
+  animation:task3NewsRun 18s linear infinite!important;
+}
+@keyframes task3NewsRun{
+  0%{transform:translateX(50%)}
+  100%{transform:translateX(-125%)}
+}
+#app .header-mainline .header-news .news-mic{
+  color:#000!important;
+}
+
+/* সব Form + Search Profile + Window-এর উপরে একই ৩টি control */
+.window .win-head{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+}
+.window .win-head .task3-window-controls{
+  display:flex!important;
+  align-items:center!important;
+  gap:4px!important;
+  margin-left:auto!important;
+}
+.window .win-head .task3-window-controls button{
+  width:34px!important;
+  min-width:34px!important;
+  height:30px!important;
+  padding:0!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  border:2px solid var(--border)!important;
+  border-radius:7px!important;
+  background:var(--panel)!important;
+  color:inherit!important;
+  font-weight:900!important;
+  cursor:pointer!important;
+}
+.window.task3-minimized-2026{display:none!important}
+#task3WinTaskbar{
+  position:fixed!important;
+  left:8px!important;
+  right:8px!important;
+  bottom:8px!important;
+  z-index:1000000!important;
+  display:flex!important;
+  gap:6px!important;
+  align-items:center!important;
+  flex-wrap:wrap!important;
+  pointer-events:none!important;
+}
+#task3WinTaskbar button{
+  pointer-events:auto!important;
+  border:2px solid var(--border)!important;
+  background:var(--panel)!important;
+  color:inherit!important;
+  border-radius:8px!important;
+  padding:5px 10px!important;
+  font-weight:900!important;
+  cursor:pointer!important;
+}
+</style>
+<script id="user-task3-news-window-controls-js-2026-09-22">
+(function(){
+  function getTitle(w){
+    var b=w.querySelector('.win-head b');
+    return b ? (b.textContent||'উইন্ডো').trim() : 'উইন্ডো';
+  }
+  function taskbar(){
+    var bar=document.getElementById('task3WinTaskbar');
+    if(!bar){
+      bar=document.createElement('div');
+      bar.id='task3WinTaskbar';
+      document.body.appendChild(bar);
+    }
+    return bar;
+  }
+  function addTaskbarItem(w){
+    var bar=taskbar();
+    var id='task3Restore_'+Math.random().toString(36).slice(2);
+    var btn=document.createElement('button');
+    btn.type='button';
+    btn.id=id;
+    btn.textContent='▣ '+getTitle(w);
+    btn.onclick=function(){
+      w.classList.remove('task3-minimized-2026');
+      btn.remove();
+    };
+    bar.appendChild(btn);
+    w.dataset.task3BarId=id;
+  }
+  function removeTaskbarItem(w){
+    var id=w.dataset.task3BarId;
+    if(id){
+      var b=document.getElementById(id);
+      if(b)b.remove();
+      delete w.dataset.task3BarId;
+    }
+  }
+  function minimize(w){
+    if(!w)return;
+    if(w.classList.contains('win-fullscreen-2026')){
+      w.classList.remove('win-fullscreen-2026');
+    }
+    removeTaskbarItem(w);
+    addTaskbarItem(w);
+    w.classList.add('task3-minimized-2026');
+  }
+  function fullscreen(w){
+    if(!w)return;
+    if(w.classList.contains('win-fullscreen-2026')){
+      w.classList.remove('win-fullscreen-2026');
+      w.style.width=w.dataset.task3PrevWidth||'';
+      w.style.height=w.dataset.task3PrevHeight||'';
+      w.style.maxHeight=w.dataset.task3PrevMaxHeight||'82vh';
+      w.style.left=w.dataset.task3PrevLeft||'50%';
+      w.style.top=w.dataset.task3PrevTop||'90px';
+      w.style.transform=w.dataset.task3PrevTransform||'translateX(-50%)';
+    }else{
+      var r=w.getBoundingClientRect();
+      w.dataset.task3PrevWidth=r.width+'px';
+      w.dataset.task3PrevHeight=r.height+'px';
+      w.dataset.task3PrevMaxHeight=w.style.maxHeight||'82vh';
+      w.dataset.task3PrevLeft=r.left+'px';
+      w.dataset.task3PrevTop=r.top+'px';
+      w.dataset.task3PrevTransform=w.style.transform||'none';
+      w.classList.add('win-fullscreen-2026');
+    }
+  }
+  function closeExisting(w){
+    var close=w.querySelector('.win-head button[onclick*="closeWindow"]');
+    if(!close)close=w.querySelector('.win-head button[title="Close"]');
+    if(!close && w.id==='runningNewsEditorWin')close=w.querySelector('#closeRunningNewsEditor');
+    if(close){ close.click(); return; }
+    w.classList.remove('show');
+    w.style.display='none';
+    removeTaskbarItem(w);
+  }
+  function hideOldWindowControls(w){
+    w.querySelectorAll('.win-head button').forEach(function(b){
+      if(b.closest('.task3-window-controls'))return;
+      var oc=(b.getAttribute('onclick')||'').toLowerCase();
+      var tx=(b.textContent||'').trim();
+      var title=(b.getAttribute('title')||'').toLowerCase();
+      /* Hide only old window-management buttons; keep useful buttons like refresh/print/download. */
+      if(oc.indexOf('closewindow')>=0 || title==='close' || tx==='✕' || tx==='—' || tx==='🧹' ||
+         title==='minimize' || title==='clear' || title.indexOf('fullscreen')>=0){
+        b.style.display='none';
+      }
+    });
+  }
+  function addControls(w){
+    if(!w || !w.classList.contains('window'))return;
+    var head=w.querySelector('.win-head');
+    if(!head)return;
+    hideOldWindowControls(w);
+    var old=head.querySelector('.task3-window-controls');
+    if(old)return;
+    var box=document.createElement('span');
+    box.className='task3-window-controls';
+    var min=document.createElement('button');
+    min.type='button';min.textContent='—';min.title='মিনিমাইজ';min.setAttribute('aria-label','মিনিমাইজ');
+    min.onclick=function(e){e.preventDefault();e.stopPropagation();minimize(w);};
+    var fs=document.createElement('button');
+    fs.type='button';fs.textContent='⛶';fs.title='ফুল স্ক্রিন / স্বাভাবিক';fs.setAttribute('aria-label','ফুল স্ক্রিন / স্বাভাবিক');
+    fs.onclick=function(e){e.preventDefault();e.stopPropagation();fullscreen(w);};
+    var cl=document.createElement('button');
+    cl.type='button';cl.textContent='✕';cl.title='বন্ধ করুন';cl.setAttribute('aria-label','বন্ধ করুন');
+    cl.onclick=function(e){e.preventDefault();e.stopPropagation();closeExisting(w);};
+    box.appendChild(min);box.appendChild(fs);box.appendChild(cl);
+    head.appendChild(box);
+  }
+  function scan(){
+    document.querySelectorAll('.window').forEach(addControls);
+  }
+  window.task3MinimizeWindow=minimize;
+  window.task3FullscreenWindow=fullscreen;
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
+  setTimeout(scan,300);setTimeout(scan,1000);setInterval(scan,1500);
+  new MutationObserver(function(ms){
+    ms.forEach(function(m){
+      m.addedNodes&&m.addedNodes.forEach(function(n){
+        if(n.nodeType!==1)return;
+        if(n.matches&&n.matches('.window'))addControls(n);
+        if(n.querySelectorAll)n.querySelectorAll('.window').forEach(addControls);
+      });
+    });
+  }).observe(document.body,{childList:true,subtree:true});
+})();
+</script>
