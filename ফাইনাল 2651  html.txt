@@ -5991,3 +5991,11 @@ body.dark .dashboard-period-dot{border-color:#ffe95c!important}
   else waitForToken();
 })();
 </script>
+
+<style id="raise-dashboard-dynamic-boxes-3in-2026-09-22">
+/* আয়-ব্যয় + উপস্থিত-অনুপস্থিত ডায়নামিক দুই বক্স ৩ ইঞ্চি উপরে */
+#dashboardCharts{
+  transform:translateY(-288px)!important;
+  margin-bottom:-288px!important;
+}
+</style>
