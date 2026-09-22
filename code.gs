@@ -740,3 +740,87 @@ function getModules_(){
     ['receipt','মানিরিসিট'],['accountControl','অনুমোদন + ফিচার পারমিশন'],['maleMadrasa','নিবন্ধনকৃত পুরুষ মাদ্রাসা'],['femaleMadrasa','নিবন্ধনকৃত মহিলা মাদ্রাসা'],['help','পরামর্শ+যোগ+অভিযোগ']
   ];
 }
+/* ===== DASHBOARD PERIOD SUMMARY — DAILY/WEEKLY/MONTHLY/YEARLY — 2026-09-22 ===== */
+function getDashboardPeriodStats(token, period) {
+  auth_(token);
+  period = String(period || 'দৈনিক').trim();
+  const tz = APP.timezone || Session.getScriptTimeZone() || 'Asia/Dhaka';
+  const now = new Date();
+  const todayKey = Utilities.formatDate(now, tz, 'yyyy-MM-dd');
+  const start = new Date(now);
+  const end = new Date(now);
+  if (period === 'সাপ্তাহিক') {
+    const dow = Number(Utilities.formatDate(now, tz, 'u')); // Mon=1 ... Sun=7
+    start.setDate(start.getDate() - (dow - 1));
+    start.setHours(0,0,0,0);
+    end.setDate(start.getDate() + 6);
+    end.setHours(23,59,59,999);
+  } else if (period === 'মাসিক') {
+    start.setDate(1);
+    start.setHours(0,0,0,0);
+    end.setMonth(end.getMonth() + 1, 0);
+    end.setHours(23,59,59,999);
+  } else if (period === 'বাৎসরিক') {
+    start.setMonth(0,1);
+    start.setHours(0,0,0,0);
+    end.setMonth(11,31);
+    end.setHours(23,59,59,999);
+  } else {
+    start.setHours(0,0,0,0);
+    end.setHours(23,59,59,999);
+    period = 'দৈনিক';
+  }
+
+  function inRange(v) {
+    if (v instanceof Date && !isNaN(v.getTime())) return v >= start && v <= end;
+    const s = String(v == null ? '' : v).trim();
+    if (!s) return false;
+    const d = new Date(s);
+    if (!isNaN(d.getTime())) return d >= start && d <= end;
+    return s.slice(0,10) >= Utilities.formatDate(start,tz,'yyyy-MM-dd') &&
+           s.slice(0,10) <= Utilities.formatDate(end,tz,'yyyy-MM-dd');
+  }
+  function sumPeriod_(sheetName, amountHeader, dateHeader) {
+    const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
+    if (!sh || sh.getLastRow() < 2) return 0;
+    const vals = sh.getDataRange().getValues();
+    const h = vals[0].map(String);
+    const ai = h.indexOf(amountHeader);
+    const di = h.indexOf(dateHeader);
+    if (ai < 0) return 0;
+    let total = 0;
+    vals.slice(1).forEach(row => {
+      if (di >= 0 && !inRange(row[di])) return;
+      const n = Number(String(row[ai] == null ? '' : row[ai]).replace(/[^0-9.-]/g,''));
+      if (isFinite(n)) total += n;
+    });
+    return total;
+  }
+  function attendancePeriod_() {
+    const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ATTENDANCE);
+    if (!sh || sh.getLastRow() < 2) return {present:0,absent:0};
+    const vals = sh.getDataRange().getValues();
+    const h = vals[0].map(String);
+    const di = h.indexOf('Date'), si = h.indexOf('Status');
+    let present=0, absent=0;
+    if (di < 0 || si < 0) return {present:0,absent:0};
+    vals.slice(1).forEach(row => {
+      if (!inRange(row[di])) return;
+      const s = String(row[si] == null ? '' : row[si]).toLowerCase();
+      if (s.includes('present') || s.includes('উপস্থিত')) present++;
+      else if (s.includes('absent') || s.includes('অনুপস্থিত')) absent++;
+    });
+    return {present,absent};
+  }
+
+  const income = sumPeriod_(SHEETS.PAYMENTS,'Amount','Date');
+  const expense = sumPeriod_(SHEETS.EXPENSES,'Amount','Date');
+  const att = attendancePeriod_();
+  return {
+    ok:true, period,
+    income, expense, cash:income-expense, due:0,
+    attendance:{present:att.present,absent:att.absent},
+    rangeStart:Utilities.formatDate(start,tz,'yyyy-MM-dd'),
+    rangeEnd:Utilities.formatDate(end,tz,'yyyy-MM-dd')
+  };
+}
