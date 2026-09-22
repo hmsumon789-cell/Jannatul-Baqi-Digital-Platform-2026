@@ -6008,3 +6008,16 @@ body.dark .dashboard-period-dot{border-color:#ffe95c!important}
   margin-bottom:-350px!important;
 }
 </style>
+
+<style id="final-dynamic-box-bottom-gap-tight-2026-09-22">
+/* ডায়নামিক দুই বক্সের নিচের ফাঁকা জায়গা আরও কম — বাইরের লাল বর্ডার কাছে */
+#dashboardCharts{
+  margin-bottom:-410px!important;
+}
+.dashboard-slider{
+  padding-bottom:0!important;
+}
+.dashboard-slider #dashboardCharts{
+  padding-bottom:0!important;
+}
+</style>
