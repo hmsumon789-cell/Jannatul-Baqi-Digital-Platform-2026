@@ -4147,3 +4147,186 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
 })();
 </script>
 \n
+
+<!-- ===== USER TASK 5 — HEADER-INTERNAL LOGO + LEFT PROFILE/PRINT LOGO + LOGIN TICKER MATCH — 2026-09-22 ===== -->
+<style id="user-task5-header-logo-print-news-2026-09-22">
+/* Logo stays INSIDE the Header, at the very top */
+#app > header.header > .task4-header-logo{
+  position:relative!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100%!important;
+  min-height:82px!important;
+  margin:0!important;
+  padding:3px 0 2px!important;
+  background:transparent!important;
+  z-index:5!important;
+}
+#app > header.header > .task4-header-logo img{
+  width:76px!important;height:76px!important;
+  object-fit:contain!important;
+  border:0!important;border-radius:0!important;
+  background:transparent!important;
+}
+/* Do not leave the old logo outside the Header */
+#app + .task4-header-logo,
+.task4-header-logo.task5-outside-header{display:none!important}
+
+/* Every form/profile window: logo remains on the LEFT */
+.window .win-head .task4-window-title-wrap{
+  margin-right:auto!important;
+  justify-content:flex-start!important;
+}
+.window .win-head .task4-window-logo{
+  flex:0 0 46px!important;
+}
+
+/* Header running news = same golden ticker look/behavior as Login ticker */
+#app .header-news{
+  min-height:43px!important;
+  padding:7px 12px!important;
+  border:2px solid #b88408!important;
+  border-radius:999px!important;
+  background:linear-gradient(90deg,#b77b00,#f4d56b,#b77b00)!important;
+  color:#201500!important;
+  box-shadow:0 4px 14px #9a6c1733!important;
+  position:relative!important;
+  display:flex!important;
+  align-items:center!important;
+  overflow:hidden!important;
+}
+#app .header-news::before{
+  content:"📢"!important;
+  font-size:18px!important;
+  flex:0 0 auto!important;
+  margin-right:10px!important;
+  z-index:3!important;
+}
+#app .header-news .running-news-text,
+#app .header-news .news-full-run{
+  color:#201500!important;
+  font-weight:900!important;
+  text-align:left!important;
+  display:inline-block!important;
+  white-space:nowrap!important;
+  padding:0!important;
+  margin:0!important;
+  animation:task5LoginStyleNewsRun 18s linear infinite!important;
+  will-change:transform!important;
+}
+#app .header-news:hover .running-news-text,
+#app .header-news:hover .news-full-run{
+  animation-play-state:paused!important;
+}
+@keyframes task5LoginStyleNewsRun{
+  0%{transform:translateX(100%)}
+  100%{transform:translateX(-125%)}
+}
+body.dark #app .header-news,
+body.gold #app .header-news,
+body #app .header-news{
+  background:linear-gradient(90deg,#b77b00,#f4d56b,#b77b00)!important;
+  color:#201500!important;
+  border-color:#b88408!important;
+}
+body.dark #app .header-news * ,
+body.gold #app .header-news * ,
+body #app .header-news *{
+  color:#201500!important;
+}
+
+/* Print: logo on the LEFT of every printable form/profile header */
+@media print{
+  .task5-print-logo{
+    display:block!important;
+    width:62px!important;height:62px!important;
+    object-fit:contain!important;
+    float:left!important;
+    margin:0 12px 6px 0!important;
+    border:0!important;
+  }
+  .task5-print-head{
+    display:block!important;
+    min-height:70px!important;
+    text-align:center!important;
+  }
+}
+</style>
+<script id="user-task5-header-logo-print-news-js-2026-09-22">
+(function(){
+  function src(){
+    var x=document.getElementById('loginLogo');
+    return x && x.src ? x.src : '';
+  }
+
+  /* Move the already-created logo INSIDE the Header, not above/outside it. */
+  function putLogoInsideHeader(){
+    var header=document.querySelector('#app > header.header');
+    if(!header)return;
+    var logo=document.querySelector('.task4-header-logo');
+    if(!logo)return;
+    if(logo.parentNode!==header){
+      header.insertBefore(logo,header.firstChild);
+    }else if(header.firstElementChild!==logo){
+      header.insertBefore(logo,header.firstChild);
+    }
+    logo.classList.remove('task5-outside-header');
+  }
+
+  /* All normal form/profile windows get the Login logo at left. */
+  function addLeftLogo(w){
+    if(!w || !w.classList || !w.classList.contains('window'))return;
+    var head=w.querySelector('.win-head');
+    if(!head || head.querySelector('.task4-window-title-wrap'))return;
+    var s=src(); if(!s)return;
+    var title=null;
+    Array.prototype.some.call(head.children,function(el){
+      if(el.tagName==='B'){title=el;return true;}
+      return false;
+    });
+    if(!title)return;
+    var wrap=document.createElement('span');
+    wrap.className='task4-window-title-wrap';
+    var img=document.createElement('img');
+    img.className='task4-window-logo';
+    img.src=s; img.alt='Logo';
+    wrap.appendChild(img); wrap.appendChild(title);
+    head.insertBefore(wrap,head.firstChild);
+  }
+
+  /* If a printable profile/form is printed from the current page, add the same logo at LEFT. */
+  function addPrintLogo(root){
+    if(!root || !root.querySelectorAll)return;
+    var s=src(); if(!s)return;
+    var heads=root.querySelectorAll('.print-head,.print-header,.profile-print-header,.profile-header,.print-title');
+    heads.forEach(function(h){
+      if(h.querySelector('.task5-print-logo'))return;
+      var img=document.createElement('img');
+      img.className='task5-print-logo';
+      img.src=s; img.alt='Logo';
+      h.classList.add('task5-print-head');
+      h.insertBefore(img,h.firstChild);
+    });
+  }
+
+  function scan(){
+    putLogoInsideHeader();
+    document.querySelectorAll('.window').forEach(addLeftLogo);
+    addPrintLogo(document);
+  }
+
+  window.addEventListener('beforeprint',function(){scan();});
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
+  setTimeout(scan,300);setTimeout(scan,1000);setTimeout(scan,2000);
+  setInterval(scan,1500);
+
+  new MutationObserver(function(ms){
+    var changed=false;
+    ms.forEach(function(m){
+      if(m.addedNodes&&m.addedNodes.length)changed=true;
+    });
+    if(changed)scan();
+  }).observe(document.body,{childList:true,subtree:true});
+})();
+</script>
