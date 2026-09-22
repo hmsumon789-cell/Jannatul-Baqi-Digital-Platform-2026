@@ -6467,8 +6467,8 @@ body.gold #headerCalendarSelect{background:#f4d56b!important;color:#111!importan
       if(!v)return;
       var d=new Date(), out='';
       if(v==='en')out='English Calendar: '+d.toLocaleDateString('en-GB');
-      if(v==='ar')out='التقويم العربي: '+d.toLocaleDateString('ar-SA');
-      if(v==='bn')out='বাংলা ক্যালেন্ডার: '+d.toLocaleDateString('bn-BD');
+      if(v==='ar')out='التقويم العربي: '+d.toLocaleDateString('ar-SA-u-ca-islamic');
+      if(v==='bn')out='বাংলা ক্যালেন্ডার: '+d.toLocaleDateString('bn-BD-u-ca-beng');
       if(typeof window.toast==='function')window.toast(out);
       s.value='';
     };
