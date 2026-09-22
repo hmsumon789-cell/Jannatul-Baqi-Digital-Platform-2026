@@ -4799,3 +4799,203 @@ body #app .header-news *{
   setTimeout(loadFixed,800);setTimeout(loadFixed,1800);
 })();
 </script>
+
+
+<!-- ===== MEDIA ID EXTRACTION + PREVIEW FIX — 2026-09-22 ===== -->
+<script id="media-id-extraction-preview-fix-2026-09-22">
+(function(){
+  function findId(v, seen){
+    if(v==null) return '';
+    if(typeof v==='string'){
+      var s=v.trim();
+      if(!s) return '';
+      var m=s.match(/drive\.google\.com\/file\/d\/([^/?#]+)/i);
+      if(m) return decodeURIComponent(m[1]);
+      m=s.match(/[?&]id=([^&#]+)/i);
+      if(m) return decodeURIComponent(m[1]);
+      m=s.match(/\/d\/([^/?#]+)/i);
+      if(m) return decodeURIComponent(m[1]);
+      m=s.match(/(?:^|[?&])(fileId|fileID|driveId|driveFileId)=([^&#]+)/i);
+      if(m) return decodeURIComponent(m[2]);
+      return '';
+    }
+    if(typeof v!=='object') return '';
+    seen=seen||[];
+    if(seen.indexOf(v)>=0) return '';
+    seen.push(v);
+    var keys=['FileID','FileId','fileId','fileID','DriveFileId','DriveFileID','driveFileId','DriveId','driveId','ID','Id','id','DataURL','DirectURL','FileURL','FileUrl','DriveURL','DriveUrl','URL','Url','Link','link','PreviewURL','PreviewUrl'];
+    for(var i=0;i<keys.length;i++){
+      var id=findId(v[keys[i]],seen);
+      if(id) return id;
+    }
+    for(var k in v){
+      try{
+        var id2=findId(v[k],seen);
+        if(id2) return id2;
+      }catch(e){}
+    }
+    return '';
+  }
+
+  function resourceKey(x){
+    return String(
+      (x&&x.ResourceKey) ||
+      (x&&x.resourceKey) ||
+      (x&&x.resourcekey) ||
+      ''
+    ).trim();
+  }
+
+  function sourceUrl(x){
+    var keys=['DirectURL','DirectUrl','directURL','DataURL','DataUrl','URL','Url','FileURL','FileUrl','DriveURL','DriveUrl','Link','link','PreviewURL','PreviewUrl'];
+    for(var i=0;i<keys.length;i++){
+      var u=String((x&&x[keys[i]])||'').trim();
+      if(u) return u;
+    }
+    return '';
+  }
+
+  function previewOf(x){
+    var src=sourceUrl(x);
+    if(/drive\.google\.com\/file\/[^/]+\/preview/i.test(src)) return src;
+    var id=findId(x);
+    if(!id) return '';
+    var rk=resourceKey(x);
+    return 'https://drive.google.com/file/d/'+encodeURIComponent(id)+'/preview'+
+      (rk?'?resourcekey='+encodeURIComponent(rk):'');
+  }
+
+  function directOf(x){
+    var src=sourceUrl(x);
+    if(src && !/drive\.google\.com\/(?:file\/[^/]+\/preview|uc\?|open\?)/i.test(src)) return src;
+    var id=findId(x);
+    if(!id) return src;
+    var rk=resourceKey(x);
+    return 'https://drive.google.com/uc?export=download&id='+encodeURIComponent(id)+
+      (rk?'&resourcekey='+encodeURIComponent(rk):'');
+  }
+
+  function showFrame(box,url){
+    box.innerHTML='';
+    var fr=document.createElement('iframe');
+    fr.className='media-drive-player';
+    fr.src=url;
+    fr.allow='autoplay; fullscreen; encrypted-media; picture-in-picture';
+    fr.setAttribute('allowfullscreen','');
+    fr.setAttribute('referrerpolicy','no-referrer-when-downgrade');
+    fr.setAttribute('title','Media Player');
+    box.appendChild(fr);
+  }
+
+  function renderMediaFixed(){
+    var box=document.getElementById('mediaStageContent');
+    if(!box) return;
+
+    if(!window.media || !media.length){
+      box.innerHTML='<span class="media-empty">মিডিয়া লোড করে দেখুন</span>';
+      return;
+    }
+
+    mediaIndex=((Number(mediaIndex)||0)%media.length+media.length)%media.length;
+
+    var x=media[mediaIndex]||{};
+    var t=String(x.Type||x.type||'').toLowerCase();
+    var p=previewOf(x);
+    var u=directOf(x);
+
+    box.innerHTML='';
+
+    if(t==='image'){
+      var im=document.createElement('img');
+      im.src=u;
+      im.alt=String(x.Name||x.name||'');
+      im.style.cssText='width:100%;height:100%;object-fit:contain;background:#111;display:block';
+      im.onerror=function(){
+        if(p) showFrame(box,p);
+        else box.innerHTML='<span class="media-empty">ফটো চালানো যাচ্ছে না।</span>';
+      };
+      box.appendChild(im);
+
+    }else if(t==='video' || t==='audio'){
+      if(p){
+        showFrame(box,p);
+      }else if(u){
+        var el=document.createElement(t);
+        el.controls=true;
+        el.preload='metadata';
+        if(t==='video'){
+          el.playsInline=true;
+          el.style.cssText='width:100%;height:100%;object-fit:contain;background:#111;display:block';
+        }else{
+          el.style.cssText='width:90%;max-height:80px';
+        }
+        el.src=u;
+        el.onerror=function(){
+          box.innerHTML='<span class="media-empty">মিডিয়া চালানো যাচ্ছে না।</span>';
+        };
+        box.appendChild(el);
+      }else{
+        box.innerHTML='<span class="media-empty">মিডিয়ার লিংক পাওয়া যায়নি।</span>';
+      }
+    }else{
+      box.innerHTML='<span class="media-empty">মিডিয়ার ধরন সঠিক নয়।</span>';
+    }
+
+    if(typeof renderMediaList==='function') renderMediaList();
+  }
+
+  window.renderMedia=renderMediaFixed;
+
+  window.nextMedia=function(){
+    if(window.media&&media.length){
+      mediaIndex=(Number(mediaIndex)+1)%media.length;
+      renderMediaFixed();
+    }
+  };
+
+  window.prevMedia=function(){
+    if(window.media&&media.length){
+      mediaIndex=(Number(mediaIndex)-1+media.length)%media.length;
+      renderMediaFixed();
+    }
+  };
+
+  window.toggleMediaPlay=function(){
+    var el=document.querySelector('#mediaStageContent video,#mediaStageContent audio');
+    if(el){
+      if(el.paused){
+        var p=el.play();
+        if(p&&p.catch)p.catch(function(){
+          if(typeof toast==='function')toast('মিডিয়া চালানো যাচ্ছে না।');
+        });
+      }else{
+        el.pause();
+      }
+      return;
+    }
+    var fr=document.querySelector('#mediaStageContent .media-drive-player');
+    if(fr) fr.focus();
+  };
+
+  function loadMediaFixed(){
+    if(typeof call==='function' && window.token){
+      call('listMedia',token).then(function(r){
+        if(Array.isArray(r)) window.media=r;
+        else if(r&&Array.isArray(r.media)) window.media=r.media;
+        if(window.media&&media.length) renderMediaFixed();
+      }).catch(function(){});
+    }else if(window.media&&media.length){
+      renderMediaFixed();
+    }
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',loadMediaFixed);
+  }else{
+    loadMediaFixed();
+  }
+
+  setTimeout(loadMediaFixed,700);
+  setTimeout(loadMediaFixed,1800);
+})();
+</script>
