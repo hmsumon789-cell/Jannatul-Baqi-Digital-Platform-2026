@@ -7018,3 +7018,132 @@ body.gold #searchProfilePrint .sp-field,
 body.gold #searchProfilePrint .sp-photo,
 body.gold #searchProfilePrint .sp-photo-empty{border-color:#d40000!important}
 </style>
+
+
+<!-- ===== SEARCH PROFILE + HEADER DELETE AUTHORITATIVE FIX — 2026-09-23 ===== -->
+<style id="search-profile-actions-photo-final-2026-09-23">
+#searchProfilePrint .sp-bottom-actions{
+  display:flex!important;
+  position:relative!important;
+  width:100%!important;
+  clear:both!important;
+  justify-content:center!important;
+  align-items:center!important;
+  gap:10px!important;
+  margin:18px 0 0!important;
+  padding:12px 0!important;
+  border-top:3px solid #d40000!important;
+  order:9999!important;
+}
+#searchProfilePrint .sp-bottom-actions button{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-width:115px!important;
+  height:42px!important;
+  cursor:pointer!important;
+  font-weight:900!important;
+  border:2px solid #d40000!important;
+  border-radius:6px!important;
+}
+body.gold #searchProfilePrint .sp-bottom-actions button{
+  background:#f4d56b!important;color:#111!important;border-color:#d40000!important;
+}
+body.dark #searchProfilePrint .sp-bottom-actions button{
+  background:#000!important;color:#ffe95c!important;border-color:#ff1f2f!important;
+}
+#searchProfilePrint .sp-photo-wrap{
+  display:flex!important;flex-direction:column!important;align-items:center!important;
+}
+#searchProfilePrint .sp-photo{
+  display:block!important;
+  width:115px!important;height:140px!important;
+  object-fit:cover!important;
+  background:#fff!important;
+}
+</style>
+
+<script id="search-profile-photo-and-actions-authoritative-2026-09-23">
+(function(){
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function photoUrl(v){
+    var s=String(v==null?'':v).trim();
+    if(!s)return '';
+    if(/^data:image\//i.test(s))return s;
+    if(/^DRIVE:/i.test(s))return 'https://drive.google.com/thumbnail?id='+encodeURIComponent(s.slice(6).trim())+'&sz=w800';
+    var m=s.match(/(?:[?&]id=|\/d\/|\/file\/d\/|open\?id=)([A-Za-z0-9_-]{10,})/i);
+    if(m)return 'https://drive.google.com/thumbnail?id='+encodeURIComponent(m[1])+'&sz=w800';
+    if(/^[A-Za-z0-9_-]{20,}$/.test(s))return 'https://drive.google.com/thumbnail?id='+encodeURIComponent(s)+'&sz=w800';
+    if(/^https?:\/\//i.test(s))return s;
+    return '';
+  }
+  window.__searchProfilePhotoUrl=photoUrl;
+  document.addEventListener('click',function(e){
+    var b=e.target.closest&&e.target.closest('#searchProfilePrint .sp-bottom-actions button');
+    if(!b)return;
+    var t=(b.textContent||'').trim();
+    if(t.indexOf('সেভ')>=0 && typeof window.saveSearchProfile==='function'){e.preventDefault();window.saveSearchProfile();return}
+    if(t.indexOf('এডিট')>=0 && typeof window.editSearchProfile==='function'){e.preventDefault();window.editSearchProfile();return}
+    if(t.indexOf('প্রিন্ট')>=0 && typeof window.printSearchProfile==='function'){e.preventDefault();window.printSearchProfile();return}
+    if(t.indexOf('ডাউনলোড')>=0 && typeof window.downloadSearchProfile==='function'){e.preventDefault();window.downloadSearchProfile();return}
+  },true);
+})();
+</script>
+
+<script id="header-delete-open-list-authoritative-2026-09-23">
+(function(){
+  function bind(){
+    var b=document.getElementById('headerSlideDeleteBtn');
+    if(!b||b.dataset.finalBound==='1')return;
+    b.dataset.finalBound='1';
+    b.onclick=function(e){
+      e.preventDefault();e.stopPropagation();
+      if(typeof window.openHeaderSlideDeleteList==='function')window.openHeaderSlideDeleteList();
+    };
+  }
+  function syncState(){
+    try{
+      if(typeof window.__getHeaderSlideList==='function'){
+        window.__headerSlideDeleteState=window.__getHeaderSlideList();
+      }
+    }catch(e){}
+    bind();
+  }
+  setTimeout(syncState,100);
+  setInterval(syncState,500);
+})();
+</script>
+
+<script id="header-delete-list-authoritative-2026-09-23">
+(function(){
+  function removeAt(i){
+    var list=typeof window.__getHeaderSlideList==='function'?window.__getHeaderSlideList():[];
+    i=Number(i);
+    if(!isFinite(i)||i<0||i>=list.length)return;
+    if(typeof window.__setHeaderSlideIndex==='function')window.__setHeaderSlideIndex(i);
+    if(typeof window.deleteCurrentHeaderSlide==='function')window.deleteCurrentHeaderSlide();
+    setTimeout(function(){
+      var w=document.getElementById('headerSlideDeleteWindow');
+      var body=document.getElementById('headerSlideDeleteList');
+      if(!w||!body)return;
+      body.innerHTML='';
+      var now=typeof window.__getHeaderSlideList==='function'?window.__getHeaderSlideList():[];
+      if(!now.length){
+        body.innerHTML='<div style="text-align:center;font-weight:900;padding:25px">কোনো Header স্লাইড নেই</div>';
+        return;
+      }
+      now.forEach(function(x){
+        var row=document.createElement('div');
+        row.className='hsdw-item';
+        var img=document.createElement('img');img.src=x.src||'';img.alt='';
+        var name=document.createElement('div');name.className='hsdw-name';name.textContent=x.label||('Header Slide '+(x.index+1));
+        var btn=document.createElement('button');btn.type='button';btn.className='hsdw-del';btn.textContent='🗑 ডিলেট';
+        btn.onclick=function(e){e.preventDefault();e.stopPropagation();removeAt(x.index);};
+        row.appendChild(img);row.appendChild(name);row.appendChild(btn);body.appendChild(row);
+      });
+      w.classList.add('show');
+    },120);
+  }
+  window.deleteHeaderSlideByListIndex=removeAt;
+})();
+</script>
