@@ -6499,3 +6499,397 @@ body.gold #headerCalendarSelect{background:#f4d56b!important;color:#111!importan
   to{transform:translateX(-50%)}
 }
 </style>
+
+
+<!-- ===== HEADER CLOCK / CALENDAR / SLIDE DELETE FINAL FIX — 2026-09-23 ===== -->
+<style id="header-clock-stable-round-box-2026-09-23">
+/* সেকেন্ড বদলালেও ঘড়ির পুরো লাইন আর নড়বে না */
+#app > header.header .header-clock-row{
+  min-height:58px!important;
+  height:58px!important;
+  display:flex!important;
+  justify-content:center!important;
+  align-items:center!important;
+  gap:12px!important;
+  flex-wrap:nowrap!important;
+}
+#app > header.header .header-big-clock,
+#app > header.header .header-big-date{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  box-sizing:border-box!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  font-variant-numeric:tabular-nums lining-nums!important;
+  font-feature-settings:"tnum" 1!important;
+  transform:none!important;
+  position:static!important;
+}
+#app > header.header .header-big-clock{
+  width:190px!important;
+  min-width:190px!important;
+  height:52px!important;
+  border:3px solid var(--border)!important;
+  border-radius:999px!important;
+  padding:0 14px!important;
+  letter-spacing:2px!important;
+}
+#app > header.header .header-big-date{
+  width:330px!important;
+  min-width:330px!important;
+  height:52px!important;
+  border:3px solid var(--border)!important;
+  border-radius:999px!important;
+  padding:0 14px!important;
+  letter-spacing:1px!important;
+}
+body.dark #app > header.header .header-big-clock,
+body.dark #app > header.header .header-big-date{
+  background:#000!important;color:#ffe95c!important;border-color:#ff1f2f!important;
+}
+body.gold #app > header.header .header-big-clock,
+body.gold #app > header.header .header-big-date{
+  background:#f4d56b!important;color:#111!important;border-color:#111!important;
+}
+@media(max-width:700px){
+  #app > header.header .header-clock-row{height:50px!important;min-height:50px!important;gap:6px!important}
+  #app > header.header .header-big-clock{width:145px!important;min-width:145px!important;height:44px!important;font-size:22px!important}
+  #app > header.header .header-big-date{width:230px!important;min-width:230px!important;height:44px!important;font-size:17px!important}
+}
+</style>
+
+<style id="header-news-slower-2026-09-23">
+/* চলমান নিউজের গতি কমানো */
+#app > header.header .header-news-row-final .header-news-track{
+  animation-duration:18s!important;
+}
+</style>
+
+<style id="header-slide-delete-list-window-2026-09-23">
+#headerSlideDeleteBtn{z-index:100!important}
+#headerSlideDeleteWindow{
+  display:none;
+  position:fixed;
+  z-index:100000!important;
+  top:95px;
+  left:50%;
+  transform:translateX(-50%);
+  width:min(620px,92vw);
+  max-height:78vh;
+  overflow:auto;
+  background:var(--panel);
+  color:var(--text);
+  border:4px solid var(--border);
+  border-radius:22px;
+  box-shadow:0 25px 80px #0009;
+}
+#headerSlideDeleteWindow.show{display:block!important}
+#headerSlideDeleteWindow .hsdw-head{
+  position:sticky;top:0;z-index:2;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px 14px;
+  background:var(--panel);
+  border-bottom:2px solid var(--border);
+  font-weight:900;
+}
+#headerSlideDeleteWindow .hsdw-body{padding:12px}
+#headerSlideDeleteWindow .hsdw-item{
+  display:grid;
+  grid-template-columns:82px 1fr auto;
+  gap:10px;
+  align-items:center;
+  padding:8px;
+  margin-bottom:8px;
+  border:2px solid var(--border);
+  border-radius:18px;
+  background:rgba(127,127,127,.08);
+}
+#headerSlideDeleteWindow .hsdw-item img{
+  width:82px;height:54px;object-fit:cover;
+  border-radius:12px;border:2px solid var(--border);
+}
+#headerSlideDeleteWindow .hsdw-name{font-weight:900}
+#headerSlideDeleteWindow .hsdw-del{
+  border:2px solid #c62828!important;
+  border-radius:999px!important;
+  padding:7px 12px!important;
+  background:#8b0000!important;
+  color:#fff!important;
+  font-weight:900!important;
+}
+#headerSlideDeleteWindow .hsdw-close{
+  border:2px solid var(--border)!important;
+  border-radius:999px!important;
+  padding:5px 12px!important;
+  background:transparent!important;
+  color:inherit!important;
+  font-weight:900!important;
+}
+body.gold #headerSlideDeleteWindow,
+body.dark #headerSlideDeleteWindow{border-radius:22px!important}
+@media(max-width:600px){
+  #headerSlideDeleteWindow .hsdw-item{grid-template-columns:64px 1fr;gap:7px}
+  #headerSlideDeleteWindow .hsdw-item img{width:64px;height:48px}
+  #headerSlideDeleteWindow .hsdw-del{grid-column:1/-1}
+}
+</style>
+
+<style id="header-calendar-month-window-2026-09-23">
+#headerCalendarWindow{
+  display:none;
+  position:fixed;
+  z-index:100001!important;
+  top:78px;
+  left:50%;
+  transform:translateX(-50%);
+  width:min(720px,94vw);
+  max-height:86vh;
+  overflow:auto;
+  background:var(--panel);
+  color:var(--text);
+  border:4px solid var(--border);
+  border-radius:24px;
+  box-shadow:0 25px 80px #0009;
+}
+#headerCalendarWindow.show{display:block!important}
+#headerCalendarWindow .hc-head{
+  position:sticky;top:0;z-index:2;
+  display:flex;justify-content:space-between;align-items:center;
+  gap:8px;padding:10px 14px;
+  background:var(--panel);
+  border-bottom:2px solid var(--border);
+}
+#headerCalendarWindow .hc-title{font-size:22px;font-weight:900;text-align:center;flex:1}
+#headerCalendarWindow .hc-close,
+#headerCalendarWindow .hc-nav{
+  border:2px solid var(--border)!important;
+  border-radius:999px!important;
+  min-width:42px;height:38px;
+  background:transparent!important;color:inherit!important;
+  font-weight:900;
+}
+#headerCalendarWindow .hc-body{padding:12px}
+#headerCalendarWindow .hc-month-label{
+  text-align:center;font-size:24px;font-weight:900;margin:2px 0 10px;
+}
+#headerCalendarWindow .hc-grid{
+  display:grid;grid-template-columns:repeat(7,1fr);
+  gap:5px;
+}
+#headerCalendarWindow .hc-weekday,
+#headerCalendarWindow .hc-day{
+  min-height:54px;
+  display:flex;align-items:center;justify-content:center;
+  border:2px solid var(--border);
+  border-radius:14px;
+  font-weight:900;
+}
+#headerCalendarWindow .hc-weekday{
+  min-height:38px;background:var(--accent);color:var(--panel);
+}
+#headerCalendarWindow .hc-day.empty{border-color:transparent;background:transparent}
+#headerCalendarWindow .hc-day.today{
+  outline:4px solid #f2c94c;
+  transform:scale(1.03);
+}
+#headerCalendarWindow .hc-day .num{font-size:20px}
+#headerCalendarWindow .hc-day .greg{
+  display:block;font-size:10px;opacity:.72;margin-top:2px;
+}
+body.dark #headerCalendarWindow,
+body.gold #headerCalendarWindow{border-radius:24px!important}
+body.dark #headerCalendarWindow .hc-weekday{background:#000;color:#ffe95c;border-color:#ff1f2f}
+body.gold #headerCalendarWindow .hc-weekday{background:#f4d56b;color:#111;border-color:#111}
+@media(max-width:600px){
+  #headerCalendarWindow{top:55px}
+  #headerCalendarWindow .hc-day{min-height:44px;border-radius:10px}
+  #headerCalendarWindow .hc-day .num{font-size:16px}
+  #headerCalendarWindow .hc-day .greg{font-size:8px}
+  #headerCalendarWindow .hc-month-label{font-size:20px}
+}
+</style>
+
+<script id="header-slide-delete-list-final-2026-09-23">
+(function(){
+  function getData(){
+    var box=document.getElementById('headerBackgroundSlides');
+    var imgs=box?box.querySelectorAll('.header-background-slide'):[];
+    return Array.prototype.map.call(imgs,function(img,i){
+      return {src:img.src,label:img.alt||('Header Slide '+(i+1)),index:i};
+    });
+  }
+  function ensureWindow(){
+    var w=document.getElementById('headerSlideDeleteWindow');
+    if(w)return w;
+    w=document.createElement('div');
+    w.id='headerSlideDeleteWindow';
+    w.innerHTML='<div class="hsdw-head"><span>Header ছবির তালিকা — যেটি চান ডিলেট করুন</span><button type="button" class="hsdw-close" onclick="closeHeaderSlideDeleteList()">✕</button></div><div class="hsdw-body" id="headerSlideDeleteList"></div>';
+    document.body.appendChild(w);
+    return w;
+  }
+  function renderList(){
+    var w=ensureWindow(), list=document.getElementById('headerSlideDeleteList');
+    var data=getData();
+    list.innerHTML='';
+    if(!data.length){
+      list.innerHTML='<div style="text-align:center;font-weight:900;padding:25px">কোনো Header স্লাইড নেই</div>';
+      return;
+    }
+    data.forEach(function(x){
+      var row=document.createElement('div');
+      row.className='hsdw-item';
+      row.innerHTML='<img src="'+x.src.replace(/"/g,'&quot;')+'" alt=""><div class="hsdw-name">'+String(x.label).replace(/[<>&"]/g,function(s){return {'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[s]})+'</div><button type="button" class="hsdw-del">🗑 ডিলেট</button>';
+      row.querySelector('.hsdw-del').onclick=function(){
+        window.deleteHeaderSlideByListIndex(x.index);
+      };
+      list.appendChild(row);
+    });
+    w.classList.add('show');
+  }
+  window.deleteHeaderSlideByListIndex=function(i){
+    /* মূল slider-এর render/arrays-এর ভেতরের delete function ব্যবহার */
+    if(typeof window.deleteCurrentHeaderSlide!=='function')return;
+    var all=window.__headerSlideDeleteState;
+    if(!all||!Array.isArray(all))return;
+    if(i<0||i>=all.length)return;
+    /* বর্তমান slider index-এ নিয়ে গিয়ে authoritative delete চালানো */
+    try{
+      if(typeof window.__setHeaderSlideIndex==='function')window.__setHeaderSlideIndex(i);
+      window.deleteCurrentHeaderSlide();
+      setTimeout(renderList,80);
+    }catch(e){}
+  };
+  window.openHeaderSlideDeleteList=function(){
+    renderList();
+  };
+  window.closeHeaderSlideDeleteList=function(){
+    var w=document.getElementById('headerSlideDeleteWindow');
+    if(w)w.classList.remove('show');
+  };
+  document.addEventListener('click',function(e){
+    var b=e.target.closest&&e.target.closest('#headerSlideDeleteBtn');
+    if(!b)return;
+    e.preventDefault();e.stopImmediatePropagation();
+    renderList();
+  },true);
+})();
+</script>
+
+<script id="header-slide-delete-state-bridge-2026-09-23">
+(function(){
+  var timer=setInterval(function(){
+    if(typeof window.deleteCurrentHeaderSlide!=='function')return;
+    clearInterval(timer);
+    var old=window.deleteCurrentHeaderSlide;
+    window.__setHeaderSlideIndex=function(i){
+      /* render function is authoritative; this bridge records desired index */
+      window.__headerDesiredSlideIndex=i;
+    };
+    var oldLoad=window.loadHeaderPhotos;
+    /* expose current list to the delete window */
+    window.__headerSlideDeleteState=[];
+    function sync(){
+      var box=document.getElementById('headerBackgroundSlides');
+      var imgs=box?box.querySelectorAll('.header-background-slide'):[];
+      window.__headerSlideDeleteState=Array.prototype.map.call(imgs,function(x){return x.src;});
+      var desired=Number(window.__headerDesiredSlideIndex);
+      if(isFinite(desired)){
+        var nodes=box?box.querySelectorAll('.header-background-slide'):[];
+        nodes.forEach(function(n,j){n.classList.toggle('active',j===desired);});
+        window.__headerDesiredSlideIndex=null;
+      }
+    }
+    window.deleteCurrentHeaderSlide=function(){
+      var box=document.getElementById('headerBackgroundSlides');
+      var nodes=box?box.querySelectorAll('.header-background-slide'):[];
+      var desired=Number(window.__headerDesiredSlideIndex);
+      if(isFinite(desired)&&desired>=0&&desired<nodes.length){
+        nodes.forEach(function(n,j){n.classList.toggle('active',j===desired);});
+        /* original delete reads its private idx, so click the image through a small
+           temporary advance until idx matches desired */
+      }
+      old.apply(this,arguments);
+      setTimeout(sync,30);
+    };
+    setInterval(sync,500);
+  },100);
+})();
+</script>
+
+<script id="header-calendar-full-month-final-2026-09-23">
+(function(){
+  var state={cal:'en',cursor:new Date()};
+  var cfg={
+    en:{locale:'en-GB',label:'ইংরেজী ক্যালেন্ডার',week:['Sun','Mon','Tue','Wed','Thu','Fri','Sat']},
+    ar:{locale:'ar-SA-u-ca-islamic',label:'আরবী ক্যালেন্ডার',week:['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت']},
+    bn:{locale:'bn-BD-u-ca-beng',label:'বাংলা ক্যালেন্ডার',week:['রবি','সোম','মঙ্গল','বুধ','বৃহস্পতি','শুক্র','শনি']}
+  };
+  function parts(d,locale){
+    var a=new Intl.DateTimeFormat(locale,{year:'numeric',month:'numeric',day:'numeric'}).formatToParts(d),o={};
+    a.forEach(function(x){if(x.type!=='literal')o[x.type]=x.value});
+    return o;
+  }
+  function monthKey(d,locale){
+    var p=parts(d,locale);return p.year+'|'+p.month;
+  }
+  function monthLabel(d,locale){
+    return new Intl.DateTimeFormat(locale,{year:'numeric',month:'long'}).format(d);
+  }
+  function makeDays(){
+    var locale=cfg[state.cal].locale, cur=state.cursor;
+    var target=monthKey(cur,locale), arr=[], start=new Date(cur.getTime());
+    start.setDate(start.getDate()-45);
+    for(var i=0;i<140;i++){
+      var d=new Date(start.getTime());d.setDate(start.getDate()+i);
+      if(monthKey(d,locale)===target)arr.push(d);
+    }
+    return arr;
+  }
+  function render(){
+    var w=document.getElementById('headerCalendarWindow');if(!w)return;
+    var c=cfg[state.cal], days=makeDays(), grid=w.querySelector('.hc-grid'), label=w.querySelector('.hc-month-label');
+    label.textContent=c.label+' — '+monthLabel(state.cursor,c.locale);
+    grid.innerHTML='';
+    c.week.forEach(function(x){
+      var h=document.createElement('div');h.className='hc-weekday';h.textContent=x;grid.appendChild(h);
+    });
+    var first=days[0], lead=first?first.getDay():0;
+    for(var z=0;z<lead;z++){var e=document.createElement('div');e.className='hc-day empty';grid.appendChild(e);}
+    var today=new Date(), todayKey=monthKey(today,c.locale)+'|'+parts(today,c.locale).day;
+    days.forEach(function(d){
+      var p=parts(d,c.locale), cell=document.createElement('div');cell.className='hc-day';
+      if(monthKey(d,c.locale)+'|'+p.day===todayKey)cell.classList.add('today');
+      cell.innerHTML='<div><div class="num">'+p.day+'</div><span class="greg">'+d.getDate()+'-'+(d.getMonth()+1)+'</span></div>';
+      grid.appendChild(cell);
+    });
+  }
+  function ensure(){
+    var w=document.getElementById('headerCalendarWindow');
+    if(w)return w;
+    w=document.createElement('div');w.id='headerCalendarWindow';
+    w.innerHTML='<div class="hc-head"><button class="hc-nav" id="hcPrev">‹</button><div class="hc-title">ক্যালেন্ডার</div><button class="hc-nav" id="hcNext">›</button><button class="hc-close" onclick="closeHeaderCalendar()">✕</button></div><div class="hc-body"><div class="hc-month-label"></div><div class="hc-grid"></div></div>';
+    document.body.appendChild(w);
+    w.querySelector('#hcPrev').onclick=function(){state.cursor.setMonth(state.cursor.getMonth()-1);render();};
+    w.querySelector('#hcNext').onclick=function(){state.cursor.setMonth(state.cursor.getMonth()+1);render();};
+    return w;
+  }
+  window.openHeaderCalendar=function(cal){
+    state.cal=cal||'en';state.cursor=new Date();
+    ensure().classList.add('show');render();
+  };
+  window.closeHeaderCalendar=function(){
+    var w=document.getElementById('headerCalendarWindow');if(w)w.classList.remove('show');
+  };
+  var t=setInterval(function(){
+    var s=document.getElementById('headerCalendarSelect');
+    if(!s)return;
+    clearInterval(t);
+    s.onchange=function(){
+      var v=s.value;if(!v)return;
+      openHeaderCalendar(v);
+      s.value='';
+    };
+  },100);
+})();
+</script>
