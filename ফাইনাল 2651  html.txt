@@ -6089,3 +6089,20 @@ body.dark .dashboard-period-dot{border-color:#ffe95c!important}
   font-weight:900!important;
 }
 </style>
+<style id="contact-footer-width-email-row-2026-09-22">
+#app main > #contactFooter{
+  width:min(760px,78vw)!important;
+  margin-top:-312px!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+#contactFooter .contact-info{
+  display:flex!important;
+  justify-content:center!important;
+  flex-wrap:wrap!important;
+}
+#contactFooter .contact-info span:nth-child(3),
+#contactFooter .contact-info span:nth-child(4){
+  flex:0 0 100%!important;
+}
+</style>
