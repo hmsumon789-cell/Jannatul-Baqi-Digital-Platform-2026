@@ -5205,3 +5205,69 @@ body #app .header-news *{
   },250);
 })();
 </script>
+\n
+<!-- ===== MEDIA CONTROLS POSITION FIX — 2026-09-22 ===== -->
+<style id="media-controls-position-fix-2026-09-22">
+/* Remove the extra yellow circular/boxed area below the player controls. */
+#mediaStage::after,
+#mediaStage .slider-center-controls::after,
+#mediaStage .media-player-controls::after{display:none!important;content:none!important}
+/* Keep the actual Play / Upload / Delete controls clearly below the player. */
+#mediaStage .dashboard-slider-controls{
+  position:relative!important;
+  z-index:50!important;
+  margin-top:14px!important;
+  padding:10px 0!important;
+  min-height:58px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  clear:both!important;
+}
+#mediaStage .dashboard-slider-controls .slider-center-controls{
+  position:relative!important;
+  z-index:51!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:10px!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  padding:0!important;
+}
+#mediaStage .dashboard-slider-controls .slider-action,
+#mediaStage #mediaPlayBtn{
+  position:relative!important;
+  z-index:52!important;
+  min-height:42px!important;
+  margin:0!important;
+}
+#mediaStageContent{
+  margin-bottom:4px!important;
+}
+</style>
+<script id="media-controls-position-fix-js-2026-09-22">
+(function(){
+  function fix(){
+    var stage=document.getElementById('mediaStage');
+    if(!stage)return;
+    stage.querySelectorAll('.media-player-controls').forEach(function(x){x.remove()});
+    var controls=stage.querySelector('.dashboard-slider-controls');
+    if(controls){
+      controls.style.setProperty('position','relative','important');
+      controls.style.setProperty('z-index','50','important');
+      controls.style.setProperty('margin-top','14px','important');
+      controls.style.setProperty('padding','10px 0','important');
+      controls.style.setProperty('background','transparent','important');
+      controls.style.setProperty('border','0','important');
+      controls.style.setProperty('box-shadow','none','important');
+    }
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fix);else fix();
+  setTimeout(fix,200);setTimeout(fix,700);setTimeout(fix,1500);
+})();
+</script>
