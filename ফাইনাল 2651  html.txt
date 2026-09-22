@@ -5686,3 +5686,308 @@ body #app .header-news *{
   },true);
 })();
 </script>
+<!-- ===== DASHBOARD PERIOD DYNAMIC LARGE SUMMARY — 2026-09-22 ===== -->
+<style id="dashboard-period-dynamic-large-2026-09-22">
+#dashboardCharts{
+  margin-top:14px!important;
+  width:100%!important;
+}
+.dashboard-slider #dashboardCharts{
+  display:grid!important;
+  grid-template-columns:minmax(0,1.35fr) minmax(0,1fr)!important;
+  gap:14px!important;
+  width:100%!important;
+  margin:14px 0 0!important;
+  padding:0!important;
+}
+.dashboard-slider #dashboardCharts .chart-card{
+  min-height:340px!important;
+  height:340px!important;
+  padding:16px!important;
+  border:3px solid var(--border)!important;
+  border-radius:18px!important;
+  background:var(--panel)!important;
+  box-shadow:0 10px 25px #0003!important;
+  overflow:hidden!important;
+  box-sizing:border-box!important;
+}
+.dashboard-slider #dashboardCharts .chart-title{
+  font-size:21px!important;
+  font-weight:1000!important;
+  line-height:1.25!important;
+  margin:0 0 10px!important;
+  white-space:normal!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+}
+.dashboard-slider #dashboardCharts .period-tabs{
+  display:flex!important;
+  justify-content:center!important;
+  gap:7px!important;
+  margin:0 0 14px!important;
+  flex-wrap:wrap!important;
+}
+.dashboard-slider #dashboardCharts .period-tab{
+  min-height:38px!important;
+  height:38px!important;
+  padding:5px 14px!important;
+  font-size:15px!important;
+  font-weight:900!important;
+  border:2px solid var(--border)!important;
+  border-radius:999px!important;
+  background:transparent!important;
+  color:inherit!important;
+  transition:.2s!important;
+}
+.dashboard-slider #dashboardCharts .period-tab:hover,
+.dashboard-slider #dashboardCharts .period-tab.active{
+  transform:translateY(-2px) scale(1.03)!important;
+  box-shadow:0 5px 12px #0003!important;
+  background:var(--accent)!important;
+  color:var(--panel)!important;
+}
+.dashboard-period-range{
+  text-align:center!important;
+  font-size:13px!important;
+  font-weight:800!important;
+  opacity:.78!important;
+  margin:-4px 0 8px!important;
+}
+.dashboard-period-finance{
+  display:grid!important;
+  grid-template-columns:repeat(4,1fr)!important;
+  gap:10px!important;
+  align-items:end!important;
+  height:225px!important;
+  padding:10px 8px 0!important;
+  border-bottom:2px solid var(--border)!important;
+}
+.dashboard-period-bar-wrap{
+  height:100%!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:flex-end!important;
+  align-items:center!important;
+  min-width:0!important;
+}
+.dashboard-period-bar-value{
+  font-size:15px!important;
+  font-weight:1000!important;
+  margin-bottom:5px!important;
+  white-space:nowrap!important;
+}
+.dashboard-period-bar{
+  width:min(70px,78%)!important;
+  min-height:7px!important;
+  border:2px solid #111!important;
+  border-radius:10px 10px 3px 3px!important;
+  box-shadow:0 6px 14px #0004!important;
+  transition:height .55s cubic-bezier(.2,.8,.2,1),transform .2s!important;
+}
+.dashboard-period-bar:hover{transform:scaleX(1.06)!important}
+.dashboard-period-label{
+  margin-top:8px!important;
+  font-size:16px!important;
+  font-weight:1000!important;
+  text-align:center!important;
+}
+.dashboard-period-legend{
+  display:grid!important;
+  grid-template-columns:repeat(4,1fr)!important;
+  gap:7px!important;
+  margin-top:10px!important;
+}
+.dashboard-period-legend span{
+  display:flex!important;
+  justify-content:center!important;
+  align-items:center!important;
+  gap:5px!important;
+  font-size:12px!important;
+  font-weight:900!important;
+}
+.dashboard-period-dot{
+  width:11px!important;height:11px!important;border-radius:50%!important;
+  display:inline-block!important;border:1px solid #222!important;
+}
+.dashboard-attendance-wrap{
+  height:245px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:22px!important;
+}
+.dashboard-attendance-ring-large{
+  width:190px!important;
+  height:190px!important;
+  border-radius:50%!important;
+  background:conic-gradient(#20a464 var(--present-pct),#e33b4a 0)!important;
+  position:relative!important;
+  box-shadow:0 10px 25px #0004!important;
+  flex:0 0 auto!important;
+}
+.dashboard-attendance-ring-large:after{
+  content:""!important;
+  position:absolute!important;
+  inset:34px!important;
+  border-radius:50%!important;
+  background:var(--panel)!important;
+  border:3px solid var(--border)!important;
+}
+.dashboard-attendance-ring-large span{
+  position:absolute!important;
+  inset:0!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  z-index:2!important;
+  font-size:30px!important;
+  font-weight:1000!important;
+}
+.dashboard-attendance-counts-large{
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:12px!important;
+  min-width:150px!important;
+}
+.dashboard-attendance-count-large{
+  padding:13px 15px!important;
+  border:2px solid var(--border)!important;
+  border-radius:14px!important;
+  background:transparent!important;
+  text-align:center!important;
+  font-size:16px!important;
+  font-weight:900!important;
+  box-shadow:0 5px 12px #0002!important;
+}
+.dashboard-attendance-count-large b{
+  display:block!important;
+  font-size:30px!important;
+  line-height:1!important;
+  margin-bottom:4px!important;
+}
+.dashboard-dynamic-badge{
+  text-align:center!important;
+  font-size:12px!important;
+  font-weight:900!important;
+  opacity:.8!important;
+  margin-top:5px!important;
+}
+body.dark .dashboard-period-bar,
+body.dark .dashboard-period-dot{border-color:#ffe95c!important}
+@media(max-width:900px){
+  .dashboard-slider #dashboardCharts{grid-template-columns:1fr!important}
+  .dashboard-slider #dashboardCharts .chart-card{height:360px!important;min-height:360px!important}
+}
+@media(max-width:600px){
+  .dashboard-slider #dashboardCharts .chart-card{height:330px!important;min-height:330px!important;padding:10px!important}
+  .dashboard-slider #dashboardCharts .chart-title{font-size:17px!important}
+  .dashboard-slider #dashboardCharts .period-tab{font-size:12px!important;min-height:34px!important;height:34px!important;padding:4px 9px!important}
+  .dashboard-period-finance{height:190px!important}
+  .dashboard-period-bar{width:52px!important}
+  .dashboard-attendance-ring-large{width:145px!important;height:145px!important}
+  .dashboard-attendance-ring-large:after{inset:27px!important}
+  .dashboard-attendance-wrap{gap:10px!important}
+  .dashboard-attendance-counts-large{min-width:120px!important}
+}
+</style>
+
+<script id="dashboard-period-dynamic-large-2026-09-22">
+(function(){
+  var periods=['দৈনিক','সাপ্তাহিক','মাসিক','বাৎসরিক'];
+  var periodIndex=0, timer=null, loading=false, refreshTimer=null;
+
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(s){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[s]})}
+  function money(v){
+    var n=Number(v)||0;
+    try{return new Intl.NumberFormat('bn-BD',{maximumFractionDigits:0}).format(n)}catch(e){return String(Math.round(n))}
+  }
+  function rangeLabel(r){
+    if(!r)return '';
+    return esc(r.rangeStart||'')+(r.rangeEnd&&r.rangeEnd!==r.rangeStart?' → '+esc(r.rangeEnd):'');
+  }
+  function renderLarge(r,period){
+    var box=document.getElementById('dashboardCharts');
+    if(!box)return;
+    var income=Number(r&&r.income)||0, expense=Number(r&&r.expense)||0, cash=Number(r&&r.cash)||0, due=Number(r&&r.due)||0;
+    var p=Number(r&&r.attendance&&r.attendance.present)||0, a=Number(r&&r.attendance&&r.attendance.absent)||0;
+    var total=p+a, pct=total?Math.round(p/total*100):0, vals=[income,expense,cash,due], max=Math.max.apply(null,vals.concat([1]));
+    var labels=['আয়','ব্যয়','ক্যাশ','বকেয়া'];
+    var bars=vals.map(function(v,i){
+      var h=Math.max(8,Math.round((v/max)*175));
+      return '<div class="dashboard-period-bar-wrap">'+
+        '<div class="dashboard-period-bar-value">'+money(v)+'</div>'+
+        '<div class="dashboard-period-bar" style="height:'+h+'px;background:'+(i===0?'#20a464':i===1?'#e33b4a':i===2?'#248bd0':'#f0a51a')+'"></div>'+
+        '<div class="dashboard-period-label">'+labels[i]+'</div></div>';
+    }).join('');
+    var tabs=periods.map(function(v,i){return '<button class="period-tab '+(v===period?'active':'')+'" data-period="'+esc(v)+'" onclick="selectDashboardPeriod(this,\''+v+'\')">'+v+'</button>'}).join('');
+    box.innerHTML=
+      '<div class="chart-card">'+
+        '<div class="chart-title">📊 আয় + ব্যয় + ক্যাশ + বকেয়া — '+esc(period)+' সামারি</div>'+
+        '<div class="period-tabs">'+tabs+'</div>'+
+        '<div class="dashboard-period-range">সময়কাল: '+rangeLabel(r)+'</div>'+
+        '<div class="dashboard-period-finance">'+bars+'</div>'+
+        '<div class="dashboard-period-legend">'+
+          '<span><i class="dashboard-period-dot" style="background:#20a464"></i>আয়</span>'+
+          '<span><i class="dashboard-period-dot" style="background:#e33b4a"></i>ব্যয়</span>'+
+          '<span><i class="dashboard-period-dot" style="background:#248bd0"></i>ক্যাশ</span>'+
+          '<span><i class="dashboard-period-dot" style="background:#f0a51a"></i>বকেয়া</span>'+
+        '</div>'+
+        '<div class="dashboard-dynamic-badge">↻ লাইভ ডায়নামিক সামারি</div>'+
+      '</div>'+
+      '<div class="chart-card">'+
+        '<div class="chart-title">👥 '+esc(period)+' উপস্থিত / অনুপস্থিত</div>'+
+        '<div class="dashboard-period-range">সময়কাল: '+rangeLabel(r)+'</div>'+
+        '<div class="dashboard-attendance-wrap">'+
+          '<div class="dashboard-attendance-ring-large" style="--present-pct:'+pct+'%"><span>'+pct+'%</span></div>'+
+          '<div class="dashboard-attendance-counts-large">'+
+            '<div class="dashboard-attendance-count-large"><b>'+money(p)+'</b>উপস্থিত</div>'+
+            '<div class="dashboard-attendance-count-large"><b>'+money(a)+'</b>অনুপস্থিত</div>'+
+          '</div>'+
+        '</div>'+
+        '<div class="dashboard-dynamic-badge">↻ লাইভ ডায়নামিক হাজিরা সামারি</div>'+
+      '</div>';
+  }
+
+  async function load(period,keepIndex){
+    if(loading||!window.token||typeof window.call!=='function')return;
+    loading=true;
+    try{
+      var r=await window.call('getDashboardPeriodStats',window.token,period);
+      if(r&&r.ok)renderLarge(r,period);
+    }catch(e){
+      console.warn('Dashboard period summary:',e);
+    }
+    loading=false;
+    if(!keepIndex){
+      periodIndex=periods.indexOf(period);
+      if(periodIndex<0)periodIndex=0;
+    }
+  }
+
+  window.selectDashboardPeriod=function(btn,period){
+    periodIndex=periods.indexOf(period);
+    if(periodIndex<0)periodIndex=0;
+    document.querySelectorAll('#dashboardCharts .period-tab').forEach(function(b){b.classList.remove('active')});
+    if(btn)btn.classList.add('active');
+    load(period,false);
+  };
+
+  function cycle(){
+    periodIndex=(periodIndex+1)%periods.length;
+    load(periods[periodIndex],true);
+  }
+  function start(){
+    if(timer)clearInterval(timer);
+    timer=setInterval(cycle,8000);
+    if(refreshTimer)clearInterval(refreshTimer);
+    refreshTimer=setInterval(function(){load(periods[periodIndex],true)},45000);
+    load(periods[periodIndex],true);
+  }
+  function waitForToken(){
+    if(window.token){start();return}
+    setTimeout(waitForToken,1200);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',waitForToken);
+  else waitForToken();
+})();
+</script>
