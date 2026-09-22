@@ -4330,3 +4330,104 @@ body #app .header-news *{
   }).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
+
+
+<!-- ===== USER TASK 6 — FIX PRINT LOGO + REMOVE HEADER LOGO LABEL/SPACE + TRUE ROUND TICKER — 2026-09-22 ===== -->
+<style id="user-task6-fixes-2026-09-22">
+/* Header logo: no label, no extra empty area */
+#app > header.header > .task4-header-logo{
+  min-height:0!important;
+  height:82px!important;
+  margin:0!important;
+  padding:0!important;
+}
+#app > header.header > .task4-header-logo img{
+  display:block!important;
+  width:76px!important;
+  height:76px!important;
+  margin:0 auto!important;
+}
+#app > header.header > .task4-header-logo::before,
+#app > header.header > .task4-header-logo::after{
+  content:none!important;
+  display:none!important;
+}
+/* Force the actual Header ticker to be visibly pill/round */
+#app > header.header .header-news{
+  border-radius:9999px!important;
+  overflow:hidden!important;
+  clip-path:none!important;
+}
+#app > header.header .header-news::before{
+  border-radius:50%!important;
+}
+#app > header.header .header-news .news-full-run,
+#app > header.header .header-news .running-news-text{
+  border-radius:9999px!important;
+}
+/* Print logo: always create it at the LEFT of printable content */
+@media print{
+  .task5-print-logo{
+    display:block!important;
+    float:left!important;
+    width:70px!important;
+    height:70px!important;
+    margin:0 14px 8px 0!important;
+    object-fit:contain!important;
+    border:0!important;
+    background:transparent!important;
+  }
+  .task5-print-head{
+    display:block!important;
+    min-height:78px!important;
+    text-align:center!important;
+    overflow:hidden!important;
+  }
+}
+</style>
+<script id="user-task6-fixes-js-2026-09-22">
+(function(){
+  function logoSrc(){
+    var x=document.getElementById('loginLogo');
+    return x&&x.src?x.src:'';
+  }
+  function addPrintLogoToWindow(w){
+    if(!w)return;
+    var s=logoSrc(); if(!s)return;
+    var candidates=w.querySelectorAll(
+      '.win-body,.print-head,.print-header,.profile-print-header,.profile-header,.print-title,.data-table'
+    );
+    candidates.forEach(function(root){
+      if(root.querySelector&&root.querySelector('.task6-print-logo'))return;
+      if(!root.querySelector||!root.querySelector('h1,h2,h3,b,strong,.print-title'))return;
+      var img=document.createElement('img');
+      img.className='task6-print-logo';
+      img.src=s; img.alt='';
+      img.style.display='none';
+      img.style.width='70px';
+      img.style.height='70px';
+      img.style.objectFit='contain';
+      img.style.float='left';
+      img.style.margin='0 14px 8px 0';
+      var first=root.querySelector('h1,h2,h3,b,strong,.print-title');
+      if(first&&first.parentNode)first.parentNode.insertBefore(img,first);
+    });
+  }
+  function scan(){
+    document.querySelectorAll('.window').forEach(addPrintLogoToWindow);
+  }
+  window.addEventListener('beforeprint',function(){
+    document.querySelectorAll('.task5-print-logo').forEach(function(x){x.style.display='block';});
+    document.querySelectorAll('.task6-print-logo').forEach(function(x){x.style.display='block';});
+    scan();
+    document.querySelectorAll('.task6-print-logo').forEach(function(x){x.style.display='block';});
+  });
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
+  setTimeout(scan,500);setTimeout(scan,1500);setInterval(scan,2000);
+  new MutationObserver(function(ms){
+    var changed=false;
+    ms.forEach(function(m){if(m.addedNodes&&m.addedNodes.length)changed=true;});
+    if(changed)scan();
+  }).observe(document.body,{childList:true,subtree:true});
+})();
+</script>
