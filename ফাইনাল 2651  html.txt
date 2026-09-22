@@ -6036,3 +6036,11 @@ body.dark .dashboard-period-dot{border-color:#ffe95c!important}
   margin-top:-120px!important;
 }
 </style>
+
+
+<style id="raise-lower-border-additional-2in-2026-09-22">
+/* আগের অবস্থান থেকে আরও ২ ইঞ্চি (প্রায় ১৯২px) উপরে */
+#app main > .footer.card{
+  margin-top:-312px!important;
+}
+</style>
