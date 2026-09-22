@@ -4006,3 +4006,144 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
   }).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
+\n
+<!-- ===== USER TASK 4 — ROUNDED RUNNING BOX + LARGE CLOCK + LOGIN LOGO REUSE — 2026-09-22 ===== -->
+<style id="user-task4-logo-clock-news-2026-09-22">
+/* চলমান বক্স গোল/রাউন্ড */
+#app .header-news{
+  border-radius:999px!important;
+  overflow:hidden!important;
+  background:var(--panel)!important;
+  border:2px solid var(--border)!important;
+}
+/* ঘড়ি বড় ও মোটা */
+#app .header-datetime .clock,
+#app #appClock{
+  font-size:34px!important;
+  line-height:1.05!important;
+  font-weight:1000!important;
+  letter-spacing:2px!important;
+  white-space:nowrap!important;
+  text-shadow:0 2px 0 #0002;
+}
+#app .header-datetime .date-line,
+#app #appDate{
+  font-size:20px!important;
+  font-weight:1000!important;
+}
+
+/* Header-এর একেবারে উপরে Login-এর একই Logo */
+.task4-header-logo{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100%!important;
+  min-height:82px!important;
+  padding:4px 0 2px!important;
+  background:transparent!important;
+}
+.task4-header-logo img{
+  width:76px!important;
+  height:76px!important;
+  object-fit:contain!important;
+  display:block!important;
+  background:transparent!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  filter:drop-shadow(0 4px 6px #0003);
+}
+
+/* সকল Form/Window + Search Profile-এর win-head-এর বামে Logo */
+.window .win-head .task4-window-title-wrap{
+  display:flex!important;
+  align-items:center!important;
+  gap:9px!important;
+  min-width:0!important;
+}
+.window .win-head .task4-window-logo{
+  width:46px!important;
+  height:46px!important;
+  min-width:46px!important;
+  object-fit:contain!important;
+  display:block!important;
+  background:transparent!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+}
+.window .win-head .task4-window-title-wrap b{
+  min-width:0!important;
+}
+</style>
+<script id="user-task4-logo-clock-news-js-2026-09-22">
+(function(){
+  function loginLogoSrc(){
+    var x=document.getElementById('loginLogo');
+    return x && x.src ? x.src : '';
+  }
+
+  function addHeaderLogo(){
+    var header=document.querySelector('#app > header.header');
+    if(!header || document.querySelector('.task4-header-logo'))return;
+    var src=loginLogoSrc();
+    if(!src)return;
+    var wrap=document.createElement('div');
+    wrap.className='task4-header-logo';
+    var img=document.createElement('img');
+    img.src=src;
+    img.alt='Logo';
+    wrap.appendChild(img);
+    header.parentNode.insertBefore(wrap,header);
+  }
+
+  function addWindowLogo(w){
+    if(!w || !w.classList.contains('window'))return;
+    var head=w.querySelector('.win-head');
+    if(!head || head.querySelector('.task4-window-title-wrap'))return;
+    var src=loginLogoSrc();
+    if(!src)return;
+
+    /* Existing title is kept; only its position is wrapped with the same Login logo. */
+    var title=null;
+    Array.prototype.some.call(head.children,function(el){
+      if(el.tagName==='B'){title=el;return true;}
+      return false;
+    });
+    if(!title)return;
+
+    var wrap=document.createElement('span');
+    wrap.className='task4-window-title-wrap';
+    var img=document.createElement('img');
+    img.className='task4-window-logo';
+    img.src=src;
+    img.alt='Logo';
+    wrap.appendChild(img);
+    wrap.appendChild(title);
+    head.insertBefore(wrap,head.firstChild);
+  }
+
+  function scan(){
+    addHeaderLogo();
+    document.querySelectorAll('.window').forEach(addWindowLogo);
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',scan);
+  }else{
+    scan();
+  }
+  setTimeout(scan,300);
+  setTimeout(scan,1000);
+  setTimeout(scan,2000);
+
+  new MutationObserver(function(ms){
+    var changed=false;
+    ms.forEach(function(m){
+      if(m.addedNodes && m.addedNodes.length)changed=true;
+    });
+    if(changed)scan();
+  }).observe(document.body,{childList:true,subtree:true});
+})();
+</script>
+\n
