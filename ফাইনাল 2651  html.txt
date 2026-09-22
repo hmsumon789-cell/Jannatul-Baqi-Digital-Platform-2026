@@ -3710,3 +3710,86 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
   if(document.body)mo.observe(document.body,{childList:true,subtree:true});
 })();
 </script>
+
+
+<!-- ===== USER TASK 2 CORRECTION: FULLSCREEN AT CLEAR BUTTON, KEEP CLOSE — 2026-09-22 ===== -->
+<style id="fullscreen-at-clear-correction-2026-09-22">
+.window .win-head .win-fullscreen-2026{display:none!important}
+.window .win-head .win-clear-fullscreen-2026{
+  min-width:34px!important;width:34px!important;height:30px!important;padding:0!important;
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  border:2px solid var(--border)!important;border-radius:7px!important;
+  background:var(--panel)!important;color:inherit!important;font-weight:900!important;cursor:pointer!important;
+}
+</style>
+<script id="fullscreen-at-clear-correction-js-2026-09-22">
+(function(){
+  function add(w){
+    if(!w||!w.classList||!w.classList.contains('window'))return;
+    var head=w.querySelector('.win-head'); if(!head)return;
+    /* Restore the real Close button if the previous patch changed it. */
+    var oldFs=head.querySelector('.win-fullscreen-2026');
+    if(oldFs){
+      oldFs.textContent='✕';
+      oldFs.title='বন্ধ করুন';
+      oldFs.setAttribute('aria-label','বন্ধ করুন');
+      oldFs.classList.remove('win-fullscreen-2026');
+      oldFs.classList.remove('win-clear-fullscreen-2026');
+      oldFs.removeAttribute('data-fs-bound');
+    }
+    /* Remove any previous correction button before rebuilding. */
+    var existing=head.querySelector('.win-clear-fullscreen-2026');
+    if(existing)existing.remove();
+
+    var clear=null;
+    var buttons=head.querySelectorAll('button');
+    buttons.forEach(function(b){
+      var txt=(b.textContent||'').trim().toLowerCase();
+      var title=(b.title||'').trim().toLowerCase();
+      if(!clear && (txt==='clear'||txt==='ক্লিয়ার'||txt==='ক্লিয়ার'||txt==='পরিষ্কার'||title.indexOf('clear')>=0||title.indexOf('ক্লিয়ার')>=0||title.indexOf('ক্লিয়ার')>=0)) clear=b;
+    });
+    /* If Clear is in the body/footer, use the existing clear button there. */
+    if(!clear){
+      w.querySelectorAll('button').forEach(function(b){
+        var txt=(b.textContent||'').trim().toLowerCase();
+        var title=(b.title||'').trim().toLowerCase();
+        if(!clear && (txt==='clear'||txt==='ক্লিয়ার'||txt==='ক্লিয়ার'||txt==='পরিষ্কার'||title.indexOf('clear')>=0||title.indexOf('ক্লিয়ার')>=0||title.indexOf('ক্লিয়ার')>=0)) clear=b;
+      });
+    }
+    if(clear){
+      clear.textContent='⛶';
+      clear.title='ফুল স্ক্রিন / স্বাভাবিক';
+      clear.setAttribute('aria-label','ফুল স্ক্রিন / স্বাভাবিক');
+      clear.classList.add('win-clear-fullscreen-2026');
+      clear.dataset.clearReplacedForFullscreen='1';
+      clear.onclick=function(e){
+        e.preventDefault();e.stopPropagation();
+        if(typeof window.toggleWindowFullscreen2026==='function')window.toggleWindowFullscreen2026(w);
+      };
+    }
+  }
+  window.toggleWindowFullscreen2026=function(w){
+    if(!w)return;
+    if(w.classList.contains('win-fullscreen-2026')){
+      w.classList.remove('win-fullscreen-2026');
+      w.style.width=w.dataset.prevWidth||'';
+      w.style.height=w.dataset.prevHeight||'';
+      w.style.maxHeight=w.dataset.prevMaxHeight||'82vh';
+      w.style.left=w.dataset.prevLeft||'50%';
+      w.style.top=w.dataset.prevTop||'90px';
+      w.style.transform=w.dataset.prevTransform||'translateX(-50%)';
+    }else{
+      var r=w.getBoundingClientRect();
+      w.dataset.prevWidth=r.width+'px';w.dataset.prevHeight=r.height+'px';
+      w.dataset.prevMaxHeight=w.style.maxHeight||'82vh';
+      w.dataset.prevLeft=r.left+'px';w.dataset.prevTop=r.top+'px';
+      w.dataset.prevTransform=w.style.transform||'none';
+      w.classList.add('win-fullscreen-2026');
+    }
+  };
+  function scan(){document.querySelectorAll('.window').forEach(add)}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
+  setTimeout(scan,300);setTimeout(scan,1000);setInterval(scan,2000);
+  new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes&&m.addedNodes.forEach(function(n){if(n.nodeType===1){if(n.matches&&n.matches('.window'))add(n);n.querySelectorAll&&n.querySelectorAll('.window').forEach(add)}})})}).observe(document.body,{childList:true,subtree:true});
+})();
+</script>
