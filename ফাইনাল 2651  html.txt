@@ -1068,7 +1068,91 @@ function downloadCurrentForm(){
     span.style.padding='3px';
     el.replaceWith(span);
   });
-  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title></head><body><h2>'+($('winTitle').textContent||'ফর্ম')+'</h2>'+body.innerHTML+'</body></html>';
+  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title></head><body><h2>'+($('winTitle').textContent||'ফর্ম')+'</h2>'+body.innerHTML+'
+
+<!-- ===== MEDIA LIMIT + DIRECT-URL PLAYBACK PATCH — 2026-09-22 ===== -->
+<style id="media-limit-direct-url-2026-09-22">
+#mediaFiles{max-width:100%}
+.media-limit-note{margin:6px 0;padding:7px 10px;border:2px solid #d40000;border-radius:8px;font-weight:800}
+</style>
+<script id="media-limit-direct-url-js-2026-09-22">
+(function(){
+  const MAX_VIDEO=20, MAX_IMAGE=100, MAX_MB_IMAGE=20, MAX_MB_VIDEO=50, MAX_MB_AUDIO=50;
+  function countType(t){
+    return (Array.isArray(media)?media:[]).filter(function(x){return String(x.Type||'').toLowerCase()===t}).length;
+  }
+  function mediaUrl(x){return String((x&&((x.URL||x.Url||x.url||x.MediaURL||x.mediaUrl||x.DataURL)))||'');}
+
+  window.renderMedia=function(){
+    const box=$('mediaStageContent'); if(!box)return;
+    if(!Array.isArray(media)||!media.length){
+      box.innerHTML='<span>মিডিয়া আপলোড করে স্লাইড দেখুন</span>'; return;
+    }
+    const x=media[mediaIndex%media.length], u=mediaUrl(x);
+    if(!u){box.innerHTML='<span>এই মিডিয়ার URL পাওয়া যায়নি।</span>';return}
+    if(x.Type==='image') box.innerHTML='<img src="'+u+'" alt="'+(x.Name||'')+'">';
+    else if(x.Type==='video') box.innerHTML='<video src="'+u+'" controls preload="metadata" playsinline></video>';
+    else box.innerHTML='<audio src="'+u+'" controls preload="metadata></audio>';
+    dashboardMediaPlaying=false;
+    const b=$('mediaPlayBtn'); if(b)b.textContent='▶ Play';
+  };
+
+  window.uploadMedia=async function(){
+    const input=$('mediaFiles');
+    if(!input||!input.files||!input.files.length)return toast('প্রথমে ফটো/ভিডিও নির্বাচন করুন।');
+    let uploaded=0,failed=0;
+    try{
+      const existingVideos=countType('video'), existingImages=countType('image');
+      let addVideos=0, addImages=0;
+      for(const f of [...input.files]){
+        const type=f.type.startsWith('image/')?'image':f.type.startsWith('video/')?'video':f.type.startsWith('audio/')?'audio':'';
+        if(!type){failed++;toast(f.name+' অনুমোদিত নয়।');continue}
+        const max=type==='image'?MAX_MB_IMAGE:MAX_MB_VIDEO;
+        if(f.size>max*1024*1024){failed++;toast(f.name+' — সর্বোচ্চ '+max+' MB।');continue}
+        if(type==='video' && existingVideos+addVideos>=MAX_VIDEO){
+          failed++;toast('সর্বোচ্চ ২০টি ভিডিও রাখা যাবে।');continue;
+        }
+        if(type==='image' && existingImages+addImages>=MAX_IMAGE){
+          failed++;toast('সর্বোচ্চ ১০০টি ফটো রাখা যাবে।');continue;
+        }
+        toast('আপলোড হচ্ছে: '+f.name+' — 0%');
+        const dataUrl=await new Promise(function(resolve,reject){
+          const fr=new FileReader();
+          fr.onload=function(){resolve(fr.result||'')};
+          fr.onerror=function(){reject(new Error('ফাইল পড়া যায়নি।'))};
+          fr.readAsDataURL(f);
+        });
+        const r=await call('saveMedia',token,{name:f.name,type:type,size:f.size,mimeType:f.type,dataUrl:dataUrl,sort:0});
+        if(r&&r.ok){
+          uploaded++;
+          if(type==='video')addVideos++; if(type==='image')addImages++;
+          toast('আপলোড 100% সম্পন্ন: '+f.name);
+        }else{failed++;toast((r&&r.message)||('আপলোড ব্যর্থ: '+f.name))}
+      }
+      media=await call('listMedia',token); media=Array.isArray(media)?media:[];
+      mediaIndex=media.length?Math.min(mediaIndex,media.length-1):0;
+      renderMedia(); if(typeof renderMediaList==='function')renderMediaList();
+      if(uploaded&&failed)toast(uploaded+'টি আপলোড হয়েছে, '+failed+'টি ব্যর্থ।');
+      else if(uploaded)toast(uploaded+'টি মিডিয়া সফলভাবে আপলোড হয়েছে।');
+      else toast('কোনো মিডিয়া আপলোড হয়নি।');
+      input.value='';
+    }catch(e){toast('আপলোডে সার্ভার ত্রুটি: '+(e&&e.message?e.message:String(e)))}
+  };
+
+  function addLimitNote(){
+    const input=$('mediaFiles'); if(!input||input.dataset.limitNote)return;
+    input.dataset.limitNote='1';
+    const n=document.createElement('div');
+    n.className='media-limit-note';
+    n.textContent='মিডিয়া সীমা: সর্বোচ্চ ২০টি ভিডিও + ১০০টি ফটো | ফটো ২০ MB পর্যন্ত | ভিডিও ৫০ MB পর্যন্ত | প্লেয়ারে সরাসরি URL-ও চালানো যাবে (Google Drive URL প্রয়োজন নেই)।';
+    input.parentNode.insertBefore(n,input.nextSibling);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',addLimitNote);else addLimitNote();
+  setTimeout(addLimitNote,500); setTimeout(addLimitNote,1200);
+})();
+</script>
+
+</body></html>';
   var blob=new Blob([html],{type:'text/html;charset=utf-8'});
   var url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url;a.download=title+'.html';document.body.appendChild(a);a.click();a.remove();
