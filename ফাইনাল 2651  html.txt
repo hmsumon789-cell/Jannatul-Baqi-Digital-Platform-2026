@@ -5949,10 +5949,10 @@ body.dark .dashboard-period-dot{border-color:#ffe95c!important}
   }
 
   async function load(period,keepIndex){
-    if(loading||!window.token||typeof window.call!=='function')return;
+    if(loading||!token||typeof call!=='function')return;
     loading=true;
     try{
-      var r=await window.call('getDashboardPeriodStats',window.token,period);
+      var r=await call('getDashboardPeriodStats',token,period);
       if(r&&r.ok)renderLarge(r,period);
     }catch(e){
       console.warn('Dashboard period summary:',e);
@@ -5984,7 +5984,7 @@ body.dark .dashboard-period-dot{border-color:#ffe95c!important}
     load(periods[periodIndex],true);
   }
   function waitForToken(){
-    if(window.token){start();return}
+    if(token){start();return}
     setTimeout(waitForToken,1200);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',waitForToken);
