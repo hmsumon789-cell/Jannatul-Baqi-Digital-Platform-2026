@@ -6044,3 +6044,15 @@ body.dark .dashboard-period-dot{border-color:#ffe95c!important}
   margin-top:-312px!important;
 }
 </style>
+
+
+<style id="adjust-dynamic-box-and-lower-border-2026-09-22">
+/* ডায়নামিক দুই বক্স বর্ডারসহ অল্প নিচে */
+#dashboardCharts{
+  transform:translateY(-258px)!important;
+}
+/* ডায়নামিক বক্সের নিচের বর্ডার আরও আধা ইঞ্চি উপরে */
+#app main > .footer.card{
+  margin-top:-360px!important;
+}
+</style>
