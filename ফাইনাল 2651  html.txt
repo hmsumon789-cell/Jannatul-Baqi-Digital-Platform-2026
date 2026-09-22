@@ -1490,10 +1490,27 @@ body.gold .header-background-overlay{background:linear-gradient(180deg,rgba(255,
     });
     render();
   };
+  /* তালিকা থেকে নির্দিষ্ট স্লাইড বাছাই করার জন্য index bridge */
+  window.__setHeaderSlideIndex=function(n){
+    var all=defaults.concat(userPhotos);
+    n=Number(n);
+    if(!isFinite(n)||n<0||n>=all.length)return false;
+    idx=n;
+    var box=document.getElementById('headerBackgroundSlides');
+    if(box){
+      var imgs=box.querySelectorAll('.header-background-slide');
+      imgs.forEach(function(img,j){img.classList.toggle('active',j===idx);});
+    }
+    return true;
+  };
+  window.__getHeaderSlideList=function(){
+    return defaults.concat(userPhotos).map(function(x,i){
+      return {src:x.src,label:x.label||('Header Slide '+(i+1)),index:i};
+    });
+  };
   window.deleteCurrentHeaderSlide=function(){
     var all=defaults.concat(userPhotos);
     if(!all.length)return;
-    var current=all[idx]||all[0];
     var isUser=idx>=defaults.length;
     if(isUser){
       var ui=idx-defaults.length;
@@ -1504,7 +1521,7 @@ body.gold .header-background-overlay{background:linear-gradient(180deg,rgba(255,
     idx=0;
     render();
     try{
-      if(typeof window.toast==='function')window.toast('Header-এর বর্তমান স্লাইড ডিলেট করা হয়েছে।');
+      if(typeof window.toast==='function')window.toast('Header-এর নির্বাচিত স্লাইড ডিলেট করা হয়েছে।');
     }catch(e){}
   };
   function init(){render();}
