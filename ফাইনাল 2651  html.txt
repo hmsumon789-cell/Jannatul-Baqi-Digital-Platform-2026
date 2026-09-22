@@ -7344,9 +7344,11 @@ body.dark #searchProfilePrint .sp-bottom-actions button{
 <script id="admission-form-header-only-js-2026-09-23">
 (function(){
   function addHeader(){
-    var w=document.getElementById('admissionWin');
-    if(!w)return;
-    var body=w.querySelector('.win-body');
+    var w=document.getElementById('formWin');
+    if(!w || !w.classList.contains('show'))return;
+    var title=document.getElementById('winTitle');
+    if(!title || !/ভর্তি|admission/i.test(title.textContent||''))return;
+    var body=document.getElementById('winBody');
     if(!body)return;
     var form=body.querySelector('.form-grid');
     if(!form)return;
@@ -7354,30 +7356,18 @@ body.dark #searchProfilePrint .sp-bottom-actions button{
     if(!old){
       old=document.createElement('div');
       old.className='admission-form-header-only';
-      old.innerHTML='<img class="afh-logo" alt="Logo"><div class="afh-text"><div class="afh-bn">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div><div class="afh-ar">المدرسة الجنة الباقية للبنات ودار الايتام</div><div class="afh-address">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div><div class="afh-mobile">মোবাইল: 01823316630, 01717339288</div></div><div class="afh-photo-wrap"><div><img class="afh-photo" alt="Student Photo"></div><div class="afh-photo-label">স্টুডেন্ট ফটো</div></div>';
+      old.innerHTML='<img class="afh-logo" alt="Logo"><div class="afh-text"><div class="afh-bn">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div><div class="afh-ar">المدرسة الجنة الباقية للبنات ودار الايتام</div><div class="afh-address">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div><div class="afh-mobile">মোবাইল: 01823316630, 01717339288</div></div><div class="afh-photo-wrap"><img class="afh-photo" alt="স্টুডেন্ট ফটো"><div class="afh-photo-label">স্টুডেন্ট ফটো</div></div>';
       body.insertBefore(old,form);
     }
-    var logo=document.getElementById('headerLogo')||document.getElementById('loginLogo');
+    var logo=document.getElementById('headerLogo')||document.querySelector('.header .logo');
     var li=old.querySelector('.afh-logo');
     if(logo&&li&&logo.src)li.src=logo.src;
-    var input=document.getElementById('adPhoto'), pi=old.querySelector('.afh-photo');
-    if(input&&pi&&input.files&&input.files[0]){
-      var f=input.files[0];
-      if(f.type&&f.type.indexOf('image/')===0){
-        if(pi.dataset.fileName!==f.name){
-          pi.dataset.fileName=f.name;
-          var fr=new FileReader();
-          fr.onload=function(){pi.src=fr.result};
-          fr.readAsDataURL(f);
-        }
-      }
-    }
+    var input=document.getElementById('adPhoto'),pi=old.querySelector('.afh-photo');
     if(input&&input.dataset.admissionHeaderBound!=='1'){
       input.dataset.admissionHeaderBound='1';
       input.addEventListener('change',function(){
-        var f=input.files&&input.files[0];
-        if(!f)return;
-        if(!f.type||f.type.indexOf('image/')!==0)return;
+        var f=input.files&&input.files[0]; if(!f)return;
+        if(!/^image\//i.test(f.type))return;
         var fr=new FileReader();
         fr.onload=function(){pi.src=fr.result;pi.dataset.fileName=f.name};
         fr.readAsDataURL(f);
@@ -7387,5 +7377,6 @@ body.dark #searchProfilePrint .sp-bottom-actions button{
   function run(){addHeader()}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run);else run();
   new MutationObserver(function(){addHeader()}).observe(document.documentElement,{subtree:true,childList:true});
+  window.addAdmissionHeader=addHeader;
 })();
 </script>
