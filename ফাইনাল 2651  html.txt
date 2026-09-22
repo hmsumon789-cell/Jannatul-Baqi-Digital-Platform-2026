@@ -4543,3 +4543,54 @@ body #app .header-news *{
   });
 })();
 </script>
+
+
+<!-- ===== PUBLIC LOGIN SEARCH + 6 PUBLIC FEATURES — 2026-09-22 ===== -->
+<style id="public-login-access-2026-09-22">
+#loginPage .searchbar{display:flex!important;visibility:visible!important;opacity:1!important}
+#loginPage .quick{display:grid!important;visibility:visible!important;opacity:1!important}
+#loginPage .quick button{cursor:pointer!important;pointer-events:auto!important}
+#loginPage .searchbar .primary{cursor:pointer!important;pointer-events:auto!important}
+#loginPage .searchbar input{pointer-events:auto!important}
+</style>
+<script id="public-login-access-js-2026-09-22">
+(function(){
+  /* Login-page All Search is public: no login/token gate. */
+  window.doSearch=async function(where){
+    var isLogin=where==='login';
+    var sigEl=document.getElementById(isLogin?'loginSignal':'appSignal');
+    var qEl=document.getElementById(isLogin?'loginSearch':'appSearch');
+    var sig=sigEl?sigEl.value:'';
+    var q=qEl?(qEl.value||'').trim():'';
+    if(!q)return toast('ID / মোবাইল / ইমেইল / নাম লিখুন।');
+    if(isLogin && !sig)return toast('সংকেত নির্বাচন করুন। তারপর নিজ নিজ ID / মোবাইল / ইমেইল / নাম লিখুন।');
+    try{
+      /* Empty token is intentional for the public login-page search. */
+      var r=await call('searchAll',isLogin?'':token,sig,q);
+      if(!r||!r.ok)return toast((r&&r.message)||'সার্চের ফল পাওয়া যায়নি।');
+      var body=document.getElementById('searchBody');
+      if(body)body.innerHTML='<h3>'+(r.signal||sig)+' / '+(r.query||q)+' — '+(r.count||0)+' ফলাফল</h3>'+table(r.matches||[]);
+      openWindow('searchWin');
+    }catch(e){toast('সার্চ সার্ভার ত্রুটি: '+(e&&e.message?e.message:e));}
+  };
+  /* Keep the six login-page features directly usable without first logging in. */
+  window.openPublicFeature=function(key){
+    try{
+      if(typeof openModule==='function'){openModule(key);return;}
+      toast('ফিচার প্রস্তুত হয়নি।');
+    }catch(e){toast('ফিচার খোলার সময় ত্রুটি হয়েছে।');}
+  };
+  function bind(){
+    var q=document.querySelectorAll('#loginPage .quick button');
+    var keys=['payment','result','exam','admin','madrasa','quick'];
+    q.forEach(function(b,i){
+      if(i<5){b.setAttribute('type','button');b.onclick=function(){openPublicFeature(keys[i]);};}
+      else{b.setAttribute('type','button');b.onclick=function(){openWindow('quickWin');};}
+    });
+    var inp=document.getElementById('loginSearch');
+    if(inp){inp.placeholder='সংকেত নির্বাচন করে ID / মোবাইল / ইমেইল / নাম লিখুন';}
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();
+  setTimeout(bind,300);setTimeout(bind,1000);
+})();
+</script>
