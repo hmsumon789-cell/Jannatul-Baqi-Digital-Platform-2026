@@ -6000,11 +6000,11 @@ body.dark .dashboard-period-dot{border-color:#ffe95c!important}
 }
 </style>
 <style id="remove-empty-space-below-dashboard-dynamic-boxes-2026-09-22">
-/* ডায়নামিক দুই বক্সের নিচের খালি জায়গা বাদ */
+/* ডায়নামিক দুই বক্সের নিচের খালি জায়গা বাদ — নিচের লাল বর্ডারও কাছে */
 #app #dashboardCharts~.footer{
   margin-top:0!important;
 }
 #dashboardCharts{
-  margin-bottom:-288px!important;
+  margin-bottom:-350px!important;
 }
 </style>
