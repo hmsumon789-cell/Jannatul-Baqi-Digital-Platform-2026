@@ -6029,3 +6029,10 @@ body.dark .dashboard-period-dot{border-color:#ffe95c!important}
   padding-bottom:0!important;
 }
 </style>
+
+<style id="raise-lower-border-more-2026-09-22">
+/* আগের বর্ডারটি আরও উপরে */
+#app main > .footer.card{
+  margin-top:-120px!important;
+}
+</style>
