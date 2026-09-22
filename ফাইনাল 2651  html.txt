@@ -4603,3 +4603,94 @@ body #app .header-news *{
   setTimeout(bind,300);setTimeout(bind,1000);
 })();
 </script>
+
+
+<!-- ===== MEDIA PLAYBACK STABILITY FIX 2026-09-22 ===== -->
+<style id="media-playback-stability-fix-2026-09-22">
+#mediaStageContent .media-stable-frame{
+  width:100%!important;height:100%!important;border:0!important;
+  background:#111!important;display:block!important;
+}
+#mediaStageContent .media-stable-video{
+  width:100%!important;height:100%!important;object-fit:contain!important;
+  background:#111!important;display:block!important;
+}
+</style>
+<script id="media-playback-stability-js-2026-09-22">
+(function(){
+  function driveId(u){
+    var s=String(u||''),m=s.match(/[?&]id=([^&]+)/i);
+    if(m)return decodeURIComponent(m[1]);
+    m=s.match(/\/d\/([^/]+)/i);
+    return m?m[1]:'';
+  }
+  function mediaUrl(x){
+    var u=String((x&&x.DirectURL)||'');
+    if(!u)u=String((x&&x.DataURL)||'');
+    return u;
+  }
+  function renderStable(){
+    var box=document.getElementById('mediaStageContent');
+    if(!box)return;
+    if(!window.media||!media.length){
+      box.innerHTML='<span class="media-empty">মিডিয়া লোড করে দেখুন</span>';
+      return;
+    }
+    mediaIndex=((Number(mediaIndex)||0)%media.length+media.length)%media.length;
+    var x=media[mediaIndex]||{},u=mediaUrl(x),t=String(x.Type||'').toLowerCase(),id=driveId(u);
+    box.innerHTML='';
+    if(!u){
+      box.innerHTML='<span class="media-empty">মিডিয়ার লিংক পাওয়া যায়নি।</span>';
+      return;
+    }
+    if(t==='image'){
+      var im=document.createElement('img');
+      im.src=u;im.alt='';
+      im.style.cssText='width:100%;height:100%;object-fit:contain;background:#111;display:block';
+      im.onerror=function(){box.innerHTML='<span class="media-empty">ফটো চালানো যাচ্ছে না।</span>';};
+      box.appendChild(im);
+    }else if(id){
+      var fr=document.createElement('iframe');
+      fr.className='media-stable-frame';
+      fr.src='https://drive.google.com/file/'+encodeURIComponent(id)+'/preview';
+      fr.allow='autoplay; fullscreen; encrypted-media; picture-in-picture';
+      fr.setAttribute('allowfullscreen','');
+      fr.setAttribute('referrerpolicy','no-referrer-when-downgrade');
+      box.appendChild(fr);
+    }else if(t==='video'){
+      var v=document.createElement('video');
+      v.className='media-stable-video';v.controls=true;v.playsInline=true;v.preload='metadata';v.src=u;
+      v.onerror=function(){toast('ভিডিও চালানো যাচ্ছে না। URL বা ফাইল access পরীক্ষা করুন।');};
+      box.appendChild(v);
+    }else if(t==='audio'){
+      var a=document.createElement('audio');
+      a.controls=true;a.preload='metadata';a.src=u;a.style.cssText='width:90%;max-height:80px';
+      a.onerror=function(){toast('অডিও চালানো যাচ্ছে না। URL বা ফাইল access পরীক্ষা করুন।');};
+      box.appendChild(a);
+    }else{
+      box.innerHTML='<span class="media-empty">মিডিয়ার ধরন পাওয়া যায়নি।</span>';
+    }
+    if(typeof renderMediaList==='function')renderMediaList();
+  }
+  window.renderMedia=renderStable;
+  window.nextMedia=function(){
+    if(window.media&&media.length){mediaIndex=(Number(mediaIndex)+1)%media.length;renderStable();}
+  };
+  window.prevMedia=function(){
+    if(window.media&&media.length){mediaIndex=(Number(mediaIndex)-1+media.length)%media.length;renderStable();}
+  };
+  window.toggleMediaPlay=function(){
+    var el=document.querySelector('#mediaStageContent video,#mediaStageContent audio');
+    if(el){
+      if(el.paused){var p=el.play();if(p&&p.catch)p.catch(function(){toast('মিডিয়া চালু করা যাচ্ছে না।');});}
+      else el.pause();
+      return;
+    }
+    var fr=document.querySelector('#mediaStageContent .media-stable-frame');
+    if(fr)fr.focus();
+  };
+  function start(){if(window.media&&media.length)renderStable();}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
+  setTimeout(start,500);setTimeout(start,1500);setTimeout(start,3000);
+})();
+</script>
