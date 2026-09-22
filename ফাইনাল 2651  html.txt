@@ -5999,3 +5999,12 @@ body.dark .dashboard-period-dot{border-color:#ffe95c!important}
   margin-bottom:-288px!important;
 }
 </style>
+<style id="remove-empty-space-below-dashboard-dynamic-boxes-2026-09-22">
+/* ডায়নামিক দুই বক্সের নিচের খালি জায়গা বাদ */
+#app #dashboardCharts~.footer{
+  margin-top:0!important;
+}
+#dashboardCharts{
+  margin-bottom:0!important;
+}
+</style>
