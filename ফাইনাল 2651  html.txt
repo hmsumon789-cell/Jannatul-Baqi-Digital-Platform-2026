@@ -5625,3 +5625,64 @@ body #app .header-news *{
  document.addEventListener('click',function(e){var x=e.target.closest&&e.target.closest('[onclick*="deleteCurrentMedia"],[onclick*="deleteMediaByIndex"]');if(x)setTimeout(load,700)},true);
 })();
 </script>
+
+
+<!-- ===== FINAL REQUEST FIX: PLAYER UP + 14 BOXES DOWN + TRUE MEDIA AUTO PLAY 2026-09-22 ===== -->
+<style id="final-player-up-14-box-down-2026-09-22">
+/* শুধু মূল ভিডিও প্লেয়ারটি একটু উপরে */
+#mediaStage{
+  margin-top:4px!important;
+}
+#mediaStageContent{
+  transform:translateY(-18px)!important;
+  margin-bottom:-8px!important;
+}
+/* প্লেয়ারের ঠিক নিচের ১৪টি ২-কলামের বক্স ১ ইঞ্চি নিচে */
+#summary.dashboard-summary-inside{
+  transform:translateY(96px)!important;
+  margin-bottom:96px!important;
+}
+#summary.dashboard-summary-inside .stat{
+  transform:none!important;
+}
+</style>
+<script id="final-true-media-autoplay-2026-09-22">
+(function(){
+  var busy=false;
+  function getMedia(){return Array.isArray(window.media)?window.media:[]}
+  function next(){
+    var m=getMedia();
+    if(m.length>1){mediaIndex=(Number(mediaIndex||0)+1)%m.length;window.renderMedia&&window.renderMedia();setTimeout(bind,120)}
+  }
+  function bind(){
+    var box=document.getElementById('mediaStageContent');if(!box)return;
+    var el=box.querySelector('video,audio');if(!el)return;
+    el.onended=null;
+    el.onended=next;
+    el.autoplay=true;
+    el.playsInline=true;
+    el.preload='auto';
+    /* ব্রাউজারের autoplay policy মেনে প্রথমে muted autoplay চেষ্টা */
+    var p=el.play();
+    if(p&&p.catch)p.catch(function(){
+      try{el.muted=true;var q=el.play();if(q&&q.catch)q.catch(function(){})}catch(e){}
+    });
+  }
+  async function load(){
+    if(busy||typeof call!=='function'||!token)return;
+    busy=true;
+    try{
+      var r=await call('listMedia',token);
+      var m=Array.isArray(r)?r:(r&&Array.isArray(r.media)?r.media:(r&&Array.isArray(r.rows)?r.rows:null));
+      if(m){window.media=m;if(media.length){mediaIndex=((Number(mediaIndex)||0)%media.length+media.length)%media.length;window.renderMedia&&window.renderMedia();setTimeout(bind,150)}}
+    }catch(e){}
+    busy=false;
+  }
+  function boot(){load();setTimeout(load,900);setTimeout(load,2200);setTimeout(bind,3000)}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+  document.addEventListener('click',function(e){
+    var b=e.target.closest&&e.target.closest('#mediaPlayBtn,.slider-action');
+    if(b)setTimeout(bind,120);
+  },true);
+})();
+</script>
