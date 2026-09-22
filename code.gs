@@ -472,7 +472,8 @@ function sendQuickService(token,data) {
 }
 
 function getMediaRules_(){
-  return {video:{maxMB:50,maxCount:50},audio:{maxMB:50,maxCount:50},image:{maxMB:20,maxCount:100}};
+  // Media limits: 100 photos, 20 videos, 50 audio files.
+  return {video:{maxMB:50,maxCount:20},audio:{maxMB:50,maxCount:50},image:{maxMB:20,maxCount:100}};
 }
 function mediaDriveFolder_(){
   const name='Jannatul Baqi Digital Platform - Media 2026';
