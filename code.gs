@@ -480,7 +480,16 @@ function mediaDriveFolder_(){
   const it=DriveApp.getFoldersByName(name);
   return it.hasNext()?it.next():DriveApp.createFolder(name);
 }
-function mediaDriveUrl_(fileId){ return 'https://drive.google.com/uc?export=download&id='+encodeURIComponent(fileId); }
+function mediaDriveUrl_(fileId,resourceKey){
+  const id=encodeURIComponent(String(fileId||''));
+  const rk=String(resourceKey||'').trim();
+  return 'https://drive.google.com/uc?export=download&id='+id+(rk?'&resourcekey='+encodeURIComponent(rk):'');
+}
+function mediaPreviewUrl_(fileId,resourceKey){
+  const id=encodeURIComponent(String(fileId||''));
+  const rk=String(resourceKey||'').trim();
+  return 'https://drive.google.com/file/d/'+id+'/preview'+(rk?'?resourcekey='+encodeURIComponent(rk):'');
+}
 function mediaTempFolder_(){
   const name='Jannatul Baqi Digital Platform - Media Upload Temp 2026';
   const it=DriveApp.getFoldersByName(name);
@@ -580,8 +589,22 @@ function saveMedia(token,item) {
 }
 function listMedia(token) {
   auth_(token);
-  return listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE').map(function(x){
-    if(String(x.DataURL||'').indexOf('DRIVE:')===0){const id=String(x.DataURL).slice(6);x.DataURL=mediaDriveUrl_(id);x.DriveFileId=id;}
+  return listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status||'').toUpperCase()==='ACTIVE').map(function(x){
+    if(String(x.DataURL||'').indexOf('DRIVE:')===0){
+      const id=String(x.DataURL).slice(6);
+      let rk='';
+      try{
+        const f=DriveApp.getFileById(id);
+        try{f.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
+        try{rk=String(f.getResourceKey()||'');}catch(e){}
+      }catch(e){}
+      x.DriveFileId=id;
+      x.FileID=id;
+      x.ResourceKey=rk;
+      x.DataURL=mediaDriveUrl_(id,rk);
+      x.DirectURL=x.DataURL;
+      x.PreviewURL=mediaPreviewUrl_(id,rk);
+    }
     return x;
   });
 }
