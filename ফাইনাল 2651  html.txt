@@ -7896,3 +7896,194 @@ body.gold #searchProfilePrint .sp-field{border-color:#d40000!important}
   };
 })();
 </script>
+
+
+<!-- ===== FINAL DIRECT VIDEO PLAYER + MEDIA LIST + DELETE LIVE FIX — 2026-09-23 ===== -->
+<style id="final-direct-video-media-live-fix-2026-09-23">
+#mediaStageContent video.media-direct-player{
+  width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;
+  object-fit:contain!important;display:block!important;background:#000!important;
+}
+#mediaList{display:block!important;width:100%!important;margin-top:8px!important}
+.media-list-item{
+  display:flex!important;align-items:center!important;justify-content:space-between!important;
+  gap:8px!important;padding:7px 9px!important;margin:4px 0!important;
+  border:2px solid var(--border)!important;background:var(--panel)!important;
+}
+.media-list-item span{min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+.media-list-item button{flex:0 0 auto!important}
+</style>
+<script id="final-direct-video-media-live-fix-js-2026-09-23">
+(function(){
+  var loading=false, timer=null;
+
+  function arr(){ return Array.isArray(window.media)?window.media:[]; }
+  function norm(){
+    var m=arr(); if(!m.length){window.media=[];window.mediaIndex=0;return;}
+    var n=Number(window.mediaIndex); if(!isFinite(n))n=0;
+    window.mediaIndex=((n%m.length)+m.length)%m.length;
+  }
+  function direct(x){
+    return String((x&&(
+      x.DirectURL||x.DataURL||x.Url||x.URL||x.FileURL||x.fileUrl
+    ))||'').trim();
+  }
+  function typeOf(x){return String(x&& (x.Type||x.type)||'').toLowerCase();}
+  function esc(v){
+    return String(v==null?'':v).replace(/[&<>"']/g,function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  function draw(){
+    norm();
+    var box=document.getElementById('mediaStageContent');
+    if(!box)return;
+    var m=arr();
+    if(!m.length){
+      box.innerHTML='<span class="media-empty">মিডিয়া আপলোড করে স্লাইড দেখুন</span>';
+      renderList();
+      return;
+    }
+    var x=m[window.mediaIndex]||{}, t=typeOf(x), u=direct(x);
+    box.innerHTML='';
+    if(t==='video'){
+      var v=document.createElement('video');
+      v.className='media-direct-player';
+      v.controls=true;
+      v.playsInline=true;
+      v.preload='auto';
+      v.muted=true;
+      if(u)v.src=u;
+      v.addEventListener('ended',function(){
+        var a=arr();if(!a.length)return;
+        window.mediaIndex=(Number(window.mediaIndex||0)+1)%a.length;
+        draw();
+        autoplay();
+      });
+      v.addEventListener('loadedmetadata',function(){autoplay();},{once:true});
+      v.addEventListener('canplay',function(){autoplay();},{once:true});
+      v.addEventListener('error',function(){});
+      box.appendChild(v);
+      setTimeout(autoplay,60);
+    }else if(t==='audio'){
+      var a=document.createElement('audio');
+      a.controls=true;a.preload='auto';a.src=u;
+      a.addEventListener('ended',function(){
+        var m2=arr();if(!m2.length)return;
+        window.mediaIndex=(Number(window.mediaIndex||0)+1)%m2.length;
+        draw();autoplay();
+      });
+      box.appendChild(a);
+      setTimeout(autoplay,60);
+    }else{
+      var im=document.createElement('img');
+      im.src=u;im.alt=String(x.Name||'');
+      im.style.cssText='width:100%;height:100%;object-fit:contain;display:block;background:#111';
+      im.addEventListener('error',function(){box.innerHTML='<span class="media-empty">ফটো চালানো যাচ্ছে না।</span>'});
+      box.appendChild(im);
+      clearTimeout(timer);
+      timer=setTimeout(function(){
+        var a=arr();if(a.length<=1)return;
+        window.mediaIndex=(Number(window.mediaIndex||0)+1)%a.length;
+        draw();
+      },6000);
+    }
+    renderList();
+  }
+
+  function autoplay(){
+    var v=document.querySelector('#mediaStageContent video.media-direct-player,#mediaStageContent audio');
+    if(!v)return;
+    try{
+      v.muted=true;
+      var p=v.play();
+      if(p&&p.catch)p.catch(function(){});
+    }catch(e){}
+  }
+
+  function renderList(){
+    var box=document.getElementById('mediaList');if(!box)return;
+    var m=arr();
+    box.innerHTML=m.map(function(x,i){
+      var active=(i===Number(window.mediaIndex||0))?' style="font-weight:900"':'';
+      return '<div class="media-list-item"><span'+active+'>'+esc(x.Name||('Media '+(i+1)))+'</span>'+
+        '<button type="button" class="secondary" data-direct-media-delete="'+i+'">🗑 Delete</button></div>';
+    }).join('');
+  }
+
+  async function refresh(){
+    if(loading||typeof window.call!=='function'||!window.token)return;
+    loading=true;
+    try{
+      var r=await window.call('listMedia',window.token);
+      var m=Array.isArray(r)?r:(r&&Array.isArray(r.media)?r.media:(r&&Array.isArray(r.rows)?r.rows:[]));
+      window.media=m||[];
+      norm();
+      draw();
+    }catch(e){}
+    loading=false;
+  }
+
+  async function del(i){
+    var m=arr(), x=m[i];if(!x)return;
+    try{
+      var r=await window.call('deleteMedia',window.token,x.Serial);
+      if(r&&r.ok){
+        m.splice(i,1);
+        if(window.mediaIndex>=m.length)window.mediaIndex=Math.max(0,m.length-1);
+        draw();
+        renderList();
+        setTimeout(refresh,100);
+        if(typeof window.toast==='function')window.toast('মিডিয়া মুছে ফেলা হয়েছে।');
+      }else if(typeof window.toast==='function'){
+        window.toast((r&&r.message)||'ডিলিট ব্যর্থ');
+      }
+    }catch(e){
+      if(typeof window.toast==='function')window.toast('ডিলিটে সার্ভার ত্রুটি হয়েছে।');
+    }
+  }
+
+  window.renderMedia=draw;
+  window.renderMediaList=renderList;
+  window.deleteMediaByIndex=del;
+  window.nextMedia=function(){
+    var m=arr();if(!m.length)return;
+    window.mediaIndex=(Number(window.mediaIndex||0)+1)%m.length;draw();autoplay();
+  };
+  window.prevMedia=function(){
+    var m=arr();if(!m.length)return;
+    window.mediaIndex=(Number(window.mediaIndex||0)-1+m.length)%m.length;draw();autoplay();
+  };
+  window.toggleMediaPlay=function(){autoplay()};
+
+  document.addEventListener('click',function(e){
+    var b=e.target.closest&&e.target.closest('[data-direct-media-delete]');
+    if(b){
+      e.preventDefault();e.stopPropagation();
+      del(Number(b.getAttribute('data-direct-media-delete')));
+      return;
+    }
+  },true);
+
+  function boot(){
+    refresh();
+    var tries=0;
+    clearInterval(window.__mediaDirectLiveTimer);
+    window.__mediaDirectLiveTimer=setInterval(function(){
+      if(window.token){refresh();tries++;if(tries>=12)clearInterval(window.__mediaDirectLiveTimer);}
+    },1000);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+
+  var oldUpload=window.uploadMedia;
+  if(typeof oldUpload==='function'){
+    window.uploadMedia=async function(){
+      var r=await oldUpload.apply(this,arguments);
+      setTimeout(refresh,150);
+      setTimeout(refresh,900);
+      return r;
+    };
+  }
+})();
+</script>
