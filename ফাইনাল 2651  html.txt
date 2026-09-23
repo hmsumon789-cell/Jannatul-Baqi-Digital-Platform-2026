@@ -1331,7 +1331,283 @@ function downloadCurrentForm(){
     span.style.padding='3px';
     el.replaceWith(span);
   });
-  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title></head><body><h2>'+($('winTitle').textContent||'ফর্ম')+'</h2>'+body.innerHTML+'</body></html>';
+  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title></head><body><h2>'+($('winTitle').textContent||'ফর্ম')+'</h2>'+body.innerHTML+'
+<!-- ===== ALL PRINT + SEARCH PROFILE A4 HEADER FINAL — 2026-09-23 ===== -->
+<style id="all-print-search-a4-final-2026-09-23">
+/* ===== সব PRINT + SEARCH PROFILE: একই A4 পরিচয় কাঠামো ===== */
+#formWin .form-grid{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:8px!important;
+}
+#formWin .form-action-bar{
+  display:flex!important;
+  justify-content:center!important;
+  align-items:center!important;
+  gap:8px!important;
+}
+#formWin .form-action-bar button:nth-child(1){order:3!important}
+#formWin .form-action-bar button:nth-child(2){order:1!important}
+#formWin .form-action-bar button:nth-child(3){order:2!important}
+#formWin .form-action-bar button:nth-child(4){order:4!important}
+#formWin .form-action-bar button:nth-child(5){display:none!important}
+
+.jb-print-page{
+  width:210mm!important;
+  min-height:297mm!important;
+  box-sizing:border-box!important;
+  margin:0 auto!important;
+  padding:8mm!important;
+  background:#fff!important;
+  color:#111!important;
+  font-family:Arial,"Noto Sans Bengali","Noto Sans",sans-serif!important;
+}
+.jb-print-brand{
+  text-align:center!important;
+  border-bottom:2px solid #111!important;
+  padding-bottom:5mm!important;
+  margin-bottom:4mm!important;
+}
+.jb-print-brand-logo{
+  display:block!important;
+  width:70px!important;
+  height:70px!important;
+  object-fit:contain!important;
+  margin:0 auto 2mm!important;
+}
+.jb-print-brand-bn{font-size:24px!important;font-weight:900!important;line-height:1.2!important;margin:0 0 2mm!important}
+.jb-print-brand-ar{font-size:28px!important;font-weight:900!important;line-height:1.25!important;direction:rtl!important;margin:0 0 2mm!important}
+.jb-print-brand-en{font-size:18px!important;font-weight:800!important;line-height:1.2!important;margin:0 0 2mm!important}
+.jb-print-address{font-size:13px!important;font-weight:800!important;line-height:1.35!important;margin:0 0 1.5mm!important}
+.jb-print-contact{font-size:13px!important;font-weight:900!important;line-height:1.35!important;margin:0!important}
+.jb-print-student-row{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:12mm!important;
+  align-items:center!important;
+  margin:0 0 4mm!important;
+  padding:3mm 0!important;
+}
+.jb-print-photo-wrap,.jb-print-qr-wrap{text-align:center!important}
+.jb-print-photo,.jb-print-photo-empty{
+  display:block!important;
+  width:32mm!important;
+  height:40mm!important;
+  object-fit:cover!important;
+  margin:0 auto!important;
+  border:1.5px solid #111!important;
+  background:#fff!important;
+}
+.jb-print-photo-empty{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-size:12px!important;
+  font-weight:900!important;
+}
+.jb-print-qr{
+  display:block!important;
+  width:34mm!important;
+  height:34mm!important;
+  object-fit:contain!important;
+  margin:0 auto!important;
+}
+.jb-print-label{font-size:11px!important;font-weight:900!important;margin-top:1.5mm!important}
+.jb-print-info-title{
+  font-size:18px!important;
+  font-weight:900!important;
+  text-align:center!important;
+  margin:0 0 3mm!important;
+  border:2px solid #111!important;
+  padding:2mm!important;
+}
+.jb-print-form-body{
+  display:block!important;
+}
+.jb-print-form-body .form-grid{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:5mm 4mm!important;
+}
+.jb-print-form-body label{
+  min-width:0!important;
+  break-inside:avoid!important;
+}
+.jb-print-form-body input,
+.jb-print-form-body select,
+.jb-print-form-body textarea{
+  max-width:100%!important;
+}
+.jb-print-actions{display:none!important}
+@media print{
+  #formWin .form-action-bar{display:none!important}
+}
+@media(max-width:700px){
+  #formWin .form-grid{grid-template-columns:1fr 1fr!important}
+}
+</style>
+
+<script id="all-print-search-a4-final-js-2026-09-23">
+(function(){
+  function esc(v){
+    return String(v==null?'':v).replace(/[&<>"']/g,function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function logoSrc(){
+    var x=document.getElementById('headerLogo')||document.getElementById('loginLogo');
+    return x&&x.src?x.src:'';
+  }
+  function photoSrc(){
+    var ids=['adPhoto','studentPhoto','photo','Photo','photoInput'];
+    for(var i=0;i<ids.length;i++){
+      var x=document.getElementById(ids[i]);
+      if(x&&x.files&&x.files[0]){
+        try{return URL.createObjectURL(x.files[0]);}catch(e){}
+      }
+      if(x&&x.tagName==='IMG'&&x.src)return x.src;
+    }
+    var im=document.querySelector('#formWin img[src*="drive.google"],#formWin img[src^="data:image/"]');
+    return im&&im.src?im.src:'';
+  }
+  function formTitle(){
+    var x=document.getElementById('winTitle');
+    return x?String(x.textContent||'ফর্ম').trim():'ফর্ম';
+  }
+  function formValue(keys){
+    for(var i=0;i<keys.length;i++){
+      var x=document.getElementById(keys[i]);
+      if(x){
+        var v=(x.value||x.textContent||'').trim();
+        if(v)return v;
+      }
+    }
+    return '';
+  }
+  function qrSrc(text){
+    return 'https://quickchart.io/qr?size=220&text='+encodeURIComponent(text||'Jannatul Baqi Digital Platform 2026');
+  }
+  function brandHtml(){
+    return '<div class="jb-print-brand">'+
+      '<img class="jb-print-brand-logo" src="'+esc(logoSrc())+'" alt="">'+
+      '<div class="jb-print-brand-bn">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div>'+
+      '<div class="jb-print-brand-ar">المدرسة الجنة الباقية للبنات ودار الايتام</div>'+
+      '<div class="jb-print-brand-en">Jannatul Baky Mohila Madrasha &amp; Eatimkhana</div>'+
+      '<div class="jb-print-address">ঠিকানা: উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div>'+
+      '<div class="jb-print-contact">হটলাইন: 01823316630, 01717339288 &nbsp;·&nbsp; ইমেইল: hmsumon789@gmail.com</div>'+
+      '</div>';
+  }
+  function studentRowHtml(){
+    var p=photoSrc();
+    var sid=formValue(['studentId','studentID','StudentID','adStudentId','admissionId','id']);
+    var nm=formValue(['studentName','adStudentName','name','NameBN']);
+    var qr=qrSrc((sid||nm||formTitle())+' | Jannatul Baqi');
+    return '<div class="jb-print-student-row">'+
+      '<div class="jb-print-photo-wrap">'+
+      (p?'<img class="jb-print-photo" src="'+esc(p)+'" alt="Student Photo">':'<div class="jb-print-photo-empty">স্টুডেন্ট ফটো</div>')+
+      '<div class="jb-print-label">স্টুডেন্ট ফটো</div></div>'+
+      '<div class="jb-print-qr-wrap"><img class="jb-print-qr" src="'+esc(qr)+'" alt="QR Code"><div class="jb-print-label">QR CODE</div></div>'+
+      '</div>';
+  }
+  function cloneFormBody(){
+    var body=document.getElementById('winBody');
+    if(!body)return '';
+    var clone=body.cloneNode(true);
+    clone.querySelectorAll('.form-action-bar,.form-language-fixed').forEach(function(x){x.remove();});
+    clone.querySelectorAll('input,textarea,select').forEach(function(el){
+      var v='';
+      if(el.tagName==='SELECT')v=el.options[el.selectedIndex]?el.options[el.selectedIndex].text:'';
+      else v=el.value||'';
+      var s=document.createElement('span');
+      s.textContent=v;
+      s.style.cssText='display:block;min-height:22px;padding:3px 5px;border-bottom:1px solid #777;font-weight:700;';
+      el.replaceWith(s);
+    });
+    clone.classList.add('jb-print-form-body');
+    return clone.innerHTML;
+  }
+  function openPrintWindow(title,bodyHtml){
+    var w=window.open('','_blank','width=1000,height=900');
+    if(!w){toast('প্রিন্ট উইন্ডো খোলা যায়নি।');return null;}
+    w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>'+esc(title)+'</title><style>'+
+      '@page{size:A4 portrait;margin:8mm}body{margin:0;background:#fff;color:#111}'+
+      '.jb-print-page{width:210mm;min-height:297mm;box-sizing:border-box;padding:8mm}'+
+      '</style></head><body>'+bodyHtml+'</body></html>');
+    w.document.close();w.focus();
+    setTimeout(function(){w.print();},500);
+    return w;
+  }
+  window.printCurrentForm=function(){
+    var title=formTitle(), body=cloneFormBody();
+    if(!body)return;
+    var html='<div class="jb-print-page">'+brandHtml()+studentRowHtml()+
+      '<div class="jb-print-info-title">'+esc(title)+'</div>'+
+      '<div class="jb-print-form-body">'+body+'</div></div>';
+    openPrintWindow(title,html);
+  };
+  window.downloadCurrentForm=function(){
+    var title=formTitle(), body=cloneFormBody();
+    if(!body)return;
+    var html='<!doctype html><html><head><meta charset="utf-8"><title>'+esc(title)+'</title>'+
+      '<style>@page{size:A4 portrait;margin:8mm}body{margin:0;font-family:Arial,"Noto Sans Bengali",sans-serif}.jb-print-page{width:210mm;min-height:297mm;box-sizing:border-box;padding:8mm}.jb-print-brand{text-align:center;border-bottom:2px solid #111;padding-bottom:5mm;margin-bottom:4mm}.jb-print-brand-logo{width:70px;height:70px;object-fit:contain;display:block;margin:0 auto 2mm}.jb-print-brand-bn{font-size:24px;font-weight:900}.jb-print-brand-ar{font-size:28px;font-weight:900;direction:rtl}.jb-print-brand-en{font-size:18px;font-weight:800}.jb-print-address,.jb-print-contact{font-size:13px;font-weight:800}.jb-print-student-row{display:grid;grid-template-columns:1fr 1fr;gap:12mm;text-align:center;margin:4mm 0}.jb-print-photo,.jb-print-photo-empty{width:32mm;height:40mm;object-fit:cover;border:1px solid #111;margin:auto}.jb-print-qr{width:34mm;height:34mm;object-fit:contain}.jb-print-label{font-size:11px;font-weight:900}.jb-print-info-title{text-align:center;border:2px solid #111;padding:2mm;font-size:18px;font-weight:900;margin-bottom:3mm}.jb-print-form-body .form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5mm 4mm}.jb-print-form-body label{break-inside:avoid}.jb-print-form-body input,.jb-print-form-body select,.jb-print-form-body textarea{display:block;width:100%;border:0;border-bottom:1px solid #777}</style></head><body><div class="jb-print-page">'+brandHtml()+studentRowHtml()+'<div class="jb-print-info-title">'+esc(title)+'</div><div class="jb-print-form-body">'+body+'</div></div></body></html>';
+    var blob=new Blob([html],{type:'text/html;charset=utf-8'}),u=URL.createObjectURL(blob),a=document.createElement('a');
+    a.href=u;a.download=title.replace(/[^\w\u0980-\u09FF\u0600-\u06FF-]+/g,'_')+'.html';document.body.appendChild(a);a.click();a.remove();
+    setTimeout(function(){URL.revokeObjectURL(u);},1000);toast('A4 ফর্ম ডাউনলোড হয়েছে');
+  };
+
+  window.renderSearchProfiles=function(rows,signal,q){
+    var logo=logoSrc();
+    var head='<div class="sp-a4-brand">'+
+      '<img class="sp-a4-logo" src="'+esc(logo)+'" alt="">'+
+      '<div class="sp-a4-bn">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div>'+
+      '<div class="sp-a4-ar">المدرسة الجنة الباقية للبنات ودار الايتام</div>'+
+      '<div class="sp-a4-en">Jannatul Baky Mohila Madrasha &amp; Eatimkhana</div>'+
+      '<div class="sp-a4-address">ঠিকানা: উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div>'+
+      '<div class="sp-a4-contact">হটলাইন: 01823316630, 01717339288 &nbsp;·&nbsp; ইমেইল: hmsumon789@gmail.com</div>'+
+      '</div>';
+    function first(r,keys){for(var i=0;i<keys.length;i++){if(r&&r[keys[i]]!==undefined&&r[keys[i]]!==null&&String(r[keys[i]])!=='')return r[keys[i]]}return ''}
+    function photo(v){
+      var s=String(v||'').trim(),m=s.match(/(?:[?&]id=|\/d\/|\/file\/d\/|open\?id=)([A-Za-z0-9_-]{10,})/i);
+      if(/^data:image\//i.test(s))return s;
+      if(/^DRIVE:/i.test(s))return 'https://drive.google.com/thumbnail?id='+encodeURIComponent(s.slice(6).trim())+'&sz=w800';
+      if(m)return 'https://drive.google.com/thumbnail?id='+encodeURIComponent(m[1])+'&sz=w800';
+      if(/^[A-Za-z0-9_-]{20,}$/.test(s))return 'https://drive.google.com/thumbnail?id='+encodeURIComponent(s)+'&sz=w800';
+      return /^https?:\/\//i.test(s)?s:'';
+    }
+    function qr(t){return 'https://quickchart.io/qr?size=220&text='+encodeURIComponent(t||'Jannatul Baqi Digital Platform 2026')}
+    var cards=(rows||[]).map(function(r){
+      var sid=first(r,['StudentID','ID','Serial','Student Id']),name=first(r,['NameBN','নাম','Name','NameEN'])||'স্টুডেন্ট';
+      var ph=photo(first(r,['Photo','ছবি','PhotoURL','Image','ImageURL']));
+      var fields=[['স্টুডেন্ট ID',sid],['নাম',name],['আরবি নাম',first(r,['NameAR'])],['English Name',first(r,['NameEN'])],['মোবাইল',first(r,['Mobile','মোবাইল'])],['WhatsApp',first(r,['WhatsApp'])],['ইমেইল',first(r,['Email','ইমেইল'])],['শ্রেণি',first(r,['Class','শ্রেনি','শ্রেণি/জামাত'])],['বিভাগ',first(r,['Department','বিভাগ'])],['শাখা',first(r,['Branch','শাখা'])],['ঠিকানা',first(r,['Address','ঠিকানা'])],['জন্ম নিবন্ধন',first(r,['BirthReg','জন্ম নিবন্ধন'])],['NID',first(r,['NID'])]];
+      return '<div class="sp-student"><div class="sp-student-media">'+
+        '<div class="sp-photo-wrap">'+(ph?'<img class="sp-photo" src="'+esc(ph)+'" alt="Student Photo">':'<div class="sp-photo-empty">স্টুডেন্ট ফটো</div>')+'<div class="sp-photo-label">স্টুডেন্ট ফটো</div></div>'+
+        '<div class="sp-qr-wrap"><img class="sp-student-qr" src="'+qr((sid||name)+' | Jannatul Baqi')+'" alt="QR Code"><div class="sp-photo-label">QR CODE</div></div>'+
+        '</div><div class="sp-student-title">'+esc(name)+' — স্টুডেন্ট তথ্য</div><div class="sp-data">'+
+        fields.map(function(f){return '<div class="sp-field"><b>'+esc(f[0])+'</b><span>'+esc(f[1])+'</span></div>'}).join('')+
+        '</div></div>';
+    }).join('');
+    var actions='<div class="sp-bottom-actions"><button class="secondary" onclick="printSearchProfile()">🖨️ প্রিন্ট</button><button class="secondary" onclick="editSearchProfile()">✏️ এডিট</button><button class="primary" onclick="saveSearchProfile()">💾 সেভ</button><button class="secondary" onclick="downloadSearchProfile()">⬇️ ডাউনলোড</button></div>';
+    $('searchBody').innerHTML='<div id="searchProfilePrint" class="search-profile">'+head+'<div class="sp-search-meta"><b>সার্চ: '+esc(signal)+' / '+esc(q)+' — '+(rows||[]).length+' ফলাফল</b></div>'+cards+actions+'</div>';
+  };
+  window.printSearchProfile=function(){
+    var x=document.getElementById('searchProfilePrint');if(!x)return;
+    var w=window.open('','_blank','width=1000,height=900');if(!w)return;
+    var clone=x.cloneNode(true);clone.querySelectorAll('.sp-bottom-actions').forEach(function(a){a.remove();});
+    w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>সার্চ প্রোফাইল</title><style>'+
+      '@page{size:A4 portrait;margin:8mm}body{margin:0;font-family:Arial,"Noto Sans Bengali",sans-serif;color:#111}.search-profile{width:210mm;min-height:297mm;box-sizing:border-box;padding:8mm}.sp-a4-brand{text-align:center;border-bottom:2px solid #111;padding-bottom:5mm;margin-bottom:4mm}.sp-a4-logo{width:70px;height:70px;object-fit:contain;display:block;margin:0 auto 2mm}.sp-a4-bn{font-size:24px;font-weight:900}.sp-a4-ar{font-size:28px;font-weight:900;direction:rtl}.sp-a4-en{font-size:18px;font-weight:800}.sp-a4-address,.sp-a4-contact{font-size:13px;font-weight:800;line-height:1.35}.sp-student{border:2px solid #111;padding:5mm;margin-bottom:4mm;break-inside:avoid}.sp-student-media{display:grid;grid-template-columns:1fr 1fr;gap:12mm;align-items:center;margin-bottom:4mm}.sp-photo-wrap,.sp-qr-wrap{text-align:center}.sp-photo,.sp-photo-empty{width:32mm;height:40mm;object-fit:cover;border:1.5px solid #111;margin:auto}.sp-photo-empty{display:flex;align-items:center;justify-content:center;font-weight:900}.sp-student-qr{width:34mm;height:34mm;object-fit:contain;margin:auto}.sp-photo-label{font-size:11px;font-weight:900;margin-top:1.5mm}.sp-student-title{text-align:center;font-size:18px;font-weight:900;border:2px solid #111;padding:2mm;margin-bottom:3mm}.sp-data{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm}.sp-field{border:1px solid #555;padding:4mm;min-height:15mm}.sp-field b{display:block;font-size:10px}.sp-field span{font-size:12px;font-weight:700;word-break:break-word}.sp-search-meta{text-align:center;font-size:11px;margin-bottom:4mm}.sp-bottom-actions{display:none!important}</style></head><body>'+clone.outerHTML+'</body></html>');
+    w.document.close();w.focus();setTimeout(function(){w.print();},500);
+  };
+  window.downloadSearchProfile=function(){
+    var x=document.getElementById('searchProfilePrint');if(!x)return;
+    var clone=x.cloneNode(true);clone.querySelectorAll('.sp-bottom-actions').forEach(function(a){a.remove();});
+    var html='<!doctype html><html><head><meta charset="utf-8"><title>Search Profile</title></head><body>'+clone.outerHTML+'</body></html>';
+    var blob=new Blob([html],{type:'text/html;charset=utf-8'}),u=URL.createObjectURL(blob),a=document.createElement('a');
+    a.href=u;a.download='Search_Profile_A4.html';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},1000);toast('A4 সার্চ প্রোফাইল ডাউনলোড হয়েছে');
+  };
+})();
+</script>
+
+</body></html>';
   var blob=new Blob([html],{type:'text/html;charset=utf-8'});
   var url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url;a.download=title+'.html';document.body.appendChild(a);a.click();a.remove();
