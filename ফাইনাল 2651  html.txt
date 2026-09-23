@@ -694,28 +694,7 @@ body.gold #app .header-calendar-select-v2{background:#f4d56b!important;color:#11
 })();
 </script>
 
-<!-- ===== ANALOG CLOCK SAFE OVERRIDE — 2026-09-23 ===== -->
-<style id="analog-clock-safe-2026-09-23">
-#app .header-clock-button{font-size:0!important;width:78px!important;height:78px!important;border:3px solid var(--border)!important;border-radius:50%!important;background:#fff!important;color:#111!important;position:relative!important;box-shadow:inset 0 0 0 2px #111,0 3px 10px #0003!important;overflow:hidden!important}
-#app .header-clock-button::before{content:"";position:absolute;left:50%;top:50%;width:5px;height:5px;background:#111;border-radius:50%;transform:translate(-50%,-50%);z-index:4}
-#app .header-clock-button::after{content:"";position:absolute;left:50%;top:50%;width:3px;height:24px;background:#111;transform-origin:50% 100%;transform:translate(-50%,-100%) rotate(0deg);border-radius:3px;box-shadow:0 0 0 0 #111}
-#app .header-clock-button .clock-hour-hand{position:absolute;left:50%;top:50%;width:4px;height:19px;background:#111;transform-origin:50% 100%;transform:translate(-50%,-100%) rotate(0deg);border-radius:3px;z-index:3}
-#app .header-clock-button .clock-mark{position:absolute;inset:4px;text-align:center;font-size:10px!important;font-weight:900;color:#111;line-height:70px;pointer-events:none}
-#app .header-clock-button .clock-mark::before{content:"12\\A 9       3\\A 6";white-space:pre;display:block;line-height:34px;padding-top:0}
-</style>
-<script id="analog-clock-safe-js-2026-09-23">
-(function(){
-  function draw(){
-    var el=document.getElementById('appClock'); if(!el)return;
-    var d=new Date(), parts=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Dhaka',hour:'numeric',minute:'numeric',hour12:false}).formatToParts(d),h=0,m=0;
-    parts.forEach(function(p){if(p.type==='hour')h=Number(p.value);if(p.type==='minute')m=Number(p.value)});
-    var hourDeg=(h%12)*30+m*.5, minDeg=m*6;
-    el.innerHTML='<span class="clock-mark"></span><span class="clock-hour-hand" style="transform:translate(-50%,-100%) rotate('+hourDeg+'deg)"></span><span class="clock-minute-hand" style="position:absolute;left:50%;top:50%;width:3px;height:28px;background:#111;transform-origin:50% 100%;transform:translate(-50%,-100%) rotate('+minDeg+'deg);border-radius:3px;z-index:2"></span>';
-    el.setAttribute('aria-label','বাংলাদেশ সময়');
-  }
-  draw();setInterval(draw,60000);
-})();
-</script>
+
 <!-- ===== HEADER IDENTITY / BANGLADESH TIME SAFE OVERRIDE — 2026-09-23 ===== -->
 <style id="header-identity-spacing-time-safe-2026-09-23">
 #app .header-top .header-content .title-bn{font-size:30px!important;line-height:1.22!important;margin:0 0 6px!important}
@@ -783,6 +762,48 @@ body.gold #app .header-calendar-select-v2{background:#f4d56b!important;color:#11
   padding:0!important;
 }
 </style>
+<!-- ===== HEADER 4 REQUEST SAFE FIX — 2026-09-23 ===== -->
+<style id="header-4-request-safe-fix-2026-09-23">
+/* 1) আরবী নাম বড় */
+#app > header.header .header-content .title-ar{font-size:44px!important;line-height:1.24!important;font-weight:900!important;margin:0 0 10px!important;direction:rtl!important;}
+/* 2+3) ঠিকানা আলাদা লাইন; হটলাইন+ইমেইল একই লাইন; সব লাইনের মাঝে পরিষ্কার ফাঁকা */
+#app > header.header .header-content .header-identity-contact{font-size:15px!important;font-weight:800!important;line-height:1.35!important;margin:0!important;padding:0!important;}
+#app > header.header .header-content .header-address-line{display:block!important;margin:0 0 8px!important;padding:0!important;}
+#app > header.header .header-content .header-hotline-email-line{display:block!important;margin:0!important;padding:0!important;white-space:nowrap!important;}
+/* 4) ডিজিটাল ঘড়ি — সেকেন্ডসহ, নির্দিষ্ট width-এ; সংখ্যার width বদলাবে না */
+#app > header.header .header-clock-button{
+  width:190px!important;min-width:190px!important;height:52px!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  box-sizing:border-box!important;white-space:nowrap!important;
+  font-size:26px!important;font-weight:1000!important;letter-spacing:2px!important;
+  font-variant-numeric:tabular-nums lining-nums!important;
+  font-feature-settings:"tnum" 1!important;
+  font-family:"Noto Sans Bengali","Noto Sans",Arial,sans-serif!important;
+  overflow:hidden!important;transform:none!important;
+}
+/* পুরনো analog pseudo-hand যেন ডিজিটাল ঘড়িতে কিছু না আঁকে */
+#app > header.header .header-clock-button::before,
+#app > header.header .header-clock-button::after{content:none!important;display:none!important;}
+@media(max-width:700px){
+  #app > header.header .header-content .title-ar{font-size:34px!important;}
+  #app > header.header .header-content .header-hotline-email-line{font-size:13px!important;}
+  #app > header.header .header-clock-button{width:155px!important;min-width:155px!important;font-size:22px!important;}
+}
+</style>
+<script id="header-4-request-safe-js-2026-09-23">
+(function(){
+  /* প্রতি সেকেন্ডে একই fixed-width element-এ শুধু text বদলাবে—layout jump হবে না */
+  function stableDigitalClock(){
+    var el=document.getElementById('appClock'); if(!el)return;
+    var d=new Date(), tz='Asia/Dhaka';
+    var s=d.toLocaleTimeString('bn-BD',{timeZone:tz,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+    el.textContent=s;
+    el.setAttribute('aria-label','বাংলাদেশ সময় '+s);
+  }
+  stableDigitalClock();
+  setInterval(stableDigitalClock,1000);
+})();
+</script>
 </head>
 <body>
 <div id="welcomeScreen">
@@ -870,7 +891,7 @@ body.gold #app .header-calendar-select-v2{background:#f4d56b!important;color:#11
         <div class="title-bn">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div>
         <div class="title-ar">المدرسة الجنة الباقية للبنات ودار الايتام</div>
         <div class="title-en">Jannatul Baky Mohila Madrasha &amp; Eatimkhana</div>
-        <div class="small">ঠিকানা: উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০ · হটলাইন: 01823316630, 01717339288 · ইমেইল: hmsumon789@gmail.com</div>
+        <div class="small header-identity-contact"><div class="header-address-line">ঠিকানা: উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div><div class="header-hotline-email-line">হটলাইন: 01823316630, 01717339288 &nbsp;·&nbsp; ইমেইল: hmsumon789@gmail.com, jannatubakymrs@gmail.com</div></div>
       </div>
     </div>
     <!-- HEADER 5 FIX V2: identity + clock/date above + sheet/news/calendar below -->
@@ -957,7 +978,7 @@ const call=(fn,...args)=>new Promise((resolve,reject)=>google.script.run.withSuc
 window.addEventListener('load',async()=>{initOtp();tick();setInterval(tick,1000);loadPublic();});
 
 function initOtp(){const b=$('otpBoxes');b.innerHTML='';for(let i=0;i<6;i++){const x=document.createElement('input');x.className='otp-box';x.maxLength=1;x.inputMode='numeric';x.addEventListener('input',()=>{x.value=x.value.replace(/\D/g,'');if(x.value&&x.nextElementSibling)x.nextElementSibling.focus()});x.addEventListener('keydown',e=>{if(e.key==='Backspace'&&!x.value&&x.previousElementSibling)x.previousElementSibling.focus();if(e.key==='Enter')verifyOtp()});b.appendChild(x)}}
-function tick(){const d=new Date();const tz='Asia/Dhaka';const time=d.toLocaleTimeString('bn-BD',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false});const date=d.toLocaleDateString('bn-BD',{timeZone:tz,day:'numeric',month:'long',year:'numeric'});const txt='সময় '+time+' • '+date;if($('loginDateTime'))$('loginDateTime').textContent=txt;if($('appClock'))$('appClock').textContent=time;if($('appDate'))$('appDate').textContent=d.toLocaleDateString('bn-BD',{timeZone:tz,weekday:'long',year:'numeric',month:'long',day:'numeric'});}
+function tick(){const d=new Date();const tz='Asia/Dhaka';const time=d.toLocaleTimeString('bn-BD',{timeZone:tz,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});const date=d.toLocaleDateString('bn-BD',{timeZone:tz,day:'numeric',month:'long',year:'numeric'});const txt='সময় '+time+' • '+date;if($('loginDateTime'))$('loginDateTime').textContent=txt;if($('appClock'))$('appClock').textContent=time;if($('appDate'))$('appDate').textContent=d.toLocaleDateString('bn-BD',{timeZone:tz,weekday:'long',year:'numeric',month:'long',day:'numeric'});}
 async function loadPublic(){try{const r=await call('getPublicConfig');fillSignals(r.signals);fillClasses(r.classes)}catch(e){toast('সার্ভার প্রস্তুত হয়নি। Apps Script deploy সেটিং পরীক্ষা করুন।')}}
 function fillSignals(list){
   ['loginSignal','appSignal'].forEach(id=>{
