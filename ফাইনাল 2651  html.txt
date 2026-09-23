@@ -7768,3 +7768,30 @@ body.gold #searchProfilePrint .sp-field{border-color:#d40000!important}
   };
 })();
 </script>
+\n
+<!-- ===== FINAL SEARCH PROFILE ROUTING FIX — 2026-09-23 ===== -->
+<script id="final-search-profile-routing-fix-2026-09-23">
+(function(){
+  /* সর্বশেষ doSearch/table override যেন নতুন A4 Pad renderer-কে আর bypass না করে। */
+  window.doSearch=function(where){
+    var sigEl=document.getElementById(where==='login'?'loginSignal':'appSignal');
+    var qEl=document.getElementById(where==='login'?'loginSearch':'appSearch');
+    var sig=sigEl?sigEl.value:'', q=qEl?(qEl.value||'').trim():'';
+    if(!sig)return toast('প্রথমে সংকেত নির্বাচন করুন।');
+    if(!q)return toast('ID / মোবাইল / ইমেইল দিন।');
+    var searchToken=(where==='login')?'':(window.token||token||'');
+    call('searchAll',searchToken,sig,q).then(function(r){
+      if(!r||!r.ok)return toast((r&&r.message)||'সার্চের ফল পাওয়া যায়নি।');
+      if(typeof window.renderSearchProfilesA4Pad==='function'){
+        window.renderSearchProfilesA4Pad(r.matches||[],r.signal||sig,r.query||q);
+      }else if(typeof window.renderSearchProfiles==='function'){
+        window.renderSearchProfiles(r.matches||[],r.signal||sig,r.query||q);
+      }else{
+        var body=document.getElementById('searchBody');
+        if(body)body.innerHTML='<h3>'+(r.signal||sig)+' / '+(r.query||q)+' — '+(r.count||0)+' ফলাফল</h3>'+table(r.matches||[]);
+      }
+      openWindow('searchWin');
+    }).catch(function(e){toast('সার্চ সার্ভার ত্রুটি: '+(e&&e.message?e.message:e));});
+  };
+})();
+</script>
