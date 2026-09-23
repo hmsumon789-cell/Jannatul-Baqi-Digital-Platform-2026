@@ -481,9 +481,10 @@ function mediaDriveFolder_(){
   return it.hasNext()?it.next():DriveApp.createFolder(name);
 }
 function mediaDriveUrl_(fileId,resourceKey){
+  // Browser <video> সরাসরি byte-stream পাওয়ার জন্য usercontent download endpoint।
   const id=encodeURIComponent(String(fileId||''));
   const rk=String(resourceKey||'').trim();
-  return 'https://drive.google.com/uc?export=download&id='+id+(rk?'&resourcekey='+encodeURIComponent(rk):'');
+  return 'https://drive.usercontent.google.com/download?id='+id+'&export=download&confirm=t'+(rk?'&resourcekey='+encodeURIComponent(rk):'');
 }
 function mediaPreviewUrl_(fileId,resourceKey){
   const id=encodeURIComponent(String(fileId||''));
