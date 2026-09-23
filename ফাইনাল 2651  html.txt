@@ -7628,3 +7628,52 @@ body.dark #searchProfilePrint .sp-bottom-actions button{
   window.addAdmissionHeader=addHeader;
 })();
 </script>
+
+
+<!-- SAFE A4 PRINT + SEARCH PROFILE ONLY — based exactly on 4a8a850 — 2026-09-23 -->
+<style id="safe-a4-print-search-only">
+.search-profile-safe-a4{background:#fff;color:#111;width:100%;box-sizing:border-box;padding:10px;font-family:"Noto Sans Bengali","Noto Sans",Arial,sans-serif}
+.search-profile-safe-a4 .brand{display:grid;grid-template-columns:86px 1fr 86px;gap:10px;align-items:center;text-align:center;border-bottom:2px solid #111;padding-bottom:8px}
+.search-profile-safe-a4 .brand img{width:78px;height:78px;object-fit:contain}
+.search-profile-safe-a4 .brandtext{font-weight:900;line-height:1.25}
+.search-profile-safe-a4 .bn{font-size:21px}.search-profile-safe-a4 .ar{font-size:18px}.search-profile-safe-a4 .en{font-size:15px}.search-profile-safe-a4 .contact{font-size:11px;margin-top:3px}
+.search-profile-safe-a4 .student-head{display:grid;grid-template-columns:125px 1fr 100px;gap:12px;align-items:center;margin-top:10px;padding:8px;border:2px solid #111}
+.search-profile-safe-a4 .photo{width:112px;height:135px;object-fit:cover;border:2px solid #111;display:block}
+.search-profile-safe-a4 .name{text-align:center;font-size:19px;font-weight:900}
+.search-profile-safe-a4 .info-title{text-align:center;font-size:18px;font-weight:900;margin:10px 0 6px;padding:5px;border-bottom:2px solid #111}
+.search-profile-safe-a4 .data{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.search-profile-safe-a4 .field{border:1px solid #444;padding:6px;min-height:42px}
+.search-profile-safe-a4 .field b{display:block;font-size:11px}.search-profile-safe-a4 .field span{font-size:13px;font-weight:800;word-break:break-word}
+.search-profile-safe-a4 .actions{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px;padding-top:9px;border-top:2px solid #111}
+@media print{@page{size:A4 portrait;margin:10mm}.search-profile-safe-a4{width:190mm;min-height:277mm;padding:0}.search-profile-safe-a4 .actions{display:none!important}}
+.form-action-bar{display:flex!important;justify-content:center!important;gap:8px!important;flex-wrap:wrap!important}
+.form-action-bar button[onclick*="printCurrentForm"]{order:1!important}
+.form-action-bar button[onclick*="enableFormEdit"]{order:2!important}
+.form-action-bar button[onclick*="saveCurrentForm"]{order:3!important}
+.form-action-bar button[onclick*="downloadCurrentForm"]{order:4!important}
+.form-action-bar button[onclick*="clearFormWindow"]{display:none!important}
+</style>
+<script id="safe-a4-print-search-only-js">
+(function(){
+ function e(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]})}
+ function f(r,ks){for(var i=0;i<ks.length;i++)if(r&&r[ks[i]]!=null&&String(r[ks[i]])!=='')return r[ks[i]];return ''}
+ function photo(v){var s=String(v||'').trim(),m=s.match(/(?:[?&]id=|\/d\/|\/file\/d\/|open\?id=)([A-Za-z0-9_-]{10,})/i);if(/^data:image\//i.test(s))return s;if(/^DRIVE:/i.test(s))return'https://drive.google.com/thumbnail?id='+encodeURIComponent(s.slice(6).trim())+'&sz=w800';if(m)return'https://drive.google.com/thumbnail?id='+encodeURIComponent(m[1])+'&sz=w800';if(/^[A-Za-z0-9_-]{20,}$/.test(s))return'https://drive.google.com/thumbnail?id='+encodeURIComponent(s)+'&sz=w800';if(/^https?:\/\//i.test(s))return s;return''}
+ function logo(){var x=document.getElementById('headerLogo')||document.getElementById('loginLogo');return x&&x.src?x.src:''}
+ function qr(t){return'https://quickchart.io/qr?size=220&text='+encodeURIComponent(t||'Jannatul Baqi Digital Platform 2026')}
+ window.renderSearchProfiles=function(rows,signal,q){
+   rows=Array.isArray(rows)?rows:[];
+   var h='<div class="brand"><img src="'+e(logo())+'" alt=""><div class="brandtext"><div class="bn">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div><div class="ar">المدرسة الجنة الباقية للبنات ودار الايتام</div><div class="en">Jannatul Baky Mohila Madrasha &amp; Eatimkhana</div><div class="contact">ঠিকানা: উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০<br>হটলাইন: 01823316630, 01717339288 &nbsp;·&nbsp; ইমেইল: hmsumon789@gmail.com</div></div><img src="'+e(qr(String(signal||'')+' '+String(q||'')))+'" alt="QR"></div>';
+   var cards=rows.map(function(r){
+     var p=photo(f(r,['Photo','ছবি','PhotoURL','Image','ImageURL'])),id=f(r,['StudentID','ID','Serial','Student Id']),name=f(r,['NameBN','নাম','Name','NameEN'])||'স্টুডেন্ট তথ্য';
+     var fs=[['স্টুডেন্ট ID',id],['নাম',f(r,['NameBN','Name','নাম'])],['আরবি নাম',f(r,['NameAR'])],['English Name',f(r,['NameEN'])],['পিতার নাম',f(r,['FatherBN','Father','পিতার নাম'])],['মাতার নাম',f(r,['MotherBN','Mother','মাতার নাম'])],['মোবাইল',f(r,['Mobile','মোবাইল'])],['WhatsApp',f(r,['WhatsApp'])],['ইমেইল',f(r,['Email','ইমেইল'])],['শ্রেণি',f(r,['Class','শ্রেনি','শ্রেণি/জামাত'])],['বিভাগ',f(r,['Department','বিভাগ'])],['শাখা',f(r,['Branch','শাখা'])],['বিভাগ',f(r,['Division'])],['জেলা',f(r,['District'])],['উপজেলা / থানা',f(r,['Upazila','Thana'])],['ইউনিয়ন',f(r,['Union'])],['ওয়ার্ড',f(r,['Ward'])],['গ্রাম',f(r,['Village'])],['ঠিকানা',f(r,['Address','ঠিকানা'])],['জন্ম নিবন্ধন',f(r,['BirthReg','জন্ম নিবন্ধন'])],['NID',f(r,['NID'])]];
+     var im=p?'<img class="photo" src="'+e(p)+'" alt="Student Photo">':'<div class="photo" style="display:flex;align-items:center;justify-content:center;font-weight:900">ছবি নেই</div>';
+     return'<div class="student-head"><div>'+im+'<div style="text-align:center;font-size:11px;font-weight:900">স্টুডেন্ট ফটো</div></div><div class="name">'+e(name)+'<br><span style="font-size:14px">স্টুডেন্ট তথ্য</span></div><div style="text-align:center"><img class="brand" style="display:inline-block;border:0;width:90px;height:90px" src="'+e(qr(String(id||name)))+'" alt="QR"><div style="font-size:11px;font-weight:900">QR কোড</div></div></div><div class="info-title">স্টুডেন্ট তথ্য</div><div class="data">'+fs.map(function(x){return'<div class="field"><b>'+e(x[0])+'</b><span>'+e(x[1])+'</span></div>'}).join('')+'</div>'
+   }).join('');
+   var a='<div class="actions"><button type="button" onclick="printSearchProfile()">🖨️ প্রিন্ট</button><button type="button" onclick="editSearchProfile()">✏️ এডিট</button><button type="button" onclick="saveSearchProfile()">💾 সেভ</button><button type="button" onclick="downloadSearchProfile()">⬇️ ডাউনলোড</button></div>';
+   var t=document.getElementById('searchBody');if(t)t.innerHTML='<div id="searchProfilePrint" class="search-profile-safe-a4">'+h+'<div style="text-align:center;font-weight:900;margin:7px 0">সার্চ: '+e(signal)+' / '+e(q)+' — '+rows.length+' ফলাফল</div>'+cards+a+'</div>';
+ };
+ function printPage(html,title){var w=window.open('','_blank','width=1000,height=900');if(!w)return;w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>'+e(title)+'</title><style>@page{size:A4 portrait;margin:10mm}body{margin:0;color:#111;font-family:"Noto Sans Bengali","Noto Sans",Arial,sans-serif}.print-page{width:190mm;min-height:277mm}.brand{display:grid;grid-template-columns:82px 1fr 82px;gap:10px;align-items:center;text-align:center;border-bottom:2px solid #111;padding-bottom:8px}.brand>img{width:74px;height:74px;object-fit:contain}.brandtext{font-weight:900;line-height:1.25}.bn{font-size:20px}.ar{font-size:17px}.en{font-size:15px}.contact{font-size:11px}.photoqr{display:grid;grid-template-columns:125px 1fr 95px;gap:12px;align-items:center;border:2px solid #111;margin-top:9px;padding:8px}.photo{width:112px;height:135px;object-fit:cover;border:2px solid #111}.info{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}.field{border:1px solid #444;padding:6px;min-height:40px}.field b{display:block;font-size:11px}.field span{font-size:13px;font-weight:800;word-break:break-word}.name{text-align:center;font-size:19px;font-weight:900}</style></head><body>'+html+'</body></html>');w.document.close();setTimeout(function(){w.focus();w.print()},300)}
+ window.printSearchProfile=function(){var x=document.getElementById('searchProfilePrint');if(x)printPage(x.outerHTML,'সার্চ প্রোফাইল')};
+ window.downloadSearchProfile=function(){var x=document.getElementById('searchProfilePrint');if(!x)return;var b=new Blob(['<!doctype html><html><body>'+x.outerHTML+'</body></html>'],{type:'text/html;charset=utf-8'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='search-profile-A4.html';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},1000)};
+})();
+</script>
