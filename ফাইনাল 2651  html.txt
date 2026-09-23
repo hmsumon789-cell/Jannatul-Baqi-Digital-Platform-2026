@@ -7896,3 +7896,156 @@ body.gold #searchProfilePrint .sp-field{border-color:#d40000!important}
   };
 })();
 </script>
+
+
+<!-- ===== FINAL MEDIA PLAYER + DELETE LIST FIX — 2026-09-23 ===== -->
+<style id="final-media-player-delete-list-fix-2026-09-23">
+#mediaStageContent .media-drive-video{
+  width:100%!important;height:100%!important;border:0!important;
+  display:block!important;background:#111!important;
+}
+#mediaList{
+  margin-top:10px!important;
+  max-height:220px!important;
+  overflow:auto!important;
+}
+#mediaList .media-list-item,
+#mediaList .media-delete-row{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:8px!important;
+  padding:7px 9px!important;
+  margin:4px 0!important;
+  border:2px solid var(--border)!important;
+  background:var(--panel)!important;
+  color:inherit!important;
+  border-radius:8px!important;
+}
+</style>
+<script id="final-media-player-delete-list-fix-js-2026-09-23">
+(function(){
+  var refreshTimer=null, refreshBusy=false, lastGalleryBox=null;
+
+  function getMedia(){
+    return Array.isArray(window.media)?window.media:[];
+  }
+  function normalise(){
+    var m=getMedia();
+    if(!m.length){window.mediaIndex=0;return;}
+    var n=Number(window.mediaIndex);
+    if(!isFinite(n))n=0;
+    window.mediaIndex=((n%m.length)+m.length)%m.length;
+  }
+
+  function mediaUrl(x){
+    if(!x)return '';
+    if(String(x.Type||'').toLowerCase()==='video'){
+      return String(x.PreviewURL||'').trim() ||
+             (x.DriveFileId ? 'https://drive.google.com/file/d/'+encodeURIComponent(x.DriveFileId)+'/preview' : '');
+    }
+    return String(x.DataURL||x.DirectURL||'').trim();
+  }
+
+  function renderPlayer(){
+    var box=document.getElementById('mediaStageContent');
+    var m=getMedia();
+    if(!box)return;
+    if(!m.length){
+      box.innerHTML='<span>মিডিয়া আপলোড করে স্লাইড দেখুন</span>';
+      return;
+    }
+    normalise();
+    var x=m[window.mediaIndex], type=String(x.Type||'').toLowerCase(), u=mediaUrl(x);
+    if(type==='image'){
+      box.innerHTML='<img src="'+u+'" alt="'+(window.escapeHtml?escapeHtml(x.Name||''):(x.Name||''))+'">';
+    }else if(type==='video'){
+      if(u){
+        box.innerHTML='<iframe class="media-drive-video" src="'+u+'" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="eager"></iframe>';
+      }else{
+        box.innerHTML='<span>ভিডিও লিংক পাওয়া যায়নি।</span>';
+      }
+    }else{
+      box.innerHTML='<audio src="'+u+'" controls preload="auto"></audio>';
+    }
+  }
+
+  async function refreshMedia(forceRender){
+    if(refreshBusy || typeof window.call!=='function' || !window.token)return;
+    refreshBusy=true;
+    try{
+      var r=await window.call('listMedia',window.token);
+      var m=Array.isArray(r)?r:(r&&Array.isArray(r.media)?r.media:(r&&Array.isArray(r.rows)?r.rows:[]));
+      window.media=Array.isArray(m)?m:[];
+      normalise();
+      if(forceRender!==false)renderPlayer();
+      if(typeof window.renderMediaList==='function')window.renderMediaList();
+    }catch(e){}
+    refreshBusy=false;
+  }
+
+  /* Gallery window খুললেই তালিকা আসবে — Delete চাপার প্রয়োজন নেই। */
+  function watchGallery(){
+    var box=document.getElementById('mediaList');
+    if(box && box!==lastGalleryBox){
+      lastGalleryBox=box;
+      refreshMedia(false);
+    }
+  }
+
+  /* Token আসার পরও মিডিয়া নিজে লোড হবে। */
+  function boot(){
+    refreshMedia(true);
+    [500,1200,2500,5000].forEach(function(ms){setTimeout(function(){refreshMedia(true)},ms)});
+    setInterval(function(){
+      if(window.token)refreshMedia(false);
+      watchGallery();
+    },4000);
+  }
+
+  /* নতুন gallery window তৈরি হলে সাথে সাথে list */
+  new MutationObserver(watchGallery).observe(document.documentElement,{subtree:true,childList:true});
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+
+  /* Player render-কে নতুন stable renderer দিয়ে override */
+  window.renderMedia=function(){renderPlayer();};
+
+  /* Delete শেষ হলে সার্ভার থেকে fresh list এনে player + list দুটোই আপডেট */
+  window.deleteMediaByIndex=async function(i){
+    var m=getMedia(), x=m[i];
+    if(!x)return toast('ডিলেট করার মিডিয়া নেই।');
+    try{
+      var r=await window.call('deleteMedia',window.token,x.Serial);
+      if(r&&r.ok){
+        window.media=m.filter(function(_,idx){return idx!==i;});
+        normalise();
+        renderPlayer();
+        if(typeof window.renderMediaList==='function')window.renderMediaList();
+        toast('মিডিয়া মুছে ফেলা হয়েছে।');
+        setTimeout(function(){refreshMedia(true)},250);
+      }else toast((r&&r.message)||'ডিলিট ব্যর্থ');
+    }catch(e){toast('ডিলিট সার্ভার ত্রুটি: '+(e&&e.message?e.message:e));}
+  };
+
+  window.renderMediaList=function(){
+    var box=document.getElementById('mediaList');
+    if(!box)return;
+    var m=getMedia();
+    if(!m.length){
+      box.innerHTML='<div class="media-list-item"><span>কোনো মিডিয়া নেই।</span></div>';
+      return;
+    }
+    box.innerHTML=m.map(function(x,i){
+      var name=String(x.Name||('Media '+(i+1))).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]});
+      return '<div class="media-list-item"><span>'+name+'</span><button type="button" class="secondary" onclick="deleteMediaByIndex('+i+')">🗑️ ডিলেট</button></div>';
+    }).join('');
+  };
+
+  /* পুরনো deleteCurrentMedia-ও একই নিরাপদ পথে যাবে। */
+  window.deleteCurrentMedia=async function(){
+    var m=getMedia();
+    if(!m.length)return toast('ডিলেট করার মিডিয়া নেই।');
+    return window.deleteMediaByIndex(Number(window.mediaIndex)||0);
+  };
+})();
+</script>
