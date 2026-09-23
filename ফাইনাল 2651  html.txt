@@ -7795,3 +7795,47 @@ body.gold #searchProfilePrint .sp-field{border-color:#d40000!important}
   };
 })();
 </script>
+
+
+<!-- ===== A4 SEARCH WINDOW + LOGIN LOGO FINAL SAFE FIX — 2026-09-23 ===== -->
+<style id="a4-search-window-login-logo-safe-final-2026-09-23">
+/* Search Profile-এর পুরো উইন্ডো/উপরের বার A4 প্রস্থে সীমাবদ্ধ */
+#searchWin{
+  width:210mm!important;
+  max-width:210mm!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+}
+#searchWin .win-head{
+  width:100%!important;
+  box-sizing:border-box!important;
+}
+#searchWin .win-body{
+  width:100%!important;
+  box-sizing:border-box!important;
+  overflow-x:hidden!important;
+}
+#searchBody{
+  width:100%!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+}
+@media(max-width:900px){
+  #searchWin{
+    width:100vw!important;
+    max-width:100vw!important;
+  }
+}
+/* Login page-এর logo বাম পাশে */
+#loginPage .loginLogoWrap{
+  width:100%!important;
+  text-align:left!important;
+  display:block!important;
+  margin-left:0!important;
+}
+#loginPage #loginLogo{
+  display:block!important;
+  margin-left:0!important;
+  margin-right:auto!important;
+}
+</style>
