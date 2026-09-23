@@ -7861,3 +7861,38 @@ body.gold #searchProfilePrint .sp-field{border-color:#d40000!important}
   };
 })();
 </script>
+
+<!-- ===== FINAL A4 PAD LOGO + CENTER ALIGN FIX — 2026-09-23 ===== -->
+<style id="final-a4-pad-logo-center-fix-2026-09-23">
+/* Login logo অবশ্যই মাঝখানে থাকবে */
+#loginPage .loginLogoWrap{text-align:center!important;margin-left:auto!important;margin-right:auto!important}
+#loginPage #loginLogo{margin-left:auto!important;margin-right:auto!important}
+/* Search Profile window-এর A4 bar একদম মাঝখানে */
+#searchWin{left:50%!important;right:auto!important;transform:translateX(-50%)!important;margin-left:0!important;margin-right:0!important}
+/* A4 pad-এর header: বামে আসল Login logo, মাঝে প্রতিষ্ঠানের তথ্য, ডানে ছাত্রের ছবি */
+#searchProfilePrint .sp-pad-head{grid-template-columns:72px minmax(0,1fr) 72px!important;grid-template-areas:"logo inst photo"!important;width:100%!important;margin-left:0!important;margin-right:0!important}
+#searchProfilePrint .sp-pad-logo{grid-area:logo!important;width:62px!important;height:76px!important;object-fit:contain!important;display:block!important;margin:0!important;border:0!important;background:transparent!important}
+#searchProfilePrint .sp-pad-inst{grid-area:inst!important;text-align:center!important;min-width:0!important}
+#searchProfilePrint .sp-pad-photo{grid-area:photo!important;justify-self:end!important}
+</style>
+<script id="final-a4-pad-logo-center-fix-js-2026-09-23">
+(function(){
+  var old=window.renderSearchProfilesA4Pad;
+  if(typeof old!=='function')return;
+  window.renderSearchProfilesA4Pad=function(rows,signal,q){
+    old(rows,signal,q);
+    var p=document.getElementById('searchProfilePrint');if(!p)return;
+    var head=p.querySelector('.sp-pad-head');if(!head)return;
+    var qr=head.querySelector('.sp-pad-qr');
+    if(qr){
+      var src='';
+      var loginLogo=document.getElementById('loginLogo');
+      if(loginLogo&&loginLogo.src)src=loginLogo.src;
+      if(src){
+        var logo=document.createElement('img');logo.className='sp-pad-logo';logo.src=src;logo.alt='Institution Logo';
+        qr.replaceWith(logo);
+      }
+    }
+  };
+})();
+</script>
