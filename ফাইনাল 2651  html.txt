@@ -579,6 +579,28 @@ body.gold #formWin .form-language-fixed span{border-radius:999px!important}
 <style id="login-working-final-fix-2026-09-18">
 #mainLoginBtn:disabled{opacity:.7!important;cursor:wait!important;pointer-events:none!important}
 </style>
+
+<!-- ===== HEADER 5 FIX CSS — 2026-09-23 ===== -->
+<style id="header-five-fix-2026-09-23">
+#app .header-top{min-height:132px!important;padding:4px 8px!important}
+#app #headerLogo{width:82px!important;height:82px!important;margin-bottom:-7px!important;background:transparent!important;border:0!important;box-shadow:none!important}
+#app .header-content{line-height:1.08!important}
+#app .header-content .title-bn{margin-top:0!important}
+#app .header-mainline{display:grid!important;grid-template-columns:minmax(0,1fr) max-content!important;align-items:center!important;gap:8px!important;width:100%!important;margin-top:4px!important}
+#app .header-mainline .header-news{min-width:0!important;width:100%!important;height:38px!important;line-height:38px!important;padding:0 4px 0 10px!important;display:flex!important;align-items:center!important;overflow:hidden!important;white-space:nowrap!important}
+#app .header-mainline .running-news-text{flex:1 1 auto!important;min-width:0!important;overflow:hidden!important;white-space:nowrap!important;display:block!important}
+#app .header-mainline .news-full-run{display:inline-block!important;width:max-content!important;animation:finalNewsRun 22s linear infinite!important}
+#app .header-mainline .news-mic{flex:0 0 34px!important;width:34px!important;height:32px!important;margin-left:5px!important;padding:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;border:2px solid #b88408!important;border-radius:8px!important;background:#f4d56b!important;color:#201500!important;cursor:pointer!important;z-index:5!important}
+#app .header-mainline .header-datetime{min-width:175px!important;text-align:center!important;white-space:nowrap!important;line-height:1.05!important}
+#app .header-mainline .header-datetime .clock{font-size:20px!important;font-weight:900!important}
+#app .header-mainline .header-datetime .date-line{font-size:13px!important;margin-top:3px!important;font-weight:800!important}
+@media(max-width:700px){
+#app .header-top{min-height:118px!important}
+#app #headerLogo{width:70px!important;height:70px!important;margin-bottom:-4px!important}
+#app .header-mainline{grid-template-columns:1fr!important}
+#app .header-mainline .header-datetime{justify-self:center!important}
+}
+</style>
 </head>
 <body>
 <div id="welcomeScreen">
@@ -669,31 +691,19 @@ body.gold #formWin .form-language-fixed span{border-radius:999px!important}
         <div class="small">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০ · 01823316630 · hmsumon789@gmail.com</div>
       </div>
     </div>
-    <!-- HEADER IDENTITY + CLOCK + RUNNING NEWS -->
-    <div class="header-identity-compact">
-      <div class="header-identity-text">
-        <div class="title-bn">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div>
-        <div class="title-ar">المدرسة الجنة الباقية للبنات ودار الايتام</div>
-        <div class="title-en">Jannatul Baky Mohila Madrasha &amp; Eatimkhana</div>
-        <div class="small">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div>
+    <!-- HEADER 5 FIX: single identity + single running news + stable clock/date -->
+    <div class="header-running-row header-mainline" id="headerMainline">
+      <div class="news header-news" data-news="জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম">
+        <span class="running-news-text"><span class="news-full-run">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম</span></span>
+        <button type="button" class="news-mic" title="নতুন নিউজ যোগ করুন" aria-label="নতুন নিউজ যোগ করুন">🎙️</button>
+      </div>
+      <div class="header-datetime" aria-live="polite">
+        <div class="clock" id="appClock">--:--:--</div>
+        <div class="date-line" id="appDate">--</div>
       </div>
     </div>
-    <div class="header-clock-row">
-      <div class="header-big-clock" id="appClock">--:--:--</div>
-      <div class="header-big-date" id="appDate">--</div>
-    </div>
-    <div class="header-running-row header-news-row-final">
-      <div class="news header-news">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম</div>
-      <select id="headerCalendarSelect" class="header-calendar-select" title="ক্যালেন্ডার">
-        <option value="">📅 ক্যালেন্ডার</option>
-        <option value="bn">বাংলা ক্যালেন্ডার</option>
-        <option value="ar">আরবী ক্যালেন্ডার</option>
-        <option value="en">ইংরেজী ক্যালেন্ডার</option>
-      </select>
-    </div>
 
-
-  </header>
+    </header>
 
   <main>
     <div class="dashboard-nav dashboard-title-bar">
