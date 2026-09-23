@@ -669,14 +669,27 @@ body.gold #formWin .form-language-fixed span{border-radius:999px!important}
         <div class="small">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০ · 01823316630 · hmsumon789@gmail.com</div>
       </div>
     </div>
-    <!-- HEADER CLOCK + RUNNING NEWS -->
+    <!-- HEADER IDENTITY + CLOCK + RUNNING NEWS -->
+    <div class="header-identity-compact">
+      <div class="header-identity-text">
+        <div class="title-bn">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div>
+        <div class="title-ar">المدرسة الجنة الباقية للبنات ودار الايتام</div>
+        <div class="title-en">Jannatul Baky Mohila Madrasha &amp; Eatimkhana</div>
+        <div class="small">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div>
+      </div>
+    </div>
     <div class="header-clock-row">
       <div class="header-big-clock" id="appClock">--:--:--</div>
       <div class="header-big-date" id="appDate">--</div>
     </div>
     <div class="header-running-row header-news-row-final">
       <div class="news header-news">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম</div>
-      <button id="headerNewsMic" class="primary header-news-mic" type="button" onclick="openWindow('headerNewsWin')" title="নতুন চলমান নিউজ">🎙️</button>
+      <select id="headerCalendarSelect" class="header-calendar-select" title="ক্যালেন্ডার">
+        <option value="">📅 ক্যালেন্ডার</option>
+        <option value="bn">বাংলা ক্যালেন্ডার</option>
+        <option value="ar">আরবী ক্যালেন্ডার</option>
+        <option value="en">ইংরেজী ক্যালেন্ডার</option>
+      </select>
     </div>
 
 
@@ -1070,48 +1083,7 @@ function downloadCurrentForm(){
     span.style.padding='3px';
     el.replaceWith(span);
   });
-  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title></head><body><h2>'+($('winTitle').textContent||'ফর্ম')+'</h2>'+body.innerHTML+'
-<style id="final-2651-header-correction-2026-09-23">
-/* FINAL 2651 HEADER CORRECTION: single identity, compact logo/title, news + mic, stable clock */
-.header-top{min-height:auto!important;padding:2px 8px 4px!important}
-.header-content{line-height:1.05!important}
-.header-content .logo{margin:0 auto!important}
-.header-content .title-bn,.header-content .title-ar,.header-content .title-en{margin:0!important;line-height:1.06!important}
-.header-content .small{margin:1px 0 0!important;line-height:1.08!important}
-.header-news-row-final{display:grid!important;grid-template-columns:minmax(0,1fr) 50px!important;align-items:center!important;gap:7px!important}
-.header-news-row-final .header-news{min-width:0!important}
-.header-news-mic{width:50px!important;min-width:50px!important;height:42px!important;padding:3px!important;border-radius:10px!important;font-size:20px!important}
-.header-clock-row{display:grid!important;grid-template-columns:190px minmax(0,1fr)!important;align-items:center!important;gap:8px!important;min-height:54px!important}
-.header-big-clock{width:190px!important;min-width:190px!important;text-align:center!important;font-variant-numeric:tabular-nums!important;white-space:nowrap!important;letter-spacing:.5px!important}
-.header-big-date{min-width:0!important;text-align:center!important;white-space:nowrap!important;overflow:hidden!important}
-@media(max-width:700px){.header-clock-row{grid-template-columns:1fr!important}.header-big-clock{width:100%!important;min-width:0!important}.header-big-date{width:100%!important}.header-news-row-final{grid-template-columns:minmax(0,1fr) 46px!important}.header-news-mic{width:46px!important;min-width:46px!important;height:40px!important}}
-</style>
-<div id="headerNewsWin" class="window" style="width:min(700px,94vw)">
-  <div class="win-head"><b>🎙️ চলমান নিউজ যোগ / আপডেট</b><button class="secondary" type="button" onclick="closeWindow('headerNewsWin')">✕</button></div>
-  <div class="win-body">
-    <div class="form-grid">
-      <label class="full">নিউজ / শিরোনাম<input id="headerNewsTitle" class="field" value="জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম"></label>
-      <label class="full">বিস্তারিত<textarea id="headerNewsBody" class="field" rows="4" placeholder="চলমান নিউজ লিখুন"></textarea></label>
-    </div>
-    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
-      <button class="primary" type="button" onclick="saveHeaderNews()">💾 সেভ / আপডেট</button>
-      <button class="secondary" type="button" onclick="closeWindow('headerNewsWin')">বন্ধ করুন</button>
-    </div>
-  </div>
-</div>
-<script id="final-2651-header-news-js-2026-09-23">
-async function saveHeaderNews(){
-  const title=($('headerNewsTitle')?.value||'').trim();
-  const body=($('headerNewsBody')?.value||'').trim();
-  if(!title)return toast('নিউজ লিখুন।');
-  try{
-    const r=await call('saveRecord',token,'NOTICES',{TitleBN:title,BodyBN:body,Published:'YES',Date:new Date().toISOString()});
-    if(r&&r.ok){document.querySelectorAll('.header-news').forEach(el=>el.textContent=title);closeWindow('headerNewsWin');toast('চলমান নিউজ সেভ ও আপডেট হয়েছে।');}
-    else toast((r&&r.message)||'নিউজ সেভ হয়নি।');
-  }catch(e){toast('নিউজ সেভ সার্ভার ত্রুটি: '+(e&&e.message?e.message:e));}
-}
-</script>
-</body></html>';
+  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title></head><body><h2>'+($('winTitle').textContent||'ফর্ম')+'</h2>'+body.innerHTML+'</body></html>';
   var blob=new Blob([html],{type:'text/html;charset=utf-8'});
   var url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url;a.download=title+'.html';document.body.appendChild(a);a.click();a.remove();
