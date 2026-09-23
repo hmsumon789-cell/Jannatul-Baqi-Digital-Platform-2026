@@ -601,6 +601,40 @@ body.gold #formWin .form-language-fixed span{border-radius:999px!important}
 #app .header-mainline .header-datetime{justify-self:center!important}
 }
 </style>
+
+<!-- ===== HEADER 5 FIX V2 CSS — 2026-09-23 ===== -->
+<style id="header-five-fix-v2-2026-09-23">
+/* Logo এবং নামের মাঝের অতিরিক্ত খালি জায়গা বাদ */
+#app .header-top{min-height:118px!important;padding:0 8px!important}
+#app .header-content{padding:0!important;margin:0!important;line-height:1.02!important}
+#app #headerLogo{width:82px!important;height:82px!important;margin:0 auto -10px!important;display:block!important;background:transparent!important;border:0!important;box-shadow:none!important}
+#app .header-content .title-bn,#app .header-content .title-ar,#app .header-content .title-en{margin:0!important;padding:0!important;line-height:1.03!important}
+/* ঘড়ি + তারিখ: চলমান নিউজের ঠিক উপরে, পাশাপাশি দুটি বাটন */
+#app .header-clock-row-v2{display:flex!important;justify-content:center!important;align-items:center!important;gap:8px!important;margin:2px 0 5px!important}
+#app .header-clock-row-v2 .header-clock-button,#app .header-clock-row-v2 .header-date-button{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  min-height:34px!important;padding:4px 12px!important;border:2px solid var(--border)!important;
+  border-radius:9px!important;background:var(--panel)!important;color:var(--text)!important;
+  font-weight:900!important;white-space:nowrap!important;box-sizing:border-box!important;
+}
+#app .header-clock-row-v2 .header-clock-button{font-size:20px!important;letter-spacing:2px!important}
+#app .header-clock-row-v2 .header-date-button{font-size:15px!important}
+/* নিচে: বামে সরাসরি শিট | মাঝে চলমান নিউজ+মাইক | ডানে ৩ ভাষার ক্যালেন্ডার */
+#app .header-mainline-v2{display:grid!important;grid-template-columns:max-content minmax(0,1fr) max-content!important;align-items:center!important;gap:8px!important;width:100%!important;margin:0!important}
+#app .header-mainline-v2 .header-sheet-v2{height:38px!important;min-height:38px!important;padding:4px 9px!important;white-space:nowrap!important;font-weight:900!important}
+#app .header-mainline-v2 .header-news{height:38px!important;min-width:0!important;width:100%!important;display:flex!important;align-items:center!important;padding:0 4px 0 10px!important;overflow:hidden!important;white-space:nowrap!important;box-sizing:border-box!important}
+#app .header-mainline-v2 .running-news-text{flex:1 1 auto!important;min-width:0!important;overflow:hidden!important;white-space:nowrap!important}
+#app .header-mainline-v2 .news-full-run{display:inline-block!important;width:max-content!important;animation:finalNewsRun 22s linear infinite!important}
+#app .header-mainline-v2 .news-mic{flex:0 0 34px!important;width:34px!important;height:32px!important;margin-left:5px!important;padding:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;border:2px solid #b88408!important;border-radius:8px!important;background:#f4d56b!important;color:#201500!important;cursor:pointer!important}
+#app .header-calendar-select-v2{height:38px!important;min-width:145px!important;padding:4px 8px!important;border:2px solid var(--border)!important;border-radius:9px!important;background:var(--panel)!important;color:var(--text)!important;font-weight:900!important}
+body.dark #app .header-calendar-select-v2{background:#000!important;color:#ffe95c!important;border-color:#ff1f2f!important}
+body.gold #app .header-calendar-select-v2{background:#f4d56b!important;color:#111!important;border-color:#111!important}
+@media(max-width:700px){
+#app .header-mainline-v2{grid-template-columns:1fr!important}
+#app .header-mainline-v2 .header-sheet-v2,#app .header-calendar-select-v2{justify-self:center!important}
+#app .header-mainline-v2 .header-news{width:100%!important}
+}
+</style>
 </head>
 <body>
 <div id="welcomeScreen">
@@ -691,16 +725,23 @@ body.gold #formWin .form-language-fixed span{border-radius:999px!important}
         <div class="small">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০ · 01823316630 · hmsumon789@gmail.com</div>
       </div>
     </div>
-    <!-- HEADER 5 FIX: single identity + single running news + stable clock/date -->
-    <div class="header-running-row header-mainline" id="headerMainline">
+    <!-- HEADER 5 FIX V2: identity + clock/date above + sheet/news/calendar below -->
+    <div class="header-clock-row header-clock-row-v2">
+      <div class="header-clock-button" id="appClock">--:--:--</div>
+      <div class="header-date-button" id="appDate">--</div>
+    </div>
+    <div class="header-running-row header-mainline header-mainline-v2" id="headerMainline">
+      <button type="button" class="sheet-btn header-sheet-v2" onclick="openWindow('sheetWin')">📊 সরাসরি শিট</button>
       <div class="news header-news" data-news="জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম">
         <span class="running-news-text"><span class="news-full-run">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম</span></span>
         <button type="button" class="news-mic" title="নতুন নিউজ যোগ করুন" aria-label="নতুন নিউজ যোগ করুন">🎙️</button>
       </div>
-      <div class="header-datetime" aria-live="polite">
-        <div class="clock" id="appClock">--:--:--</div>
-        <div class="date-line" id="appDate">--</div>
-      </div>
+      <select id="headerCalendarSelect" class="header-calendar-select-v2" title="ক্যালেন্ডার">
+        <option value="">📅 ক্যালেন্ডার</option>
+        <option value="bn">বাংলা ক্যালেন্ডার</option>
+        <option value="ar">العربية — العربية</option>
+        <option value="en">English — English</option>
+      </select>
     </div>
 
     </header>
