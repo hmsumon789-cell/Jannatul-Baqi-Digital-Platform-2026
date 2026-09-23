@@ -694,6 +694,28 @@ body.gold #app .header-calendar-select-v2{background:#f4d56b!important;color:#11
 })();
 </script>
 
+<!-- ===== HEADER IDENTITY / BANGLADESH TIME SAFE OVERRIDE — 2026-09-23 ===== -->
+<style id="header-identity-spacing-time-safe-2026-09-23">
+#app .header-top .header-content .title-bn{font-size:30px!important;line-height:1.22!important;margin:0 0 6px!important}
+#app .header-top .header-content .title-ar{font-size:38px!important;line-height:1.28!important;margin:0 0 6px!important;direction:rtl!important}
+#app .header-top .header-content .title-en{font-size:22px!important;line-height:1.22!important;margin:0 0 7px!important}
+#app .header-top .header-content .small{font-size:15px!important;line-height:1.45!important;margin:0!important;font-weight:800!important}
+#app .header-top .header-content .small{word-spacing:2px!important}
+#app .header-clock-button{font-variant-numeric:tabular-nums!important}
+</style>
+<script id="header-bangladesh-time-safe-2026-09-23">
+(function(){
+  function bdTime(){
+    var d=new Date(),tz='Asia/Dhaka';
+    var t=d.toLocaleTimeString('bn-BD',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false});
+    var dt=d.toLocaleDateString('bn-BD',{timeZone:tz,weekday:'long',year:'numeric',month:'long',day:'numeric'});
+    var ld=d.toLocaleDateString('bn-BD',{timeZone:tz,day:'numeric',month:'long',year:'numeric'});
+    var a=document.getElementById('appClock'),b=document.getElementById('appDate'),l=document.getElementById('loginDateTime');
+    if(a)a.textContent=t;if(b)b.textContent=dt;if(l)l.textContent='সময় '+t+' • '+ld;
+  }
+  bdTime();setInterval(bdTime,1000);
+})();
+</script>
 <!-- ===== HEADER IDENTITY UNDER LOGO SAFE FIX — 2026-09-23 ===== -->
 <style id="header-identity-under-logo-safe-2026-09-23">
 /* লোগোর ঠিক পরের এক লাইনের নিচ থেকেই প্রতিষ্ঠানের পরিচয় শুরু */
@@ -913,7 +935,7 @@ const call=(fn,...args)=>new Promise((resolve,reject)=>google.script.run.withSuc
 window.addEventListener('load',async()=>{initOtp();tick();setInterval(tick,1000);loadPublic();});
 
 function initOtp(){const b=$('otpBoxes');b.innerHTML='';for(let i=0;i<6;i++){const x=document.createElement('input');x.className='otp-box';x.maxLength=1;x.inputMode='numeric';x.addEventListener('input',()=>{x.value=x.value.replace(/\D/g,'');if(x.value&&x.nextElementSibling)x.nextElementSibling.focus()});x.addEventListener('keydown',e=>{if(e.key==='Backspace'&&!x.value&&x.previousElementSibling)x.previousElementSibling.focus();if(e.key==='Enter')verifyOtp()});b.appendChild(x)}}
-function tick(){const d=new Date();const time=d.toLocaleTimeString('bn-BD',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});const date=d.toLocaleDateString('bn-BD',{day:'numeric',month:'long',year:'numeric'});const txt='সময় '+time+' • '+date;if($('loginDateTime'))$('loginDateTime').textContent=txt;if($('appClock'))$('appClock').textContent=time;if($('appDate'))$('appDate').textContent=d.toLocaleDateString('bn-BD',{weekday:'long',year:'numeric',month:'long',day:'numeric'});}
+function tick(){const d=new Date();const tz='Asia/Dhaka';const time=d.toLocaleTimeString('bn-BD',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false});const date=d.toLocaleDateString('bn-BD',{timeZone:tz,day:'numeric',month:'long',year:'numeric'});const txt='সময় '+time+' • '+date;if($('loginDateTime'))$('loginDateTime').textContent=txt;if($('appClock'))$('appClock').textContent=time;if($('appDate'))$('appDate').textContent=d.toLocaleDateString('bn-BD',{timeZone:tz,weekday:'long',year:'numeric',month:'long',day:'numeric'});}
 async function loadPublic(){try{const r=await call('getPublicConfig');fillSignals(r.signals);fillClasses(r.classes)}catch(e){toast('সার্ভার প্রস্তুত হয়নি। Apps Script deploy সেটিং পরীক্ষা করুন।')}}
 function fillSignals(list){
   ['loginSignal','appSignal'].forEach(id=>{
