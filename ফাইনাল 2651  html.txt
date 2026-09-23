@@ -1567,7 +1567,7 @@ body.gold .form-window,body.gold #formWin,body.gold #formWin .win-head,body.gold
  body{background:#fff!important}.search-profile{border:0!important;padding:0!important}.search-profile-head{grid-template-columns:95px 1fr 95px!important;border-bottom:2px solid #111!important}.search-profile-head .sp-logo,.search-profile-head .sp-qr{width:82px!important;height:82px!important}.sp-student{break-inside:avoid}.sp-bottom-actions{display:none!important}.window .win-head{display:none!important}
 }
 </style>
-<style id="gold-search-profile-square-and-location">
+
 /* Golden Mode: Search Profile must stay SQUARE, not round. */
 body.gold .search-profile,
 body.gold .search-profile-head,
@@ -1587,7 +1587,6 @@ body.gold .search-profile .sp-bottom-actions button{border-radius:0!important;bo
 /* Form location controls: dropdown + manual entry remain square/usable in Golden Mode. */
 body.gold .form-grid select.field,
 body.gold .form-grid input.field{border-radius:0!important}
-</style>
 <script id="search-profile-final-js">
 (function(){
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
