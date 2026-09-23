@@ -7600,3 +7600,171 @@ body.dark #searchProfilePrint .sp-bottom-actions button{
   window.addAdmissionHeader=addHeader;
 })();
 </script>
+\n
+<!-- ===== SEARCH PROFILE — A4 PAD 3-COLUMN FINAL — 2026-09-23 ===== -->
+<style id="search-profile-a4-pad-3col-final-2026-09-23">
+#searchProfilePrint.search-profile{
+  width:210mm!important;
+  min-height:297mm!important;
+  max-width:210mm!important;
+  margin:0 auto!important;
+  padding:8mm!important;
+  box-sizing:border-box!important;
+  background:#fff!important;
+  border:2px solid #222!important;
+  color:#111!important;
+  font-family:"Noto Sans Bengali","Noto Sans",Arial,sans-serif!important;
+}
+#searchProfilePrint .sp-pad-head{
+  display:grid!important;
+  grid-template-columns:72px 1fr 72px!important;
+  grid-template-areas:"qr inst photo"!important;
+  align-items:center!important;
+  gap:8px!important;
+  padding:5px 0 7px!important;
+  border-bottom:2px solid #222!important;
+}
+#searchProfilePrint .sp-pad-qr{grid-area:qr;width:62px!important;height:62px!important;object-fit:contain!important;border:1px solid #555!important}
+#searchProfilePrint .sp-pad-inst{grid-area:inst;text-align:center!important;font-weight:900!important;line-height:1.25!important}
+#searchProfilePrint .sp-pad-inst .bn{font-size:19px!important}
+#searchProfilePrint .sp-pad-inst .ar{font-size:16px!important;direction:rtl!important}
+#searchProfilePrint .sp-pad-inst .en{font-size:13px!important}
+#searchProfilePrint .sp-pad-contact{font-size:10.5px!important;font-weight:800!important;margin-top:3px!important;line-height:1.35!important}
+#searchProfilePrint .sp-pad-photo{grid-area:photo;width:62px!important;height:76px!important;object-fit:cover!important;border:2px solid #222!important;background:#fff!important}
+#searchProfilePrint .sp-pad-photo.empty{display:flex!important;align-items:center!important;justify-content:center!important;font-size:9px!important;font-weight:800!important;text-align:center!important}
+#searchProfilePrint .sp-search-meta{font-size:10px!important;margin:4px 0 6px!important}
+#searchProfilePrint .sp-student{
+  margin:0 0 7px!important;
+  padding:6px!important;
+  border:2px solid #222!important;
+  border-radius:0!important;
+  break-inside:avoid!important;
+  page-break-inside:avoid!important;
+}
+#searchProfilePrint .sp-student-top{
+  display:block!important;
+  min-height:0!important;
+  margin:0 0 5px!important;
+}
+#searchProfilePrint .sp-student-info{display:block!important;padding:0!important}
+#searchProfilePrint .sp-student-title{
+  text-align:center!important;
+  border:0!important;
+  margin:0!important;
+  padding:0 0 4px!important;
+  font-size:16px!important;
+  font-weight:900!important;
+}
+#searchProfilePrint .sp-student-note{display:none!important}
+#searchProfilePrint .sp-photo-wrap{display:none!important}
+#searchProfilePrint .sp-data{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:4px!important;
+  margin:0!important;
+}
+#searchProfilePrint .sp-field{
+  min-height:30px!important;
+  padding:4px 5px!important;
+  border:1px solid #555!important;
+  border-radius:0!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+}
+#searchProfilePrint .sp-field b{display:block!important;font-size:9px!important;line-height:1.15!important}
+#searchProfilePrint .sp-field span{display:block!important;font-size:10.5px!important;font-weight:700!important;line-height:1.25!important;word-break:break-word!important}
+#searchProfilePrint .sp-bottom-actions{
+  display:flex!important;
+  justify-content:center!important;
+  align-items:center!important;
+  gap:8px!important;
+  margin:8px 0 0!important;
+  padding:8px 0 0!important;
+  border-top:2px solid #222!important;
+  flex-wrap:wrap!important;
+}
+#searchProfilePrint .sp-bottom-actions button{
+  min-width:95px!important;height:38px!important;
+  border:2px solid #d40000!important;border-radius:5px!important;
+  font-weight:900!important;
+}
+body.dark #searchProfilePrint.search-profile{background:#fff!important;color:#111!important;border-color:#111!important}
+body.dark #searchProfilePrint .sp-pad-head,
+body.dark #searchProfilePrint .sp-bottom-actions{border-color:#111!important}
+body.gold #searchProfilePrint.search-profile{border-color:#d40000!important}
+body.gold #searchProfilePrint .sp-pad-head,
+body.gold #searchProfilePrint .sp-bottom-actions{border-color:#d40000!important}
+body.gold #searchProfilePrint .sp-student,
+body.gold #searchProfilePrint .sp-field{border-color:#d40000!important}
+@media(max-width:900px){
+  #searchProfilePrint.search-profile{width:100%!important;max-width:100%!important;min-height:0!important;padding:8px!important}
+}
+@media print{
+  @page{size:A4 portrait;margin:0}
+  html,body{width:210mm!important;min-height:297mm!important;background:#fff!important}
+  #searchProfilePrint.search-profile{
+    width:210mm!important;max-width:210mm!important;min-height:297mm!important;
+    margin:0!important;padding:8mm!important;border:0!important;
+    box-shadow:none!important;
+  }
+  #searchProfilePrint .sp-bottom-actions{display:none!important}
+}
+</style>
+<script id="search-profile-a4-pad-3col-js-2026-09-23">
+(function(){
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function first(r,keys){for(var i=0;i<keys.length;i++){if(r&&r[keys[i]]!==undefined&&r[keys[i]]!==null&&String(r[keys[i]])!=='')return r[keys[i]]}return ''}
+  function qr(text){return 'https://quickchart.io/qr?size=160&text='+encodeURIComponent(text||'Jannatul Baqi Digital Platform 2026')}
+  function photo(v){
+    var s=String(v||'').trim(); if(!s)return '';
+    if(/^data:image\\//i.test(s))return s;
+    var m=s.match(/(?:[?&]id=|\\/d\\/|\\/file\\/d\\/|open\\?id=)([A-Za-z0-9_-]{10,})/i);
+    if(/^DRIVE:/i.test(s))return 'https://drive.google.com/thumbnail?id='+encodeURIComponent(s.slice(6).trim())+'&sz=w600';
+    if(m)return 'https://drive.google.com/thumbnail?id='+encodeURIComponent(m[1])+'&sz=w600';
+    if(/^[A-Za-z0-9_-]{20,}$/.test(s))return 'https://drive.google.com/thumbnail?id='+encodeURIComponent(s)+'&sz=w600';
+    return /^https?:\\/\\//i.test(s)?s:'';
+  }
+  window.renderSearchProfilesA4Pad=function(rows,signal,q){
+    rows=rows||[];
+    var p=rows[0]||{};
+    var pv=photo(first(p,['Photo','ছবি','PhotoURL','Image','ImageURL']));
+    var ph=pv?'<img class="sp-pad-photo" src="'+esc(pv)+'" alt="Student Photo">':'<div class="sp-pad-photo empty">ফটো নেই</div>';
+    var head='<div class="sp-pad-head"><img class="sp-pad-qr" src="'+qr(signal+' '+q)+'" alt="QR Code"><div class="sp-pad-inst"><div class="bn">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div><div class="ar">المدرسة الجنة الباقية للبنات ودار الايتام</div><div class="en">Jannatul Baky Mohila Madrasha &amp; Eatimkhana</div><div class="sp-pad-contact">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০<br>হটলাইন: 01823316630, 01717339288<br>ইমেইল: hmsumon789@gmail.com</div></div>'+ph+'</div>';
+    var cards=rows.map(function(r){
+      var title=first(r,['NameBN','নাম','Name','NameEN'])||'স্টুডেন্ট তথ্য';
+      var fields=[
+        ['স্টুডেন্ট ID',first(r,['StudentID','ID','Serial','Student Id'])],
+        ['নাম',first(r,['NameBN','Name','নাম'])],
+        ['আরবি নাম',first(r,['NameAR'])],
+        ['English Name',first(r,['NameEN'])],
+        ['মোবাইল',first(r,['Mobile','মোবাইল'])],
+        ['WhatsApp',first(r,['WhatsApp'])],
+        ['ইমেইল',first(r,['Email','ইমেইল'])],
+        ['শ্রেণি',first(r,['Class','শ্রেনি','শ্রেণি/জামাত'])],
+        ['বিভাগ',first(r,['Department','বিভাগ'])],
+        ['শাখা',first(r,['Branch','শাখা'])],
+        ['ঠিকানা',first(r,['Address','ঠিকানা'])],
+        ['জন্ম নিবন্ধন',first(r,['BirthReg','জন্ম নিবন্ধন'])],
+        ['NID',first(r,['NID'])]
+      ];
+      return '<div class="sp-student"><div class="sp-student-top"><div class="sp-student-info"><div class="sp-student-title">'+esc(title)+' — স্টুডেন্ট তথ্য</div></div></div><div class="sp-data">'+fields.map(function(f){return '<div class="sp-field"><b>'+esc(f[0])+'</b><span>'+esc(f[1])+'</span></div>'}).join('')+'</div></div>';
+    }).join('');
+    var actions='<div class="sp-bottom-actions"><button class="primary" onclick="saveSearchProfile()">💾 সেভ</button><button class="secondary" onclick="editSearchProfile()">✏️ এডিট</button><button class="secondary" onclick="printSearchProfile()">🖨️ প্রিন্ট</button><button class="secondary" onclick="downloadSearchProfile()">⬇️ ডাউনলোড</button></div>';
+    $('searchBody').innerHTML='<div id="searchProfilePrint" class="search-profile"><div class="sp-pad-meta" style="font-size:10px;margin:2px 0 5px;font-weight:800">সার্চ ফলাফল: '+esc(signal)+' / '+esc(q)+' — '+rows.length+' জন</div>'+head+cards+actions+'</div>';
+  };
+  var oldRender=window.renderSearchProfiles;
+  window.renderSearchProfiles=function(rows,signal,q){window.renderSearchProfilesA4Pad(rows,signal,q)};
+  window.printSearchProfile=function(){
+    var x=document.getElementById('searchProfilePrint');if(!x)return;
+    var w=window.open('','_blank','width=1000,height=900');if(!w)return;
+    w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>All Print View</title><style>'+
+      '@page{size:A4 portrait;margin:0}*{box-sizing:border-box}html,body{margin:0;width:210mm;min-height:297mm;background:#fff;color:#111;font-family:"Noto Sans Bengali","Noto Sans",Arial,sans-serif}'+
+      '.search-profile{width:210mm;min-height:297mm;padding:8mm;margin:0;background:#fff;border:0}'+
+      '.sp-pad-head{display:grid;grid-template-columns:72px 1fr 72px;grid-template-areas:"qr inst photo";align-items:center;gap:8px;padding:5px 0 7px;border-bottom:2px solid #111}'+
+      '.sp-pad-qr{grid-area:qr;width:62px;height:62px;object-fit:contain;border:1px solid #555}.sp-pad-inst{grid-area:inst;text-align:center;font-weight:900;line-height:1.25}.sp-pad-inst .bn{font-size:19px}.sp-pad-inst .ar{font-size:16px;direction:rtl}.sp-pad-inst .en{font-size:13px}.sp-pad-contact{font-size:10.5px;font-weight:800;margin-top:3px;line-height:1.35}.sp-pad-photo{grid-area:photo;width:62px;height:76px;object-fit:cover;border:2px solid #111}.sp-pad-photo.empty{display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;text-align:center}'+
+      '.sp-student{margin:0 0 7px;padding:6px;border:2px solid #111;break-inside:avoid;page-break-inside:avoid}.sp-student-top{display:block;min-height:0;margin:0 0 5px}.sp-student-title{text-align:center;border:0;margin:0;padding:0 0 4px;font-size:16px;font-weight:900}.sp-data{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;margin:0}.sp-field{min-height:30px;padding:4px 5px;border:1px solid #555;overflow:hidden}.sp-field b{display:block;font-size:9px;line-height:1.15}.sp-field span{display:block;font-size:10.5px;font-weight:700;line-height:1.25;word-break:break-word}.sp-bottom-actions{display:none!important}.sp-photo-wrap{display:none!important}.sp-search-meta,.sp-pad-meta{font-size:10px;margin:3px 0 5px;font-weight:800}'+
+      '</style></head><body>'+x.outerHTML+'</body></html>');
+    w.document.close();w.focus();setTimeout(function(){w.print()},300);
+  };
+})();
+</script>
