@@ -635,6 +635,64 @@ body.gold #app .header-calendar-select-v2{background:#f4d56b!important;color:#11
 #app .header-mainline-v2 .header-news{width:100%!important}
 }
 </style>
+
+<!-- ===== HEADER 5 SAFE FINAL OVERRIDE — 2026-09-23 ===== -->
+<style id="header-5-safe-final-2026-09-23">
+/* ১) চলমান নিউজের চওড়া সীমিত — অন্য অংশে প্রভাব নয় */
+#app .header-mainline-v2{
+  grid-template-columns:max-content minmax(220px,48%) max-content!important;
+  justify-content:space-between!important;
+  gap:8px!important;
+}
+#app .header-mainline-v2 .header-news{
+  min-width:220px!important;
+  max-width:520px!important;
+  width:100%!important;
+  position:relative!important;
+  pointer-events:auto!important;
+}
+/* ২) মাইক সবসময় নিউজ বক্সের ডান পাশে এবং ক্লিকযোগ্য */
+#app .header-mainline-v2 .news-mic{
+  position:absolute!important;
+  right:3px!important;
+  top:3px!important;
+  z-index:999999!important;
+  pointer-events:auto!important;
+  cursor:pointer!important;
+}
+#app .header-mainline-v2 .running-news-text,
+#app .header-mainline-v2 .news-full-run{padding-right:40px!important}
+/* ৩-৫) Dashboard: Home + সকল ফিচার বামে | title মাঝখানে | Account + ৩ ভাষা ডানে */
+#app .dashboard-title-bar{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) max-content minmax(0,1fr)!important;
+  align-items:center!important;
+  width:100%!important;
+}
+#app .dashboard-title-left{
+  justify-self:start!important;display:flex!important;align-items:center!important;gap:4px!important;
+}
+#app .dashboard-title-bar>h2{
+  justify-self:center!important;text-align:center!important;margin:0!important;white-space:nowrap!important;
+}
+#app .dashboard-title-right{
+  justify-self:end!important;display:flex!important;align-items:center!important;gap:4px!important;
+}
+</style>
+<script id="header-5-safe-mic-final-2026-09-23">
+(function(){
+  function bindMic(){
+    var b=document.querySelector('#app .header-mainline-v2 .news-mic');
+    if(!b)return;
+    b.onclick=function(e){
+      e.preventDefault();e.stopPropagation();
+      if(typeof window.openRunningNewsEditor==='function')window.openRunningNewsEditor();
+    };
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindMic);else bindMic();
+  setTimeout(bindMic,300);setTimeout(bindMic,1000);setInterval(bindMic,2500);
+})();
+</script>
 </head>
 <body>
 <div id="welcomeScreen">
