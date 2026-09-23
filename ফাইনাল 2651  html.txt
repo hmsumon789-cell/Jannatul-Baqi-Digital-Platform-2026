@@ -804,6 +804,34 @@ body.gold #app .header-calendar-select-v2{background:#f4d56b!important;color:#11
   setInterval(stableDigitalClock,1000);
 })();
 </script>
+<!-- ===== DIGITAL CLOCK NO-JUMP FIX — 2026-09-23 ===== -->
+<style id="digital-clock-no-jump-fix-2026-09-23">
+#app .header-clock-button{
+  width:190px!important;min-width:190px!important;
+  height:52px!important;box-sizing:border-box!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  overflow:hidden!important;white-space:nowrap!important;
+  font-size:26px!important;font-weight:900!important;
+  font-family:"Noto Sans Bengali","Noto Sans",Arial,sans-serif!important;
+  font-variant-numeric:tabular-nums!important;
+  font-feature-settings:"tnum" 1!important;
+  letter-spacing:1px!important;
+  transform:none!important;
+}
+#app .header-clock-button::before,#app .header-clock-button::after{display:none!important;content:none!important;}
+</style>
+<script id="digital-clock-no-jump-js-2026-09-23">
+(function(){
+  var last='';
+  function updateClock(){
+    var el=document.getElementById('appClock');if(!el)return;
+    var d=new Date(),s=d.toLocaleTimeString('en-GB',{timeZone:'Asia/Dhaka',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+    if(s!==last){el.textContent=s;last=s;}
+  }
+  updateClock();
+  setInterval(updateClock,250);
+})();
+</script>
 </head>
 <body>
 <div id="welcomeScreen">
@@ -891,7 +919,7 @@ body.gold #app .header-calendar-select-v2{background:#f4d56b!important;color:#11
         <div class="title-bn">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div>
         <div class="title-ar">المدرسة الجنة الباقية للبنات ودار الايتام</div>
         <div class="title-en">Jannatul Baky Mohila Madrasha &amp; Eatimkhana</div>
-        <div class="small header-identity-contact"><div class="header-address-line">ঠিকানা: উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div><div class="header-hotline-email-line">হটলাইন: 01823316630, 01717339288 &nbsp;·&nbsp; ইমেইল: hmsumon789@gmail.com, jannatubakymrs@gmail.com</div></div>
+        <div class="small header-identity-contact"><div class="header-address-line">ঠিকানা: উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div><div class="header-hotline-email-line">হটলাইন: 01823316630, 01717339288 &nbsp;·&nbsp; ইমেইল: hmsumon789@gmail.com</div></div>
       </div>
     </div>
     <!-- HEADER 5 FIX V2: identity + clock/date above + sheet/news/calendar below -->
