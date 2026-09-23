@@ -579,6 +579,31 @@ body.gold #formWin .form-language-fixed span{border-radius:999px!important}
 <style id="login-working-final-fix-2026-09-18">
 #mainLoginBtn:disabled{opacity:.7!important;cursor:wait!important;pointer-events:none!important}
 </style>
+
+<style id="header-fix-2026-09-23">
+/* Header cleanup: one institution line, compact logo/title spacing, one running-news row. */
+.header-top{min-height:auto!important;padding:2px 8px 4px!important;}
+.header-content{line-height:1.08!important;}
+.header-content .logo{display:block!important;margin:0 auto 0!important;}
+.header-content .title-bn,.header-content .title-ar,.header-content .title-en{margin:0!important;line-height:1.08!important;}
+.header-content .small{margin:1px 0 0!important;line-height:1.12!important;}
+.header-mainline{display:grid!important;grid-template-columns:auto minmax(0,1fr) auto auto!important;align-items:center!important;gap:7px!important;}
+.header-mainline .header-news{min-width:0!important;}
+.header-news-mic{width:48px!important;min-width:48px!important;height:43px!important;padding:4px!important;border-radius:12px!important;font-size:21px!important;}
+.header-mainline .header-datetime{min-width:190px!important;width:190px!important;text-align:right!important;white-space:nowrap!important;}
+.header-mainline .header-datetime .clock{display:block!important;width:100%!important;font-variant-numeric:tabular-nums!important;letter-spacing:.5px!important;}
+.header-mainline .header-datetime .date-line{display:block!important;width:100%!important;white-space:nowrap!important;}
+@media(max-width:1050px){
+  .header-mainline{grid-template-columns:auto minmax(0,1fr) auto!important;}
+  .header-mainline .header-datetime{grid-column:1/-1!important;width:100%!important;min-width:0!important;text-align:center!important;}
+}
+@media(max-width:700px){
+  .header-mainline{grid-template-columns:1fr!important;}
+  .header-mainline .sheet-btn,.header-mainline .header-news,.header-mainline .header-news-mic,.header-mainline .header-datetime{grid-column:1!important;width:100%!important;text-align:center!important;}
+  .header-news-mic{height:40px!important;}
+}
+</style>
+
 </head>
 <body>
 <div id="welcomeScreen">
@@ -651,16 +676,12 @@ body.gold #formWin .form-language-fixed span{border-radius:999px!important}
         <div class="small">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০ · 01823316630 · hmsumon789@gmail.com</div>
       </div>
     </div>
-    <!-- HEADER LINE 1: চলমান -->
-    <div class="header-running-row">
-      <div class="news header-news">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম</div>
-    </div>
-
     <!-- HEADER LINE 2: শিট | চলমান নিউজ | সময় + দিন-মাস-সন -->
     <div class="header-running-row">
       <div class="header-mainline">
         <button class="secondary sheet-btn" onclick="openWindow('sheetWin')">📊 সরাসরি শিটে প্রবেশ</button>
         <div class="news header-news">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম</div>
+        <button class="primary header-news-mic" type="button" onclick="openWindow('headerNewsWin')" title="নতুন চলমান নিউজ">🎙️</button>
         <div class="header-datetime">
           <div class="clock" id="appClock">--:--:--</div>
           <div class="date-line" id="appDate">--</div>
@@ -742,6 +763,21 @@ body.gold #formWin .form-language-fixed span{border-radius:999px!important}
 <div id="approvedLoginWin" class="window approved-login-window"><div class="win-head"><b>🔐 অনুমোদিত Account Login</b><button class="secondary" type="button" onclick="closeWindow('approvedLoginWin')">✕</button></div><div class="win-body"><div class="approved-login-note">Super Admin কর্তৃক অনুমোদিত <b>নতুন Admin</b> অথবা <b>নতুন Madrasa</b> Account এখানে Username + Password দিয়ে OTP ছাড়া লগইন করবে।</div><div class="approved-login-tabs"><button id="approvedAdminTab" class="primary" type="button" onclick="setApprovedLoginType('admin')">👤 নতুন Admin</button><button id="approvedMadrasaTab" class="secondary" type="button" onclick="setApprovedLoginType('madrasa')">🏫 নতুন Madrasa</button></div><label>Username<input id="approvedLoginUser" class="field" autocomplete="username" placeholder="নিজস্ব Username"></label><label>Password<div class="pass-wrap"><input id="approvedLoginPass" class="field" type="password" autocomplete="current-password" placeholder="নিজস্ব Password"><button class="eye" type="button" onclick="toggleApprovedPassword()">👁</button></div></label><div class="approved-login-actions"><button class="primary" type="button" id="approvedLoginBtn" onclick="approvedLoginSubmit()">🔐 Admin Login</button><button class="secondary" type="button" onclick="closeWindow('approvedLoginWin')">বন্ধ করুন</button></div><div id="approvedLoginMsg" class="small"></div></div></div>
 <div id="resetWin" class="window"><div class="win-head"><b>Password Reset</b><button class="secondary" onclick="closeWindow('resetWin')">✕</button></div><div class="win-body"><p>ইউজার নেম দিন এবং OTP পুনরায় পাঠান। নতুন পাসওয়ার্ড পরিবর্তনের জন্য প্রশাসনিক অনুমোদন প্রয়োজন।</p><input id="resetUser" class="field" placeholder="Username"><button class="primary" onclick="resetOtp()">OTP পাঠান</button></div></div>
 <div id="sheetWin" class="window"><div class="win-head"><b>শিট ডাটা</b><button class="secondary" onclick="closeWindow('sheetWin')">✕</button></div><div class="win-body"><select id="sheetSelect" class="field" onchange="loadSheet()"></select><div id="sheetBody"></div></div></div>
+
+<div id="headerNewsWin" class="window" style="width:min(700px,94vw)">
+  <div class="win-head"><b>🎙️ চলমান নিউজ যোগ / আপডেট</b><button class="secondary" type="button" onclick="closeWindow('headerNewsWin')">✕</button></div>
+  <div class="win-body">
+    <div class="form-grid">
+      <label class="full">নিউজ / শিরোনাম<input id="headerNewsTitle" class="field" value="জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম"></label>
+      <label class="full">বিস্তারিত<textarea id="headerNewsBody" class="field" rows="4" placeholder="চলমান নিউজ লিখুন"></textarea></label>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
+      <button class="primary" type="button" onclick="saveHeaderNews()">💾 সেভ / আপডেট</button>
+      <button class="secondary" type="button" onclick="closeWindow('headerNewsWin')">বন্ধ করুন</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast" class="toast"></div>
 
 <script>
@@ -1199,6 +1235,23 @@ function downloadCurrentForm(){
   setTimeout(draw,1500);
 })();
 </script>
+
+<script id="header-fix-2026-09-23-js">
+async function saveHeaderNews(){
+  const title=($('headerNewsTitle')?.value||'').trim();
+  const body=($('headerNewsBody')?.value||'').trim();
+  if(!title)return toast('নিউজ লিখুন।');
+  try{
+    const r=await call('saveRecord',token,'NOTICES',{TitleBN:title,BodyBN:body,Published:'YES',Date:new Date().toISOString()});
+    if(r&&r.ok){
+      document.querySelectorAll('.header-news').forEach(function(el){el.textContent=title;});
+      closeWindow('headerNewsWin');
+      toast('চলমান নিউজ সেভ ও আপডেট হয়েছে।');
+    }else toast((r&&r.message)||'নিউজ সেভ হয়নি।');
+  }catch(e){toast('নিউজ সেভ সার্ভার ত্রুটি: '+(e&&e.message?e.message:e));}
+}
+</script>
+
 </body></html>';
   var blob=new Blob([html],{type:'text/html;charset=utf-8'});
   var url=URL.createObjectURL(blob),a=document.createElement('a');
