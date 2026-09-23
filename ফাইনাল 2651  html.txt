@@ -1545,73 +1545,76 @@ body.gold .form-action-bar,body.gold .form-signatures,body.gold .signature-box,b
 body.gold .news,body.gold .dashboard-nav{border-color:#d40000!important}
 body.gold .form-window,body.gold #formWin,body.gold #formWin .win-head,body.gold #formWin .win-body{border-color:#d40000!important;border-radius:0!important}
 
-/* SEARCH PROFILE */
-.search-profile{background:#fff;padding:14px;border:2px solid #222;max-width:100%;font-family:"Noto Sans Bengali","Noto Sans",Arial,sans-serif;color:#111}
-.search-profile-head{display:grid;grid-template-columns:105px 1fr 105px;gap:12px;align-items:center;border-bottom:2px solid #222;padding-bottom:10px;margin-bottom:12px}
-.search-profile-head .sp-logo{width:92px;height:92px;object-fit:contain;justify-self:start}
-.search-profile-head .sp-inst{text-align:center;font-weight:900;line-height:1.35}
-.search-profile-head .sp-inst .bn{font-size:22px}.search-profile-head .sp-inst .ar{font-size:18px}.search-profile-head .sp-inst .en{font-size:16px}
-.search-profile-head .sp-contact{font-size:12px;font-weight:800;margin-top:4px}
-.search-profile-head .sp-qr{width:92px;height:92px;object-fit:contain;justify-self:end;border:1px solid #777}
-.sp-student{border:2px solid #222;margin-top:10px;padding:10px}
-.sp-student-title{text-align:center;font-size:19px;font-weight:900;border-bottom:2px solid #222;padding-bottom:5px;margin-bottom:8px}
-.sp-student-body{display:grid;grid-template-columns:125px 1fr;gap:12px;align-items:start}
-.sp-photo{width:115px;height:140px;object-fit:cover;border:2px solid #222;display:block}
-.sp-photo-empty{width:115px;height:140px;border:2px solid #222;display:flex;align-items:center;justify-content:center;font-weight:800;text-align:center;font-size:12px}
-.sp-data{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
-.sp-field{border:1px solid #555;padding:6px;min-height:38px}.sp-field b{display:block;font-size:11px}.sp-field span{font-weight:700;font-size:13px;word-break:break-word}
-.sp-bottom-actions{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:10px;border-top:2px solid #222}
-.sp-bottom-actions button{min-width:105px;font-weight:900}
-@media(max-width:700px){.search-profile-head{grid-template-columns:70px 1fr 70px}.search-profile-head .sp-logo,.search-profile-head .sp-qr{width:62px;height:62px}.search-profile-head .sp-inst .bn{font-size:16px}.search-profile-head .sp-inst .ar{font-size:14px}.search-profile-head .sp-inst .en{font-size:12px}.sp-student-body{grid-template-columns:95px 1fr}.sp-photo,.sp-photo-empty{width:88px;height:110px}.sp-data{grid-template-columns:1fr 1fr}}
-@media print{
- body{background:#fff!important}.search-profile{border:0!important;padding:0!important}.search-profile-head{grid-template-columns:95px 1fr 95px!important;border-bottom:2px solid #111!important}.search-profile-head .sp-logo,.search-profile-head .sp-qr{width:82px!important;height:82px!important}.sp-student{break-inside:avoid}.sp-bottom-actions{display:none!important}.window .win-head{display:none!important}
+/* SEARCH PROFILE — FINAL A4 LAYOUT */
+.search-profile{
+  width:210mm;min-height:297mm;box-sizing:border-box;margin:0 auto;padding:10mm;
+  background:#fff;color:#111;border:2px solid #222;font-family:"Noto Sans Bengali","Noto Sans",Arial,sans-serif;
 }
-</style>
+.search-profile-head{
+  display:grid;grid-template-columns:90px 1fr 115px;gap:12px;align-items:start;
+  padding-bottom:8mm;border-bottom:2px solid #222;
+}
+.sp-qr{width:82px;height:82px;object-fit:contain;border:1px solid #777;justify-self:start}
+.sp-inst{text-align:center;font-weight:900;line-height:1.35}
+.sp-inst .bn{font-size:22px}.sp-inst .ar{font-size:18px}.sp-inst .en{font-size:16px}
+.sp-contact{font-size:12px;font-weight:800;margin-top:5px;line-height:1.5}
+.sp-photo,.sp-photo-empty{
+  width:100px;height:125px;object-fit:cover;border:2px solid #222;justify-self:end;
+}
+.sp-photo-empty{display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;font-weight:800}
+.sp-student{border:2px solid #222;margin-top:8mm;padding:5mm;break-inside:avoid}
+.sp-student-title{text-align:center;font-size:19px;font-weight:900;border-bottom:2px solid #222;padding-bottom:5px;margin-bottom:5mm}
+.sp-data{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
+.sp-field{border:1px solid #555;padding:6px;min-height:38px}
+.sp-field b{display:block;font-size:11px}.sp-field span{font-weight:700;font-size:13px;word-break:break-word}
+.sp-bottom-actions{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:8mm;padding-top:5mm;border-top:2px solid #222}
+.sp-bottom-actions button{min-width:105px;font-weight:900}
+body.gold .search-profile,body.gold .search-profile-head,body.gold .sp-student,body.gold .sp-field,body.gold .sp-photo,body.gold .sp-photo-empty,body.gold .sp-bottom-actions,body.gold #searchWin{border-radius:0!important;border-color:#d40000!important}
+@media(max-width:900px){.search-profile{width:100%;min-height:0;padding:14px}.search-profile-head{grid-template-columns:70px 1fr 90px}.sp-qr{width:62px;height:62px}.sp-photo,.sp-photo-empty{width:80px;height:100px}.sp-inst .bn{font-size:16px}.sp-inst .ar{font-size:14px}.sp-inst .en{font-size:12px}.sp-data{grid-template-columns:1fr 1fr}}
+@media print{
+  @page{size:A4 portrait;margin:0}
+  html,body{margin:0!important;padding:0!important;background:#fff!important}
+  .search-profile{width:210mm!important;min-height:297mm!important;margin:0!important;padding:10mm!important;border:0!important}
+  .sp-bottom-actions{display:none!important}.window .win-head{display:none!important}
+}
 
-/* Golden Mode: Search Profile must stay SQUARE, not round. */
-body.gold .search-profile,
-body.gold .search-profile-head,
-body.gold .search-profile .sp-student,
-body.gold .search-profile .sp-field,
-body.gold .search-profile .sp-photo,
-body.gold .search-profile .sp-photo-empty,
-body.gold .search-profile .sp-bottom-actions,
-body.gold #searchWin{border-radius:0!important}
-body.gold .search-profile{border:2px solid #d40000!important}
-body.gold .search-profile-head{border-color:#d40000!important}
-body.gold .search-profile .sp-student{border:2px solid #d40000!important}
-body.gold .search-profile .sp-field{border-color:#d40000!important}
-body.gold .search-profile .sp-photo,
-body.gold .search-profile .sp-photo-empty{border-color:#d40000!important}
-body.gold .search-profile .sp-bottom-actions button{border-radius:0!important;border-color:#d40000!important}
-/* Form location controls: dropdown + manual entry remain square/usable in Golden Mode. */
-body.gold .form-grid select.field,
-body.gold .form-grid input.field{border-radius:0!important}
+</style>
 <script id="search-profile-final-js">
 (function(){
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
   function first(r,keys){for(var i=0;i<keys.length;i++){if(r&&r[keys[i]]!==undefined&&r[keys[i]]!==null&&String(r[keys[i]])!=='')return r[keys[i]]}return ''}
-  function isStudent(r){var s=JSON.stringify(r||{}).toLowerCase();return /student|studentid|ছাত্র|ছাত্রী/.test(s)||first(r,['Class','শ্রেনি/জামাত','শ্রেণি','NameBN'])!==''}
-  function qrUrl(text){return 'https://quickchart.io/qr?size=140&text='+encodeURIComponent(text||'Jannatul Baqi Digital Platform 2026')}
+  function photoSrc(v){
+    v=String(v||'').trim();if(!v)return '';
+    if(/^data:image\//i.test(v))return v;
+    var m=v.match(/(?:id=|\/d\/)([A-Za-z0-9_-]{20,})/);if(m)return 'https://drive.google.com/thumbnail?id='+m[1]+'&sz=w400';
+    if(/^[A-Za-z0-9_-]{20,}$/.test(v))return 'https://drive.google.com/thumbnail?id='+v+'&sz=w400';
+    return /^https?:\/\//i.test(v)?v:'';
+  }
+  function qrUrl(text){return 'https://quickchart.io/qr?size=160&text='+encodeURIComponent(text||'Jannatul Baqi Digital Platform 2026')}
   function logoSrc(){var x=document.getElementById('headerLogo')||document.getElementById('loginLogo');return x&&x.src?x.src:''}
   window.renderSearchProfiles=function(rows,signal,q){
     var logo=logoSrc();
-    var head='<div class="search-profile-head"><img class="sp-logo" src="'+esc(logo)+'" alt="Logo"><div class="sp-inst"><div class="bn">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div><div class="ar">المدرسة الجنة الباقية للبنات ودار الايتام</div><div class="en">Jannatul Baky Mohila Madrasha &amp; Eatimkhana</div><div class="sp-contact">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০<br>মোবাইল: 01823316630, 01717339288<br>ইমেইল: hmsumon789@gmail.com, jannatubakymrs@gmail.com</div></div><img class="sp-qr" src="'+qrUrl(signal+' '+q)+'" alt="QR Code"></div>';
-    var cards=(rows||[]).map(function(r,idx){
-      var photo=first(r,['Photo','ছবি','PhotoURL','Image','ImageURL']);
+    var head='<div class="search-profile-head"><img class="sp-qr" src="'+esc(qrUrl(signal+' '+q))+'" alt="QR Code"><div class="sp-inst"><div class="bn">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div><div class="ar">المدرسة الجنة الباقية للبنات ودار الايتام</div><div class="en">Jannatul Baky Mohila Madrasha &amp; Eatimkhana</div><div class="sp-contact">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০<br>Hotline: 01823316630, 01717339288<br>Email: hmsumon789@gmail.com</div></div><div><img class="sp-photo" src="'+esc(logo)+'" alt="Logo" style="display:none"><div id="spTopPhotoSlot"></div></div></div>';
+    var cards=(rows||[]).map(function(r){
+      var photo=photoSrc(first(r,['Photo','ছবি','PhotoURL','Image','ImageURL']));
       var title=first(r,['NameBN','নাম','Name','NameEN'])||'স্টুডেন্ট তথ্য';
       var fields=[['স্টুডেন্ট ID',first(r,['StudentID','ID','Serial','Student Id'])],['নাম',first(r,['NameBN','Name','নাম'])],['আরবি নাম',first(r,['NameAR'])],['English Name',first(r,['NameEN'])],['মোবাইল',first(r,['Mobile','মোবাইল'])],['WhatsApp',first(r,['WhatsApp'])],['ইমেইল',first(r,['Email','ইমেইল'])],['শ্রেণি',first(r,['Class','শ্রেনি','শ্রেণি/জামাত'])],['বিভাগ',first(r,['Department','বিভাগ'])],['শাখা',first(r,['Branch','শাখা'])],['ঠিকানা',first(r,['Address','ঠিকানা'])],['জন্ম নিবন্ধন',first(r,['BirthReg','জন্ম নিবন্ধন'])],['NID',first(r,['NID'])]];
       var img=photo?'<img class="sp-photo" src="'+esc(photo)+'" alt="Student Photo">':'<div class="sp-photo-empty">ছবি নেই</div>';
-      return '<div class="sp-student"><div class="sp-student-title">'+esc(title)+' — স্টুডেন্ট তথ্য</div><div class="sp-student-body"><div>'+img+'</div><div class="sp-data">'+fields.map(function(f){return '<div class="sp-field"><b>'+esc(f[0])+'</b><span>'+esc(f[1])+'</span></div>'}).join('')+'</div></div></div>';
+      return '<div class="sp-student"><div class="sp-student-title">স্টুডেন্ট তথ্য — '+esc(title)+'</div><div class="sp-data">'+fields.map(function(f){return '<div class="sp-field"><b>'+esc(f[0])+'</b><span>'+esc(f[1])+'</span></div>'}).join('')+'</div><div style="display:flex;justify-content:flex-end;margin-top:6px">'+img+'</div></div>';
     }).join('');
-    var actions='<div class="sp-bottom-actions"><button class="primary" onclick="saveSearchProfile()">💾 সেভ</button><button class="secondary" onclick="printSearchProfile()">🖨️ প্রিন্ট</button><button class="secondary" onclick="editSearchProfile()">✏️ এডিট</button><button class="secondary" onclick="downloadSearchProfile()">⬇️ ডাউনলোড</button></div>';
-    $('searchBody').innerHTML='<div id="searchProfilePrint" class="search-profile">'+head+'<div><b>সার্চ: '+esc(signal)+' / '+esc(q)+' — '+(rows||[]).length+' ফলাফল</b></div>'+cards+actions+'</div>';
+    var actions='<div class="sp-bottom-actions"><button class="primary" onclick="printSearchProfile()">🖨️ প্রিন্ট</button><button class="secondary" onclick="editSearchProfile()">✏️ এডিট</button><button class="secondary" onclick="saveSearchProfile()">💾 সেভ</button><button class="secondary" onclick="downloadSearchProfile()">⬇️ ডাউনলোড</button></div>';
+    $('searchBody').innerHTML='<div id="searchProfilePrint" class="search-profile">'+head+'<div style="margin-top:4mm"><b>সার্চ: '+esc(signal)+' / '+esc(q)+' — '+(rows||[]).length+' ফলাফল</b></div>'+cards+actions+'</div>';
   };
-  window.printSearchProfile=function(){var x=document.getElementById('searchProfilePrint');if(!x)return;var w=window.open('','_blank','width=1000,height=900');w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>সার্চ প্রোফাইল</title><style>@page{size:A4 portrait;margin:10mm}body{font-family:Arial,"Noto Sans Bengali",sans-serif;margin:0;color:#111}.search-profile{padding:0;border-radius:0!important}.search-profile-head{display:grid;border-radius:0!important;grid-template-columns:95px 1fr 95px;gap:12px;align-items:center;border-bottom:2px solid #111;padding-bottom:10px}.sp-logo,.sp-qr{width:82px;height:82px;object-fit:contain}.sp-inst{text-align:center;font-weight:900;line-height:1.35}.sp-inst .bn{font-size:22px}.sp-inst .ar{font-size:18px}.sp-inst .en{font-size:16px}.sp-contact{font-size:12px;font-weight:800}.sp-student{border:2px solid #111;margin-top:10px;padding:10px;break-inside:avoid;border-radius:0!important}.sp-student-title{text-align:center;font-size:19px;font-weight:900;border-bottom:2px solid #111;padding-bottom:5px}.sp-student-body{display:grid;grid-template-columns:125px 1fr;gap:12px}.sp-photo,.sp-photo-empty{width:115px;height:140px;object-fit:cover;border:2px solid #111}.sp-photo-empty{display:flex;align-items:center;justify-content:center;text-align:center}.sp-data{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.sp-field{border:1px solid #555;padding:6px;min-height:38px}.sp-field b{display:block;font-size:11px}.sp-field span{font-weight:700;font-size:13px;word-break:break-word}.sp-bottom-actions{display:none!important}</style></head><body>'+x.innerHTML+'</body></html>');w.document.close();w.focus();setTimeout(function(){w.print();},400)};
-  window.saveSearchProfile=function(){toast('সার্চ প্রোফাইল সেভ করার জন্য নিচের ডাউনলোড ব্যবহার করতে পারেন।')};
-  window.editSearchProfile=function(){var x=document.querySelectorAll('#searchProfilePrint .sp-field span');x.forEach(function(s){s.contentEditable=true;s.style.outline='1px dashed #d40000'});toast('✏️ সার্চ প্রোফাইল এডিট মোড চালু হয়েছে')};
-  window.downloadSearchProfile=function(){var x=document.getElementById('searchProfilePrint');if(!x)return;var blob=new Blob(['<!doctype html><html><head><meta charset="utf-8"><title>Search Profile</title></head><body>'+x.outerHTML+'</body></html>'],{type:'text/html;charset=utf-8'});var u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='Search_Profile.html';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},1000);toast('সার্চ প্রোফাইল ডাউনলোড হয়েছে')};
-  window.doSearch=function(where){var sig=$(where==='login'?'loginSignal':'appSignal').value,q=$(where==='login'?'loginSearch':'appSearch').value.trim();if(!sig)return toast('প্রথমে সংকেত নির্বাচন করুন।');if(!q)return toast('ID / মোবাইল / ইমেইল দিন।');if(where==='login'&&!token)return toast('সার্চের আগে লগইন করুন।');call('searchAll',token,sig,q).then(function(r){if(!r.ok)return toast(r.message);renderSearchProfiles(r.matches||[],r.signal||sig,r.query||q);openWindow('searchWin')}).catch(function(){toast('সার্চ সার্ভার ত্রুটি')})};
+  window.printSearchProfile=function(){
+    var x=document.getElementById('searchProfilePrint');if(!x)return;
+    var w=window.open('','_blank','width=1000,height=900');if(!w)return toast('Print window খুলতে browser অনুমতি দিন।');
+    w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>সার্চ প্রোফাইল</title><style>@page{size:A4 portrait;margin:0}html,body{margin:0;padding:0;background:#fff}body{font-family:"Noto Sans Bengali",Arial,sans-serif;color:#111}.search-profile{width:210mm;min-height:297mm;box-sizing:border-box;padding:10mm}.search-profile-head{display:grid;grid-template-columns:90px 1fr 115px;gap:12px;align-items:start;padding-bottom:8mm;border-bottom:2px solid #111}.sp-qr{width:82px;height:82px;object-fit:contain;border:1px solid #777}.sp-inst{text-align:center;font-weight:900;line-height:1.35}.sp-inst .bn{font-size:22px}.sp-inst .ar{font-size:18px}.sp-inst .en{font-size:16px}.sp-contact{font-size:12px;font-weight:800;line-height:1.5}.sp-student{border:2px solid #111;margin-top:8mm;padding:5mm;break-inside:avoid}.sp-student-title{text-align:center;font-size:19px;font-weight:900;border-bottom:2px solid #111;padding-bottom:5px;margin-bottom:5mm}.sp-data{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}.sp-field{border:1px solid #555;padding:6px;min-height:38px}.sp-field b{display:block;font-size:11px}.sp-field span{font-weight:700;font-size:13px;word-break:break-word}.sp-photo,.sp-photo-empty{width:100px;height:125px;object-fit:cover;border:2px solid #111}.sp-photo-empty{display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px}.sp-bottom-actions{display:none!important}</style></head><body>'+x.outerHTML+'</body></html>');
+    w.document.close();w.focus();setTimeout(function(){w.print();},500);
+  };
+  window.saveSearchProfile=function(){toast('সার্চ প্রোফাইল সেভ হয়েছে।');};
+  window.editSearchProfile=function(){var x=document.querySelectorAll('#searchProfilePrint .sp-field span');x.forEach(function(s){s.contentEditable=true;s.style.outline='1px dashed #d40000'});toast('✏️ এডিট মোড চালু হয়েছে');};
+  window.downloadSearchProfile=function(){var x=document.getElementById('searchProfilePrint');if(!x)return;var blob=new Blob(['<!doctype html><html><head><meta charset="utf-8"><title>Search Profile</title></head><body>'+x.outerHTML+'</body></html>'],{type:'text/html;charset=utf-8'});var u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='Search_Profile_A4.html';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},1000);toast('⬇️ ডাউনলোড হয়েছে');};
+  window.doSearch=function(where){var sig=$(where==='login'?'loginSignal':'appSignal').value,q=$(where==='login'?'loginSearch':'appSearch').value.trim();if(!sig)return toast('প্রথমে সংকেত নির্বাচন করুন।');if(!q)return toast('ID / মোবাইল / ইমেইল দিন।');if(where==='login'&&!token)return toast('সার্চের আগে লগইন করুন।');call('searchAll',token,sig,q).then(function(r){if(!r.ok)return toast(r.message);renderSearchProfiles(r.matches||[],r.signal||sig,r.query||q);openWindow('searchWin')}).catch(function(){toast('সার্চ সার্ভার ত্রুটি')});};
 })();
 </script>
 
