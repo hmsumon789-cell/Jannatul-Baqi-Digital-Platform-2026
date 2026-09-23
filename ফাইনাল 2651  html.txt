@@ -8087,3 +8087,36 @@ body.gold #searchProfilePrint .sp-field{border-color:#d40000!important}
   }
 })();
 </script>
+
+
+<!-- ===== FINAL MEDIA LIST LOAD AFTER LOGIN FIX — 2026-09-23 ===== -->
+<script id="final-media-list-load-after-login-fix-2026-09-23">
+(function(){
+  async function loadMediaAfterLogin(){
+    if(typeof window.call!=='function'||!window.token)return;
+    try{
+      var r=await window.call('listMedia',window.token);
+      var m=Array.isArray(r)?r:(r&&Array.isArray(r.media)?r.media:(r&&Array.isArray(r.rows)?r.rows:[]));
+      window.media=m||[];
+      var n=Number(window.mediaIndex||0);
+      window.mediaIndex=window.media.length?Math.max(0,Math.min(isFinite(n)?n:0,window.media.length-1)):0;
+      if(typeof window.renderMedia==='function')window.renderMedia();
+      if(typeof window.renderMediaList==='function')window.renderMediaList();
+    }catch(e){
+      var box=document.getElementById('mediaList');
+      if(box)box.innerHTML='<span style="font-weight:800">মিডিয়া তালিকা পাওয়া যায়নি। আবার চেষ্টা করুন।</span>';
+    }
+  }
+  var oldLoadApp=window.loadApp;
+  if(typeof oldLoadApp==='function'){
+    window.loadApp=async function(){
+      var r=await oldLoadApp.apply(this,arguments);
+      setTimeout(loadMediaAfterLogin,150);
+      setTimeout(loadMediaAfterLogin,1000);
+      setTimeout(loadMediaAfterLogin,2500);
+      return r;
+    };
+  }
+  window.refreshMediaListAfterLogin=loadMediaAfterLogin;
+})();
+</script>
