@@ -7839,3 +7839,25 @@ body.gold #searchProfilePrint .sp-field{border-color:#d40000!important}
   margin-right:auto!important;
 }
 </style>
+
+<!-- ===== A4 PAD HEADER SIZE + LOGO POSITION FIX — 2026-09-23 ===== -->
+<style id="a4-pad-header-size-logo-fix-2026-09-23">
+#searchProfilePrint.search-profile{width:210mm!important;max-width:210mm!important;min-height:297mm!important;padding:10mm!important;box-sizing:border-box!important;overflow:hidden!important}
+#searchProfilePrint .sp-pad-head{width:100%!important;max-width:100%!important;min-width:0!important;grid-template-columns:72px minmax(0,1fr) 72px!important;grid-template-areas:"logo inst photo"!important;gap:6px!important;padding:4px 0 6px!important;box-sizing:border-box!important;overflow:hidden!important}
+#searchProfilePrint .sp-pad-logo{grid-area:logo;width:62px!important;height:76px!important;object-fit:contain!important;border:0!important;background:transparent!important;border-radius:0!important;display:block!important}
+#searchProfilePrint .sp-pad-inst{min-width:0!important;max-width:100%!important;overflow:hidden!important}
+#searchProfilePrint .sp-pad-contact{overflow-wrap:anywhere!important}
+#searchProfilePrint .sp-pad-photo{grid-area:photo;width:62px!important;height:76px!important;justify-self:end!important}
+@media print{#searchProfilePrint.search-profile{width:210mm!important;max-width:210mm!important;padding:10mm!important;overflow:hidden!important}#searchProfilePrint .sp-pad-head{width:100%!important;max-width:100%!important}}
+</style>
+<script id="a4-pad-header-size-logo-fix-js-2026-09-23">
+(function(){
+  var old=window.renderSearchProfilesA4Pad;if(typeof old!=='function')return;
+  window.renderSearchProfilesA4Pad=function(rows,signal,q){
+    old(rows,signal,q);var p=document.getElementById('searchProfilePrint');if(!p)return;
+    var head=p.querySelector('.sp-pad-head');if(!head)return;
+    var qr=head.querySelector('.sp-pad-qr');
+    if(qr){var logo=document.createElement('img');logo.className='sp-pad-logo';logo.src=(document.getElementById('loginLogo')&&document.getElementById('loginLogo').src)||'';logo.alt='Institution Logo';qr.replaceWith(logo)}
+  };
+})();
+</script>
