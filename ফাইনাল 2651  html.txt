@@ -693,6 +693,52 @@ body.gold #app .header-calendar-select-v2{background:#f4d56b!important;color:#11
   setTimeout(bindMic,300);setTimeout(bindMic,1000);setInterval(bindMic,2500);
 })();
 </script>
+
+<!-- ===== HEADER IDENTITY UNDER LOGO SAFE FIX — 2026-09-23 ===== -->
+<style id="header-identity-under-logo-safe-2026-09-23">
+/* লোগোর ঠিক পরের এক লাইনের নিচ থেকেই প্রতিষ্ঠানের পরিচয় শুরু */
+#app .header-top .header-content{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  text-align:center!important;
+  gap:0!important;
+  padding:0!important;
+  margin:0!important;
+}
+#app .header-top .header-content #headerLogo{
+  width:82px!important;
+  height:82px!important;
+  margin:0 auto 0!important;
+  padding:0!important;
+  display:block!important;
+  object-fit:contain!important;
+}
+#app .header-top .header-content .title-bn,
+#app .header-top .header-content .title-ar{
+  font-size:30px!important;
+  line-height:1.05!important;
+  font-weight:900!important;
+  margin:0!important;
+  padding:0!important;
+}
+#app .header-top .header-content .title-ar{direction:rtl!important}
+#app .header-top .header-content .title-en{
+  font-size:22px!important;
+  line-height:1.05!important;
+  font-weight:800!important;
+  margin:0!important;
+  padding:0!important;
+}
+#app .header-top .header-content .small{
+  font-size:15px!important;
+  line-height:1.15!important;
+  font-weight:800!important;
+  margin:0!important;
+  padding:0!important;
+}
+</style>
 </head>
 <body>
 <div id="welcomeScreen">
@@ -780,7 +826,7 @@ body.gold #app .header-calendar-select-v2{background:#f4d56b!important;color:#11
         <div class="title-bn">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div>
         <div class="title-ar">المدرسة الجنة الباقية للبنات ودار الايتام</div>
         <div class="title-en">Jannatul Baky Mohila Madrasha &amp; Eatimkhana</div>
-        <div class="small">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০ · 01823316630 · hmsumon789@gmail.com</div>
+        <div class="small">ঠিকানা: উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০ · হটলাইন: 01823316630, 01717339288 · ইমেইল: hmsumon789@gmail.com</div>
       </div>
     </div>
     <!-- HEADER 5 FIX V2: identity + clock/date above + sheet/news/calendar below -->
