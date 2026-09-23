@@ -2400,3 +2400,17 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
  window.deleteCurrentMedia=function(){if(!media||!media.length)return toast('ডিলেট করার মিডিয়া নেই।');deleteMediaByIndex(mediaIndex)};
 })();
 </script>
+
+<script id="all-search-login-server-error-fix-2026-09-23">
+(function(){
+  var oldDoSearch=window.doSearch;
+  window.doSearch=function(where){
+    if(where==='login' && !window.token){
+      if(typeof toast==='function') toast('অল সার্চ ব্যবহার করতে আগে লগইন করুন।');
+      else alert('অল সার্চ ব্যবহার করতে আগে লগইন করুন।');
+      return;
+    }
+    return oldDoSearch.apply(this,arguments);
+  };
+})();
+</script>
