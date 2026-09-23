@@ -6197,7 +6197,7 @@ body.dark .dashboard-period-dot{border-color:#ffe95c!important}
 }
 </style>
 
-<script id="dashboard-period-dynamic-large-2026-09-22">
+<script id="dashboard-period-dynamic-large-js-2026-09-22">
 (function(){
   var periods=['দৈনিক','সাপ্তাহিক','মাসিক','বাৎসরিক'];
   var periodIndex=0, timer=null, loading=false, refreshTimer=null;
@@ -6543,7 +6543,7 @@ body.dark .dashboard-period-dot{border-color:#ffe95c!important}
 <style id="prevent-duplicate-media-names-2026-09-23">
 /* একই নামে দ্বিতীয়বার মিডিয়া লোড/সেভ হবে না */
 </style>
-<script id="prevent-duplicate-media-names-2026-09-23">
+<script id="prevent-duplicate-media-names-js-2026-09-23">
 (function(){
   function key(v){return String(v||'').trim().toLowerCase();}
   var oldUpload=window.uploadMedia;
