@@ -391,7 +391,6 @@ function getStats(token) {
 }
 
 function searchAll(token,signal,query) {
-  auth_(token);
   signal=String(signal||'').trim().toLowerCase();
   query=String(query||'').trim();
   if(!query) return {ok:false,message:'সার্চ আইডি দিন।'};
