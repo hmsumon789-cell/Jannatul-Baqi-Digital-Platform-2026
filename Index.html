@@ -949,7 +949,8 @@ async async function uploadMedia(){
   const input=$('mediaFiles');
   const files=input&&input.files?[...input.files]:[];
   if(!files.length)return toast('ফাইল নির্বাচন করুন।');
-  const originalParent=input.parentNode, originalNext=input.nextSibling;
+  const originalParent=input.parentNode, originalNext=input.nextSibling, originalName=input.name||'';
+  input.name='mediaFile';
   const form=document.createElement('form');
   form.style.display='none';
   const tokenField=document.createElement('input');tokenField.name='token';tokenField.value=token;
@@ -977,7 +978,7 @@ async async function uploadMedia(){
   }catch(e){
     toast('মিডিয়া আপলোড সার্ভার ত্রুটি: '+(e&&e.message?e.message:e));
   }finally{
-    try{originalParent.insertBefore(input,originalNext)}catch(e){}
+    try{originalParent.insertBefore(input,originalNext);input.name=originalName}catch(e){}
     try{form.remove()}catch(e){}
   }
   const listed=await call('listMedia',token);
