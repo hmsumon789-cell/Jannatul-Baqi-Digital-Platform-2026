@@ -2407,7 +2407,11 @@ body{padding-top:0!important}
     }catch(e){toast('মিডিয়া তালিকা লোড হচ্ছে...');}
   }
   window.refreshMedia=refreshMedia;
-  document.addEventListener('DOMContentLoaded',function(){setTimeout(refreshMedia,250);});
+  var baseOpenModule=window.openModule;
+  window.openModule=function(key){
+    baseOpenModule(key);
+    if(key==='gallery')setTimeout(function(){refreshMedia();},100);
+  };
 })();
 </script>
 </body></html>');w.document.close();setTimeout(function(){w.print()},300)};
