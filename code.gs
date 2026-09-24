@@ -472,7 +472,7 @@ function sendQuickService(token,data) {
 }
 
 function getMediaRules_(){
-  return {video:{maxMB:50,maxCount:50},audio:{maxMB:50,maxCount:50},image:{maxMB:20,maxCount:100}};
+  return {video:{maxMB:50,maxCount:50},audio:{maxMB:20,maxCount:100},image:{maxMB:20,maxCount:100}};
 }
 function mediaDriveFolder_(){
   const name='Jannatul Baqi Digital Platform - Media 2026';
@@ -588,7 +588,7 @@ function deleteMedia(token,serial) {
   auth_(token); requireFeature_(token,'gallery');
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA), last=sh.getLastRow();
   if(last<2)return {ok:false,message:'মিডিয়া পাওয়া যায়নি।'};
-  const vals=sh.getRange(2,1,last-1,10).getValues(), idx=vals.findIndex(function(r){return String(r[0])===String(serial);});
+  const vals=sh.getRange(2,1,last-1,10).getValues(), idx=vals.findIndex(function(r){return String(r[0])===String(serial)||String(r[1])===String(serial);});
   if(idx<0)return {ok:false,message:'মিডিয়া পাওয়া যায়নি।'};
   const dataUrl=String(vals[idx][4]||'');
   if(dataUrl.indexOf('DRIVE:')===0){try{DriveApp.getFileById(dataUrl.slice(6)).setTrashed(true);}catch(e){}}
