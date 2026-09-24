@@ -472,7 +472,7 @@ function sendQuickService(token,data) {
 
 function getMediaRules_(){
   // Media limits: 100 photos, 20 videos, 50 audio files.
-  return {video:{maxMB:50,maxCount:20},audio:{maxMB:50,maxCount:50},image:{maxMB:20,maxCount:100}};
+  return {video:{maxMB:50,maxCount:50},audio:{maxMB:50,maxCount:50},image:{maxMB:20,maxCount:100}};
 }
 function mediaDriveFolder_(){
   const name='Jannatul Baqi Digital Platform - Media 2026';
@@ -482,7 +482,7 @@ function mediaDriveFolder_(){
 function mediaDriveUrl_(fileId,resourceKey){
   const id=encodeURIComponent(String(fileId||''));
   const rk=String(resourceKey||'').trim();
-  return 'https://drive.google.com/uc?export=download&id='+id+(rk?'&resourcekey='+encodeURIComponent(rk):'');
+  return 'https://drive.google.com/uc?export=download&confirm=t&id='+id+(rk?'&resourcekey='+encodeURIComponent(rk):'');
 }
 function mediaPreviewUrl_(fileId,resourceKey){
   const id=encodeURIComponent(String(fileId||''));
@@ -611,7 +611,7 @@ function deleteMedia(token,serial) {
   auth_(token); requireFeature_(token,'gallery');
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA), last=sh.getLastRow();
   if(last<2)return {ok:false,message:'মিডিয়া পাওয়া যায়নি।'};
-  const vals=sh.getRange(2,1,last-1,10).getValues(), idx=vals.findIndex(function(r){return String(r[0])===String(serial);});
+  const key=String(serial||'').trim(), vals=sh.getRange(2,1,last-1,10).getValues(), idx=vals.findIndex(function(r){return String(r[0]).trim()===key || String(r[1]).trim()===key;});
   if(idx<0)return {ok:false,message:'মিডিয়া পাওয়া যায়নি।'};
   const dataUrl=String(vals[idx][4]||'');
   if(dataUrl.indexOf('DRIVE:')===0){try{DriveApp.getFileById(dataUrl.slice(6)).setTrashed(true);}catch(e){}}
