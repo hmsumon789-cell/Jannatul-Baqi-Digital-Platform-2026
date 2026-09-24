@@ -7,7 +7,7 @@
  * It does not depend on previous project/library code.
  */
 
-const APP = {
+const APP_WORKING = {
   nameBn: 'জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা',
   nameAr: 'المدرسة الجنة البافية للبنات ودارالايتام',
   nameEn: 'Jannatul Baky Mohila Madrasha & Eatimkhana',
@@ -64,7 +64,7 @@ const HEADERS = {
 
 function doGet() {
   return HtmlService.createHtmlOutputFromFile('Index')
-    .setTitle(APP.nameEn + ' | Digital Platform 2026')
+    .setTitle(APP_WORKING.nameEn + ' | Digital Platform 2026')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
@@ -81,14 +81,14 @@ function setupSystem() {
 function seedConfig_(ss) {
   const sh = ss.getSheetByName(SHEETS.CONFIG);
   const values = [
-    ['INSTITUTION_BN',APP.nameBn,now_()],
-    ['INSTITUTION_AR',APP.nameAr,now_()],
-    ['INSTITUTION_EN',APP.nameEn,now_()],
-    ['ADDRESS',APP.address,now_()],
-    ['HOTLINE1',APP.hotline1,now_()],
-    ['HOTLINE2',APP.hotline2,now_()],
-    ['EMAIL1',APP.email1,now_()],
-    ['EMAIL2',APP.email2,now_()],
+    ['INSTITUTION_BN',APP_WORKING.nameBn,now_()],
+    ['INSTITUTION_AR',APP_WORKING.nameAr,now_()],
+    ['INSTITUTION_EN',APP_WORKING.nameEn,now_()],
+    ['ADDRESS',APP_WORKING.address,now_()],
+    ['HOTLINE1',APP_WORKING.hotline1,now_()],
+    ['HOTLINE2',APP_WORKING.hotline2,now_()],
+    ['EMAIL1',APP_WORKING.email1,now_()],
+    ['EMAIL2',APP_WORKING.email2,now_()],
     ['SMS_API_URL','',now_()],
     ['SMS_API_TOKEN','',now_()],
     ['LOGO_DATA','',now_()],
@@ -100,7 +100,7 @@ function seedConfig_(ss) {
 function seedAdmin_(ss) {
   const sh = ss.getSheetByName(SHEETS.ADMINS);
   if (sh.getLastRow() > 1) return;
-  sh.appendRow([1,'M-1/0001','Super Admin','','','superadmin',hash_('admin1234'),APP.email1,APP.hotline1,APP.hotline1,APP.address,'','','','M-1/0001','SUPER_ADMIN','ACTIVE',now_()]);
+  sh.appendRow([1,'M-1/0001','Super Admin','','','superadmin',hash_('admin1234'),APP_WORKING.email1,APP_WORKING.hotline1,APP_WORKING.hotline1,APP_WORKING.address,'','','','M-1/0001','SUPER_ADMIN','ACTIVE',now_()]);
   log_('SYSTEM','setup','ADMINS','Initial super admin created');
 }
 
@@ -146,12 +146,12 @@ function login(username,password) {
     if (role === 'SUPER_ADMIN' || role === 'SUPERADMIN') {
       const otp = generateOtp_();
       const otpHash = hash_(otp);
-      const expires = new Date(Date.now()+APP.otpMinutes*60000);
+      const expires = new Date(Date.now()+APP_WORKING.otpMinutes*60000);
       append_(SHEETS.OTP_LOG,[null,now_(),username,'EMAIL',otpHash,expires,'SENT']);
-      sendOtpEmail_(row.email || APP.email1,otp,username);
+      sendOtpEmail_(row.email || APP_WORKING.email1,otp,username);
       const token = Utilities.getUuid();
-      CacheService.getScriptCache().put('OTP:'+token, JSON.stringify({username,otpHash,expires:expires.getTime()}), APP.otpMinutes*60);
-      return {ok:true,requiresOtp:true,token:String(token),message:'OTP ইমেইলে পাঠানো হয়েছে।',emailMask:maskEmail_(row.email || APP.email1)};
+      CacheService.getScriptCache().put('OTP:'+token, JSON.stringify({username,otpHash,expires:expires.getTime()}), APP_WORKING.otpMinutes*60);
+      return {ok:true,requiresOtp:true,token:String(token),message:'OTP ইমেইলে পাঠানো হয়েছে।',emailMask:maskEmail_(row.email || APP_WORKING.email1)};
     }
 
     // Super Admin অনুমোদিত নতুন Admin-দের জন্য OTP ছাড়া সরাসরি Session।
@@ -180,9 +180,9 @@ function verifyLoginOtp(token,username,code) {
 function requestOtp(username) {
   const row=findBy_(SHEETS.ADMINS,'Username',String(username||'').trim());
   if(!row) return {ok:false,message:'ইউজার নেম পাওয়া যায়নি।'};
-  const otp=generateOtp_(), expires=new Date(Date.now()+APP.otpMinutes*60000);
+  const otp=generateOtp_(), expires=new Date(Date.now()+APP_WORKING.otpMinutes*60000);
   append_(SHEETS.OTP_LOG,[null,now_(),username,'EMAIL',hash_(otp),expires,'RESENT']);
-  sendOtpEmail_(row.Email||APP.email1,otp,username);
+  sendOtpEmail_(row.Email||APP_WORKING.email1,otp,username);
   return {ok:true,message:'নতুন OTP পাঠানো হয়েছে।'};
 }
 
@@ -238,37 +238,17 @@ function createDirectSession_(username,type){
 }
 
 function getModulesForSession_(token){
-  const s = auth_(token);
-  // Role check is intentionally first so Super Admin always receives the
-  // complete feature list even if the ADMIN row has incomplete Permissions.
-  if(s.accountType !== 'madrasa'){
-    const a = findBy_(SHEETS.ADMINS,'Username',s.username)||{};
-    const role = String(a.Role||'').toUpperCase().replace(/\\s+/g,'_');
-    if(role==='SUPER_ADMIN' || role==='SUPERADMIN') return getModules_();
-  }
-  const all = getModules_();
+  const s=auth_(token), all=getModules_();
   if(s.accountType==='madrasa'){
     const m=findBy_(SHEETS.MADRASAS,'Username',s.username)||{};
     const allowed=String(m.Permissions||'').split(',').map(x=>x.trim()).filter(Boolean);
     return all.filter(x=>allowed.includes(x[0]) || x[0]==='institution' || x[0]==='help');
   }
   const a=findBy_(SHEETS.ADMINS,'Username',s.username)||{};
+  const role=String(a.Role||'').toUpperCase();
+  if(role==='SUPER_ADMIN' || role==='SUPERADMIN') return all;
   const allowed=String(a.Permissions||'').split(',').map(x=>x.trim()).filter(Boolean);
   return all.filter(x=>allowed.includes(x[0]) || x[0]==='institution' || x[0]==='help');
-}
-function getModuleList(token,key){
-  auth_(token);
-  const map={
-    students:[SHEETS.STUDENTS,'student'],
-    teachers:[SHEETS.TEACHERS,'teacher'],
-    exams:[SHEETS.EXAM_REG,'exam'],
-    admins:[SHEETS.ADMINS,'admin'],
-    madrasas:[SHEETS.MADRASAS,'madrasa']
-  };
-  const item=map[String(key||'')];
-  if(!item) return {ok:false,message:'তালিকা ফিচার পাওয়া যায়নি।'};
-  requireFeature_(token,item[1]);
-  return {ok:true,key:String(key),rows:listRows_(item[0],token,5000)};
 }
 
 function isSuperAdmin_(token){
@@ -362,19 +342,12 @@ function logout(token) {
 
 function getBootstrap(token) {
   auth_(token);
-  // Dashboard bootstrap must never lose the Feature buttons because one
-  // optional dashboard component (stats/media/notices) failed.
-  const modules = getModulesForSession_(token);
-  let stats = {income:0,expense:0,cash:0,due:0,students:0,teachers:0,executives:0,femaleMadrasa:0,maleMadrasa:0,attendanceToday:{present:0,absent:0}};
-  let media = [];
-  let notices = [];
-  try { stats = getStats(token); } catch(e) {}
-  try { media = listMedia(token); } catch(e) {}
-  try { notices = listRows_(SHEETS.NOTICES,token,20); } catch(e) {}
   return {
-    ok:true, institution:APP,
-    stats, media, notices,
-    modules,
+    ok:true, institution:APP_WORKING,
+    stats:getStats(token),
+    media:listMedia(token),
+    notices:listRows_(SHEETS.NOTICES,token,20),
+    modules:getModulesForSession_(token),
     classes:getClasses_()
   };
 }
@@ -391,6 +364,7 @@ function getStats(token) {
 }
 
 function searchAll(token,signal,query) {
+  auth_(token);
   signal=String(signal||'').trim().toLowerCase();
   query=String(query||'').trim();
   if(!query) return {ok:false,message:'সার্চ আইডি দিন।'};
@@ -465,157 +439,128 @@ function sendQuickService(token,data) {
   auth_(token);
   const subject='Digital Platform Quick Service';
   const body='Name: '+(data.name||'')+'\nMobile: '+(data.mobile||'')+'\n\n'+(data.message||'');
-  MailApp.sendEmail(APP.email1,subject,body,{replyTo:data.email||APP.email1});
+  MailApp.sendEmail(APP_WORKING.email1,subject,body,{replyTo:data.email||APP_WORKING.email1});
   append_(SHEETS.CONTACTS,[nextSerial_(SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.CONTACTS)),'C-'+Date.now(),data.name||'',data.mobile||'',data.whatsapp||'',data.email||'','QUICK_SERVICE',data.message||'',now_()]);
   return {ok:true,message:'মেসেজ পাঠানো হয়েছে।'};
 }
 
-function getMediaRules_(){
-  // Media limits: 100 photos, 20 videos, 50 audio files.
-  return {video:{maxMB:50,maxCount:20},audio:{maxMB:50,maxCount:50},image:{maxMB:20,maxCount:100}};
-}
-function mediaDriveFolder_(){
-  const name='Jannatul Baqi Digital Platform - Media 2026';
+/* ===== DASHBOARD MEDIA STORAGE — Drive-backed, chunked upload ===== */
+const MEDIA_LIMITS_ = {image:20*1024*1024, audio:20*1024*1024, video:50*1024*1024};
+const MEDIA_COUNTS_ = {image:50, video:20, audio:50};
+
+function mediaFolder_(){
+  const name='Jannatul Baqi Digital Platform 2026 — Media';
   const it=DriveApp.getFoldersByName(name);
   return it.hasNext()?it.next():DriveApp.createFolder(name);
 }
-function mediaDriveUrl_(fileId,resourceKey){
-  const id=encodeURIComponent(String(fileId||''));
-  const rk=String(resourceKey||'').trim();
-  return 'https://drive.google.com/uc?export=download&id='+id+(rk?'&resourcekey='+encodeURIComponent(rk):'');
+function mediaType_(t){
+  t=String(t||'').toLowerCase();
+  return t==='image'||t==='video'||t==='audio'?t:'';
 }
-function mediaPreviewUrl_(fileId,resourceKey){
-  const id=encodeURIComponent(String(fileId||''));
-  const rk=String(resourceKey||'').trim();
-  return 'https://drive.google.com/file/d/'+id+'/preview'+(rk?'?resourcekey='+encodeURIComponent(rk):'');
-}
-function mediaTempFolder_(){
-  const name='Jannatul Baqi Digital Platform - Media Upload Temp 2026';
-  const it=DriveApp.getFoldersByName(name);
-  return it.hasNext()?it.next():DriveApp.createFolder(name);
-}
-function startMediaUpload(token,meta){
+function mediaValidate_(token,item){
   auth_(token); requireFeature_(token,'gallery');
-  meta=meta||{};
-  const type=String(meta.type||'').toLowerCase(), rules=getMediaRules_()[type];
-  if(!rules)return {ok:false,message:'মিডিয়া টাইপ সঠিক নয়।'};
-  const size=Number(meta.size||0);
-  if(size<=0||size>rules.maxMB*1024*1024)return {ok:false,message:type==='image'?'ফটোর সর্বোচ্চ সীমা 20 MB।':'ভিডিও/অডিওর সর্বোচ্চ সীমা 50 MB।'};
-  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
-  const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
-  if(rows.length>=rules.maxCount)return {ok:false,message:type==='image'?'সর্বোচ্চ 100টি ফটো রাখা যাবে।':'সর্বোচ্চ 50টি '+(type==='video'?'ভিডিও':'অডিও')+' রাখা যাবে।'};
-  const uploadId=Utilities.getUuid();
-  const folder=mediaTempFolder_();
-  folder.createFile(Utilities.newBlob(JSON.stringify({uploadId,type,name:String(meta.name||'media'),mimeType:String(meta.mimeType||'application/octet-stream'),size:size,created:Date.now()}),'application/json','META-'+uploadId+'.json'));
-  return {ok:true,uploadId:uploadId};
+  if(!item)return {ok:false,message:'ফাইল পাওয়া যায়নি।'};
+  const type=mediaType_(item.type), size=Number(item.size)||0;
+  if(!type)return {ok:false,message:'শুধু Photo, Audio অথবা Video ফাইল গ্রহণ করা হবে।'};
+  if(size<=0)return {ok:false,message:'ফাইলের আকার পাওয়া যায়নি।'};
+  if(size>MEDIA_LIMITS_[type])return {ok:false,message:type==='video'?'ভিডিও সর্বোচ্চ 50 MB হতে পারবে।':'ফটো/অডিও সর্বোচ্চ 20 MB হতে পারবে।'};
+  const activeRows=listRows_(SHEETS.MEDIA,token,5000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE');
+  const active=activeRows.filter(x=>mediaType_(x.Type)===type).length;
+  const imageAudio=activeRows.filter(x=>{const t=mediaType_(x.Type);return t==='image'||t==='audio';}).length;
+  if(type==='video'&&active>=20)return {ok:false,message:'সর্বোচ্চ 20টি Video সংরক্ষণ করা যাবে।'};
+  if((type==='image'||type==='audio')&&imageAudio>=50)return {ok:false,message:'Photo + Audio মিলিয়ে সর্বোচ্চ 50টি সংরক্ষণ করা যাবে।'};
+  return {ok:true,type:type,size:size};
 }
-function uploadMediaChunk(token,uploadId,index,base64){
-  auth_(token); requireFeature_(token,'gallery');
-  uploadId=String(uploadId||''); index=Number(index);
-  if(!uploadId||!isFinite(index)||index<0)return {ok:false,message:'Chunk তথ্য সঠিক নয়।'};
-  const raw=String(base64||''); if(!raw)return {ok:false,message:'Chunk ডাটা পাওয়া যায়নি।'};
-  const folder=mediaTempFolder_();
-  folder.createFile(Utilities.newBlob(Utilities.base64Decode(raw),'application/octet-stream','CHUNK-'+uploadId+'-'+String(index).padStart(6,'0')));
-  return {ok:true,index:index};
+
+function startMediaUpload(token,item){
+  const v=mediaValidate_(token,item); if(!v.ok)return v;
+  const mime=String(item.mimeType||'application/octet-stream');
+  const meta={name:String(item.name||('media-'+Date.now())),mimeType:mime,parents:[mediaFolder_().getId()]};
+  const url='https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable';
+  const res=UrlFetchApp.fetch(url,{method:'post',contentType:'application/json',headers:{Authorization:'Bearer '+ScriptApp.getOAuthToken(),'X-Upload-Content-Type':mime,'X-Upload-Content-Length':String(v.size)},payload:JSON.stringify(meta),muteHttpExceptions:true});
+  const code=res.getResponseCode(), headers=res.getAllHeaders();
+  const loc=headers.Location||headers.location;
+  if(code<200||code>=300||!loc)throw new Error('Drive media upload session তৈরি করা যায়নি।');
+  return {ok:true,sessionUrl:String(loc),type:v.type,size:v.size};
 }
-function finishMediaUpload(token,uploadId){
+
+function uploadMediaChunk(token,sessionUrl,start,endExclusive,total,chunkBase64){
   auth_(token); requireFeature_(token,'gallery');
-  uploadId=String(uploadId||''); if(!uploadId)return {ok:false,message:'Upload ID পাওয়া যায়নি।'};
-  const folder=mediaTempFolder_(), files=folder.getFiles(), chunks=[], metas=[];
-  while(files.hasNext()){
-    const f=files.next(), n=f.getName();
-    if(n==='META-'+uploadId+'.json')metas.push(f);
-    else if(n.indexOf('CHUNK-'+uploadId+'-')===0)chunks.push(f);
-  }
-  if(!metas.length||!chunks.length)return {ok:false,message:'আপলোডের অংশগুলো সম্পূর্ণ পাওয়া যায়নি।'};
-  let meta;
-  try{meta=JSON.parse(metas[0].getBlob().getDataAsString());}catch(e){return {ok:false,message:'Upload metadata নষ্ট হয়েছে।'};}
-  const type=String(meta.type||'').toLowerCase(),rules=getMediaRules_()[type];
-  if(!rules)return {ok:false,message:'মিডিয়া টাইপ সঠিক নয়।'};
-  chunks.sort((a,b)=>a.getName().localeCompare(b.getName()));
-  let total=0,bytes=[];
-  chunks.forEach(function(f){const b=f.getBlob().getBytes();total+=b.length;bytes=bytes.concat(b);});
-  if(total!==Number(meta.size||0))return {ok:false,message:'ফাইলের আকার মিলছে না। '+total+' / '+meta.size};
-  if(total>rules.maxMB*1024*1024)return {ok:false,message:'ফাইলের আকার অনুমোদিত সীমার বেশি।'};
-  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
-  const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
-  if(rows.length>=rules.maxCount)return {ok:false,message:type==='image'?'সর্বোচ্চ 100টি ফটো রাখা যাবে।':'সর্বোচ্চ 50টি '+(type==='video'?'ভিডিও':'অডিও')+' রাখা যাবে।'};
-  const file=mediaDriveFolder_().createFile(Utilities.newBlob(bytes,meta.mimeType||'application/octet-stream',meta.name||('media-'+Date.now())));
+  if(!sessionUrl||!chunkBase64)return {ok:false,message:'Upload chunk পাওয়া যায়নি।'};
+  const bytes=Utilities.base64Decode(String(chunkBase64));
+  const startN=Number(start)||0,endN=Number(endExclusive)||0,totalN=Number(total)||0;
+  if(endN<=startN||totalN<=0||endN>totalN)throw new Error('Invalid media chunk range.');
+  const res=UrlFetchApp.fetch(String(sessionUrl),{method:'put',contentType:'application/octet-stream',headers:{Authorization:'Bearer '+ScriptApp.getOAuthToken(),'Content-Range':'bytes '+startN+'-'+(endN-1)+'/'+totalN},payload:bytes,muteHttpExceptions:true});
+  const code=res.getResponseCode();
+  if(code===308)return {ok:true,done:false,nextStart:endN};
+  if(code===200||code===201){let obj={};try{obj=JSON.parse(res.getContentText()||'{}')}catch(e){}return {ok:true,done:true,fileId:obj.id||''};}
+  throw new Error('Drive upload chunk failed: '+code+' '+res.getContentText());
+}
+
+function finishMediaUpload(token,fileId,item){
+  auth_(token); requireFeature_(token,'gallery');
+  if(!fileId)return {ok:false,message:'Drive file ID পাওয়া যায়নি।'};
+  const file=DriveApp.getFileById(String(fileId));
   try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
-  const serial=nextSerial_(sh),mediaId='MED-'+Date.now();
-  sh.appendRow([serial,mediaId,type,meta.name||'','DRIVE:'+file.getId(),meta.mimeType||'',total,0,'ACTIVE',now_()]);
-  chunks.forEach(function(f){try{f.setTrashed(true);}catch(e){}}); metas.forEach(function(f){try{f.setTrashed(true);}catch(e){}});
-  return {ok:true,serial:serial,mediaId:mediaId};
-}
-function saveMediaForm(form){
-  const token=String(form&&form.token||'');
-  auth_(token); requireFeature_(token,'gallery');
-  const blob=form&&form.mediaFile;
-  if(!blob || typeof blob.getBytes!=='function') return {ok:false,message:'ফাইল পাওয়া যায়নি।'};
-  const mime=String(blob.getContentType()||'application/octet-stream');
-  const type=String(form.type||'').toLowerCase(),rules=getMediaRules_()[type];
-  if(!rules)return {ok:false,message:'মিডিয়া টাইপ সঠিক নয়।'};
-  const size=Number(blob.getBytes().length||0);
-  if(size<=0)return {ok:false,message:'ফাইল খালি।'};
-  if(size>rules.maxMB*1024*1024)return {ok:false,message:type==='image'?'ফটোর সর্বোচ্চ সীমা 20 MB।':'ভিডিও/অডিওর সর্বোচ্চ সীমা 50 MB।'};
+  const url='https://drive.google.com/uc?export=download&id='+encodeURIComponent(file.getId());
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
-  const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
-  if(rows.length>=rules.maxCount)return {ok:false,message:type==='image'?'সর্বোচ্চ 100টি ফটো রাখা যাবে।':'সর্বোচ্চ 50টি '+(type==='video'?'ভিডিও':'অডিও')+' রাখা যাবে।'};
-  const name=String(blob.getName()||('media-'+Date.now()));
-  const file=mediaDriveFolder_().createFile(blob.setName(name));
-  try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
-  const serial=nextSerial_(sh),mediaId='MED-'+Date.now();
-  sh.appendRow([serial,mediaId,type,name,'DRIVE:'+file.getId(),mime,size,0,'ACTIVE',now_()]);
-  return {ok:true,serial:serial,mediaId:mediaId};
+  const n=nextSerial_(sh), id='MED-'+Date.now();
+  sh.appendRow([n,id,mediaType_(item.type),item.name||file.getName(),url,item.mimeType||file.getMimeType(),Number(item.size)||file.getSize(),item.sort||0,'ACTIVE',now_()]);
+  return {ok:true,serial:n,mediaId:id,url:url};
 }
+
+/* Backward-compatible single-call endpoint for small files. */
 function saveMedia(token,item) {
-  auth_(token); requireFeature_(token,'gallery');
-  if(!item || !item.dataUrl) return {ok:false,message:'ফাইল পাওয়া যায়নি।'};
-  const type=String(item.type||'').toLowerCase(), rules=getMediaRules_()[type];
-  if(!rules) return {ok:false,message:'শুধু ফটো, ভিডিও বা অডিও ফাইল অনুমোদিত।'};
-  const size=Number(item.size||0);
-  if(size>rules.maxMB*1024*1024) return {ok:false,message:type==='image'?'ফটোর সর্বোচ্চ সীমা 20 MB।':'ভিডিও/অডিওর সর্বোচ্চ সীমা 50 MB।'};
-  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
-  const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
-  if(rows.length>=rules.maxCount) return {ok:false,message:type==='image'?'সর্বোচ্চ 100টি ফটো রাখা যাবে।':'সর্বোচ্চ 50টি '+(type==='video'?'ভিডিও':'অডিও')+' রাখা যাবে।'};
-  const raw=String(item.dataUrl).split(',')[1]||''; if(!raw)return {ok:false,message:'ফাইল ডাটা পাওয়া যায়নি।'};
-  const blob=Utilities.newBlob(Utilities.base64Decode(raw),item.mimeType||'application/octet-stream',item.name||('media-'+Date.now()));
-  const file=mediaDriveFolder_().createFile(blob);
-  try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
-  const serial=nextSerial_(sh), mediaId='MED-'+Date.now();
-  sh.appendRow([serial,mediaId,type,item.name||'','DRIVE:'+file.getId(),item.mimeType||'',size,item.sort||0,'ACTIVE',now_()]);
-  return {ok:true,serial:serial,mediaId:mediaId};
+  const v=mediaValidate_(token,item); if(!v.ok)return v;
+  if(!item.dataUrl)return {ok:false,message:'ফাইলের ডাটা পাওয়া যায়নি।'};
+  const comma=String(item.dataUrl).indexOf(',');
+  const b64=comma>=0?String(item.dataUrl).slice(comma+1):String(item.dataUrl);
+  const s=startMediaUpload(token,item); if(!s.ok)return s;
+  const c=uploadMediaChunk(token,s.sessionUrl,0,v.size,v.size,b64);
+  if(!c.done)return {ok:false,message:'ছোট ফাইল upload অসম্পূর্ণ।'};
+  return finishMediaUpload(token,c.fileId,item);
 }
-function listMedia(token) {
-  auth_(token);
-  return listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status||'').toUpperCase()==='ACTIVE').map(function(x){
-    if(String(x.DataURL||'').indexOf('DRIVE:')===0){
-      const id=String(x.DataURL).slice(6);
-      let rk='';
-      try{
-        const f=DriveApp.getFileById(id);
-        try{f.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
-        try{rk=String(f.getResourceKey()||'');}catch(e){}
-      }catch(e){}
-      x.DriveFileId=id;
+
+function mediaDirectUrl_(dataUrl){
+  const s=String(dataUrl||'');
+  const m=s.match(/[?&]id=([^&]+)/);
+  if(m) return 'https://drive.google.com/uc?export=download&id='+encodeURIComponent(decodeURIComponent(m[1]));
+  const d=s.match(/\/d\/([^/]+)/);
+  if(d) return 'https://drive.google.com/uc?export=download&id='+encodeURIComponent(d[1]);
+  return s;
+}
+function ensureMediaAccess_(rows){
+  return rows.map(function(x){
+    const url=String(x.DataURL||'');
+    const m=url.match(/[?&]id=([^&]+)/);
+    if(m){
+      const id=decodeURIComponent(m[1]);
+      try{ DriveApp.getFileById(id).setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW); }catch(e){}
+      x.DirectURL='https://drive.google.com/uc?export=download&id='+encodeURIComponent(id);
       x.FileID=id;
-      x.ResourceKey=rk;
-      x.DataURL=mediaDriveUrl_(id,rk);
-      x.DirectURL=x.DataURL;
-      x.PreviewURL=mediaPreviewUrl_(id,rk);
+    }else{
+      x.DirectURL=mediaDirectUrl_(url);
+      x.FileID='';
     }
     return x;
   });
 }
+function listMedia(token) {
+  auth_(token);
+  const rows=listRows_(SHEETS.MEDIA,token,500).filter(x=>String(x.Status).toUpperCase()==='ACTIVE');
+  return ensureMediaAccess_(rows);
+}
+
 function deleteMedia(token,serial) {
   auth_(token); requireFeature_(token,'gallery');
-  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA), last=sh.getLastRow();
-  if(last<2)return {ok:false,message:'মিডিয়া পাওয়া যায়নি।'};
-  const vals=sh.getRange(2,1,last-1,10).getValues(), idx=vals.findIndex(function(r){return String(r[0])===String(serial);});
-  if(idx<0)return {ok:false,message:'মিডিয়া পাওয়া যায়নি।'};
-  const dataUrl=String(vals[idx][4]||'');
-  if(dataUrl.indexOf('DRIVE:')===0){try{DriveApp.getFileById(dataUrl.slice(6)).setTrashed(true);}catch(e){}}
-  sh.deleteRow(idx+2); return {ok:true};
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
+  const vals=sh.getDataRange().getValues(), h=vals[0], row=vals.findIndex((r,i)=>i>0&&String(r[0])===String(serial));
+  if(row<1)throw new Error('Media record not found');
+  const url=String(vals[row][h.indexOf('DataURL')]||'');
+  const m=url.match(/[?&]id=([^&]+)/);
+  if(m){try{DriveApp.getFileById(decodeURIComponent(m[1])).setTrashed(true);}catch(e){}}
+  sh.deleteRow(row+1);
+  return {ok:true};
 }
 
 function uploadFile(token,item) {
@@ -641,7 +586,7 @@ function getLocations() {
 function getRunningNews_(){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.CONFIG); if(!sh||sh.getLastRow()<2)return 'জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম'; const v=sh.getDataRange().getValues(); for(let i=1;i<v.length;i++){ if(String(v[i][0])==='RUNNING_NEWS') return String(v[i][1]||''); } return 'জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম'; }
 function setRunningNews(token,text){ if(!isSuperAdmin_(token)) return {ok:false,message:'শুধু Super Admin চলমান নিউজ পরিবর্তন করতে পারবেন।'}; text=String(text||'').trim(); if(!text)return {ok:false,message:'নিউজ লিখুন।'}; const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.CONFIG), v=sh.getDataRange().getValues(), idx=v.findIndex((r,i)=>i>0&&String(r[0])==='RUNNING_NEWS'); if(idx<1) sh.appendRow(['RUNNING_NEWS',text,now_()]); else {sh.getRange(idx+1,2).setValue(text);sh.getRange(idx+1,3).setValue(now_());} log_(sessionUser_(token),'update','RUNNING_NEWS',text); return {ok:true,message:'চলমান নিউজ আপডেট হয়েছে।'}; }
 function getPublicConfig() {
-  return {ok:true,institution:APP,classes:getClasses_(),signals:getSignals_(),runningNews:getRunningNews_()};
+  return {ok:true,institution:APP_WORKING,classes:getClasses_(),signals:getSignals_(),runningNews:getRunningNews_()};
 }
 
 /* ---------- helpers ---------- */
@@ -666,11 +611,11 @@ function ensureSheet_(ss,name,headers) {
 }
 
 function append_(name,row){ SpreadsheetApp.getActiveSpreadsheet().getSheetByName(name).appendRow(row); }
-function now_(){ return Utilities.formatDate(new Date(),APP.timezone,'yyyy-MM-dd HH:mm:ss'); }
+function now_(){ return Utilities.formatDate(new Date(),APP_WORKING.timezone,'yyyy-MM-dd HH:mm:ss'); }
 function generateOtp_(){ return String(Math.floor(100000+Math.random()*900000)); }
 function hash_(s){ return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256,String(s),Utilities.Charset.UTF_8).map(b=>('0'+(b&255).toString(16)).slice(-2)).join(''); }
 function maskEmail_(e){ const p=String(e).split('@'); return p.length<2?'':p[0].slice(0,2)+'***@'+p[1]; }
-function sendOtpEmail_(to,otp,user){ MailApp.sendEmail(to,'Login OTP | Jannatul Baqi Digital Platform','Your login OTP is: '+otp+'\nUser: '+user+'\nValid for '+APP.otpMinutes+' minutes.'); }
+function sendOtpEmail_(to,otp,user){ MailApp.sendEmail(to,'Login OTP | Jannatul Baqi Digital Platform','Your login OTP is: '+otp+'\nUser: '+user+'\nValid for '+APP_WORKING.otpMinutes+' minutes.'); }
 function findAdminLogin_(username){
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ADMINS);
   if(!sh || sh.getLastRow()<2) return null;
@@ -705,12 +650,12 @@ function listRows_(sheet,token,limit){
   const v=sh.getDataRange().getValues(), h=v[0];
   return v.slice(1,Math.min(v.length,(limit||1000)+1)).map(r=>objectFrom_(h,r));
 }
-function objectFrom_(h,r){ const o={}; h.forEach((x,i)=>o[x]=r[i] instanceof Date?Utilities.formatDate(r[i],APP.timezone,'yyyy-MM-dd HH:mm:ss'):r[i]); return o; }
+function objectFrom_(h,r){ const o={}; h.forEach((x,i)=>o[x]=r[i] instanceof Date?Utilities.formatDate(r[i],APP_WORKING.timezone,'yyyy-MM-dd HH:mm:ss'):r[i]); return o; }
 function nextSerial_(sh){ return Math.max(0,sh.getLastRow()); }
 function countData_(s){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(s); return sh?Math.max(0,sh.getLastRow()-1):0; }
 function sumCol_(s,key){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(s); if(!sh||sh.getLastRow()<2)return 0; const h=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0],j=h.indexOf(key); if(j<0)return 0; return sh.getRange(2,j+1,sh.getLastRow()-1,1).getValues().reduce((a,r)=>a+(Number(r[0])||0),0); }
 function countMadrasa_(g){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MADRASAS); if(!sh||sh.getLastRow()<2)return 0; return sh.getRange(2,3,sh.getLastRow()-1,1).getValues().filter(r=>String(r[0])===g).length; }
-function attendanceToday_(){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ATTENDANCE); if(!sh||sh.getLastRow()<2)return {present:0,absent:0}; const h=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0],d=h.indexOf('Date'),s=h.indexOf('Status'),today=Utilities.formatDate(new Date(),APP.timezone,'yyyy-MM-dd'); let p=0,a=0; sh.getDataRange().getValues().slice(1).forEach(r=>{if(String(r[d]).slice(0,10)===today){if(String(r[s]).toLowerCase().includes('present'))p++;if(String(r[s]).toLowerCase().includes('absent'))a++;}}); return {present:p,absent:a};}
+function attendanceToday_(){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ATTENDANCE); if(!sh||sh.getLastRow()<2)return {present:0,absent:0}; const h=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0],d=h.indexOf('Date'),s=h.indexOf('Status'),today=Utilities.formatDate(new Date(),APP_WORKING.timezone,'yyyy-MM-dd'); let p=0,a=0; sh.getDataRange().getValues().slice(1).forEach(r=>{if(String(r[d]).slice(0,10)===today){if(String(r[s]).toLowerCase().includes('present'))p++;if(String(r[s]).toLowerCase().includes('absent'))a++;}}); return {present:p,absent:a};}
 function auth_(token){ const raw=CacheService.getScriptCache().get('SESSION:'+token); if(!raw)throw new Error('SESSION_EXPIRED'); return JSON.parse(raw); }
 function sessionUser_(token){ return auth_(token).username; }
 function getAdminSafe_(u){ const x=findBy_(SHEETS.ADMINS,'Username',u)||{}; delete x.PasswordHash; return x; }
@@ -735,91 +680,7 @@ function getModules_(){
     ['result','রেজাল্ট কার্ড'],['contact','কন্টাক্ট ম্যানেজ'],['tc','টিসি/ছাড়পত্র'],['admin','নতুন অ্যাডমিন একাউন্ট'],
     ['madrasa','নতুন মাদ্রাসা নিবন্ধন'],['admission','অনলাইন ভর্তি'],['payment','অনলাইন পেমেন্ট'],['attendance','ডিজিটাল হাজিরা'],
     ['gallery','ফটো গ্যালারি'],['files','অল ডকুমেন্টস/ফাইল'],['excel','Excel শীট'],['sms','SMS পোর্টাল'],
-    ['students','ছাত্র/ছাত্রী তালিকা'],['teachers','শিক্ষক/শিক্ষিকা তালিকা'],['exams','পরীক্ষার্থী তালিকা'],['admins','অ্যাডমিন তালিকা'],['madrasas','নতুন নিবন্ধনকৃত মাদ্রাসার তালিকা'],['certificate','সার্টিফিকেট'],
+    ['students','ছাত্র/ছাত্রী তালিকা'],['admins','অ্যাডমিন তালিকা'],['exams','পরীক্ষার্থী তালিকা'],['certificate','সার্টিফিকেট'],
     ['receipt','মানিরিসিট'],['accountControl','অনুমোদন + ফিচার পারমিশন'],['maleMadrasa','নিবন্ধনকৃত পুরুষ মাদ্রাসা'],['femaleMadrasa','নিবন্ধনকৃত মহিলা মাদ্রাসা'],['help','পরামর্শ+যোগ+অভিযোগ']
   ];
-}
-/* ===== DASHBOARD PERIOD SUMMARY — DAILY/WEEKLY/MONTHLY/YEARLY — 2026-09-22 ===== */
-function getDashboardPeriodStats(token, period) {
-  auth_(token);
-  period = String(period || 'দৈনিক').trim();
-  const tz = APP.timezone || Session.getScriptTimeZone() || 'Asia/Dhaka';
-  const now = new Date();
-  const todayKey = Utilities.formatDate(now, tz, 'yyyy-MM-dd');
-  const start = new Date(now);
-  const end = new Date(now);
-  if (period === 'সাপ্তাহিক') {
-    const dow = Number(Utilities.formatDate(now, tz, 'u')); // Mon=1 ... Sun=7
-    start.setDate(start.getDate() - (dow - 1));
-    start.setHours(0,0,0,0);
-    end.setDate(start.getDate() + 6);
-    end.setHours(23,59,59,999);
-  } else if (period === 'মাসিক') {
-    start.setDate(1);
-    start.setHours(0,0,0,0);
-    end.setMonth(end.getMonth() + 1, 0);
-    end.setHours(23,59,59,999);
-  } else if (period === 'বাৎসরিক') {
-    start.setMonth(0,1);
-    start.setHours(0,0,0,0);
-    end.setMonth(11,31);
-    end.setHours(23,59,59,999);
-  } else {
-    start.setHours(0,0,0,0);
-    end.setHours(23,59,59,999);
-    period = 'দৈনিক';
-  }
-
-  function inRange(v) {
-    if (v instanceof Date && !isNaN(v.getTime())) return v >= start && v <= end;
-    const s = String(v == null ? '' : v).trim();
-    if (!s) return false;
-    const d = new Date(s);
-    if (!isNaN(d.getTime())) return d >= start && d <= end;
-    return s.slice(0,10) >= Utilities.formatDate(start,tz,'yyyy-MM-dd') &&
-           s.slice(0,10) <= Utilities.formatDate(end,tz,'yyyy-MM-dd');
-  }
-  function sumPeriod_(sheetName, amountHeader, dateHeader) {
-    const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
-    if (!sh || sh.getLastRow() < 2) return 0;
-    const vals = sh.getDataRange().getValues();
-    const h = vals[0].map(String);
-    const ai = h.indexOf(amountHeader);
-    const di = h.indexOf(dateHeader);
-    if (ai < 0) return 0;
-    let total = 0;
-    vals.slice(1).forEach(row => {
-      if (di >= 0 && !inRange(row[di])) return;
-      const n = Number(String(row[ai] == null ? '' : row[ai]).replace(/[^0-9.-]/g,''));
-      if (isFinite(n)) total += n;
-    });
-    return total;
-  }
-  function attendancePeriod_() {
-    const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ATTENDANCE);
-    if (!sh || sh.getLastRow() < 2) return {present:0,absent:0};
-    const vals = sh.getDataRange().getValues();
-    const h = vals[0].map(String);
-    const di = h.indexOf('Date'), si = h.indexOf('Status');
-    let present=0, absent=0;
-    if (di < 0 || si < 0) return {present:0,absent:0};
-    vals.slice(1).forEach(row => {
-      if (!inRange(row[di])) return;
-      const s = String(row[si] == null ? '' : row[si]).toLowerCase();
-      if (s.includes('present') || s.includes('উপস্থিত')) present++;
-      else if (s.includes('absent') || s.includes('অনুপস্থিত')) absent++;
-    });
-    return {present,absent};
-  }
-
-  const income = sumPeriod_(SHEETS.PAYMENTS,'Amount','Date');
-  const expense = sumPeriod_(SHEETS.EXPENSES,'Amount','Date');
-  const att = attendancePeriod_();
-  return {
-    ok:true, period,
-    income, expense, cash:income-expense, due:0,
-    attendance:{present:att.present,absent:att.absent},
-    rangeStart:Utilities.formatDate(start,tz,'yyyy-MM-dd'),
-    rangeEnd:Utilities.formatDate(end,tz,'yyyy-MM-dd')
-  };
 }
