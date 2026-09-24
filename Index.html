@@ -945,14 +945,47 @@ if(k==='student')d.Gender='';const r=await call('saveRecord',token,s,d);toast(r.
 async function saveAdmin(){const photo=await fileData('aPhoto');const d={NameBN:$('aName').value,NameAR:$('aAr').value,NameEN:$('aEn').value,Username:$('aUser').value,Password:$('aPass').value,Email:$('aEmail').value,Mobile:$('aMobile').value,WhatsApp:$('aWa').value,ApprovalID:$('aApproval').value,Address:$('aAddress').value,Photo:photo,BirthReg:$('aBirth').value,NID:$('aNid').value};const r=await call('createAdmin',token,d);toast(r.message||('Admin ID: '+r.adminId))}
 async function savePayment(){const d={StudentID:$('pStudent').value,Name:$('pName').value,Month:$('pMonth').value,Category:$('pCat').value,Amount:Number($('pAmount').value),Method:$('pMethod').value,Date:new Date().toISOString(),Note:$('pNote').value};const r=await call('saveRecord',token,'PAYMENTS',d);toast(r.ok?'Payment saved':'Failed');}
 async function saveResult(k){const d={StudentID:$('rStudent').value,Name:$('rName').value,Class:$('rClass').value,Exam:$('rExam').value,SubjectData:$('rSubjects').value,Published:'NO',Date:new Date().toISOString()};const r=await call('saveRecord',token,'RESULTS',d);toast(r.ok?'Saved':'Failed')}
-async function uploadMedia(){
-  const fs=[...$('mediaFiles').files];if(!fs.length)return toast('ফাইল নির্বাচন করুন।');
-  for(const f of fs){const type=f.type.startsWith('image/')?'image':f.type.startsWith('video/')?'video':f.type.startsWith('audio/')?'audio':'';if(!type){toast(f.name+' অনুমোদিত নয়।');continue}const max=type==='image'?20:50;if(f.size>max*1024*1024){toast(f.name+' — সর্বোচ্চ '+max+' MB।');continue}const x=await readFile(f),r=await call('saveMedia',token,{type:type,name:f.name,mimeType:f.type,size:f.size,dataUrl:x});if(!r||!r.ok){toast((r&&r.message)||('আপলোড ব্যর্থ: '+f.name));break}}
-  media=await call('listMedia',token);renderMedia();renderMediaList();toast('মিডিয়া আপলোড সম্পন্ন');
-}
-function renderMediaList(){const box=$('mediaList');if(!box)return;box.innerHTML=media.map(function(x,i){return '<div class="media-list-item"><span>'+escapeHtml(x.Name||('Media '+(i+1)))+'</span><button type="button" class="secondary" onclick="deleteMediaByIndex('+i+')">🗑 Delete</button></div>';}).join('');}
-async function deleteMediaByIndex(i){if(!media[i])return;const r=await call('deleteMedia',token,media[i].Serial);if(r&&r.ok){media.splice(i,1);if(mediaIndex>=media.length)mediaIndex=Math.max(0,media.length-1);renderMedia();renderMediaList();toast('মিডিয়া মুছে ফেলা হয়েছে।')}else toast((r&&r.message)||'ডিলিট ব্যর্থ')}
-async function fileData(id){const f=$(id)?.files?.[0];return f?await readFile(f):''}function readFile(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f)})}
+async async function uploadMedia(){
+  const input=$('mediaFiles');
+  const files=input&&input.files?[...input.files]:[];
+  if(!files.length)return toast('ফাইল নির্বাচন করুন।');
+  const originalParent=input.parentNode, originalNext=input.nextSibling;
+  const form=document.createElement('form');
+  form.style.display='none';
+  const tokenField=document.createElement('input');tokenField.name='token';tokenField.value=token;
+  const typeField=document.createElement('input');typeField.name='type';
+  form.appendChild(tokenField);form.appendChild(typeField);
+  document.body.appendChild(form);
+  let okCount=0;
+  try{
+    for(let i=0;i<files.length;i++){
+      const f=files[i];
+      const type=f.type.startsWith('image/')?'image':f.type.startsWith('video/')?'video':f.type.startsWith('audio/')?'audio':'';
+      if(!type){toast(f.name+' অনুমোদিত নয়।');continue}
+      const max=type==='image'?20:50;
+      if(f.size>max*1024*1024){toast(f.name+' — সর্বোচ্চ '+max+' MB।');continue}
+      typeField.value=type;
+      const dt=new DataTransfer();dt.items.add(f);
+      input.files=dt.files;
+      form.appendChild(input);
+      toast('⏳ '+f.name+' আপলোড হচ্ছে... ('+(i+1)+'/'+files.length+')');
+      const r=await call('saveMediaForm',form);
+      if(!r||!r.ok){toast((r&&r.message)||('আপলোড ব্যর্থ: '+f.name));break}
+      okCount++;
+      originalParent.insertBefore(input,originalNext);
+    }
+  }catch(e){
+    toast('মিডিয়া আপলোড সার্ভার ত্রুটি: '+(e&&e.message?e.message:e));
+  }finally{
+    try{originalParent.insertBefore(input,originalNext)}catch(e){}
+    try{form.remove()}catch(e){}
+  }
+  const listed=await call('listMedia',token);
+  media=Array.isArray(listed)?listed:[];
+  mediaIndex=media.length?Math.min(mediaIndex,media.length-1):0;
+  renderMedia();renderMediaList();
+  if(okCount)toast('✅ '+okCount+'টি মিডিয়া আপলোড সম্পন্ন');
+}async function fileData(id){const f=$(id)?.files?.[0];return f?await readFile(f):''}function readFile(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f)})}
 async function doSearch(where){const sig=$(where==='login'?'loginSignal':'appSignal').value,q=$(where==='login'?'loginSearch':'appSearch').value.trim();if(!sig)return toast('প্রথমে সংকেত নির্বাচন করুন।');if(!q)return toast('ID / মোবাইল / ইমেইল দিন।');const r=await call('searchAll',token,sig,q);if(!r.ok)return toast(r.message);$('searchBody').innerHTML=`<h3>${r.signal} / ${r.query} — ${r.count} ফলাফল</h3>`+table(r.matches);openWindow('searchWin')}
 function table(rows){if(!rows.length)return '<p>কোন তথ্য পাওয়া যায়নি।</p>';const h=Object.keys(rows[0]);return '<div class="table-wrap"><table class="data-table"><thead><tr>'+h.map(x=>`<th>${x}</th>`).join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+h.map(x=>`<td>${String(r[x]??'')}</td>`).join('')+'</tr>').join('')+'</tbody></table></div>'}
 async function loadSheet(){var u=window.currentUser||{};var role=String(u.Role||u.role||'').toUpperCase().replace(/\s+/g,'_');if(role!=='SUPER_ADMIN'&&role!=='SUPERADMIN'){closeWindow('sheetWin');return toast('শুধু Super Admin মূল শিটে প্রবেশ করতে পারবেন।')}const s=$('sheetSelect').value;if(!s)return;const r=await call('getSheetData',token,s,300);if(!r||!r.ok)return toast((r&&r.message)||'শিট ডাটা পাওয়া যায়নি।');$('sheetBody').innerHTML=table(r.rows)}
@@ -2292,7 +2325,91 @@ body{padding-top:0!important}
   window.listSave=function(i){var r=currentListRows[i]||{},row=document.getElementById('listRow'+i);if(!row)return;var data={},heads=LIST_HEADS[currentListKey]||[];heads.forEach(function(k){var x=row.querySelector('[data-edit-key="'+CSS.escape(k)+'"]');if(x)data[k]=x.value});if(!Object.keys(data).length)return toast('আগে ✏️ এডিট চাপুন।');var serial=r.Serial;call('updateRecord',token,LIST_SHEETS[currentListKey],serial,data).then(function(v){if(v&&v.ok){Object.keys(data).forEach(function(k){r[k]=data[k]});toast('সেভ/সংরক্ষণ সফল হয়েছে।');renderList()}else toast((v&&v.message)||'সেভ ব্যর্থ হয়েছে।')}).catch(function(e){toast('সেভ সার্ভার ত্রুটি: '+(e&&e.message?e.message:e))})};
   window.listPrintOne=function(i){var r=currentListRows[i]||{};var title=LIST_LABELS[currentListKey]||'তালিকা';var html='<h2>'+esc(title)+'</h2><table border="1" cellspacing="0" cellpadding="6">'+Object.keys(r).map(function(k){return '<tr><th>'+esc(k)+'</th><td>'+esc(r[k])+'</td></tr>'}).join('')+'</table>';var w=window.open('','_blank');w.document.write('<!doctype html><html><body>'+html+'</body></html>');w.document.close();w.print()};
   window.listDownloadOne=function(i){var r=currentListRows[i]||{};var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(r,null,2)],{type:'application/json'}));a.download=(LIST_LABELS[currentListKey]||'record')+'-'+(r.Serial||i+1)+'.json';document.body.appendChild(a);a.click();a.remove()};
-  window.printModuleList=function(){var box=$('moduleListBody');if(!box)return;var w=window.open('','_blank');w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>'+esc(LIST_LABELS[currentListKey]||'List')+'</title><style>body{font-family:Arial}.data-table{border-collapse:collapse;width:100%}.data-table th,.data-table td{border:1px solid #333;padding:5px}.list-actions{display:none!important}</style></head><body><h2>'+esc(LIST_LABELS[currentListKey]||'List')+'</h2>'+box.innerHTML+'</body></html>');w.document.close();setTimeout(function(){w.print()},300)};
+  window.printModuleList=function(){var box=$('moduleListBody');if(!box)return;var w=window.open('','_blank');w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>'+esc(LIST_LABELS[currentListKey]||'List')+'</title><style>body{font-family:Arial}.data-table{border-collapse:collapse;width:100%}.data-table th,.data-table td{border:1px solid #333;padding:5px}.list-actions{display:none!important}</style></head><body><h2>'+esc(LIST_LABELS[currentListKey]||'List')+'</h2>'+box.innerHTML+'<script id="final-media-play-delete-fix-2026-09-24">
+(function(){
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]})}
+  function mediaRows(r){return Array.isArray(r)?r:(r&&Array.isArray(r.rows)?r.rows:[])}
+  function mediaUrl(x){return String((x&&x.DirectURL)||(x&&x.DataURL)||(x&&x.PreviewURL)||'').trim()}
+
+  window.renderMedia=function(){
+    const box=$('mediaStageContent');if(!box)return;
+    if(!window.media||!media.length){
+      box.innerHTML='<span>মিডিয়া আপলোড করে স্লাইড দেখুন</span>';
+      return;
+    }
+    const x=media[mediaIndex%media.length],u=mediaUrl(x);
+    if(!u){
+      box.innerHTML='<span>মিডিয়ার লিংক পাওয়া যায়নি।</span>';
+      return;
+    }
+    if(String(x.Type).toLowerCase()==='image'){
+      box.innerHTML='<img src="'+esc(u)+'" alt="'+esc(x.Name||'')+'" loading="eager">';
+    }else if(String(x.Type).toLowerCase()==='video'){
+      box.innerHTML='<video src="'+esc(u)+'" controls preload="metadata" playsinline webkit-playsinline muted autoplay></video>';
+      const v=box.querySelector('video');
+      if(v){
+        v.addEventListener('loadedmetadata',function(){v.play().catch(function(){});},{once:true});
+        v.addEventListener('error',function(){toast('ভিডিওটি চালানো যাচ্ছে না — Drive ফাইলের sharing/link পরীক্ষা করুন।');},{once:true});
+      }
+    }else{
+      box.innerHTML='<audio src="'+esc(u)+'" controls preload="metadata"></audio>';
+    }
+    const b=$('mediaPlayBtn');if(b)b.textContent='▶ Play';
+  };
+
+  window.renderMediaList=function(){
+    const box=$('mediaList');if(!box)return;
+    box.innerHTML=(window.media||[]).map(function(x,i){
+      const label=esc(x.Name||('Media '+(i+1)));
+      return '<div class="media-list-item"><span>'+label+'</span><button type="button" class="secondary" onclick="deleteMediaByIndex('+i+')">🗑 Delete</button></div>';
+    }).join('');
+  };
+
+  window.deleteMediaByIndex=async function(i){
+    const item=window.media&&media[i];if(!item)return toast('মিডিয়া পাওয়া যায়নি।');
+    if(!window.confirm('“'+(item.Name||'এই মিডিয়া')+'” ডিলেট করবেন?'))return;
+    try{
+      const key=item.MediaID||item.Serial;
+      const r=await call('deleteMedia',token,key);
+      if(!r||!r.ok)return toast((r&&r.message)||'ডিলেট ব্যর্থ হয়েছে।');
+      media.splice(i,1);
+      if(mediaIndex>=media.length)mediaIndex=Math.max(0,media.length-1);
+      renderMedia();renderMediaList();
+      toast('✅ মিডিয়া ডিলেট হয়েছে।');
+    }catch(e){toast('ডিলেট সার্ভার ত্রুটি: '+(e&&e.message?e.message:e));}
+  };
+
+  window.deleteCurrentMedia=async function(){
+    if(!media||!media.length)return toast('ডিলেট করার মিডিয়া নেই।');
+    return window.deleteMediaByIndex(mediaIndex%media.length);
+  };
+
+  window.toggleMediaPlay=function(){
+    if(!media||!media.length)return toast('আগে মিডিয়া আপলোড করুন।');
+    const box=$('mediaStageContent'),el=box&&box.querySelector('video,audio'),pb=$('mediaPlayBtn');
+    if(!el)return;
+    if(el.paused){
+      el.play().then(function(){if(pb)pb.textContent='⏸ Pause';}).catch(function(){toast('প্লে করা যাচ্ছে না।');});
+    }else{
+      el.pause();if(pb)pb.textContent='▶ Play';
+    }
+  };
+  window.nextMedia=function(){if(media&&media.length){mediaIndex=(mediaIndex+1)%media.length;renderMedia();}};
+  window.prevMedia=function(){if(media&&media.length){mediaIndex=(mediaIndex-1+media.length)%media.length;renderMedia();}};
+
+  async function refreshMedia(){
+    try{
+      const listed=await call('listMedia',token);
+      media=mediaRows(listed);
+      mediaIndex=media.length?Math.min(mediaIndex,media.length-1):0;
+      renderMedia();renderMediaList();
+    }catch(e){toast('মিডিয়া তালিকা লোড হচ্ছে...');}
+  }
+  window.refreshMedia=refreshMedia;
+  document.addEventListener('DOMContentLoaded',function(){setTimeout(refreshMedia,250);});
+})();
+</script>
+</body></html>');w.document.close();setTimeout(function(){w.print()},300)};
   window.downloadModuleList=function(){var data=JSON.stringify(currentListRows,null,2),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type:'application/json'}));a.download=(LIST_LABELS[currentListKey]||'List')+'.json';document.body.appendChild(a);a.click();a.remove()};
   window.listPayment=function(i){var r=currentListRows[i]||{};baseOpenModule('payment');setTimeout(function(){if($('pStudent'))$('pStudent').value=r.StudentID||r.StudentID||r.MadrasaID||r.AdminID||'';if($('pName'))$('pName').value=r.NameBN||r.Name||''},50)};
   window.openModule=function(key){if(LIST_LABELS[key])return showList(key);return baseOpenModule(key)};
