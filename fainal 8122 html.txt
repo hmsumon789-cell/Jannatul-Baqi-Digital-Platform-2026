@@ -8581,3 +8581,55 @@ body.dark .all-list-head,body.dark .all-list-row{background:#000!important;color
   setInterval(bind,500);
 })();
 </script>
+
+
+<!-- ===== FINAL ALL LIST + CLASS LIST UI FIX — 2026-09-30 ===== -->
+<style id="final-all-class-list-ui-fix">
+#app .dashboard-title-left{display:flex!important;align-items:center!important;gap:7px!important;flex-wrap:nowrap!important}
+#app .dashboard-title-left #featureSelect{flex:0 0 auto!important}
+#app .dashboard-title-left #allListBtn,#app .dashboard-title-left #classListBtn{display:inline-flex!important;align-items:center!important;justify-content:center!important;white-space:nowrap!important;min-height:44px!important;font-weight:900!important}
+#app .dashboard-title-left #allListBtn{min-width:130px!important}
+#app .dashboard-title-left #classListBtn{min-width:245px!important}
+#rightModules #allListBtn,#rightModules #classListBtn{display:none!important}
+@media(max-width:1100px){#app .dashboard-title-left{flex-wrap:wrap!important}.dashboard-title-left #classListBtn{min-width:0!important}}
+</style>
+<script id="final-all-class-list-ui-fix-js">
+(function(){
+  var SIGNALS=[['std','ছাত্র/ছাত্রী তালিকা'],['thr','শিক্ষক/শিক্ষিকা তালিকা'],['olp','অন লাইন পেমেন্ট তালিকা'],['mrs','মার্কশিট তালিকা'],['rjt','রেজাল্ট তালিকা'],['adm','নতুন অ্যাডমিন তালিকা'],['npn','নতুন পরীক্ষার্থী নিবন্ধন তালিকা'],['npt','নিবন্ধন কৃত পুরুষ মাদ্রাসার তালিকা'],['nmt','নিবন্ধন কৃত মহিলা মাদ্রাসার তালিকা'],['ofd','অনলাইন+মোবাইল এর মাধ্যমে ফলাফল দেখা তালিকা'],['cft','সার্টিফিকেট/সনদপত্র তালিকা'],['idc','আইডি কার্ড তালিকা'],['adc','এডমিট কার্ড তালিকা'],['rct','রিসিট তালিকা'],['tcp','টিসি/ছাড়পত্র তালিকা']];
+  var CLASSES=['প্লে শ্রেনি','শিশু শ্রেনি','আউয়াল জামাত','ছানী জামাত','ছালেছ জামাত','রাবে জামাত','পঞ্চম জামাত','মিজান জামাত','নাহবেমীর জামাত','কুদুরী জামাত','শরহে বেকায়া জামাত','হেদায়া জামাত','মেশকাত জামাত','দাওরায়ে হাদীস(তাকমিল-মাস্টার্স)'];
+  window.ALL_LIST_SIGNALS=SIGNALS;window.ALL_CLASS_LIST=CLASSES;
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(x){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]})}
+  function ensureWin(id,title){
+    var w=document.getElementById(id);if(w)return w;
+    w=document.createElement('div');w.id=id;w.className='window';
+    w.innerHTML='<div class="all-list-head"><b>'+title+'</b><button type="button" class="secondary" onclick="document.getElementById(\''+id+'\').classList.remove(\'show\')">✕ বন্ধ</button></div><div id="'+id+'Tools" class="all-list-tools"></div><div id="'+id+'Body" class="all-list-body"></div>';
+    document.body.appendChild(w);return w;
+  }
+  function moveButtons(){
+    var host=document.querySelector('#app .dashboard-title-left');if(!host)return;
+    var all=document.getElementById('allListBtn'),cls=document.getElementById('classListBtn');
+    if(all&&all.parentElement!==host)host.appendChild(all);
+    if(cls&&cls.parentElement!==host)host.appendChild(cls);
+    if(!all){all=document.createElement('button');all.id='allListBtn';all.type='button';all.className='primary';all.textContent='📋 অল তালিকা';host.appendChild(all)}
+    if(!cls){cls=document.createElement('button');cls.id='classListBtn';cls.type='button';cls.className='primary';cls.textContent='📚 শ্রেনি/ক্লাশ/জামাত ওয়ারী তালিকা';host.appendChild(cls)}
+    all.onclick=function(e){if(e)e.preventDefault();window.openAllList()};
+    cls.onclick=function(e){if(e)e.preventDefault();window.openClassList()};
+  }
+  function openAll(){
+    var w=ensureWin('allListWin','📋 অল তালিকা'),t=document.getElementById('allListWinTools');
+    t.innerHTML='<select id="allListSignal" class="field"><option value="">তালিকা নির্বাচন করুন</option>'+SIGNALS.map(function(x){return '<option value="'+x[0]+'">'+x[0]+' — '+x[1]+'</option>'}).join('')+'</select>';
+    w.classList.add('show');
+    var s=document.getElementById('allListSignal');if(s)s.onchange=function(){if(this.value&&typeof window.loadAllList==='function')window.loadAllList()};
+  }
+  function openClass(){
+    var w=ensureWin('classListWin','📚 শ্রেনি/ক্লাশ/জামাত ওয়ারী তালিকা'),t=document.getElementById('classListWinTools');
+    t.innerHTML='<select id="classListSelect" class="field"><option value="">শ্রেনি/ক্লাশ/জামাত নির্বাচন করুন</option>'+CLASSES.map(function(x){return '<option value="'+esc(x)+'">'+esc(x)+'</option>'}).join('')+'</select>';
+    w.classList.add('show');
+    var s=document.getElementById('classListSelect');if(s)s.onchange=function(){if(this.value&&typeof window.loadClassList==='function')window.loadClassList()};
+  }
+  window.openAllList=openAll;window.openClassList=openClass;
+  function init(){moveButtons()}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(init,300)});else setTimeout(init,300);
+  setInterval(moveButtons,700);
+})();
+</script>
