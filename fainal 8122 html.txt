@@ -8014,9 +8014,21 @@ body.gold #searchProfilePrint .sp-field{border-color:#d40000!important}
     }catch(e){}
   }
 
+  function getToken(){
+    try{if(typeof token!=='undefined'&&token)return token;}catch(e){}
+    return window.token||'';
+  }
+  function arrUnique(){
+    var m=Array.isArray(window.media)?window.media:[],seen={},out=[];
+    m.forEach(function(x){
+      var k=String((x&&x.Serial)||((x&&x.FileID)||((x&&x.DriveFileId)||''))||((x&&x.Name)||''));
+      if(!seen[k]){seen[k]=1;out.push(x);}
+    });
+    window.media=out;return out;
+  }
   function renderList(){
     var box=document.getElementById('mediaList');if(!box)return;
-    var m=arr();
+    var m=arrUnique();
     box.innerHTML=m.map(function(x,i){
       var active=(i===Number(window.mediaIndex||0))?' style="font-weight:900"':'';
       return '<div class="media-list-item"><span'+active+'>'+esc(x.Name||('Media '+(i+1)))+'</span>'+
@@ -8025,32 +8037,29 @@ body.gold #searchProfilePrint .sp-field{border-color:#d40000!important}
   }
 
   async function refresh(){
-    if(loading||typeof window.call!=='function'||!window.token)return;
+    var tk=getToken();
+    if(loading||typeof window.call!=='function'||!tk)return;
     loading=true;
     try{
-      var r=await window.call('listMedia',window.token);
+      var r=await window.call('listMedia',tk);
       var m=Array.isArray(r)?r:(r&&Array.isArray(r.media)?r.media:(r&&Array.isArray(r.rows)?r.rows:[]));
-      window.media=m||[];
-      norm();
-      draw();
+      window.media=m||[];arrUnique();norm();draw();
     }catch(e){}
     loading=false;
   }
 
   async function del(i){
-    var m=arr(), x=m[i];if(!x)return;
+    var m=arrUnique(),x=m[i],tk=getToken();
+    if(!x||!tk)return;
     try{
-      var r=await window.call('deleteMedia',window.token,x.Serial);
+      var serial=x.Serial||x.serial||x.ID||x.Id||x.FileID||x.DriveFileId||x.Name;
+      var r=await window.call('deleteMedia',tk,serial);
       if(r&&r.ok){
-        m.splice(i,1);
+        m.splice(i,1);window.media=m;
         if(window.mediaIndex>=m.length)window.mediaIndex=Math.max(0,m.length-1);
-        draw();
-        renderList();
-        setTimeout(refresh,100);
+        draw();renderList();setTimeout(refresh,100);
         if(typeof window.toast==='function')window.toast('মিডিয়া মুছে ফেলা হয়েছে।');
-      }else if(typeof window.toast==='function'){
-        window.toast((r&&r.message)||'ডিলিট ব্যর্থ');
-      }
+      }else if(typeof window.toast==='function')window.toast((r&&r.message)||'ডিলিট ব্যর্থ');
     }catch(e){
       if(typeof window.toast==='function')window.toast('ডিলিটে সার্ভার ত্রুটি হয়েছে।');
     }
@@ -8059,23 +8068,13 @@ body.gold #searchProfilePrint .sp-field{border-color:#d40000!important}
   window.renderMedia=draw;
   window.renderMediaList=renderList;
   window.deleteMediaByIndex=del;
-  window.nextMedia=function(){
-    var m=arr();if(!m.length)return;
-    window.mediaIndex=(Number(window.mediaIndex||0)+1)%m.length;draw();autoplay();
-  };
-  window.prevMedia=function(){
-    var m=arr();if(!m.length)return;
-    window.mediaIndex=(Number(window.mediaIndex||0)-1+m.length)%m.length;draw();autoplay();
-  };
+  window.nextMedia=function(){var m=arrUnique();if(!m.length)return;window.mediaIndex=(Number(window.mediaIndex||0)+1)%m.length;draw();autoplay()};
+  window.prevMedia=function(){var m=arrUnique();if(!m.length)return;window.mediaIndex=(Number(window.mediaIndex||0)-1+m.length)%m.length;draw();autoplay()};
   window.toggleMediaPlay=function(){autoplay()};
 
   document.addEventListener('click',function(e){
     var b=e.target.closest&&e.target.closest('[data-direct-media-delete]');
-    if(b){
-      e.preventDefault();e.stopPropagation();
-      del(Number(b.getAttribute('data-direct-media-delete')));
-      return;
-    }
+    if(b){e.preventDefault();e.stopPropagation();del(Number(b.getAttribute('data-direct-media-delete')));}
   },true);
 
   function boot(){
