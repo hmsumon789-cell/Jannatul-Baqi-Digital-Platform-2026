@@ -8633,3 +8633,36 @@ body.dark .all-list-head,body.dark .all-list-row{background:#000!important;color
   setInterval(moveButtons,700);
 })();
 </script>
+
+
+<!-- ===== FINAL LIST POSITION + LOAD REPAIR — 2026-09-30 ===== -->
+<style id="final-list-position-load-repair">
+#app .dashboard-title-left #classListBtn{display:inline-flex!important;min-width:245px!important;white-space:nowrap!important}
+#app #rightModules #allListBtn{display:inline-flex!important;grid-column:1/-1!important;width:100%!important;min-height:58px!important;order:999!important}
+</style>
+<script id="final-list-position-load-repair-js">
+(function(){
+  var SIG=[['std','ছাত্র/ছাত্রী তালিকা'],['thr','শিক্ষক/শিক্ষিকা তালিকা'],['olp','অন লাইন পেমেন্ট তালিকা'],['mrs','মার্কশিট তালিকা'],['rjt','রেজাল্ট তালিকা'],['adm','নতুন অ্যাডমিন তালিকা'],['npn','নতুন পরীক্ষার্থী নিবন্ধন তালিকা'],['npt','নিবন্ধন কৃত পুরুষ মাদ্রাসার তালিকা'],['nmt','নিবন্ধন কৃত মহিলা মাদ্রাসার তালিকা'],['ofd','অনলাইন+মোবাইল এর মাধ্যমে ফলাফল দেখা তালিকা'],['cft','সার্টিফিকেট/সনদপত্র তালিকা'],['idc','আইডি কার্ড তালিকা'],['adc','এডমিট কার্ড তালিকা'],['rct','রিসিট তালিকা'],['tcp','টিসি/ছাড়পত্র তালিকা']];
+  var CLS=['প্লে শ্রেনি','শিশু শ্রেনি','আউয়াল জামাত','ছানী জামাত','ছালেছ জামাত','রাবে জামাত','পঞ্চম জামাত','মিজান জামাত','নাহবেমীর জামাত','কুদুরী জামাত','শরহে বেকায়া জামাত','হেদায়া জামাত','মেশকাত জামাত','দাওরায়ে হাদীস(তাকমিল-মাস্টার্স)'];
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(x){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]})}
+  function place(){
+    var left=document.querySelector('#app .dashboard-title-left'),right=document.getElementById('rightModules');if(!left||!right)return;
+    var cls=document.getElementById('classListBtn');
+    if(cls&&cls.parentElement!==left)left.appendChild(cls);
+    var all=document.getElementById('allListBtn');
+    if(all&&all.parentElement!==right)right.appendChild(all);
+  }
+  function ensureAll(){
+    var w=document.getElementById('allListWin');if(!w){w=document.createElement('div');w.id='allListWin';w.className='window';w.innerHTML='<div class="all-list-head"><b>📋 অল তালিকা</b><button type="button" class="secondary" onclick="this.closest(\'.window\').classList.remove(\'show\')">✖ বন্ধ</button></div><div id="allListWinTools" class="all-list-tools"></div><div id="allListWinBody" class="all-list-body"></div>';document.body.appendChild(w)}return w;
+  }
+  function ensureClass(){
+    var w=document.getElementById('classListWin');if(!w){w=document.createElement('div');w.id='classListWin';w.className='window';w.innerHTML='<div class="all-list-head"><b>📚 শ্রেনি/ক্লাশ/জামাত ওয়ারী তালিকা</b><button type="button" class="secondary" onclick="this.closest(\'.window\').classList.remove(\'show\')">✖ বন্ধ</button></div><div id="classListWinTools" class="all-list-tools"></div><div id="classListWinBody" class="all-list-body"></div>';document.body.appendChild(w)}return w;
+  }
+  window.openAllList=function(){var w=ensureAll(),t=document.getElementById('allListWinTools');t.innerHTML='<select id="allListSignal" class="field"><option value="">তালিকা নির্বাচন করুন</option>'+SIG.map(function(x){return '<option value="'+x[0]+'">'+x[0]+' — '+x[1]+'</option>'}).join('')+'</select>';w.classList.add('show');var s=document.getElementById('allListSignal');s.onchange=function(){if(this.value)window.loadAllList()};};
+  window.loadAllList=async function(){var s=document.getElementById('allListSignal'),b=document.getElementById('allListWinBody');if(!s||!b||!s.value)return;b.innerHTML='<div class="all-list-empty">⏳ তালিকা লোড হচ্ছে...</div>';try{if(typeof call!=='function')throw new Error('সার্ভার কল ফাংশন পাওয়া যায়নি');var r=await call('listSignalRecords',token,s.value,'');if(!r||!r.ok)throw new Error(r&&r.message||'সার্ভার থেকে তালিকা পাওয়া যায়নি');var rows=r.rows||[];if(!rows.length){b.innerHTML='<div class="all-list-empty">এই তালিকায় কোনো তথ্য নেই।</div>';return}window.__listRows=rows;window.__listSignal=s.value;b.innerHTML=rows.map(function(x,i){var n=x.NameBN||x.Name||x.নাম||x.StudentID||x.TeacherID||x.MadrasaID||'নাম নেই',id=x.StudentID||x.TeacherID||x.MadrasaID||x.AdminID||x.PaymentID||'';return '<div class="all-list-row"><div><b>'+esc(n)+'</b></div><div>ID: '+esc(id)+'</div><div class="all-list-actions"><button class="secondary" onclick="listDetail('+i+')">বিস্তারিত দেখুন</button><button class="secondary" onclick="listEdit('+i+')">✏️</button><button class="secondary" onclick="listSave('+i+')">💾</button><button class="secondary" onclick="listPrint('+i+')">🖨️</button><button class="secondary" onclick="listDownload('+i+')">⬇️</button><button class="primary" onclick="listPayment('+i+')">💳 পেমেন্ট</button></div></div>'}).join('')}catch(e){b.innerHTML='<div class="all-list-empty">⚠️ তালিকা লোড হয়নি: '+esc(e.message||e)+'</div>'}};
+  window.openClassList=function(){var w=ensureClass(),t=document.getElementById('classListWinTools');t.innerHTML='<select id="classListSelect" class="field"><option value="">শ্রেনি/ক্লাশ/জামাত নির্বাচন করুন</option>'+CLS.map(function(x){return '<option value="'+esc(x)+'">'+esc(x)+'</option>'}).join('')+'</select>';w.classList.add('show');var s=document.getElementById('classListSelect');s.onchange=function(){if(this.value)window.loadClassList()};};
+  window.loadClassList=async function(){var s=document.getElementById('classListSelect'),b=document.getElementById('classListWinBody');if(!s||!b||!s.value)return;b.innerHTML='<div class="all-list-empty">⏳ '+esc(s.value)+' তালিকা লোড হচ্ছে...</div>';try{var r=await call('listSignalRecords',token,'std',s.value);if(!r||!r.ok)throw new Error(r&&r.message||'সার্ভার থেকে তালিকা পাওয়া যায়নি');var rows=r.rows||[];window.__classRows=rows;if(!rows.length){b.innerHTML='<div class="all-list-empty">'+esc(s.value)+' — কোনো ছাত্র/ছাত্রী পাওয়া যায়নি।</div>';return}b.innerHTML=rows.map(function(x,i){var n=x.NameBN||x.Name||x.নাম||x.StudentID||'নাম নেই',id=x.StudentID||'';return '<div class="all-list-row"><div><b>'+esc(n)+'</b></div><div>ID: '+esc(id)+'</div><div class="all-list-actions"><button class="secondary" onclick="classDetail('+i+')">বিস্তারিত দেখুন</button><button class="secondary" onclick="classEdit('+i+')">✏️</button><button class="secondary" onclick="classSave('+i+')">💾</button><button class="secondary" onclick="classPrint('+i+')">🖨️</button><button class="secondary" onclick="classDownload('+i+')">⬇️</button><button class="primary" onclick="classPayment('+i+')">💳 পেমেন্ট</button></div></div>'}).join('')}catch(e){b.innerHTML='<div class="all-list-empty">⚠️ তালিকা লোড হয়নি: '+esc(e.message||e)+'</div>'}};
+  function bind(){place();var all=document.getElementById('allListBtn'),cls=document.getElementById('classListBtn');if(all){all.onclick=function(e){if(e)e.preventDefault();window.openAllList()}}if(cls){cls.onclick=function(e){if(e)e.preventDefault();window.openClassList()}}}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(bind,500)});else setTimeout(bind,500);setInterval(bind,1000);
+})();
+</script>
