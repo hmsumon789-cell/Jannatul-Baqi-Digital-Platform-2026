@@ -407,6 +407,28 @@ function searchAll(token,signal,query) {
   return {ok:true,signal,query,matches,count:matches.length};
 }
 
+
+function listSignalRecords(token,signal,className) {
+  auth_(token);
+  signal=String(signal||'').trim().toLowerCase();
+  className=String(className||'').trim();
+  const map={
+    std:SHEETS.STUDENTS,thr:SHEETS.TEACHERS,olp:SHEETS.PAYMENTS,mrs:SHEETS.RESULTS,rjt:SHEETS.RESULTS,
+    adm:SHEETS.ADMINS,npn:SHEETS.EXAM_REG,npt:SHEETS.MADRASAS,nmt:SHEETS.MADRASAS,
+    ofd:SHEETS.RESULTS,cft:SHEETS.CERTIFICATES,idc:SHEETS.ID_CARDS,adc:SHEETS.ADMIT_CARDS,
+    rct:SHEETS.RECEIPTS,tcp:SHEETS.STUDENTS
+  };
+  const sheet=map[signal];
+  if(!sheet) return {ok:false,message:'তালিকার সংকেত সঠিক নয়।'};
+  let rows=listRows_(sheet,token,5000);
+  if(signal==='npt') rows=rows.filter(r=>/পুরুষ|male/i.test(String(r.GenderType||r.Gender||'')));
+  if(signal==='nmt') rows=rows.filter(r=>/মহিলা|female/i.test(String(r.GenderType||r.Gender||'')));
+  if(className && ['std','rjt','mrs','ofd','tcp'].includes(signal)){
+    rows=rows.filter(r=>String(r.Class||r.শ্রেণি||r['শ্রেনি/জামাত']||'').trim()===className);
+  }
+  return {ok:true,signal,className,rows:rows.slice(0,5000),count:rows.length};
+}
+
 function saveRecord(token,sheetName,data) {
   auth_(token);
   const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
