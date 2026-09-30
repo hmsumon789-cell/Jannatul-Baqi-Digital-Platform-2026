@@ -971,7 +971,7 @@ body.gold #app .header-calendar-select-v2{background:#f4d56b!important;color:#11
 <div id="toast" class="toast"></div>
 
 <script>
-let token='',otpToken='',currentUser=null,media=[],mediaIndex=0,modules=[],drag={};
+let token='',otpToken='',currentUser=null,media=[],mediaIndex=0,modules=[],drag={},publicSignals=[];
 const $=id=>document.getElementById(id);
 const call=(fn,...args)=>new Promise((resolve,reject)=>google.script.run.withSuccessHandler(resolve).withFailureHandler(e=>reject(e))[fn](...args));
 
@@ -979,7 +979,9 @@ window.addEventListener('load',async()=>{initOtp();tick();setInterval(tick,1000)
 
 function initOtp(){const b=$('otpBoxes');b.innerHTML='';for(let i=0;i<6;i++){const x=document.createElement('input');x.className='otp-box';x.maxLength=1;x.inputMode='numeric';x.addEventListener('input',()=>{x.value=x.value.replace(/\D/g,'');if(x.value&&x.nextElementSibling)x.nextElementSibling.focus()});x.addEventListener('keydown',e=>{if(e.key==='Backspace'&&!x.value&&x.previousElementSibling)x.previousElementSibling.focus();if(e.key==='Enter')verifyOtp()});b.appendChild(x)}}
 function tick(){const d=new Date();const tz='Asia/Dhaka';const time=d.toLocaleTimeString('bn-BD',{timeZone:tz,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});const date=d.toLocaleDateString('bn-BD',{timeZone:tz,day:'numeric',month:'long',year:'numeric'});const txt='সময় '+time+' • '+date;if($('loginDateTime'))$('loginDateTime').textContent=txt;if($('appClock'))$('appClock').textContent=time;if($('appDate'))$('appDate').textContent=d.toLocaleDateString('bn-BD',{timeZone:tz,weekday:'long',year:'numeric',month:'long',day:'numeric'});}
-async function loadPublic(){try{const r=await call('getPublicConfig');fillSignals(r.signals);fillClasses(r.classes)}catch(e){toast('সার্ভার প্রস্তুত হয়নি। Apps Script deploy সেটিং পরীক্ষা করুন।')}}
+async function loadPublic(){try{const r=await call('getPublicConfig');publicSignals=Array.isArray(r.signals)?r.signals:[];fillSignals(publicSignals);fillClasses(r.classes)}catch(e){toast('সার্ভার প্রস্তুত হয়নি। Apps Script deploy সেটিং পরীক্ষা করুন।')}}
+function subjectOptions(){const a=[];publicSignals.forEach(s=>{const v=String((s&&s[1])||'').trim();if(v&&!a.includes(v))a.push(v)});return a;}
+function subjectSelect(id){const a=subjectOptions();return '<select id="'+id+'" class="field"><option value="">বিষয় নির্বাচন করুন</option>'+a.map(x=>'<option>'+x.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</option>').join('')+'</select>';}
 function fillSignals(list){
   ['loginSignal','appSignal'].forEach(id=>{
     const el=$(id);
@@ -1114,7 +1116,7 @@ const common=`<div class="form-grid">
 <label>Mother's Name — English<input id="fMotherEN" class="field"></label>
 <label>মোবাইল<input id="fMobile" class="field"></label>
 <label>WhatsApp<input id="fWhatsApp" class="field"></label>
-<label>ইমেইল<input id="fEmail" class="field"></label>
+<label>ইমেইল<input id="fEmail" class="field"></label><label>জন্ম তারিখ / Date of Birth<input id="fDob" class="field" type="date"></label>
 ${locationField('fDivision','বিভাগ',['ঢাকা','চট্টগ্রাম','রাজশাহী','খুলনা','বরিশাল','সিলেট','রংপুর','ময়মনসিংহ'])}
 ${locationField('fDistrict','জেলা',['ঢাকা','কেরাণীগঞ্জ','গাজীপুর','নারায়ণগঞ্জ','নরসিংদী','মুন্সীগঞ্জ','মানিকগঞ্জ','টাঙ্গাইল'])}
 ${locationField('fUpazila','উপজেলা / থানা',['কেরাণীগঞ্জ','সাভার','দোহার','নবাবগঞ্জ','ধামরাই','শ্রীপুর','কালীগঞ্জ'])}
@@ -1123,7 +1125,7 @@ ${locationField('fWard','ওয়ার্ড',['১ নং ওয়ার্ড','�
 ${locationField('fVillage','গ্রাম',['কোনাখোলা','মডেল টাউন','জিঞ্জিরা','শুভাঢ্যা','আগানগর','বাস্তা','তেঘরিয়া'])}
 <label class="full">ঠিকানা<textarea id="fAddress" class="field"></textarea></label></div>`;
 if(['student','teacher','donor'].includes(k))return common+`<div class="form-grid"><label>শ্রেনি/জামাত<select id="fClass" class="field">${['প্লে শ্রেনি','শিশু শ্রেনি','আউয়াল জামাত','ছানী জামাত','ছালেছ জামাত','রাবে জামাত','পঞ্চম জামাত','মিজান জামাত','নাহবেমীর জামাত','কুদুরী জামাত','শরহে বেকায়া জামাত','হেদায়া জামাত','মিশকাত জামাত','দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)'].map(x=>`<option>${x}</option>`).join('')}</select></label><label>বিভাগ<select id="fDept" class="field"><option>কিতাব বিভাগ</option><option>হিফজুল কুরআন বিভাগ</option><option>নুরানী বিভাগ</option><option>গণিত বিভাগ</option><option>ইংলিশ বিভাগ</option><option>বাংলা বিভাগ</option><option>বোর্ডিং বিভাগ</option><option>হিসাব বিভাগ</option></select></label><label>শাখা<select id="fBranch" class="field"><option>প্রধান শাখা</option><option>২য় শাখা</option><option>৩য় শাখা</option><option>বালক শাখা</option><option>বালিকা শাখা</option></select></label><label>ছবি<input id="fPhoto" class="field" type="file" accept="image/*"></label><label>জন্ম নিবন্ধন<input id="fBirth" class="field"></label><label>জাতীয় ১৭ ডিজিট NID<input id="fNid" class="field"></label></div><button class="primary" onclick="saveModule('${k}')">Save</button>`;
-if(k==='admin')return `<div class="form-grid"><label>বাংলা নাম<input id="aName" class="field"></label><label>العربية<input id="aAr" class="field"></label><label>English<input id="aEn" class="field"></label><label>Username<input id="aUser" class="field"></label><label>Password<input id="aPass" class="field" type="password"></label><label>Email<input id="aEmail" class="field"></label><label>Mobile<input id="aMobile" class="field" required></label><label>WhatsApp<input id="aWa" class="field"></label><label>Approval ID<input id="aApproval" class="field"></label><label class="full">Address<textarea id="aAddress" class="field"></textarea></label><label class="full">Photo (required)<input id="aPhoto" class="field" type="file" accept="image/*"></label><label>Birth Registration<input id="aBirth" class="field"></label><label>১৭ ডিজিট NID<input id="aNid" class="field"></label></div><button class="primary" onclick="saveAdmin()">Create Admin</button>`;
+if(k==='admin')return `<div class="form-grid"><label>বাংলা নাম<input id="aName" class="field"></label><label>العربية<input id="aAr" class="field"></label><label>English<input id="aEn" class="field"></label><label>Username<input id="aUser" class="field"></label><label>Password<input id="aPass" class="field" type="password"></label><label>Email<input id="aEmail" class="field"></label><label>Mobile<input id="aMobile" class="field" required></label><label>WhatsApp<input id="aWa" class="field"></label><label>Approval ID<input id="aApproval" class="field"></label><label class="full">Address<textarea id="aAddress" class="field"></textarea></label><label class="full">Photo (required)<input id="aPhoto" class="field" type="file" accept="image/*"></label><label>জন্ম তারিখ / Date of Birth<input id="aDob" class="field" type="date"></label><label>Birth Registration<input id="aBirth" class="field"></label><label>১৭ ডিজিট NID<input id="aNid" class="field"></label></div><button class="primary" onclick="saveAdmin()">Create Admin</button>`;
 if(k==='gallery')return `<div class="media-upload-note"><b>ফটো:</b> সর্বোচ্চ 20 MB, 100টি। <b>ভিডিও:</b> সর্বোচ্চ 50 MB, 20টি। <b>অডিও:</b> সর্বোচ্চ 50 MB, 50টি।</div><input id="mediaFiles" class="field" type="file" multiple accept="image/*,video/*,audio/*"><button class="primary" onclick="uploadMedia()">⬆ আপলোড</button><div id="mediaList"></div>`;
 if(k==='help')return `<button class="primary" onclick="openWindow('quickWin')">দ্রুত সেবা / হেল্প</button>`;
 if(k==='institution')return `<h3>প্রতিষ্ঠানের সংক্ষিপ্ত ইতিহাস</h3><p>সালাতুল এস্তেখারার মাধ্যমে মহান আল্লাহ তায়ালার উপর পূর্ণ আস্থা রেখে খালেছ নিয়তে মানব জাতিকে অন্ধকার থেকে আলোর পথে আনার জন্য এবং সহি দ্বিনি ইলম শিক্ষা দেয়ার উদ্দেশ্যে 10-10-2005 ইংরেজী সনে প্রতিষ্ঠিত হয়।</p><p><b>প্রতিষ্ঠাতা-প্রিন্সিপাল/মুহতামিম:</b> জনাব হাফেজ হযরত মাওলানা মু. আতিকুর রহমান (ফরিদপুরী), ২০০৫ হতে ২০২৬ চলমান।</p>`;
@@ -1156,7 +1158,7 @@ ${locationField('adVillage','গ্রাম',['কোনাখোলা','ম�
 <label>জাতীয় ১৭ ডিজিট NID<input id="adNid" class="field"></label>
 <label class="full">ঠিকানা / Address<textarea id="adAddress" class="field"></textarea></label>
 </div><button class="primary" onclick="saveModule('admission')">Save Admission</button>`;
-if(['result','marks','exam'].includes(k))return `<div class="form-grid"><label>Student ID<input id="rStudent" class="field"></label><label>নাম<input id="rName" class="field"></label><label>শ্রেনি<input id="rClass" class="field"></label><label>পরীক্ষা<input id="rExam" class="field"></label><label class="full">Subject/Marks JSON<textarea id="rSubjects" class="field" placeholder='{"বাংলা":80,"আরবি":85}'></textarea></label></div><button class="primary" onclick="saveResult('${k}')">Save</button>`;
+if(['result','marks','exam'].includes(k))return `<div class="form-grid"><label>Student ID<input id="rStudent" class="field"></label><label>নাম<input id="rName" class="field"></label><label>শ্রেনি<input id="rClass" class="field"></label><label>পরীক্ষা<input id="rExam" class="field"></label><label>বিষয় / Subject</label>${subjectSelect('rSubject')}<label>নম্বর / Marks<input id="rMarks" class="field" type="number" min="0" max="100"></label><label class="full">Subject/Marks JSON<textarea id="rSubjects" class="field" placeholder='{"বাংলা":80,"আরবি":85}'></textarea></label></div><button class="primary" onclick="saveResult('${k}')">Save</button>`;
 return `<p>এই ফিচারের জন্য ৩ ভাষা, A4, ৩ কলাম উইন্ডো কাঠামো প্রস্তুত। প্রয়োজনীয় তথ্য পূরণ করুন।</p><div class="form-grid"><label class="full">বিবরণ<textarea class="field" rows="8" id="genericData"></textarea></label></div><button class="primary" onclick="toast('ফিচার উইন্ডো প্রস্তুত')">Save</button>`;
 }
 async function saveModule(k){
@@ -1164,13 +1166,13 @@ const map={student:'STUDENTS',teacher:'TEACHERS',donor:'DONORS'};const s=map[k];
 const d={NameBN:$('fNameBN').value,NameAR:$('fNameAR').value,NameEN:$('fNameEN').value,
 FatherNameBN:$('fFatherBN').value,FatherNameAR:$('fFatherAR').value,FatherNameEN:$('fFatherEN').value,
 MotherNameBN:$('fMotherBN').value,MotherNameAR:$('fMotherAR').value,MotherNameEN:$('fMotherEN').value,
-Mobile:$('fMobile').value,WhatsApp:$('fWhatsApp').value,Email:$('fEmail').value,Address:$('fAddress').value,
+Mobile:$('fMobile').value,WhatsApp:$('fWhatsApp').value,Email:$('fEmail').value,BirthDate:document.getElementById('fDob')?.value||'',Address:$('fAddress').value,
 Division:getLocationValue('fDivision'),District:getLocationValue('fDistrict'),Upazila:getLocationValue('fUpazila'),Union:getLocationValue('fUnion'),Ward:getLocationValue('fWard'),Village:getLocationValue('fVillage'),
 Class:document.getElementById('fClass')?.value||'',Department:document.getElementById('fDept')?.value||'',Branch:document.getElementById('fBranch')?.value||'',Photo:await fileData('fPhoto'),BirthReg:document.getElementById('fBirth')?.value||'',NID:document.getElementById('fNid')?.value||''};
 if(k==='student')d.Gender='';const r=await call('saveRecord',token,s,d);toast(r.ok?'সফলভাবে সংরক্ষণ হয়েছে':'ব্যর্থ')}
-async function saveAdmin(){const photo=await fileData('aPhoto');const d={NameBN:$('aName').value,NameAR:$('aAr').value,NameEN:$('aEn').value,Username:$('aUser').value,Password:$('aPass').value,Email:$('aEmail').value,Mobile:$('aMobile').value,WhatsApp:$('aWa').value,ApprovalID:$('aApproval').value,Address:$('aAddress').value,Photo:photo,BirthReg:$('aBirth').value,NID:$('aNid').value};const r=await call('createAdmin',token,d);toast(r.message||('Admin ID: '+r.adminId))}
+async function saveAdmin(){const photo=await fileData('aPhoto');const d={NameBN:$('aName').value,NameAR:$('aAr').value,NameEN:$('aEn').value,Username:$('aUser').value,Password:$('aPass').value,Email:$('aEmail').value,Mobile:$('aMobile').value,WhatsApp:$('aWa').value,ApprovalID:$('aApproval').value,Address:$('aAddress').value,Photo:photo,BirthDate:document.getElementById('aDob')?.value||'',BirthReg:$('aBirth').value,NID:$('aNid').value};const r=await call('createAdmin',token,d);toast(r.message||('Admin ID: '+r.adminId))}
 async function savePayment(){const d={StudentID:$('pStudent').value,Name:$('pName').value,Month:$('pMonth').value,Category:$('pCat').value,Amount:Number($('pAmount').value),Method:$('pMethod').value,Date:new Date().toISOString(),Note:$('pNote').value};const r=await call('saveRecord',token,'PAYMENTS',d);toast(r.ok?'Payment saved':'Failed');}
-async function saveResult(k){const d={StudentID:$('rStudent').value,Name:$('rName').value,Class:$('rClass').value,Exam:$('rExam').value,SubjectData:$('rSubjects').value,Published:'NO',Date:new Date().toISOString()};const r=await call('saveRecord',token,'RESULTS',d);toast(r.ok?'Saved':'Failed')}
+async function saveResult(k){const d={StudentID:$('rStudent').value,Name:$('rName').value,Class:$('rClass').value,Exam:$('rExam').value,SubjectData:$('rSubjects').value,Subject:document.getElementById('rSubject')?.value||'',Marks:document.getElementById('rMarks')?.value||'',Published:'NO',Date:new Date().toISOString()};const r=await call('saveRecord',token,'RESULTS',d);toast(r.ok?'Saved':'Failed')}
 async function uploadMedia(){
   const input=$('mediaFiles');
   if(!input||!input.files||!input.files.length)return toast('প্রথমে ফটো/ভিডিও/অডিও নির্বাচন করুন।');
@@ -2225,7 +2227,7 @@ body.gold #formWin select.field,body.gold #formWin input.field{border-radius:7px
       '<label>ডাকঘর<select id="rPostSelect" class="field"></select><input id="rPostManual" class="field location-manual" placeholder="হাতে লিখুন"></label>'+
       '<label>ওয়ার্ড<select id="rWardSelect" class="field"></select><input id="rWardManual" class="field location-manual" placeholder="হাতে লিখুন"></label>'+
       '<label>গ্রাম<select id="rVillageSelect" class="field"></select><input id="rVillageManual" class="field location-manual" placeholder="হাতে লিখুন"></label>'+
-      '<label class="full">Subject/Marks JSON<textarea id="rSubjects" class="field"></textarea></label></div><button class="primary" onclick="saveResult(\'exam\')">Save</button>';
+      '<label>বিষয় / Subject</label>${subjectSelect('rSubject')}<label>নম্বর / Marks<input id="rMarks" class="field" type="number" min="0" max="100"></label><label class="full">Subject/Marks JSON<textarea id="rSubjects" class="field"></textarea></label></div><button class="primary" onclick="saveResult(\'exam\')">Save</button>';
     }
     return html;
   };
