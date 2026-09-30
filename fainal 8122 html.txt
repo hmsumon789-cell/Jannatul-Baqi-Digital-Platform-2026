@@ -8877,26 +8877,52 @@ body.dark .all-list-head,body.dark .all-list-row{background:#000!important;color
 </style>
 <script id="media-list-final-sync-fix-js">
 (function(){
-  var busy=false;
-  function getMedia(){
+  var busy=false,tries=0;
+  function extract(r){
+    if(Array.isArray(r))return r;
+    var q=[r],seen=[];
+    while(q.length){
+      var x=q.shift();
+      if(!x||seen.indexOf(x)>=0)continue;
+      seen.push(x);
+      if(Array.isArray(x.media))return x.media;
+      if(Array.isArray(x.rows))return x.rows;
+      if(Array.isArray(x.data))return x.data;
+      if(Array.isArray(x.items))return x.items;
+      if(Array.isArray(x.result))return x.result;
+      if(x.data&&typeof x.data==='object')q.push(x.data);
+      if(x.result&&typeof x.result==='object')q.push(x.result);
+      if(x.response&&typeof x.response==='object')q.push(x.response);
+    }
+    return [];
+  }
+  async function getMedia(){
     if(busy||typeof window.call!=='function'||!window.token)return;
     busy=true;
-    window.call('listMedia',window.token).then(function(r){
-      var m=Array.isArray(r)?r:(r&&Array.isArray(r.media)?r.media:(r&&Array.isArray(r.rows)?r.rows:[]));
-      window.media=m||[];
+    try{
+      var r=await window.call('listMedia',window.token);
+      var m=extract(r);
+      window.media=Array.isArray(m)?m:[];
       var n=Number(window.mediaIndex||0);if(!isFinite(n))n=0;
       window.mediaIndex=window.media.length?((n%window.media.length)+window.media.length)%window.media.length:0;
+      if(typeof window.renderMediaList==='function')window.renderMediaList();
       if(typeof window.renderMedia==='function')window.renderMedia();
       if(typeof window.renderMediaList==='function')window.renderMediaList();
-    }).catch(function(){}).finally(function(){busy=false});
+    }catch(e){
+      if(typeof window.toast==='function'&&tries>=8)window.toast('মিডিয়া তালিকা সার্ভার থেকে আনা যায়নি।');
+    }finally{busy=false}
   }
   window.refreshMediaList=getMedia;
   document.addEventListener('click',function(e){
     var b=e.target.closest&&e.target.closest('[onclick*="gallery"],[data-module="gallery"]');
-    if(b)setTimeout(getMedia,300);
+    if(b){tries=0;setTimeout(getMedia,250);setTimeout(getMedia,1000);}
   },true);
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(getMedia,1200)});
-  else setTimeout(getMedia,1200);
-  setInterval(function(){if(window.token)getMedia()},3000);
+  function boot(){
+    var timer=setInterval(function(){
+      if(window.token){getMedia();tries++;if(tries>=30)clearInterval(timer);}
+    },1000);
+    setTimeout(getMedia,500);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
 </script>
