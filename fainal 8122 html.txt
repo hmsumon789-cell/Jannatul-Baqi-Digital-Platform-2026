@@ -8902,9 +8902,13 @@ body.dark .all-list-head,body.dark .all-list-row{background:#000!important;color
     try{
       var r=await window.call('listMedia',window.token);
       var m=extract(r);
-      window.media=Array.isArray(m)?m:[];
-      var n=Number(window.mediaIndex||0);if(!isFinite(n))n=0;
-      window.mediaIndex=window.media.length?((n%window.media.length)+window.media.length)%window.media.length:0;
+      /* IMPORTANT: media is a top-level let in the original page.
+         Update that binding, not only window.media. */
+      media=Array.isArray(m)?m:[];
+      window.media=media;
+      var n=Number(mediaIndex||0);if(!isFinite(n))n=0;
+      mediaIndex=media.length?((n%media.length)+media.length)%media.length:0;
+      window.mediaIndex=mediaIndex;
       if(typeof window.renderMediaList==='function')window.renderMediaList();
       if(typeof window.renderMedia==='function')window.renderMedia();
       if(typeof window.renderMediaList==='function')window.renderMediaList();
