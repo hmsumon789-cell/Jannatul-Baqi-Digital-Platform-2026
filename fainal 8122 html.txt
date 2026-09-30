@@ -8096,3 +8096,41 @@ body.gold #searchProfilePrint .sp-field{border-color:#d40000!important}
   }
 })();
 </script>
+
+<!-- ===== FINAL SEARCH PROFILE / PRINT VIEW VISIBILITY FIX — 2026-09-30 ===== -->
+<style id="final-search-profile-print-visibility-fix-2026-09-30">
+/* Profile-এর পুরো কনটেন্ট ও নিচের action buttons যেন window-এর বাইরে কেটে না যায় */
+#searchWin{
+  max-height:92vh!important;
+  overflow:hidden!important;
+}
+#searchWin .win-body{
+  max-height:calc(92vh - 54px)!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  padding-bottom:14px!important;
+}
+#searchProfilePrint.search-profile{
+  height:auto!important;
+  min-height:297mm!important;
+  max-height:none!important;
+  overflow:visible!important;
+  padding-bottom:18mm!important;
+}
+#searchProfilePrint .sp-bottom-actions{
+  position:sticky!important;
+  bottom:0!important;
+  z-index:20!important;
+  flex-shrink:0!important;
+  background:#fff!important;
+  box-shadow:0 -3px 10px #0002!important;
+}
+@media(max-width:900px){
+  #searchWin{max-height:94vh!important;width:100vw!important;max-width:100vw!important}
+  #searchWin .win-body{max-height:calc(94vh - 54px)!important}
+  #searchProfilePrint.search-profile{width:100%!important;min-height:0!important}
+}
+@media print{
+  #searchProfilePrint.search-profile{height:auto!important;max-height:none!important;overflow:visible!important}
+}
+</style>
