@@ -4243,12 +4243,12 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
     if(!w)return;
     if(w.classList.contains('win-fullscreen-2026')){
       w.classList.remove('win-fullscreen-2026');
-      w.style.width=w.dataset.task3PrevWidth||'';
-      w.style.height=w.dataset.task3PrevHeight||'';
+      w.style.removeProperty('width');w.style.removeProperty('height');
       w.style.maxHeight=w.dataset.task3PrevMaxHeight||'82vh';
       w.style.left=w.dataset.task3PrevLeft||'50%';
       w.style.top=w.dataset.task3PrevTop||'90px';
       w.style.transform=w.dataset.task3PrevTransform||'translateX(-50%)';
+      w.style.removeProperty('z-index');
     }else{
       var r=w.getBoundingClientRect();
       w.dataset.task3PrevWidth=r.width+'px';
@@ -4258,6 +4258,15 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
       w.dataset.task3PrevTop=r.top+'px';
       w.dataset.task3PrevTransform=w.style.transform||'none';
       w.classList.add('win-fullscreen-2026');
+      w.style.setProperty('position','fixed','important');
+      w.style.setProperty('left','0px','important');
+      w.style.setProperty('top','0px','important');
+      w.style.setProperty('width','100vw','important');
+      w.style.setProperty('height','100vh','important');
+      w.style.setProperty('max-width','none','important');
+      w.style.setProperty('max-height','none','important');
+      w.style.setProperty('transform','none','important');
+      w.style.setProperty('z-index','999999','important');
     }
   }
   function closeExisting(w){
