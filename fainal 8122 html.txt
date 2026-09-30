@@ -9004,3 +9004,12 @@ body.dark .all-list-head,body.dark .all-list-row{background:#000!important;color
   }
 })();
 </script>
+
+
+<!-- ===== DASHBOARD WIDTH + CLASS LIST BUTTON CLEAN — 2026-09-30 ===== -->
+<style id="dashboard-width-class-list-clean">
+/* প্রশাসনিক ড্যাশবোর্ডের ঠিক নিচের মূল মিডিয়া বক্স চওড়া */
+.dashboard-media-layout{grid-template-columns:1fr 3fr 1fr!important}
+/* শ্রেনি/ক্লাশ/জামাত ওয়ারী তালিকার ডানে থাকা অল তালিকা বাটন বাদ */
+#allListBtn{display:none!important}
+</style>
