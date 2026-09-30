@@ -8866,3 +8866,37 @@ body.dark .all-list-head,body.dark .all-list-row{background:#000!important;color
   window.toggleMediaPlay=function(){var f=document.querySelector('#mediaStageContent .media-stable-frame');if(f)f.focus();var v=document.querySelector('#mediaStageContent video.media-stable-video,#mediaStageContent audio');if(v){if(v.paused){var p=v.play();if(p&&p.catch)p.catch(function(){})}else v.pause()}};
 })();
 </script>
+
+
+<!-- ===== MEDIA LIST + DELETE FINAL SYNC FIX — 2026-09-30 ===== -->
+<style id="media-list-final-sync-fix">
+#mediaList{display:block!important;visibility:visible!important;opacity:1!important;width:100%!important;min-height:20px!important;margin-top:10px!important}
+#mediaList:empty:after{content:'মিডিয়া তালিকা লোড হচ্ছে...';display:block;padding:8px;font-weight:800}
+.media-list-item{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;width:100%!important}
+.media-list-item button{display:inline-block!important;visibility:visible!important;opacity:1!important}
+</style>
+<script id="media-list-final-sync-fix-js">
+(function(){
+  var busy=false;
+  function getMedia(){
+    if(busy||typeof window.call!=='function'||!window.token)return;
+    busy=true;
+    window.call('listMedia',window.token).then(function(r){
+      var m=Array.isArray(r)?r:(r&&Array.isArray(r.media)?r.media:(r&&Array.isArray(r.rows)?r.rows:[]));
+      window.media=m||[];
+      var n=Number(window.mediaIndex||0);if(!isFinite(n))n=0;
+      window.mediaIndex=window.media.length?((n%window.media.length)+window.media.length)%window.media.length:0;
+      if(typeof window.renderMedia==='function')window.renderMedia();
+      if(typeof window.renderMediaList==='function')window.renderMediaList();
+    }).catch(function(){}).finally(function(){busy=false});
+  }
+  window.refreshMediaList=getMedia;
+  document.addEventListener('click',function(e){
+    var b=e.target.closest&&e.target.closest('[onclick*="gallery"],[data-module="gallery"]');
+    if(b)setTimeout(getMedia,300);
+  },true);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(getMedia,1200)});
+  else setTimeout(getMedia,1200);
+  setInterval(function(){if(window.token)getMedia()},3000);
+})();
+</script>
