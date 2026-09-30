@@ -8137,3 +8137,134 @@ body.gold #searchProfilePrint .sp-field{border-color:#d40000!important}
   #searchProfilePrint.search-profile{height:auto!important;max-height:none!important;overflow:visible!important}
 }
 </style>
+
+
+<style id="all-list-and-subject-system-2026-09-30">
+#allListWin,#classListWin{position:fixed!important;left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important;width:min(96vw,1180px)!important;height:min(88vh,820px)!important;z-index:999999!important;background:var(--panel,#fff)!important;color:var(--text,#111)!important;border:3px solid var(--border,#d4af37)!important;box-shadow:0 20px 60px #0008!important;border-radius:14px!important;overflow:hidden!important}
+#allListWin:not(.show),#classListWin:not(.show){display:none!important}
+.all-list-head{height:54px;display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border-bottom:2px solid var(--border,#d4af37);background:var(--panel,#fff);font-weight:900}
+.all-list-tools{display:flex;gap:7px;align-items:center;flex-wrap:wrap;padding:9px;border-bottom:1px solid #999}
+.all-list-tools select{min-width:280px}
+.all-list-body{height:calc(100% - 110px);overflow:auto;padding:10px}
+.all-list-row{display:grid;grid-template-columns:minmax(180px,1fr) minmax(180px,1fr) auto;gap:8px;align-items:center;padding:8px;margin-bottom:6px;border:2px solid var(--border,#d4af37);background:var(--panel,#fff);border-radius:8px}
+.all-list-actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+.all-list-actions button{font-weight:900}
+.all-list-empty{text-align:center;padding:35px;font-size:18px;font-weight:900}
+@media(max-width:700px){#allListWin,#classListWin{width:98vw!important;height:92vh!important}.all-list-row{grid-template-columns:1fr}.all-list-actions{justify-content:flex-start}.all-list-tools select{min-width:0;width:100%}}
+body.dark #allListWin,body.dark #classListWin{background:#000!important;color:#ffe95c!important;border-color:#ff1f2f!important}
+body.dark .all-list-head,body.dark .all-list-row{background:#000!important;color:#ffe95c!important;border-color:#ff1f2f!important}
+</style>
+<script id="all-list-and-subject-system-js-2026-09-30">
+(function(){
+  var SIGNAL_LIST=[
+    ['std','ছাত্র/ছাত্রী তালিকা'],['thr','শিক্ষক/শিক্ষিকা তালিকা'],['olp','অনলাইন পেমেন্ট তালিকা'],['mrs','মার্কশিট তালিকা'],['rjt','রেজাল্ট তালিকা'],
+    ['adm','নতুন অ্যাডমিন তালিকা'],['npn','নতুন পরীক্ষার্থী নিবন্ধন তালিকা'],['npt','নিবন্ধনকৃত পুরুষ মাদ্রাসার তালিকা'],['nmt','নিবন্ধনকৃত মহিলা মাদ্রাসার তালিকা'],
+    ['ofd','অনলাইন+মোবাইল ফলাফল তালিকা'],['cft','সার্টিফিকেট/সনদপত্র তালিকা'],['idc','আইডি কার্ড তালিকা'],['adc','এডমিট কার্ড তালিকা'],['rct','রিসিট তালিকা'],['tcp','টিসি/ছাড়পত্র তালিকা']
+  ];
+  var CLASS_LIST=['প্লে শ্রেনি','শিশু শ্রেনি','আউয়াল জামাত','ছানী জামাত','ছালেছ জামাত','রাবে জামাত','পঞ্চম জামাত','মিজান জামাত','নাহবেমীর জামাত','কুদুরী জামাত','শরহে বেকায়া জামাত','হেদায়া জামাত','মিশকাত জামাত','দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)'];
+  var SUBJECTS={
+    'প্লে শ্রেনি':['নুরানী কায়দা','নুরানী নিসাব','ইসলামী ও আরবী শিক্ষা','বাংলা','অংক','ইংরেজী','হাতের লেখা'],
+    'শিশু শ্রেনি':['নুরানী কায়দা','নুরানী নিসাব','ছড়া ছবি','বাংলা','অংক','ইংরেজী','হাতের লেখা'],
+    'আউয়াল জামাত':['নুরানী কায়দা ও নুরানী নিসাব','আদ্দুরুসুল আরাবিয়া ১ম','আলকেরাআতুল আরাবিয়া','আকাইদ ফিকাহ','বাংলা','অংক','ইংরেজী'],
+    'ছানী জামাত':['আমপারা ও নুরানী নিসাব','আদ্দুরুসুল আরাবিয়া ২য়','আলকেরাআতুল আরাবিয়া ১ম খন্ড','আকাইদ ফিকাহ','বাংলা','অংক','ইংরেজী- গ্রামার ও ওয়ার্ড বুক'],
+    'ছালেছ জামাত':['কুরআন শরিফ ও তাজবীদ','উর্দু কায়দা ও তালিমুল ইসলাম ১ম','আদ্দুরুসুল আরাবিয়া ৩য়','আলকেরাআতুল ও আকাইদ ফিকাহ','বাংলা','অংক','ইংরেজী - গ্রামার ও ওয়ার্ড বুক'],
+    'রাবে জামাত':['কুরআন শরীফ নজরানা, প্রথম ১০ পারা','উর্দু পহেলী ও দোসরী','তালিমুল ইসলাম ১ম ২য় ও ৩য়','এসো আরবী সিখি ১ম','বাংলা','অংক','ইংরেজী- গ্রামার ও ওয়ার্ড বুক'],
+    'পঞ্চম জামাত':['তেলাওয়াত ও তাজবিদ পুর্ন কুরআান শরীফ','নুজহাতুল কারী','তালিমুল ইসলাম ৪র্থ খন্ড','এসো আরবী সিখি ১ম','বাংলা ও ব্যাকরন ৫ম','অংক ৫ম','ইংরেজী ও গ্রামার ৫ম','ইতিহাস পাঠ - ভূগোল ও সমাজ ৫ম'],
+    'মিজান জামাত':['কুরআন শরীফ নাজেরা ১১-২০ পারা','মিজান মুনশাইব','সফওয়াতুল মাছাদির','বাকুরাতুল আদব','এসো আরবী শিখি ২য়','বেহেস্তী জেওর ১ম ২য় ও উর্দু দোসরী','বাংলা সাহিত্য সওগাত ৬ষ্ট ও ব্যাকরন ৬ষ্ট','গনিত ৬ষ্ট','ইংলিশ ও গ্রামার ৬ষ্ট','ইতিহাস পাঠ - ভূগোল ও সমাজ পরিচিতি ৬ষ্ট'],
+    'নাহবেমীর জামাত':['নাহবেমীর','শরহু মিয়াতে আমিল','রওজাতুল আদব','আল ফিকহুল মুয়াস্সার/ নুরুল ইযাহ','ইলমুচ্ছরফ ৩য় ৪র্থ খন্ড','সিরাতে খাতেমুল আম্বিয়া','বাংলা ও ব্যাকরন ৭ম শ্রেণি'],
+    'কুদুরী জামাত':['কুরআন তরজমা ২৬-৩০ পারা','মুখতাছারুল কুদুরী কিতাবুল ইমান','মুখতাছারুল কুদুরী কিতাবুল বুয়ূ','হেদায়াতুন্নাহু','উছুলুশ শ্বাশী','ইলমুচ্ছিগাহ','যাদুত ত্বলিবিন','বাংলা ৮ম শ্রেণি'],
+    'শরহে বেকায়া জামাত':['কুরআন তরজমা ১-১৫ পারা','শরহে বেকায়া ১ম ও ২য়','দুরুসুল বালাগাত/মুখতাসারুল মায়ানী','নুরুল আনোয়ার কিতাবুল্লাহ','কাফিয়া','আত্বরীকু ইলাল ইনশা ৩য়','মাকামাতে হারীরী/ মুখতারাত'],
+    'হেদায়া জামাত':['কুরআন তরজমা ১৬-২৫ পারা','হেদায়া ১ম','হেদায়া ২য়','নুরুল আনোয়ার সুন্নাহ','ফয়জুল কালাম','সিরাজী','রিয়াজুস ছলিহিন'],
+    'মিশকাত জামাত':['মিশকাত শরিফ ১ম','মিশকাত শরিফ ২য়','জালালাইন শরিফ ১ম','জালালাইন শরিফ ২য়','আকীদাতুত তাহাবী','হেদায়া ৩য়','হেদায়া ৪র্থ'],
+    'দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)':['বুখারী শরিফ ১ম','বুখারী শরিফ ২য়','মুসলিম শরিফ ১ম','মুসলিম শরিফ ২য়','তিরমিযী শরীফ ১ম','তিরমিযী শরীফ ২য়','আবু দাউদ শরিফ পুর্ন','তাহাবী শরীফ পূর্ন','নাসায়ী ও ইবনু মাজাহ পুন','মুয়াত্তা ইমাম মালেক ও মুহাম্মদ পূর্ন','তেলাওয়াত ও তাজবিদ পুর্ন কুরআান শরীফ']
+  };
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(x){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]})}
+  function makeWindow(id,title){if(document.getElementById(id))return;var d=document.createElement('div');d.id=id;d.className='window';d.innerHTML='<div class="all-list-head"><b>'+title+'</b><div><button type="button" onclick="document.getElementById(\''+id+'\').classList.remove(\'show\')">✖ বন্ধ</button></div></div><div id="'+id+'Tools" class="all-list-tools"></div><div id="'+id+'Body" class="all-list-body"></div>';document.body.appendChild(d)}
+  function addButtons(){
+    var host=document.querySelector('#app .dashboard-title-left')||document.querySelector('#app .dashboard-title-bar');
+    if(!host)return;
+    if(!document.getElementById('allListBtn')){var b=document.createElement('button');b.id='allListBtn';b.className='primary';b.type='button';b.textContent='📋 অল তালিকা';b.onclick=window.openAllList;host.appendChild(b)}
+    if(!document.getElementById('classListBtn')){var b2=document.createElement('button');b2.id='classListBtn';b2.className='primary';b2.type='button';b2.textContent='📚 শ্রেনি/ক্লাশ/জামাত ওয়ারী তালিকা';b2.onclick=window.openClassList;host.appendChild(b2)}
+  }
+  function nameOf(r){return r.NameBN||r.Name||r.NameEN||r.নাম||r.StudentID||r.AdminID||r.TeacherID||r.MadrasaID||('Serial '+(r.Serial||''))}
+  function idOf(r){return r.StudentID||r.AdminID||r.TeacherID||r.MadrasaID||r.CertificateID||r.IDCardID||r.AdmitCardID||r.ReceiptID||r.PaymentID||r.Serial||''}
+  window.openAllList=function(){
+    makeWindow('allListWin','📋 অল তালিকা');
+    var t=document.getElementById('allListWinTools');t.innerHTML='<select id="allListSignal" class="field"><option value="">তালিকা নির্বাচন করুন</option>'+SIGNAL_LIST.map(function(x){return '<option value="'+x[0]+'">'+x[0]+' — '+x[1]+'</option>'}).join('')+'</select><button class="primary" type="button" onclick="loadAllList()">🔎 দেখুন</button>';
+    document.getElementById('allListWin').classList.add('show');
+    document.getElementById('allListSignal').onchange=function(){if(this.value)window.loadAllList()};
+  };
+  window.loadAllList=async function(){
+    var sig=document.getElementById('allListSignal')?.value;if(!sig)return;
+    var b=document.getElementById('allListWinBody');b.innerHTML='<div class="all-list-empty">⏳ তালিকা লোড হচ্ছে...</div>';
+    try{var r=await call('listSignalRecords',token,sig,'');if(!r||!r.ok)throw new Error(r&&r.message||'তালিকা পাওয়া যায়নি');renderListRows(r.rows||[],sig,SIGNAL_LIST.find(function(x){return x[0]===sig})?.[1]||sig)}
+    catch(e){b.innerHTML='<div class="all-list-empty">তালিকা লোড হয়নি: '+esc(e.message||e)+'</div>'}
+  };
+  function renderListRows(rows,sig,title){
+    var b=document.getElementById('allListWinBody');if(!rows.length){b.innerHTML='<div class="all-list-empty">এই তালিকায় এখন কোনো তথ্য নেই।</div>';return}
+    b.innerHTML='<div style="font-weight:900;margin-bottom:8px">'+esc(title)+' — মোট '+rows.length+' টি</div>'+rows.map(function(r,i){
+      var nm=nameOf(r),id=idOf(r);
+      return '<div class="all-list-row"><div><b>'+esc(nm)+'</b></div><div>ID: '+esc(id)+'</div><div class="all-list-actions">'+
+        '<button class="secondary" onclick="listDetail('+i+')">বিস্তারিত দেখুন</button><button class="secondary" title="Edit" onclick="listEdit('+i+')">✏️</button><button class="secondary" onclick="listSave('+i+')">💾</button><button class="secondary" onclick="listPrint('+i+')">🖨️</button><button class="secondary" onclick="listDownload('+i+')">⬇️</button><button class="primary" onclick="listPayment('+i+')">💳 পেমেন্ট</button></div></div>'
+    }).join('');
+    window.__listRows=rows;window.__listSignal=sig;
+  }
+  function selectedRow(i){return (window.__listRows||[])[i]||null}
+  window.listDetail=function(i){var r=selectedRow(i);if(!r)return;window.renderSearchProfiles([r],window.__listSignal,nameOf(r));openWindow('searchWin')}
+  window.listEdit=function(i){var r=selectedRow(i);if(!r)return;window.__selectedListRow=r;window.renderSearchProfiles([r],window.__listSignal,nameOf(r));openWindow('searchWin');setTimeout(function(){window.editSearchProfile()},100)}
+  window.listSave=function(i){var r=selectedRow(i);if(!r)return;window.__selectedListRow=r;window.saveSearchProfile();toast('💾 তালিকার রেকর্ডটি সেভ অপশনে পাঠানো হয়েছে।')}
+  window.listPrint=function(i){var r=selectedRow(i);if(!r)return;window.renderSearchProfiles([r],window.__listSignal,nameOf(r));openWindow('searchWin');setTimeout(function(){window.printSearchProfile()},120)}
+  window.listDownload=function(i){var r=selectedRow(i);if(!r)return;window.renderSearchProfiles([r],window.__listSignal,nameOf(r));openWindow('searchWin');setTimeout(function(){window.downloadSearchProfile()},120)}
+  window.listPayment=function(i){var r=selectedRow(i);if(!r)return;openModule('payment');setTimeout(function(){if(document.getElementById('pStudent'))document.getElementById('pStudent').value=idOf(r);if(document.getElementById('pName'))document.getElementById('pName').value=nameOf(r)},50)}
+  window.openClassList=function(){
+    makeWindow('classListWin','📚 শ্রেনি/ক্লাশ/জামাত ওয়ারী তালিকা');
+    var t=document.getElementById('classListWinTools');t.innerHTML='<select id="classListSelect" class="field"><option value="">শ্রেনি/ক্লাশ/জামাত নির্বাচন করুন</option>'+CLASS_LIST.map(function(x){return '<option>'+esc(x)+'</option>'}).join('')+'</select><button class="primary" type="button" onclick="loadClassList()">🔎 দেখুন</button>';
+    document.getElementById('classListWin').classList.add('show');
+    document.getElementById('classListSelect').onchange=function(){if(this.value)window.loadClassList()};
+  };
+  window.loadClassList=async function(){
+    var cl=document.getElementById('classListSelect')?.value;if(!cl)return;
+    var b=document.getElementById('classListWinBody');b.innerHTML='<div class="all-list-empty">⏳ '+esc(cl)+' তালিকা লোড হচ্ছে...</div>';
+    try{var r=await call('listSignalRecords',token,'std',cl);if(!r||!r.ok)throw new Error(r&&r.message||'তালিকা পাওয়া যায়নি');renderClassRows(r.rows||[],cl)}
+    catch(e){b.innerHTML='<div class="all-list-empty">তালিকা লোড হয়নি: '+esc(e.message||e)+'</div>'}
+  };
+  function renderClassRows(rows,cl){var b=document.getElementById('classListWinBody');if(!rows.length){b.innerHTML='<div class="all-list-empty">'+esc(cl)+' — কোনো ছাত্র/ছাত্রী পাওয়া যায়নি।</div>';return}b.innerHTML='<div style="font-weight:900;margin-bottom:8px">'+esc(cl)+' — মোট '+rows.length+' জন</div>'+rows.map(function(r,i){var nm=nameOf(r),id=idOf(r);return '<div class="all-list-row"><div><b>'+esc(nm)+'</b></div><div>ID: '+esc(id)+'</div><div class="all-list-actions"><button class="secondary" onclick="classDetail('+i+')">বিস্তারিত দেখুন</button><button class="secondary" onclick="classEdit('+i+')">✏️</button><button class="secondary" onclick="classSave('+i+')">💾</button><button class="secondary" onclick="classPrint('+i+')">🖨️</button><button class="secondary" onclick="classDownload('+i+')">⬇️</button><button class="primary" onclick="classPayment('+i+')">💳 পেমেন্ট</button></div></div>'}).join('');window.__classRows=rows}
+  window.classDetail=function(i){var r=window.__classRows?.[i];if(!r)return;renderSearchProfiles([r],'std',nameOf(r));openWindow('searchWin')}
+  window.classEdit=function(i){var r=window.__classRows?.[i];if(!r)return;renderSearchProfiles([r],'std',nameOf(r));openWindow('searchWin');setTimeout(editSearchProfile,100)}
+  window.classSave=function(i){var r=window.__classRows?.[i];if(!r)return;renderSearchProfiles([r],'std',nameOf(r));openWindow('searchWin');setTimeout(saveSearchProfile,50)}
+  window.classPrint=function(i){var r=window.__classRows?.[i];if(!r)return;renderSearchProfiles([r],'std',nameOf(r));openWindow('searchWin');setTimeout(printSearchProfile,100)}
+  window.classDownload=function(i){var r=window.__classRows?.[i];if(!r)return;renderSearchProfiles([r],'std',nameOf(r));openWindow('searchWin');setTimeout(downloadSearchProfile,100)}
+  window.classPayment=function(i){var r=window.__classRows?.[i];if(!r)return;openModule('payment');setTimeout(function(){if($('pStudent'))$('pStudent').value=idOf(r);if($('pName'))$('pName').value=nameOf(r)},50)}
+  function classSelectHtml(id,onchange){return '<select id="'+id+'" class="field" '+(onchange?'onchange="'+onchange+'"':'')+'><option value="">শ্রেনি/জামাত নির্বাচন করুন</option>'+CLASS_LIST.map(function(x){return '<option value="'+esc(x)+'">'+esc(x)+'</option>'}).join('')+'</select>'}
+  window.classSubjectSelect=function(id,classId){return '<select id="'+id+'" class="field"><option value="">বিষয় নির্বাচন করুন</option></select>'}
+  window.refreshSubjectOptions=function(classId,subjectId){
+    var c=document.getElementById(classId),s=document.getElementById(subjectId);if(!c||!s)return;s.innerHTML='<option value="">বিষয় নির্বাচন করুন</option>'+(SUBJECTS[c.value]||[]).map(function(x){return '<option value="'+esc(x)+'">'+esc(x)+'</option>'}).join('');
+  }
+  var baseModuleForm=window.moduleForm;
+  window.moduleForm=function(k){
+    var html=baseModuleForm(k);
+    if(k==='admission'){
+      html=html.replace(/<label>শ্রেণি\/জামাত \/ Class<select id="adClass" class="field">[\s\S]*?<\/select><\/label>/,
+        '<label>শ্রেণি\/জামাত / Class<select id="adClass" class="field" onchange="refreshSubjectOptions(\\'adClass\\',\\'adSubject\\')"><option value="">শ্রেনি/জামাত নির্বাচন করুন</option>'+CLASS_LIST.map(function(x){return '<option value="'+esc(x)+'">'+esc(x)+'</option>'}).join('')+'</select></label><label>বিষয় / Subject>'+classSubjectSelect('adSubject','adClass')+'</label>');
+    }
+    if(['result','marks'].includes(k)){
+      html=html.replace('<label>শ্রেনি<input id="rClass" class="field"></label>','<label>শ্রেনি / Class>'+classSelectHtml('rClass')+'</label>');
+      html=html.replace('<label>বিষয় / Subject</label>'+subjectSelect('rSubject'),'<label>বিষয় / Subject>'+classSubjectSelect('rSubject','rClass')+'</label>');
+      html=html.replace('id="rClass" class="field">','id="rClass" class="field" onchange="refreshSubjectOptions(\\'rClass\\',\\'rSubject\\')">');
+    }
+    return html;
+  };
+  var oldSaveResult2=window.saveResult;
+  window.saveResult=async function(k){
+    if(k!=='exam')return oldSaveResult2(k);
+    var d={StudentID:$('rStudent').value,Name:$('rName').value,Class:$('rClass')?.value||'',Exam:$('rExam').value,SubjectData:$('rSubjects').value,Subject:document.getElementById('rSubject')?.value||'',Marks:document.getElementById('rMarks')?.value||'',Published:'NO',Date:new Date().toISOString(),Division:getLocationValue('rDivision'),District:getLocationValue('rDistrict'),Upazila:getLocationValue('rUpazila'),Union:getLocationValue('rUnion'),Post:getLocationValue('rPost'),Ward:getLocationValue('rWard'),Village:getLocationValue('rVillage')};
+    var rr=await call('saveRecord',token,'EXAM_REG',d);toast(rr.ok?'পরীক্ষার্থী নিবন্ধন সফলভাবে সংরক্ষণ হয়েছে':(rr.message||'ব্যর্থ'));
+  };
+  function bindNewUi(){
+    makeWindow('allListWin','📋 অল তালিকা');makeWindow('classListWin','📚 শ্রেনি/ক্লাশ/জামাত ওয়ারী তালিকা');addButtons();
+    var app=document.getElementById('app');if(app&&app.classList.contains('show'))addButtons();
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(bindNewUi,300)});else setTimeout(bindNewUi,300);
+  setInterval(addButtons,1500);
+})();
+</script>
