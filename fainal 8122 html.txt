@@ -8878,6 +8878,10 @@ body.dark .all-list-head,body.dark .all-list-row{background:#000!important;color
 <script id="media-list-final-sync-fix-js">
 (function(){
   var busy=false,tries=0;
+  function getToken(){
+    try{if(typeof token!=='undefined'&&token)return token;}catch(e){}
+    return window.token||'';
+  }
   function extract(r){
     if(Array.isArray(r))return r;
     var q=[r],seen=[];
@@ -8897,22 +8901,20 @@ body.dark .all-list-head,body.dark .all-list-row{background:#000!important;color
     return [];
   }
   async function getMedia(){
-    if(busy||typeof window.call!=='function'||!window.token)return;
+    var tk=getToken();
+    if(busy||typeof window.call!=='function'||!tk)return;
     busy=true;
     try{
-      var r=await window.call('listMedia',window.token);
-      var m=extract(r);
-      /* IMPORTANT: media is a top-level let in the original page.
-         Update that binding, not only window.media. */
-      media=Array.isArray(m)?m:[];
-      window.media=media;
-      var n=Number(mediaIndex||0);if(!isFinite(n))n=0;
-      mediaIndex=media.length?((n%media.length)+media.length)%media.length:0;
-      window.mediaIndex=mediaIndex;
+      var r=await window.call('listMedia',tk),m=extract(r);
+      window.media=Array.isArray(m)?m:[];
+      var n=Number(window.mediaIndex||0);if(!isFinite(n))n=0;
+      window.mediaIndex=window.media.length?((n%window.media.length)+window.media.length)%window.media.length:0;
       if(typeof window.renderMediaList==='function')window.renderMediaList();
       if(typeof window.renderMedia==='function')window.renderMedia();
       if(typeof window.renderMediaList==='function')window.renderMediaList();
+      tries=0;
     }catch(e){
+      tries++;
       if(typeof window.toast==='function'&&tries>=8)window.toast('মিডিয়া তালিকা সার্ভার থেকে আনা যায়নি।');
     }finally{busy=false}
   }
@@ -8923,7 +8925,7 @@ body.dark .all-list-head,body.dark .all-list-row{background:#000!important;color
   },true);
   function boot(){
     var timer=setInterval(function(){
-      if(window.token){getMedia();tries++;if(tries>=30)clearInterval(timer);}
+      if(getToken()){getMedia();tries++;if(tries>=30)clearInterval(timer);}
     },1000);
     setTimeout(getMedia,500);
   }
