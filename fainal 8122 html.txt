@@ -8524,3 +8524,60 @@ body.dark .all-list-head,body.dark .all-list-row{background:#000!important;color
   setInterval(scanAllList,1000);
 })();
 </script>
+
+<!-- ===== ALL LIST HARD OPEN FIX — 2026-09-30 ===== -->
+<style id="all-list-hard-open-fix">
+#allListWin.all-list-hard-open{
+  display:flex!important;visibility:visible!important;opacity:1!important;
+  pointer-events:auto!important;
+}
+#allListBtn{
+  pointer-events:auto!important;cursor:pointer!important;position:relative!important;
+  z-index:2147483646!important;
+}
+</style>
+<script id="all-list-hard-open-fix-js">
+(function(){
+  function hardOpenAllList(){
+    var w=document.getElementById('allListWin');
+    if(!w){
+      if(typeof window.makeWindow==='function')window.makeWindow('allListWin','📋 অল তালিকা');
+      w=document.getElementById('allListWin');
+    }
+    if(!w)return false;
+    var tools=document.getElementById('allListWinTools');
+    if(tools && !document.getElementById('allListSignal')){
+      var list=(window.SIGNAL_LIST||[]);
+      tools.innerHTML='<select id="allListSignal" class="field"><option value="">তালিকা নির্বাচন করুন</option>'+
+        list.map(function(x){return '<option value="'+String(x[0]).replace(/"/g,'&quot;')+'">'+String(x[0])+' — '+String(x[1])+'</option>'}).join('')+
+        '</select><button type="button" class="primary" id="allListViewBtn">🔎 দেখুন</button>';
+      var s=document.getElementById('allListSignal');
+      if(s)s.onchange=function(){if(this.value&&typeof window.loadAllList==='function')window.loadAllList()};
+      var vb=document.getElementById('allListViewBtn');
+      if(vb)vb.onclick=function(){if(typeof window.loadAllList==='function')window.loadAllList()};
+    }
+    w.classList.add('show','all-list-hard-open');
+    w.style.setProperty('display','flex','important');
+    w.style.setProperty('visibility','visible','important');
+    w.style.setProperty('opacity','1','important');
+    w.style.setProperty('pointer-events','auto','important');
+    return false;
+  }
+  window.hardOpenAllList=hardOpenAllList;
+  window.openAllList=hardOpenAllList;
+  function bind(){
+    var b=document.getElementById('allListBtn');
+    if(!b)return;
+    b.type='button';
+    b.removeAttribute('onclick');
+    b.onclick=function(e){if(e){e.preventDefault();e.stopPropagation()}return hardOpenAllList()};
+  }
+  document.addEventListener('click',function(e){
+    var b=e.target.closest ? e.target.closest('#allListBtn') : null;
+    if(b){e.preventDefault();e.stopImmediatePropagation();hardOpenAllList();}
+  },true);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);
+  else bind();
+  setInterval(bind,500);
+})();
+</script>
