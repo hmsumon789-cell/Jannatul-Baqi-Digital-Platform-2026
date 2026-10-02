@@ -5376,26 +5376,40 @@ body #app .header-news *{
     return w;
   }
 
-  async function fillDeleteWindow(){
-    var w=ensureDeleteWindow(),body=document.getElementById('finalMediaDeleteBody');
+  function renderDeleteWindowList(body){
     if(!body)return;
-    body.innerHTML='<p>⏳ মিডিয়া তালিকা লোড হচ্ছে...</p>';
-    try{
-      var fresh=await call('listMedia',token);
-      if(Array.isArray(fresh))window.media=fresh;
-      else if(fresh&&Array.isArray(fresh.media))window.media=fresh.media;
-    }catch(e){}
-    if(!window.media||!media.length){
+    var list=Array.isArray(media)?media:[];
+    if(!list.length){
       body.innerHTML='<p style="font-weight:900">ডিলেট করার কোনো মিডিয়া নেই।</p>';
       return;
     }
     body.innerHTML='<div style="font-weight:900;margin-bottom:8px">প্রতিটি মিডিয়া আলাদা করে ডিলেট করুন:</div>'+
-      media.map(function(x,i){
+      list.map(function(x,i){
         var name=typeof escapeHtml==='function'?escapeHtml(x.Name||('Media '+(i+1))):String(x.Name||('Media '+(i+1)));
-        var typ=escapeHtml?escapeHtml(String(x.Type||'')):'';
+        var typ=(typeof escapeHtml==='function')?escapeHtml(String(x.Type||'')):String(x.Type||'');
         return '<div class="final-media-delete-row"><span><b>'+name+'</b> <small>('+typ+')</small></span>'+
           '<button type="button" class="secondary" onclick="deleteFinalMediaItem('+i+')">🗑️ ডিলেট</button></div>';
       }).join('');
+  }
+
+  function fillDeleteWindow(){
+    var w=ensureDeleteWindow(),body=document.getElementById('finalMediaDeleteBody');
+    if(!body)return;
+    /* সার্ভারের জন্য অপেক্ষা না করে আগে বর্তমান loaded media list দেখাবে। */
+    renderDeleteWindowList(body);
+    if(typeof call!=='function'||!token)return;
+    call('listMedia',token).then(function(fresh){
+      var list=Array.isArray(fresh)?fresh:(fresh&&Array.isArray(fresh.media)?fresh.media:[]);
+      if(Array.isArray(list)){
+        media=list;
+        mediaIndex=media.length?Math.min(mediaIndex,media.length-1):0;
+        renderDeleteWindowList(body);
+        if(typeof renderMedia==='function')renderMedia();
+        if(typeof renderMediaList==='function')renderMediaList();
+      }
+    }).catch(function(){
+      /* সার্ভার দেরি/ত্রুটি হলেও আগের তালিকা থাকবে। */
+    });
   }
 
   window.openFinalMediaDelete=async function(){
