@@ -9161,9 +9161,27 @@ body.dark .all-list-head,body.dark .all-list-row{background:#000!important;color
     return clean((m&&m.value)||(s&&s.value));
   };
 
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',load);
-  else load();
+  function watchDynamicForms(){
+    bindAll();
+    if(window.__LOCATION_CASCADE_OBSERVER__)return;
+    if(typeof MutationObserver==='undefined')return;
+    var root=document.body||document.documentElement;
+    if(!root)return;
+    var observer=new MutationObserver(function(){
+      bindAll();
+    });
+    observer.observe(root,{childList:true,subtree:true});
+    window.__LOCATION_CASCADE_OBSERVER__=observer;
+  }
 
-  [300,1000,2000,3500].forEach(function(ms){setTimeout(bindAll,ms);});
+  function start(){
+    load();
+    watchDynamicForms();
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);
+  else start();
+
+  [300,1000,2000,3500,5000,8000].forEach(function(ms){setTimeout(bindAll,ms);});
 })();
 </script>
