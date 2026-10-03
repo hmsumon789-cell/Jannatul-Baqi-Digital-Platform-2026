@@ -9013,3 +9013,157 @@ body.dark .all-list-head,body.dark .all-list-row{background:#000!important;color
 /* শ্রেনি/ক্লাশ/জামাত ওয়ারী তালিকার ডানে থাকা অল তালিকা বাটন বাদ */
 #allListBtn{display:none!important}
 </style>
+
+
+<!-- ===== LOCATION CASCADE SAFE FIX — 2026-10-03 ===== -->
+<script id="location-cascade-safe-fix-2026-10-03">
+(function(){
+  'use strict';
+
+  var LOCATION_ROWS = [];
+
+  function clean(v){
+    return String(v == null ? '' : v).trim();
+  }
+
+  function uniqueSorted(rows,key){
+    var seen = {}, out = [];
+    (rows||[]).forEach(function(r){
+      var v=clean(r && r[key]);
+      if(v && !seen[v]){seen[v]=1;out.push(v);}
+    });
+    return out.sort(function(a,b){return a.localeCompare(b,'bn');});
+  }
+
+  function el(id){ return document.getElementById(id); }
+
+  function value(prefix,key){
+    var s=el(prefix+key+'Select');
+    var m=el(prefix+key+'Manual');
+    return clean((m&&m.value) || (s&&s.value));
+  }
+
+  function put(prefix,key,values){
+    var s=el(prefix+key+'Select');
+    if(!s)return;
+    var old=clean(s.value);
+    s.innerHTML='<option value="">নির্বাচন করুন</option>'+
+      (values||[]).map(function(v){
+        var z=String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        return '<option value="'+z+'">'+z+'</option>';
+      }).join('');
+    if(old && (values||[]).indexOf(old)>=0)s.value=old;
+  }
+
+  function filtered(prefix,level){
+    var d=value(prefix,'Division');
+    var di=value(prefix,'District');
+    var u=value(prefix,'Upazila');
+    var un=value(prefix,'Union');
+    var p=value(prefix,'Post');
+
+    return LOCATION_ROWS.filter(function(r){
+      if(d && clean(r.division)!==d)return false;
+      if(di && clean(r.district)!==di)return false;
+      if(u && clean(r.upazila)!==u)return false;
+      if(un && clean(r.union)!==un)return false;
+      if(level==='Post' && p && clean(r.post)!==p)return false;
+      return true;
+    });
+  }
+
+  function clearBelow(prefix,keys){
+    keys.forEach(function(k){put(prefix,k,[]);});
+  }
+
+  function cascade(prefix,level){
+    var rows=filtered(prefix,level);
+    if(level==='Division'){
+      put(prefix,'District',uniqueSorted(rows,'district'));
+      clearBelow(prefix,['Upazila','Union','Post','Ward','Village']);
+    }else if(level==='District'){
+      put(prefix,'Upazila',uniqueSorted(rows,'upazila'));
+      clearBelow(prefix,['Union','Post','Ward','Village']);
+    }else if(level==='Upazila'){
+      put(prefix,'Union',uniqueSorted(rows,'union'));
+      put(prefix,'Post',uniqueSorted(rows,'post'));
+      put(prefix,'Ward',uniqueSorted(rows,'ward'));
+      put(prefix,'Village',uniqueSorted(rows,'village'));
+    }else if(level==='Union'){
+      put(prefix,'Post',uniqueSorted(rows,'post'));
+      put(prefix,'Ward',uniqueSorted(rows,'ward'));
+      put(prefix,'Village',uniqueSorted(rows,'village'));
+    }else if(level==='Post'){
+      var x=filtered(prefix,'Post');
+      put(prefix,'Ward',uniqueSorted(x,'ward'));
+      put(prefix,'Village',uniqueSorted(x,'village'));
+    }
+  }
+
+  function addPostIfMissing(prefix){
+    var union=el(prefix+'UnionSelect'), ward=el(prefix+'WardSelect');
+    if(!union || el(prefix+'PostSelect'))return;
+    var lab=document.createElement('label');
+    lab.innerHTML='ডাকঘর<select id="'+prefix+'PostSelect" class="field"></select>'+
+      '<input id="'+prefix+'PostManual" class="field location-manual" placeholder="হাতে লিখুন">';
+    if(ward && ward.closest('label'))ward.closest('label').before(lab);
+  }
+
+  function bindPrefix(prefix){
+    if(!el(prefix+'DivisionSelect'))return;
+    addPostIfMissing(prefix);
+
+    ['Division','District','Upazila','Union','Post'].forEach(function(k){
+      var s=el(prefix+k+'Select');
+      if(!s || s.dataset.locationSafeBound)return;
+      s.dataset.locationSafeBound='1';
+      s.addEventListener('change',function(){cascade(prefix,k);});
+    });
+
+    put(prefix,'Division',uniqueSorted(LOCATION_ROWS,'division'));
+    put(prefix,'District',[]);
+    put(prefix,'Upazila',[]);
+    put(prefix,'Union',[]);
+    put(prefix,'Post',[]);
+    put(prefix,'Ward',[]);
+    put(prefix,'Village',[]);
+  }
+
+  function bindAll(){
+    ['f','ad','r'].forEach(bindPrefix);
+  }
+
+  function load(){
+    if(typeof call!=='function')return;
+    call('getLocations').then(function(rows){
+      if(!Array.isArray(rows))throw new Error('লোকেশন ডাটা সঠিক নয়');
+      LOCATION_ROWS=rows.map(function(r){
+        return {
+          division:clean(r.division||r.Division),
+          district:clean(r.district||r.District),
+          upazila:clean(r.upazila||r.Upazila),
+          union:clean(r.union||r.Union),
+          ward:clean(r.ward||r.Ward),
+          post:clean(r.post||r.Post||r.postOffice),
+          village:clean(r.village||r.Village)
+        };
+      }).filter(function(r){return r.division||r.district||r.upazila||r.union;});
+      window.__LOCATION_ROWS_FIXED__=LOCATION_ROWS;
+      bindAll();
+    }).catch(function(e){
+      console.warn('Location data load failed:',e);
+      bindAll();
+    });
+  }
+
+  window.getLocationValue=function(id){
+    var m=el(id+'Manual'),s=el(id+'Select');
+    return clean((m&&m.value)||(s&&s.value));
+  };
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',load);
+  else load();
+
+  [300,1000,2000,3500].forEach(function(ms){setTimeout(bindAll,ms);});
+})();
+</script>
