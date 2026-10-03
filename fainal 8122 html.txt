@@ -804,6 +804,13 @@ body.gold #app .header-calendar-select-v2{background:#f4d56b!important;color:#11
   setInterval(stableDigitalClock,1000);
 })();
 </script>
+<style id="login-app-layer-fix-2026">
+/* LOGIN LAYER FIX — login page alone occupies the screen until successful login */
+#app:not(.show){display:none!important;visibility:hidden!important;opacity:0!important;height:0!important;overflow:hidden!important}
+#app.show{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;overflow:visible!important}
+#loginPage{display:flex!important;visibility:visible!important;opacity:1!important;min-height:100vh!important;position:relative!important;z-index:10!important}
+#loginPage[style*="display: none"]{display:none!important;visibility:hidden!important;opacity:0!important}
+</style>
 </head>
 <body>
 <div id="welcomeScreen">
@@ -1011,6 +1018,7 @@ async function login(){
       $('otpArea').classList.remove('show');
       $('loginPage').style.display='none';
       $('app').classList.add('show');
+      $('loginPage').style.display='none';
       await loadApp();
       return;
     }
