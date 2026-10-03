@@ -2192,19 +2192,16 @@ body.dark .all-search-label-final{background:#000!important;color:#ffe95c!import
   const OFFICIAL_DISTRICTS={
     'ঢাকা':['ঢাকা','ফরিদপুর','গাজীপুর','গোপালগঞ্জ','কিশোরগঞ্জ','মাদারীপুর','মানিকগঞ্জ','মুন্সীগঞ্জ','নারায়ণগঞ্জ','নরসিংদী','রাজবাড়ী','শরীয়তপুর','টাঙ্গাইল'],
     'খুলনা':['বাগেরহাট','চুয়াডাঙ্গা','যশোর','ঝিনাইদহ','খুলনা','কুষ্টিয়া','মাগুরা','মেহেরপুর','নড়াইল','সাতক্ষীরা'],
-    'চট্টগ্রাম':['বান্দরবান','ব্রাহ্মণবাড়িয়া','চাঁদপুর','চট্টগ্রাম','কুমিল্লা','কক্সবাজার','ফেনী','খাগড়াছড়ি','লক্ষ্মীপুর','নোয়াখালী','রাঙ্গামাটি'],
+    'চট্টগ্রাম':['বান্দরবান','ব্রাহ্মণবাড়িয়া','চাঁদপুর','চট্টগ্রাম','কুমিল্লা','কক্সবাজার','ফেনী','খাগড়াছড়ি','লক্ষ্মীপুর','নোয়াখালী','রাঙ্গামাটি পার্বত্য জেলা'],
     'রাজশাহী':['বগুড়া','জয়পুরহাট','নওগাঁ','নাটোর','চাঁপাইনবাবগঞ্জ','পাবনা','রাজশাহী','সিরাজগঞ্জ'],
     'সিলেট':['হবিগঞ্জ','মৌলভীবাজার','সুনামগঞ্জ','সিলেট'],
     'রংপুর':['দিনাজপুর','গাইবান্ধা','কুড়িগ্রাম','লালমনিরহাট','নীলফামারী','পঞ্চগড়','রংপুর','ঠাকুরগাঁও'],
     'ময়মনসিংহ':['জামালপুর','ময়মনসিংহ','নেত্রকোণা','শেরপুর'],
     'বরিশাল':['বরগুনা','বরিশাল','ভোলা','ঝালকাঠি','পটুয়াখালী','পিরোজপুর']
   };
-  function locKey(v){return norm(v).replace(/\s*বিভাগ\s*$/,'').replace(/\s*জেলা\s*$/,'').replace(/\s+/g,'')}
-  const DISTRICT_ALIASES={'শরীয়তপুর':'শরীয়তপুর','শরিয়তপুর':'শরীয়তপুর','নড়াইল':'নড়াইল','নড়াইল':'নড়াইল','ব্রাহ্মণবাড়িয়া':'ব্রাহ্মণবাড়িয়া','ব্রাহ্মণবাড়িয়া':'ব্রাহ্মণবাড়িয়া','নোয়াখালী':'নোয়াখালী','নোয়াখালী':'নোয়াখালী','রাঙ্গামাটি পার্বত্য জেলা':'রাঙ্গামাটি','রাঙ্গামাটি':'রাঙ্গামাটি'};
-  function districtKey(v){var n=locKey(v);return DISTRICT_ALIASES[n]||n}
   function cascade(p,k){var all=rows(),d=norm((el(p,'Division')||{}).value),di=norm((el(p,'District')||{}).value),u=norm((el(p,'Upazila')||{}).value);
-    if(k==='Division'){var a=all.filter(function(r){return !d||locKey(r.division)===locKey(d)});var official=OFFICIAL_DISTRICTS[locKey(d)];setList(p,'District',official||a.map(function(r){return r.district}));['Upazila','Union','Post','Ward','Village'].forEach(function(x){setList(p,x,[])})}
-    else if(k==='District'){var b=all.filter(function(r){return(!d||locKey(r.division)===locKey(d))&&(!di||districtKey(r.district)===districtKey(di))});setList(p,'Upazila',b.map(function(r){return r.upazila}));['Union','Post','Ward','Village'].forEach(function(x){setList(p,x,[])})}
+    if(k==='Division'){var a=all.filter(function(r){return !d||same(r.division,d)});var official=OFFICIAL_DISTRICTS[d];setList(p,'District',official||a.map(function(r){return r.district}));['Upazila','Union','Post','Ward','Village'].forEach(function(x){setList(p,x,[])})}
+    else if(k==='District'){var b=all.filter(function(r){return(!d||same(r.division,d))&&(!di||same(r.district,di))});setList(p,'Upazila',b.map(function(r){return r.upazila}));['Union','Post','Ward','Village'].forEach(function(x){setList(p,x,[])})}
     else if(k==='Upazila'){var c=all.filter(function(r){return(!d||same(r.division,d))&&(!di||same(r.district,di))&&(!u||same(r.upazila,u))});['Union','Post','Ward','Village'].forEach(function(x){setList(p,x,c.map(function(r){return r[x.toLowerCase()]}) )})}
     else if(k==='Union'){var e=filtered(p);['Post','Ward','Village'].forEach(function(x){setList(p,x,e.map(function(r){return r[x.toLowerCase()]}) )})}
   }
