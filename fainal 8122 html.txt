@@ -2327,41 +2327,7 @@ body.dark .all-search-label-final{background:#000!important;color:#ffe95c!import
 .window .win-head{cursor:move!important;user-select:none!important}
 .search-profile{max-width:100%!important}
 </style>
-<script id="safe-location-allsearch-fix-js-2026-09-18">
-(function(){
-  var LOC=[];
-  var FALLBACK=[
-    {division:'ঢাকা',district:'ঢাকা',upazila:'কেরাণীগঞ্জ',union:'শুভাঢ্যা',post:'কেরাণীগঞ্জ',ward:'১',village:'কোনাখোলা'},
-    {division:'চট্টগ্রাম',district:'চট্টগ্রাম',upazila:'পটিয়া',union:'পটিয়া',post:'পটিয়া',ward:'১',village:'পটিয়া'},
-    {division:'রাজশাহী',district:'রাজশাহী',upazila:'পবা',union:'হড়গ্রাম',post:'রাজশাহী',ward:'১',village:'হড়গ্রাম'},
-    {division:'খুলনা',district:'খুলনা',upazila:'দৌলতপুর',union:'আড়ংঘাটা',post:'খুলনা',ward:'১',village:'আড়ংঘাটা'},
-    {division:'বরিশাল',district:'বরিশাল',upazila:'বরিশাল সদর',union:'রায়পাশা-কড়াপুর',post:'বরিশাল',ward:'১',village:'রায়পাশা'},
-    {division:'সিলেট',district:'সিলেট',upazila:'সিলেট সদর',union:'জালালাবাদ',post:'সিলেট',ward:'১',village:'জালালাবাদ'},
-    {division:'রংপুর',district:'রংপুর',upazila:'রংপুর সদর',union:'হরিদেবপুর',post:'রংপুর',ward:'১',village:'হরিদেবপুর'},
-    {division:'ময়মনসিংহ',district:'ময়মনসিংহ',upazila:'ময়মনসিংহ সদর',union:'খাগডহর',post:'ময়মনসিংহ',ward:'১',village:'খাগডহর'}
-  ];
-  function el(p,k){return document.getElementById(p+k+'Select')}
-  function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
-  function uniq(a){var o=[];(a||[]).forEach(function(v){v=String(v||'').trim();if(v&&o.indexOf(v)<0)o.push(v)});return o}
-  function rows(){return LOC.length?LOC:FALLBACK}
-  function setList(p,k,list){var x=el(p,k);if(!x)return;var old=x.value;var arr=uniq(list);x.innerHTML='<option value="">'+({'Division':'বিভাগ','District':'জেলা','Upazila':'উপজেলা / থানা','Union':'ইউনিয়ন','Post':'ডাকঘর','Ward':'ওয়ার্ড','Village':'গ্রাম'}[k]||k)+' নির্বাচন করুন</option>'+arr.map(function(v){return '<option value="'+esc(v)+'">'+esc(v)+'</option>'}).join('');if(arr.indexOf(old)>=0)x.value=old}
-  function filtered(p){var d=(el(p,'Division')||{}).value||'',di=(el(p,'District')||{}).value||'',u=(el(p,'Upazila')||{}).value||'',un=(el(p,'Union')||{}).value||'';return rows().filter(function(r){return(!d||r.division===d)&&(!di||r.district===di)&&(!u||r.upazila===u)&&(!un||r.union===un)})}
-  function cascade(p,k){var all=rows(),d=(el(p,'Division')||{}).value||'',di=(el(p,'District')||{}).value||'',u=(el(p,'Upazila')||{}).value||'';
-    if(k==='Division'){var a=all.filter(function(r){return !d||r.division===d});setList(p,'District',a.map(function(r){return r.district}));['Upazila','Union','Post','Ward','Village'].forEach(function(x){setList(p,x,[])})}
-    else if(k==='District'){var b=all.filter(function(r){return(!d||r.division===d)&&(!di||r.district===di)});setList(p,'Upazila',b.map(function(r){return r.upazila}));['Union','Post','Ward','Village'].forEach(function(x){setList(p,x,[])})}
-    else if(k==='Upazila'){var c=all.filter(function(r){return(!d||r.division===d)&&(!di||r.district===di)&&(!u||r.upazila===u)});['Union','Post','Ward','Village'].forEach(function(x){setList(p,x,c.map(function(r){return r[x.toLowerCase()]}) )})}
-    else if(k==='Union'){var e=filtered(p);['Post','Ward','Village'].forEach(function(x){setList(p,x,e.map(function(r){return r[x.toLowerCase()]}) )})}
-  }
-  function ensurePost(p){var u=el(p,'Union'),w=el(p,'Ward');if(u&&!el(p,'Post')){var lab=document.createElement('label');lab.innerHTML='ডাকঘর<select id="'+p+'PostSelect" class="field"></select><input id="'+p+'PostManual" class="field location-manual" placeholder="হাতে লিখুন / অন্যটি">';if(w&&w.closest('label'))w.closest('label').before(lab)}}
-  function bind(p){ensurePost(p);['Division','District','Upazila','Union'].forEach(function(k){var x=el(p,k);if(x&&!x.dataset.safeLocBound){x.dataset.safeLocBound='1';x.addEventListener('change',function(){cascade(p,k)})}});setList(p,'Division',rows().map(function(r){return r.division}));}
-  function bindAll(){['f','ad','r'].forEach(function(p){if(el(p,'Division'))bind(p)})}
-  function addAllSearch(){var row=document.querySelector('.header-search-row-final');if(!row)return;var old=row.querySelector('.all-search-label-final');if(old)old.remove();if(!row.querySelector('.header-home-final')){var x=document.createElement('button');x.className='primary header-home-final';x.type='button';x.title='Home';x.textContent='🏠 হোম';x.onclick=function(){goHome()};row.insertBefore(x,row.firstChild)}row.style.display='flex';row.style.visibility='visible';row.style.opacity='1'}
-  async function loadLoc(){try{var r=await call('getLocations');LOC=Array.isArray(r)?r:(r&&Array.isArray(r.data)?r.data:[])}catch(e){LOC=[]}addAllSearch();bindAll()}
-  function start(){addAllSearch();loadLoc();bindAll()}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
-  setTimeout(addAllSearch,500);setTimeout(bindAll,700);
-})();
-</script>
+
 </body>
 </html>
 
