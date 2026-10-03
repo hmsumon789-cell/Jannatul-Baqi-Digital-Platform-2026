@@ -8316,3 +8316,46 @@ body.gold #searchProfilePrint .sp-field{border-color:#d40000!important}
   document.head.appendChild(style);
 })();
 </script>
+
+<script id="exam-registration-class-subjects-2026">
+(function(){
+const EXAM_SUBJECTS_2026={
+'প্লে শ্রেনী':['নুরানী কায়দা','নুরানী নিসাব','ইসলামী ও আরবী শিক্ষা','বাংলা','অংক','ইংরেজী','হাতের লেখা'],
+'শিশু শ্রেনী':['নুরানী কায়দা','নুরানী নিসাব','ছড়া ছবি','বাংলা','অংক','ইংরেজী','হাতের লেখা'],
+'আউয়াল জামাত':['নুরানী কায়দা ও নুরানী নিসাব','আদ্দুরুসুল আরাবিয়া ১ম','আলকেরাআতুল আরাবিয়া','আকাইদ ফিকাহ','বাংলা','অংক','ইংরেজী'],
+'ছানী জামাত':['আমপারা ও নুরানী নিসাব','আদ্দুরুসুল আরাবিয়া ২য়','আলকেরাআতুল আরাবিয়া ১ম খন্ড','আকাইদ ফিকাহ','বাংলা','অংক','ইংরেজী- গ্রামার ও ওয়ার্ড বুক'],
+'ছালেছ জামাত':['কুরআন শরিফ ও তাজবীদ','উর্দু কায়দা ও তালিমুল ইসলাম ১ম','আদ্দুরুসুল আরাবিয়া ৩য়','আলকেরাআতুল ও আকাইদ ফিকাহ','বাংলা','অংক','ইংরেজী - গ্রামার ও ওয়ার্ড বুক'],
+'রাবে জামাত':['কুরআন শরীফ নজরানা, প্রথম ১০ পারা','উর্দু পহেলী ও দোসরী','তালিমুল ইসলাম ১ম ২য় ও ৩য়','এসো আরবী সিখি ১ম','বাংলা','অংক','ইংরেজী- গ্রামার ও ওয়ার্ড বুক'],
+'পঞ্চম জামাত':['তেলাওয়াত ও তাজবিদ পুর্ন কুরআান শরীফ','নুজহাতুল কারী','তালিমুল ইসলাম ৪র্থ খন্ড','এসো আরবী সিখি ১ম','বাংলা ও ব্যাকরন ৫ম','অংক ৫ম','ইংরেজী ও গ্রামার ৫ম','ইতিহাস পাঠ - ভূগোল ও সমাজ ৫ম'],
+'মিজান জামাত':['কুরআন শরীফ নাজেরা ১১-২০ পারা','মিজান মুনশাইব','সফওয়াতুল মাছাদির','বাকুরাতুল আদব','এসো আরবী শিখি ২য়','বেহেস্তী জেওর ১ম ২য় ও উর্দু দোসরী','বাংলা সাহিত্য সওগাত ৬ষ্ট ও ব্যাকরন ৬ষ্ট','গনিত ৬ষ্ট','ইংলিশ ও গ্রামার ৬ষ্ট','ইতিহাস পাঠ - ভূগোল ও সমাজ পরিচিতি ৬ষ্ট'],
+'নাহবেমীর জামাত':['নাহবেমীর','শরহু মিয়াতে আমিল','রওজাতুল আদব','আল ফিকহুল মুয়াস্সার/ নুরুল ইযাহ','ইলমুচ্ছরফ ৩য় ৪র্থ খন্ড','সিরাতে খাতেমুল আম্বিয়া','বাংলা ও ব্যাকরন ৭ম শ্রেণি'],
+'কুদুরী জামাত':['কুরআন তরজমা ২৬-৩০ পারা','মুখতাছারুল কুদুরী কিতাবুল ইমান','মুখতাছারুল কুদুরী কিতাবুল বুয়ূ','হেদায়াতুন্নাহু','উছুলুশ শ্বাশী','ইলমুচ্ছিগাহ','যাদুত ত্বলিবিন','বাংলা ৮ম শ্রেণি'],
+'শরহে বেকায়া জামাত':['কুরআন তরজমা ১-১৫ পারা','শরহে বেকায়া ১ম ও ২য়','দুরুসুল বালাগাত/মুখতাসারুল মায়ানী','নুরুল আনোয়ার কিতাবুল্লাহ','কাফিয়া','আত্বরীকু ইলাল ইনশা ৩য়','মাকামাতে হারীরী/ মুখতারাত'],
+'হেদায়া জামাত':['কুরআন তরজমা ১৬-২৫ পারা','হেদায়া ১ম','হেদায়া ২য়','নুরুল আনোয়ার সুন্নাহ','ফয়জুল কালাম','সিরাজী','রিয়াজুস ছলিহিন'],
+'মিশকাত জামাত':['মিশকাত শরিফ ১ম','মিশকাত শরিফ ২য়','জালালাইন শরিফ ১ম','জালালাইন শরিফ ২য়','আকীদাতুত তাহাবী','হেদায়া ৩য়','হেদায়া ৪র্থ'],
+'দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)':['বুখারী শরিফ ১ম','বুখারী শরিফ ২য়','মুসলিম শরিফ ১ম','মুসলিম শরিফ ২য়','তিরমিযী শরীফ ১ম','তিরমিযী শরীফ ২য়','আবু দাউদ শরিফ পুর্ন','তাহাবী শরীফ পূর্ন','নাসায়ী ও ইবনু মাজাহ পুন','মুয়াত্তা ইমাম মালেক ও মুহাম্মদ পূর্ন','তেলাওয়াত ও তাজবিদ পুর্ন কুরআান শরীফ']
+};
+const classes=Object.keys(EXAM_SUBJECTS_2026);
+function loadExamSubjects2026(){
+ const cls=document.getElementById('examClass2026')?.value||'';
+ const list=EXAM_SUBJECTS_2026[cls]||[];
+ for(let i=1;i<=12;i++){const s=document.getElementById('examSubject'+i);if(!s)continue;s.innerHTML='<option value="">বিষয় নির্বাচন করুন</option>'+list.map(x=>'<option>'+x+'</option>').join('');}
+}
+window.loadExamSubjects2026=loadExamSubjects2026;
+const oldModuleForm=window.moduleForm;
+window.moduleForm=function(k){
+ if(k!=='exam')return oldModuleForm(k);
+ let h='<div class="form-grid"><label>Student ID<input id="rStudent" class="field"></label><label>নাম<input id="rName" class="field"></label><label>শ্রেনি / জামাত<select id="examClass2026" class="field" onchange="loadExamSubjects2026()">'+classes.map(x=>'<option>'+x+'</option>').join('')+'</select></label><label>পরীক্ষা<input id="rExam" class="field"></label></div><div class="mr-subject-title-2026">পরীক্ষার্থী নিবন্ধন — বিষয় নির্বাচন</div>';
+ for(let i=1;i<=12;i++)h+='<label style="display:block;margin:7px 0">বিষয় '+i+' / Subject<select id="examSubject'+i+'" class="field"><option value="">বিষয় নির্বাচন করুন</option></select></label>';
+ h+='<div class="form-grid"><label>বিভাগ<select id="rDivisionSelect" class="field"></select></label><label>জেলা<select id="rDistrictSelect" class="field"></select></label><label>উপজেলা / থানা<select id="rUpazilaSelect" class="field"></select></label><label>ইউনিয়ন<select id="rUnionSelect" class="field"></select></label><label>ডাকঘর<select id="rPostSelect" class="field"></select></label><label>ওয়ার্ড<select id="rWardSelect" class="field"></select></label><label>গ্রাম<select id="rVillageSelect" class="field"></select></label></div><button class="primary" onclick="saveResult('exam')">Save</button>';
+ return h;
+};
+const oldSave=window.saveResult;
+window.saveResult=async function(k){
+ if(k!=='exam')return oldSave(k);
+ const subjects=[];for(let i=1;i<=12;i++){const v=document.getElementById('examSubject'+i)?.value||'';if(v)subjects.push(v);}
+ const d={StudentID:document.getElementById('rStudent')?.value||'',Name:document.getElementById('rName')?.value||'',Class:document.getElementById('examClass2026')?.value||'',Exam:document.getElementById('rExam')?.value||'',SubjectData:JSON.stringify(subjects),Published:'NO',Date:new Date().toISOString(),Division:getLocationValue('rDivision'),District:getLocationValue('rDistrict'),Upazila:getLocationValue('rUpazila'),Union:getLocationValue('rUnion'),Post:getLocationValue('rPost'),Ward:getLocationValue('rWard'),Village:getLocationValue('rVillage')};
+ const r=await call('saveRecord',token,'EXAM_REG',d);toast(r.ok?'পরীক্ষার্থী নিবন্ধন সফলভাবে সংরক্ষণ হয়েছে':(r.message||'ব্যর্থ'));
+};
+})();
+</script>
