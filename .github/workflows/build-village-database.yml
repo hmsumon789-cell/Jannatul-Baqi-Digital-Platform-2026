@@ -1,0 +1,51 @@
+name: Build Bangladesh Village Database
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-village-database.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download verified Bangladesh location release
+        run: |
+          curl -L --fail --retry 3 -o /tmp/address-bd-data.tar.zst \
+            "https://github.com/montasim/bangladesh-location-registry/releases/download/data-2026.08.04/address-bd-data-2026.08.04-json.tar.zst"
+          echo "9b76179403d735231604aa460031b29b1a60123112f6ea5b27996269c1cd604c  /tmp/address-bd-data.tar.zst" | sha256sum -c -
+
+      - name: Extract villages
+        run: |
+          mkdir -p /tmp/village-db
+          tar --use-compress-program=unzstd -xf /tmp/address-bd-data.tar.zst -C /tmp/village-db
+          V=$(find /tmp/village-db -type f -path "*/json/entities/villages.json" | head -n 1)
+          test -n "$V"
+          cp "$V" VillageDatabase-2026.08.04.json
+          gzip -9 -c VillageDatabase-2026.08.04.json > VillageDatabase-2026.08.04.json.gz
+          python - <<'PY'
+          import json
+          p="VillageDatabase-2026.08.04.json"
+          d=json.load(open(p,encoding="utf-8"))
+          assert d.get("recordCount")==len(d.get("records",[]))
+          assert d.get("recordCount")==90049
+          print("Village records:", d["recordCount"])
+          PY
+          rm VillageDatabase-2026.08.04.json
+
+      - name: Commit village database
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add VillageDatabase-2026.08.04.json.gz
+          git diff --cached --quiet && exit 0
+          git commit -m "Add Bangladesh village database 2026.08.04"
+          git push
