@@ -8444,3 +8444,43 @@ window.saveResult=async function(k){
   setInterval(function(){bind();examBoot()},700);
 })();
 </script>
+<script id="exam-registration-hard-fix-2026">
+(function(){
+  function rebuildExam(){
+    var w=document.getElementById('winBody'),s=document.getElementById('examClass2026');
+    if(!w||!s)return;
+    if(typeof window.loadExamSubjects2026==='function')window.loadExamSubjects2026();
+  }
+  var baseOpen=window.openModule;
+  if(typeof baseOpen==='function'){
+    window.openModule=function(k){
+      baseOpen(k);
+      if(k==='exam'){
+        setTimeout(function(){
+          var s=document.getElementById('examClass2026');
+          if(!s){
+            var body=document.getElementById('winBody');
+            if(body&&typeof window.moduleForm==='function'){
+              var extra='<div class="form-signatures"><div class="signature-box"><div>আবেদনকারীর স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>অভিভাবকের স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>প্রধান শিক্ষিকার স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>প্রিন্সিপাল/মুহতামিম এর স্বাক্ষর</div><div class="signature-line"></div></div></div><div class="form-action-bar"><button type="button" class="primary" onclick="saveCurrentForm()">💾 সেভ</button><button type="button" class="secondary" onclick="printCurrentForm()">🖨️ প্রিন্ট</button><button type="button" class="secondary" onclick="enableFormEdit()">✏️ এডিট</button><button type="button" class="secondary" onclick="downloadCurrentForm()">⬇️ ডাউনলোড</button><button type="button" class="secondary" onclick="clearFormWindow()">🧹 ক্লিয়ার</button></div>';
+              body.innerHTML='<div class="form-language-fixed"><span>বাংলা</span><span>العربية</span><span>English</span></div>'+window.moduleForm('exam')+extra;
+            }
+          }
+          rebuildExam();
+        },80);
+      }
+    };
+  }
+  var oldSave=window.saveResult;
+  window.saveResult=async function(k){
+    if(k!=='exam')return oldSave(k);
+    try{
+      var subjects=[];for(var i=1;i<=12;i++){var v=document.getElementById('examSubject'+i);if(v&&v.value)subjects.push(v.value);}
+      if(!subjects.length){toast('অন্তত ১টি বিষয় নির্বাচন করুন।');return;}
+      var loc=function(id){try{return typeof getLocationValue==='function'?getLocationValue(id):''}catch(e){return ''}};
+      var d={StudentID:(document.getElementById('rStudent')||{}).value||'',Name:(document.getElementById('rName')||{}).value||'',Class:(document.getElementById('examClass2026')||{}).value||'',Exam:(document.getElementById('rExam')||{}).value||'',SubjectData:JSON.stringify(subjects),Published:'NO',Date:new Date().toISOString(),Division:loc('rDivision'),District:loc('rDistrict'),Upazila:loc('rUpazila'),Union:loc('rUnion'),Post:loc('rPost'),Ward:loc('rWard'),Village:loc('rVillage')};
+      var r=await call('saveRecord',token,'EXAM_REG',d);
+      toast(r&&r.ok?'পরীক্ষার্থী নিবন্ধন সফলভাবে সংরক্ষণ হয়েছে':((r&&r.message)||'সংরক্ষণ ব্যর্থ হয়েছে'));
+    }catch(e){toast('পরীক্ষার্থী নিবন্ধন সংরক্ষণে সার্ভার ত্রুটি হয়েছে।');}
+  };
+})();
+</script>
