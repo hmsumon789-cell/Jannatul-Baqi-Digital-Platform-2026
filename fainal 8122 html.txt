@@ -8088,6 +8088,31 @@ body.gold #searchProfilePrint .sp-field{border-color:#d40000!important}
 })();
 </script>
 <!-- ===== 8,089 BASE FINAL FIXES — 2026-10-03 ===== -->
+<style id="final-8089-form-fullscreen-override">
+/* Form fullscreen: #formWin-এর আগের উচ্চ-সুনির্দিষ্ট CSS যেন fullscreen আটকাতে না পারে */
+#formWin.user-fullscreen-2026{
+  position:fixed!important;
+  left:0!important;
+  top:0!important;
+  width:100vw!important;
+  height:100vh!important;
+  max-width:none!important;
+  max-height:none!important;
+  min-width:0!important;
+  min-height:0!important;
+  margin:0!important;
+  transform:none!important;
+  overflow:hidden!important;
+  z-index:2147483000!important;
+  border-radius:0!important;
+}
+#formWin.user-fullscreen-2026 .win-body{
+  width:100%!important;
+  height:calc(100vh - 58px)!important;
+  max-height:none!important;
+  overflow:auto!important;
+}
+</style>
 <style id="final-8089-fixes">
 .student-meta-row-2026{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important;width:100%!important;margin:0 0 10px!important;padding:0!important;box-sizing:border-box!important}
 .student-meta-row-2026 label{display:flex!important;flex-direction:column!important;gap:4px!important;font-weight:900!important}
