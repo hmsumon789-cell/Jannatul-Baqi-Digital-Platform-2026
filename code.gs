@@ -653,11 +653,18 @@ function getSheetData(token,sheetName,limit) {
 }
 
 function getLocations() {
-  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.LOCATION_MASTER);
-  if(!sh) return [];
-  const v=sh.getDataRange().getValues();
+  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  const sh=ss.getSheetByName('LOCATION_DB_NEW');
+  if(sh && sh.getLastRow()>=2){
+    return sh.getRange(2,1,sh.getLastRow()-1,8).getValues()
+      .filter(r=>r.some(v=>String(v||'').trim()!==''))
+      .map(r=>({division:r[0],district:r[1],upazila:r[2],union:r[3],ward:r[4],post:r[5],postcode:r[6],village:r[7]}));
+  }
+  const old=ss.getSheetByName(SHEETS.LOCATION_MASTER);
+  if(!old) return [];
+  const v=old.getDataRange().getValues();
   if(v.length<2) return [];
-  return v.slice(1).filter(r=>r.join('')!=='').map(r=>({division:r[0],district:r[1],upazila:r[2],union:r[3],ward:r[4],post:r[5],village:r[6]}));
+  return v.slice(1).filter(r=>r.join('')!=='').map(r=>({division:r[0],district:r[1],upazila:r[2],union:r[3],ward:r[4],post:r[5],postcode:'',village:r[6]}));
 }
 
 function getRunningNews_(){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.CONFIG); if(!sh||sh.getLastRow()<2)return 'জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম'; const v=sh.getDataRange().getValues(); for(let i=1;i<v.length;i++){ if(String(v[i][0])==='RUNNING_NEWS') return String(v[i][1]||''); } return 'জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম'; }
