@@ -804,13 +804,6 @@ body.gold #app .header-calendar-select-v2{background:#f4d56b!important;color:#11
   setInterval(stableDigitalClock,1000);
 })();
 </script>
-<style id="login-app-layer-fix-2026">
-/* LOGIN LAYER FIX — login page alone occupies the screen until successful login */
-#app:not(.show){display:none!important;visibility:hidden!important;opacity:0!important;height:0!important;overflow:hidden!important}
-#app.show{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;overflow:visible!important}
-#loginPage{display:flex!important;visibility:visible!important;opacity:1!important;min-height:100vh!important;position:relative!important;z-index:10!important}
-#loginPage[style*="display: none"]{display:none!important;visibility:hidden!important;opacity:0!important}
-</style>
 </head>
 <body>
 <div id="welcomeScreen">
@@ -1018,7 +1011,6 @@ async function login(){
       $('otpArea').classList.remove('show');
       $('loginPage').style.display='none';
       $('app').classList.add('show');
-      $('loginPage').style.display='none';
       await loadApp();
       return;
     }
@@ -1097,7 +1089,7 @@ $('winBody').innerHTML='<div class="form-language-fixed"><span>বাংলা</
 $('formWin').classList.remove('minimized');
 $('formWin').style.height='';
 openWindow('formWin');
-setTimeout(function(){clearFormWindow(false);if((key==='result'||key==='marks')&&typeof renderResultSubjects2026==='function')renderResultSubjects2026();},0);
+setTimeout(function(){clearFormWindow(false);},0);
 }
 function locationField(id,label,options){
   return `<label>${label} / Dropdown<select id="${id}Select" class="field"><option value="">নির্বাচন করুন</option>${options.map(x=>`<option>${x}</option>`).join('')}</select><input id="${id}Manual" class="field" placeholder="হাতে লিখুন"></label>`;
@@ -1109,34 +1101,6 @@ const LOCATION_UNIONS=['কোনাখোলা','আগানগর','বা�
 const LOCATION_WARDS=['১ নং ওয়ার্ড','২ নং ওয়ার্ড','৩ নং ওয়ার্ড','৪ নং ওয়ার্ড','৫ নং ওয়ার্ড','৬ নং ওয়ার্ড','৭ নং ওয়ার্ড','৮ নং ওয়ার্ড','৯ নং ওয়ার্ড'];
 const LOCATION_VILLAGES=['কোনাখোলা','মডেল টাউন','জিঞ্জিরা','শুভাঢ্যা','আগানগর','বাস্তা','তেঘরিয়া'];
 function getLocationValue(id){const m=document.getElementById(id+'Manual')?.value.trim();const s=document.getElementById(id+'Select')?.value||'';return m||s||'';}
-<script id="marksheet-result-subject-map-2026">
-const RESULT_CLASS_SUBJECTS_2026={
-'প্লে শ্রেনি':['নুরানী কায়দা','নুরানী নিসাব','ইসলামী ও আরবী শিক্ষা','বাংলা','অংক','ইংরেজী','হাতের লেখা'],
-'শিশু শ্রেনি':['নুরানী কায়দা','নুরানী নিসাব','ছড়া ছবি','বাংলা','অংক','ইংরেজী','হাতের লেখা'],
-'আউয়াল জামাত':['নুরানী কায়দা ও নুরানী নিসাব','আদ্দুরুসুল আরাবিয়া ১ম','আলকেরাআতুল আরাবিয়া','আকাইদ ফিকাহ','বাংলা','অংক','ইংরেজী'],
-'ছানী জামাত':['আমপারা ও নুরানী নিসাব','আদ্দুরুসুল আরাবিয়া ২য়','আলকেরাআতুল আরাবিয়া ১ম খন্ড','আকাইদ ফিকাহ','বাংলা','অংক','ইংরেজী- গ্রামার ও ওয়ার্ড বুক'],
-'ছালেছ জামাত':['কুরআন শরিফ ও তাজবীদ','উর্দু কায়দা ও তালিমুল ইসলাম ১ম','আদ্দুরুসুল আরাবিয়া ৩য়','আলকেরাআতুল ও আকাইদ ফিকাহ','বাংলা','অংক','ইংরেজী - গ্রামার ও ওয়ার্ড বুক'],
-'রাবে জামাত':['কুরআন শরীফ নজরানা, প্রথম ১০ পারা','উর্দু পহেলী ও দোসরী','তালিমুল ইসলাম ১ম ২য় ও ৩য়','এসো আরবী সিখি ১ম','বাংলা','অংক','ইংরেজী- গ্রামার ও ওয়ার্ড বুক'],
-'পঞ্চম জামাত':['তেলাওয়াত ও তাজবিদ পুর্ন কুরআান শরীফ','নুজহাতুল কারী','তালিমুল ইসলাম ৪র্থ খন্ড','এসো আরবী সিখি ১ম','বাংলা ও ব্যাকরন ৫ম','অংক ৫ম','ইংরেজী ও গ্রামার ৫ম','ইতিহাস পাঠ - ভূগোল ও সমাজ ৫ম'],
-'মিজান জামাত':['কুরআন শরীফ নাজেরা ১১-২০ পারা','মিজান মুনশাইব','সফওয়াতুল মাছাদির','বাকুরাতুল আদব','এসো আরবী শিখি ২য়','বেহেস্তী জেওর ১ম ২য় ও উর্দু দোসরী','বাংলা সাহিত্য সওগাত ৬ষ্ট ও ব্যাকরন ৬ষ্ট','গনিত ৬ষ্ট','ইংলিশ ও গ্রামার ৬ষ্ট','ইতিহাস পাঠ - ভূগোল ও সমাজ পরিচিতি ৬ষ্ট'],
-'নাহবেমীর জামাত':['নাহবেমীর','শরহু মিয়াতে আমিল','রওজাতুল আদব','আল ফিকহুল মুয়াস্সার/ নুরুল ইযাহ','ইলমুচ্ছরফ ৩য় ৪র্থ খন্ড','সিরাতে খাতেমুল আম্বিয়া','বাংলা ও ব্যাকরন ৭ম শ্রেণি'],
-'কুদুরী জামাত':['কুরআন তরজমা ২৬-৩০ পারা','মুখতাছারুল কুদুরী কিতাবুল ইমান','মুখতাছারুল কুদুরী কিতাবুল বুয়ূ','হেদায়াতুন্নাহু','উছুলুশ শ্বাশী','ইলমুচ্ছিগাহ','যাদুত ত্বলিবিন','বাংলা ৮ম শ্রেণি'],
-'শরহে বেকায়া জামাত':['কুরআন তরজমা ১-১৫ পারা','শরহে বেকায়া ১ম ও ২য়','দুরুসুল বালাগাত/মুখতাসারুল মায়ানী','নুরুল আনোয়ার কিতাবুল্লাহ','কাফিয়া','আত্বরীকু ইলাল ইনশা ৩য়','মাকামাতে হারীরী/ মুখতারাত'],
-'হেদায়া জামাত':['কুরআন তরজমা ১৬-২৫ পারা','হেদায়া ১ম','হেদায়া ২য়','নুরুল আনোয়ার সুন্নাহ','ফয়জুল কালাম','সিরাজী','রিয়াজুস ছলিহিন'],
-'মিশকাত জামাত':['মিশকাত শরিফ ১ম','মিশকাত শরিফ ২য়','জালালাইন শরিফ ১ম','জালালাইন শরিফ ২য়','আকীদাতুত তাহাবী','হেদায়া ৩য়','হেদায়া ৪র্থ'],
-'দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)':['বুখারী শরিফ ১ম','বুখারী শরিফ ২য়','মুসলিম শরিফ ১ম','মুসলিম শরিফ ২য়','তিরমিযী শরীফ ১ম','তিরমিযী শরীফ ২য়','আবু দাউদ শরিফ পুর্ন','তাহাবী শরীফ পূর্ন','নাসায়ী ও ইবনু মাজাহ পুন','মুয়াত্তা ইমাম মালেক ও মুহাম্মদ পূর্ন','তেলাওয়াত ও তাজবিদ পুর্ন কুরআান শরীফ']
-};
-function renderResultSubjects2026(){
- const cls=document.getElementById('rClass'),box=document.getElementById('rSubjectRows');if(!cls||!box)return;
- const list=RESULT_CLASS_SUBJECTS_2026[cls.value]||[],opts=list.map(x=>'<option value="'+x+'">'+x+'</option>').join('');
- box.innerHTML=Array.from({length:12},(_,i)=>{const s=list[i]||'';return '<div class="result-subject-row-2026"><span>'+(i+1)+'</span><select id="rSubject'+(i+1)+'" class="field" '+(s?'':'disabled')+'><option value="">বিষয় নির্বাচন করুন</option>'+opts+'</select><input id="rMark'+(i+1)+'" class="field" type="number" min="0" max="100" placeholder="নম্বর" '+(s?'':'disabled')+'></div>'}).join('');
- Array.from({length:12},(_,i)=>{const el=document.getElementById('rSubject'+(i+1));if(el&&list[i])el.value=list[i]});
-}
-</script>
-<style id="marksheet-result-subject-style-2026">
-.result-subject-list-2026{display:grid;gap:6px;margin-top:8px}.result-subject-head-2026{display:grid;grid-template-columns:42px 1fr 130px;gap:6px;font-weight:900}.result-subject-row-2026{display:grid;grid-template-columns:42px 1fr 130px;gap:6px;align-items:center}.result-subject-row-2026>span{font-weight:900;text-align:center}.result-subject-row-2026 select.field,.result-subject-row-2026 input.field{width:100%}
-@media(max-width:700px){.result-subject-head-2026,.result-subject-row-2026{grid-template-columns:32px 1fr 95px}}
-</style>
 function moduleForm(k){
 const common=`<div class="student-meta-row-2026"><label>আইডি লিখুন<input id="fStudentID" class="field"></label><label>জন্ম তারিখ লিখুন<input id="fDob" class="field" type="date"></label><label>তারিখ লিখুন<input id="fRecordDate" class="field" type="date"></label></div><div class="form-grid">
 <label>বাংলা নাম<input id="fNameBN" class="field"></label>
@@ -1192,7 +1156,7 @@ ${locationField('adVillage','গ্রাম',['কোনাখোলা','ম�
 <label>জাতীয় ১৭ ডিজিট NID<input id="adNid" class="field"></label>
 <label class="full">ঠিকানা / Address<textarea id="adAddress" class="field"></textarea></label>
 </div><button class="primary" onclick="saveModule('admission')">Save Admission</button>`;
-if(['result','marks'].includes(k))return `<div class="student-meta-row-2026"><label>আইডি লিখুন<input id="rStudentMeta" class="field"></label><label>জন্ম তারিখ লিখুন<input id="rDob" class="field" type="date"></label><label>তারিখ লিখুন<input id="rRecordDate" class="field" type="date"></label></div><div class="form-grid"><label>Student ID<input id="rStudent" class="field"></label><label>নাম<input id="rName" class="field"></label><label>শ্রেনি/জামাত<select id="rClass" class="field" onchange="renderResultSubjects2026()">${Object.keys(RESULT_CLASS_SUBJECTS_2026).map(x=>`<option>${x}</option>`).join('')}</select></label><label>পরীক্ষা<input id="rExam" class="field"></label></div><div class="result-subject-list-2026"><div class="result-subject-head-2026"><span>নং</span><span>বিষয় / Subject</span><span>নম্বর</span></div><div id="rSubjectRows"></div></div><button class="primary" onclick="saveResult('${k}')">Save</button>`;
+if(['result','marks','exam'].includes(k))return `<div class="student-meta-row-2026"><label>আইডি লিখুন<input id="rStudentMeta" class="field"></label><label>জন্ম তারিখ লিখুন<input id="rDob" class="field" type="date"></label><label>তারিখ লিখুন<input id="rRecordDate" class="field" type="date"></label></div><div class="form-grid"><label>Student ID<input id="rStudent" class="field"></label><label>নাম<input id="rName" class="field"></label><label>শ্রেনি<input id="rClass" class="field"></label><label>পরীক্ষা<input id="rExam" class="field"></label><label class="full">Subject/Marks JSON<textarea id="rSubjects" class="field" placeholder='{"বাংলা":80,"আরবি":85}'></textarea></label></div><button class="primary" onclick="saveResult('${k}')">Save</button>`;
 return `<p>এই ফিচারের জন্য ৩ ভাষা, A4, ৩ কলাম উইন্ডো কাঠামো প্রস্তুত। প্রয়োজনীয় তথ্য পূরণ করুন।</p><div class="form-grid"><label class="full">বিবরণ<textarea class="field" rows="8" id="genericData"></textarea></label></div><button class="primary" onclick="toast('ফিচার উইন্ডো প্রস্তুত')">Save</button>`;
 }
 async function saveModule(k){
@@ -1206,7 +1170,7 @@ Class:document.getElementById('fClass')?.value||'',Department:document.getElemen
 if(k==='student')d.Gender='';const r=await call('saveRecord',token,s,d);toast(r.ok?'সফলভাবে সংরক্ষণ হয়েছে':'ব্যর্থ')}
 async function saveAdmin(){const photo=await fileData('aPhoto');const d={NameBN:$('aName').value,NameAR:$('aAr').value,NameEN:$('aEn').value,Username:$('aUser').value,Password:$('aPass').value,Email:$('aEmail').value,Mobile:$('aMobile').value,WhatsApp:$('aWa').value,ApprovalID:$('aApproval').value,Address:$('aAddress').value,Photo:photo,BirthReg:$('aBirth').value,NID:$('aNid').value};const r=await call('createAdmin',token,d);toast(r.message||('Admin ID: '+r.adminId))}
 async function savePayment(){const d={StudentID:$('pStudent').value,Name:$('pName').value,Month:$('pMonth').value,Category:$('pCat').value,Amount:Number($('pAmount').value),Method:$('pMethod').value,Date:new Date().toISOString(),Note:$('pNote').value};const r=await call('saveRecord',token,'PAYMENTS',d);toast(r.ok?'Payment saved':'Failed');}
-async function saveResult(k){const subjects={};for(let i=1;i<=12;i++){const s=$('rSubject'+i),m=$('rMark'+i);if(s&&s.value&&m&&m.value!=='')subjects[s.value]=Number(m.value)}const d={StudentID:$('rStudent').value||$('rStudentMeta').value,DOB:$('rDob').value||'',RecordDate:$('rRecordDate').value||'',Name:$('rName').value,Class:$('rClass').value,Exam:$('rExam').value,SubjectData:JSON.stringify(subjects),Published:'NO',Date:new Date().toISOString()};const r=await call('saveRecord',token,'RESULTS',d);toast(r.ok?'Saved':'Failed')}
+async function saveResult(k){const d={StudentID:$('rStudent').value,Name:$('rName').value,Class:$('rClass').value,Exam:$('rExam').value,SubjectData:$('rSubjects').value,Published:'NO',Date:new Date().toISOString()};const r=await call('saveRecord',token,'RESULTS',d);toast(r.ok?'Saved':'Failed')}
 async function uploadMedia(){
   const input=$('mediaFiles');
   if(!input||!input.files||!input.files.length)return toast('প্রথমে ফটো/ভিডিও/অডিও নির্বাচন করুন।');
