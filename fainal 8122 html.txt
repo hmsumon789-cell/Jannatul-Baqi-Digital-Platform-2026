@@ -1117,7 +1117,7 @@ const common=`<div class="form-grid">
 <label>Mother's Name — English<input id="fMotherEN" class="field"></label>
 <label>মোবাইল<input id="fMobile" class="field"></label>
 <label>WhatsApp<input id="fWhatsApp" class="field"></label>
-<label>ইমেইল<input id="fEmail" class="field"></label><label>জন্ম তারিখ / Date of Birth<input id="fDob" class="field" type="date"></label>
+<label>ইমেইল<input id="fEmail" class="field"></label><label></label>
 ${locationField('fDivision','বিভাগ',['ঢাকা','চট্টগ্রাম','রাজশাহী','খুলনা','বরিশাল','সিলেট','রংপুর','ময়মনসিংহ'])}
 ${locationField('fDistrict','জেলা',['ঢাকা','কেরাণীগঞ্জ','গাজীপুর','নারায়ণগঞ্জ','নরসিংদী','মুন্সীগঞ্জ','মানিকগঞ্জ','টাঙ্গাইল'])}
 ${locationField('fUpazila','উপজেলা / থানা',['কেরাণীগঞ্জ','সাভার','দোহার','নবাবগঞ্জ','ধামরাই','শ্রীপুর','কালীগঞ্জ'])}
@@ -1126,7 +1126,7 @@ ${locationField('fWard','ওয়ার্ড',['১ নং ওয়ার্ড','�
 ${locationField('fVillage','গ্রাম',['কোনাখোলা','মডেল টাউন','জিঞ্জিরা','শুভাঢ্যা','আগানগর','বাস্তা','তেঘরিয়া'])}
 <label class="full">ঠিকানা<textarea id="fAddress" class="field"></textarea></label></div>`;
 if(['student','teacher','donor'].includes(k))return common+`<div class="form-grid"><label>শ্রেনি/জামাত<select id="fClass" class="field">${['প্লে শ্রেনি','শিশু শ্রেনি','আউয়াল জামাত','ছানী জামাত','ছালেছ জামাত','রাবে জামাত','পঞ্চম জামাত','মিজান জামাত','নাহবেমীর জামাত','কুদুরী জামাত','শরহে বেকায়া জামাত','হেদায়া জামাত','মিশকাত জামাত','দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)'].map(x=>`<option>${x}</option>`).join('')}</select></label><label>বিভাগ<select id="fDept" class="field"><option>কিতাব বিভাগ</option><option>হিফজুল কুরআন বিভাগ</option><option>নুরানী বিভাগ</option><option>গণিত বিভাগ</option><option>ইংলিশ বিভাগ</option><option>বাংলা বিভাগ</option><option>বোর্ডিং বিভাগ</option><option>হিসাব বিভাগ</option></select></label><label>শাখা<select id="fBranch" class="field"><option>প্রধান শাখা</option><option>২য় শাখা</option><option>৩য় শাখা</option><option>বালক শাখা</option><option>বালিকা শাখা</option></select></label><label>ছবি<input id="fPhoto" class="field" type="file" accept="image/*"></label><label>জন্ম নিবন্ধন<input id="fBirth" class="field"></label><label>জাতীয় ১৭ ডিজিট NID<input id="fNid" class="field"></label></div><button class="primary" onclick="saveModule('${k}')">Save</button>`;
-if(k==='admin')return `<div class="form-grid"><label>বাংলা নাম<input id="aName" class="field"></label><label>العربية<input id="aAr" class="field"></label><label>English<input id="aEn" class="field"></label><label>Username<input id="aUser" class="field"></label><label>Password<input id="aPass" class="field" type="password"></label><label>Email<input id="aEmail" class="field"></label><label>Mobile<input id="aMobile" class="field" required></label><label>WhatsApp<input id="aWa" class="field"></label><label>Approval ID<input id="aApproval" class="field"></label><label class="full">Address<textarea id="aAddress" class="field"></textarea></label><label class="full">Photo (required)<input id="aPhoto" class="field" type="file" accept="image/*"></label><label>জন্ম তারিখ / Date of Birth<input id="aDob" class="field" type="date"></label><label>Birth Registration<input id="aBirth" class="field"></label><label>১৭ ডিজিট NID<input id="aNid" class="field"></label></div><button class="primary" onclick="saveAdmin()">Create Admin</button>`;
+if(k==='admin')return `<div class="form-grid"><label>বাংলা নাম<input id="aName" class="field"></label><label>العربية<input id="aAr" class="field"></label><label>English<input id="aEn" class="field"></label><label>Username<input id="aUser" class="field"></label><label>Password<input id="aPass" class="field" type="password"></label><label>Email<input id="aEmail" class="field"></label><label>Mobile<input id="aMobile" class="field" required></label><label>WhatsApp<input id="aWa" class="field"></label><label>Approval ID<input id="aApproval" class="field"></label><label class="full">Address<textarea id="aAddress" class="field"></textarea></label><label class="full">Photo (required)<input id="aPhoto" class="field" type="file" accept="image/*"></label><label></label><label>Birth Registration<input id="aBirth" class="field"></label><label>১৭ ডিজিট NID<input id="aNid" class="field"></label></div><button class="primary" onclick="saveAdmin()">Create Admin</button>`;
 if(k==='gallery')return `<div class="media-upload-note"><b>ফটো:</b> সর্বোচ্চ 20 MB, 100টি। <b>ভিডিও:</b> সর্বোচ্চ 50 MB, 20টি। <b>অডিও:</b> সর্বোচ্চ 50 MB, 50টি।</div><input id="mediaFiles" class="field" type="file" multiple accept="image/*,video/*,audio/*"><button class="primary" onclick="uploadMedia()">⬆ আপলোড</button><div id="mediaList"></div>`;
 if(k==='help')return `<button class="primary" onclick="openWindow('quickWin')">দ্রুত সেবা / হেল্প</button>`;
 if(k==='institution')return `<h3>প্রতিষ্ঠানের সংক্ষিপ্ত ইতিহাস</h3><p>সালাতুল এস্তেখারার মাধ্যমে মহান আল্লাহ তায়ালার উপর পূর্ণ আস্থা রেখে খালেছ নিয়তে মানব জাতিকে অন্ধকার থেকে আলোর পথে আনার জন্য এবং সহি দ্বিনি ইলম শিক্ষা দেয়ার উদ্দেশ্যে 10-10-2005 ইংরেজী সনে প্রতিষ্ঠিত হয়।</p><p><b>প্রতিষ্ঠাতা-প্রিন্সিপাল/মুহতামিম:</b> জনাব হাফেজ হযরত মাওলানা মু. আতিকুর রহমান (ফরিদপুরী), ২০০৫ হতে ২০২৬ চলমান।</p>`;
@@ -1141,7 +1141,7 @@ if(k==='admission')return `<div class="form-grid">
 <label>মাতার নাম — বাংলা / Mother<input id="adMotherBN" class="field"></label>
 <label>اسم الأم — العربية<input id="adMotherAR" class="field" dir="rtl"></label>
 <label>Mother's Name — English<input id="adMotherEN" class="field"></label>
-<label>জন্ম তারিখ / Date of Birth<input id="adDob" class="field" type="date"></label>
+<label></label>
 <label>মোবাইল / Mobile<input id="adMobile" class="field"></label>
 <label>WhatsApp<input id="adWa" class="field"></label>
 <label>ইমেইল / Email<input id="adEmail" class="field"></label>
@@ -1167,7 +1167,7 @@ const map={student:'STUDENTS',teacher:'TEACHERS',donor:'DONORS'};const s=map[k];
 const d={NameBN:$('fNameBN').value,NameAR:$('fNameAR').value,NameEN:$('fNameEN').value,
 FatherNameBN:$('fFatherBN').value,FatherNameAR:$('fFatherAR').value,FatherNameEN:$('fFatherEN').value,
 MotherNameBN:$('fMotherBN').value,MotherNameAR:$('fMotherAR').value,MotherNameEN:$('fMotherEN').value,
-Mobile:$('fMobile').value,WhatsApp:$('fWhatsApp').value,Email:$('fEmail').value,BirthDate:document.getElementById('fDob')?.value||'',Address:$('fAddress').value,
+Mobile:$('fMobile').value,WhatsApp:$('fWhatsApp').value,Email:$('fEmail').value,Address:$('fAddress').value,
 Division:getLocationValue('fDivision'),District:getLocationValue('fDistrict'),Upazila:getLocationValue('fUpazila'),Union:getLocationValue('fUnion'),Ward:getLocationValue('fWard'),Village:getLocationValue('fVillage'),
 Class:document.getElementById('fClass')?.value||'',Department:document.getElementById('fDept')?.value||'',Branch:document.getElementById('fBranch')?.value||'',Photo:await fileData('fPhoto'),BirthReg:document.getElementById('fBirth')?.value||'',NID:document.getElementById('fNid')?.value||''};
 if(k==='student')d.Gender='';const r=await call('saveRecord',token,s,d);toast(r.ok?'সফলভাবে সংরক্ষণ হয়েছে':'ব্যর্থ')}
