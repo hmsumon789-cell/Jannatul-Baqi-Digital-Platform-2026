@@ -53,7 +53,7 @@ function setConfigValue_(key,value){
  */
 const LOCATION_POSTAL_DB_VERSION_ = 'bdapi-v1.2-2026-10-03-fixed';
 const LOCATION_POSTAL_DB_URL_ = 'https://bdapis.com/api/v1.2/postOffice';
-const LOCATION_VILLAGE_DB_VERSION_ = 'bbs-village-90049-2026.08.04';
+const LOCATION_VILLAGE_DB_VERSION_ = 'bbs-village-90049-2026.08.04-force-2026-10-03-2';
 
 function _locationCfg_(key){
   const ss=SpreadsheetApp.getActiveSpreadsheet(), sh=ss.getSheetByName(SHEETS.CONFIG);
