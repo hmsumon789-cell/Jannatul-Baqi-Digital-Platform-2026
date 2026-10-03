@@ -8512,7 +8512,7 @@ function subjects(){
  for(let i=1;i<=12;i++){let x=$('examSubject'+i);if(!x)continue;x.innerHTML='<option value="">বিষয় নির্বাচন করুন</option>'+list.map(v=>'<option>'+v+'</option>').join('');x.style.display=i<=list.length?'block':'none';}
 }
 function form(){
- let h='<div class="form-grid"><label>Student ID<input id="rStudent" class="field"></label><label>নাম<input id="rName" class="field"></label><label><b>শ্রেণি / জামাত নির্বাচন</b><select id="examClass2026" class="field"><option value="">শ্রেণি / জামাত নির্বাচন করুন</option>'+C.map(v=>'<option>'+v+'</option>').join('')+'</select></label><label>পরীক্ষা<input id="rExam" class="field"></label></div><div class="mr-subject-title-2026">শ্রেণি/জামাত নির্বাচন করলে সেই শ্রেণির বিষয়গুলো আসবে — সর্বোচ্চ ১২টি বিষয়</div>';
+ let h='<div class="form-grid"><label>Student ID<input id="rStudent" class="field"></label><label>পরীক্ষার্থীর নাম<input id="rName" class="field" placeholder="পরীক্ষার্থীর পূর্ণ নাম"></label><label>পরীক্ষার্থীর ঠিকানা<textarea id="rAddress" class="field" rows="2" placeholder="পরীক্ষার্থীর পূর্ণ ঠিকানা"></textarea></label><label><b>শ্রেণি / জামাত নির্বাচন</b><select id="examClass2026" class="field"><option value="">শ্রেণি / জামাত নির্বাচন করুন</option>'+C.map(v=>'<option>'+v+'</option>').join('')+'</select></label><label>পরীক্ষা<input id="rExam" class="field"></label></div><div class="mr-subject-title-2026">শ্রেণি/জামাত নির্বাচন করলে সেই শ্রেণির বিষয়গুলো আসবে — সর্বোচ্চ ১২টি বিষয়</div>';
  for(let i=1;i<=12;i++)h+='<label style="display:block;margin:7px 0"><b>বিষয় '+i+'</b><select id="examSubject'+i+'" class="field"><option value="">বিষয় নির্বাচন করুন</option></select></label>';
  h+='<button type="button" class="primary" onclick="saveResult(\'exam\')">💾 সেভ</button>';return h;
 }
