@@ -46,19 +46,23 @@ function buildNewLocationDatabase_() {
     const upazila  = String(r[2] || '').trim();
     const union    = String(r[3] || '').trim();
     const ward     = String(r[4] || '').trim();
+    // পুরোনো LOCATION_MASTER-এর 6th column = Post Office, 7th column = Village.
+    // নতুন ডাটাবেজে Post Code-এর জন্য আলাদা কলাম রাখা হচ্ছে; পুরোনো ডাটাবেজে
+    // Post Code না থাকায় এখানে সেটি খালি থাকবে।
     const post     = String(r[5] || '').trim();
-    const postcode = String(r[6] || '').trim();
+    const postcode = '';
+    const village  = String(r[6] || '').trim();
 
     if (!division && !district && !upazila && !union &&
-        !ward && !post && !postcode) return;
+        !ward && !post && !postcode && !village) return;
 
     const key = [
-      division,district,upazila,union,ward,post,postcode,''
+      division,district,upazila,union,ward,post,postcode,village
     ].join('|');
 
     if (!seen.has(key)) {
       seen.add(key);
-      out.push([division,district,upazila,union,ward,post,postcode,'']);
+      out.push([division,district,upazila,union,ward,post,postcode,village]);
     }
   });
 
@@ -89,12 +93,14 @@ function getNewLocationDatabase_() {
     .filter(r => r.some(v => String(v || '').trim() !== ''));
 }
 
-function getNewLocationOptions_(division,district,upazila,union) {
+function getNewLocationOptions_(division,district,upazila,union,ward,post) {
   const rows = getNewLocationDatabase_();
   const D=String(division||'').trim();
   const DS=String(district||'').trim();
   const U=String(upazila||'').trim();
   const UN=String(union||'').trim();
+  const W=String(ward||'').trim();
+  const P=String(post||'').trim();
 
   const unique = values => [...new Set(values.filter(v=>String(v).trim()!=='').map(v=>String(v).trim()))];
 
@@ -103,7 +109,8 @@ function getNewLocationOptions_(division,district,upazila,union) {
   const unions    = unique(rows.filter(r=>(!D || r[0]===D)&&(!DS || r[1]===DS)&&(!U || r[2]===U)).map(r=>r[3]));
   const wards     = unique(rows.filter(r=>(!D || r[0]===D)&&(!DS || r[1]===DS)&&(!U || r[2]===U)&&(!UN || r[3]===UN)).map(r=>r[4]));
   const posts     = unique(rows.filter(r=>(!D || r[0]===D)&&(!DS || r[1]===DS)&&(!U || r[2]===U)).map(r=>r[5]));
-  const postcodes = unique(rows.filter(r=>(!D || r[0]===D)&&(!DS || r[1]===DS)&&(!U || r[2]===U)&&(!UN || r[3]===UN)).map(r=>r[6]));
+  const postcodes = unique(rows.filter(r=>(!D || r[0]===D)&&(!DS || r[1]===DS)&&(!U || r[2]===U)&&(!UN || r[3]===UN)&&(!W || r[4]===W)&&(!P || r[5]===P)).map(r=>r[6]));
+  const villages = unique(rows.filter(r=>(!D || r[0]===D)&&(!DS || r[1]===DS)&&(!U || r[2]===U)&&(!UN || r[3]===UN)&&(!W || r[4]===W)&&(!P || r[5]===P)).map(r=>r[7]));
 
   return {
     divisions: unique(rows.map(r=>r[0])),
@@ -112,6 +119,7 @@ function getNewLocationOptions_(division,district,upazila,union) {
     unions,
     wards,
     postOffices:posts,
-    postCodes:postcodes
+    postCodes:postcodes,
+    villages
   };
 }
