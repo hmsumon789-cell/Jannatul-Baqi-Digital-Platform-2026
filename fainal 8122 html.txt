@@ -8028,7 +8028,7 @@ body.gold #searchProfilePrint .sp-field{border-color:#d40000!important}
   async function del(i){
     var m=arr(), x=m[i];if(!x)return;
     try{
-      var r=await window.call('deleteMedia',window.token,x.Serial);
+      var deleteKey=x.Serial||x.MediaID||x.mediaId||'';var r=await window.call('deleteMedia',window.token,deleteKey);
       if(r&&r.ok){
         m.splice(i,1);
         if(window.mediaIndex>=m.length)window.mediaIndex=Math.max(0,m.length-1);
