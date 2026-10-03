@@ -8338,14 +8338,18 @@ const EXAM_SUBJECTS_2026={
 const classes=Object.keys(EXAM_SUBJECTS_2026);
 function loadExamSubjects2026(){
  const cls=document.getElementById('examClass2026')?.value||'';
- const list=EXAM_SUBJECTS_2026[cls]||[];
- for(let i=1;i<=12;i++){const s=document.getElementById('examSubject'+i);if(!s)continue;s.innerHTML='<option value="">বিষয় নির্বাচন করুন</option>'+list.map(x=>'<option>'+x+'</option>').join('');}
+ const list=(EXAM_SUBJECTS_2026[cls]||[]).slice(0,12);
+ for(let i=1;i<=12;i++){
+   const s=document.getElementById('examSubject'+i); if(!s)continue;
+   s.innerHTML='<option value="">বিষয় নির্বাচন করুন</option>'+list.map(x=>'<option value="'+String(x).replace(/"/g,'&quot;')+'">'+x+'</option>').join('');
+   if(i>list.length)s.disabled=true; else s.disabled=false;
+ }
 }
 window.loadExamSubjects2026=loadExamSubjects2026;
 const oldModuleForm=window.moduleForm;
 window.moduleForm=function(k){
  if(k!=='exam')return oldModuleForm(k);
- let h='<div class="form-grid"><label>Student ID<input id="rStudent" class="field"></label><label>নাম<input id="rName" class="field"></label><label>শ্রেনি / জামাত<select id="examClass2026" class="field" onchange="loadExamSubjects2026()">'+classes.map(x=>'<option>'+x+'</option>').join('')+'</select></label><label>পরীক্ষা<input id="rExam" class="field"></label></div><div class="mr-subject-title-2026">পরীক্ষার্থী নিবন্ধন — বিষয় নির্বাচন</div>';
+ let h='<div class="form-grid"><label>Student ID<input id="rStudent" class="field"></label><label>নাম<input id="rName" class="field"></label><label>শ্রেণি / জামাত<select id="examClass2026" class="field" onchange="loadExamSubjects2026()">'+classes.map(x=>'<option value="'+x+'">'+x+'</option>').join('')+'</select></label><label>পরীক্ষা<input id="rExam" class="field"></label></div><div class="mr-subject-title-2026">পরীক্ষার্থী নিবন্ধন — শ্রেণি/জামাত অনুযায়ী বিষয় নির্বাচন (সর্বোচ্চ ১২টি)</div>';
  for(let i=1;i<=12;i++)h+='<label style="display:block;margin:7px 0">বিষয় '+i+' / Subject<select id="examSubject'+i+'" class="field"><option value="">বিষয় নির্বাচন করুন</option></select></label>';
  h+='<div class="form-grid"><label>বিভাগ<select id="rDivisionSelect" class="field"></select></label><label>জেলা<select id="rDistrictSelect" class="field"></select></label><label>উপজেলা / থানা<select id="rUpazilaSelect" class="field"></select></label><label>ইউনিয়ন<select id="rUnionSelect" class="field"></select></label><label>ডাকঘর<select id="rPostSelect" class="field"></select></label><label>ওয়ার্ড<select id="rWardSelect" class="field"></select></label><label>গ্রাম<select id="rVillageSelect" class="field"></select></label></div><button class="primary" onclick="saveResult('exam')">Save</button>';
  return h;
@@ -8354,7 +8358,7 @@ const oldSave=window.saveResult;
 window.saveResult=async function(k){
  if(k!=='exam')return oldSave(k);
  const subjects=[];for(let i=1;i<=12;i++){const v=document.getElementById('examSubject'+i)?.value||'';if(v)subjects.push(v);}
- const d={StudentID:document.getElementById('rStudent')?.value||'',Name:document.getElementById('rName')?.value||'',Class:document.getElementById('examClass2026')?.value||'',Exam:document.getElementById('rExam')?.value||'',SubjectData:JSON.stringify(subjects),Published:'NO',Date:new Date().toISOString(),Division:getLocationValue('rDivision'),District:getLocationValue('rDistrict'),Upazila:getLocationValue('rUpazila'),Union:getLocationValue('rUnion'),Post:getLocationValue('rPost'),Ward:getLocationValue('rWard'),Village:getLocationValue('rVillage')};
+ const d={StudentID:document.getElementById('rStudent')?.value||'',Name:document.getElementById('rName')?.value||'',Class:document.getElementById('examClass2026')?.value||'',Exam:document.getElementById('rExam')?.value||'',SubjectData:JSON.stringify(subjects),Published:'NO',Date:new Date().toISOString()};
  const r=await call('saveRecord',token,'EXAM_REG',d);toast(r.ok?'পরীক্ষার্থী নিবন্ধন সফলভাবে সংরক্ষণ হয়েছে':(r.message||'ব্যর্থ'));
 };
 })();
