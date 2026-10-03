@@ -2183,38 +2183,93 @@ body.gold #formWin select.field,body.gold #formWin input.field{border-radius:7px
 </style>
 <script id="final-user-fixes-js">
 (function(){
-  var LOC=[];var fallback=[{division:'ঢাকা',district:'ঢাকা',upazila:'কেরাণীগঞ্জ',union:'',ward:'',post:'',village:'কোনাখোলা'}];
+  /* ===== LOCATION CASCADE — controlled single source ===== */
+  var LOC=[];
+  var fallback=[{division:'ঢাকা',district:'ঢাকা',upazila:'কেরাণীগঞ্জ',union:'',post:'',ward:'',village:'কোনাখোলা'}];
+  var DIVISION_DISTRICTS={'ঢাকা':['ঢাকা','ফরিদপুর','গাজীপুর','গোপালগঞ্জ','কিশোরগঞ্জ','মাদারীপুর','মানিকগঞ্জ','মুন্সীগঞ্জ','নারায়ণগঞ্জ','নরসিংদী','রাজবাড়ী','শরীয়তপুর','টাঙ্গাইল'],'চট্টগ্রাম':['বান্দরবান','ব্রাহ্মণবাড়িয়া','চাঁদপুর','চট্টগ্রাম','কুমিল্লা','কক্সবাজার','ফেনী','খাগড়াছড়ি','লক্ষ্মীপুর','নোয়াখালী','রাঙ্গামাটি পার্বত্য জেলা'],'রাজশাহী':['বগুড়া','জয়পুরহাট','নওগাঁ','নাটোর','চাঁপাইনবাবগঞ্জ','পাবনা','রাজশাহী','সিরাজগঞ্জ'],'খুলনা':['বাগেরহাট','চুয়াডাঙ্গা','যশোর','ঝিনাইদহ','খুলনা','কুষ্টিয়া','মাগুরা','মেহেরপুর','নড়াইল','সাতক্ষীরা'],'বরিশাল':['বরগুনা','বরিশাল','ভোলা','ঝালকাঠি','পটুয়াখালী','পিরোজপুর'],'সিলেট':['হবিগঞ্জ','মৌলভীবাজার','সুনামগঞ্জ','সিলেট'],'রংপুর':['দিনাজপুর','গাইবান্ধা','কুড়িগ্রাম','লালমনিরহাট','নীলফামারী','পঞ্চগড়','রংপুর','ঠাকুরগাঁও'],'ময়মনসিংহ':['জামালপুর','ময়মনসিংহ','নেত্রকোণা','শেরপুর']};
   function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-  function vals(rows,key){var a=[];rows.forEach(function(r){var v=String(r[key]||'').trim();if(v&&a.indexOf(v)<0)a.push(v)});return a.sort(function(a,b){return a.localeCompare(b,'bn')});}
-  function gv(p,k){var x=document.getElementById(p+k+'Select');return x?x.value:'';}
-  function setv(p,k,list){var x=document.getElementById(p+k+'Select');if(!x)return;x.innerHTML='<option value="">নির্বাচন করুন</option>'+list.map(function(v){return '<option value="'+esc(v)+'">'+esc(v)+'</option>'}).join('');}
-  function rows(p){var d=gv(p,'Division'),di=gv(p,'District'),u=gv(p,'Upazila'),un=gv(p,'Union');return (LOC.length?LOC:fallback).filter(function(r){return(!d||r.division===d)&&(!di||r.district===di)&&(!u||r.upazila===u)&&(!un||r.union===un)})}
-  function cascade(p,l){
-    var all=LOC.length?LOC:fallback;
-    var d=gv(p,'Division'),di=gv(p,'District'),u=gv(p,'Upazila');
-    if(l==='Division'){
-      var a=all.filter(function(r){return !d||r.division===d;});
-      setv(p,'District',vals(a,'district'));['Upazila','Union','Post','Ward','Village'].forEach(function(k){setv(p,k,[]);});
-    }else if(l==='District'){
-      var b=all.filter(function(r){return (!d||r.division===d)&&(!di||r.district===di);});
-      setv(p,'Upazila',vals(b,'upazila'));['Union','Post','Ward','Village'].forEach(function(k){setv(p,k,[]);});
-    }else if(l==='Upazila'){
-      var c=all.filter(function(r){return (!d||r.division===d)&&(!di||r.district===di)&&(!u||r.upazila===u);});
-      setv(p,'Union',vals(c,'union'));setv(p,'Post',vals(c,'post'));setv(p,'Ward',vals(c,'ward'));setv(p,'Village',vals(c,'village'));
-    }else if(l==='Union'){
-      var e=rows(p);setv(p,'Post',vals(e,'post'));setv(p,'Ward',vals(e,'ward'));setv(p,'Village',vals(e,'village'));
+  function clean(v){return String(v==null?'':v).trim();}
+  function divForDistrict(d){d=clean(d);for(var k in DIVISION_DISTRICTS)if(DIVISION_DISTRICTS[k].indexOf(d)>=0)return k;return '';}
+  function normalize(src){
+    return (Array.isArray(src)?src:[]).map(function(r){
+      r=r||{};var x={};
+      Object.keys(r).forEach(function(k){x[k]=clean(r[k]);});
+      x.division=clean(x.division||x.Division)||divForDistrict(x.district||x.District);
+      x.district=clean(x.district||x.District);
+      x.upazila=clean(x.upazila||x.Upazila||x['Upazila/Thana']);
+      x.union=clean(x.union||x.Union);
+      x.post=clean(x.post||x.Post||x['Post Office']||x.postOffice);
+      x.postcode=clean(x.postcode||x.postCode||x['Post Code']);
+      x.ward=clean(x.ward||x.Ward);
+      x.village=clean(x.village||x.Village);
+      return x;
+    });
+  }
+  function data(){return normalize(LOC.length?LOC:fallback);}
+  function el(p,k){return document.getElementById(p+k+'Select');}
+  function val(p,k){var x=el(p,k);return x?clean(x.value):'';}
+  function unique(list){var seen={},out=[];(list||[]).forEach(function(v){v=clean(v);if(v&&!seen[v]){seen[v]=1;out.push(v);}});return out;}
+  function setv(p,k,list){
+    var x=el(p,k);if(!x)return;
+    var keep=clean(x.value);
+    x.innerHTML='<option value="">নির্বাচন করুন</option>'+unique(list).map(function(v){return '<option value="'+esc(v)+'">'+esc(v)+'</option>';}).join('');
+    if(keep&&unique(list).indexOf(keep)>=0)x.value=keep;
+  }
+  function filtered(p,until){
+    var d=val(p,'Division'),di=val(p,'District'),u=val(p,'Upazila'),un=val(p,'Union'),po=val(p,'Post'),w=val(p,'Ward');
+    return data().filter(function(r){
+      return (!d||r.division===d)&&(!di||r.district===di)&&(!u||r.upazila===u)&&(!un||r.union===un)&&
+             (until<'Post'||!po||r.post===po)&&(until<'Ward'||!w||r.ward===w);
+    });
+  }
+  function clearAfter(p,k){
+    var order=['District','Upazila','Union','Post','Ward','Village'],i=order.indexOf(k);
+    if(i<0)return;order.slice(i+1).forEach(function(x){setv(p,x,[]);});
+  }
+  function cascade(p,k){
+    var all=data(),d=val(p,'Division'),di=val(p,'District'),u=val(p,'Upazila'),un=val(p,'Union'),po=val(p,'Post'),w=val(p,'Ward'),rows;
+    if(k==='Division'){
+      rows=all.filter(function(r){return !d||r.division===d;});
+      setv(p,'District',rows.map(function(r){return r.district;}));clearAfter(p,'Division');
+    }else if(k==='District'){
+      rows=all.filter(function(r){return (!d||r.division===d)&&(!di||r.district===di);});
+      setv(p,'Upazila',rows.map(function(r){return r.upazila;}));clearAfter(p,'District');
+    }else if(k==='Upazila'){
+      rows=all.filter(function(r){return (!d||r.division===d)&&(!di||r.district===di)&&(!u||r.upazila===u);});
+      setv(p,'Union',rows.map(function(r){return r.union;}));clearAfter(p,'Upazila');
+    }else if(k==='Union'){
+      rows=all.filter(function(r){return (!d||r.division===d)&&(!di||r.district===di)&&(!u||r.upazila===u)&&(!un||r.union===un);});
+      setv(p,'Post',rows.map(function(r){return r.post;}));clearAfter(p,'Union');
+    }else if(k==='Post'){
+      rows=all.filter(function(r){return (!d||r.division===d)&&(!di||r.district===di)&&(!u||r.upazila===u)&&(!un||r.union===un)&&(!po||r.post===po);});
+      setv(p,'Ward',rows.map(function(r){return r.ward;}));clearAfter(p,'Post');
+    }else if(k==='Ward'){
+      rows=all.filter(function(r){return (!d||r.division===d)&&(!di||r.district===di)&&(!u||r.upazila===u)&&(!un||r.union===un)&&(!po||r.post===po)&&(!w||r.ward===w);});
+      setv(p,'Village',rows.map(function(r){return r.village;}));
+    }
+  }
+  function ensurePost(p){
+    var u=el(p,'Union'),w=el(p,'Ward');
+    if(u&&!el(p,'Post')){
+      var lab=document.createElement('label');
+      lab.innerHTML='ডাকঘর<select id="'+p+'PostSelect" class="field"></select><input id="'+p+'PostManual" class="field location-manual" placeholder="হাতে লিখুন">';
+      if(w&&w.closest('label'))w.closest('label').before(lab);else u.closest('label')&&u.closest('label').after(lab);
     }
   }
   function bind(p){
-    var union=document.getElementById(p+'UnionSelect'),ward=document.getElementById(p+'WardSelect');
-    if(union&&!document.getElementById(p+'PostSelect')){var lab=document.createElement('label');lab.innerHTML='ডাকঘর<select id="'+p+'PostSelect" class="field"></select><input id="'+p+'PostManual" class="field location-manual" placeholder="হাতে লিখুন">';if(ward&&ward.closest('label'))ward.closest('label').before(lab);}
-    ['Division','District','Upazila','Union'].forEach(function(l){var x=document.getElementById(p+l+'Select');if(x&&!x.dataset.locBound){x.dataset.locBound='1';x.addEventListener('change',function(){cascade(p,l)})}});
-    setv(p,'Division',vals(LOC.length?LOC:fallback,'division'));['District','Upazila','Union','Post','Ward','Village'].forEach(function(k){setv(p,k,[])});
+    ensurePost(p);
+    var d=el(p,'Division');if(d&&!d.dataset.locationBound){d.dataset.locationBound='1';d.addEventListener('change',function(){cascade(p,'Division');});}
+    ['District','Upazila','Union','Post','Ward'].forEach(function(k){var x=el(p,k);if(x&&!x.dataset.locationBound){x.dataset.locationBound='1';x.addEventListener('change',function(){cascade(p,k);});}});
+    setv(p,'Division',data().map(function(r){return r.division;}));
+    ['District','Upazila','Union','Post','Ward','Village'].forEach(function(k){setv(p,k,[]);});
   }
-  async function loadLoc(){try{var r=await call('getLocations');LOC=Array.isArray(r)&&r.length?r:fallback}catch(e){LOC=fallback}}
-  function bindAll(){['f','ad','r'].forEach(function(p){if(document.getElementById(p+'DivisionSelect'))bind(p)})}
+  function bindAll(){['f','ad','r'].forEach(function(p){if(el(p,'Division'))bind(p);});}
+  async function loadLoc(){try{var r=await call('getLocations');LOC=normalize(r);if(!LOC.length)LOC=fallback;}catch(e){LOC=fallback;}}
   function removeOldTicker(){var r=document.querySelectorAll('.header > .header-running-row');if(r.length>1)r[0].style.display='none';}
-
+  document.addEventListener('change',function(e){
+    var id=e.target&&e.target.id||'',m=id.match(/^(f|ad|r)(Division|District|Upazila|Union|Post|Ward)Select$/);
+    if(m&&!e.target.dataset.locationBound){cascade(m[1],m[2]);}
+  },true);
   /* Only admission gets applicant/guardian/principal signatures. */
   var baseModuleForm=window.moduleForm;
   window.moduleForm=function(k){
