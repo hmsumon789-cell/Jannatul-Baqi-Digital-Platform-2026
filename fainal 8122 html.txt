@@ -1164,7 +1164,7 @@ return `<p>এই ফিচারের জন্য ৩ ভাষা, A4, ৩ �
 }
 async function saveModule(k){
 const map={student:'STUDENTS',teacher:'TEACHERS',donor:'DONORS'};const s=map[k];
-const d={NameBN:$('fNameBN').value,NameAR:$('fNameAR').value,NameEN:$('fNameEN').value,
+const d={StudentID:document.getElementById('fStudentID')?.value||'',RecordDate:document.getElementById('fDate')?.value||'',NameBN:$('fNameBN').value,NameAR:$('fNameAR').value,NameEN:$('fNameEN').value,
 FatherNameBN:$('fFatherBN').value,FatherNameAR:$('fFatherAR').value,FatherNameEN:$('fFatherEN').value,
 MotherNameBN:$('fMotherBN').value,MotherNameAR:$('fMotherAR').value,MotherNameEN:$('fMotherEN').value,
 Mobile:$('fMobile').value,WhatsApp:$('fWhatsApp').value,Email:$('fEmail').value,BirthDate:document.getElementById('fDob')?.value||'',Address:$('fAddress').value,
@@ -9183,5 +9183,198 @@ body.dark .all-list-head,body.dark .all-list-row{background:#000!important;color
   else start();
 
   [300,1000,2000,3500,5000,8000].forEach(function(ms){setTimeout(bindAll,ms);});
+})();
+</script>
+
+<!-- ===== STUDENT FORM META + PRINT/FULLSCREEN FINAL FIX — 2026-10-03 ===== -->
+
+<style id="student-form-meta-print-fullscreen-final-2026-10-03">
+/* 1) Student ID + DOB + Date — exactly above the 3-language student name */
+#formWin .student-meta-top-2026{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:8px!important;
+  margin:0 0 9px!important;
+  padding:0!important;
+}
+#formWin .student-meta-top-2026 label{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:4px!important;
+  font-weight:900!important;
+}
+#formWin .student-meta-top-2026 .field{
+  width:100%!important;
+  min-height:44px!important;
+}
+@media(max-width:700px){
+  #formWin .student-meta-top-2026{grid-template-columns:1fr!important}
+}
+/* হাতে লিখুন input is screen-only; never visible in print/preview */
+@media print{
+  #formWin .location-manual,
+  #formWin input[placeholder="হাতে লিখুন"],
+  #formWin .form-action-bar,
+  #formWin .form-language-fixed,
+  #formWin .form-signatures,
+  #formWin .win-actions,
+  #formWin .form-fullscreen-final-2026{display:none!important}
+}
+/* Fullscreen button for every form window */
+.window .form-fullscreen-final-2026{
+  min-width:34px!important;
+  width:34px!important;
+  height:30px!important;
+  padding:0!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  border:2px solid var(--border)!important;
+  border-radius:7px!important;
+  background:var(--panel)!important;
+  color:inherit!important;
+  font-weight:900!important;
+  cursor:pointer!important;
+}
+</style>
+
+<script id="student-form-meta-print-fullscreen-final-2026-10-03">
+(function(){
+  'use strict';
+
+  function byId(id){return document.getElementById(id);}
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]});}
+
+  /* Add the requested 3-column row only to student/admission forms.
+     It is inserted immediately before the three-language student names. */
+  function addStudentMeta(){
+    var body=byId('winBody'), title=byId('winTitle');
+    if(!body)return;
+    var isAdmission=!!byId('adNameBN');
+    var isStudent=!!byId('fNameBN') && /student|ছাত্র|ছাত্রী|শিক্ষার্থী/i.test((title&&title.textContent)||'');
+    if(!isAdmission && !isStudent)return;
+    if(body.querySelector('.student-meta-top-2026'))return;
+
+    var firstName=isAdmission?byId('adNameBN'):byId('fNameBN');
+    if(!firstName)return;
+
+    var row=document.createElement('div');
+    row.className='student-meta-top-2026';
+    var prefix=isAdmission?'ad':'f';
+
+    var id=document.createElement('label');
+    id.textContent='আইডি লিখুন';
+    var idInput=document.createElement('input');
+    idInput.id=prefix+'StudentID';
+    idInput.className='field';
+    idInput.type='text';
+    idInput.placeholder='স্টুডেন্ট ID';
+    id.appendChild(idInput);
+
+    var dobLabel=document.createElement('label');
+    dobLabel.textContent='জন্ম তারিখ লিখুন';
+    var dob=byId(prefix+'Dob');
+    if(dob){
+      var oldLabel=dob.closest('label');
+      dobLabel.appendChild(dob);
+      if(oldLabel)oldLabel.remove();
+    }else{
+      dob=document.createElement('input');
+      dob.id=prefix+'Dob';
+      dob.className='field';
+      dob.type='date';
+      dobLabel.appendChild(dob);
+    }
+
+    var dateLabel=document.createElement('label');
+    dateLabel.textContent='তারিখ লিখুন';
+    var date=document.createElement('input');
+    date.id=prefix+'Date';
+    date.className='field';
+    date.type='date';
+    dateLabel.appendChild(date);
+
+    row.appendChild(id);
+    row.appendChild(dobLabel);
+    row.appendChild(dateLabel);
+
+    var nameGrid=firstName.closest('.form-grid');
+    if(nameGrid)nameGrid.insertBefore(row,nameGrid.firstElementChild);
+    else firstName.parentNode.insertBefore(row,firstName.parentNode.firstChild);
+  }
+
+  /* Every form window gets its own real fullscreen button; existing
+     Minimize/Clear/Close buttons are left untouched. */
+  function toggleFormFullscreen(w){
+    if(!w)return;
+    if(w.classList.contains('win-fullscreen-final-2026')){
+      w.classList.remove('win-fullscreen-final-2026');
+      w.style.width=w.dataset.ffWidth||'';
+      w.style.height=w.dataset.ffHeight||'';
+      w.style.maxHeight=w.dataset.ffMaxHeight||'';
+      w.style.left=w.dataset.ffLeft||'';
+      w.style.top=w.dataset.ffTop||'';
+      w.style.transform=w.dataset.ffTransform||'';
+    }else{
+      var r=w.getBoundingClientRect();
+      w.dataset.ffWidth=r.width+'px';
+      w.dataset.ffHeight=r.height+'px';
+      w.dataset.ffMaxHeight=w.style.maxHeight||'';
+      w.dataset.ffLeft=r.left+'px';
+      w.dataset.ffTop=r.top+'px';
+      w.dataset.ffTransform=w.style.transform||'';
+      w.classList.add('win-fullscreen-final-2026');
+    }
+  }
+  function ensureFullscreen(w){
+    if(!w||!w.classList||!w.classList.contains('window'))return;
+    if(w.querySelector('.form-fullscreen-final-2026'))return;
+    var head=w.querySelector(':scope > .win-head')||w.querySelector('.win-head');
+    if(!head)return;
+    var btn=document.createElement('button');
+    btn.type='button';
+    btn.className='secondary form-fullscreen-final-2026';
+    btn.title='ফুল স্ক্রিন / স্বাভাবিক';
+    btn.setAttribute('aria-label','ফুল স্ক্রিন / স্বাভাবিক');
+    btn.textContent='⛶';
+    btn.onclick=function(e){e.preventDefault();e.stopPropagation();toggleFormFullscreen(w);};
+    var actions=head.querySelector('.win-actions');
+    if(actions)actions.insertBefore(btn,actions.lastElementChild||null);
+    else head.appendChild(btn);
+  }
+  var style=document.createElement('style');
+  style.textContent='.window.win-fullscreen-final-2026{left:0!important;top:0!important;width:100vw!important;height:100vh!important;max-width:none!important;max-height:none!important;transform:none!important;border-radius:0!important}.window.win-fullscreen-final-2026 .win-body{height:calc(100vh - 58px)!important;max-height:none!important;overflow:auto!important}';
+  document.head.appendChild(style);
+
+  /* Search-profile print: exactly ONE student profile, never multiple. */
+  window.printSearchProfile=function(){
+    var x=byId('searchProfilePrint');
+    if(!x)return;
+    var one=x.querySelector('.sp-student');
+    if(!one){window.print();return;}
+    var head=x.querySelector('.search-profile-head');
+    var meta=x.querySelector('.sp-search-meta');
+    var w=window.open('','_blank','width=1000,height=900');
+    if(!w)return;
+    var html='<!doctype html><html><head><meta charset="utf-8"><title>স্টুডেন্ট প্রোফাইল</title>'+
+      '<style>@page{size:A4 portrait;margin:10mm}body{font-family:Arial,"Noto Sans Bengali",sans-serif;margin:0;color:#111}.search-profile{width:190mm;min-height:277mm;box-sizing:border-box;padding:0}.search-profile-head{display:grid;grid-template-columns:82px 1fr 82px;gap:10px;align-items:center;border-bottom:2px solid #111;padding-bottom:8px}.sp-logo,.sp-qr{width:70px;height:70px;object-fit:contain}.sp-inst{text-align:center;font-weight:900;line-height:1.3}.sp-inst .bn{font-size:20px}.sp-inst .ar{font-size:17px}.sp-inst .en{font-size:15px}.sp-contact{font-size:11px;font-weight:800}.sp-student{border:2px solid #111;margin-top:8px;padding:8px;break-inside:avoid}.sp-student-top{display:grid;grid-template-columns:1fr 120px;gap:10px;min-height:120px;align-items:start}.sp-student-info{display:flex;align-items:center;justify-content:flex-start;min-height:100px}.sp-student-title{font-size:19px;font-weight:900}.sp-student-note{display:none}.sp-photo-wrap{text-align:center}.sp-photo,.sp-photo-empty{width:105px;height:125px;object-fit:cover;border:2px solid #111}.sp-photo-empty{display:flex;align-items:center;justify-content:center;text-align:center}.sp-photo-label{font-size:11px;font-weight:900;margin-top:2px}.sp-data{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:8px}.sp-field{border:1px solid #555;padding:5px;min-height:34px}.sp-field b{display:block;font-size:10px}.sp-field span{font-weight:700;font-size:12px;word-break:break-word}.sp-search-meta{font-size:11px;margin:5px 0}.sp-bottom-actions{display:none!important}</style></head><body><div class="search-profile">';
+    if(head)html+=head.outerHTML;
+    html+='<div class="sp-search-meta"><b>স্টুডেন্ট প্রোফাইল — ১ জন</b></div>'+one.outerHTML+'</div></body></html>';
+    w.document.write(html);
+    w.document.close();
+    w.focus();
+    setTimeout(function(){w.print();},400);
+  };
+
+  function scan(){
+    var fw=byId('formWin');
+    if(fw){ensureFullscreen(fw);addStudentMeta();}
+    /* Search profile is also a form-like profile window. */
+    var sw=byId('searchWin');
+    if(sw)ensureFullscreen(sw);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
+  setInterval(scan,500);
+  new MutationObserver(function(){scan();}).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
