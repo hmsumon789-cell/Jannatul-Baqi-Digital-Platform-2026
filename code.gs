@@ -653,7 +653,9 @@ function getSheetData(token,sheetName,limit) {
 }
 
 function getLocations() {
-  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.LOCATION_MASTER);
+  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  try { if(typeof syncPostalDatabase_==='function') syncPostalDatabase_(); } catch(e) {}
+  const sh=ss.getSheetByName(SHEETS.LOCATION_MASTER);
   if(!sh) return [];
   const v=sh.getDataRange().getValues();
   if(v.length<2) return [];
