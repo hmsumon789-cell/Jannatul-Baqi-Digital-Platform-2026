@@ -2223,8 +2223,8 @@ body.gold #formWin select.field,body.gold #formWin input.field{border-radius:7px
     });
   }
   function clearAfter(p,k){
-    var order=['District','Upazila','Union','Post','Ward','Village'],i=order.indexOf(k);
-    if(i<0)return;order.slice(i+1).forEach(function(x){setv(p,x,[]);});
+    var clearMap={Division:['Upazila','Union','Post','Ward','Village'],District:['Union','Post','Ward','Village'],Upazila:['Post','Ward','Village'],Union:['Ward','Village'],Post:['Village'],Ward:[]};
+    (clearMap[k]||[]).forEach(function(x){setv(p,x,[]);});
   }
   function cascade(p,k){
     var all=data(),d=val(p,'Division'),di=val(p,'District'),u=val(p,'Upazila'),un=val(p,'Union'),po=val(p,'Post'),w=val(p,'Ward'),rows;
