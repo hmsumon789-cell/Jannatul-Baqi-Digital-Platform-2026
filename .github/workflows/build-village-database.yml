@@ -23,22 +23,67 @@ jobs:
             "https://github.com/montasim/bangladesh-location-registry/releases/download/data-2026.08.04/address-bd-data-2026.08.04-json.tar.zst"
           echo "9b76179403d735231604aa460031b29b1a60123112f6ea5b27996269c1cd604c  /tmp/address-bd-data.tar.zst" | sha256sum -c -
 
-      - name: Extract villages
+      - name: Build flat village database with parent names
         run: |
-          mkdir -p /tmp/village-db
-          tar --use-compress-program=unzstd -xf /tmp/address-bd-data.tar.zst -C /tmp/village-db
-          V=$(find /tmp/village-db -type f -path "*/json/entities/villages.json" | head -n 1)
-          test -n "$V"
-          cp "$V" VillageDatabase-2026.08.04.json
-          gzip -9 -c VillageDatabase-2026.08.04.json > VillageDatabase-2026.08.04.json.gz
+          rm -rf /tmp/location-db
+          mkdir -p /tmp/location-db
+          tar --use-compress-program=unzstd -xf /tmp/address-bd-data.tar.zst -C /tmp/location-db
+
           python - <<'PY'
-          import json
-          p="VillageDatabase-2026.08.04.json"
-          d=json.load(open(p,encoding="utf-8"))
-          assert d.get("recordCount")==len(d.get("records",[]))
-          assert d.get("recordCount")==90049
-          print("Village records:", d["recordCount"])
+          import json, pathlib, gzip
+
+          root=pathlib.Path("/tmp/location-db")
+          entities={}
+          for p in root.rglob("*.json"):
+              try:
+                  d=json.load(open(p,encoding="utf-8"))
+              except Exception:
+                  continue
+              if not isinstance(d,dict) or "entityType" not in d or "records" not in d:
+                  continue
+              entities[d["entityType"]]=d["records"]
+
+          def idx(kind):
+              return {r.get("key"):r for r in entities.get(kind,[]) if r.get("key")}
+
+          div=idx("division"); zil=idx("zilla"); upz=idx("upazila"); uni=idx("union")
+          villages=entities.get("village",[])
+          assert len(villages)==90049, len(villages)
+
+          def name(r):
+              n=(r or {}).get("name") or {}
+              return (n.get("bn") or n.get("en") or "").strip()
+
+          out=[]
+          for v in villages:
+              rel=v.get("relations") or {}
+              uk=rel.get("localArea",{}).get("key") or rel.get("unionKey")
+              upk=rel.get("administrativeArea",{}).get("key") or rel.get("upazilaKey")
+              dk=rel.get("divisionKey")
+              zk=rel.get("zillaKey")
+              ur=uni.get(uk,{})
+              upr=upz.get(upk,{})
+              dr=div.get(dk,{})
+              zr=zil.get(zk,{})
+              out.append({
+                  "division":name(dr),
+                  "district":name(zr),
+                  "upazila":name(upr),
+                  "union":name(ur),
+                  "village":name(v)
+              })
+
+          out=[r for r in out if r["village"]]
+          assert len(out)==90049, len(out)
+
+          payload={"version":"2026.08.04","recordCount":len(out),"records":out}
+          raw=json.dumps(payload,ensure_ascii=False,separators=(",",":")).encode("utf-8")
+          open("VillageDatabase-2026.08.04.json","wb").write(raw)
+          with gzip.open("VillageDatabase-2026.08.04.json.gz","wb",compresslevel=9) as f:
+              f.write(raw)
+          print("Village records:",len(out))
           PY
+
           rm VillageDatabase-2026.08.04.json
 
       - name: Commit village database
