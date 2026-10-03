@@ -45,3 +45,56 @@ function setConfigValue_(key,value){
   }
   sh.appendRow([key,value,now_()]);
 }
+
+// ===== POST OFFICE / POST CODE DATA FOR LOCATION CASCADE =====
+const LOCATION_POSTAL_DB_VERSION_ = 'bdapi-v1.2-2026-10-03';
+const LOCATION_POSTAL_DB_URL_ = 'https://bdapis.com/api/v1.2/postOffice';
+
+function syncPostalDatabase_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sh = ss.getSheetByName(SHEETS.LOCATION_MASTER);
+  if (!sh) return;
+  if (String(getConfigValue_('LOCATION_POSTAL_DB_VERSION') || '') === LOCATION_POSTAL_DB_VERSION_) return;
+
+  const res = UrlFetchApp.fetch(LOCATION_POSTAL_DB_URL_, {
+    method:'get', muteHttpExceptions:true, headers:{Accept:'application/json'}
+  });
+  if (res.getResponseCode() !== 200) throw new Error('ডাকঘর ডাটাবেস লোড হয়নি: HTTP '+res.getResponseCode());
+
+  const body = JSON.parse(res.getContentText());
+  const rows = Array.isArray(body) ? body : (body.data || body.postOffice || body.postOffices || []);
+  if (!rows.length) throw new Error('ডাকঘর ডাটাবেসে কোনো রেকর্ড পাওয়া যায়নি।');
+
+  const last = Math.max(1, sh.getLastRow());
+  const existing = last > 1 ? sh.getRange(2,1,last-1,7).getValues() : [];
+  const keep = existing.filter(r => String(r.join('')).trim() !== '');
+  const seen = {};
+  const merged = keep.slice();
+
+  keep.forEach(r => {
+    const key = [r[0],r[1],r[2],r[5]].join('|');
+    if (r[5]) seen[key] = true;
+  });
+
+  rows.forEach(r => {
+    const division = String(r.divisionbn || r.division || '').trim();
+    const district = String(r.districtbn || r.district || '').trim();
+    const upazila = String(r.upazillabn || r.upazilla || r.upazila || '').trim();
+    const post = String(r.postOfficebn || r.postOffice || r.post || '').trim();
+    const code = String(r.postCodebn || r.postCode || r.postcode || '').trim();
+    if (!division || !district || !upazila || !post) return;
+    const display = code ? post + ' (' + code + ')' : post;
+    const key = [division,district,upazila,display].join('|');
+    if (!seen[key]) {
+      seen[key] = true;
+      merged.push([division,district,upazila,'','',display,'']);
+    }
+  });
+
+  if (last > 1) sh.getRange(2,1,last-1,7).clearContent();
+  for (let i=0;i<merged.length;i+=5000) {
+    const n=Math.min(5000,merged.length-i);
+    sh.getRange(i+2,1,n,7).setValues(merged.slice(i,i+n));
+  }
+  setConfigValue_('LOCATION_POSTAL_DB_VERSION',LOCATION_POSTAL_DB_VERSION_);
+}
