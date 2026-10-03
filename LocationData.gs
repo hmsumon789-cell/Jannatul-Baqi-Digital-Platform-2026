@@ -46,89 +46,166 @@ function setConfigValue_(key,value){
   sh.appendRow([key,value,now_()]);
 }
 
-/** LOCATION POSTAL + VILLAGE DATABASE — self-contained 7-column schema
- * Column order: Division | District | Upazila | Union | Ward | Post | Village
- * Post stores "Post Office (Post Code)" so postcode never enters Village.
+/** LOCATION POSTAL + VILLAGE DATABASE — kept inside LocationData.gs
  * 2026-10-03
+ * Existing location hierarchy remains unchanged.
  */
-const LOCATION_POSTAL_DB_VERSION_ = 'bdapi-v1.2-2026-10-03-fixed';
+/** JANNATUL BAQI — LOCATION DATABASE EXTENSION
+ * 2026-10-03
+ * Adds a cached Bangladesh postal-office/postcode database to LOCATION_MASTER.
+ * Existing Division/District/Upazila/Union/Ward data is preserved.
+ * Postal source: BD API v1.2 (no API key).
+ */
+const LOCATION_POSTAL_DB_VERSION_ = 'bdapi-v1.2-2026-10-03';
 const LOCATION_POSTAL_DB_URL_ = 'https://bdapis.com/api/v1.2/postOffice';
-const LOCATION_VILLAGE_DB_VERSION_ = 'bbs-village-90049-2026.08.04-force-2026-10-03-2';
 
-function _locationCfg_(key){
-  const ss=SpreadsheetApp.getActiveSpreadsheet(), sh=ss.getSheetByName(SHEETS.CONFIG);
-  if(!sh||sh.getLastRow()<2)return '';
-  const v=sh.getDataRange().getValues();
-  for(let i=1;i<v.length;i++)if(String(v[i][0])===key)return String(v[i][1]||'');
-  return '';
-}
-function _locationSetCfg_(key,val){
-  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.CONFIG);
-  if(!sh)return;
-  const v=sh.getDataRange().getValues();
-  for(let i=1;i<v.length;i++)if(String(v[i][0])===key){sh.getRange(i+1,2).setValue(val);sh.getRange(i+1,3).setValue(now_());return;}
-  sh.appendRow([key,val,now_()]);
-}
+function syncPostalDatabase_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sh = ss.getSheetByName(SHEETS.LOCATION_MASTER);
+  if (!sh) throw new Error('LOCATION_MASTER শিট পাওয়া যায়নি।');
 
-function syncPostalDatabase_(){
-  const ss=SpreadsheetApp.getActiveSpreadsheet(), sh=ss.getSheetByName(SHEETS.LOCATION_MASTER);
-  if(!sh)throw new Error('LOCATION_MASTER শিট পাওয়া যায়নি।');
-  if(_locationCfg_('LOCATION_POSTAL_DB_VERSION')===LOCATION_POSTAL_DB_VERSION_)return {ok:true,updated:false};
-  const res=UrlFetchApp.fetch(LOCATION_POSTAL_DB_URL_,{method:'get',muteHttpExceptions:true,headers:{Accept:'application/json'}});
-  if(res.getResponseCode()!==200)throw new Error('ডাকঘর ডাটাবেস লোড হয়নি: HTTP '+res.getResponseCode());
-  const body=JSON.parse(res.getContentText());
-  const rows=Array.isArray(body)?body:(body.data||body.postOffice||body.postOffices||[]);
-  if(!rows.length)throw new Error('ডাকঘর ডাটাবেসে কোনো রেকর্ড পাওয়া যায়নি।');
+  const cfg = ss.getSheetByName(SHEETS.CONFIG);
+  let current = '';
+  if (cfg && cfg.getLastRow() >= 2) {
+    const v = cfg.getDataRange().getValues();
+    for (let i=1;i<v.length;i++) if (String(v[i][0]) === 'LOCATION_POSTAL_DB_VERSION') current=String(v[i][1]||'');
+  }
+  if (current === LOCATION_POSTAL_DB_VERSION_) return {ok:true,updated:false,message:'ডাকঘর ডাটাবেস আগে থেকেই আপডেট আছে।'};
 
-  const last=Math.max(1,sh.getLastRow());
-  const existing=last>1?sh.getRange(2,1,last-1,7).getValues():[];
-  const keep=existing.filter(r=>String(r.join('')).trim()!=='');
-  const out=rows.map(r=>{
-    const post=String(r.postOfficebn||r.postOffice||r.post||'').trim();
-    const code=String(r.postCodebn||r.postCode||r.postcode||'').trim();
-    return [String(r.divisionbn||r.division||'').trim(),String(r.districtbn||r.district||'').trim(),
-      String(r.upazillabn||r.upazilla||r.upazila||'').trim(),'','',code?post+' ('+code+')':post,''];
-  }).filter(r=>r[5]);
-
-  const seen={};
-  const merged=keep.filter(r=>{
-    const k=[r[0],r[1],r[2],r[3],r[4],r[5]].join('|');
-    if(seen[k])return false; seen[k]=true; return true;
+  const res = UrlFetchApp.fetch(LOCATION_POSTAL_DB_URL_, {
+    method:'get', muteHttpExceptions:true, headers:{Accept:'application/json'}
   });
-  out.forEach(r=>{
-    const k=[r[0],r[1],r[2],r[3],r[4],r[5]].join('|');
-    if(!seen[k]){seen[k]=true;merged.push(r);}
+  if (res.getResponseCode() !== 200) throw new Error('ডাকঘর ডাটাবেস লোড হয়নি: HTTP '+res.getResponseCode());
+  const body = JSON.parse(res.getContentText());
+  const rows = Array.isArray(body) ? body : (body.data || body.postOffice || body.postOffices || []);
+  if (!rows.length) throw new Error('ডাকঘর ডাটাবেসে কোনো রেকর্ড পাওয়া যায়নি।');
+
+  const last = Math.max(1, sh.getLastRow());
+  const existing = last > 1 ? sh.getRange(2,1,last-1,7).getValues() : [];
+  const keep = existing.filter(r => String(r.join('')).trim() !== '');
+  const out = rows.map(r => [
+    String(r.divisionbn || r.division || ''),
+    String(r.districtbn || r.district || ''),
+    String(r.upazillabn || r.upazilla || r.upazila || ''),
+    '', '', 
+    String(r.postOfficebn || r.postOffice || r.post || ''),
+    String(r.postCodebn || r.postCode || r.postcode || '')
+  ]).filter(r => r[5]);
+
+  const seen = {};
+  const merged = keep.concat(out).filter(r => {
+    const k = [r[0],r[1],r[2],r[5],r[6]].join('|');
+    if (seen[k]) return false;
+    seen[k]=true; return true;
   });
-  if(last>1)sh.getRange(2,1,last-1,7).clearContent();
-  for(let i=0;i<merged.length;i+=5000){const n=Math.min(5000,merged.length-i);sh.getRange(i+2,1,n,7).setValues(merged.slice(i,i+n));}
-  _locationSetCfg_('LOCATION_POSTAL_DB_VERSION',LOCATION_POSTAL_DB_VERSION_);
-  return {ok:true,updated:true,count:out.length};
+
+  if (last > 1) sh.getRange(2,1,last-1,7).clearContent();
+  for (let i=0;i<merged.length;i+=5000) {
+    const n=Math.min(5000,merged.length-i);
+    sh.getRange(i+2,1,n,7).setValues(merged.slice(i,i+n));
+  }
+
+  if (cfg) {
+    const v=cfg.getDataRange().getValues();
+    let found=false;
+    for(let i=1;i<v.length;i++) if(String(v[i][0])==='LOCATION_POSTAL_DB_VERSION'){
+      cfg.getRange(i+1,2).setValue(LOCATION_POSTAL_DB_VERSION_);
+      cfg.getRange(i+1,3).setValue(now_());
+      found=true; break;
+    }
+    if(!found) cfg.appendRow(['LOCATION_POSTAL_DB_VERSION',LOCATION_POSTAL_DB_VERSION_,now_()]);
+  }
+  return {ok:true,updated:true,count:out.length,message:out.length+'টি ডাকঘর/পোস্টকোড ডাটাবেসে যোগ হয়েছে।'};
 }
 
-function syncVillageDatabase_(){
-  const ss=SpreadsheetApp.getActiveSpreadsheet(), sh=ss.getSheetByName(SHEETS.LOCATION_MASTER);
-  if(!sh)throw new Error('LOCATION_MASTER শিট পাওয়া যায়নি।');
-  if(_locationCfg_('LOCATION_VILLAGE_DB_VERSION')===LOCATION_VILLAGE_DB_VERSION_)return {ok:true,updated:false};
-  const url='https://raw.githubusercontent.com/hmsumon789-cell/Jannatul-Baqi-Digital-Platform-2026/main/VillageDatabase-2026.08.04.json.gz';
-  const res=UrlFetchApp.fetch(url,{method:'get',muteHttpExceptions:true,headers:{Accept:'application/gzip'}});
-  if(res.getResponseCode()!==200)return {ok:false,updated:false,message:'গ্রামের ডাটাবেস লোড হয়নি।'};
-  const body=JSON.parse(Utilities.ungzip(res.getBlob()).getDataAsString('UTF-8'));
-  const rows=Array.isArray(body)?body:(body.records||body.data||[]);
-  if(!rows.length)throw new Error('গ্রামের ডাটাবেসে কোনো রেকর্ড পাওয়া যায়নি.');
+/**
+ * Village database — 2026.08.04
+ * The GitHub Actions workflow builds this gzip from the verified release,
+ * including Division/District/Upazila/Union parent names.
+ */
+const LOCATION_VILLAGE_DB_VERSION_ = 'bbs-village-90049-2026.08.04';
+const LOCATION_VILLAGE_DB_URL_ =
+  'https://raw.githubusercontent.com/hmsumon789-cell/Jannatul-Baqi-Digital-Platform-2026/main/VillageDatabase-2026.08.04.json.gz';
 
-  const last=Math.max(1,sh.getLastRow()), existing=last>1?sh.getRange(2,1,last-1,7).getValues():[];
-  const keep=existing.filter(r=>String(r.join('')).trim()!=='');
-  const seen={};
-  const merged=keep.slice();
-  keep.forEach(r=>{if(r[6])seen[[r[0],r[1],r[2],r[3],r[6]].join('|')]=true;});
-  rows.forEach(r=>{
-    const row=[String(r.division||'').trim(),String(r.district||'').trim(),String(r.upazila||'').trim(),String(r.union||'').trim(),'','',String(r.village||'').trim()];
-    if(!row[6])return;
-    const k=[row[0],row[1],row[2],row[3],row[6]].join('|');
-    if(!seen[k]){seen[k]=true;merged.push(row);}
+function syncVillageDatabase_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sh = ss.getSheetByName(SHEETS.LOCATION_MASTER);
+  if (!sh) throw new Error('LOCATION_MASTER শিট পাওয়া যায়নি।');
+
+  const cfg = ss.getSheetByName(SHEETS.CONFIG);
+  let current = '';
+  if (cfg && cfg.getLastRow() >= 2) {
+    const v = cfg.getDataRange().getValues();
+    for (let i=1;i<v.length;i++) {
+      if (String(v[i][0]) === 'LOCATION_VILLAGE_DB_VERSION') current=String(v[i][1]||'');
+    }
+  }
+  if (current === LOCATION_VILLAGE_DB_VERSION_) {
+    return {ok:true,updated:false,message:'গ্রামের ডাটাবেস আগে থেকেই আপডেট আছে।'};
+  }
+
+  const res = UrlFetchApp.fetch(LOCATION_VILLAGE_DB_URL_, {
+    method:'get', muteHttpExceptions:true,
+    headers:{Accept:'application/gzip'}
   });
-  if(last>1)sh.getRange(2,1,last-1,7).clearContent();
-  for(let i=0;i<merged.length;i+=5000){const n=Math.min(5000,merged.length-i);sh.getRange(i+2,1,n,7).setValues(merged.slice(i,i+n));}
-  _locationSetCfg_('LOCATION_VILLAGE_DB_VERSION',LOCATION_VILLAGE_DB_VERSION_);
-  return {ok:true,updated:true,count:rows.length};
+  if (res.getResponseCode() !== 200) {
+    return {ok:false,updated:false,message:'গ্রামের ডাটাবেস এখনো GitHub-এ তৈরি হয়নি।'};
+  }
+
+  const jsonText = Utilities.ungzip(res.getBlob()).getDataAsString('UTF-8');
+  const body = JSON.parse(jsonText);
+  const rows = Array.isArray(body) ? body : (body.records || body.data || []);
+  if (!rows.length) throw new Error('গ্রামের ডাটাবেসে কোনো রেকর্ড পাওয়া যায়নি।');
+
+  const last = Math.max(1, sh.getLastRow());
+  const existing = last > 1 ? sh.getRange(2,1,last-1,7).getValues() : [];
+
+  // Preserve existing administrative/postal rows; add village rows without
+  // duplicating an identical Division|District|Upazila|Union|Village tuple.
+  const keep = existing.filter(r => String(r.join('')).trim() !== '');
+  const seen = {};
+  keep.forEach(r => {
+    const k=[r[0],r[1],r[2],r[3],r[6]].map(String).join('|');
+    if (r[6]) seen[k]=true;
+  });
+
+  const villageRows = rows.map(r => [
+    String(r.division||'').trim(),
+    String(r.district||'').trim(),
+    String(r.upazila||'').trim(),
+    String(r.union||'').trim(),
+    '',
+    '',
+    String(r.village||'').trim()
+  ]).filter(r => r[6]);
+
+  const merged = keep.slice();
+  villageRows.forEach(r => {
+    const k=[r[0],r[1],r[2],r[3],r[6]].map(String).join('|');
+    if (!seen[k]) { seen[k]=true; merged.push(r); }
+  });
+
+  if (last > 1) sh.getRange(2,1,last-1,7).clearContent();
+  for (let i=0;i<merged.length;i+=5000) {
+    const n=Math.min(5000,merged.length-i);
+    sh.getRange(i+2,1,n,7).setValues(merged.slice(i,i+n));
+  }
+
+  if (cfg) {
+    const v=cfg.getDataRange().getValues();
+    let found=false;
+    for(let i=1;i<v.length;i++) {
+      if(String(v[i][0])==='LOCATION_VILLAGE_DB_VERSION'){
+        cfg.getRange(i+1,2).setValue(LOCATION_VILLAGE_DB_VERSION_);
+        cfg.getRange(i+1,3).setValue(now_());
+        found=true; break;
+      }
+    }
+    if(!found) cfg.appendRow(['LOCATION_VILLAGE_DB_VERSION',LOCATION_VILLAGE_DB_VERSION_,now_()]);
+  }
+
+  return {
+    ok:true,updated:true,count:villageRows.length,
+    message:villageRows.length+'টি গ্রামের ডাটাবেস যোগ হয়েছে।'
+  };
 }
