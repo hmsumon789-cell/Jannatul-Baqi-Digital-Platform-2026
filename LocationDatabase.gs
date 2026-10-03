@@ -30,7 +30,7 @@ function syncPostalDatabase_() {
 
   const last = Math.max(1, sh.getLastRow());
   const existing = last > 1 ? sh.getRange(2,1,last-1,7).getValues() : [];
-  const keep = existing.filter(r => String(r[5]||'').trim() !== '');
+  const keep = existing.filter(r => String(r.join('')).trim() !== '');
   const out = rows.map(r => [
     String(r.divisionbn || r.division || ''),
     String(r.districtbn || r.district || ''),
