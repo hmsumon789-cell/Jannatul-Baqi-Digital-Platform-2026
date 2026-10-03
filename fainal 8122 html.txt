@@ -971,7 +971,7 @@ body.gold #app .header-calendar-select-v2{background:#f4d56b!important;color:#11
 <div id="toast" class="toast"></div>
 
 <script>
-let token='',otpToken='',currentUser=null,media=[],mediaIndex=0,modules=[],drag={},publicSignals=[];
+let token='',otpToken='',currentUser=null,media=[],mediaIndex=0,modules=[],drag={};
 const $=id=>document.getElementById(id);
 const call=(fn,...args)=>new Promise((resolve,reject)=>google.script.run.withSuccessHandler(resolve).withFailureHandler(e=>reject(e))[fn](...args));
 
@@ -979,10 +979,7 @@ window.addEventListener('load',async()=>{initOtp();tick();setInterval(tick,1000)
 
 function initOtp(){const b=$('otpBoxes');b.innerHTML='';for(let i=0;i<6;i++){const x=document.createElement('input');x.className='otp-box';x.maxLength=1;x.inputMode='numeric';x.addEventListener('input',()=>{x.value=x.value.replace(/\D/g,'');if(x.value&&x.nextElementSibling)x.nextElementSibling.focus()});x.addEventListener('keydown',e=>{if(e.key==='Backspace'&&!x.value&&x.previousElementSibling)x.previousElementSibling.focus();if(e.key==='Enter')verifyOtp()});b.appendChild(x)}}
 function tick(){const d=new Date();const tz='Asia/Dhaka';const time=d.toLocaleTimeString('bn-BD',{timeZone:tz,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});const date=d.toLocaleDateString('bn-BD',{timeZone:tz,day:'numeric',month:'long',year:'numeric'});const txt='সময় '+time+' • '+date;if($('loginDateTime'))$('loginDateTime').textContent=txt;if($('appClock'))$('appClock').textContent=time;if($('appDate'))$('appDate').textContent=d.toLocaleDateString('bn-BD',{timeZone:tz,weekday:'long',year:'numeric',month:'long',day:'numeric'});}
-async function loadPublic(){try{const r=await call('getPublicConfig');publicSignals=Array.isArray(r.signals)?r.signals:[];fillSignals(publicSignals);fillClasses(r.classes)}catch(e){toast('সার্ভার প্রস্তুত হয়নি। Apps Script deploy সেটিং পরীক্ষা করুন।')}}
-const SIGNAL_SUBJECTS=[['std','ছাত্র/ছাত্রী প্রোফাইল'],['thr','শিক্ষক/শিক্ষিকা'],['olp','অনলাইন পেমেন্ট'],['mrs','মার্কশিট'],['rjt','রেজাল্ট'],['adm','নতুন অ্যাডমিন তালিকা'],['npn','নতুন পরীক্ষার্থী নিবন্ধন'],['npt','নিবন্ধনকৃত পুরুষ মাদ্রাসা'],['nmt','নিবন্ধনকৃত মহিলা মাদ্রাসা'],['ofd','অনলাইন/মোবাইল ফলাফল'],['cft','সার্টিফিকেট/সনদপত্র'],['idc','আইডি কার্ড'],['adc','এডমিট কার্ড'],['rct','রিসিট'],['tcp','টিসি/ছাড়পত্র'],['sjs','শ্রেনি/ক্লাশ-জামাত']];
-function subjectOptions(){const src=publicSignals.length?publicSignals:SIGNAL_SUBJECTS,a=[];src.forEach(s=>{const v=String((s&&s[1])||'').trim();if(v&&!a.includes(v))a.push(v)});return a;}
-function subjectSelect(id){const a=subjectOptions();return '<select id="'+id+'" class="field"><option value="">বিষয় নির্বাচন করুন</option>'+a.map(x=>'<option value="'+x.replace(/"/g,'&quot;')+'">'+x.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</option>').join('')+'</select>';}
+async function loadPublic(){try{const r=await call('getPublicConfig');fillSignals(r.signals);fillClasses(r.classes)}catch(e){toast('সার্ভার প্রস্তুত হয়নি। Apps Script deploy সেটিং পরীক্ষা করুন।')}}
 function fillSignals(list){
   ['loginSignal','appSignal'].forEach(id=>{
     const el=$(id);
@@ -1105,7 +1102,7 @@ const LOCATION_WARDS=['১ নং ওয়ার্ড','২ নং ওয়ার�
 const LOCATION_VILLAGES=['কোনাখোলা','মডেল টাউন','জিঞ্জিরা','শুভাঢ্যা','আগানগর','বাস্তা','তেঘরিয়া'];
 function getLocationValue(id){const m=document.getElementById(id+'Manual')?.value.trim();const s=document.getElementById(id+'Select')?.value||'';return m||s||'';}
 function moduleForm(k){
-const common=`<div class="form-grid">
+const common=`<div class="student-meta-row-2026"><label>আইডি লিখুন<input id="fStudentID" class="field"></label><label>জন্ম তারিখ লিখুন<input id="fDob" class="field" type="date"></label><label>তারিখ লিখুন<input id="fRecordDate" class="field" type="date"></label></div><div class="form-grid">
 <label>বাংলা নাম<input id="fNameBN" class="field"></label>
 <label>العربية الاسم<input id="fNameAR" class="field" dir="rtl"></label>
 <label>English Name<input id="fNameEN" class="field"></label>
@@ -1117,7 +1114,7 @@ const common=`<div class="form-grid">
 <label>Mother's Name — English<input id="fMotherEN" class="field"></label>
 <label>মোবাইল<input id="fMobile" class="field"></label>
 <label>WhatsApp<input id="fWhatsApp" class="field"></label>
-<label>ইমেইল<input id="fEmail" class="field"></label><label>জন্ম তারিখ / Date of Birth<input id="fDob" class="field" type="date"></label>
+<label>ইমেইল<input id="fEmail" class="field"></label>
 ${locationField('fDivision','বিভাগ',['ঢাকা','চট্টগ্রাম','রাজশাহী','খুলনা','বরিশাল','সিলেট','রংপুর','ময়মনসিংহ'])}
 ${locationField('fDistrict','জেলা',['ঢাকা','কেরাণীগঞ্জ','গাজীপুর','নারায়ণগঞ্জ','নরসিংদী','মুন্সীগঞ্জ','মানিকগঞ্জ','টাঙ্গাইল'])}
 ${locationField('fUpazila','উপজেলা / থানা',['কেরাণীগঞ্জ','সাভার','দোহার','নবাবগঞ্জ','ধামরাই','শ্রীপুর','কালীগঞ্জ'])}
@@ -1126,12 +1123,12 @@ ${locationField('fWard','ওয়ার্ড',['১ নং ওয়ার্ড','�
 ${locationField('fVillage','গ্রাম',['কোনাখোলা','মডেল টাউন','জিঞ্জিরা','শুভাঢ্যা','আগানগর','বাস্তা','তেঘরিয়া'])}
 <label class="full">ঠিকানা<textarea id="fAddress" class="field"></textarea></label></div>`;
 if(['student','teacher','donor'].includes(k))return common+`<div class="form-grid"><label>শ্রেনি/জামাত<select id="fClass" class="field">${['প্লে শ্রেনি','শিশু শ্রেনি','আউয়াল জামাত','ছানী জামাত','ছালেছ জামাত','রাবে জামাত','পঞ্চম জামাত','মিজান জামাত','নাহবেমীর জামাত','কুদুরী জামাত','শরহে বেকায়া জামাত','হেদায়া জামাত','মিশকাত জামাত','দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)'].map(x=>`<option>${x}</option>`).join('')}</select></label><label>বিভাগ<select id="fDept" class="field"><option>কিতাব বিভাগ</option><option>হিফজুল কুরআন বিভাগ</option><option>নুরানী বিভাগ</option><option>গণিত বিভাগ</option><option>ইংলিশ বিভাগ</option><option>বাংলা বিভাগ</option><option>বোর্ডিং বিভাগ</option><option>হিসাব বিভাগ</option></select></label><label>শাখা<select id="fBranch" class="field"><option>প্রধান শাখা</option><option>২য় শাখা</option><option>৩য় শাখা</option><option>বালক শাখা</option><option>বালিকা শাখা</option></select></label><label>ছবি<input id="fPhoto" class="field" type="file" accept="image/*"></label><label>জন্ম নিবন্ধন<input id="fBirth" class="field"></label><label>জাতীয় ১৭ ডিজিট NID<input id="fNid" class="field"></label></div><button class="primary" onclick="saveModule('${k}')">Save</button>`;
-if(k==='admin')return `<div class="form-grid"><label>বাংলা নাম<input id="aName" class="field"></label><label>العربية<input id="aAr" class="field"></label><label>English<input id="aEn" class="field"></label><label>Username<input id="aUser" class="field"></label><label>Password<input id="aPass" class="field" type="password"></label><label>Email<input id="aEmail" class="field"></label><label>Mobile<input id="aMobile" class="field" required></label><label>WhatsApp<input id="aWa" class="field"></label><label>Approval ID<input id="aApproval" class="field"></label><label class="full">Address<textarea id="aAddress" class="field"></textarea></label><label class="full">Photo (required)<input id="aPhoto" class="field" type="file" accept="image/*"></label><label>জন্ম তারিখ / Date of Birth<input id="aDob" class="field" type="date"></label><label>Birth Registration<input id="aBirth" class="field"></label><label>১৭ ডিজিট NID<input id="aNid" class="field"></label></div><button class="primary" onclick="saveAdmin()">Create Admin</button>`;
+if(k==='admin')return `<div class="form-grid"><label>বাংলা নাম<input id="aName" class="field"></label><label>العربية<input id="aAr" class="field"></label><label>English<input id="aEn" class="field"></label><label>Username<input id="aUser" class="field"></label><label>Password<input id="aPass" class="field" type="password"></label><label>Email<input id="aEmail" class="field"></label><label>Mobile<input id="aMobile" class="field" required></label><label>WhatsApp<input id="aWa" class="field"></label><label>Approval ID<input id="aApproval" class="field"></label><label class="full">Address<textarea id="aAddress" class="field"></textarea></label><label class="full">Photo (required)<input id="aPhoto" class="field" type="file" accept="image/*"></label><label>Birth Registration<input id="aBirth" class="field"></label><label>১৭ ডিজিট NID<input id="aNid" class="field"></label></div><button class="primary" onclick="saveAdmin()">Create Admin</button>`;
 if(k==='gallery')return `<div class="media-upload-note"><b>ফটো:</b> সর্বোচ্চ 20 MB, 100টি। <b>ভিডিও:</b> সর্বোচ্চ 50 MB, 20টি। <b>অডিও:</b> সর্বোচ্চ 50 MB, 50টি।</div><input id="mediaFiles" class="field" type="file" multiple accept="image/*,video/*,audio/*"><button class="primary" onclick="uploadMedia()">⬆ আপলোড</button><div id="mediaList"></div>`;
 if(k==='help')return `<button class="primary" onclick="openWindow('quickWin')">দ্রুত সেবা / হেল্প</button>`;
 if(k==='institution')return `<h3>প্রতিষ্ঠানের সংক্ষিপ্ত ইতিহাস</h3><p>সালাতুল এস্তেখারার মাধ্যমে মহান আল্লাহ তায়ালার উপর পূর্ণ আস্থা রেখে খালেছ নিয়তে মানব জাতিকে অন্ধকার থেকে আলোর পথে আনার জন্য এবং সহি দ্বিনি ইলম শিক্ষা দেয়ার উদ্দেশ্যে 10-10-2005 ইংরেজী সনে প্রতিষ্ঠিত হয়।</p><p><b>প্রতিষ্ঠাতা-প্রিন্সিপাল/মুহতামিম:</b> জনাব হাফেজ হযরত মাওলানা মু. আতিকুর রহমান (ফরিদপুরী), ২০০৫ হতে ২০২৬ চলমান।</p>`;
 if(['payment','fees','finance'].includes(k))return `<div class="form-grid"><label>Student ID<input id="pStudent" class="field"></label><label>নাম<input id="pName" class="field"></label><label>মাস<input id="pMonth" class="field"></label><label>Category<input id="pCat" class="field" value="মাসিক বেতন"></label><label>Amount<input id="pAmount" class="field" type="number"></label><label>Method<select id="pMethod" class="field"><option>বিকাশ</option><option>নগদ</option><option>রকেট</option><option>ব্যাংকিং</option><option>ক্যাশ</option></select></label><label class="full">Note<textarea id="pNote" class="field"></textarea></label></div><button class="primary" onclick="savePayment()">Save Payment</button>`;
-if(k==='admission')return `<div class="form-grid">
+if(k==='admission')return `<div class="student-meta-row-2026"><label>আইডি লিখুন<input id="adStudentID" class="field"></label><label>জন্ম তারিখ লিখুন<input id="adDob" class="field" type="date"></label><label>তারিখ লিখুন<input id="adRecordDate" class="field" type="date"></label></div><div class="form-grid">
 <label>বাংলা নাম / Student Name<input id="adNameBN" class="field"></label>
 <label>العربية الاسم<input id="adNameAR" class="field" dir="rtl"></label>
 <label>English Name<input id="adNameEN" class="field"></label>
@@ -1159,21 +1156,21 @@ ${locationField('adVillage','গ্রাম',['কোনাখোলা','ম�
 <label>জাতীয় ১৭ ডিজিট NID<input id="adNid" class="field"></label>
 <label class="full">ঠিকানা / Address<textarea id="adAddress" class="field"></textarea></label>
 </div><button class="primary" onclick="saveModule('admission')">Save Admission</button>`;
-if(['result','marks','exam'].includes(k))return `<div class="form-grid"><label>Student ID<input id="rStudent" class="field"></label><label>নাম<input id="rName" class="field"></label><label>শ্রেনি<input id="rClass" class="field"></label><label>পরীক্ষা<input id="rExam" class="field"></label><label>বিষয় / Subject</label>${subjectSelect('rSubject')}<label>নম্বর / Marks<input id="rMarks" class="field" type="number" min="0" max="100"></label><label class="full">Subject/Marks JSON<textarea id="rSubjects" class="field" placeholder='{"বাংলা":80,"আরবি":85}'></textarea></label></div><button class="primary" onclick="saveResult('${k}')">Save</button>`;
+if(['result','marks','exam'].includes(k))return `<div class="student-meta-row-2026"><label>আইডি লিখুন<input id="rStudentMeta" class="field"></label><label>জন্ম তারিখ লিখুন<input id="rDob" class="field" type="date"></label><label>তারিখ লিখুন<input id="rRecordDate" class="field" type="date"></label></div><div class="form-grid"><label>Student ID<input id="rStudent" class="field"></label><label>নাম<input id="rName" class="field"></label><label>শ্রেনি<input id="rClass" class="field"></label><label>পরীক্ষা<input id="rExam" class="field"></label><label class="full">Subject/Marks JSON<textarea id="rSubjects" class="field" placeholder='{"বাংলা":80,"আরবি":85}'></textarea></label></div><button class="primary" onclick="saveResult('${k}')">Save</button>`;
 return `<p>এই ফিচারের জন্য ৩ ভাষা, A4, ৩ কলাম উইন্ডো কাঠামো প্রস্তুত। প্রয়োজনীয় তথ্য পূরণ করুন।</p><div class="form-grid"><label class="full">বিবরণ<textarea class="field" rows="8" id="genericData"></textarea></label></div><button class="primary" onclick="toast('ফিচার উইন্ডো প্রস্তুত')">Save</button>`;
 }
 async function saveModule(k){
 const map={student:'STUDENTS',teacher:'TEACHERS',donor:'DONORS'};const s=map[k];
-const d={StudentID:document.getElementById('fStudentID')?.value||'',RecordDate:document.getElementById('fDate')?.value||'',NameBN:$('fNameBN').value,NameAR:$('fNameAR').value,NameEN:$('fNameEN').value,
+const d={StudentID:$('fStudentID')?.value||'',DOB:$('fDob')?.value||'',RecordDate:$('fRecordDate')?.value||'',NameBN:$('fNameBN').value,NameAR:$('fNameAR').value,NameEN:$('fNameEN').value,
 FatherNameBN:$('fFatherBN').value,FatherNameAR:$('fFatherAR').value,FatherNameEN:$('fFatherEN').value,
 MotherNameBN:$('fMotherBN').value,MotherNameAR:$('fMotherAR').value,MotherNameEN:$('fMotherEN').value,
-Mobile:$('fMobile').value,WhatsApp:$('fWhatsApp').value,Email:$('fEmail').value,BirthDate:document.getElementById('fDob')?.value||'',Address:$('fAddress').value,
+Mobile:$('fMobile').value,WhatsApp:$('fWhatsApp').value,Email:$('fEmail').value,Address:$('fAddress').value,
 Division:getLocationValue('fDivision'),District:getLocationValue('fDistrict'),Upazila:getLocationValue('fUpazila'),Union:getLocationValue('fUnion'),Ward:getLocationValue('fWard'),Village:getLocationValue('fVillage'),
 Class:document.getElementById('fClass')?.value||'',Department:document.getElementById('fDept')?.value||'',Branch:document.getElementById('fBranch')?.value||'',Photo:await fileData('fPhoto'),BirthReg:document.getElementById('fBirth')?.value||'',NID:document.getElementById('fNid')?.value||''};
 if(k==='student')d.Gender='';const r=await call('saveRecord',token,s,d);toast(r.ok?'সফলভাবে সংরক্ষণ হয়েছে':'ব্যর্থ')}
-async function saveAdmin(){const photo=await fileData('aPhoto');const d={NameBN:$('aName').value,NameAR:$('aAr').value,NameEN:$('aEn').value,Username:$('aUser').value,Password:$('aPass').value,Email:$('aEmail').value,Mobile:$('aMobile').value,WhatsApp:$('aWa').value,ApprovalID:$('aApproval').value,Address:$('aAddress').value,Photo:photo,BirthDate:document.getElementById('aDob')?.value||'',BirthReg:$('aBirth').value,NID:$('aNid').value};const r=await call('createAdmin',token,d);toast(r.message||('Admin ID: '+r.adminId))}
+async function saveAdmin(){const photo=await fileData('aPhoto');const d={NameBN:$('aName').value,NameAR:$('aAr').value,NameEN:$('aEn').value,Username:$('aUser').value,Password:$('aPass').value,Email:$('aEmail').value,Mobile:$('aMobile').value,WhatsApp:$('aWa').value,ApprovalID:$('aApproval').value,Address:$('aAddress').value,Photo:photo,BirthReg:$('aBirth').value,NID:$('aNid').value};const r=await call('createAdmin',token,d);toast(r.message||('Admin ID: '+r.adminId))}
 async function savePayment(){const d={StudentID:$('pStudent').value,Name:$('pName').value,Month:$('pMonth').value,Category:$('pCat').value,Amount:Number($('pAmount').value),Method:$('pMethod').value,Date:new Date().toISOString(),Note:$('pNote').value};const r=await call('saveRecord',token,'PAYMENTS',d);toast(r.ok?'Payment saved':'Failed');}
-async function saveResult(k){const d={StudentID:$('rStudent').value,Name:$('rName').value,Class:$('rClass').value,Exam:$('rExam').value,SubjectData:$('rSubjects').value,Subject:document.getElementById('rSubject')?.value||'',Marks:document.getElementById('rMarks')?.value||'',Published:'NO',Date:new Date().toISOString()};const r=await call('saveRecord',token,'RESULTS',d);toast(r.ok?'Saved':'Failed')}
+async function saveResult(k){const d={StudentID:$('rStudent').value,Name:$('rName').value,Class:$('rClass').value,Exam:$('rExam').value,SubjectData:$('rSubjects').value,Published:'NO',Date:new Date().toISOString()};const r=await call('saveRecord',token,'RESULTS',d);toast(r.ok?'Saved':'Failed')}
 async function uploadMedia(){
   const input=$('mediaFiles');
   if(!input||!input.files||!input.files.length)return toast('প্রথমে ফটো/ভিডিও/অডিও নির্বাচন করুন।');
@@ -2228,7 +2225,7 @@ body.gold #formWin select.field,body.gold #formWin input.field{border-radius:7px
       '<label>ডাকঘর<select id="rPostSelect" class="field"></select><input id="rPostManual" class="field location-manual" placeholder="হাতে লিখুন"></label>'+
       '<label>ওয়ার্ড<select id="rWardSelect" class="field"></select><input id="rWardManual" class="field location-manual" placeholder="হাতে লিখুন"></label>'+
       '<label>গ্রাম<select id="rVillageSelect" class="field"></select><input id="rVillageManual" class="field location-manual" placeholder="হাতে লিখুন"></label>'+
-      '<label>বিষয় / Subject</label>${subjectSelect('rSubject')}<label>নম্বর / Marks<input id="rMarks" class="field" type="number" min="0" max="100"></label><label class="full">Subject/Marks JSON<textarea id="rSubjects" class="field"></textarea></label></div><button class="primary" onclick="saveResult(\'exam\')">Save</button>';
+      '<label class="full">Subject/Marks JSON<textarea id="rSubjects" class="field"></textarea></label></div><button class="primary" onclick="saveResult(\'exam\')">Save</button>';
     }
     return html;
   };
@@ -4246,12 +4243,12 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
     if(!w)return;
     if(w.classList.contains('win-fullscreen-2026')){
       w.classList.remove('win-fullscreen-2026');
-      w.style.removeProperty('width');w.style.removeProperty('height');
+      w.style.width=w.dataset.task3PrevWidth||'';
+      w.style.height=w.dataset.task3PrevHeight||'';
       w.style.maxHeight=w.dataset.task3PrevMaxHeight||'82vh';
       w.style.left=w.dataset.task3PrevLeft||'50%';
       w.style.top=w.dataset.task3PrevTop||'90px';
       w.style.transform=w.dataset.task3PrevTransform||'translateX(-50%)';
-      w.style.removeProperty('z-index');
     }else{
       var r=w.getBoundingClientRect();
       w.dataset.task3PrevWidth=r.width+'px';
@@ -4261,15 +4258,6 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
       w.dataset.task3PrevTop=r.top+'px';
       w.dataset.task3PrevTransform=w.style.transform||'none';
       w.classList.add('win-fullscreen-2026');
-      w.style.setProperty('position','fixed','important');
-      w.style.setProperty('left','0px','important');
-      w.style.setProperty('top','0px','important');
-      w.style.setProperty('width','100vw','important');
-      w.style.setProperty('height','100vh','important');
-      w.style.setProperty('max-width','none','important');
-      w.style.setProperty('max-height','none','important');
-      w.style.setProperty('transform','none','important');
-      w.style.setProperty('z-index','999999','important');
     }
   }
   function closeExisting(w){
@@ -8014,21 +8002,9 @@ body.gold #searchProfilePrint .sp-field{border-color:#d40000!important}
     }catch(e){}
   }
 
-  function getToken(){
-    try{if(typeof token!=='undefined'&&token)return token;}catch(e){}
-    return window.token||'';
-  }
-  function arrUnique(){
-    var m=Array.isArray(window.media)?window.media:[],seen={},out=[];
-    m.forEach(function(x){
-      var k=String((x&&x.Serial)||((x&&x.FileID)||((x&&x.DriveFileId)||''))||((x&&x.Name)||''));
-      if(!seen[k]){seen[k]=1;out.push(x);}
-    });
-    window.media=out;return out;
-  }
   function renderList(){
     var box=document.getElementById('mediaList');if(!box)return;
-    var m=arrUnique();
+    var m=arr();
     box.innerHTML=m.map(function(x,i){
       var active=(i===Number(window.mediaIndex||0))?' style="font-weight:900"':'';
       return '<div class="media-list-item"><span'+active+'>'+esc(x.Name||('Media '+(i+1)))+'</span>'+
@@ -8037,29 +8013,32 @@ body.gold #searchProfilePrint .sp-field{border-color:#d40000!important}
   }
 
   async function refresh(){
-    var tk=getToken();
-    if(loading||typeof window.call!=='function'||!tk)return;
+    if(loading||typeof window.call!=='function'||!window.token)return;
     loading=true;
     try{
-      var r=await window.call('listMedia',tk);
+      var r=await window.call('listMedia',window.token);
       var m=Array.isArray(r)?r:(r&&Array.isArray(r.media)?r.media:(r&&Array.isArray(r.rows)?r.rows:[]));
-      window.media=m||[];arrUnique();norm();draw();
+      window.media=m||[];
+      norm();
+      draw();
     }catch(e){}
     loading=false;
   }
 
   async function del(i){
-    var m=arrUnique(),x=m[i],tk=getToken();
-    if(!x||!tk)return;
+    var m=arr(), x=m[i];if(!x)return;
     try{
-      var serial=x.Serial||x.serial||x.ID||x.Id||x.FileID||x.DriveFileId||x.Name;
-      var r=await window.call('deleteMedia',tk,serial);
+      var r=await window.call('deleteMedia',window.token,x.Serial);
       if(r&&r.ok){
-        m.splice(i,1);window.media=m;
+        m.splice(i,1);
         if(window.mediaIndex>=m.length)window.mediaIndex=Math.max(0,m.length-1);
-        draw();renderList();setTimeout(refresh,100);
+        draw();
+        renderList();
+        setTimeout(refresh,100);
         if(typeof window.toast==='function')window.toast('মিডিয়া মুছে ফেলা হয়েছে।');
-      }else if(typeof window.toast==='function')window.toast((r&&r.message)||'ডিলিট ব্যর্থ');
+      }else if(typeof window.toast==='function'){
+        window.toast((r&&r.message)||'ডিলিট ব্যর্থ');
+      }
     }catch(e){
       if(typeof window.toast==='function')window.toast('ডিলিটে সার্ভার ত্রুটি হয়েছে।');
     }
@@ -8068,13 +8047,23 @@ body.gold #searchProfilePrint .sp-field{border-color:#d40000!important}
   window.renderMedia=draw;
   window.renderMediaList=renderList;
   window.deleteMediaByIndex=del;
-  window.nextMedia=function(){var m=arrUnique();if(!m.length)return;window.mediaIndex=(Number(window.mediaIndex||0)+1)%m.length;draw();autoplay()};
-  window.prevMedia=function(){var m=arrUnique();if(!m.length)return;window.mediaIndex=(Number(window.mediaIndex||0)-1+m.length)%m.length;draw();autoplay()};
+  window.nextMedia=function(){
+    var m=arr();if(!m.length)return;
+    window.mediaIndex=(Number(window.mediaIndex||0)+1)%m.length;draw();autoplay();
+  };
+  window.prevMedia=function(){
+    var m=arr();if(!m.length)return;
+    window.mediaIndex=(Number(window.mediaIndex||0)-1+m.length)%m.length;draw();autoplay();
+  };
   window.toggleMediaPlay=function(){autoplay()};
 
   document.addEventListener('click',function(e){
     var b=e.target.closest&&e.target.closest('[data-direct-media-delete]');
-    if(b){e.preventDefault();e.stopPropagation();del(Number(b.getAttribute('data-direct-media-delete')));}
+    if(b){
+      e.preventDefault();e.stopPropagation();
+      del(Number(b.getAttribute('data-direct-media-delete')));
+      return;
+    }
   },true);
 
   function boot(){
@@ -8098,1283 +8087,76 @@ body.gold #searchProfilePrint .sp-field{border-color:#d40000!important}
   }
 })();
 </script>
-
-<!-- ===== FINAL SEARCH PROFILE / PRINT VIEW VISIBILITY FIX — 2026-09-30 ===== -->
-<style id="final-search-profile-print-visibility-fix-2026-09-30">
-/* Profile-এর পুরো কনটেন্ট ও নিচের action buttons যেন window-এর বাইরে কেটে না যায় */
-#searchWin{
-  max-height:92vh!important;
-  overflow:hidden!important;
-}
-#searchWin .win-body{
-  max-height:calc(92vh - 54px)!important;
-  overflow-y:auto!important;
-  overflow-x:hidden!important;
-  padding-bottom:14px!important;
-}
-#searchProfilePrint.search-profile{
-  height:auto!important;
-  min-height:297mm!important;
-  max-height:none!important;
-  overflow:visible!important;
-  padding-bottom:18mm!important;
-}
-#searchProfilePrint .sp-bottom-actions{
-  position:sticky!important;
-  bottom:0!important;
-  z-index:20!important;
-  flex-shrink:0!important;
-  background:#fff!important;
-  box-shadow:0 -3px 10px #0002!important;
-}
-@media(max-width:900px){
-  #searchWin{max-height:94vh!important;width:100vw!important;max-width:100vw!important}
-  #searchWin .win-body{max-height:calc(94vh - 54px)!important}
-  #searchProfilePrint.search-profile{width:100%!important;min-height:0!important}
-}
+<!-- ===== 8,089 BASE FINAL FIXES — 2026-10-03 ===== -->
+<style id="final-8089-fixes">
+.student-meta-row-2026{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important;width:100%!important;margin:0 0 10px!important;padding:0!important;box-sizing:border-box!important}
+.student-meta-row-2026 label{display:flex!important;flex-direction:column!important;gap:4px!important;font-weight:900!important}
+.student-meta-row-2026 .field{width:100%!important;min-height:42px!important}
+@media(max-width:700px){.student-meta-row-2026{grid-template-columns:1fr!important}}
 @media print{
-  #searchProfilePrint.search-profile{height:auto!important;max-height:none!important;overflow:visible!important}
+  .location-manual,input[placeholder="হাতে লিখুন"],.form-action-bar,.win-actions,.task3-window-controls,#task3WinTaskbar{display:none!important}
+  .window,.form-window,#formWin{position:static!important;display:block!important;width:100%!important;max-width:none!important;max-height:none!important;height:auto!important;overflow:visible!important;border:0!important;box-shadow:none!important;transform:none!important}
 }
+.window.user-fullscreen-2026{position:fixed!important;left:0!important;top:0!important;width:100vw!important;height:100vh!important;max-width:none!important;max-height:none!important;margin:0!important;transform:none!important;border-radius:0!important;z-index:2147483000!important}
+.window.user-fullscreen-2026 .win-body{height:calc(100vh - 52px)!important;max-height:none!important;overflow:auto!important}
 </style>
-
-
-<style id="all-list-and-subject-system-2026-09-30">
-#allListWin,#classListWin{position:fixed!important;left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important;width:min(96vw,1180px)!important;height:min(88vh,820px)!important;z-index:999999!important;background:var(--panel,#fff)!important;color:var(--text,#111)!important;border:3px solid var(--border,#d4af37)!important;box-shadow:0 20px 60px #0008!important;border-radius:14px!important;overflow:hidden!important}
-#allListWin:not(.show),#classListWin:not(.show){display:none!important}
-.all-list-head{height:54px;display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border-bottom:2px solid var(--border,#d4af37);background:var(--panel,#fff);font-weight:900}
-.all-list-tools{display:flex;gap:7px;align-items:center;flex-wrap:wrap;padding:9px;border-bottom:1px solid #999}
-.all-list-tools select{min-width:280px}
-.all-list-body{height:calc(100% - 110px);overflow:auto;padding:10px}
-.all-list-row{display:grid;grid-template-columns:minmax(180px,1fr) minmax(180px,1fr) auto;gap:8px;align-items:center;padding:8px;margin-bottom:6px;border:2px solid var(--border,#d4af37);background:var(--panel,#fff);border-radius:8px}
-.all-list-actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
-.all-list-actions button{font-weight:900}
-.all-list-empty{text-align:center;padding:35px;font-size:18px;font-weight:900}
-@media(max-width:700px){#allListWin,#classListWin{width:98vw!important;height:92vh!important}.all-list-row{grid-template-columns:1fr}.all-list-actions{justify-content:flex-start}.all-list-tools select{min-width:0;width:100%}}
-body.dark #allListWin,body.dark #classListWin{background:#000!important;color:#ffe95c!important;border-color:#ff1f2f!important}
-body.dark .all-list-head,body.dark .all-list-row{background:#000!important;color:#ffe95c!important;border-color:#ff1f2f!important}
-</style>
-<script id="all-list-and-subject-system-js-2026-09-30">
+<script id="final-8089-fixes-js">
 (function(){
-  var SIGNAL_LIST=[
-    ['std','ছাত্র/ছাত্রী তালিকা'],['thr','শিক্ষক/শিক্ষিকা তালিকা'],['olp','অনলাইন পেমেন্ট তালিকা'],['mrs','মার্কশিট তালিকা'],['rjt','রেজাল্ট তালিকা'],
-    ['adm','নতুন অ্যাডমিন তালিকা'],['npn','নতুন পরীক্ষার্থী নিবন্ধন তালিকা'],['npt','নিবন্ধনকৃত পুরুষ মাদ্রাসার তালিকা'],['nmt','নিবন্ধনকৃত মহিলা মাদ্রাসার তালিকা'],
-    ['ofd','অনলাইন+মোবাইল ফলাফল তালিকা'],['cft','সার্টিফিকেট/সনদপত্র তালিকা'],['idc','আইডি কার্ড তালিকা'],['adc','এডমিট কার্ড তালিকা'],['rct','রিসিট তালিকা'],['tcp','টিসি/ছাড়পত্র তালিকা']
-  ];
-  var CLASS_LIST=['প্লে শ্রেনি','শিশু শ্রেনি','আউয়াল জামাত','ছানী জামাত','ছালেছ জামাত','রাবে জামাত','পঞ্চম জামাত','মিজান জামাত','নাহবেমীর জামাত','কুদুরী জামাত','শরহে বেকায়া জামাত','হেদায়া জামাত','মিশকাত জামাত','দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)'];
-  var SUBJECTS={
-    'প্লে শ্রেনি':['নুরানী কায়দা','নুরানী নিসাব','ইসলামী ও আরবী শিক্ষা','বাংলা','অংক','ইংরেজী','হাতের লেখা'],
-    'শিশু শ্রেনি':['নুরানী কায়দা','নুরানী নিসাব','ছড়া ছবি','বাংলা','অংক','ইংরেজী','হাতের লেখা'],
-    'আউয়াল জামাত':['নুরানী কায়দা ও নুরানী নিসাব','আদ্দুরুসুল আরাবিয়া ১ম','আলকেরাআতুল আরাবিয়া','আকাইদ ফিকাহ','বাংলা','অংক','ইংরেজী'],
-    'ছানী জামাত':['আমপারা ও নুরানী নিসাব','আদ্দুরুসুল আরাবিয়া ২য়','আলকেরাআতুল আরাবিয়া ১ম খন্ড','আকাইদ ফিকাহ','বাংলা','অংক','ইংরেজী- গ্রামার ও ওয়ার্ড বুক'],
-    'ছালেছ জামাত':['কুরআন শরিফ ও তাজবীদ','উর্দু কায়দা ও তালিমুল ইসলাম ১ম','আদ্দুরুসুল আরাবিয়া ৩য়','আলকেরাআতুল ও আকাইদ ফিকাহ','বাংলা','অংক','ইংরেজী - গ্রামার ও ওয়ার্ড বুক'],
-    'রাবে জামাত':['কুরআন শরীফ নজরানা, প্রথম ১০ পারা','উর্দু পহেলী ও দোসরী','তালিমুল ইসলাম ১ম ২য় ও ৩য়','এসো আরবী সিখি ১ম','বাংলা','অংক','ইংরেজী- গ্রামার ও ওয়ার্ড বুক'],
-    'পঞ্চম জামাত':['তেলাওয়াত ও তাজবিদ পুর্ন কুরআান শরীফ','নুজহাতুল কারী','তালিমুল ইসলাম ৪র্থ খন্ড','এসো আরবী সিখি ১ম','বাংলা ও ব্যাকরন ৫ম','অংক ৫ম','ইংরেজী ও গ্রামার ৫ম','ইতিহাস পাঠ - ভূগোল ও সমাজ ৫ম'],
-    'মিজান জামাত':['কুরআন শরীফ নাজেরা ১১-২০ পারা','মিজান মুনশাইব','সফওয়াতুল মাছাদির','বাকুরাতুল আদব','এসো আরবী শিখি ২য়','বেহেস্তী জেওর ১ম ২য় ও উর্দু দোসরী','বাংলা সাহিত্য সওগাত ৬ষ্ট ও ব্যাকরন ৬ষ্ট','গনিত ৬ষ্ট','ইংলিশ ও গ্রামার ৬ষ্ট','ইতিহাস পাঠ - ভূগোল ও সমাজ পরিচিতি ৬ষ্ট'],
-    'নাহবেমীর জামাত':['নাহবেমীর','শরহু মিয়াতে আমিল','রওজাতুল আদব','আল ফিকহুল মুয়াস্সার/ নুরুল ইযাহ','ইলমুচ্ছরফ ৩য় ৪র্থ খন্ড','সিরাতে খাতেমুল আম্বিয়া','বাংলা ও ব্যাকরন ৭ম শ্রেণি'],
-    'কুদুরী জামাত':['কুরআন তরজমা ২৬-৩০ পারা','মুখতাছারুল কুদুরী কিতাবুল ইমান','মুখতাছারুল কুদুরী কিতাবুল বুয়ূ','হেদায়াতুন্নাহু','উছুলুশ শ্বাশী','ইলমুচ্ছিগাহ','যাদুত ত্বলিবিন','বাংলা ৮ম শ্রেণি'],
-    'শরহে বেকায়া জামাত':['কুরআন তরজমা ১-১৫ পারা','শরহে বেকায়া ১ম ও ২য়','দুরুসুল বালাগাত/মুখতাসারুল মায়ানী','নুরুল আনোয়ার কিতাবুল্লাহ','কাফিয়া','আত্বরীকু ইলাল ইনশা ৩য়','মাকামাতে হারীরী/ মুখতারাত'],
-    'হেদায়া জামাত':['কুরআন তরজমা ১৬-২৫ পারা','হেদায়া ১ম','হেদায়া ২য়','নুরুল আনোয়ার সুন্নাহ','ফয়জুল কালাম','সিরাজী','রিয়াজুস ছলিহিন'],
-    'মিশকাত জামাত':['মিশকাত শরিফ ১ম','মিশকাত শরিফ ২য়','জালালাইন শরিফ ১ম','জালালাইন শরিফ ২য়','আকীদাতুত তাহাবী','হেদায়া ৩য়','হেদায়া ৪র্থ'],
-    'দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)':['বুখারী শরিফ ১ম','বুখারী শরিফ ২য়','মুসলিম শরিফ ১ম','মুসলিম শরিফ ২য়','তিরমিযী শরীফ ১ম','তিরমিযী শরীফ ২য়','আবু দাউদ শরিফ পুর্ন','তাহাবী শরীফ পূর্ন','নাসায়ী ও ইবনু মাজাহ পুন','মুয়াত্তা ইমাম মালেক ও মুহাম্মদ পূর্ন','তেলাওয়াত ও তাজবিদ পুর্ন কুরআান শরীফ']
-  };
-  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(x){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]})}
-  function makeWindow(id,title){if(document.getElementById(id))return;var d=document.createElement('div');d.id=id;d.className='window';d.innerHTML='<div class="all-list-head"><b>'+title+'</b><div><button type="button" onclick="document.getElementById(\''+id+'\').classList.remove(\'show\')">✖ বন্ধ</button></div></div><div id="'+id+'Tools" class="all-list-tools"></div><div id="'+id+'Body" class="all-list-body"></div>';document.body.appendChild(d)}
-  function addButtons(){
-    var host=document.querySelector('#app .dashboard-title-left')||document.querySelector('#app .dashboard-title-bar');
-    if(!host)return;
-    if(!document.getElementById('allListBtn')){var b=document.createElement('button');b.id='allListBtn';b.className='primary';b.type='button';b.textContent='📋 অল তালিকা';b.onclick=window.openAllList;host.appendChild(b)}
-    if(!document.getElementById('classListBtn')){var b2=document.createElement('button');b2.id='classListBtn';b2.className='primary';b2.type='button';b2.textContent='📚 শ্রেনি/ক্লাশ/জামাত ওয়ারী তালিকা';b2.onclick=window.openClassList;host.appendChild(b2)}
-  }
-  function nameOf(r){return r.NameBN||r.Name||r.NameEN||r.নাম||r.StudentID||r.AdminID||r.TeacherID||r.MadrasaID||('Serial '+(r.Serial||''))}
-  function idOf(r){return r.StudentID||r.AdminID||r.TeacherID||r.MadrasaID||r.CertificateID||r.IDCardID||r.AdmitCardID||r.ReceiptID||r.PaymentID||r.Serial||''}
-  window.openAllList=function(){
-    makeWindow('allListWin','📋 অল তালিকা');
-    var t=document.getElementById('allListWinTools');t.innerHTML='<select id="allListSignal" class="field"><option value="">তালিকা নির্বাচন করুন</option>'+SIGNAL_LIST.map(function(x){return '<option value="'+x[0]+'">'+x[0]+' — '+x[1]+'</option>'}).join('')+'</select><button class="primary" type="button" onclick="loadAllList()">🔎 দেখুন</button>';
-    document.getElementById('allListWin').classList.add('show');
-    document.getElementById('allListSignal').onchange=function(){if(this.value)window.loadAllList()};
-  };
-  window.loadAllList=async function(){
-    var sig=document.getElementById('allListSignal')?.value;if(!sig)return;
-    var b=document.getElementById('allListWinBody');b.innerHTML='<div class="all-list-empty">⏳ তালিকা লোড হচ্ছে...</div>';
-    try{var r=await call('listSignalRecords',token,sig,'');if(!r||!r.ok)throw new Error(r&&r.message||'তালিকা পাওয়া যায়নি');renderListRows(r.rows||[],sig,SIGNAL_LIST.find(function(x){return x[0]===sig})?.[1]||sig)}
-    catch(e){b.innerHTML='<div class="all-list-empty">তালিকা লোড হয়নি: '+esc(e.message||e)+'</div>'}
-  };
-  function renderListRows(rows,sig,title){
-    var b=document.getElementById('allListWinBody');if(!rows.length){b.innerHTML='<div class="all-list-empty">এই তালিকায় এখন কোনো তথ্য নেই।</div>';return}
-    b.innerHTML='<div style="font-weight:900;margin-bottom:8px">'+esc(title)+' — মোট '+rows.length+' টি</div>'+rows.map(function(r,i){
-      var nm=nameOf(r),id=idOf(r);
-      return '<div class="all-list-row"><div><b>'+esc(nm)+'</b></div><div>ID: '+esc(id)+'</div><div class="all-list-actions">'+
-        '<button class="secondary" onclick="listDetail('+i+')">বিস্তারিত দেখুন</button><button class="secondary" title="Edit" onclick="listEdit('+i+')">✏️</button><button class="secondary" onclick="listSave('+i+')">💾</button><button class="secondary" onclick="listPrint('+i+')">🖨️</button><button class="secondary" onclick="listDownload('+i+')">⬇️</button><button class="primary" onclick="listPayment('+i+')">💳 পেমেন্ট</button></div></div>'
-    }).join('');
-    window.__listRows=rows;window.__listSignal=sig;
-  }
-  function selectedRow(i){return (window.__listRows||[])[i]||null}
-  window.listDetail=function(i){var r=selectedRow(i);if(!r)return;window.renderSearchProfiles([r],window.__listSignal,nameOf(r));openWindow('searchWin')}
-  window.listEdit=function(i){var r=selectedRow(i);if(!r)return;window.__selectedListRow=r;window.renderSearchProfiles([r],window.__listSignal,nameOf(r));openWindow('searchWin');setTimeout(function(){window.editSearchProfile()},100)}
-  window.listSave=function(i){var r=selectedRow(i);if(!r)return;window.__selectedListRow=r;window.saveSearchProfile();toast('💾 তালিকার রেকর্ডটি সেভ অপশনে পাঠানো হয়েছে।')}
-  window.listPrint=function(i){var r=selectedRow(i);if(!r)return;window.renderSearchProfiles([r],window.__listSignal,nameOf(r));openWindow('searchWin');setTimeout(function(){window.printSearchProfile()},120)}
-  window.listDownload=function(i){var r=selectedRow(i);if(!r)return;window.renderSearchProfiles([r],window.__listSignal,nameOf(r));openWindow('searchWin');setTimeout(function(){window.downloadSearchProfile()},120)}
-  window.listPayment=function(i){var r=selectedRow(i);if(!r)return;openModule('payment');setTimeout(function(){if(document.getElementById('pStudent'))document.getElementById('pStudent').value=idOf(r);if(document.getElementById('pName'))document.getElementById('pName').value=nameOf(r)},50)}
-  window.openClassList=function(){
-    makeWindow('classListWin','📚 শ্রেনি/ক্লাশ/জামাত ওয়ারী তালিকা');
-    var t=document.getElementById('classListWinTools');t.innerHTML='<select id="classListSelect" class="field"><option value="">শ্রেনি/ক্লাশ/জামাত নির্বাচন করুন</option>'+CLASS_LIST.map(function(x){return '<option>'+esc(x)+'</option>'}).join('')+'</select><button class="primary" type="button" onclick="loadClassList()">🔎 দেখুন</button>';
-    document.getElementById('classListWin').classList.add('show');
-    document.getElementById('classListSelect').onchange=function(){if(this.value)window.loadClassList()};
-  };
-  window.loadClassList=async function(){
-    var cl=document.getElementById('classListSelect')?.value;if(!cl)return;
-    var b=document.getElementById('classListWinBody');b.innerHTML='<div class="all-list-empty">⏳ '+esc(cl)+' তালিকা লোড হচ্ছে...</div>';
-    try{var r=await call('listSignalRecords',token,'std',cl);if(!r||!r.ok)throw new Error(r&&r.message||'তালিকা পাওয়া যায়নি');renderClassRows(r.rows||[],cl)}
-    catch(e){b.innerHTML='<div class="all-list-empty">তালিকা লোড হয়নি: '+esc(e.message||e)+'</div>'}
-  };
-  function renderClassRows(rows,cl){var b=document.getElementById('classListWinBody');if(!rows.length){b.innerHTML='<div class="all-list-empty">'+esc(cl)+' — কোনো ছাত্র/ছাত্রী পাওয়া যায়নি।</div>';return}b.innerHTML='<div style="font-weight:900;margin-bottom:8px">'+esc(cl)+' — মোট '+rows.length+' জন</div>'+rows.map(function(r,i){var nm=nameOf(r),id=idOf(r);return '<div class="all-list-row"><div><b>'+esc(nm)+'</b></div><div>ID: '+esc(id)+'</div><div class="all-list-actions"><button class="secondary" onclick="classDetail('+i+')">বিস্তারিত দেখুন</button><button class="secondary" onclick="classEdit('+i+')">✏️</button><button class="secondary" onclick="classSave('+i+')">💾</button><button class="secondary" onclick="classPrint('+i+')">🖨️</button><button class="secondary" onclick="classDownload('+i+')">⬇️</button><button class="primary" onclick="classPayment('+i+')">💳 পেমেন্ট</button></div></div>'}).join('');window.__classRows=rows}
-  window.classDetail=function(i){var r=window.__classRows?.[i];if(!r)return;renderSearchProfiles([r],'std',nameOf(r));openWindow('searchWin')}
-  window.classEdit=function(i){var r=window.__classRows?.[i];if(!r)return;renderSearchProfiles([r],'std',nameOf(r));openWindow('searchWin');setTimeout(editSearchProfile,100)}
-  window.classSave=function(i){var r=window.__classRows?.[i];if(!r)return;renderSearchProfiles([r],'std',nameOf(r));openWindow('searchWin');setTimeout(saveSearchProfile,50)}
-  window.classPrint=function(i){var r=window.__classRows?.[i];if(!r)return;renderSearchProfiles([r],'std',nameOf(r));openWindow('searchWin');setTimeout(printSearchProfile,100)}
-  window.classDownload=function(i){var r=window.__classRows?.[i];if(!r)return;renderSearchProfiles([r],'std',nameOf(r));openWindow('searchWin');setTimeout(downloadSearchProfile,100)}
-  window.classPayment=function(i){var r=window.__classRows?.[i];if(!r)return;openModule('payment');setTimeout(function(){if($('pStudent'))$('pStudent').value=idOf(r);if($('pName'))$('pName').value=nameOf(r)},50)}
-  function classSelectHtml(id,onchange){return '<select id="'+id+'" class="field" '+(onchange?'onchange="'+onchange+'"':'')+'><option value="">শ্রেনি/জামাত নির্বাচন করুন</option>'+CLASS_LIST.map(function(x){return '<option value="'+esc(x)+'">'+esc(x)+'</option>'}).join('')+'</select>'}
-  window.classSubjectSelect=function(id,classId){return '<select id="'+id+'" class="field"><option value="">বিষয় নির্বাচন করুন</option></select>'}
-  window.refreshSubjectOptions=function(classId,subjectId){
-    var c=document.getElementById(classId),s=document.getElementById(subjectId);if(!c||!s)return;s.innerHTML='<option value="">বিষয় নির্বাচন করুন</option>'+(SUBJECTS[c.value]||[]).map(function(x){return '<option value="'+esc(x)+'">'+esc(x)+'</option>'}).join('');
-  }
-  var baseModuleForm=window.moduleForm;
-  window.moduleForm=function(k){
-    var html=baseModuleForm(k);
-    if(k==='admission'){
-      html=html.replace(/<label>শ্রেণি\/জামাত \/ Class<select id="adClass" class="field">[\s\S]*?<\/select><\/label>/,
-        '<label>শ্রেণি\/জামাত / Class<select id="adClass" class="field" onchange="refreshSubjectOptions(\\'adClass\\',\\'adSubject\\')"><option value="">শ্রেনি/জামাত নির্বাচন করুন</option>'+CLASS_LIST.map(function(x){return '<option value="'+esc(x)+'">'+esc(x)+'</option>'}).join('')+'</select></label><label>বিষয় / Subject>'+classSubjectSelect('adSubject','adClass')+'</label>');
-    }
-    if(['result','marks'].includes(k)){
-      html=html.replace('<label>শ্রেনি<input id="rClass" class="field"></label>','<label>শ্রেনি / Class>'+classSelectHtml('rClass')+'</label>');
-      html=html.replace('<label>বিষয় / Subject</label>'+subjectSelect('rSubject'),'<label>বিষয় / Subject>'+classSubjectSelect('rSubject','rClass')+'</label>');
-      html=html.replace('id="rClass" class="field">','id="rClass" class="field" onchange="refreshSubjectOptions(\\'rClass\\',\\'rSubject\\')">');
-    }
-    return html;
-  };
-  var oldSaveResult2=window.saveResult;
-  window.saveResult=async function(k){
-    if(k!=='exam')return oldSaveResult2(k);
-    var d={StudentID:$('rStudent').value,Name:$('rName').value,Class:$('rClass')?.value||'',Exam:$('rExam').value,SubjectData:$('rSubjects').value,Subject:document.getElementById('rSubject')?.value||'',Marks:document.getElementById('rMarks')?.value||'',Published:'NO',Date:new Date().toISOString(),Division:getLocationValue('rDivision'),District:getLocationValue('rDistrict'),Upazila:getLocationValue('rUpazila'),Union:getLocationValue('rUnion'),Post:getLocationValue('rPost'),Ward:getLocationValue('rWard'),Village:getLocationValue('rVillage')};
-    var rr=await call('saveRecord',token,'EXAM_REG',d);toast(rr.ok?'পরীক্ষার্থী নিবন্ধন সফলভাবে সংরক্ষণ হয়েছে':(rr.message||'ব্যর্থ'));
-  };
-  function bindNewUi(){
-    makeWindow('allListWin','📋 অল তালিকা');makeWindow('classListWin','📚 শ্রেনি/ক্লাশ/জামাত ওয়ারী তালিকা');addButtons();
-    var app=document.getElementById('app');if(app&&app.classList.contains('show'))addButtons();
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(bindNewUi,300)});else setTimeout(bindNewUi,300);
-  setInterval(addButtons,1500);
-})();
-</script>
-
-<!-- ===== FINAL ALL LIST POSITION + MARKSHEET 12 SUBJECTS FIX — 2026-09-30 ===== -->
-<style id="final-all-list-marks-fix-2026-09-30">
-#rightModules .all-list-dashboard-btn{
-  grid-column:1/-1!important;
-  width:100%!important;
-  min-height:58px!important;
-  margin-top:2px!important;
-  font-size:17px!important;
-  font-weight:1000!important;
-  border:3px solid var(--border)!important;
-  box-shadow:0 5px 12px #0004!important;
-}
-.marksheet-subject-grid{
-  display:grid!important;
-  grid-template-columns:repeat(3,minmax(0,1fr))!important;
-  gap:8px!important;
-  grid-column:1/-1!important;
-  padding:10px!important;
-  border:2px solid var(--border)!important;
-  border-radius:10px!important;
-  background:var(--panel)!important;
-}
-.marksheet-subject-grid label{font-weight:900!important}
-@media(max-width:800px){.marksheet-subject-grid{grid-template-columns:1fr!important}}
-</style>
-<script id="final-all-list-marks-fix-js-2026-09-30">
-(function(){
-  var CLASSES=['প্লে শ্রেনি','শিশু শ্রেনি','আউয়াল জামাত','ছানী জামাত','ছালেছ জামাত','রাবে জামাত','পঞ্চম জামাত','মিজান জামাত','নাহবেমীর জামাত','কুদুরী জামাত','শরহে বেকায়া জামাত','হেদায়া জামাত','মিশকাত জামাত','দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)'];
-  var SUB={
-    'প্লে শ্রেনি':['নুরানী কায়দা','নুরানী নিসাব','ইসলামী ও আরবী শিক্ষা','বাংলা','অংক','ইংরেজী','হাতের লেখা'],
-    'শিশু শ্রেনি':['নুরানী কায়দা','নুরানী নিসাব','ছড়া ছবি','বাংলা','অংক','ইংরেজী','হাতের লেখা'],
-    'আউয়াল জামাত':['নুরানী কায়দা ও নুরানী নিসাব','আদ্দুরুসুল আরাবিয়া ১ম','আলকেরাআতুল আরাবিয়া','আকাইদ ফিকাহ','বাংলা','অংক','ইংরেজী'],
-    'ছানী জামাত':['আমপারা ও নুরানী নিসাব','আদ্দুরুসুল আরাবিয়া ২য়','আলকেরাআতুল আরাবিয়া ১ম খন্ড','আকাইদ ফিকাহ','বাংলা','অংক','ইংরেজী- গ্রামার ও ওয়ার্ড বুক'],
-    'ছালেছ জামাত':['কুরআন শরিফ ও তাজবীদ','উর্দু কায়দা ও তালিমুল ইসলাম ১ম','আদ্দুরুসুল আরাবিয়া ৩য়','আলকেরাআতুল ও আকাইদ ফিকাহ','বাংলা','অংক','ইংরেজী - গ্রামার ও ওয়ার্ড বুক'],
-    'রাবে জামাত':['কুরআন শরীফ নজরানা, প্রথম ১০ পারা','উর্দু পহেলী ও দোসরী','তালিমুল ইসলাম ১ম ২য় ও ৩য়','এসো আরবী সিখি ১ম','বাংলা','অংক','ইংরেজী- গ্রামার ও ওয়ার্ড বুক'],
-    'পঞ্চম জামাত':['তেলাওয়াত ও তাজবিদ পুর্ন কুরআান শরীফ','নুজহাতুল কারী','তালিমুল ইসলাম ৪র্থ খন্ড','এসো আরবী সিখি ১ম','বাংলা ও ব্যাকরন ৫ম','অংক ৫ম','ইংরেজী ও গ্রামার ৫ম','ইতিহাস পাঠ - ভূগোল ও সমাজ ৫ম'],
-    'মিজান জামাত':['কুরআন শরীফ নাজেরা ১১-২০ পারা','মিজান মুনশাইব','সফওয়াতুল মাছাদির','বাকুরাতুল আদব','এসো আরবী শিখি ২য়','বেহেস্তী জেওর ১ম ২য় ও উর্দু দোসরী','বাংলা সাহিত্য সওগাত ৬ষ্ট ও ব্যাকরন ৬ষ্ট','গনিত ৬ষ্ট','ইংলিশ ও গ্রামার ৬ষ্ট','ইতিহাস পাঠ - ভূগোল ও সমাজ পরিচিতি ৬ষ্ট'],
-    'নাহবেমীর জামাত':['নাহবেমীর','শরহু মিয়াতে আমিল','রওজাতুল আদব','আল ফিকহুল মুয়াস্সার/ নুরুল ইযাহ','ইলমুচ্ছরফ ৩য় ৪র্থ খন্ড','সিরাতে খাতেমুল আম্বিয়া','বাংলা ও ব্যাকরন ৭ম শ্রেণি'],
-    'কুদুরী জামাত':['কুরআন তরজমা ২৬-৩০ পারা','মুখতাছারুল কুদুরী কিতাবুল ইমান','মুখতাছারুল কুদুরী কিতাবুল বুয়ূ','হেদায়াতুন্নাহু','উছুলুশ শ্বাশী','ইলমুচ্ছিগাহ','যাদুত ত্বলিবিন','বাংলা ৮ম শ্রেণি'],
-    'শরহে বেকায়া জামাত':['কুরআন তরজমা ১-১৫ পারা','শরহে বেকায়া ১ম ও ২য়','দুরুসুল বালাগাত/মুখতাসারুল মায়ানী','নুরুল আনোয়ার কিতাবুল্লাহ','কাফিয়া','আত্বরীকু ইলাল ইনশা ৩য়','মাকামাতে হারীরী/ মুখতারাত'],
-    'হেদায়া জামাত':['কুরআন তরজমা ১৬-২৫ পারা','হেদায়া ১ম','হেদায়া ২য়','নুরুল আনোয়ার সুন্নাহ','ফয়জুল কালাম','সিরাজী','রিয়াজুস ছলিহিন'],
-    'মিশকাত জামাত':['মিশকাত শরিফ ১ম','মিশকাত শরিফ ২য়','জালালাইন শরিফ ১ম','জালালাইন শরিফ ২য়','আকীদাতুত তাহাবী','হেদায়া ৩য়','হেদায়া ৪র্থ'],
-    'দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)':['বুখারী শরিফ ১ম','বুখারী শরিফ ২য়','মুসলিম শরিফ ১ম','মুসলিম শরিফ ২য়','তিরমিযী শরীফ ১ম','তিরমিযী শরীফ ২য়','আবু দাউদ শরিফ পুর্ন','তাহাবী শরীফ পূর্ন','নাসায়ী ও ইবনু মাজাহ পুন','মুয়াত্তা ইমাম মালেক ও মুহাম্মদ পূর্ন','তেলাওয়াত ও তাজবিদ পুর্ন কুরআান শরীফ']
-  };
-  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(x){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]})}
-  function addAllListBelowHelp(){
-    var box=document.getElementById('rightModules');if(!box)return;
-    var old=document.getElementById('allListBtn');
-    if(old&&old.parentElement!==box)old.remove();
-    var btn=document.getElementById('allListBtn');
-    if(!btn){
-      btn=document.createElement('button');
-      btn.id='allListBtn';btn.type='button';btn.className='module all-list-dashboard-btn';
-      btn.textContent='📋 অল তালিকা';btn.onclick=function(){if(window.openAllList)window.openAllList()};
-    }
-    var help=[].slice.call(box.querySelectorAll('button')).find(function(b){return /পরামর্শ|যোগ|অভিযোগ/.test((b.textContent||'').trim())});
-    if(help)help.insertAdjacentElement('afterend',btn);else box.appendChild(btn);
-  }
-  function makeMarksForm(){
-    var h='<div class="form-grid"><label>Student ID<input id="rStudent" class="field"></label><label>নাম<input id="rName" class="field"></label><label>শ্রেনি / জামাত<select id="rClass" class="field" onchange="refreshMarkSubjects()"><option value="">শ্রেনি/জামাত নির্বাচন করুন</option>';
-    h+=CLASSES.map(function(x){return '<option value="'+esc(x)+'">'+esc(x)+'</option>'}).join('');
-    h+='</select></label><label>পরীক্ষা<input id="rExam" class="field"></label><div class="marksheet-subject-grid" id="marksheetSubjectGrid">';
-    for(var i=1;i<=12;i++)h+='<label>বিষয় '+i+'<select id="rSubject'+i+'" class="field mark-subject" onchange="syncMarkSubjectData()"><option value="">বিষয় নির্বাচন করুন</option></select></label>';
-    h+='</div><input type="hidden" id="rSubjects"><label class="full">নোট / Subject-Data<textarea id="rMarks" class="field" rows="3" placeholder="নির্বাচিত ১২টি বিষয়ের তথ্য এখানে স্বয়ংক্রিয়ভাবে সংরক্ষিত হবে" readonly></textarea></label></div><button class="primary" type="button" onclick="saveResult(\'marks\')">Save</button>';
-    return h;
-  }
-  window.refreshMarkSubjects=function(){
-    var c=document.getElementById('rClass'),arr=SUB[c&&c.value]||[];
-    for(var i=1;i<=12;i++){
-      var s=document.getElementById('rSubject'+i);if(!s)continue;
-      s.innerHTML='<option value="">বিষয় নির্বাচন করুন</option>'+arr.map(function(x){return '<option value="'+esc(x)+'">'+esc(x)+'</option>'}).join('');
-    }
-    syncMarkSubjectData();
-  };
-  window.syncMarkSubjectData=function(){
-    var a=[];
-    for(var i=1;i<=12;i++){var s=document.getElementById('rSubject'+i);if(s&&s.value)a.push(s.value)}
-    var o={Class:document.getElementById('rClass')?.value||'',Subjects:a};
-    var h=document.getElementById('rSubjects');if(h)h.value=JSON.stringify(o);
-    var m=document.getElementById('rMarks');if(m)m.value=a.map(function(x,i){return (i+1)+'. '+x}).join('\n');
-  };
-  var previousModuleForm=window.moduleForm;
-  window.moduleForm=function(k){
-    if(k==='marks')return makeMarksForm();
-    return previousModuleForm(k);
-  };
-  function init(){
-    addAllListBelowHelp();
-    var app=document.getElementById('app');
-    if(app&&app.classList.contains('show'))addAllListBelowHelp();
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(init,500)});else setTimeout(init,500);
-  setInterval(addAllListBelowHelp,1200);
-})();
-</script>
-
-<!-- ===== FINAL EXAM REGISTRATION 12 SUBJECT DROPDOWN + ALL LIST 15 SIGNALS ACTIVE ===== -->
-<style id="exam-12-subjects-final-2026-09-30">
-.exam-subject-grid-12{
-  display:grid!important;
-  grid-template-columns:repeat(3,minmax(0,1fr))!important;
-  gap:8px!important;
-  grid-column:1/-1!important;
-  padding:10px!important;
-  border:2px solid var(--border)!important;
-  border-radius:10px!important;
-  background:var(--panel)!important;
-}
-.exam-subject-grid-12 label{font-weight:900!important}
-@media(max-width:800px){.exam-subject-grid-12{grid-template-columns:1fr!important}}
-</style>
-<script id="exam-12-subjects-final-js-2026-09-30">
-(function(){
-  var EXAM_CLASSES=['প্লে শ্রেনি','শিশু শ্রেনি','আউয়াল জামাত','ছানী জামাত','ছালেছ জামাত','রাবে জামাত','পঞ্চম জামাত','মিজান জামাত','নাহবেমীর জামাত','কুদুরী জামাত','শরহে বেকায়া জামাত','হেদায়া জামাত','মিশকাত জামাত','দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)'];
-  var EXAM_SUBJECTS={
-    'প্লে শ্রেনি':['নুরানী কায়দা','নুরানী নিসাব','ইসলামী ও আরবী শিক্ষা','বাংলা','অংক','ইংরেজী','হাতের লেখা'],
-    'শিশু শ্রেনি':['নুরানী কায়দা','নুরানী নিসাব','ছড়া ছবি','বাংলা','অংক','ইংরেজী','হাতের লেখা'],
-    'আউয়াল জামাত':['নুরানী কায়দা ও নুরানী নিসাব','আদ্দুরুসুল আরাবিয়া ১ম','القراءة العربية','আকাইদ ফিকাহ','বাংলা','অংক','ইংরেজী'],
-    'ছানী জামাত':['আমপারা ও নুরানী নিসাব','আদ্দুরুসুল আরাবিয়া ২য়','আলকেরাআতুল আরাবিয়া ১ম খন্ড','আকাইদ ফিকাহ','বাংলা','অংক','ইংরেজী- গ্রামার ও ওয়ার্ড বুক'],
-    'ছালেছ জামাত':['কুরআন শরিফ ও তাজবীদ','উর্দু কায়দা ও তালিমুল ইসলাম ১ম','আদ্দুরুসুল আরাবিয়া ৩য়','আলকেরাআতুল ও আকাইদ ফিকাহ','বাংলা','অংক','ইংরেজী - গ্রামার ও ওয়ার্ড বুক'],
-    'রাবে জামাত':['কুরআন শরীফ নজরানা, প্রথম ১০ পারা','উর্দু পহেলী ও দোসরী','তালিমুল ইসলাম ১ম ২য় ও ৩য়','এসো আরবী সিখি ১ম','বাংলা','অংক','ইংরেজী- গ্রামার ও ওয়ার্ড বুক'],
-    'পঞ্চম জামাত':['তেলাওয়াত ও তাজবিদ পুর্ন কুরআান শরীফ','নুজহাতুল কারী','তালিমুল ইসলাম ৪র্থ খন্ড','এসো আরবী সিখি ১ম','বাংলা ও ব্যাকরন ৫ম','অংক ৫ম','ইংরেজী ও গ্রামার ৫ম','ইতিহাস পাঠ - ভূগোল ও সমাজ ৫ম'],
-    'মিজান জামাত':['কুরআন শরীফ নাজেরা ১১-২০ পারা','মিজান মুনশাইব','সফওয়াতুল মাছাদির','বাকুরাতুল আদব','এসো আরবী শিখি ২য়','বেহেস্তী জেওর ১ম ২য় ও উর্দু দোসরী','বাংলা সাহিত্য সওগাত ৬ষ্ট ও ব্যাকরন ৬ষ্ট','গনিত ৬ষ্ট','ইংলিশ ও গ্রামার ৬ষ্ট','ইতিহাস পাঠ - ভূগোল ও সমাজ পরিচিতি ৬ষ্ট'],
-    'নাহবেমীর জামাত':['নাহবেমীর','শরহু মিয়াতে আমিল','রওজাতুল আদব','আল ফিকহুল মুয়াস্সার/ নুরুল ইযাহ','ইলমুচ্ছরফ ৩য় ৪র্থ খন্ড','সিরাতে খাতেমুল আম্বিয়া','বাংলা ও ব্যাকরন ৭ম শ্রেণি'],
-    'কুদুরী জামাত':['কুরআন তরজমা ২৬-৩০ পারা','মুখতাছারুল কুদুরী কিতাবুল ইমান','মুখতাছারুল কুদুরী কিতাবুল বুয়ূ','হেদায়াতুন্নাহু','উছুলুশ শ্বাশী','ইলমুচ্ছিগাহ','যাদুত ত্বলিবিন','বাংলা ৮ম শ্রেণি'],
-    'শরহে বেকায়া জামাত':['কুরআন তরজমা ১-১৫ পারা','শরহে বেকায়া ১ম ও ২য়','দুরুসুল বালাগাত/মুখতাসারুল মায়ানী','নুরুল আনোয়ার কিতাবুল্লাহ','কাফিয়া','আত্বরীকু ইলাল ইনশা ৩য়','মাকামাতে হারীরী/ মুখতারাত'],
-    'হেদায়া জামাত':['কুরআন তরজমা ১৬-২৫ পারা','হেদায়া ১ম','হেদায়া ২য়','নুরুল আনোয়ার সুন্নাহ','ফয়জুল কালাম','সিরাজী','রিয়াজুস ছলিহিন'],
-    'মিশকাত জামাত':['মিশকাত শরিফ ১ম','মিশকাত শরিফ ২য়','জালালাইন শরিফ ১ম','জালালাইন শরিফ ২য়','আকীদাতুত তাহাবী','হেদায়া ৩য়','হেদায়া ৪র্থ'],
-    'দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)':['বুখারী শরিফ ১ম','বুখারী শরিফ ২য়','মুসলিম শরিফ ১ম','মুসলিম শরিফ ২য়','তিরমিযী শরীফ ১ম','তিরমিযী শরীফ ২য়','আবু দাউদ শরিফ পুর্ন','তাহাবী শরীফ পূর্ন','নাসায়ী ও ইবনু মাজাহ পুন','মুয়াত্তা ইমাম মালেক ও মুহাম্মদ পূর্ন','তেলাওয়াত ও তাজবিদ পুর্ন কুরআান শরীফ']
-  };
-  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(x){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]})}
-  function examForm12(){
-    var h='<div class="form-grid"><label>Student ID<input id="rStudent" class="field"></label><label>নাম<input id="rName" class="field"></label><label>পরীক্ষা<input id="rExam" class="field"></label>';
-    h+='<label class="full">শ্রেনি / জামাত<select id="rClass" class="field" onchange="refreshExamSubjects12()"><option value="">শ্রেনি/জামাত নির্বাচন করুন</option>'+EXAM_CLASSES.map(function(x){return '<option value="'+esc(x)+'">'+esc(x)+'</option>'}).join('')+'</select></label>';
-    h+='<div class="exam-subject-grid-12" id="examSubjectGrid12">';
-    for(var i=1;i<=12;i++)h+='<label>বিষয় '+i+'<select id="rExamSubject'+i+'" class="field" onchange="syncExamSubjects12()"><option value="">বিষয় নির্বাচন করুন</option></select></label>';
-    h+='</div><label class="full">নির্বাচিত বিষয়সমূহ<textarea id="rSubjects" class="field" rows="4" readonly></textarea></label></div>';
-    h+='<button class="primary" type="button" onclick="saveResult(\'exam\')">Save</button>';
-    return h;
-  }
-  window.refreshExamSubjects12=function(){
-    var c=document.getElementById('rClass'),arr=EXAM_SUBJECTS[c&&c.value]||[];
-    for(var i=1;i<=12;i++){var s=document.getElementById('rExamSubject'+i);if(s)s.innerHTML='<option value="">বিষয় নির্বাচন করুন</option>'+arr.map(function(x){return '<option value="'+esc(x)+'">'+esc(x)+'</option>'}).join('')}
-    syncExamSubjects12();
-  };
-  window.syncExamSubjects12=function(){
-    var a=[];for(var i=1;i<=12;i++){var s=document.getElementById('rExamSubject'+i);if(s&&s.value)a.push(s.value)}
-    var el=document.getElementById('rSubjects');if(el)el.value=JSON.stringify(a);
-  };
-  var oldModuleForm=window.moduleForm;
-  window.moduleForm=function(k){if(k==='exam')return examForm12();return oldModuleForm(k)};
-  var oldSaveResult=window.saveResult;
-  window.saveResult=async function(k){
-    if(k!=='exam')return oldSaveResult(k);
-    var d={StudentID:$('rStudent').value,Name:$('rName').value,Class:$('rClass')?.value||'',Exam:$('rExam').value,SubjectData:$('rSubjects').value,Published:'NO',Date:new Date().toISOString(),Division:getLocationValue('rDivision'),District:getLocationValue('rDistrict'),Upazila:getLocationValue('rUpazila'),Union:getLocationValue('rUnion'),Post:getLocationValue('rPost'),Ward:getLocationValue('rWard'),Village:getLocationValue('rVillage')};
-    var r=await call('saveRecord',token,'EXAM_REG',d);toast(r&&r.ok?'পরীক্ষার্থী নিবন্ধন সফলভাবে সংরক্ষণ হয়েছে':(r&&r.message||'ব্যর্থ'));
-  };
-})();
-</script>
-
-<!-- ===== FINAL RESULT CARD 12 SUBJECT DROPDOWNS + ALL LIST CLICK FIX — 2026-09-30 ===== -->
-<style id="final-result-card-12-subjects-all-list-fix-2026-09-30">
-.result-subject-grid-12{
-  display:grid!important;
-  grid-template-columns:repeat(3,minmax(0,1fr))!important;
-  gap:8px!important;
-  grid-column:1/-1!important;
-  padding:10px!important;
-  border:2px solid var(--border)!important;
-  border-radius:10px!important;
-  background:var(--panel)!important;
-}
-.result-subject-grid-12 label{font-weight:900!important}
-@media(max-width:800px){.result-subject-grid-12{grid-template-columns:1fr!important}}
-#allListBtn{position:relative!important;z-index:20!important;pointer-events:auto!important}
-</style>
-<script id="final-result-card-12-subjects-all-list-fix-js-2026-09-30">
-(function(){
-  var CLASSES=['প্লে শ্রেনি','শিশু শ্রেনি','আউয়াল জামাত','ছানী জামাত','ছালেছ জামাত','রাবে জামাত','পঞ্চম জামাত','মিজান জামাত','নাহবেমীর জামাত','কুদুরী জামাত','শরহে বেকায়া জামাত','হেদায়া জামাত','মিশকাত জামাত','দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)'];
-  var SUB={
-    'প্লে শ্রেনি':['নুরানী কায়দা','নুরানী নিসাব','ইসলামী ও আরবী শিক্ষা','বাংলা','অংক','ইংরেজী','হাতের লেখা'],
-    'শিশু শ্রেনি':['নুরানী কায়দা','নুরানী নিসাব','ছড়া ছবি','বাংলা','অংক','ইংরেজী','হাতের লেখা'],
-    'আউয়াল জামাত':['নুরানী কায়দা ও নুরানী নিসাব','আদ্দুরুসুল আরাবিয়া ১ম','القراءة العربية','আকাইদ ফিকাহ','বাংলা','অংক','ইংরেজী'],
-    'ছানী জামাত':['আমপারা ও নুরানী নিসাব','আদ্দুরুসুল আরাবিয়া ২য়','আলকেরাআতুল আরাবিয়া ১ম খন্ড','আকাইদ ফিকাহ','বাংলা','অংক','ইংরেজী- গ্রামার ও ওয়ার্ড বুক'],
-    'ছালেছ জামাত':['কুরআন শরিফ ও তাজবীদ','উর্দু কায়দা ও তালিমুল ইসলাম ১ম','আদ্দুরুসুল আরাবিয়া ৩য়','আলকেরাআতুল ও আকাইদ ফিকাহ','বাংলা','অংক','ইংরেজী - গ্রামার ও ওয়ার্ড বুক'],
-    'রাবে জামাত':['কুরআন শরীফ নজরানা, প্রথম ১০ পারা','উর্দু পহেলী ও দোসরী','তালিমুল ইসলাম ১ম ২য় ও ৩য়','এসো আরবী সিখি ১ম','বাংলা','অংক','ইংরেজী- গ্রামার ও ওয়ার্ড বুক'],
-    'পঞ্চম জামাত':['তেলাওয়াত ও তাজবিদ পুর্ন কুরআান শরীফ','নুজহাতুল কারী','তালিমুল ইসলাম ৪র্থ খন্ড','এসো আরবী সিখি ১ম','বাংলা ও ব্যাকরন ৫ম','অংক ৫ম','ইংরেজী ও গ্রামার ৫ম','ইতিহাস পাঠ - ভূগোল ও সমাজ ৫ম'],
-    'মিজান জামাত':['কুরআন শরীফ নাজেরা ১১-২০ পারা','মিজান মুনশাইব','সফওয়াতুল মাছাদির','বাকুরাতুল আদব','এসো আরবী শিখি ২য়','বেহেস্তী জেওর ১ম ২য় ও উর্দু দোসরী','বাংলা সাহিত্য সওগাত ৬ষ্ট ও ব্যাকরন ৬ষ্ট','গনিত ৬ষ্ট','ইংলিশ ও গ্রামার ৬ষ্ট','ইতিহাস পাঠ - ভূগোল ও সমাজ পরিচিতি ৬ষ্ট'],
-    'নাহবেমীর জামাত':['নাহবেমীর','শরহু মিয়াতে আমিল','রওজাতুল আদব','আল ফিকহুল মুয়াস্সার/ নুরুল ইযাহ','ইলমুচ্ছরফ ৩য় ৪র্থ খন্ড','সিরাতে খাতেমুল আম্বিয়া','বাংলা ও ব্যাকরন ৭ম শ্রেণি'],
-    'কুদুরী জামাত':['কুরআন তরজমা ২৬-৩০ পারা','মুখতাছারুল কুদুরী কিতাবুল ইমান','মুখতাছারুল কুদুরী কিতাবুল বুয়ূ','হেদায়াতুন্নাহু','উছুলুশ শ্বাশী','ইলমুচ্ছিগাহ','যাদুত ত্বলিবিন','বাংলা ৮ম শ্রেণি'],
-    'শরহে বেকায়া জামাত':['কুরআন তরজমা ১-১৫ পারা','শরহে বেকায়া ১ম ও ২য়','দুরুসুল বালাগাত/মুখতাসারুল মায়ানী','নুরুল আনোয়ার কিতাবুল্লাহ','কাফিয়া','আত্বরীকু ইলাল ইনশা ৩য়','মাকামাতে হারীরী/ মুখতারাত'],
-    'হেদায়া জামাত':['কুরআন তরজমা ১৬-২৫ পারা','হেদায়া ১ম','হেদায়া ২য়','নুরুল আনোয়ার সুন্নাহ','ফয়জুল কালাম','সিরাজী','রিয়াজুস ছলিহিন'],
-    'মিশকাত জামাত':['মিশকাত শরিফ ১ম','মিশকাত শরিফ ২য়','জালালাইন শরিফ ১ম','জালালাইন শরিফ ২য়','আকীদাতুত তাহাবী','হেদায়া ৩য়','হেদায়া ৪র্থ'],
-    'দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)':['বুখারী শরিফ ১ম','বুখারী শরিফ ২য়','মুসলিম শরিফ ১ম','মুসলিম শরিফ ২য়','তিরমিযী শরীফ ১ম','তিরমিযী শরীফ ২য়','আবু দাউদ শরিফ পুর্ন','তাহাবী শরীফ পূর্ন','নাসায়ী ও ইবনু মাজাহ পুন','মুয়াত্তা ইমাম মালেক ও মুহাম্মদ পূর্ন','তেলাওয়াত ও তাজবিদ পুর্ন কুরআান শরীফ']
-  };
-  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(x){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]})}
-  function resultForm12(){
-    var h='<div class="form-grid"><label>Student ID<input id="rStudent" class="field"></label><label>নাম<input id="rName" class="field"></label><label>পরীক্ষা<input id="rExam" class="field"></label>';
-    h+='<label class="full">শ্রেনি / জামাত<select id="rClass" class="field" onchange="refreshResultSubjects12()"><option value="">শ্রেনি/জামাত নির্বাচন করুন</option>'+CLASSES.map(function(x){return '<option value="'+esc(x)+'">'+esc(x)+'</option>'}).join('')+'</select></label>';
-    h+='<div class="result-subject-grid-12" id="resultSubjectGrid12">';
-    for(var i=1;i<=12;i++)h+='<label>বিষয় '+i+'<select id="rResultSubject'+i+'" class="field" onchange="syncResultSubjects12()"><option value="">বিষয় নির্বাচন করুন</option></select></label>';
-    h+='</div><input type="hidden" id="rSubjects"><label class="full">নম্বর / Marks<textarea id="rMarks" class="field" rows="4" placeholder="প্রয়োজনে নম্বর/রেজাল্ট তথ্য লিখুন"></textarea></label></div>';
-    h+='<button class="primary" type="button" onclick="saveResult(\'result\')">Save</button>';
-    return h;
-  }
-  window.refreshResultSubjects12=function(){
-    var c=document.getElementById('rClass'),arr=SUB[c&&c.value]||[];
-    for(var i=1;i<=12;i++){
-      var s=document.getElementById('rResultSubject'+i);if(!s)continue;
-      s.innerHTML='<option value="">বিষয় নির্বাচন করুন</option>'+arr.map(function(x){return '<option value="'+esc(x)+'">'+esc(x)+'</option>'}).join('');
-    }
-    syncResultSubjects12();
-  };
-  window.syncResultSubjects12=function(){
-    var a=[];
-    for(var i=1;i<=12;i++){var s=document.getElementById('rResultSubject'+i);if(s&&s.value)a.push(s.value)}
-    var o={Class:document.getElementById('rClass')?.value||'',Subjects:a};
-    var h=document.getElementById('rSubjects');if(h)h.value=JSON.stringify(o);
-  };
-  var oldModuleForm=window.moduleForm;
-  window.moduleForm=function(k){
-    if(k==='result')return resultForm12();
-    return oldModuleForm(k);
-  };
-  var oldSaveResult=window.saveResult;
-  window.saveResult=async function(k){
-    if(k!=='result')return oldSaveResult(k);
-    var d={StudentID:$('rStudent').value,Name:$('rName').value,Class:$('rClass')?.value||'',Exam:$('rExam').value,SubjectData:$('rSubjects').value,Subject:'',Marks:document.getElementById('rMarks')?.value||'',Published:'NO',Date:new Date().toISOString()};
-    var r=await call('saveRecord',token,'RESULTS',d);
-    toast(r&&r.ok?'রেজাল্ট সফলভাবে সংরক্ষণ হয়েছে':(r&&r.message||'রেজাল্ট সংরক্ষণ ব্যর্থ'));
-  };
-
-  /* অল তালিকা: বাটন ক্লিক নিশ্চিত করা + উইন্ডো সরাসরি খোলা */
-  function forceAllListButton(){
-    var b=document.getElementById('allListBtn');
-    if(!b)return;
-    b.type='button';
-    b.style.pointerEvents='auto';
-    b.onclick=function(e){
-      if(e){e.preventDefault();e.stopPropagation();}
-      if(typeof window.openAllList==='function')window.openAllList();
-      return false;
-    };
-  }
-  document.addEventListener('click',function(e){
-    var b=e.target.closest&&e.target.closest('#allListBtn');
-    if(!b)return;
-    e.preventDefault();e.stopImmediatePropagation();
-    if(typeof window.openAllList==='function')window.openAllList();
-  },true);
-  function scanAllList(){forceAllListButton();}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(scanAllList,300)});else setTimeout(scanAllList,300);
-  setInterval(scanAllList,1000);
-})();
-</script>
-
-<!-- ===== ALL LIST HARD OPEN FIX — 2026-09-30 ===== -->
-<style id="all-list-hard-open-fix">
-#allListWin.all-list-hard-open{
-  display:flex!important;visibility:visible!important;opacity:1!important;
-  pointer-events:auto!important;
-}
-#allListBtn{
-  pointer-events:auto!important;cursor:pointer!important;position:relative!important;
-  z-index:2147483646!important;
-}
-</style>
-<script id="all-list-hard-open-fix-js">
-(function(){
-  function hardOpenAllList(){
-    var w=document.getElementById('allListWin');
-    if(!w){
-      if(typeof window.makeWindow==='function')window.makeWindow('allListWin','📋 অল তালিকা');
-      w=document.getElementById('allListWin');
-    }
-    if(!w)return false;
-    var tools=document.getElementById('allListWinTools');
-    if(tools && !document.getElementById('allListSignal')){
-      var list=(window.SIGNAL_LIST||[]);
-      tools.innerHTML='<select id="allListSignal" class="field"><option value="">তালিকা নির্বাচন করুন</option>'+
-        list.map(function(x){return '<option value="'+String(x[0]).replace(/"/g,'&quot;')+'">'+String(x[0])+' — '+String(x[1])+'</option>'}).join('')+
-        '</select><button type="button" class="primary" id="allListViewBtn">🔎 দেখুন</button>';
-      var s=document.getElementById('allListSignal');
-      if(s)s.onchange=function(){if(this.value&&typeof window.loadAllList==='function')window.loadAllList()};
-      var vb=document.getElementById('allListViewBtn');
-      if(vb)vb.onclick=function(){if(typeof window.loadAllList==='function')window.loadAllList()};
-    }
-    w.classList.add('show','all-list-hard-open');
-    w.style.setProperty('display','flex','important');
-    w.style.setProperty('visibility','visible','important');
-    w.style.setProperty('opacity','1','important');
-    w.style.setProperty('pointer-events','auto','important');
-    return false;
-  }
-  window.hardOpenAllList=hardOpenAllList;
-  window.openAllList=hardOpenAllList;
-  function bind(){
-    var b=document.getElementById('allListBtn');
-    if(!b)return;
-    b.type='button';
-    b.removeAttribute('onclick');
-    b.onclick=function(e){if(e){e.preventDefault();e.stopPropagation()}return hardOpenAllList()};
-  }
-  document.addEventListener('click',function(e){
-    var b=e.target.closest ? e.target.closest('#allListBtn') : null;
-    if(b){e.preventDefault();e.stopImmediatePropagation();hardOpenAllList();}
-  },true);
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);
-  else bind();
-  setInterval(bind,500);
-})();
-</script>
-
-
-<!-- ===== FINAL ALL LIST + CLASS LIST UI FIX — 2026-09-30 ===== -->
-<style id="final-all-class-list-ui-fix">
-#app .dashboard-title-left{display:flex!important;align-items:center!important;gap:7px!important;flex-wrap:nowrap!important}
-#app .dashboard-title-left #featureSelect{flex:0 0 auto!important}
-#app .dashboard-title-left #allListBtn,#app .dashboard-title-left #classListBtn{display:inline-flex!important;align-items:center!important;justify-content:center!important;white-space:nowrap!important;min-height:44px!important;font-weight:900!important}
-#app .dashboard-title-left #allListBtn{min-width:130px!important}
-#app .dashboard-title-left #classListBtn{min-width:245px!important}
-#rightModules #allListBtn,#rightModules #classListBtn{display:none!important}
-@media(max-width:1100px){#app .dashboard-title-left{flex-wrap:wrap!important}.dashboard-title-left #classListBtn{min-width:0!important}}
-</style>
-<script id="final-all-class-list-ui-fix-js">
-(function(){
-  var SIGNALS=[['std','ছাত্র/ছাত্রী তালিকা'],['thr','শিক্ষক/শিক্ষিকা তালিকা'],['olp','অন লাইন পেমেন্ট তালিকা'],['mrs','মার্কশিট তালিকা'],['rjt','রেজাল্ট তালিকা'],['adm','নতুন অ্যাডমিন তালিকা'],['npn','নতুন পরীক্ষার্থী নিবন্ধন তালিকা'],['npt','নিবন্ধন কৃত পুরুষ মাদ্রাসার তালিকা'],['nmt','নিবন্ধন কৃত মহিলা মাদ্রাসার তালিকা'],['ofd','অনলাইন+মোবাইল এর মাধ্যমে ফলাফল দেখা তালিকা'],['cft','সার্টিফিকেট/সনদপত্র তালিকা'],['idc','আইডি কার্ড তালিকা'],['adc','এডমিট কার্ড তালিকা'],['rct','রিসিট তালিকা'],['tcp','টিসি/ছাড়পত্র তালিকা']];
-  var CLASSES=['প্লে শ্রেনি','শিশু শ্রেনি','আউয়াল জামাত','ছানী জামাত','ছালেছ জামাত','রাবে জামাত','পঞ্চম জামাত','মিজান জামাত','নাহবেমীর জামাত','কুদুরী জামাত','শরহে বেকায়া জামাত','হেদায়া জামাত','মেশকাত জামাত','দাওরায়ে হাদীস(তাকমিল-মাস্টার্স)'];
-  window.ALL_LIST_SIGNALS=SIGNALS;window.ALL_CLASS_LIST=CLASSES;
-  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(x){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]})}
-  function ensureWin(id,title){
-    var w=document.getElementById(id);if(w)return w;
-    w=document.createElement('div');w.id=id;w.className='window';
-    w.innerHTML='<div class="all-list-head"><b>'+title+'</b><button type="button" class="secondary" onclick="document.getElementById(\''+id+'\').classList.remove(\'show\')">✕ বন্ধ</button></div><div id="'+id+'Tools" class="all-list-tools"></div><div id="'+id+'Body" class="all-list-body"></div>';
-    document.body.appendChild(w);return w;
-  }
-  function moveButtons(){
-    var host=document.querySelector('#app .dashboard-title-left');if(!host)return;
-    var all=document.getElementById('allListBtn'),cls=document.getElementById('classListBtn');
-    if(all&&all.parentElement!==host)host.appendChild(all);
-    if(cls&&cls.parentElement!==host)host.appendChild(cls);
-    if(!all){all=document.createElement('button');all.id='allListBtn';all.type='button';all.className='primary';all.textContent='📋 অল তালিকা';host.appendChild(all)}
-    if(!cls){cls=document.createElement('button');cls.id='classListBtn';cls.type='button';cls.className='primary';cls.textContent='📚 শ্রেনি/ক্লাশ/জামাত ওয়ারী তালিকা';host.appendChild(cls)}
-    all.onclick=function(e){if(e)e.preventDefault();window.openAllList()};
-    cls.onclick=function(e){if(e)e.preventDefault();window.openClassList()};
-  }
-  function openAll(){
-    var w=ensureWin('allListWin','📋 অল তালিকা'),t=document.getElementById('allListWinTools');
-    t.innerHTML='<select id="allListSignal" class="field"><option value="">তালিকা নির্বাচন করুন</option>'+SIGNALS.map(function(x){return '<option value="'+x[0]+'">'+x[0]+' — '+x[1]+'</option>'}).join('')+'</select>';
-    w.classList.add('show');
-    var s=document.getElementById('allListSignal');if(s)s.onchange=function(){if(this.value&&typeof window.loadAllList==='function')window.loadAllList()};
-  }
-  function openClass(){
-    var w=ensureWin('classListWin','📚 শ্রেনি/ক্লাশ/জামাত ওয়ারী তালিকা'),t=document.getElementById('classListWinTools');
-    t.innerHTML='<select id="classListSelect" class="field"><option value="">শ্রেনি/ক্লাশ/জামাত নির্বাচন করুন</option>'+CLASSES.map(function(x){return '<option value="'+esc(x)+'">'+esc(x)+'</option>'}).join('')+'</select>';
-    w.classList.add('show');
-    var s=document.getElementById('classListSelect');if(s)s.onchange=function(){if(this.value&&typeof window.loadClassList==='function')window.loadClassList()};
-  }
-  window.openAllList=openAll;window.openClassList=openClass;
-  function init(){moveButtons()}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(init,300)});else setTimeout(init,300);
-  setInterval(moveButtons,700);
-})();
-</script>
-
-
-<!-- ===== FINAL LIST POSITION + LOAD REPAIR — 2026-09-30 ===== -->
-<style id="final-list-position-load-repair">
-#app .dashboard-title-left #classListBtn{display:inline-flex!important;min-width:245px!important;white-space:nowrap!important}
-#app #rightModules #allListBtn{display:inline-flex!important;grid-column:1/-1!important;width:100%!important;min-height:58px!important;order:999!important}
-</style>
-<script id="final-list-position-load-repair-js">
-(function(){
-  var SIG=[['std','ছাত্র/ছাত্রী তালিকা'],['thr','শিক্ষক/শিক্ষিকা তালিকা'],['olp','অন লাইন পেমেন্ট তালিকা'],['mrs','মার্কশিট তালিকা'],['rjt','রেজাল্ট তালিকা'],['adm','নতুন অ্যাডমিন তালিকা'],['npn','নতুন পরীক্ষার্থী নিবন্ধন তালিকা'],['npt','নিবন্ধন কৃত পুরুষ মাদ্রাসার তালিকা'],['nmt','নিবন্ধন কৃত মহিলা মাদ্রাসার তালিকা'],['ofd','অনলাইন+মোবাইল এর মাধ্যমে ফলাফল দেখা তালিকা'],['cft','সার্টিফিকেট/সনদপত্র তালিকা'],['idc','আইডি কার্ড তালিকা'],['adc','এডমিট কার্ড তালিকা'],['rct','রিসিট তালিকা'],['tcp','টিসি/ছাড়পত্র তালিকা']];
-  var CLS=['প্লে শ্রেনি','শিশু শ্রেনি','আউয়াল জামাত','ছানী জামাত','ছালেছ জামাত','রাবে জামাত','পঞ্চম জামাত','মিজান জামাত','নাহবেমীর জামাত','কুদুরী জামাত','শরহে বেকায়া জামাত','হেদায়া জামাত','মেশকাত জামাত','দাওরায়ে হাদীস(তাকমিল-মাস্টার্স)'];
-  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(x){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]})}
-  function place(){
-    var left=document.querySelector('#app .dashboard-title-left'),right=document.getElementById('rightModules');if(!left||!right)return;
-    var cls=document.getElementById('classListBtn');
-    if(cls&&cls.parentElement!==left)left.appendChild(cls);
-    var all=document.getElementById('allListBtn');
-    if(all&&all.parentElement!==right)right.appendChild(all);
-  }
-  function ensureAll(){
-    var w=document.getElementById('allListWin');if(!w){w=document.createElement('div');w.id='allListWin';w.className='window';w.innerHTML='<div class="all-list-head"><b>📋 অল তালিকা</b><button type="button" class="secondary" onclick="this.closest(\'.window\').classList.remove(\'show\')">✖ বন্ধ</button></div><div id="allListWinTools" class="all-list-tools"></div><div id="allListWinBody" class="all-list-body"></div>';document.body.appendChild(w)}return w;
-  }
-  function ensureClass(){
-    var w=document.getElementById('classListWin');if(!w){w=document.createElement('div');w.id='classListWin';w.className='window';w.innerHTML='<div class="all-list-head"><b>📚 শ্রেনি/ক্লাশ/জামাত ওয়ারী তালিকা</b><button type="button" class="secondary" onclick="this.closest(\'.window\').classList.remove(\'show\')">✖ বন্ধ</button></div><div id="classListWinTools" class="all-list-tools"></div><div id="classListWinBody" class="all-list-body"></div>';document.body.appendChild(w)}return w;
-  }
-  window.openAllList=function(){var w=ensureAll(),t=document.getElementById('allListWinTools');t.innerHTML='<select id="allListSignal" class="field"><option value="">তালিকা নির্বাচন করুন</option>'+SIG.map(function(x){return '<option value="'+x[0]+'">'+x[0]+' — '+x[1]+'</option>'}).join('')+'</select>';w.classList.add('show');var s=document.getElementById('allListSignal');s.onchange=function(){if(this.value)window.loadAllList()};};
-  window.loadAllList=async function(){var s=document.getElementById('allListSignal'),b=document.getElementById('allListWinBody');if(!s||!b||!s.value)return;b.innerHTML='<div class="all-list-empty">⏳ তালিকা লোড হচ্ছে...</div>';try{if(typeof call!=='function')throw new Error('সার্ভার কল ফাংশন পাওয়া যায়নি');var r=await call('listSignalRecords',token,s.value,'');if(!r||!r.ok)throw new Error(r&&r.message||'সার্ভার থেকে তালিকা পাওয়া যায়নি');var rows=r.rows||[];if(!rows.length){b.innerHTML='<div class="all-list-empty">এই তালিকায় কোনো তথ্য নেই।</div>';return}window.__listRows=rows;window.__listSignal=s.value;b.innerHTML=rows.map(function(x,i){var n=x.NameBN||x.Name||x.নাম||x.StudentID||x.TeacherID||x.MadrasaID||'নাম নেই',id=x.StudentID||x.TeacherID||x.MadrasaID||x.AdminID||x.PaymentID||'';return '<div class="all-list-row"><div><b>'+esc(n)+'</b></div><div>ID: '+esc(id)+'</div><div class="all-list-actions"><button class="secondary" onclick="listDetail('+i+')">বিস্তারিত দেখুন</button><button class="secondary" onclick="listEdit('+i+')">✏️</button><button class="secondary" onclick="listSave('+i+')">💾</button><button class="secondary" onclick="listPrint('+i+')">🖨️</button><button class="secondary" onclick="listDownload('+i+')">⬇️</button><button class="primary" onclick="listPayment('+i+')">💳 পেমেন্ট</button></div></div>'}).join('')}catch(e){b.innerHTML='<div class="all-list-empty">⚠️ তালিকা লোড হয়নি: '+esc(e.message||e)+'</div>'}};
-  window.openClassList=function(){var w=ensureClass(),t=document.getElementById('classListWinTools');t.innerHTML='<select id="classListSelect" class="field"><option value="">শ্রেনি/ক্লাশ/জামাত নির্বাচন করুন</option>'+CLS.map(function(x){return '<option value="'+esc(x)+'">'+esc(x)+'</option>'}).join('')+'</select>';w.classList.add('show');var s=document.getElementById('classListSelect');s.onchange=function(){if(this.value)window.loadClassList()};};
-  window.loadClassList=async function(){var s=document.getElementById('classListSelect'),b=document.getElementById('classListWinBody');if(!s||!b||!s.value)return;b.innerHTML='<div class="all-list-empty">⏳ '+esc(s.value)+' তালিকা লোড হচ্ছে...</div>';try{var r=await call('listSignalRecords',token,'std',s.value);if(!r||!r.ok)throw new Error(r&&r.message||'সার্ভার থেকে তালিকা পাওয়া যায়নি');var rows=r.rows||[];window.__classRows=rows;if(!rows.length){b.innerHTML='<div class="all-list-empty">'+esc(s.value)+' — কোনো ছাত্র/ছাত্রী পাওয়া যায়নি।</div>';return}b.innerHTML=rows.map(function(x,i){var n=x.NameBN||x.Name||x.নাম||x.StudentID||'নাম নেই',id=x.StudentID||'';return '<div class="all-list-row"><div><b>'+esc(n)+'</b></div><div>ID: '+esc(id)+'</div><div class="all-list-actions"><button class="secondary" onclick="classDetail('+i+')">বিস্তারিত দেখুন</button><button class="secondary" onclick="classEdit('+i+')">✏️</button><button class="secondary" onclick="classSave('+i+')">💾</button><button class="secondary" onclick="classPrint('+i+')">🖨️</button><button class="secondary" onclick="classDownload('+i+')">⬇️</button><button class="primary" onclick="classPayment('+i+')">💳 পেমেন্ট</button></div></div>'}).join('')}catch(e){b.innerHTML='<div class="all-list-empty">⚠️ তালিকা লোড হয়নি: '+esc(e.message||e)+'</div>'}};
-  function bind(){place();var all=document.getElementById('allListBtn'),cls=document.getElementById('classListBtn');if(all){all.onclick=function(e){if(e)e.preventDefault();window.openAllList()}}if(cls){cls.onclick=function(e){if(e)e.preventDefault();window.openClassList()}}}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(bind,500)});else setTimeout(bind,500);setInterval(bind,1000);
-})();
-</script>
-
-
-<!-- ===== LIST WINDOWS: DRAG + TASKBAR + MINIMIZE/FULLSCREEN/CLOSE + BOTTOM ACTIONS — 2026-09-30 ===== -->
-<style id="list-window-controls-final">
-#allListWin,#classListWin{
-  position:fixed!important;
-  z-index:100000!important;
-  min-width:min(760px,94vw)!important;
-  width:min(980px,94vw)!important;
-  max-width:96vw!important;
-  max-height:88vh!important;
-  overflow:hidden!important;
-  box-sizing:border-box!important;
-}
-#allListWin.show,#classListWin.show{display:flex!important;flex-direction:column!important}
-#allListWin.list-win-fullscreen,#classListWin.list-win-fullscreen{
-  left:0!important;top:0!important;right:0!important;bottom:0!important;
-  width:100vw!important;height:100vh!important;
-  max-width:none!important;max-height:none!important;
-  border-radius:0!important;transform:none!important;
-}
-.list-win-head{
-  flex:0 0 auto!important;
-  display:flex!important;align-items:center!important;justify-content:space-between!important;
-  gap:8px!important;padding:8px 10px!important;
-  cursor:move!important;user-select:none!important;
-  border-bottom:2px solid var(--border)!important;
-}
-.list-win-head-title{font-weight:900!important;font-size:18px!important;flex:1!important}
-.list-win-head-actions{display:flex!important;gap:5px!important;align-items:center!important}
-.list-win-head-actions button{min-width:38px!important;height:34px!important;padding:2px 8px!important}
-.list-win-content{
-  flex:1 1 auto!important;min-height:0!important;overflow:auto!important;
-  padding:8px!important;
-}
-.list-win-bottom{
-  flex:0 0 auto!important;
-  display:flex!important;justify-content:center!important;align-items:center!important;
-  flex-wrap:wrap!important;gap:8px!important;
-  padding:9px!important;border-top:2px solid var(--border)!important;
-  background:var(--panel)!important;
-}
-.list-win-bottom button{min-width:105px!important;font-weight:900!important}
-#listWindowTaskbar{
-  position:fixed!important;left:0!important;right:0!important;bottom:0!important;
-  z-index:2147483647!important;display:flex!important;gap:6px!important;
-  align-items:center!important;padding:5px 8px!important;
-  min-height:42px!important;box-sizing:border-box!important;
-  background:rgba(0,0,0,.88)!important;border-top:2px solid var(--border)!important;
-}
-#listWindowTaskbar:empty{display:none!important}
-.list-task-item{
-  border:2px solid var(--border)!important;border-radius:8px!important;
-  background:var(--panel)!important;color:var(--text)!important;
-  padding:6px 12px!important;font-weight:900!important;cursor:pointer!important;
-}
-</style>
-<script id="list-window-controls-final-js">
-(function(){
-  function ensureTaskbar(){
-    var t=document.getElementById('listWindowTaskbar');
-    if(t)return t;
-    t=document.createElement('div');t.id='listWindowTaskbar';document.body.appendChild(t);return t;
-  }
-  function winById(id){return document.getElementById(id)}
-  function showWin(id){
-    var w=winById(id);if(!w)return;
-    w.classList.add('show');w.classList.remove('list-win-minimized');
-    w.style.display='flex';w.style.visibility='visible';w.style.opacity='1';
-    var t=document.getElementById('listWindowTaskbar'),b=t&&t.querySelector('[data-win="'+id+'"]');
-    if(b)b.remove();
-  }
-  function minimizeWinList(id){
-    var w=winById(id);if(!w)return;
-    w.classList.remove('show','list-win-fullscreen');
-    w.style.display='none';
-    var t=ensureTaskbar();
-    if(!t.querySelector('[data-win="'+id+'"]')){
-      var b=document.createElement('button');b.type='button';b.className='list-task-item';b.dataset.win=id;
-      b.textContent=id==='allListWin'?'📋 অল তালিকা':'📚 শ্রেনি/ক্লাশ/জামাত ওয়ারী তালিকা';
-      b.onclick=function(){showWin(id)};t.appendChild(b);
-    }
-  }
-  function closeList(id){
-    var w=winById(id);if(!w)return;
-    w.classList.remove('show','list-win-fullscreen');w.style.display='none';
-    var t=document.getElementById('listWindowTaskbar'),b=t&&t.querySelector('[data-win="'+id+'"]');if(b)b.remove();
-  }
-  function toggleFull(id){
-    var w=winById(id);if(!w)return;
-    w.classList.toggle('list-win-fullscreen');
-    if(w.classList.contains('list-win-fullscreen')){
-      w.style.left='0';w.style.top='0';w.style.transform='none';
-    }
-  }
-  function selectedRow(id){
-    var w=winById(id),rows=w&&w.querySelectorAll('.all-list-row');return rows&&rows.length?rows[0]:null;
-  }
-  function action(id,type){
-    var w=winById(id), rows=w&&w.querySelectorAll('.all-list-row'), row=rows&&rows.length?rows[0]:null;
-    if(!row){if(typeof toast==='function')toast('আগে তালিকা থেকে একটি রেকর্ড নির্বাচন করুন।');return}
-    var idx=Array.prototype.indexOf.call(rows,row);
-    if(id==='allListWin'){
-      if(type==='print'&&typeof window.listPrint==='function')return window.listPrint(idx);
-      if(type==='edit'&&typeof window.listEdit==='function')return window.listEdit(idx);
-      if(type==='save'&&typeof window.listSave==='function')return window.listSave(idx);
-      if(type==='download'&&typeof window.listDownload==='function')return window.listDownload(idx);
-    }else{
-      if(type==='print'&&typeof window.classPrint==='function')return window.classPrint(idx);
-      if(type==='edit'&&typeof window.classEdit==='function')return window.classEdit(idx);
-      if(type==='save'&&typeof window.classSave==='function')return window.classSave(idx);
-      if(type==='download'&&typeof window.classDownload==='function')return window.classDownload(idx);
-    }
-    if(typeof toast==='function')toast('এই কাজটির ফাংশন এখনো সংযুক্ত হয়নি।');
-  }
-  function decorate(id,title){
-    var w=winById(id);if(!w)return;
-    var old=w.querySelector('.all-list-head');
-    if(!old)return;
-    if(!old.classList.contains('list-win-head')){
-      var titleText=(old.querySelector('b')||{}).textContent||title;
-      old.className='list-win-head';
-      old.innerHTML='<div class="list-win-head-title">'+titleText+'</div><div class="list-win-head-actions">'+
-        '<button type="button" class="secondary" title="Minimize">—</button>'+
-        '<button type="button" class="secondary" title="Fullscreen">□</button>'+
-        '<button type="button" class="secondary" title="Close">✕</button></div>';
-      var bs=old.querySelectorAll('button');
-      bs[0].onclick=function(e){e.stopPropagation();minimizeWinList(id)};
-      bs[1].onclick=function(e){e.stopPropagation();toggleFull(id)};
-      bs[2].onclick=function(e){e.stopPropagation();closeList(id)};
-      old.addEventListener('mousedown',function(e){
-        if(e.target.closest('button,select,input'))return;
-        var rect=w.getBoundingClientRect(),sx=e.clientX,sy=e.clientY,ox=rect.left,oy=rect.top;
-        function move(ev){w.style.left=Math.max(0,ox+ev.clientX-sx)+'px';w.style.top=Math.max(0,oy+ev.clientY-sy)+'px';w.style.transform='none'}
-        function up(){document.removeEventListener('mousemove',move);document.removeEventListener('mouseup',up)}
-        document.addEventListener('mousemove',move);document.addEventListener('mouseup',up);
-      });
-    }
-    var body=w.querySelector('.all-list-body');
-    if(body&&!body.classList.contains('list-win-content'))body.classList.add('list-win-content');
-    if(!w.querySelector('.list-win-bottom')){
-      var bar=document.createElement('div');bar.className='list-win-bottom';
-      bar.innerHTML='<button type="button" class="primary">🖨️ প্রিন্ট</button><button type="button" class="secondary">💾 সেভ</button><button type="button" class="secondary">✏️ এডিট</button><button type="button" class="secondary">⬇️ ডাউনলোড</button>';
-      var bs=bar.querySelectorAll('button');
-      bs[0].onclick=function(){action(id,'print')};
-      bs[1].onclick=function(){action(id,'save')};
-      bs[2].onclick=function(){action(id,'edit')};
-      bs[3].onclick=function(){action(id,'download')};
-      w.appendChild(bar);
-    }
-  }
-  function place(){
-    var left=document.querySelector('#app .dashboard-title-left'),right=document.getElementById('rightModules');
-    var cls=document.getElementById('classListBtn'),all=document.getElementById('allListBtn');
-    if(left&&cls&&cls.parentElement!==left)left.appendChild(cls);
-    if(right&&all&&all.parentElement!==right)right.appendChild(all);
-    if(right&&all)all.style.display='inline-flex';
-    decorate('allListWin','📋 অল তালিকা');
-    decorate('classListWin','📚 শ্রেনি/ক্লাশ/জামাত ওয়ারী তালিকা');
-  }
-  window.listWindowShow=showWin;window.listWindowMinimize=minimizeWinList;window.listWindowClose=closeList;window.listWindowFullscreen=toggleFull;
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(place,400)});
-  else setTimeout(place,400);
-  setInterval(place,700);
-})();
-</script>
-
-
-<!-- ===== MEDIA PLAYBACK STABLE FIX — 2026-09-30 ===== -->
-<style id="media-playback-stable-fix-2026-09-30">
-#mediaStageContent .media-stable-frame{width:100%!important;height:100%!important;border:0!important;background:#111!important;display:block!important}
-#mediaStageContent .media-stable-video{width:100%!important;height:100%!important;object-fit:contain!important;background:#111!important;display:block!important}
-</style>
-<script id="media-playback-stable-fix-js-2026-09-30">
-(function(){
-  function list(){return Array.isArray(window.media)?window.media:[]}
-  function idOf(x){var s=String((x&&x.FileID)||(x&&x.DriveFileId)||'');if(s)return s;s=String((x&&x.DataURL)||'');var m=s.match(/[?&]id=([^&]+)/)||s.match(/\/d\/([^/]+)/);return m?decodeURIComponent(m[1]):''}
-  function resourceOf(x){return String((x&&x.ResourceKey)||'').trim()}
-  function previewOf(x){var id=idOf(x);if(!id)return String((x&&x.PreviewURL)||'');var rk=resourceOf(x);return 'https://drive.google.com/file/d/'+encodeURIComponent(id)+'/preview'+(rk?'?resourcekey='+encodeURIComponent(rk):'')}
-  function directOf(x){var u=String((x&&x.DirectURL)||(x&&x.DataURL)||'').trim();if(/^https?:\/\//i.test(u)&&u.indexOf('drive.google.com/uc?')>=0)return u;var id=idOf(x);if(!id)return u;var rk=resourceOf(x);return 'https://drive.google.com/uc?export=download&id='+encodeURIComponent(id)+(rk?'&resourcekey='+encodeURIComponent(rk):'')}
-  function renderStable(){
-    var box=document.getElementById('mediaStageContent'),m=list();if(!box)return;
-    if(!m.length){box.innerHTML='<span class="media-empty">মিডিয়া আপলোড করে স্লাইড দেখুন</span>';return}
-    var n=Number(window.mediaIndex||0);if(!isFinite(n))n=0;window.mediaIndex=((n%m.length)+m.length)%m.length;
-    var x=m[window.mediaIndex]||{},t=String(x.Type||x.type||'').toLowerCase();box.innerHTML='';
-    if(t==='video'){
-      var fr=document.createElement('iframe');fr.className='media-stable-frame';fr.allow='autoplay; fullscreen; encrypted-media; picture-in-picture';fr.setAttribute('allowfullscreen','');fr.setAttribute('referrerpolicy','no-referrer-when-downgrade');fr.src=previewOf(x);box.appendChild(fr);
-    }else if(t==='audio'){
-      var a=document.createElement('audio');a.controls=true;a.preload='metadata';a.src=directOf(x);a.style.cssText='width:90%;max-height:80px';box.appendChild(a);
-    }else if(t==='image'){
-      var im=document.createElement('img');im.src=directOf(x);im.alt=String(x.Name||x.name||'');im.style.cssText='width:100%;height:100%;object-fit:contain;background:#111;display:block';box.appendChild(im);
-    }else box.innerHTML='<span class="media-empty">মিডিয়ার ধরন পাওয়া যায়নি।</span>';
-    if(typeof window.renderMediaList==='function')window.renderMediaList();
-  }
-  window.renderMedia=renderStable;
-  window.nextMedia=function(){var m=list();if(!m.length)return;window.mediaIndex=(Number(window.mediaIndex||0)+1)%m.length;renderStable()};
-  window.prevMedia=function(){var m=list();if(!m.length)return;window.mediaIndex=(Number(window.mediaIndex||0)-1+m.length)%m.length;renderStable()};
-  window.toggleMediaPlay=function(){var f=document.querySelector('#mediaStageContent .media-stable-frame');if(f)f.focus();var v=document.querySelector('#mediaStageContent video.media-stable-video,#mediaStageContent audio');if(v){if(v.paused){var p=v.play();if(p&&p.catch)p.catch(function(){})}else v.pause()}};
-})();
-</script>
-
-
-<!-- ===== MEDIA LIST + DELETE FINAL SYNC FIX — 2026-09-30 ===== -->
-<style id="media-list-final-sync-fix">
-#mediaList{display:block!important;visibility:visible!important;opacity:1!important;width:100%!important;min-height:20px!important;margin-top:10px!important}
-#mediaList:empty:after{content:'মিডিয়া তালিকা লোড হচ্ছে...';display:block;padding:8px;font-weight:800}
-.media-list-item{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;width:100%!important}
-.media-list-item button{display:inline-block!important;visibility:visible!important;opacity:1!important}
-</style>
-<script id="media-list-final-sync-fix-js">
-(function(){
-  var busy=false,tries=0;
-  function getToken(){
-    try{if(typeof token!=='undefined'&&token)return token;}catch(e){}
-    return window.token||'';
-  }
-  function extract(r){
-    if(Array.isArray(r))return r;
-    var q=[r],seen=[];
-    while(q.length){
-      var x=q.shift();
-      if(!x||seen.indexOf(x)>=0)continue;
-      seen.push(x);
-      if(Array.isArray(x.media))return x.media;
-      if(Array.isArray(x.rows))return x.rows;
-      if(Array.isArray(x.data))return x.data;
-      if(Array.isArray(x.items))return x.items;
-      if(Array.isArray(x.result))return x.result;
-      if(x.data&&typeof x.data==='object')q.push(x.data);
-      if(x.result&&typeof x.result==='object')q.push(x.result);
-      if(x.response&&typeof x.response==='object')q.push(x.response);
-    }
-    return [];
-  }
-  async function getMedia(){
-    var tk=getToken();
-    if(busy||typeof window.call!=='function'||!tk)return;
-    busy=true;
-    try{
-      var r=await window.call('listMedia',tk),m=extract(r);
-      window.media=Array.isArray(m)?m:[];
-      var n=Number(window.mediaIndex||0);if(!isFinite(n))n=0;
-      window.mediaIndex=window.media.length?((n%window.media.length)+window.media.length)%window.media.length:0;
-      if(typeof window.renderMediaList==='function')window.renderMediaList();
-      if(typeof window.renderMedia==='function')window.renderMedia();
-      if(typeof window.renderMediaList==='function')window.renderMediaList();
-      tries=0;
-    }catch(e){
-      tries++;
-      if(typeof window.toast==='function'&&tries>=8)window.toast('মিডিয়া তালিকা সার্ভার থেকে আনা যায়নি।');
-    }finally{busy=false}
-  }
-  window.refreshMediaList=getMedia;
-  document.addEventListener('click',function(e){
-    var b=e.target.closest&&e.target.closest('[onclick*="gallery"],[data-module="gallery"]');
-    if(b){tries=0;setTimeout(getMedia,250);setTimeout(getMedia,1000);}
-  },true);
-  function boot(){
-    var timer=setInterval(function(){
-      if(getToken()){getMedia();tries++;if(tries>=30)clearInterval(timer);}
-    },1000);
-    setTimeout(getMedia,500);
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
-})();
-</script>
-<!-- ===== MEDIA LOAD/DELETE WINDOW CLEAN + DELETE SERVER FIX — 2026-09-30 ===== -->
-<script id="media-load-delete-clean-final">
-(function(){
-  /* Gallery/Load window: only media upload + media list; remove language/signature/form action extras. */
-  var previousOpenModule=window.openModule;
-  window.openModule=function(key){
-    if(key==='gallery'){
-      var title=document.getElementById('winTitle'),body=document.getElementById('winBody'),fw=document.getElementById('formWin');
-      if(!title||!body||!fw){return previousOpenModule?previousOpenModule(key):undefined;}
-      title.textContent='মিডিয়া / লোড';
-      body.innerHTML=moduleForm('gallery');
-      fw.classList.remove('minimized');
-      fw.style.height='';
-      openWindow('formWin');
-      return;
-    }
-    return previousOpenModule?previousOpenModule(key):undefined;
-  };
-
-  /* Delete window: accept all known media identifiers and wrapped list responses. */
-  function extractMedia(r){
-    if(Array.isArray(r))return r;
-    var q=[r],seen=[];
-    while(q.length){
-      var x=q.shift();
-      if(!x||seen.indexOf(x)>=0)continue;
-      seen.push(x);
-      if(Array.isArray(x.media))return x.media;
-      if(Array.isArray(x.rows))return x.rows;
-      if(Array.isArray(x.data))return x.data;
-      if(Array.isArray(x.items))return x.items;
-      if(Array.isArray(x.result))return x.result;
-      if(x.data&&typeof x.data==='object')q.push(x.data);
-      if(x.result&&typeof x.result==='object')q.push(x.result);
-      if(x.response&&typeof x.response==='object')q.push(x.response);
-    }
-    return [];
-  }
-
-  var oldFillDeleteWindow=window.fillDeleteWindow;
-  window.fillDeleteWindow=async function(){
-    if(oldFillDeleteWindow){try{await oldFillDeleteWindow();return;}catch(e){}}
-  };
-
-  window.deleteFinalMediaItem=async function(i){
-    if(!window.media||!window.media[i])return;
-    var x=window.media[i];
-    var serial=x.Serial||x.serial||x.ID||x.Id||x.FileID||x.DriveFileId||x.Name;
-    if(!serial){if(typeof toast==='function')toast('এই মিডিয়ার Serial পাওয়া যায়নি।');return;}
-    try{
-      var r=await call('deleteMedia',token,serial);
-      if(r&&r.ok){
-        window.media.splice(i,1);
-        if(mediaIndex>=media.length)mediaIndex=Math.max(0,media.length-1);
-        if(typeof renderMedia==='function')renderMedia();
-        await window.fillDeleteWindow();
-        if(typeof toast==='function')toast('মিডিয়া মুছে ফেলা হয়েছে।');
-      }else if(typeof toast==='function'){
-        toast((r&&r.message)||'ডিলেট ব্যর্থ হয়েছে।');
-      }
-    }catch(e){
-      if(typeof toast==='function')toast('ডিলেট সার্ভার ত্রুটি: '+(e&&e.message?e.message:'অজানা ত্রুটি'));
-    }
-  };
-
-  /* Rebuild delete-window list with the same identifier-safe data. */
-  var w=document.getElementById('finalMediaDeleteWin');
-  if(w){
-    var b=document.getElementById('finalMediaDeleteBody');
-    if(b)b.dataset.mediaDeleteClean='1';
-  }
-})();
-</script>
-
-
-<!-- ===== DASHBOARD WIDTH + CLASS LIST BUTTON CLEAN — 2026-09-30 ===== -->
-<style id="dashboard-width-class-list-clean">
-/* প্রশাসনিক ড্যাশবোর্ডের ঠিক নিচের মূল মিডিয়া বক্স চওড়া */
-.dashboard-media-layout{grid-template-columns:1fr 3fr 1fr!important}
-/* শ্রেনি/ক্লাশ/জামাত ওয়ারী তালিকার ডানে থাকা অল তালিকা বাটন বাদ */
-#allListBtn{display:none!important}
-</style>
-
-
-<!-- ===== LOCATION CASCADE SAFE FIX — 2026-10-03 ===== -->
-<script id="location-cascade-safe-fix-2026-10-03">
-(function(){
-  'use strict';
-
-  var LOCATION_ROWS = [];
-
-  function clean(v){
-    return String(v == null ? '' : v).trim();
-  }
-
-  function uniqueSorted(rows,key){
-    var seen = {}, out = [];
-    (rows||[]).forEach(function(r){
-      var v=clean(r && r[key]);
-      if(v && !seen[v]){seen[v]=1;out.push(v);}
-    });
-    return out.sort(function(a,b){return a.localeCompare(b,'bn');});
-  }
-
-  function el(id){ return document.getElementById(id); }
-
-  function value(prefix,key){
-    var s=el(prefix+key+'Select');
-    var m=el(prefix+key+'Manual');
-    return clean((m&&m.value) || (s&&s.value));
-  }
-
-  function put(prefix,key,values){
-    var s=el(prefix+key+'Select');
-    if(!s)return;
-    var old=clean(s.value);
-    s.innerHTML='<option value="">নির্বাচন করুন</option>'+
-      (values||[]).map(function(v){
-        var z=String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-        return '<option value="'+z+'">'+z+'</option>';
-      }).join('');
-    if(old && (values||[]).indexOf(old)>=0)s.value=old;
-  }
-
-  function filtered(prefix,level){
-    var d=value(prefix,'Division');
-    var di=value(prefix,'District');
-    var u=value(prefix,'Upazila');
-    var un=value(prefix,'Union');
-    var p=value(prefix,'Post');
-
-    return LOCATION_ROWS.filter(function(r){
-      if(d && clean(r.division)!==d)return false;
-      if(di && clean(r.district)!==di)return false;
-      if(u && clean(r.upazila)!==u)return false;
-      if(un && clean(r.union)!==un)return false;
-      if(level==='Post' && p && clean(r.post)!==p)return false;
-      return true;
-    });
-  }
-
-  function clearBelow(prefix,keys){
-    keys.forEach(function(k){put(prefix,k,[]);});
-  }
-
-  function cascade(prefix,level){
-    var rows=filtered(prefix,level);
-    if(level==='Division'){
-      put(prefix,'District',uniqueSorted(rows,'district'));
-      clearBelow(prefix,['Upazila','Union','Post','Ward','Village']);
-    }else if(level==='District'){
-      put(prefix,'Upazila',uniqueSorted(rows,'upazila'));
-      clearBelow(prefix,['Union','Post','Ward','Village']);
-    }else if(level==='Upazila'){
-      put(prefix,'Union',uniqueSorted(rows,'union'));
-      put(prefix,'Post',uniqueSorted(rows,'post'));
-      put(prefix,'Ward',uniqueSorted(rows,'ward'));
-      put(prefix,'Village',uniqueSorted(rows,'village'));
-    }else if(level==='Union'){
-      put(prefix,'Post',uniqueSorted(rows,'post'));
-      put(prefix,'Ward',uniqueSorted(rows,'ward'));
-      put(prefix,'Village',uniqueSorted(rows,'village'));
-    }else if(level==='Post'){
-      var x=filtered(prefix,'Post');
-      put(prefix,'Ward',uniqueSorted(x,'ward'));
-      put(prefix,'Village',uniqueSorted(x,'village'));
-    }
-  }
-
-  function addPostIfMissing(prefix){
-    var union=el(prefix+'UnionSelect'), ward=el(prefix+'WardSelect');
-    if(!union || el(prefix+'PostSelect'))return;
-    var lab=document.createElement('label');
-    lab.innerHTML='ডাকঘর<select id="'+prefix+'PostSelect" class="field"></select>'+
-      '<input id="'+prefix+'PostManual" class="field location-manual" placeholder="হাতে লিখুন">';
-    if(ward && ward.closest('label'))ward.closest('label').before(lab);
-  }
-
-  function bindPrefix(prefix){
-    if(!el(prefix+'DivisionSelect'))return;
-    addPostIfMissing(prefix);
-
-    ['Division','District','Upazila','Union','Post'].forEach(function(k){
-      var s=el(prefix+k+'Select');
-      if(!s || s.dataset.locationSafeBound)return;
-      s.dataset.locationSafeBound='1';
-      s.addEventListener('change',function(){cascade(prefix,k);});
-    });
-
-    put(prefix,'Division',uniqueSorted(LOCATION_ROWS,'division'));
-    put(prefix,'District',[]);
-    put(prefix,'Upazila',[]);
-    put(prefix,'Union',[]);
-    put(prefix,'Post',[]);
-    put(prefix,'Ward',[]);
-    put(prefix,'Village',[]);
-  }
-
-  function bindAll(){
-    ['f','ad','r'].forEach(bindPrefix);
-  }
-
-  function load(){
-    if(typeof call!=='function')return;
-    call('getLocations').then(function(rows){
-      if(!Array.isArray(rows))throw new Error('লোকেশন ডাটা সঠিক নয়');
-      LOCATION_ROWS=rows.map(function(r){
-        return {
-          division:clean(r.division||r.Division),
-          district:clean(r.district||r.District),
-          upazila:clean(r.upazila||r.Upazila),
-          union:clean(r.union||r.Union),
-          ward:clean(r.ward||r.Ward),
-          post:clean(r.post||r.Post||r.postOffice),
-          village:clean(r.village||r.Village)
-        };
-      }).filter(function(r){return r.division||r.district||r.upazila||r.union;});
-      window.__LOCATION_ROWS_FIXED__=LOCATION_ROWS;
-      bindAll();
-    }).catch(function(e){
-      console.warn('Location data load failed:',e);
-      bindAll();
-    });
-  }
-
-  window.getLocationValue=function(id){
-    var m=el(id+'Manual'),s=el(id+'Select');
-    return clean((m&&m.value)||(s&&s.value));
-  };
-
-  function watchDynamicForms(){
-    bindAll();
-    if(window.__LOCATION_CASCADE_OBSERVER__)return;
-    if(typeof MutationObserver==='undefined')return;
-    var root=document.body||document.documentElement;
-    if(!root)return;
-    var observer=new MutationObserver(function(){
-      bindAll();
-    });
-    observer.observe(root,{childList:true,subtree:true});
-    window.__LOCATION_CASCADE_OBSERVER__=observer;
-  }
-
-  function start(){
-    load();
-    watchDynamicForms();
-  }
-
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);
-  else start();
-
-  [300,1000,2000,3500,5000,8000].forEach(function(ms){setTimeout(bindAll,ms);});
-})();
-</script>
-
-<!-- ===== STUDENT FORM META + PRINT/FULLSCREEN FINAL FIX — 2026-10-03 ===== -->
-
-<style id="student-form-meta-print-fullscreen-final-2026-10-03">
-/* 1) Student ID + DOB + Date — exactly above the 3-language student name */
-#formWin .student-meta-top-2026{
-  display:grid!important;
-  grid-template-columns:repeat(3,minmax(0,1fr))!important;
-  gap:8px!important;
-  margin:0 0 9px!important;
-  padding:0!important;
-}
-#formWin .student-meta-top-2026 label{
-  display:flex!important;
-  flex-direction:column!important;
-  gap:4px!important;
-  font-weight:900!important;
-}
-#formWin .student-meta-top-2026 .field{
-  width:100%!important;
-  min-height:44px!important;
-}
-@media(max-width:700px){
-  #formWin .student-meta-top-2026{grid-template-columns:1fr!important}
-}
-/* হাতে লিখুন input is screen-only; never visible in print/preview */
-@media print{
-  #formWin .location-manual,
-  #formWin input[placeholder="হাতে লিখুন"],
-  #formWin .form-action-bar,
-  #formWin .form-language-fixed,
-  #formWin .form-signatures,
-  #formWin .win-actions,
-  #formWin .form-fullscreen-final-2026{display:none!important}
-}
-/* Fullscreen button for every form window */
-.window .form-fullscreen-final-2026{
-  min-width:34px!important;
-  width:34px!important;
-  height:30px!important;
-  padding:0!important;
-  display:inline-flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  border:2px solid var(--border)!important;
-  border-radius:7px!important;
-  background:var(--panel)!important;
-  color:inherit!important;
-  font-weight:900!important;
-  cursor:pointer!important;
-}
-</style>
-
-<script id="student-form-meta-print-fullscreen-final-2026-10-03">
-(function(){
-  'use strict';
-
-  function byId(id){return document.getElementById(id);}
-  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]});}
-
-  /* Add the requested 3-column row only to student/admission forms.
-     It is inserted immediately before the three-language student names. */
-  function addStudentMeta(){
-    var body=byId('winBody'), title=byId('winTitle');
-    if(!body)return;
-    var isAdmission=!!byId('adNameBN');
-    var isStudent=!!byId('fNameBN') && /student|ছাত্র|ছাত্রী|শিক্ষার্থী/i.test((title&&title.textContent)||'');
-    if(!isAdmission && !isStudent)return;
-    if(body.querySelector('.student-meta-top-2026'))return;
-
-    var firstName=isAdmission?byId('adNameBN'):byId('fNameBN');
-    if(!firstName)return;
-
-    var row=document.createElement('div');
-    row.className='student-meta-top-2026';
-    var prefix=isAdmission?'ad':'f';
-
-    var id=document.createElement('label');
-    id.textContent='আইডি লিখুন';
-    var idInput=document.createElement('input');
-    idInput.id=prefix+'StudentID';
-    idInput.className='field';
-    idInput.type='text';
-    idInput.placeholder='স্টুডেন্ট ID';
-    id.appendChild(idInput);
-
-    var dobLabel=document.createElement('label');
-    dobLabel.textContent='জন্ম তারিখ লিখুন';
-    var dob=byId(prefix+'Dob');
-    if(dob){
-      var oldLabel=dob.closest('label');
-      dobLabel.appendChild(dob);
-      if(oldLabel)oldLabel.remove();
-    }else{
-      dob=document.createElement('input');
-      dob.id=prefix+'Dob';
-      dob.className='field';
-      dob.type='date';
-      dobLabel.appendChild(dob);
-    }
-
-    var dateLabel=document.createElement('label');
-    dateLabel.textContent='তারিখ লিখুন';
-    var date=document.createElement('input');
-    date.id=prefix+'Date';
-    date.className='field';
-    date.type='date';
-    dateLabel.appendChild(date);
-
-    row.appendChild(id);
-    row.appendChild(dobLabel);
-    row.appendChild(dateLabel);
-
-    var nameGrid=firstName.closest('.form-grid');
-    if(nameGrid)nameGrid.insertBefore(row,nameGrid.firstElementChild);
-    else firstName.parentNode.insertBefore(row,firstName.parentNode.firstChild);
-  }
-
-  /* Every form window gets its own real fullscreen button; existing
-     Minimize/Clear/Close buttons are left untouched. */
-  function toggleFormFullscreen(w){
+  function toggle(w){
     if(!w)return;
-    if(w.classList.contains('win-fullscreen-final-2026')){
-      w.classList.remove('win-fullscreen-final-2026');
-      w.style.width=w.dataset.ffWidth||'';
-      w.style.height=w.dataset.ffHeight||'';
-      w.style.maxHeight=w.dataset.ffMaxHeight||'';
-      w.style.left=w.dataset.ffLeft||'';
-      w.style.top=w.dataset.ffTop||'';
-      w.style.transform=w.dataset.ffTransform||'';
+    if(w.classList.contains('user-fullscreen-2026')){
+      w.classList.remove('user-fullscreen-2026');
+      w.style.width=w.dataset.ufWidth||'';w.style.height=w.dataset.ufHeight||'';
+      w.style.maxHeight=w.dataset.ufMaxHeight||'';w.style.left=w.dataset.ufLeft||'';
+      w.style.top=w.dataset.ufTop||'';w.style.transform=w.dataset.ufTransform||'';
     }else{
       var r=w.getBoundingClientRect();
-      w.dataset.ffWidth=r.width+'px';
-      w.dataset.ffHeight=r.height+'px';
-      w.dataset.ffMaxHeight=w.style.maxHeight||'';
-      w.dataset.ffLeft=r.left+'px';
-      w.dataset.ffTop=r.top+'px';
-      w.dataset.ffTransform=w.style.transform||'';
-      w.classList.add('win-fullscreen-final-2026');
+      w.dataset.ufWidth=w.style.width||r.width+'px';w.dataset.ufHeight=w.style.height||'';
+      w.dataset.ufMaxHeight=w.style.maxHeight||'';w.dataset.ufLeft=w.style.left||r.left+'px';
+      w.dataset.ufTop=w.style.top||r.top+'px';w.dataset.ufTransform=w.style.transform||'';
+      w.classList.add('user-fullscreen-2026');
     }
   }
-  function ensureFullscreen(w){
-    if(!w||!w.classList||!w.classList.contains('window'))return;
-    if(w.querySelector('.form-fullscreen-final-2026'))return;
-    var head=w.querySelector(':scope > .win-head')||w.querySelector('.win-head');
-    if(!head)return;
-    var btn=document.createElement('button');
-    btn.type='button';
-    btn.className='secondary form-fullscreen-final-2026';
-    btn.title='ফুল স্ক্রিন / স্বাভাবিক';
-    btn.setAttribute('aria-label','ফুল স্ক্রিন / স্বাভাবিক');
-    btn.textContent='⛶';
-    btn.onclick=function(e){e.preventDefault();e.stopPropagation();toggleFormFullscreen(w);};
-    var actions=head.querySelector('.win-actions');
-    if(actions)actions.insertBefore(btn,actions.lastElementChild||null);
-    else head.appendChild(btn);
-  }
-  var style=document.createElement('style');
-  style.textContent='.window.win-fullscreen-final-2026{left:0!important;top:0!important;width:100vw!important;height:100vh!important;max-width:none!important;max-height:none!important;transform:none!important;border-radius:0!important}.window.win-fullscreen-final-2026 .win-body{height:calc(100vh - 58px)!important;max-height:none!important;overflow:auto!important}';
-  document.head.appendChild(style);
+  window.formWindowFullscreen2026=function(){var w=document.getElementById('formWin');if(w)toggle(w)};
+  document.addEventListener('click',function(e){
+    var b=e.target.closest&&e.target.closest('.task3-window-controls button,.win-clear-fullscreen-2026,.win-fullscreen-2026');
+    if(!b)return;
+    var t=((b.title||'')+' '+(b.getAttribute('aria-label')||'')).toLowerCase();
+    if(t.indexOf('ফুল স্ক্রিন')<0&&t.indexOf('fullscreen')<0)return;
+    var w=b.closest('.window');if(!w)return;
+    e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();toggle(w);
+  },true);
 
-  /* Search-profile print: exactly ONE student profile, never multiple. */
-  window.printSearchProfile=function(){
-    var x=byId('searchProfilePrint');
-    if(!x)return;
-    var one=x.querySelector('.sp-student');
-    if(!one){window.print();return;}
-    var head=x.querySelector('.search-profile-head');
-    var meta=x.querySelector('.sp-search-meta');
+  window.printCurrentForm=function(){
+    var src=document.getElementById('formWin'),body=src&&src.querySelector('.win-body');if(!body)return;
+    var clone=body.cloneNode(true);
+    clone.querySelectorAll('.form-action-bar,.win-actions,.location-manual,input[placeholder="হাতে লিখুন"]').forEach(function(x){
+      if(x.tagName==='INPUT'&&x.parentElement&&x.parentElement.tagName==='LABEL')x.parentElement.remove();else x.remove();
+    });
     var w=window.open('','_blank','width=1000,height=900');
-    if(!w)return;
-    var html='<!doctype html><html><head><meta charset="utf-8"><title>স্টুডেন্ট প্রোফাইল</title>'+
-      '<style>@page{size:A4 portrait;margin:10mm}body{font-family:Arial,"Noto Sans Bengali",sans-serif;margin:0;color:#111}.search-profile{width:190mm;min-height:277mm;box-sizing:border-box;padding:0}.search-profile-head{display:grid;grid-template-columns:82px 1fr 82px;gap:10px;align-items:center;border-bottom:2px solid #111;padding-bottom:8px}.sp-logo,.sp-qr{width:70px;height:70px;object-fit:contain}.sp-inst{text-align:center;font-weight:900;line-height:1.3}.sp-inst .bn{font-size:20px}.sp-inst .ar{font-size:17px}.sp-inst .en{font-size:15px}.sp-contact{font-size:11px;font-weight:800}.sp-student{border:2px solid #111;margin-top:8px;padding:8px;break-inside:avoid}.sp-student-top{display:grid;grid-template-columns:1fr 120px;gap:10px;min-height:120px;align-items:start}.sp-student-info{display:flex;align-items:center;justify-content:flex-start;min-height:100px}.sp-student-title{font-size:19px;font-weight:900}.sp-student-note{display:none}.sp-photo-wrap{text-align:center}.sp-photo,.sp-photo-empty{width:105px;height:125px;object-fit:cover;border:2px solid #111}.sp-photo-empty{display:flex;align-items:center;justify-content:center;text-align:center}.sp-photo-label{font-size:11px;font-weight:900;margin-top:2px}.sp-data{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:8px}.sp-field{border:1px solid #555;padding:5px;min-height:34px}.sp-field b{display:block;font-size:10px}.sp-field span{font-weight:700;font-size:12px;word-break:break-word}.sp-search-meta{font-size:11px;margin:5px 0}.sp-bottom-actions{display:none!important}</style></head><body><div class="search-profile">';
-    if(head)html+=head.outerHTML;
-    html+='<div class="sp-search-meta"><b>স্টুডেন্ট প্রোফাইল — ১ জন</b></div>'+one.outerHTML+'</div></body></html>';
-    w.document.write(html);
-    w.document.close();
-    w.focus();
-    setTimeout(function(){w.print();},400);
+    if(!w){window.print();return}
+    w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>ফর্ম প্রিন্ট প্রিভিউ</title><style>'+
+      '@page{size:A4 portrait;margin:10mm}*{box-sizing:border-box}body{margin:0;background:#fff;color:#111;font-family:"Noto Sans Bengali","Noto Sans",Arial,sans-serif}'+
+      '.student-meta-row-2026{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:9px}.student-meta-row-2026 label{display:flex;flex-direction:column;gap:3px;font-weight:900}.student-meta-row-2026 input{width:100%;min-height:34px}'+
+      '.form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.form-grid label{display:flex;flex-direction:column;gap:3px;font-weight:800}.form-grid .full{grid-column:1/-1}.field{width:100%;padding:5px;border:1px solid #555;background:#fff;color:#111}'+
+      '.form-signatures{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}.signature-box{text-align:center;font-weight:800}.signature-line{border-bottom:1px solid #111;height:28px}'+
+      '</style></head><body>'+clone.innerHTML+'</body></html>');
+    w.document.close();w.focus();setTimeout(function(){w.print()},300);
   };
 
-  function scan(){
-    var fw=byId('formWin');
-    if(fw){ensureFullscreen(fw);addStudentMeta();}
-    /* Search profile is also a form-like profile window. */
-    var sw=byId('searchWin');
-    if(sw)ensureFullscreen(sw);
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
-  setInterval(scan,500);
-  new MutationObserver(function(){scan();}).observe(document.body,{childList:true,subtree:true});
+  window.printSearchProfile=function(){
+    var src=document.getElementById('searchProfilePrint');if(!src)return;
+    var clone=src.cloneNode(true),students=clone.querySelectorAll('.sp-student');
+    students.forEach(function(x,i){if(i>0)x.remove()});
+    clone.querySelectorAll('.sp-bottom-actions,.location-manual,input[placeholder="হাতে লিখুন"]').forEach(function(x){
+      if(x.tagName==='INPUT'&&x.parentElement&&x.parentElement.tagName==='LABEL')x.parentElement.remove();else x.remove();
+    });
+    var w=window.open('','_blank','width=1000,height=900');if(!w)return;
+    w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>একজন শিক্ষার্থীর প্রিন্ট প্রিভিউ</title><style>'+
+      '@page{size:A4 portrait;margin:10mm}*{box-sizing:border-box}body{margin:0;background:#fff;color:#111;font-family:"Noto Sans Bengali","Noto Sans",Arial,sans-serif}'+
+      '.search-profile{width:190mm;margin:0 auto}.search-profile-head{display:grid;grid-template-columns:82px 1fr 82px;gap:8px;align-items:center;border-bottom:2px solid #111;padding-bottom:7px}.sp-logo,.sp-qr{width:70px;height:70px;object-fit:contain}.sp-inst{text-align:center;font-weight:900;line-height:1.25}.sp-inst .bn{font-size:19px}.sp-inst .ar{font-size:16px;direction:rtl}.sp-inst .en{font-size:13px}.sp-contact{font-size:10px;font-weight:800}.sp-student{border:2px solid #111;margin-top:8px;padding:7px;break-inside:avoid;page-break-inside:avoid}.sp-student-title{text-align:center;font-size:17px;font-weight:900;border-bottom:1px solid #111;padding-bottom:4px;margin-bottom:6px}.sp-data{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.sp-field{border:1px solid #555;padding:4px;min-height:30px}.sp-field b{display:block;font-size:9px}.sp-field span{font-size:10.5px;font-weight:700;word-break:break-word}.sp-photo{width:100px;height:120px;object-fit:cover;border:2px solid #111}.sp-photo-empty{width:100px;height:120px;border:2px solid #111;display:flex;align-items:center;justify-content:center}.sp-photo-wrap{text-align:center}.sp-photo-label{font-size:10px;font-weight:900}.sp-search-meta{font-size:10px;margin:4px 0}.sp-bottom-actions{display:none!important}.sp-student-note{display:none!important}'+
+      '</style></head><body>'+clone.outerHTML+'</body></html>');
+    w.document.close();w.focus();setTimeout(function(){w.print()},300);
+  };
 })();
 </script>
