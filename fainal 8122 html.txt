@@ -8358,111 +8358,89 @@ window.saveResult=async function(k){
  const r=await call('saveRecord',token,'EXAM_REG',d);toast(r.ok?'পরীক্ষার্থী নিবন্ধন সফলভাবে সংরক্ষণ হয়েছে':(r.message||'ব্যর্থ'));
 };
 })();
-</script>\n<!-- ===== তালিকা বাটন + ১৩টি তালিকা — 2026-10-03 ===== -->
-<style id="all-lists-button-2026">
+</script>\n
+<!-- ===== LIST BUTTON + EXAM REGISTRATION FINAL FIX — 2026-10-03 ===== -->
+<style id="list-exam-final-fix-2026">
 #allListsButton2026{white-space:nowrap!important}
-#allListsMenu2026{position:fixed;z-index:2147483000;display:none;min-width:310px;max-width:92vw;padding:10px;border:3px solid #d40000;background:#f4d56b;color:#111;border-radius:10px;box-shadow:0 8px 25px rgba(0,0,0,.35)}
-#allListsMenu2026.show{display:grid!important;grid-template-columns:1fr;gap:6px}
+#allListsMenu2026{position:fixed;z-index:2147483000;display:none;min-width:310px;max-width:94vw;padding:10px;border:3px solid #d40000;background:#f4d56b;color:#111;border-radius:10px;box-shadow:0 8px 25px rgba(0,0,0,.35)}
+#allListsMenu2026.show{display:grid!important;gap:6px}
 #allListsMenu2026 button{width:100%;text-align:left!important;font-weight:900!important}
 </style>
-<script id="all-lists-button-2026-js">
+<script id="list-exam-final-fix-2026-js">
 (function(){
   var ITEMS=[
-    ['students','👩‍🎓 ছাত্র/ছাত্রী তালিকা'],
-    ['teachers','👩‍🏫 শিক্ষক/শিক্ষিকা তালিকা'],
-    ['donors','🤝 দাতা সদস্য তালিকা'],
-    ['committee','🏛️ পরিচালনা পরিষদ তালিকা'],
-    ['admins','🔐 অ্যাডমিন তালিকা'],
-    ['registration','📝 নিবন্ধন তালিকা'],
-    ['femaleMadrasas','🏫 নিবন্ধনকৃত মহিলা মাদ্রাসার তালিকা'],
-    ['maleMadrasas','🏫 নিবন্ধনকৃত পুরুষ মাদ্রাসার তালিকা'],
-    ['onlineAdmission','📥 অনলাইন ভর্তি তালিকা'],
-    ['marksheet','📊 মার্কশিট তালিকা'],
-    ['mobileNumbers','📱 মোবাইল নাম্বার তালিকা'],
-    ['mms','📨 এমএমএস তালিকা'],
-    ['sms','✉️ এসএমএস তালিকা']
+    ['students','👩‍🎓 ছাত্র/ছাত্রী তালিকা','students'],
+    ['teachers','👩‍🏫 শিক্ষক/শিক্ষিকা তালিকা','teachers'],
+    ['donors','🤝 দাতা সদস্য তালিকা','donors'],
+    ['committee','🏛️ পরিচালনা পরিষদ তালিকা','executives'],
+    ['admins','🔐 অ্যাডমিন তালিকা','admins'],
+    ['registration','📝 নিবন্ধন তালিকা','exams'],
+    ['femaleMadrasas','🏫 নিবন্ধনকৃত মহিলা মাদ্রাসার তালিকা','madrasas'],
+    ['maleMadrasas','🏫 নিবন্ধনকৃত পুরুষ মাদ্রাসার তালিকা','madrasas'],
+    ['onlineAdmission','📥 অনলাইন ভর্তি তালিকা','admissions'],
+    ['marksheet','📊 মার্কশিট তালিকা','results'],
+    ['mobileNumbers','📱 মোবাইল নাম্বার তালিকা','students'],
+    ['mms','📨 এমএমএস তালিকা','sms'],
+    ['sms','✉️ এসএমএস তালিকা','sms']
   ];
-  var LABELS={students:'ছাত্র/ছাত্রী তালিকা',teachers:'শিক্ষক/শিক্ষিকা তালিকা',donors:'দাতা সদস্য তালিকা',committee:'পরিচালনা পরিষদ তালিকা',admins:'অ্যাডমিন তালিকা',registration:'নিবন্ধন তালিকা',femaleMadrasas:'নিবন্ধনকৃত মহিলা মাদ্রাসার তালিকা',maleMadrasas:'নিবন্ধনকৃত পুরুষ মাদ্রাসার তালিকা',onlineAdmission:'অনলাইন ভর্তি তালিকা',marksheet:'মার্কশিট তালিকা',mobileNumbers:'মোবাইল নাম্বার তালিকা',mms:'এমএমএস তালিকা',sms:'এসএমএস তালিকা'};
-  var HEADS={
-    students:['StudentID','NameBN','NameAR','NameEN','Mobile','Class','Department','Branch'],
-    teachers:['TeacherID','NameBN','NameAR','NameEN','Mobile','Department','Branch'],
-    donors:['DonorID','NameBN','NameAR','NameEN','Mobile','Amount','Address'],
-    committee:['ExecutiveID','NameBN','NameAR','NameEN','Mobile','Designation','Status'],
-    admins:['AdminID','NameBN','Username','Email','Mobile','Role','Status'],
-    registration:['ExamRegID','StudentID','Name','Exam','Class','SubjectData','Status'],
-    femaleMadrasas:['MadrasaID','Name','Address','Mobile','StudentCount','Status'],
-    maleMadrasas:['MadrasaID','Name','Address','Mobile','StudentCount','Status'],
-    onlineAdmission:['AdmissionID','StudentID','NameBN','NameAR','NameEN','Mobile','Class','Status'],
-    marksheet:['ResultID','StudentID','Name','Class','Exam','SubjectData','Status'],
-    mobileNumbers:['NameBN','Name','Mobile','Phone','Role','Class','Address'],
-    mms:['Serial','Mobile','Recipient','Message','Status','Date'],
-    sms:['Serial','Mobile','Recipient','Message','Status','Date']
-  };
-  var SHEETKEY={students:'students',teachers:'teachers',donors:'donors',committee:'committee',admins:'admins',registration:'registration',femaleMadrasas:'madrasas',maleMadrasas:'madrasas',onlineAdmission:'onlineAdmission',marksheet:'marksheet',mobileNumbers:'mobileNumbers',mms:'mms',sms:'sms'};
+  var LABELS={};
+  ITEMS.forEach(function(x){LABELS[x[0]]=x[1]});
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]})}
-  function ensureMenu(){
-    var m=document.getElementById('allListsMenu2026');
-    if(m)return m;
+  function menu(){
+    var m=document.getElementById('allListsMenu2026');if(m)return m;
     m=document.createElement('div');m.id='allListsMenu2026';
     ITEMS.forEach(function(it){
       var b=document.createElement('button');b.type='button';b.className='secondary';b.textContent=it[1];
-      b.onclick=function(){m.classList.remove('show');openRequestedList(it[0]);};
+      b.onclick=function(e){e.preventDefault();e.stopPropagation();m.classList.remove('show');openList(it[0],it[2]);};
       m.appendChild(b);
     });
     document.body.appendChild(m);return m;
   }
-  function positionMenu(){
-    var b=document.getElementById('allListsButton2026'),m=ensureMenu();if(!b)return;
+  function place(){
+    var b=document.getElementById('allListsButton2026'),m=menu();if(!b)return;
     var r=b.getBoundingClientRect();m.style.left=Math.max(5,Math.min(r.left,window.innerWidth-m.offsetWidth-5))+'px';m.style.top=(r.bottom+5)+'px';
   }
-  function bindButton(){
+  function bind(){
     var left=document.querySelector('#app .dashboard-title-left');if(!left)return;
     var b=document.getElementById('allListsButton2026');
     if(!b){
       b=document.createElement('button');b.id='allListsButton2026';b.type='button';b.className='primary';b.textContent='📋 তালিকা';
       left.appendChild(b);
-      b.onclick=function(e){e.stopPropagation();var m=ensureMenu();m.classList.toggle('show');if(m.classList.contains('show'))setTimeout(positionMenu,0);};
+      b.onclick=function(e){e.preventDefault();e.stopPropagation();var m=menu();m.classList.toggle('show');if(m.classList.contains('show'))setTimeout(place,20)};
     }
   }
-  function getRowsResponse(r){
-    if(!r)return {ok:false,message:'তালিকা পাওয়া যায়নি।',rows:[]};
-    if(Array.isArray(r))return {ok:true,rows:r};
-    return {ok:r.ok!==false,rows:Array.isArray(r.rows)?r.rows:(Array.isArray(r.data)?r.data:(Array.isArray(r.records)?r.records:[])),message:r.message||''};
-  }
-  function renderRequested(key,rows){
+  function openList(key,backendKey){
     var w=document.getElementById('moduleListWin');
-    if(!w){if(typeof window.openWindow==='function')window.openWindow('moduleListWin');w=document.getElementById('moduleListWin');}
-    if(!w)return;
-    var title=document.getElementById('moduleListTitle'),body=document.getElementById('moduleListBody');
-    if(title)title.textContent=LABELS[key]||key;
-    if(!body)return;
-    var heads=HEADS[key]||[],h='<div class="table-wrap"><table class="data-table module-list-table"><thead><tr>'+heads.map(function(x){return '<th>'+esc(x)+'</th>'}).join('')+'</tr></thead><tbody>';
-    if(!rows.length)h+='<tr><td colspan="'+Math.max(1,heads.length)+'">কোন তথ্য পাওয়া যায়নি।</td></tr>';
-    rows.forEach(function(r){h+='<tr>'+heads.map(function(k){return '<td>'+esc(r[k])+'</td>'}).join('')+'</tr>';});
-    body.innerHTML=h+'</tbody></table></div>';
-  }
-  async function openRequestedList(key){
-    var w=document.getElementById('moduleListWin');
-    if(typeof window.openWindow==='function'&&w)window.openWindow('moduleListWin');
+    if(!w&&typeof window.loadModuleList==='function'){window.loadModuleList(backendKey);return;}
+    if(!w&&typeof window.openWindow==='function')window.openWindow('moduleListWin');
     var body=document.getElementById('moduleListBody'),title=document.getElementById('moduleListTitle');
-    if(title)title.textContent=LABELS[key]||key;
-    if(body)body.innerHTML='<p>⏳ তালিকা লোড হচ্ছে...</p>';
+    if(title)title.textContent=LABELS[key];
+    if(body)body.innerHTML='<p>⏳ '+esc(LABELS[key])+' লোড হচ্ছে...</p>';
     try{
-      var r=await window.call('getModuleList',window.token,SHEETKEY[key]);
-      var q=getRowsResponse(r),rows=q.rows||[];
-      if((key==='femaleMadrasas'||key==='maleMadrasas')&&rows.length){
-        rows=rows.filter(function(x){var g=String(x.Gender||x.gender||x.Type||x.type||x.Category||x.category||'').toLowerCase();return key==='femaleMadrasas'?(/female|মহিলা|নারী/.test(g)):(/male|পুরুষ/.test(g));});
-      }
-      if(!q.ok){if(body)body.innerHTML='<p>'+esc(q.message||'তালিকা পাওয়া যায়নি।')+'</p>';return;}
-      renderRequested(key,rows);
-    }catch(e){if(body)body.innerHTML='<p>সার্ভার ত্রুটি: '+esc(e&&e.message?e.message:e)+'</p>';}
+      if(typeof window.call!=='function'||!window.token){if(body)body.innerHTML='<p>লগইন সেশন পাওয়া যায়নি।</p>';return}
+      window.call('getModuleList',window.token,backendKey).then(function(r){
+        if(!r||r.ok===false){if(body)body.innerHTML='<p>'+esc((r&&r.message)||'তালিকা পাওয়া যায়নি।')+'</p>';return}
+        var rows=Array.isArray(r.rows)?r.rows:(Array.isArray(r.data)?r.data:(Array.isArray(r)?r:[]));
+        if(key==='femaleMadrasas')rows=rows.filter(function(x){return /female|মহিলা|নারী/i.test(String(x.Gender||x.gender||x.Type||x.type||x.Category||x.category||''));});
+        if(key==='maleMadrasas')rows=rows.filter(function(x){return /male|পুরুষ/i.test(String(x.Gender||x.gender||x.Type||x.type||x.Category||x.category||''));});
+        if(key==='mobileNumbers')rows=rows.filter(function(x){return x.Mobile||x.mobile||x.Phone||x.phone});
+        var heads=rows.length?Object.keys(rows[0]):[];
+        var h='<div class="table-wrap"><table class="data-table module-list-table"><thead><tr>'+heads.map(function(k){return '<th>'+esc(k)+'</th>'}).join('')+'</tr></thead><tbody>';
+        if(!rows.length)h+='<tr><td>কোন তথ্য পাওয়া যায়নি।</td></tr>';
+        rows.forEach(function(x){h+='<tr>'+heads.map(function(k){return '<td>'+esc(x[k])+'</td>'}).join('')+'</tr>'});
+        if(body)body.innerHTML=h+'</tbody></table></div>';
+      }).catch(function(e){if(body)body.innerHTML='<p>সার্ভার ত্রুটি: '+esc(e.message||e)+'</p>'});
+    }catch(e){if(body)body.innerHTML='<p>সার্ভার ত্রুটি: '+esc(e.message||e)+'</p>'}
+  }
+  function examBoot(){
+    var s=document.getElementById('examClass2026');
+    if(s&&typeof window.loadExamSubjects2026==='function')window.loadExamSubjects2026();
   }
   document.addEventListener('click',function(e){
     var m=document.getElementById('allListsMenu2026'),b=document.getElementById('allListsButton2026');
     if(m&&m.classList.contains('show')&&!m.contains(e.target)&&e.target!==b)m.classList.remove('show');
   });
-  window.addEventListener('resize',function(){var m=document.getElementById('allListsMenu2026');if(m&&m.classList.contains('show'))positionMenu();});
-  function boot(){bindButton();setTimeout(bindButton,500);setTimeout(bindButton,1200);}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+  window.addEventListener('resize',place);
+  setInterval(function(){bind();examBoot()},700);
 })();
-</script>\n
+</script>
