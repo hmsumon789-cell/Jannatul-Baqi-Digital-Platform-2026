@@ -8528,3 +8528,48 @@ window.openModule=function(k){
 };
 })();
 </script>
+
+<!-- ===== MEDIA PLAYBACK STABLE FIX — 2026-09-30 ===== -->
+<style id="media-playback-stable-fix-2026-09-30">
+#mediaStageContent .media-stable-frame{width:100%!important;height:100%!important;border:0!important;background:#111!important;display:block!important}
+#mediaStageContent .media-stable-video{width:100%!important;height:100%!important;object-fit:contain!important;background:#111!important;display:block!important}
+</style>
+<script id="media-playback-stable-fix-js-2026-09-30">
+(function(){
+  function list(){return Array.isArray(window.media)?window.media:[]}
+  function idOf(x){var s=String((x&&x.FileID)||(x&&x.DriveFileId)||'');if(s)return s;s=String((x&&x.DataURL)||'');var m=s.match(/[?&]id=([^&]+)/)||s.match(/\/d\/([^/]+)/);return m?decodeURIComponent(m[1]):''}
+  function resourceOf(x){return String((x&&x.ResourceKey)||'').trim()}
+  function previewOf(x){var id=idOf(x);if(!id)return String((x&&x.PreviewURL)||'');var rk=resourceOf(x);return 'https://drive.google.com/file/d/'+encodeURIComponent(id)+'/preview'+(rk?'?resourcekey='+encodeURIComponent(rk):'')}
+  function directOf(x){var u=String((x&&x.DirectURL)||(x&&x.DataURL)||'').trim();if(/^https?:\/\//i.test(u)&&u.indexOf('drive.google.com/uc?')>=0)return u;var id=idOf(x);if(!id)return u;var rk=resourceOf(x);return 'https://drive.google.com/uc?export=download&id='+encodeURIComponent(id)+(rk?'&resourcekey='+encodeURIComponent(rk):'')}
+  function renderStable(){
+    var box=document.getElementById('mediaStageContent'),m=list();if(!box)return;
+    if(!m.length){box.innerHTML='<span class="media-empty">মিডিয়া আপলোড করে স্লাইড দেখুন</span>';return}
+    var n=Number(window.mediaIndex||0);if(!isFinite(n))n=0;window.mediaIndex=((n%m.length)+m.length)%m.length;
+    var x=m[window.mediaIndex]||{},t=String(x.Type||x.type||'').toLowerCase();box.innerHTML='';
+    if(t==='video'){
+      var fr=document.createElement('iframe');fr.className='media-stable-frame';fr.allow='autoplay; fullscreen; encrypted-media; picture-in-picture';fr.setAttribute('allowfullscreen','');fr.setAttribute('referrerpolicy','no-referrer-when-downgrade');fr.src=previewOf(x);box.appendChild(fr);
+    }else if(t==='audio'){
+      var a=document.createElement('audio');a.controls=true;a.preload='metadata';a.src=directOf(x);a.style.cssText='width:90%;max-height:80px';box.appendChild(a);
+    }else if(t==='image'){
+      var im=document.createElement('img');im.src=directOf(x);im.alt=String(x.Name||x.name||'');im.style.cssText='width:100%;height:100%;object-fit:contain;background:#111;display:block';box.appendChild(im);
+    }else box.innerHTML='<span class="media-empty">মিডিয়ার ধরন পাওয়া যায়নি।</span>';
+    if(typeof window.renderMediaList==='function')window.renderMediaList();
+  }
+  window.renderMedia=renderStable;
+  window.nextMedia=function(){var m=list();if(!m.length)return;window.mediaIndex=(Number(window.mediaIndex||0)+1)%m.length;renderStable()};
+  window.prevMedia=function(){var m=list();if(!m.length)return;window.mediaIndex=(Number(window.mediaIndex||0)-1+m.length)%m.length;renderStable()};
+  window.toggleMediaPlay=function(){var f=document.querySelector('#mediaStageContent .media-stable-frame');if(f)f.focus();var v=document.querySelector('#mediaStageContent video.media-stable-video,#mediaStageContent audio');if(v){if(v.paused){var p=v.play();if(p&&p.catch)p.catch(function(){})}else v.pause()}};
+})();
+</script>
+
+
+<!-- ===== MEDIA LIST + DELETE FINAL SYNC FIX — 2026-09-30 ===== -->
+<style id="media-list-final-sync-fix">
+#mediaList{display:block!important;visibility:visible!important;opacity:1!important;width:100%!important;min-height:20px!important;margin-top:10px!important}
+#mediaList:empty:after{content:'মিডিয়া তালিকা লোড হচ্ছে...';display:block;padding:8px;font-weight:800}
+.media-list-item{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;width:100%!important}
+.media-list-item button{display:inline-block!important;visibility:visible!important;opacity:1!important}
+</style>
+<script id="media-list-final-sync-fix-js">
+(function(){
+  var busy=false,tries=0;
