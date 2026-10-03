@@ -2185,41 +2185,31 @@ body.gold #formWin select.field,body.gold #formWin input.field{border-radius:7px
 (function(){
   var LOC=[];var fallback=[{division:'ঢাকা',district:'ঢাকা',upazila:'কেরাণীগঞ্জ',union:'',ward:'',post:'',village:'কোনাখোলা'}];
   function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-  function vals(rows,key){var a=[];rows.forEach(function(r){var v=String(r[key]||'').trim();if(v&&a.indexOf(v)<0)a.push(v)});return a}
-  var DIVISION_DISTRICTS={'ঢাকা':['ঢাকা','ফরিদপুর','গাজীপুর','গোপালগঞ্জ','কিশোরগঞ্জ','মাদারীপুর','মানিকগঞ্জ','মুন্সীগঞ্জ','নারায়ণগঞ্জ','নরসিংদী','রাজবাড়ী','শরীয়তপুর','টাঙ্গাইল'],'চট্টগ্রাম':['বান্দরবান','ব্রাহ্মণবাড়িয়া','চাঁদপুর','চট্টগ্রাম','কুমিল্লা','কক্সবাজার','ফেনী','খাগড়াছড়ি','লক্ষ্মীপুর','নোয়াখালী','রাঙ্গামাটি পার্বত্য জেলা'],'রাজশাহী':['বগুড়া','জয়পুরহাট','নওগাঁ','নাটোর','চাঁপাইনবাবগঞ্জ','পাবনা','রাজশাহী','সিরাজগঞ্জ'],'খুলনা':['বাগেরহাট','চুয়াডাঙ্গা','যশোর','ঝিনাইদহ','খুলনা','কুষ্টিয়া','মাগুরা','মেহেরপুর','নড়াইল','সাতক্ষীরা'],'বরিশাল':['বরগুনা','বরিশাল','ভোলা','ঝালকাঠি','পটুয়াখালী','পিরোজপুর'],'সিলেট':['হবিগঞ্জ','মৌলভীবাজার','সুনামগঞ্জ','সিলেট'],'রংপুর':['দিনাজপুর','গাইবান্ধা','কুড়িগ্রাম','লালমনিরহাট','নীলফামারী','পঞ্চগড়','রংপুর','ঠাকুরগাঁও'],'ময়মনসিংহ':['জামালপুর','ময়মনসিংহ','নেত্রকোণা','শেরপুর']};
-  function districtDivision(d){for(var div in DIVISION_DISTRICTS){if(DIVISION_DISTRICTS[div].indexOf(d)>=0)return div}return ''}
-  function normalizeRows(src){return (src||[]).map(function(r){var x={};Object.keys(r||{}).forEach(function(k){x[k]=String(r[k]==null?'':r[k]).trim()});var div=districtDivision(x.district);if(div)x.division=div;return x})}
+  function vals(rows,key){var a=[];rows.forEach(function(r){var v=String(r[key]||'').trim();if(v&&a.indexOf(v)<0)a.push(v)});return a.sort(function(a,b){return a.localeCompare(b,'bn')});}
   function gv(p,k){var x=document.getElementById(p+k+'Select');return x?x.value:'';}
   function setv(p,k,list){var x=document.getElementById(p+k+'Select');if(!x)return;x.innerHTML='<option value="">নির্বাচন করুন</option>'+list.map(function(v){return '<option value="'+esc(v)+'">'+esc(v)+'</option>'}).join('');}
-  function rows(p){var d=gv(p,'Division'),di=gv(p,'District'),u=gv(p,'Upazila'),un=gv(p,'Union');return normalizeRows(LOC.length?LOC:fallback).filter(function(r){return(!d||r.division===d)&&(!di||r.district===di)&&(!u||r.upazila===u)&&(!un||r.union===un)})}
+  function rows(p){var d=gv(p,'Division'),di=gv(p,'District'),u=gv(p,'Upazila'),un=gv(p,'Union');return (LOC.length?LOC:fallback).filter(function(r){return(!d||r.division===d)&&(!di||r.district===di)&&(!u||r.upazila===u)&&(!un||r.union===un)})}
   function cascade(p,l){
-    var all=normalizeRows(LOC.length?LOC:fallback);
-    var d=gv(p,'Division'),di=gv(p,'District'),u=gv(p,'Upazila'),un=gv(p,'Union'),po=gv(p,'Post'),w=gv(p,'Ward');
-    function clearFrom(keys){keys.forEach(function(k){setv(p,k,[])})}
+    var all=LOC.length?LOC:fallback;
+    var d=gv(p,'Division'),di=gv(p,'District'),u=gv(p,'Upazila');
     if(l==='Division'){
-      setv(p,'District',vals(all.filter(function(r){return !d||r.division===d;}),'district'));
-      clearFrom(['Upazila','Union','Post','Ward','Village']);
+      var a=all.filter(function(r){return !d||r.division===d;});
+      setv(p,'District',vals(a,'district'));['Upazila','Union','Post','Ward','Village'].forEach(function(k){setv(p,k,[]);});
     }else if(l==='District'){
-      setv(p,'Upazila',vals(all.filter(function(r){return (!d||r.division===d)&&(!di||r.district===di);}), 'upazila'));
-      clearFrom(['Union','Post','Ward','Village']);
+      var b=all.filter(function(r){return (!d||r.division===d)&&(!di||r.district===di);});
+      setv(p,'Upazila',vals(b,'upazila'));['Union','Post','Ward','Village'].forEach(function(k){setv(p,k,[]);});
     }else if(l==='Upazila'){
-      setv(p,'Union',vals(all.filter(function(r){return (!d||r.division===d)&&(!di||r.district===di)&&(!u||r.upazila===u);}), 'union'));
-      clearFrom(['Post','Ward','Village']);
+      var c=all.filter(function(r){return (!d||r.division===d)&&(!di||r.district===di)&&(!u||r.upazila===u);});
+      setv(p,'Union',vals(c,'union'));setv(p,'Post',vals(c,'post'));setv(p,'Ward',vals(c,'ward'));setv(p,'Village',vals(c,'village'));
     }else if(l==='Union'){
-      setv(p,'Post',vals(all.filter(function(r){return (!d||r.division===d)&&(!di||r.district===di)&&(!u||r.upazila===u)&&(!un||r.union===un);}), 'post'));
-      clearFrom(['Ward','Village']);
-    }else if(l==='Post'){
-      setv(p,'Ward',vals(all.filter(function(r){return (!d||r.division===d)&&(!di||r.district===di)&&(!u||r.upazila===u)&&(!un||r.union===un)&&(!po||r.post===po);}), 'ward'));
-      setv(p,'Village',[]);
-    }else if(l==='Ward'){
-      setv(p,'Village',vals(all.filter(function(r){return (!d||r.division===d)&&(!di||r.district===di)&&(!u||r.upazila===u)&&(!un||r.union===un)&&(!po||r.post===po)&&(!w||r.ward===w);}), 'village'));
+      var e=rows(p);setv(p,'Post',vals(e,'post'));setv(p,'Ward',vals(e,'ward'));setv(p,'Village',vals(e,'village'));
     }
   }
   function bind(p){
     var union=document.getElementById(p+'UnionSelect'),ward=document.getElementById(p+'WardSelect');
     if(union&&!document.getElementById(p+'PostSelect')){var lab=document.createElement('label');lab.innerHTML='ডাকঘর<select id="'+p+'PostSelect" class="field"></select><input id="'+p+'PostManual" class="field location-manual" placeholder="হাতে লিখুন">';if(ward&&ward.closest('label'))ward.closest('label').before(lab);}
-    ['Division','District','Upazila','Union','Post','Ward'].forEach(function(l){var x=document.getElementById(p+l+'Select');if(x&&!x.dataset.locBound){x.dataset.locBound='1';x.addEventListener('change',function(){cascade(p,l)})}});
-    setv(p,'Division',vals(normalizeRows(LOC.length?LOC:fallback),'division'));['District','Upazila','Union','Post','Ward','Village'].forEach(function(k){setv(p,k,[])});
+    ['Division','District','Upazila','Union'].forEach(function(l){var x=document.getElementById(p+l+'Select');if(x&&!x.dataset.locBound){x.dataset.locBound='1';x.addEventListener('change',function(){cascade(p,l)})}});
+    setv(p,'Division',vals(LOC.length?LOC:fallback,'division'));['District','Upazila','Union','Post','Ward','Village'].forEach(function(k){setv(p,k,[])});
   }
   async function loadLoc(){try{var r=await call('getLocations');LOC=Array.isArray(r)&&r.length?r:fallback}catch(e){LOC=fallback}}
   function bindAll(){['f','ad','r'].forEach(function(p){if(document.getElementById(p+'DivisionSelect'))bind(p)})}
