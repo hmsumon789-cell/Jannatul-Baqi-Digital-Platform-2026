@@ -8632,3 +8632,47 @@ window.openModule=function(k){
   margin-top:-2px!important;
 }
 </style>
+
+<!-- ===== HEADER ZERO-GAP FINAL — 2026-10-04 ===== -->
+<style id="header-zero-gap-final-2026-10-04">
+/* হেডারের একদম উপরের খালি জায়গা ও অপ্রয়োজনীয় padding/margin বাদ */
+#app > header.header{
+  margin:0!important;
+  padding:0!important;
+}
+#app > header.header .header-top{
+  margin:0!important;
+  padding:0!important;
+  min-height:0!important;
+}
+#app > header.header .header-content{
+  margin:0!important;
+  padding:0!important;
+  gap:0!important;
+  line-height:1!important;
+}
+/* লোগো ও বাংলা নামের মাঝের দৃশ্যমান ফাঁকা অংশ সম্পূর্ণ কমানো */
+#app > header.header .header-content #headerLogo{
+  margin:0 auto -30px!important;
+  padding:0!important;
+  display:block!important;
+}
+#app > header.header .header-content .title-bn{
+  margin:0!important;
+  padding:0!important;
+  line-height:1!important;
+}
+/* বাংলা নামের পরের পরিচয় লাইনেরও অপ্রয়োজনীয় ফাঁক বাদ */
+#app > header.header .header-content .title-ar,
+#app > header.header .header-content .title-en,
+#app > header.header .header-content .header-identity-contact{
+  margin:0!important;
+  padding:0!important;
+}
+#app > header.header .header-clock-row-v2{
+  margin:0!important;
+}
+#app > header.header .header-mainline-v2{
+  margin:0!important;
+}
+</style>
