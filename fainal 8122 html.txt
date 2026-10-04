@@ -3361,7 +3361,7 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
 /* TOP: Home + 3 modes + Signal | ALL SEARCH | Logout — always one line */
 #app .top-action-bar{
   position:fixed!important;
-  top:auto!important;bottom:40px!important;left:0!important;right:0!important;
+  top:auto!important;bottom:18px!important;left:0!important;right:0!important;
   z-index:999999!important;
   width:100%!important;
   min-height:54px!important;
