@@ -8670,3 +8670,36 @@ window.openModule=function(k){
   margin:0!important;
 }
 </style>
+<!-- ===== DASHBOARD SUMMARY + CONTACT FULL PAGE FINAL — 2026-10-04 ===== -->
+<style id="dashboard-summary-contact-full-page-2026-10-04">
+#app main > #dashboardCharts{
+display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:16px!important;
+width:100%!important;max-width:none!important;margin:16px 0 0!important;padding:0!important;transform:none!important;
+position:relative!important;left:auto!important;right:auto!important;box-sizing:border-box!important;
+}
+#app main > #dashboardCharts .chart-card{
+width:100%!important;min-width:0!important;height:340px!important;min-height:340px!important;margin:0!important;
+box-sizing:border-box!important;overflow:hidden!important;
+}
+#app main > #contactFooter{width:100%!important;max-width:none!important;margin:16px 0 0!important;box-sizing:border-box!important;display:block!important}
+@media(max-width:900px){
+#app main > #dashboardCharts{grid-template-columns:1fr!important;gap:10px!important}
+#app main > #dashboardCharts .chart-card{height:360px!important;min-height:360px!important}
+}
+</style>
+<script id="dashboard-summary-contact-full-page-js-2026-10-04">
+(function(){
+function placeFullWidth(){
+var main=document.querySelector('#app main'),charts=document.getElementById('dashboardCharts'),media=document.querySelector('#app main > .dashboard-media-layout'),footer=document.getElementById('contactFooter');
+if(!main||!charts)return;
+if(charts.parentElement!==main){
+if(footer&&footer.parentElement===main)main.insertBefore(charts,footer);
+else if(media&&media.parentElement===main)media.insertAdjacentElement('afterend',charts);
+else main.appendChild(charts);
+}
+if(footer&&footer.parentElement!==main)main.appendChild(footer);
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(placeFullWidth,50)});else setTimeout(placeFullWidth,50);
+setTimeout(placeFullWidth,1000);setTimeout(placeFullWidth,1500);
+})();
+</script>
