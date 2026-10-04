@@ -8670,3 +8670,35 @@ window.openModule=function(k){
   margin:0!important;
 }
 </style>
+<!-- ===== ALL WINDOWS + FORMS FULLSCREEN CONTROL — 2026-10-04 ===== -->
+<style id="all-window-fullscreen-fix-2026">
+.window.fullscreen-window-2026{left:0!important;top:0!important;width:100vw!important;height:100vh!important;max-width:100vw!important;max-height:100vh!important;margin:0!important;transform:none!important;border-radius:0!important;z-index:2147483000!important;display:flex!important;flex-direction:column!important}
+.window.fullscreen-window-2026 .win-body{flex:1 1 auto!important;min-height:0!important;overflow:auto!important}
+.window.fullscreen-window-2026 .window-content,.window.fullscreen-window-2026 .modal-body{flex:1 1 auto!important;min-height:0!important;overflow:auto!important}
+.window .fullscreen-toggle-2026{margin-left:4px!important}
+</style>
+<script id="all-window-fullscreen-fix-js-2026">
+(function(){
+  function isWin(el){return el&&el.classList&&el.classList.contains('window');}
+  function addButton(w){
+    if(!isWin(w)||w.querySelector('.fullscreen-toggle-2026'))return;
+    var head=w.querySelector('.win-head');if(!head)return;
+    var b=document.createElement('button');b.type='button';b.className='secondary fullscreen-toggle-2026';b.title='ফুলস্ক্রিন';b.textContent='⛶';
+    b.onclick=function(e){e.preventDefault();e.stopPropagation();toggle(w);};
+    var close=head.querySelector('button:last-child');
+    if(close)head.insertBefore(b,close);else head.appendChild(b);
+  }
+  function toggle(w){
+    if(!w)return;
+    var on=w.classList.toggle('fullscreen-window-2026');
+    w.dataset.fullscreen2026=on?'1':'0';
+    var b=w.querySelector('.fullscreen-toggle-2026');if(b){b.textContent=on?'⛶':'⛶';b.title=on?'ফুলস্ক্রিন বন্ধ':'ফুলস্ক্রিন';}
+    if(!on&&typeof dragWindow==='function'){try{dragWindow(w)}catch(e){}}
+  }
+  window.enableAllWindowsFullscreen2026=function(){document.querySelectorAll('.window').forEach(addButton);};
+  var mo=new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes.forEach(function(n){if(n.nodeType===1){if(isWin(n))addButton(n);n.querySelectorAll&&n.querySelectorAll('.window').forEach(addButton);}});});});
+  mo.observe(document.body,{childList:true,subtree:true});
+  document.querySelectorAll('.window').forEach(addButton);
+  setTimeout(function(){document.querySelectorAll('.window').forEach(addButton);},500);
+})();
+</script>
