@@ -917,10 +917,10 @@ body.gold #app .header-calendar-select-v2{background:#f4d56b!important;color:#11
     <div class="dashboard-nav dashboard-title-bar">
       <div class="dashboard-title-left">
         <button class="primary" onclick="goHome()">🏠 হোম</button>
-        <button id="allListsButton2026" class="primary" type="button">📋 তালিকা</button>
         <select id="featureSelect" class="field features-select" onchange="openModule(this.value)">
           <option value="">সকল ফিচার তালিকা</option>
         </select>
+        <button id="allListsButton2026" class="primary" type="button" onclick="openListSelector()">📋 তালিকা</button>
       </div>
       <h2>প্রশাসনিক ড্যাশবোর্ড</h2>
       <div class="dashboard-title-right">
