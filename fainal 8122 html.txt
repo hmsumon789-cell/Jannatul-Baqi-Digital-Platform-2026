@@ -1300,7 +1300,19 @@ function downloadCurrentForm(){
     span.style.padding='3px';
     el.replaceWith(span);
   });
-  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title></head><body><h2>'+($('winTitle').textContent||'ফর্ম')+'</h2>'+body.innerHTML+'</body></html>';
+  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title></head><body><h2>'+($('winTitle').textContent||'ফর্ম')+'</h2>'+body.innerHTML+'</body>
+<script id="all-window-fullscreen-sync-2026">
+(function(){
+  document.addEventListener('fullscreenchange',function(){
+    var fs=document.fullscreenElement;
+    document.querySelectorAll('.window.fullscreen-window-2026').forEach(function(w){
+      if(fs&&fs!==w)w.style.zIndex='2147483647';
+      var b=w.querySelector('.fullscreen-toggle-2026');if(b)b.title=fs?'ফুলস্ক্রিন বন্ধ':'ফুলস্ক্রিন';
+    });
+  });
+})();
+</script>
+</html>';
   var blob=new Blob([html],{type:'text/html;charset=utf-8'});
   var url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url;a.download=title+'.html';document.body.appendChild(a);a.click();a.remove();
@@ -8688,15 +8700,22 @@ window.openModule=function(k){
   }
   function toggle(w){
     if(!w)return;
-    if(w.classList.contains('fullscreen-window-2026')){
+    var on=w.classList.contains('fullscreen-window-2026');
+    if(on){
       w.classList.remove('fullscreen-window-2026');
       w.dataset.fullscreen2026='0';
+      if(document.fullscreenElement&&document.exitFullscreen){document.exitFullscreen().catch(function(){});}
       return;
     }
     w.classList.add('fullscreen-window-2026');
     w.dataset.fullscreen2026='1';
     if(w.parentElement!==document.body)document.body.appendChild(w);
     try{w.scrollTop=0;}catch(e){}
+    if(w.requestFullscreen){
+      w.requestFullscreen({navigationUI:'hide'}).catch(function(){
+        try{document.documentElement.requestFullscreen({navigationUI:'hide'}).catch(function(){});}catch(e){}
+      });
+    }
   }
   window.enableAllWindowsFullscreen2026=function(){document.querySelectorAll('.window').forEach(add);};
   new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes.forEach(function(n){if(n.nodeType!==1)return;if(n.matches&&n.matches('.window'))add(n);if(n.querySelectorAll)n.querySelectorAll('.window').forEach(add);});});}).observe(document.body,{childList:true,subtree:true});
