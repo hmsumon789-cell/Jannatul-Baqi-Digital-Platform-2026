@@ -8434,11 +8434,12 @@ window.saveResult=async function(k){
   }
   function openList(key,backendKey){
     var w=document.getElementById('moduleListWin');
-    if(!w&&typeof window.loadModuleList==='function'){window.loadModuleList(backendKey);return;}
-    if(!w&&typeof window.openWindow==='function')window.openWindow('moduleListWin');
-    var body=document.getElementById('moduleListBody'),title=document.getElementById('moduleListTitle');
-    if(title)title.textContent=LABELS[key];
-    if(body)body.innerHTML='<p>⏳ '+esc(LABELS[key])+' লোড হচ্ছে...</p>';
+    if(!w){w=typeof ensureListWindow==='function'?ensureListWindow():null;}
+    if(!w)return;
+    var title=document.getElementById('moduleListTitle'),body=document.getElementById('moduleListBody');
+    if(title)title.textContent=LABELS[key]||key;
+    if(body)body.innerHTML='<p>⏳ '+esc(LABELS[key]||key)+' লোড হচ্ছে...</p>';
+    if(typeof baseOpenWindow==='function')baseOpenWindow('moduleListWin');
     try{
       if(typeof window.call!=='function'||!window.token){if(body)body.innerHTML='<p>লগইন সেশন পাওয়া যায়নি।</p>';return}
       window.call('getModuleList',window.token,backendKey).then(function(r){
@@ -8447,14 +8448,32 @@ window.saveResult=async function(k){
         if(key==='femaleMadrasas')rows=rows.filter(function(x){return /female|মহিলা|নারী/i.test(String(x.Gender||x.gender||x.Type||x.type||x.Category||x.category||''));});
         if(key==='maleMadrasas')rows=rows.filter(function(x){return /male|পুরুষ/i.test(String(x.Gender||x.gender||x.Type||x.type||x.Category||x.category||''));});
         if(key==='mobileNumbers')rows=rows.filter(function(x){return x.Mobile||x.mobile||x.Phone||x.phone});
+        window.__customListKey2026=key;window.__customListBackend2026=backendKey;window.__customListRows2026=rows;
         var heads=rows.length?Object.keys(rows[0]):[];
-        var h='<div class="table-wrap"><table class="data-table module-list-table"><thead><tr>'+heads.map(function(k){return '<th>'+esc(k)+'</th>'}).join('')+'</tr></thead><tbody>';
-        if(!rows.length)h+='<tr><td>কোন তথ্য পাওয়া যায়নি।</td></tr>';
-        rows.forEach(function(x){h+='<tr>'+heads.map(function(k){return '<td>'+esc(x[k])+'</td>'}).join('')+'</tr>'});
+        var h='<div class="table-wrap"><table class="data-table module-list-table"><thead><tr>'+heads.map(function(k){return '<th>'+esc(k)+'</th>'}).join('')+'<th>কার্যক্রম</th></tr></thead><tbody>';
+        if(!rows.length)h+='<tr><td colspan="'+(heads.length+1)+'">কোন তথ্য পাওয়া যায়নি।</td></tr>';
+        rows.forEach(function(x,i){h+='<tr id="customListRow2026_'+i+'">'+heads.map(function(k){return '<td data-key="'+esc(k)+'">'+esc(x[k])+'</td>'}).join('')+'<td><div class="list-actions"><button class="secondary" type="button" onclick="customListDetail2026('+i+')">📄 বিস্তারিত দেখুন</button><button class="secondary" type="button" onclick="customListEdit2026('+i+')">✏️</button></div></td></tr>'});
         if(body)body.innerHTML=h+'</tbody></table></div>';
       }).catch(function(e){if(body)body.innerHTML='<p>সার্ভার ত্রুটি: '+esc(e.message||e)+'</p>'});
     }catch(e){if(body)body.innerHTML='<p>সার্ভার ত্রুটি: '+esc(e.message||e)+'</p>'}
   }
+  window.customListDetail2026=function(i){
+    var rows=window.__customListRows2026||[],r=rows[i]||{},heads=Object.keys(r);
+    var html='<div class="list-detail-card">'+heads.map(function(k){return '<div class="detail-item"><b>'+esc(k)+'</b><span>'+esc(r[k])+'</span></div>'}).join('')+'</div><button class="secondary" type="button" onclick="openList(window.__customListKey2026,window.__customListBackend2026)">↩ তালিকায় ফিরুন</button>';
+    var b=document.getElementById('moduleListBody');if(b)b.innerHTML=html;
+  };
+  window.customListEdit2026=function(i){
+    var rows=window.__customListRows2026||[],r=rows[i]||{},row=document.getElementById('customListRow2026_'+i);if(!row)return;
+    Object.keys(r).forEach(function(k){var td=row.querySelector('[data-key="'+CSS.escape(k)+'"]');if(td)td.innerHTML='<input class="list-edit-input" data-edit-key="'+esc(k)+'" value="'+esc(r[k])+'">';});
+    var action=row.querySelector('.list-actions');if(action)action.innerHTML='<button class="primary" type="button" onclick="customListSave2026('+i+')">💾 সেভ</button>';
+  };
+  window.customListSave2026=function(i){
+    var rows=window.__customListRows2026||[],r=rows[i]||{},row=document.getElementById('customListRow2026_'+i);if(!row)return;
+    var data={};Object.keys(r).forEach(function(k){var x=row.querySelector('[data-edit-key="'+CSS.escape(k)+'"]');if(x)data[k]=x.value;});
+    var serial=r.Serial||r.serial||r.ID||r.StudentID||r.TeacherID||r.AdminID||r.MadrasaID;
+    if(!serial)return toast('এই তালিকার রেকর্ড আইডি পাওয়া যায়নি।');
+    window.call('updateRecord',window.token,window.__customListBackend2026,data).then(function(v){if(v&&v.ok){Object.keys(data).forEach(function(k){r[k]=data[k]});toast('সেভ/সংরক্ষণ সফল হয়েছে।');openList(window.__customListKey2026,window.__customListBackend2026)}else toast((v&&v.message)||'সেভ ব্যর্থ হয়েছে।')}).catch(function(e){toast('সেভ সার্ভার ত্রুটি: '+(e.message||e))});
+  };
   function examBoot(){
     var s=document.getElementById('examClass2026');
     if(s&&typeof window.loadExamSubjects2026==='function')window.loadExamSubjects2026();
