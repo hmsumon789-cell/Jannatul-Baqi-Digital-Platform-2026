@@ -497,8 +497,7 @@ body.gold #formWin .signature-box{border-radius:0!important;}
 }
 </style>
 <style id="forms-a4-three-language-final">
-/* ===== ALL FORMS: A4 + 3 COLUMNS + SEPARATE DRAGGABLE WINDOW ===== */
-#formWin{
+/* ===== ALL FORMS: A4 + 3 COLUMNS + SEPARATE DRAGGABLE WINDOW ===== */#formWin{
   width:794px!important;
   max-width:96vw!important;
   height:auto!important;
@@ -919,6 +918,7 @@ body.gold #app .header-calendar-select-v2{background:#f4d56b!important;color:#11
     <div class="dashboard-nav dashboard-title-bar">
       <div class="dashboard-title-left">
         <button class="primary" onclick="goHome()">🏠 হোম</button>
+        <button class="primary" type="button" onclick="openListSelector()">📋 তালিকা</button>
         <select id="featureSelect" class="field features-select" onchange="openModule(this.value)">
           <option value="">সকল ফিচার তালিকা</option>
         </select>
@@ -997,8 +997,7 @@ function fillSignals(list){
 function syncSearchSignal(where){const sig=$(where==='login'?'loginSignal':'appSignal').value;const input=$(where==='login'?'loginSearch':'appSearch');if(sig){input.value='';input.placeholder=sig+' — এখানে নিজস্ব ID / মোবাইল / ইমেইল লিখুন';input.focus()}else{input.value='';input.placeholder='সংকেত নির্বাচন করে ID / মোবাইল / ইমেইল লিখুন'}}
 function fillClasses(c){/* class list is available through module forms */}
 function togglePassword(){const x=$('password');x.type=x.type==='password'?'text':'password'}
-async function login(){
-  const u=$('username')?.value.trim()||'', p=$('password')?.value||'';
+async function login(){  const u=$('username')?.value.trim()||'', p=$('password')?.value||'';
   const btn=$('mainLoginBtn');
   if(!u||!p){toast('ইউজার নেম ও পাসওয়ার্ড দিন।');return;}
   if(btn){btn.disabled=true;btn.dataset.oldText=btn.textContent;btn.textContent='⏳ লগইন হচ্ছে...';}
@@ -1497,8 +1496,7 @@ function dragWindow(el){
       if(summary && summary.parentElement===slider) summary.insertAdjacentElement('afterend',charts);
       else slider.appendChild(charts);
     }
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',placeChartsInsideSlider);
+  }  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',placeChartsInsideSlider);
   else placeChartsInsideSlider();
   setTimeout(placeChartsInsideSlider,300);
   setTimeout(placeChartsInsideSlider,800);
@@ -1997,8 +1995,7 @@ function escA(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){retu
 }
 
 /* Keep every header/dashboard control reachable in narrow screens. */
-@media(max-width:1050px){
-  .header-mainline{grid-template-columns:auto minmax(0,1fr)!important}
+@media(max-width:1050px){  .header-mainline{grid-template-columns:auto minmax(0,1fr)!important}
   .header-mainline .header-datetime{
     grid-column:1/-1!important;
     grid-row:2!important;
@@ -2396,7 +2393,7 @@ body{padding-top:0!important}
 .module-list-window{width:min(1250px,97vw)!important}
 .module-list-table th,.module-list-table td{white-space:nowrap;vertical-align:top}
 .list-actions{display:flex;flex-wrap:wrap;gap:4px;min-width:420px}
-.list-actions button{padding:5px 8px!important;border-radius:5px!important;font-size:12px!important}
+.list-actions button{padding:5px 8px!important;border-radius:5px!important;font-size:12px!important}.list-window-footer{display:flex;justify-content:center;gap:10px;padding:10px;border-top:2px solid var(--border);position:sticky;bottom:0;background:var(--panel);z-index:4}
 .list-edit-input{min-width:110px;width:100%;padding:5px;border:1px solid #d40000;background:#fff;color:#111}
 .list-detail-card{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;padding:10px;border:2px solid #d40000;background:#fffdf0;color:#111;margin-bottom:8px}
 .list-detail-card .detail-item{border:1px solid #d40000;padding:6px}.list-detail-card b{display:block;font-size:11px}.list-detail-card span{font-weight:700;word-break:break-word}
@@ -2419,11 +2416,21 @@ body{padding-top:0!important}
   var currentListKey='',currentListRows=[];
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]})}
   window.escapeHtml=window.escapeHtml||esc;
+  window.openListSelector=function(){
+    var w=document.getElementById('moduleListSelectorWin');
+    if(!w){
+      w=document.createElement('div');w.id='moduleListSelectorWin';w.className='window';
+      w.innerHTML='<div class="win-head"><b>📋 তালিকা নির্বাচন</b><button class="secondary" type="button" onclick="closeWindow(\'moduleListSelectorWin\')">✕</button></div><div class="win-body"><label style="display:block;font-weight:900;margin-bottom:6px">তালিকা নির্বাচন করুন</label><select id="moduleListSelector" class="field" style="width:100%;margin-bottom:10px"><option value="">— নির্বাচন করুন —</option>'+Object.keys(LIST_LABELS).map(function(k){return '<option value="'+k+'">'+esc(LIST_LABELS[k])+'</option>'}).join('')+'</select><button class="primary" type="button" onclick="openSelectedModuleList()">📋 তালিকা দেখুন</button></div>';
+      document.body.appendChild(w);dragWindow(w);
+    }
+    baseOpenWindow('moduleListSelectorWin');
+  };
+  window.openSelectedModuleList=function(){var k=document.getElementById('moduleListSelector');if(!k||!k.value)return toast('আগে একটি তালিকা নির্বাচন করুন।');showList(k.value);};
   function ensureListWindow(){
     var w=document.getElementById('moduleListWin');
     if(w)return w;
     w=document.createElement('div');w.id='moduleListWin';w.className='window module-list-window';
-    w.innerHTML='<div class="win-head"><b id="moduleListTitle">তালিকা</b><span><button class="secondary" type="button" onclick="printModuleList()">🖨️</button><button class="secondary" type="button" onclick="downloadModuleList()">⬇️</button><button class="secondary" type="button" onclick="closeWindow(\'moduleListWin\')">✕</button></span></div><div class="win-body" id="moduleListBody"></div>';
+    w.innerHTML='<div class="win-head"><b id="moduleListTitle">তালিকা</b><button class="secondary" type="button" onclick="closeWindow(\'moduleListWin\')">✕</button></div><div class="win-body" id="moduleListBody"></div><div class="list-window-footer"><button class="primary" type="button" onclick="printModuleList()">🖨️ প্রিন্ট</button><button class="secondary" type="button" onclick="downloadModuleList()">⬇️ ডাউনলোড</button></div>';
     document.body.appendChild(w);dragWindow(w);return w;
   }
   function showList(key){
@@ -2497,8 +2504,7 @@ body{padding-top:0!important}
   function startImageSlide(){clearInterval(slideTimer);if(!media.length)return;slideTimer=setInterval(function(){nextMedia()},5000);$('mediaPlayBtn').textContent='⏸ Pause'}
   window.toggleMediaPlay=playCurrent;
   window.renderMedia=function(){
-    var box=$('mediaStageContent');if(!box)return;if(!media.length){box.innerHTML='<span>মিডিয়া আপলোড করে স্লাইড দেখুন</span>';return}
-    clearInterval(slideTimer);var x=media[mediaIndex%media.length],u=String(x.DataURL||'');
+    var box=$('mediaStageContent');if(!box)return;if(!media.length){box.innerHTML='<span>মিডিয়া আপলোড করে স্লাইড দেখুন</span>';return}    clearInterval(slideTimer);var x=media[mediaIndex%media.length],u=String(x.DataURL||'');
     if(x.Type==='image')box.innerHTML='<img src="'+esc(u)+'" alt="'+esc(x.Name||'')+'">';
     else if(x.Type==='video')box.innerHTML='<video src="'+esc(u)+'" controls preload="metadata"></video>';
     else box.innerHTML='<audio src="'+esc(u)+'" controls preload="metadata"></audio>';
@@ -2997,8 +3003,7 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
 (function(){
   function fileId(u){
     var s=String(u||''),m=s.match(/[?&]id=([^&]+)/);
-    if(m)return decodeURIComponent(m[1]);
-    m=s.match(/\/d\/([^/]+)/);
+    if(m)return decodeURIComponent(m[1]);    m=s.match(/\/d\/([^/]+)/);
     return m?m[1]:'';
   }
   function directUrl(u){
@@ -3497,8 +3502,7 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
   text-align:right!important;white-space:nowrap!important;
 }
 #app .header-mainline .header-datetime .clock{
-  font-size:16px!important;line-height:1!important;
-}
+  font-size:16px!important;line-height:1!important;}
 #app .header-mainline .header-datetime .date-line{
   font-size:10px!important;line-height:1.1!important;margin-top:2px!important;
 }
@@ -3997,8 +4001,7 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
     }else{
       var r=w.getBoundingClientRect();
       w.dataset.prevWidth=r.width+'px';
-      w.dataset.prevHeight=r.height+'px';
-      w.dataset.prevMaxHeight=w.style.maxHeight||'82vh';
+      w.dataset.prevHeight=r.height+'px';      w.dataset.prevMaxHeight=w.style.maxHeight||'82vh';
       w.dataset.prevLeft=r.left+'px';
       w.dataset.prevTop=r.top+'px';
       w.dataset.prevTransform=w.style.transform||'none';
@@ -4497,8 +4500,7 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
   flex:0 0 46px!important;
 }
 
-/* Header running news = same golden ticker look/behavior as Login ticker */
-#app .header-news{
+/* Header running news = same golden ticker look/behavior as Login ticker */#app .header-news{
   min-height:43px!important;
   padding:7px 12px!important;
   border:2px solid #b88408!important;
@@ -4997,8 +4999,7 @@ body #app .header-news *{
   };
   function start(){if(window.media&&media.length)renderStable();}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
-  setTimeout(start,500);setTimeout(start,1500);setTimeout(start,3000);
-})();
+  setTimeout(start,500);setTimeout(start,1500);setTimeout(start,3000);})();
 </script>
 
 <!-- ===== FINAL MEDIA PLAYER OVERRIDE — DRIVE PREVIEW PRIMARY 2026-09-22 ===== -->
@@ -5497,8 +5498,7 @@ body #app .header-news *{
   margin-top:14px!important;
   padding:10px 0!important;
   min-height:58px!important;
-  display:flex!important;
-  align-items:center!important;
+  display:flex!important;  align-items:center!important;
   justify-content:center!important;
   background:transparent!important;
   border:0!important;
@@ -5997,8 +5997,7 @@ body #app .header-news *{
   white-space:normal!important;
   overflow:visible!important;
   text-overflow:clip!important;
-}
-.dashboard-slider #dashboardCharts .period-tabs{
+}.dashboard-slider #dashboardCharts .period-tabs{
   display:flex!important;
   justify-content:center!important;
   gap:7px!important;
@@ -6497,8 +6496,7 @@ body.dark .dashboard-period-dot{border-color:#ffe95c!important}
     }
     if(title.indexOf('delete')>=0||txt.indexOf('delete')>=0){
       setTimeout(refresh,600);
-    }
-  },true);
+    }  },true);
 
   /* renderMedia অন্য স্ক্রিপ্ট থেকে কল হলেও sequential autoplay সচল থাকবে */
   var oldRender=window.renderMedia;
@@ -6997,8 +6995,7 @@ body.gold #headerCalendarWindow .hc-weekday{background:#f4d56b;color:#111;border
     });
     w.classList.add('show');
   }
-  window.deleteHeaderSlideByListIndex=function(i){
-    /* মূল slider-এর render/arrays-এর ভেতরের delete function ব্যবহার */
+  window.deleteHeaderSlideByListIndex=function(i){    /* মূল slider-এর render/arrays-এর ভেতরের delete function ব্যবহার */
     if(typeof window.deleteCurrentHeaderSlide!=='function')return;
     var all=window.__headerSlideDeleteState;
     if(!all||!Array.isArray(all))return;
@@ -7497,8 +7494,7 @@ body.dark #searchProfilePrint .sp-bottom-actions button{
       row.appendChild(im);row.appendChild(nm);row.appendChild(del);body.appendChild(row);
     });
     if(!list.length)body.innerHTML='<div style="text-align:center;font-weight:900;padding:25px">কোনো Header স্লাইড নেই</div>';
-    w.classList.add('show');
-  }
+    w.classList.add('show');  }
   function hook(){
     var b=document.getElementById('headerSlideDeleteBtn');
     if(b)b.onclick=function(e){e.preventDefault();e.stopImmediatePropagation();openList();};
@@ -7997,8 +7993,7 @@ body.gold #searchProfilePrint .sp-field{border-color:#d40000!important}
     if(!v)return;
     try{
       v.muted=true;
-      var p=v.play();
-      if(p&&p.catch)p.catch(function(){});
+      var p=v.play();      if(p&&p.catch)p.catch(function(){});
     }catch(e){}
   }
 
@@ -8497,8 +8492,7 @@ window.saveResult=async function(k){
     var w=document.getElementById('winBody'),s=document.getElementById('examClass2026');
     if(!w||!s)return;
     if(typeof window.loadExamSubjects2026==='function')window.loadExamSubjects2026();
-  }
-  var baseOpen=window.openModule;
+  }  var baseOpen=window.openModule;
   if(typeof baseOpen==='function'){
     window.openModule=function(k){
       baseOpen(k);
