@@ -8186,12 +8186,13 @@ body.gold #searchProfilePrint .sp-field{border-color:#d40000!important}
 <style id="final-contact-dynamic-professional-2026-10-04">
 /* যোগাযোগ বক্স ১০px নিচে */
 #app main > #contactFooter{
-  margin-top:-302px!important;
+  width:min(700px,72vw)!important;
+  margin-top:-292px!important;
 }
 /* দুইটি লাইভ ডায়নামিক সামারি সমান প্রস্থ ও সমান উচ্চতা */
 .dashboard-slider #dashboardCharts{
   grid-template-columns:repeat(2,minmax(0,1fr))!important;
-  gap:16px!important;
+  gap:14px!important;
   align-items:stretch!important;
 }
 .dashboard-slider #dashboardCharts .chart-card{
@@ -8203,6 +8204,10 @@ body.gold #searchProfilePrint .sp-field{border-color:#d40000!important}
   display:flex!important;
   flex-direction:column!important;
   justify-content:flex-start!important;
+  padding:16px!important;
+  border:3px solid var(--border)!important;
+  border-radius:20px!important;
+  box-shadow:0 10px 24px #0003!important;
 }
 .dashboard-slider #dashboardCharts .chart-title{
   min-height:52px!important;
@@ -8210,6 +8215,8 @@ body.gold #searchProfilePrint .sp-field{border-color:#d40000!important}
   align-items:center!important;
   justify-content:center!important;
   text-align:center!important;
+  margin-bottom:8px!important;
+  letter-spacing:.2px!important;
 }
 @media(max-width:900px){
   .dashboard-slider #dashboardCharts{grid-template-columns:1fr!important;}
