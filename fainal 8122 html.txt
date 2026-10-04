@@ -917,7 +917,7 @@ body.gold #app .header-calendar-select-v2{background:#f4d56b!important;color:#11
     <div class="dashboard-nav dashboard-title-bar">
       <div class="dashboard-title-left">
         <button class="primary" onclick="goHome()">🏠 হোম</button>
-        <button class="primary" type="button" onclick="openListSelector()">📋 তালিকা</button>
+        <button id="allListsButton2026" class="primary" type="button">📋 তালিকা</button>
         <select id="featureSelect" class="field features-select" onchange="openModule(this.value)">
           <option value="">সকল ফিচার তালিকা</option>
         </select>
@@ -8427,13 +8427,10 @@ window.saveResult=async function(k){
     var r=b.getBoundingClientRect();m.style.left=Math.max(5,Math.min(r.left,window.innerWidth-m.offsetWidth-5))+'px';m.style.top=(r.bottom+5)+'px';
   }
   function bind(){
-    var left=document.querySelector('#app .dashboard-title-left');if(!left)return;
-    var b=document.getElementById('allListsButton2026');
-    if(!b){
-      b=document.createElement('button');b.id='allListsButton2026';b.type='button';b.className='primary';b.textContent='📋 তালিকা';
-      left.appendChild(b);
-      b.onclick=function(e){e.preventDefault();e.stopPropagation();var m=menu();m.classList.toggle('show');if(m.classList.contains('show'))setTimeout(place,20)};
-    }
+    var b=document.getElementById('allListsButton2026');if(!b)return;
+    if(b.dataset.listBound==='1')return;
+    b.dataset.listBound='1';
+    b.onclick=function(e){e.preventDefault();e.stopPropagation();if(typeof window.openListSelector==='function')window.openListSelector();};
   }
   function openList(key,backendKey){
     var w=document.getElementById('moduleListWin');
