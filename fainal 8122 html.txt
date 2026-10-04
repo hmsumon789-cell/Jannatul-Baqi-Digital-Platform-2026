@@ -297,8 +297,8 @@ body.dark .login{border-color:#d32f2f!important;box-shadow:inset 0 0 0 3px #f2c9
 body.gold .login{border:4px solid #d32f2f!important;box-shadow:inset 0 0 0 3px #f2c94c,0 12px 35px #0006!important}
 
 /* ===== HEADER MASTER LAYOUT — LOGO + RUNNING + ALL SEARCH ===== */
-.header{position:sticky;top:0;z-index:900;background:var(--panel);margin:0!important;padding:0!important;}
-.header-top{min-height:0!important;padding:0!important;margin:0!important;}
+.header{position:sticky;top:0;z-index:900;background:var(--panel);}
+.header-top{min-height:150px!important;padding:8px 10px!important;}
 .header-content .logo{width:82px!important;height:82px!important;}
 .header-content .title-bn{font-size:29px!important;font-weight:900;}
 .header-content .title-ar{font-size:24px!important;font-weight:900;}
@@ -3188,7 +3188,7 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
   box-shadow:none!important;border-radius:0!important;
   mix-blend-mode:multiply!important;
 }
-#app .header-top{min-height:0!important;padding:0!important;margin:0!important}
+#app .header-top{min-height:150px!important}
 
 /* 2) Sheet left | running news + mic right | time/date right — ONE LINE */
 #app .header-mainline{
@@ -3458,7 +3458,7 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
 #app .header-content #headerLogo{
   width:105px!important;height:105px!important;
   object-fit:contain!important;object-position:center!important;
-  display:block!important;margin:0!important;
+  display:block!important;margin:0 auto 2px!important;
   padding:0!important;background:transparent!important;
   border:0!important;border-radius:0!important;box-shadow:none!important;
   mix-blend-mode:normal!important;
@@ -8612,4 +8612,67 @@ window.openModule=function(k){
 #mediaList:empty:after{content:'মিডিয়া তালিকা লোড হচ্ছে...';display:block;padding:8px;font-weight:800}
 .media-list-item{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;width:100%!important}
 .media-list-item button{display:inline-block!important;visibility:visible!important;opacity:1!important}
+</style>
+<script id="media-list-final-sync-fix-js">
+(function(){
+  var busy=false,tries=0;
+
+<style id="header-top-gap-and-logo-bn-final-2026-10-04">
+/* Header-এর উপরের খালি জায়গা ও Logo-বাংলা নামের অতিরিক্ত gap বাদ */
+#app > header.header{
+  padding-top:0!important;
+}
+#app > header.header .header-top{
+  padding-top:0!important;
+}
+#app > header.header .header-top .header-content #headerLogo{
+  margin-bottom:-8px!important;
+}
+#app > header.header .header-top .header-content .title-bn{
+  margin-top:-2px!important;
+}
+</style>
+
+<!-- ===== HEADER ZERO-GAP FINAL — 2026-10-04 ===== -->
+<style id="header-zero-gap-final-2026-10-04">
+/* হেডারের একদম উপরের খালি জায়গা ও অপ্রয়োজনীয় padding/margin বাদ */
+#app > header.header{
+  margin:0!important;
+  padding:0!important;
+}
+#app > header.header .header-top{
+  margin:0!important;
+  padding:0!important;
+  min-height:0!important;
+}
+#app > header.header .header-content{
+  margin:0!important;
+  padding:0!important;
+  gap:0!important;
+  line-height:1!important;
+}
+/* লোগো ও বাংলা নামের মাঝের দৃশ্যমান ফাঁকা অংশ সম্পূর্ণ কমানো */
+#app > header.header .header-content #headerLogo{
+  margin:0 auto -30px!important;
+  padding:0!important;
+  display:block!important;
+}
+#app > header.header .header-content .title-bn{
+  margin:0!important;
+  padding:0!important;
+  line-height:1!important;
+}
+/* বাংলা নামের পরের পরিচয় লাইনেরও অপ্রয়োজনীয় ফাঁক বাদ */
+#app > header.header .header-content .title-ar,
+#app > header.header .header-content .title-en,
+#app > header.header .header-content .header-identity-contact{
+  margin:0!important;
+  padding:0!important;
+}
+#app > header.header .header-clock-row-v2{
+  margin:0!important;
+}
+#app > header.header .header-mainline-v2{
+  margin:0!important;
+}
 </style>
