@@ -6313,7 +6313,8 @@ body.dark .dashboard-period-dot{border-color:#ffe95c!important}
 
 <style id="adjust-dynamic-box-and-lower-border-2026-09-22">
 /* ডায়নামিক দুই বক্স বর্ডারসহ অল্প নিচে */
-#dashboardCharts{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px!important;width:100%!important;max-width:none!important;\ntransform:none!important;margin:14px 0 0!important;padding:0!important;}
+#dashboardCharts{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px!important;width:100%!important;max-width:none!important;
+transform:none!important;margin:14px 0 0!important;padding:0!important;}
 /* ডায়নামিক বক্সের নিচের বর্ডার আরও আধা ইঞ্চি উপরে */
 #app main > .footer.card{
   margin-top:-360px!important;
