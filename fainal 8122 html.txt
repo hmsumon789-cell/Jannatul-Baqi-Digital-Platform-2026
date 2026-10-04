@@ -8702,3 +8702,32 @@ window.openModule=function(k){
   setTimeout(function(){document.querySelectorAll('.window').forEach(addButton);},500);
 })();
 </script>
+
+<!-- ===== TRUE WINDOW FULLSCREEN API FIX — 2026-10-04 ===== -->
+<script id="true-window-fullscreen-api-fix-2026">
+(function(){
+  function toggleReal(w){
+    if(!w)return;
+    var active=w.classList.contains('real-fullscreen-2026');
+    if(active){
+      w.classList.remove('real-fullscreen-2026');
+      w.style.cssText=w.dataset.preFsStyle||'';
+      delete w.dataset.preFsStyle;
+      return;
+    }
+    w.dataset.preFsStyle=w.getAttribute('style')||'';
+    w.classList.add('real-fullscreen-2026');
+  }
+  function bind(w){
+    if(!w||!w.classList||!w.classList.contains('window')||w.dataset.realFsBound==='1')return;
+    w.dataset.realFsBound='1';
+    var old=w.querySelector('.fullscreen-toggle-2026');
+    if(old){old.onclick=function(e){e.preventDefault();e.stopPropagation();toggleReal(w);};}
+  }
+  function scan(){document.querySelectorAll('.window').forEach(bind);}
+  var st=document.createElement('style');
+  st.textContent='.window.real-fullscreen-2026{position:fixed!important;inset:0!important;left:0!important;top:0!important;right:0!important;bottom:0!important;width:100vw!important;height:100vh!important;max-width:none!important;max-height:none!important;min-width:0!important;min-height:0!important;margin:0!important;transform:none!important;border-radius:0!important;z-index:2147483647!important;display:flex!important;flex-direction:column!important}.window.real-fullscreen-2026 .win-body{flex:1 1 auto!important;min-height:0!important;overflow:auto!important}.window.real-fullscreen-2026 .fullscreen-toggle-2026{position:relative!important;z-index:2!important}';
+  document.head.appendChild(st);scan();
+  new MutationObserver(scan).observe(document.body,{childList:true,subtree:true});
+})();
+</script>
