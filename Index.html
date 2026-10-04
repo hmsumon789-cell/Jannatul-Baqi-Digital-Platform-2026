@@ -585,6 +585,7 @@ body.gold #formWin .form-language-fixed span{border-radius:999px!important}
 #app{padding-bottom:58px!important}
 #app .header-search-row-final{
   position:fixed!important;
+  top:auto!important;
   left:50%!important;
   bottom:46px!important;
   transform:translateX(-50%)!important;
@@ -1329,21 +1330,23 @@ function downloadCurrentForm(){
 
   function addSettingsButton(){
     if(document.getElementById('allSettingsBtn')) return;
-    var candidates=[].slice.call(document.querySelectorAll('#leftModules .module,#rightModules .module'));
+    var candidates=[].slice.call(document.querySelectorAll('#leftModules .module,#rightModules .module,.module'));
     if(!candidates.length)return;
     var target=null;
     for(var i=0;i<candidates.length;i++){
       var tx=(candidates[i].textContent||'').replace(/\s+/g,' ');
       if(tx.indexOf('পরামর্শ')>=0 || tx.indexOf('যোগ-অভিযোগ')>=0 || tx.indexOf('অভিযোগ')>=0) target=candidates[i];
     }
-    if(!target)return;
+    var host=target?target.parentNode:document.getElementById('leftModules');
+    if(!host)return;
     var btn=document.createElement('button');
     btn.id='allSettingsBtn';
     btn.className='module';
     btn.type='button';
     btn.textContent='⚙️ অল সেটিংস';
     btn.onclick=function(){ensureSettingsWindow();openWindow('allSettingsWin')};
-    target.parentNode.insertBefore(btn,target.nextSibling);
+    if(target) target.parentNode.insertBefore(btn,target.nextSibling);
+    else host.appendChild(btn);
   }
 
   function install(){
