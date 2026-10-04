@@ -579,6 +579,93 @@ body.gold #formWin .form-language-fixed span{border-radius:999px!important}
 <style id="login-working-final-fix-2026-09-18">
 #mainLoginBtn:disabled{opacity:.7!important;cursor:wait!important;pointer-events:none!important}
 </style>
+
+<style id="two-requested-fixes-2026-10-04">
+/* ===== FIX 1: HOME + 3 MODES + SIGNAL + ALL SEARCH + LOGOUT ===== */
+#app{padding-bottom:58px!important}
+#app .header-search-row-final{
+  position:fixed!important;
+  left:50%!important;
+  bottom:46px!important;
+  transform:translateX(-50%)!important;
+  width:min(1450px,calc(100vw - 12px))!important;
+  margin:0!important;
+  padding:7px 9px!important;
+  min-height:48px!important;
+  z-index:99990!important;
+  border:3px solid var(--border)!important;
+  border-radius:14px!important;
+  background:var(--panel)!important;
+  box-shadow:0 -4px 16px rgba(0,0,0,.28),inset 0 2px 0 rgba(255,255,255,.45)!important;
+  font-weight:900!important;
+}
+#app .header-search-row-final button,
+#app .header-search-row-final input,
+#app .header-search-row-final select{
+  font-weight:900!important;
+  border-width:2px!important;
+}
+#app .header-search-row-final .header-modes{gap:5px!important}
+#appTaskbar{
+  position:fixed!important;
+  left:0!important;
+  right:0!important;
+  bottom:0!important;
+  height:44px!important;
+  z-index:99991!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:4px 10px!important;
+  border-top:3px solid var(--border)!important;
+  background:var(--panel)!important;
+  color:var(--text)!important;
+  box-shadow:0 -5px 18px rgba(0,0,0,.25)!important;
+  font-weight:900!important;
+}
+#appTaskbar .taskbar-title{font-size:13px!important;opacity:.9}
+#appTaskbar .taskbar-clock{margin-left:12px;font-size:12px!important}
+body.dark #appTaskbar{background:#000!important;color:#ffe95c!important;border-color:#ff1f2f!important}
+body.gold #appTaskbar{border-radius:0!important}
+@media(max-width:900px){
+  #app .header-search-row-final{
+    bottom:46px!important;
+    width:calc(100vw - 8px)!important;
+    grid-template-columns:auto auto 1fr auto!important;
+    gap:4px!important;
+    overflow:auto!important;
+  }
+}
+@media(max-width:600px){
+  #app .header-search-row-final{
+    min-height:52px!important;
+    padding:5px!important;
+  }
+  #appTaskbar{height:42px!important}
+  #app{padding-bottom:56px!important}
+}
+/* ===== FIX 2: ALL SETTINGS BUTTON + WINDOW ===== */
+#allSettingsBtn{
+  width:100%!important;
+  min-height:58px!important;
+  padding:8px!important;
+  border:3px solid var(--border)!important;
+  border-radius:14px!important;
+  background:linear-gradient(145deg,var(--panel),#ffffff10)!important;
+  color:inherit!important;
+  font-weight:1000!important;
+  box-shadow:0 5px 12px #0002!important;
+}
+body.dark #allSettingsBtn{background:#000!important;color:#ffe95c!important;border-color:#ff1f2f!important}
+body.gold #allSettingsBtn{border-radius:999px!important}
+#allSettingsWin .settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#allSettingsWin .settings-card{padding:12px;border:2px solid var(--border);border-radius:12px;background:var(--panel)}
+#allSettingsWin .settings-card h4{margin:0 0 8px;font-size:16px}
+#allSettingsWin .settings-actions{display:flex;flex-wrap:wrap;gap:7px}
+#allSettingsWin .settings-actions button{min-height:40px}
+@media(max-width:700px){#allSettingsWin .settings-grid{grid-template-columns:1fr}}
+body.dark #allSettingsWin .settings-card{background:#000;color:#ffe95c;border-color:#ff1f2f}
+</style>
 </head>
 <body>
 <div id="welcomeScreen">
@@ -1197,6 +1284,86 @@ function downloadCurrentForm(){
   window.renderMedia=draw;
   document.addEventListener('DOMContentLoaded',function(){setTimeout(draw,300);setTimeout(draw,1000);});
   setTimeout(draw,1500);
+})();
+</script>
+
+<script id="two-requested-fixes-2026-10-04-js">
+(function(){
+  function ensureTaskbar(){
+    if(document.getElementById('appTaskbar')) return;
+    var t=document.createElement('div');
+    t.id='appTaskbar';
+    t.innerHTML='<span class="taskbar-title">জান্নাতুল বাক্বী ডিজিটাল প্ল্যাটফর্ম</span><span class="taskbar-clock" id="taskbarClock"></span>';
+    document.body.appendChild(t);
+    function sync(){var c=document.getElementById('taskbarClock'),a=document.getElementById('appClock');if(c&&a)c.textContent=a.textContent||''}
+    sync();setInterval(sync,1000);
+  }
+
+  function ensureSettingsWindow(){
+    if(document.getElementById('allSettingsWin')) return;
+    var w=document.createElement('div');
+    w.id='allSettingsWin';
+    w.className='window';
+    w.style.width='min(900px,96vw)';
+    w.innerHTML=
+      '<div class="win-head"><b>⚙️ অল সেটিংস</b><button class="secondary" type="button" onclick="closeWindow(\'allSettingsWin\')">✕</button></div>'+
+      '<div class="win-body"><div class="settings-grid">'+
+        '<div class="settings-card"><h4>🎨 থিম / Mode</h4><div class="settings-actions">'+
+          '<button class="primary" type="button" onclick="setMode(\'dark\')">🌙 Dark</button>'+
+          '<button class="secondary" type="button" onclick="setMode(\'light\')">☀️ Light</button>'+
+          '<button class="secondary" type="button" onclick="setMode(\'gold\')">🟡 Golden</button>'+
+        '</div></div>'+
+        '<div class="settings-card"><h4>🌐 ভাষা / Language</h4><div class="settings-actions">'+
+          '<button class="primary" type="button" onclick="setLang(\'bn\')">বাংলা</button>'+
+          '<button class="secondary" type="button" onclick="setLang(\'ar\')">العربية</button>'+
+          '<button class="secondary" type="button" onclick="setLang(\'en\')">English</button>'+
+        '</div></div>'+
+        '<div class="settings-card"><h4>🔎 সংকেত / Search</h4><p>বর্তমান সংকেত নির্বাচন Header-এর সংকেত বক্স থেকে করা যাবে।</p></div>'+
+        '<div class="settings-card"><h4>📊 প্রশাসনিক সেটিংস</h4><div class="settings-actions"><button class="secondary" type="button" onclick="closeWindow(\'allSettingsWin\');openWindow(\'sheetWin\')">📊 সরাসরি শিট</button><button class="secondary" type="button" onclick="closeWindow(\'allSettingsWin\');openAccountManager()">🔐 Account অনুমোদন</button></div></div>'+
+        '<div class="settings-card"><h4>🧭 Header / Taskbar</h4><p>Home, ৩ Mode, সংকেত, All Search ও Logout এখন Taskbar-এর ঠিক উপরে স্থির থাকবে।</p></div>'+
+        '<div class="settings-card"><h4>🕒 সময়</h4><p>বাংলাদেশ সময়ের ঘড়ি Header ও Taskbar-এ দেখা যাবে।</p></div>'+
+      '</div></div>';
+    document.body.appendChild(w);
+    if(typeof dragWindow==='function') dragWindow(w);
+  }
+
+  function addSettingsButton(){
+    if(document.getElementById('allSettingsBtn')) return;
+    var candidates=[].slice.call(document.querySelectorAll('#leftModules .module,#rightModules .module'));
+    if(!candidates.length)return;
+    var target=null;
+    for(var i=0;i<candidates.length;i++){
+      var tx=(candidates[i].textContent||'').replace(/\s+/g,' ');
+      if(tx.indexOf('পরামর্শ')>=0 || tx.indexOf('যোগ-অভিযোগ')>=0 || tx.indexOf('অভিযোগ')>=0) target=candidates[i];
+    }
+    if(!target)return;
+    var btn=document.createElement('button');
+    btn.id='allSettingsBtn';
+    btn.className='module';
+    btn.type='button';
+    btn.textContent='⚙️ অল সেটিংস';
+    btn.onclick=function(){ensureSettingsWindow();openWindow('allSettingsWin')};
+    target.parentNode.insertBefore(btn,target.nextSibling);
+  }
+
+  function install(){
+    ensureTaskbar();
+    ensureSettingsWindow();
+    addSettingsButton();
+  }
+
+  var oldRender=window.renderModules;
+  if(typeof oldRender==='function' && !oldRender.__twoFixWrapped){
+    function wrappedRenderModules(){
+      oldRender.apply(this,arguments);
+      setTimeout(addSettingsButton,0);
+    }
+    wrappedRenderModules.__twoFixWrapped=true;
+    window.renderModules=wrappedRenderModules;
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install);else install();
+  setTimeout(install,500);
+  setTimeout(install,1500);
 })();
 </script>
 </body></html>';
