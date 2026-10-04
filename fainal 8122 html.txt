@@ -957,10 +957,14 @@ body.gold #app .header-calendar-select-v2{background:#f4d56b!important;color:#11
 
     <!-- ===== CONTACT FOOTER FULL WIDTH + 2IN DOWN — 2026-10-04 ===== -->
 <style>
+/* পুরো ওয়েব পেজের নিচের অংশ ২ ইঞ্চি বাড়িয়ে তারপর যোগাযোগ বক্স নামানো */
+#dashboardCharts{
+  margin-bottom:2in!important;
+}
 #contactFooter{
   width:100vw!important;
   max-width:none!important;
-  margin-top:2in!important;
+  margin-top:0!important;
   margin-left:calc(50% - 50vw)!important;
   margin-right:0!important;
   border-left-width:3px!important;
@@ -8694,16 +8698,3 @@ box-sizing:border-box!important;overflow:hidden!important;
 <script id="dashboard-summary-contact-full-page-js-2026-10-04">
 (function(){
 function placeFullWidth(){
-var main=document.querySelector('#app main'),charts=document.getElementById('dashboardCharts'),media=document.querySelector('#app main > .dashboard-media-layout'),footer=document.getElementById('contactFooter');
-if(!main||!charts)return;
-if(charts.parentElement!==main){
-if(footer&&footer.parentElement===main)main.insertBefore(charts,footer);
-else if(media&&media.parentElement===main)media.insertAdjacentElement('afterend',charts);
-else main.appendChild(charts);
-}
-if(footer&&footer.parentElement!==main)main.appendChild(footer);
-}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(placeFullWidth,50)});else setTimeout(placeFullWidth,50);
-setTimeout(placeFullWidth,1000);setTimeout(placeFullWidth,1500);
-})();
-</script>
