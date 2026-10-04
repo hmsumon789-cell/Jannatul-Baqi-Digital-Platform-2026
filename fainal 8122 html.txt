@@ -8669,3 +8669,45 @@ window.openModule=function(k){
   margin:0!important;
 }
 </style>
+
+<!-- ===== SUMMARY + CONTACT FULL-WIDTH FINAL — 2026-10-04 ===== -->
+<style id="summary-contact-full-width-final-2026-10-04">
+/* দুইটি ডায়নামিক সামারি বক্স — ডানে/বামে সমানভাবে পুরো কনটেন্ট প্রস্থে */
+#dashboardCharts{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+  gap:14px!important;
+  width:100%!important;
+  max-width:none!important;
+  margin:14px 0 0!important;
+  padding:0!important;
+  transform:none!important;
+  position:relative!important;
+  left:auto!important;
+  right:auto!important;
+  box-sizing:border-box!important;
+}
+#dashboardCharts .chart-card{
+  width:100%!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+}
+/* যোগাযোগ বক্স — বাম থেকে ডান পুরো কনটেন্ট প্রস্থ */
+#app main > #contactFooter{
+  width:100%!important;
+  max-width:none!important;
+  margin:14px 0 0!important;
+  box-sizing:border-box!important;
+  display:block!important;
+}
+/* আগের negative spacing বাতিল */
+#app main > .footer.card{
+  margin-top:14px!important;
+}
+@media(max-width:900px){
+  #dashboardCharts{
+    grid-template-columns:1fr!important;
+    gap:10px!important;
+  }
+}
+</style>
