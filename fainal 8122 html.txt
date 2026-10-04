@@ -955,7 +955,20 @@ body.gold #app .header-calendar-select-v2{background:#f4d56b!important;color:#11
 
     <section class="dashboard-charts" id="dashboardCharts"></section>
 
-    <footer class="footer card" id="contactFooter"><div class="contact-title">যোগাযোগ</div><div class="contact-name">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div><div class="contact-address">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div><div class="contact-info"><span>☎ হটলাইন: 01823316630</span><span>◉ হোয়াটসঅ্যাপ: 01717339288</span><span>✉ ইমেইল: hmsumon789@gmail.com</span><span>✉ jannatubakymrs@gmail.com</span></div></footer>
+    <!-- ===== CONTACT FOOTER FULL WIDTH + 2IN DOWN — 2026-10-04 ===== -->
+<style>
+#contactFooter{
+  width:100vw!important;
+  max-width:none!important;
+  margin-top:2in!important;
+  margin-left:calc(50% - 50vw)!important;
+  margin-right:0!important;
+  border-left-width:3px!important;
+  border-right-width:3px!important;
+  border-radius:0!important;
+}
+</style>
+<footer class="footer card" id="contactFooter"><div class="contact-title">যোগাযোগ</div><div class="contact-name">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div><div class="contact-address">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div><div class="contact-info"><span>☎ হটলাইন: 01823316630</span><span>◉ হোয়াটসঅ্যাপ: 01717339288</span><span>✉ ইমেইল: hmsumon789@gmail.com</span><span>✉ jannatubakymrs@gmail.com</span></div></footer>
   </main>
 </div>
 
