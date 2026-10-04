@@ -497,8 +497,7 @@ body.gold #formWin .signature-box{border-radius:0!important;}
 }
 </style>
 <style id="forms-a4-three-language-final">
-/* ===== ALL FORMS: A4 + 3 COLUMNS + SEPARATE DRAGGABLE WINDOW ===== */#formWin{
-  width:794px!important;
+/* ===== ALL FORMS: A4 + 3 COLUMNS + SEPARATE DRAGGABLE WINDOW ===== */#formWin{  width:794px!important;
   max-width:96vw!important;
   height:auto!important;
   max-height:94vh!important;
@@ -997,8 +996,7 @@ function fillSignals(list){
 function syncSearchSignal(where){const sig=$(where==='login'?'loginSignal':'appSignal').value;const input=$(where==='login'?'loginSearch':'appSearch');if(sig){input.value='';input.placeholder=sig+' — এখানে নিজস্ব ID / মোবাইল / ইমেইল লিখুন';input.focus()}else{input.value='';input.placeholder='সংকেত নির্বাচন করে ID / মোবাইল / ইমেইল লিখুন'}}
 function fillClasses(c){/* class list is available through module forms */}
 function togglePassword(){const x=$('password');x.type=x.type==='password'?'text':'password'}
-async function login(){  const u=$('username')?.value.trim()||'', p=$('password')?.value||'';
-  const btn=$('mainLoginBtn');
+async function login(){  const u=$('username')?.value.trim()||'', p=$('password')?.value||'';  const btn=$('mainLoginBtn');
   if(!u||!p){toast('ইউজার নেম ও পাসওয়ার্ড দিন।');return;}
   if(btn){btn.disabled=true;btn.dataset.oldText=btn.textContent;btn.textContent='⏳ লগইন হচ্ছে...';}
   try{
@@ -1497,8 +1495,7 @@ function dragWindow(el){
       else slider.appendChild(charts);
     }
   }  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',placeChartsInsideSlider);
-  else placeChartsInsideSlider();
-  setTimeout(placeChartsInsideSlider,300);
+  else placeChartsInsideSlider();  setTimeout(placeChartsInsideSlider,300);
   setTimeout(placeChartsInsideSlider,800);
 })();
 </script>
@@ -1997,8 +1994,7 @@ function escA(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){retu
 /* Keep every header/dashboard control reachable in narrow screens. */
 @media(max-width:1050px){  .header-mainline{grid-template-columns:auto minmax(0,1fr)!important}
   .header-mainline .header-datetime{
-    grid-column:1/-1!important;
-    grid-row:2!important;
+    grid-column:1/-1!important;    grid-row:2!important;
     text-align:center!important;
     min-width:0!important;
   }
@@ -2425,7 +2421,7 @@ body{padding-top:0!important}
     }
     baseOpenWindow('moduleListSelectorWin');
   };
-  window.openSelectedModuleList=function(){var k=document.getElementById('moduleListSelector');if(!k||!k.value)return toast('আগে একটি তালিকা নির্বাচন করুন।');showList(k.value);};
+  window.openSelectedModuleList=function(){var k=document.getElementById('moduleListSelector');if(!k||!k.value)return toast('আগে একটি তালিকা নির্বাচন করুন।');closeWindow('moduleListSelectorWin');showList(k.value);};
   function ensureListWindow(){
     var w=document.getElementById('moduleListWin');
     if(w)return w;
@@ -2446,7 +2442,7 @@ body{padding-top:0!important}
     var rows=currentListRows,heads=LIST_HEADS[currentListKey]||[];
     var h='<div class="table-wrap"><table class="data-table module-list-table"><thead><tr>'+heads.map(function(x){return '<th>'+esc(x)+'</th>'}).join('')+'<th>কার্যক্রম</th></tr></thead><tbody>';
     if(!rows.length)h+='<tr><td colspan="'+(heads.length+1)+'">কোন তথ্য পাওয়া যায়নি।</td></tr>';
-    rows.forEach(function(r,i){h+='<tr id="listRow'+i+'">'+heads.map(function(k){return '<td data-key="'+esc(k)+'">'+esc(r[k])+'</td>'}).join('')+'<td><div class="list-actions"><button class="secondary" onclick="listDetail('+i+')">📄 বিস্তারিত</button><button class="secondary" onclick="listEdit('+i+')">✏️ এডিট</button><button class="primary" onclick="listSave('+i+')">💾 সেভ/সংরক্ষণ</button><button class="secondary" onclick="listPrintOne('+i+')">🖨️ প্রিন্ট</button><button class="secondary" onclick="listDownloadOne('+i+')">⬇️ ডাউনলোড</button><button class="secondary" onclick="listPayment('+i+')">💳 পেমেন্ট</button></div></td></tr>'});
+    rows.forEach(function(r,i){h+='<tr id="listRow'+i+'">'+heads.map(function(k){return '<td data-key="'+esc(k)+'">'+esc(r[k])+'</td>'}).join('')+'<td><div class="list-actions"><button class="secondary" onclick="listDetail('+i+')">📄 বিস্তারিত দেখুন</button><button class="secondary" onclick="listEdit('+i+')">✏️</button></div></td></tr>'});
     $('moduleListBody').innerHTML=h+'</tbody></table></div>';
   }
   window.loadModuleList=showList;window.renderModuleList=renderList;
@@ -2497,8 +2493,7 @@ body{padding-top:0!important}
     if(!media.length)return toast('কোন মিডিয়া নেই।');
     var box=$('mediaStageContent');if(!box)return;
     var el=box.querySelector('video,audio');
-    if(el){if(el.paused){el.play().then(function(){$('mediaPlayBtn').textContent='⏸ Pause'}).catch(function(){toast('এই মিডিয়া প্লে করার অনুমতি পাওয়া যায়নি।')})}else{el.pause();$('mediaPlayBtn').textContent='▶ Play'}}
-    else {startImageSlide()}
+    if(el){if(el.paused){el.play().then(function(){$('mediaPlayBtn').textContent='⏸ Pause'}).catch(function(){toast('এই মিডিয়া প্লে করার অনুমতি পাওয়া যায়নি।')})}else{el.pause();$('mediaPlayBtn').textContent='▶ Play'}}    else {startImageSlide()}
   }
   var slideTimer=null;
   function startImageSlide(){clearInterval(slideTimer);if(!media.length)return;slideTimer=setInterval(function(){nextMedia()},5000);$('mediaPlayBtn').textContent='⏸ Pause'}
@@ -2997,8 +2992,7 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
 <!-- ===== FINAL MEDIA PLAYBACK FIX — DIRECT DRIVE MEDIA URL 2026-09-21 ===== -->
 <style id="final-direct-media-playback-fix-2026-09-21">
 #mediaStageContent video,#mediaStageContent audio{width:100%!important;height:100%!important;object-fit:contain!important;background:#111!important;display:block!important}
-#mediaStageContent audio{width:90%!important;height:auto!important;max-height:80px!important}
-</style>
+#mediaStageContent audio{width:90%!important;height:auto!important;max-height:80px!important}</style>
 <script id="final-direct-media-playback-js-2026-09-21">
 (function(){
   function fileId(u){
@@ -3497,8 +3491,7 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
   display:inline-flex!important;align-items:center!important;justify-content:center!important;
   font-size:15px!important;border-radius:6px!important;
 }
-#app .header-mainline .header-datetime{
-  min-width:max-content!important;
+#app .header-mainline .header-datetime{  min-width:max-content!important;
   text-align:right!important;white-space:nowrap!important;
 }
 #app .header-mainline .header-datetime .clock{
@@ -3997,8 +3990,7 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
       w.style.maxHeight=w.dataset.prevMaxHeight||'82vh';
       w.style.left=w.dataset.prevLeft||'50%';
       w.style.top=w.dataset.prevTop||'90px';
-      w.style.transform=w.dataset.prevTransform||'translateX(-50%)';
-    }else{
+      w.style.transform=w.dataset.prevTransform||'translateX(-50%)';    }else{
       var r=w.getBoundingClientRect();
       w.dataset.prevWidth=r.width+'px';
       w.dataset.prevHeight=r.height+'px';      w.dataset.prevMaxHeight=w.style.maxHeight||'82vh';
@@ -4497,8 +4489,7 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
   justify-content:flex-start!important;
 }
 .window .win-head .task4-window-logo{
-  flex:0 0 46px!important;
-}
+  flex:0 0 46px!important;}
 
 /* Header running news = same golden ticker look/behavior as Login ticker */#app .header-news{
   min-height:43px!important;
@@ -4997,8 +4988,7 @@ body #app .header-news *{
     var fr=document.querySelector('#mediaStageContent .media-stable-frame');
     if(fr)fr.focus();
   };
-  function start(){if(window.media&&media.length)renderStable();}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
+  function start(){if(window.media&&media.length)renderStable();}  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
   setTimeout(start,500);setTimeout(start,1500);setTimeout(start,3000);})();
 </script>
 
@@ -5497,8 +5487,7 @@ body #app .header-news *{
   z-index:50!important;
   margin-top:14px!important;
   padding:10px 0!important;
-  min-height:58px!important;
-  display:flex!important;  align-items:center!important;
+  min-height:58px!important;  display:flex!important;  align-items:center!important;
   justify-content:center!important;
   background:transparent!important;
   border:0!important;
@@ -5997,8 +5986,7 @@ body #app .header-news *{
   white-space:normal!important;
   overflow:visible!important;
   text-overflow:clip!important;
-}.dashboard-slider #dashboardCharts .period-tabs{
-  display:flex!important;
+}.dashboard-slider #dashboardCharts .period-tabs{  display:flex!important;
   justify-content:center!important;
   gap:7px!important;
   margin:0 0 14px!important;
@@ -6497,7 +6485,6 @@ body.dark .dashboard-period-dot{border-color:#ffe95c!important}
     if(title.indexOf('delete')>=0||txt.indexOf('delete')>=0){
       setTimeout(refresh,600);
     }  },true);
-
   /* renderMedia অন্য স্ক্রিপ্ট থেকে কল হলেও sequential autoplay সচল থাকবে */
   var oldRender=window.renderMedia;
   if(typeof oldRender==='function'){
@@ -6997,8 +6984,7 @@ body.gold #headerCalendarWindow .hc-weekday{background:#f4d56b;color:#111;border
   }
   window.deleteHeaderSlideByListIndex=function(i){    /* মূল slider-এর render/arrays-এর ভেতরের delete function ব্যবহার */
     if(typeof window.deleteCurrentHeaderSlide!=='function')return;
-    var all=window.__headerSlideDeleteState;
-    if(!all||!Array.isArray(all))return;
+    var all=window.__headerSlideDeleteState;    if(!all||!Array.isArray(all))return;
     if(i<0||i>=all.length)return;
     /* বর্তমান slider index-এ নিয়ে গিয়ে authoritative delete চালানো */
     try{
@@ -7497,8 +7483,7 @@ body.dark #searchProfilePrint .sp-bottom-actions button{
     w.classList.add('show');  }
   function hook(){
     var b=document.getElementById('headerSlideDeleteBtn');
-    if(b)b.onclick=function(e){e.preventDefault();e.stopImmediatePropagation();openList();};
-  }
+    if(b)b.onclick=function(e){e.preventDefault();e.stopImmediatePropagation();openList();};  }
   hook();setInterval(hook,300);
   document.addEventListener('click',function(e){
     var b=e.target.closest&&e.target.closest('#headerSlideDeleteBtn');
@@ -7997,8 +7982,7 @@ body.gold #searchProfilePrint .sp-field{border-color:#d40000!important}
     }catch(e){}
   }
 
-  function renderList(){
-    var box=document.getElementById('mediaList');if(!box)return;
+  function renderList(){    var box=document.getElementById('mediaList');if(!box)return;
     var m=arr();
     box.innerHTML=m.map(function(x,i){
       var active=(i===Number(window.mediaIndex||0))?' style="font-weight:900"':'';
@@ -8497,8 +8481,7 @@ window.saveResult=async function(k){
     window.openModule=function(k){
       baseOpen(k);
       if(k==='exam'){
-        setTimeout(function(){
-          var s=document.getElementById('examClass2026');
+        setTimeout(function(){          var s=document.getElementById('examClass2026');
           if(!s){
             var body=document.getElementById('winBody');
             if(body&&typeof window.moduleForm==='function'){
