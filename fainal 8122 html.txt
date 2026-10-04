@@ -389,7 +389,7 @@ body.gold .dashboard-side .module,body.gold .dashboard-slider-title,body.gold .c
 .slider-center-controls{gap:4px!important;}
 .dashboard-slider .media-stage + .slider-controls{box-sizing:border-box!important;}
 .dashboard-slider-summary{display:grid!important;grid-template-columns:1fr 1fr!important;gap:6px!important;margin-top:7px!important;padding:0!important;}
-.dashboard-slider-summary .stat{min-height:48px!important;height:48px!important;padding:5px 7px!important;display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:center!important;box-sizing:border-box!important;font-size:12px!important;}
+.dashboard-slider-summary .stat{min-height:54px!important;height:48px!important;padding:5px 7px!important;display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:center!important;box-sizing:border-box!important;font-size:12px!important;}
 .dashboard-slider-summary .stat b{font-size:19px!important;line-height:1.05!important;}
 @media(max-width:900px){
  .dashboard-slider .media-stage{height:290px!important;min-height:290px!important;max-height:290px!important;}
@@ -1030,7 +1030,7 @@ function clearOtp(){document.querySelectorAll('.otp-box').forEach(x=>x.value='')
 async function resetOtp(){const r=await call('requestOtp',$('resetUser').value.trim());toast(r.message)}
 async function logout(){await call('logout',token);location.reload()}
 async function loadApp(){const r=await call('getBootstrap',token);if(!r||!r.ok)return;var ub=currentUser||r.currentAdmin||{};var rr=String(ub.Role||ub.role||'').toUpperCase().replace(/\s+/g,'_');var isSuper=(rr==='SUPER_ADMIN'||rr==='SUPERADMIN');if($('accountManagerBtn'))$('accountManagerBtn').style.display=isSuper?'inline-block':'none';if($('sheetWin'))$('sheetWin').dataset.allowed=isSuper?'yes':'no';var sheetBtn=document.querySelector('.sheet-btn');if(sheetBtn)sheetBtn.style.display=isSuper?'inline-block':'none';modules=r.modules||[];renderModules();renderStats(r.stats||{});renderNotices(r.notices||[]);media=r.media||[];renderMedia();fillFeatureSelect();if(isSuper)fillSheets();else if($('sheetSelect'))$('sheetSelect').innerHTML='';dragWindow($('formWin'))}
-function renderModules(){const l=$('leftModules'),r=$('rightModules');l.innerHTML='';r.innerHTML='';modules.forEach((m,i)=>{const b=document.createElement('button');b.className='module';b.textContent=m[1];b.onclick=()=>openModule(m[0]);(i<Math.ceil(modules.length/2)?l:r).appendChild(b)})}
+function renderModules(){const l=$('leftModules'),r=$('rightModules');l.innerHTML='';r.innerHTML='';modules.forEach((m,i)=>{const b=document.createElement('button');b.className='module';b.textContent=m[1];b.onclick=()=>openModule(m[0]);(i<Math.ceil(modules.length/2)?l:r).appendChild(b)});window.openAllSettings=function(){var w=$('allSettingsWin');if(!w){w=document.createElement('div');w.id='allSettingsWin';w.className='window';w.style.cssText='width:min(900px,94vw);z-index:1000100;';w.innerHTML='<div class="win-head"><b>⚙️ অল সেটিংস</b><button class="secondary" type="button" onclick="closeWindow(\'allSettingsWin\')">✕</button></div><div class="win-body"><h3>সকল সেটিংস</h3><div class="form-grid"><div><b>🎨 থিম</b><p><button class="primary" onclick="setMode(\'dark\')">🌙 Dark</button> <button class="primary" onclick="setMode(\'light\')">☀️ Light</button> <button class="primary" onclick="setMode(\'gold\')">🟡 Golden</button></p></div><div><b>🌐 ভাষা</b><select class="field" onchange="setLang(this.value)"><option value="bn">বাংলা</option><option value="ar">العربية</option><option value="en">English</option></select></div><div><b>🔎 সংকেত / All Search</b><p>উপরের সংকেত নির্বাচন করে ID / মোবাইল / ইমেইল দিয়ে All Search ব্যবহার করুন।</p><button class="secondary" onclick="document.getElementById(\'appSignal\').focus();closeWindow(\'allSettingsWin\')">🔎 Search Settings</button></div><div><b>📊 সরাসরি শিট</b><p><button class="secondary" onclick="openWindow(\'sheetWin\')">📊 সরাসরি শিট</button></p></div><div><b>🔐 Account অনুমোদন</b><p><button class="secondary" onclick="openAccountManager()">🔐 Account Approval</button></p></div><div><b>🖥️ Header / Taskbar</b><p>হোম + ৩ মোড + সংকেত + All Search + লগআউট লাইনটি Taskbar-এর ঠিক উপরে থাকবে।</p></div><div><b>🎬 Media</b><p>ভিডিও 50 MB/50টি · ফটো 20 MB/100টি · অডিও 50 MB/50টি।</p></div><div><b>🇧🇩 সময়</b><p>বাংলাদেশ সময় (Asia/Dhaka) অনুযায়ী ঘড়ি ও তারিখ দেখানো হবে।</p></div></div></div>';document.body.appendChild(w)}openWindow('allSettingsWin')};var bs=[...document.querySelectorAll('#leftModules .module,#rightModules .module')],target=bs.find(function(x){var t=(x.textContent||'').replace(/\s+/g,'');return t.indexOf('পরামর্শ')>=0&&(t.indexOf('অভিযোগ')>=0||t.indexOf('যোগ')>=0)});if(!target)target=bs.find(function(x){return (x.textContent||'').indexOf('পরামর্শ')>=0});if(target&&!document.getElementById('allSettingsBtn')){var z=document.createElement('button');z.id='allSettingsBtn';z.className='module';z.type='button';z.textContent='⚙️ অল সেটিংস';z.onclick=window.openAllSettings;target.insertAdjacentElement('afterend',z)}else if(!target&&!document.getElementById('allSettingsBtn')){var z2=document.createElement('button');z2.id='allSettingsBtn';z2.className='module';z2.type='button';z2.textContent='⚙️ অল সেটিংস';z2.onclick=window.openAllSettings;l.appendChild(z2)}}
 function fillFeatureSelect(){const s=$('featureSelect');modules.forEach(m=>{const o=document.createElement('option');o.value=m[0];o.textContent=m[1];s.appendChild(o)})}
 function renderStats(x){
   const arr=[['আয়',x.income],['ব্যয়',x.expense],['মোট ক্যাশ',x.cash],['মোট বকেয়া',x.due],['মোট ছাত্র/ছাত্রী',x.students],['মোট শিক্ষক/শিক্ষিকা',x.teachers],['নির্বাহী পরিষদ সদস্য',x.executives],['নিবন্ধিত মহিলা মাদ্রাসা',x.femaleMadrasa],['নিবন্ধিত পুরুষ মাদ্রাসা',x.maleMadrasa],['আজ উপস্থিত',x.attendanceToday.present],['আজ অনুপস্থিত',x.attendanceToday.absent]];
@@ -3361,7 +3361,7 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
 /* TOP: Home + 3 modes + Signal | ALL SEARCH | Logout — always one line */
 #app .top-action-bar{
   position:fixed!important;
-  top:0!important;left:0!important;right:0!important;
+  top:auto!important;bottom:54px!important;left:0!important;right:0!important;
   z-index:1000000!important;
   width:100%!important;
   min-height:48px!important;
@@ -3386,8 +3386,8 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
   flex:0 0 auto!important;display:flex!important;gap:3px!important;
 }
 #app .top-action-bar .header-mode-icons .mode{
-  width:29px!important;min-width:29px!important;height:29px!important;
-  padding:1px!important;font-size:13px!important;border-radius:7px!important;
+  width:38px!important;min-width:38px!important;height:38px!important;
+  padding:2px!important;font-size:16px!important;border-radius:8px!important;
 }
 #app .top-action-bar .header-signal-wrap{
   flex:0 1 145px!important;min-width:105px!important;
@@ -3402,11 +3402,11 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
 }
 #app .top-action-bar .header-all-search-input{
   flex:1 1 auto!important;min-width:0!important;
-  min-height:34px!important;padding:4px 8px!important;font-size:13px!important;
+  min-height:42px!important;padding:5px 10px!important;font-size:14px!important;font-weight:900!important;
 }
 #app .top-action-bar .header-id-search-btn{
   flex:0 0 auto!important;min-width:55px!important;
-  min-height:34px!important;padding:3px 7px!important;font-size:12px!important;
+  min-height:42px!important;padding:5px 9px!important;font-size:14px!important;font-weight:900!important;
 }
 #app .top-action-bar .header-logout-final{
   flex:0 0 auto!important;min-width:62px!important;
