@@ -8616,3 +8616,19 @@ window.openModule=function(k){
 <script id="media-list-final-sync-fix-js">
 (function(){
   var busy=false,tries=0;
+
+<style id="header-top-gap-and-logo-bn-final-2026-10-04">
+/* Header-এর উপরের খালি জায়গা ও Logo-বাংলা নামের অতিরিক্ত gap বাদ */
+#app > header.header{
+  padding-top:0!important;
+}
+#app > header.header .header-top{
+  padding-top:0!important;
+}
+#app > header.header .header-top .header-content #headerLogo{
+  margin-bottom:-8px!important;
+}
+#app > header.header .header-top .header-content .title-bn{
+  margin-top:-2px!important;
+}
+</style>
