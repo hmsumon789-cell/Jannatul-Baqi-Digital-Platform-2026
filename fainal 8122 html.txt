@@ -8724,3 +8724,118 @@ window.openModule=function(k){
   setTimeout(window.enableAllWindowsFullscreen2026,1000);
 })();
 </script>
+
+
+<!-- ===== SUMMARY 2 BOX + FULL WIDTH CONTACT SAFE FIX — 2026-10-04 ===== -->
+<style id="summary-two-box-contact-fullwidth-safe-fix-2026">
+/* শুধু Dashboard-এর ২টি summary/chart box ও Contact footer-এর layout ঠিক করা হয়েছে। Login/JS/Backend স্পর্শ করা হয়নি। */
+#app .dashboard-slider-summary{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:7px!important;
+  width:100%!important;
+  margin:7px 0 0!important;
+  padding:0!important;
+  align-items:stretch!important;
+  box-sizing:border-box!important;
+}
+#app .dashboard-slider-summary .stat{
+  width:100%!important;
+  min-width:0!important;
+  height:52px!important;
+  min-height:52px!important;
+  margin:0!important;
+  padding:5px 8px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  align-items:center!important;
+  text-align:center!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+  line-height:1.08!important;
+}
+#app .dashboard-slider-summary .stat b{
+  font-size:19px!important;
+  line-height:1!important;
+  margin-bottom:2px!important;
+}
+#app .dashboard-slider-summary .quick-help-stat{grid-column:auto!important;}
+
+/* আয়/ব্যয় ও উপস্থিতির ২টি summary chart box — সমান চওড়া, সমান উচ্চতা */
+#app .dashboard-slider #dashboardCharts{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:8px!important;
+  width:100%!important;
+  margin:8px 0 0!important;
+  padding:0!important;
+  align-items:stretch!important;
+  box-sizing:border-box!important;
+}
+#app .dashboard-slider #dashboardCharts .chart-card{
+  width:100%!important;
+  min-width:0!important;
+  height:116px!important;
+  min-height:116px!important;
+  margin:0!important;
+  padding:6px!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+  display:flex!important;
+  flex-direction:column!important;
+}
+#app .dashboard-slider #dashboardCharts .chart-title{
+  flex:0 0 auto!important;
+  font-size:12px!important;
+  line-height:1.05!important;
+  margin:0 0 3px!important;
+  text-align:center!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+#app .dashboard-slider #dashboardCharts .period-tabs{
+  flex:0 0 auto!important;
+  overflow-x:auto!important;
+  flex-wrap:nowrap!important;
+  justify-content:center!important;
+  gap:3px!important;
+  margin:0 0 3px!important;
+  padding-bottom:1px!important;
+}
+#app .dashboard-slider #dashboardCharts .period-tab{flex:0 0 auto!important;}
+#app .dashboard-slider #dashboardCharts .bar-chart{
+  flex:1 1 auto!important;
+  min-height:38px!important;
+  height:auto!important;
+  overflow:hidden!important;
+}
+#app .dashboard-slider #dashboardCharts .attendance-box{
+  flex:1 1 auto!important;
+  min-height:66px!important;
+  height:auto!important;
+  grid-template-columns:64px minmax(0,1fr)!important;
+  align-items:center!important;
+}
+
+/* যোগাযোগ বক্স পুরো viewport-এর বাম প্রান্ত থেকে ডান প্রান্ত পর্যন্ত */
+#app #contactFooter{
+  width:100vw!important;
+  max-width:none!important;
+  margin-left:calc(50% - 50vw)!important;
+  margin-right:calc(50% - 50vw)!important;
+  box-sizing:border-box!important;
+  border-left-width:3px!important;
+  border-right-width:3px!important;
+  border-radius:0!important;
+  text-align:center!important;
+}
+@media(max-width:700px){
+  #app .dashboard-slider-summary .stat{height:50px!important;min-height:50px!important;font-size:11px!important}
+  #app .dashboard-slider-summary .stat b{font-size:17px!important}
+  #app .dashboard-slider #dashboardCharts{gap:5px!important}
+  #app .dashboard-slider #dashboardCharts .chart-card{height:112px!important;min-height:112px!important;padding:5px!important}
+  #app #contactFooter{width:100vw!important;margin-left:calc(50% - 50vw)!important;margin-right:calc(50% - 50vw)!important}
+}
+</style>
