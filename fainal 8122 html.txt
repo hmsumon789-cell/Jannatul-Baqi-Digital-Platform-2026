@@ -8180,7 +8180,43 @@ body.gold #searchProfilePrint .sp-field{border-color:#d40000!important}
     w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>একজন শিক্ষার্থীর প্রিন্ট প্রিভিউ</title><style>'+
       '@page{size:A4 portrait;margin:10mm}*{box-sizing:border-box}body{margin:0;background:#fff;color:#111;font-family:"Noto Sans Bengali","Noto Sans",Arial,sans-serif}'+
       '.search-profile{width:190mm;margin:0 auto}.search-profile-head{display:grid;grid-template-columns:82px 1fr 82px;gap:8px;align-items:center;border-bottom:2px solid #111;padding-bottom:7px}.sp-logo,.sp-qr{width:70px;height:70px;object-fit:contain}.sp-inst{text-align:center;font-weight:900;line-height:1.25}.sp-inst .bn{font-size:19px}.sp-inst .ar{font-size:16px;direction:rtl}.sp-inst .en{font-size:13px}.sp-contact{font-size:10px;font-weight:800}.sp-student{border:2px solid #111;margin-top:8px;padding:7px;break-inside:avoid;page-break-inside:avoid}.sp-student-title{text-align:center;font-size:17px;font-weight:900;border-bottom:1px solid #111;padding-bottom:4px;margin-bottom:6px}.sp-data{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.sp-field{border:1px solid #555;padding:4px;min-height:30px}.sp-field b{display:block;font-size:9px}.sp-field span{font-size:10.5px;font-weight:700;word-break:break-word}.sp-photo{width:100px;height:120px;object-fit:cover;border:2px solid #111}.sp-photo-empty{width:100px;height:120px;border:2px solid #111;display:flex;align-items:center;justify-content:center}.sp-photo-wrap{text-align:center}.sp-photo-label{font-size:10px;font-weight:900}.sp-search-meta{font-size:10px;margin:4px 0}.sp-bottom-actions{display:none!important}.sp-student-note{display:none!important}'+
-      '</style></head><body>'+clone.outerHTML+'</body></html>');
+      '</style></head><body>'+clone.outerHTML+'</body>
+
+<!-- ===== CONTACT + DYNAMIC SUMMARY PROFESSIONAL ALIGNMENT — 2026-10-04 ===== -->
+<style id="final-contact-dynamic-professional-2026-10-04">
+/* যোগাযোগ বক্স ১০px নিচে */
+#app main > #contactFooter{
+  margin-top:-302px!important;
+}
+/* দুইটি লাইভ ডায়নামিক সামারি সমান প্রস্থ ও সমান উচ্চতা */
+.dashboard-slider #dashboardCharts{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:16px!important;
+  align-items:stretch!important;
+}
+.dashboard-slider #dashboardCharts .chart-card{
+  width:100%!important;
+  min-width:0!important;
+  height:340px!important;
+  min-height:340px!important;
+  box-sizing:border-box!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:flex-start!important;
+}
+.dashboard-slider #dashboardCharts .chart-title{
+  min-height:52px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+}
+@media(max-width:900px){
+  .dashboard-slider #dashboardCharts{grid-template-columns:1fr!important;}
+  .dashboard-slider #dashboardCharts .chart-card{height:360px!important;min-height:360px!important;}
+}
+</style>
+</html>');
     w.document.close();w.focus();setTimeout(function(){w.print()},300);
   };
 })();
