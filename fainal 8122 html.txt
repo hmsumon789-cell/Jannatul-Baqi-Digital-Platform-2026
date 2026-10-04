@@ -8670,64 +8670,38 @@ window.openModule=function(k){
   margin:0!important;
 }
 </style>
-<!-- ===== ALL WINDOWS + FORMS FULLSCREEN CONTROL — 2026-10-04 ===== -->
-<style id="all-window-fullscreen-fix-2026">
-.window.fullscreen-window-2026{left:0!important;top:0!important;width:100vw!important;height:100vh!important;max-width:100vw!important;max-height:100vh!important;margin:0!important;transform:none!important;border-radius:0!important;z-index:2147483000!important;display:flex!important;flex-direction:column!important}
+<!-- ===== ALL WINDOWS + FORMS TRUE FULLSCREEN — 2026-10-04 ===== -->
+<style id="all-window-true-fullscreen-2026">
+.window.fullscreen-window-2026{position:fixed!important;inset:0!important;left:0!important;top:0!important;width:100vw!important;height:100vh!important;max-width:none!important;max-height:none!important;min-width:0!important;min-height:0!important;margin:0!important;transform:none!important;border-radius:0!important;z-index:2147483647!important;display:flex!important;flex-direction:column!important}
 .window.fullscreen-window-2026 .win-body{flex:1 1 auto!important;min-height:0!important;overflow:auto!important}
-.window.fullscreen-window-2026 .window-content,.window.fullscreen-window-2026 .modal-body{flex:1 1 auto!important;min-height:0!important;overflow:auto!important}
-.window .fullscreen-toggle-2026{margin-left:4px!important}
+.window.fullscreen-window-2026 .win-head{flex:0 0 auto!important}
+.fullscreen-toggle-2026{font-size:18px!important;font-weight:900!important}
 </style>
-<script id="all-window-fullscreen-fix-js-2026">
+<script id="all-window-true-fullscreen-js-2026">
 (function(){
-  function isWin(el){return el&&el.classList&&el.classList.contains('window');}
-  function addButton(w){
-    if(!isWin(w)||w.querySelector('.fullscreen-toggle-2026'))return;
-    var head=w.querySelector('.win-head');if(!head)return;
-    var b=document.createElement('button');b.type='button';b.className='secondary fullscreen-toggle-2026';b.title='ফুলস্ক্রিন';b.textContent='⛶';
+  function add(w){
+    if(!w||!w.classList||!w.classList.contains('window')||w.querySelector('.fullscreen-toggle-2026'))return;
+    var h=w.querySelector('.win-head');if(!h)return;
+    var b=document.createElement('button');b.type='button';b.className='secondary fullscreen-toggle-2026';b.textContent='⛶';b.title='ফুলস্ক্রিন';
     b.onclick=function(e){e.preventDefault();e.stopPropagation();toggle(w);};
-    var close=head.querySelector('button:last-child');
-    if(close)head.insertBefore(b,close);else head.appendChild(b);
+    var close=h.querySelector('button:last-child');if(close)h.insertBefore(b,close);else h.appendChild(b);
   }
   function toggle(w){
     if(!w)return;
-    var on=w.classList.toggle('fullscreen-window-2026');
-    w.dataset.fullscreen2026=on?'1':'0';
-    var b=w.querySelector('.fullscreen-toggle-2026');if(b){b.textContent=on?'⛶':'⛶';b.title=on?'ফুলস্ক্রিন বন্ধ':'ফুলস্ক্রিন';}
-    if(!on&&typeof dragWindow==='function'){try{dragWindow(w)}catch(e){}}
-  }
-  window.enableAllWindowsFullscreen2026=function(){document.querySelectorAll('.window').forEach(addButton);};
-  var mo=new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes.forEach(function(n){if(n.nodeType===1){if(isWin(n))addButton(n);n.querySelectorAll&&n.querySelectorAll('.window').forEach(addButton);}});});});
-  mo.observe(document.body,{childList:true,subtree:true});
-  document.querySelectorAll('.window').forEach(addButton);
-  setTimeout(function(){document.querySelectorAll('.window').forEach(addButton);},500);
-})();
-</script>
-
-<!-- ===== TRUE WINDOW FULLSCREEN API FIX — 2026-10-04 ===== -->
-<script id="true-window-fullscreen-api-fix-2026">
-(function(){
-  function toggleReal(w){
-    if(!w)return;
-    var active=w.classList.contains('real-fullscreen-2026');
-    if(active){
-      w.classList.remove('real-fullscreen-2026');
-      w.style.cssText=w.dataset.preFsStyle||'';
-      delete w.dataset.preFsStyle;
+    if(w.classList.contains('fullscreen-window-2026')){
+      w.classList.remove('fullscreen-window-2026');
+      w.dataset.fullscreen2026='0';
       return;
     }
-    w.dataset.preFsStyle=w.getAttribute('style')||'';
-    w.classList.add('real-fullscreen-2026');
+    w.classList.add('fullscreen-window-2026');
+    w.dataset.fullscreen2026='1';
+    if(w.parentElement!==document.body)document.body.appendChild(w);
+    try{w.scrollTop=0;}catch(e){}
   }
-  function bind(w){
-    if(!w||!w.classList||!w.classList.contains('window')||w.dataset.realFsBound==='1')return;
-    w.dataset.realFsBound='1';
-    var old=w.querySelector('.fullscreen-toggle-2026');
-    if(old){old.onclick=function(e){e.preventDefault();e.stopPropagation();toggleReal(w);};}
-  }
-  function scan(){document.querySelectorAll('.window').forEach(bind);}
-  var st=document.createElement('style');
-  st.textContent='.window.real-fullscreen-2026{position:fixed!important;inset:0!important;left:0!important;top:0!important;right:0!important;bottom:0!important;width:100vw!important;height:100vh!important;max-width:none!important;max-height:none!important;min-width:0!important;min-height:0!important;margin:0!important;transform:none!important;border-radius:0!important;z-index:2147483647!important;display:flex!important;flex-direction:column!important}.window.real-fullscreen-2026 .win-body{flex:1 1 auto!important;min-height:0!important;overflow:auto!important}.window.real-fullscreen-2026 .fullscreen-toggle-2026{position:relative!important;z-index:2!important}';
-  document.head.appendChild(st);scan();
-  new MutationObserver(scan).observe(document.body,{childList:true,subtree:true});
+  window.enableAllWindowsFullscreen2026=function(){document.querySelectorAll('.window').forEach(add);};
+  new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes.forEach(function(n){if(n.nodeType!==1)return;if(n.matches&&n.matches('.window'))add(n);if(n.querySelectorAll)n.querySelectorAll('.window').forEach(add);});});}).observe(document.body,{childList:true,subtree:true});
+  window.enableAllWindowsFullscreen2026();
+  setTimeout(window.enableAllWindowsFullscreen2026,300);
+  setTimeout(window.enableAllWindowsFullscreen2026,1000);
 })();
 </script>
