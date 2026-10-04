@@ -920,7 +920,7 @@ body.gold #app .header-calendar-select-v2{background:#f4d56b!important;color:#11
         <select id="featureSelect" class="field features-select" onchange="openModule(this.value)">
           <option value="">সকল ফিচার তালিকা</option>
         </select>
-        <button id="allListsButton2026" class="primary" type="button" onclick="openListSelector()">📋 তালিকা</button>
+        <button id="allListsButton2026" class="primary" type="button">📋 তালিকা</button>
       </div>
       <h2>প্রশাসনিক ড্যাশবোর্ড</h2>
       <div class="dashboard-title-right">
@@ -8385,14 +8385,19 @@ window.saveResult=async function(k){
 };
 })();
 </script>\n
-<!-- ===== LIST BUTTON + EXAM REGISTRATION FINAL FIX — 2026-10-03 ===== -->
-<style id="list-exam-final-fix-2026">
+<!-- ===== EXISTING LIST BUTTON FUNCTIONALITY — 2026-10-04 ===== -->
+<style id="list-button-window-fix-2026">
 #allListsButton2026{white-space:nowrap!important}
-#allListsMenu2026{position:fixed;z-index:2147483000;display:none;min-width:310px;max-width:94vw;padding:10px;border:3px solid #d40000;background:#f4d56b;color:#111;border-radius:10px;box-shadow:0 8px 25px rgba(0,0,0,.35)}
-#allListsMenu2026.show{display:grid!important;gap:6px}
-#allListsMenu2026 button{width:100%;text-align:left!important;font-weight:900!important}
+#listSelectorWindow2026{width:min(760px,94vw)!important}
+#listSelectorWindow2026 .list-selector-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#listSelectorWindow2026 .list-selector-grid button{text-align:left;font-weight:900}
+#moduleListWindow2026{width:min(1250px,97vw)!important}
+#moduleListWindow2026 .list-actions{display:flex;gap:5px;justify-content:flex-end;white-space:nowrap}
+#moduleListWindow2026 .list-actions button{padding:6px 9px!important}
+#moduleListWindow2026 .list-footer{display:flex;justify-content:center;gap:10px;padding:10px;border-top:2px solid var(--border);position:sticky;bottom:0;background:var(--panel);z-index:5}
+@media(max-width:700px){#listSelectorWindow2026 .list-selector-grid{grid-template-columns:1fr}}
 </style>
-<script id="list-exam-final-fix-2026-js">
+<script id="list-button-window-fix-js-2026">
 (function(){
   var ITEMS=[
     ['students','👩‍🎓 ছাত্র/ছাত্রী তালিকা','students'],
@@ -8409,83 +8414,79 @@ window.saveResult=async function(k){
     ['mms','📨 এমএমএস তালিকা','sms'],
     ['sms','✉️ এসএমএস তালিকা','sms']
   ];
-  var LABELS={};
-  ITEMS.forEach(function(x){LABELS[x[0]]=x[1]});
-  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]})}
-  function menu(){
-    var m=document.getElementById('allListsMenu2026');if(m)return m;
-    m=document.createElement('div');m.id='allListsMenu2026';
-    ITEMS.forEach(function(it){
-      var b=document.createElement('button');b.type='button';b.className='secondary';b.textContent=it[1];
-      b.onclick=function(e){e.preventDefault();e.stopPropagation();m.classList.remove('show');openList(it[0],it[2]);};
-      m.appendChild(b);
-    });
-    document.body.appendChild(m);return m;
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function ensureSelector(){
+    var w=document.getElementById('listSelectorWindow2026');if(w)return w;
+    w=document.createElement('div');w.id='listSelectorWindow2026';w.className='window';
+    var h='<div class="win-head"><b>📋 তালিকা নির্বাচন</b><button class="secondary" type="button" onclick="closeWindow(\'listSelectorWindow2026\')">✕</button></div><div class="win-body"><div class="list-selector-grid">';
+    ITEMS.forEach(function(x){h+='<button class="secondary" type="button" data-list-key="'+x[0]+'" data-backend-key="'+x[2]+'">'+x[1]+'</button>';});
+    h+='</div></div>';w.innerHTML=h;document.body.appendChild(w);dragWindow(w);
+    w.querySelectorAll('[data-list-key]').forEach(function(b){b.onclick=function(){closeWindow('listSelectorWindow2026');openListWindow(b.dataset.listKey,b.dataset.backendKey,b.textContent);};});
+    return w;
   }
-  function place(){
-    var b=document.getElementById('allListsButton2026'),m=menu();if(!b)return;
-    var r=b.getBoundingClientRect();m.style.left=Math.max(5,Math.min(r.left,window.innerWidth-m.offsetWidth-5))+'px';m.style.top=(r.bottom+5)+'px';
+  function ensureListWindow(){
+    var w=document.getElementById('moduleListWindow2026');if(w)return w;
+    w=document.createElement('div');w.id='moduleListWindow2026';w.className='window';
+    w.innerHTML='<div class="win-head"><b id="moduleListTitle2026">তালিকা</b><button class="secondary" type="button" onclick="closeWindow(\'moduleListWindow2026\')">✕</button></div><div class="win-body" id="moduleListBody2026">⏳ তালিকা লোড হচ্ছে...</div><div class="list-footer"><button class="primary" type="button" onclick="printListWindow2026()">🖨️ প্রিন্ট</button><button class="secondary" type="button" onclick="downloadListWindow2026()">⬇️ ডাউনলোড</button></div>';
+    document.body.appendChild(w);dragWindow(w);return w;
   }
+  function renderRows(rows,backendKey){
+    var w=ensureListWindow(),body=document.getElementById('moduleListBody2026'),heads=rows.length?Object.keys(rows[0]):[];
+    var h='<div class="table-wrap"><table class="data-table"><thead><tr>'+heads.map(function(k){return '<th>'+esc(k)+'</th>'}).join('')+'<th>কার্যক্রম</th></tr></thead><tbody>';
+    if(!rows.length){h+='<tr><td colspan="99">কোন তথ্য পাওয়া যায়নি।</td></tr>';}
+    rows.forEach(function(r,i){h+='<tr data-row-index="'+i+'">'+heads.map(function(k){return '<td data-key="'+esc(k)+'">'+esc(r[k])+'</td>'}).join('')+'<td><div class="list-actions"><button class="secondary" type="button" onclick="listDetail2026('+i+')">📄 বিস্তারিত দেখুন</button><button class="secondary" type="button" onclick="listEdit2026('+i+')">✏️</button></div></td></tr>';});
+    body.innerHTML=h+'</tbody></table></div>';
+  }
+  var currentRows=[],currentBackend='',currentTitle='';
+  window.openListSelector=function(){baseOpen('listSelectorWindow2026');};
+  function baseOpen(id){ensureSelector();if(typeof baseOpenWindow==='function')baseOpenWindow(id);else{var w=document.getElementById(id);w.classList.add('show');}}
+  window.openListWindow=function(key,backend,title){
+    currentBackend=backend;currentTitle=title;ensureListWindow();
+    document.getElementById('moduleListTitle2026').textContent=title;
+    document.getElementById('moduleListBody2026').innerHTML='<p>⏳ '+esc(title)+' লোড হচ্ছে...</p>';
+    if(typeof baseOpenWindow==='function')baseOpenWindow('moduleListWindow2026');else document.getElementById('moduleListWindow2026').classList.add('show');
+    if(typeof call!=='function'||!window.token){document.getElementById('moduleListBody2026').innerHTML='<p>লগইন সেশন পাওয়া যায়নি।</p>';return;}
+    call('getModuleList',token,backend).then(function(r){
+      currentRows=Array.isArray(r&&r.rows)?r.rows:(Array.isArray(r&&r.data)?r.data:[]);
+      if(key==='femaleMadrasas')currentRows=currentRows.filter(function(x){return /female|মহিলা|নারী/i.test(String(x.Gender||x.gender||x.Type||x.type||x.Category||x.category||''));});
+      if(key==='maleMadrasas')currentRows=currentRows.filter(function(x){return /male|পুরুষ/i.test(String(x.Gender||x.gender||x.Type||x.type||x.Category||x.category||''));});
+      if(key==='mobileNumbers')currentRows=currentRows.filter(function(x){return x.Mobile||x.mobile||x.Phone||x.phone;});
+      renderRows(currentRows,backend);
+    }).catch(function(e){document.getElementById('moduleListBody2026').innerHTML='<p>সার্ভার ত্রুটি: '+esc(e&&e.message||e)+'</p>';});
+  };
+  window.listDetail2026=function(i){
+    var r=currentRows[i]||{},html='<div class="form-grid">'+Object.keys(r).map(function(k){return '<label>'+esc(k)+'<input class="field" readonly value="'+esc(r[k])+'"></label>';}).join('')+'</div>';
+    document.getElementById('moduleListBody2026').innerHTML=html+'<button class="secondary" type="button" onclick="renderRows(window.__listRows2026||currentRows,currentBackend)">↩ তালিকায় ফিরুন</button>';
+    window.__listRows2026=currentRows;
+  };
+  window.listEdit2026=function(i){
+    var r=currentRows[i]||{},body=document.getElementById('moduleListBody2026'),heads=Object.keys(r),h='<div class="form-grid">';
+    heads.forEach(function(k){h+='<label>'+esc(k)+'<input class="field" data-edit-key="'+esc(k)+'" value="'+esc(r[k])+'"></label>';});
+    h+='</div><div style="display:flex;justify-content:center;gap:8px;margin-top:10px"><button class="primary" type="button" onclick="listSave2026('+i+')">💾 সেভ</button><button class="secondary" type="button" onclick="renderRows(window.__listRows2026||currentRows,currentBackend)">↩ তালিকায় ফিরুন</button></div>';
+    body.innerHTML=h;window.__listRows2026=currentRows;
+  };
+  window.listSave2026=function(i){
+    var r=currentRows[i]||{},data={},body=document.getElementById('moduleListBody2026');
+    body.querySelectorAll('[data-edit-key]').forEach(function(x){data[x.dataset.editKey]=x.value;});
+    var serial=r.Serial||r.serial||r.ID||r.Id||'';
+    if(!serial){toast('এই রেকর্ডের Serial/ID পাওয়া যায়নি।');return;}
+    call('updateRecord',token,currentBackend,serial,data).then(function(v){
+      if(v&&v.ok){Object.keys(data).forEach(function(k){r[k]=data[k]});toast('সেভ সফল হয়েছে।');renderRows(currentRows,currentBackend);}
+      else toast((v&&v.message)||'সেভ ব্যর্থ হয়েছে।');
+    }).catch(function(e){toast('সেভ সার্ভার ত্রুটি: '+esc(e&&e.message||e));});
+  };
+  window.printListWindow2026=function(){var body=document.getElementById('moduleListBody2026');if(!body)return;var w=window.open('','_blank');w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>'+esc(currentTitle)+'</title><style>body{font-family:Arial}.data-table{border-collapse:collapse;width:100%}.data-table th,.data-table td{border:1px solid #333;padding:6px}.list-actions{display:none!important}</style></head><body><h2>'+esc(currentTitle)+'</h2>'+body.innerHTML+'</body></html>');w.document.close();w.print();};
+  window.downloadListWindow2026=function(){var body=document.getElementById('moduleListBody2026');if(!body)return;var blob=new Blob([body.innerText||''],{type:'text/plain;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=(currentTitle||'তালিকা')+'.txt';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href)},1000);};
+  var oldBind=window.__listButtonBound2026;
   function bind(){
     var b=document.getElementById('allListsButton2026');if(!b)return;
-    if(b.dataset.listBound==='1')return;
-    b.dataset.listBound='1';
-    b.onclick=function(e){e.preventDefault();e.stopPropagation();if(typeof window.openListSelector==='function')window.openListSelector();};
+    if(b.dataset.listWindowBound==='1')return;
+    b.dataset.listWindowBound='1';b.onclick=function(e){e.preventDefault();e.stopPropagation();openListSelector();};
   }
-  function openList(key,backendKey){
-    var w=document.getElementById('moduleListWin');
-    if(!w){w=typeof ensureListWindow==='function'?ensureListWindow():null;}
-    if(!w)return;
-    var title=document.getElementById('moduleListTitle'),body=document.getElementById('moduleListBody');
-    if(title)title.textContent=LABELS[key]||key;
-    if(body)body.innerHTML='<p>⏳ '+esc(LABELS[key]||key)+' লোড হচ্ছে...</p>';
-    if(typeof baseOpenWindow==='function')baseOpenWindow('moduleListWin');
-    try{
-      if(typeof window.call!=='function'||!window.token){if(body)body.innerHTML='<p>লগইন সেশন পাওয়া যায়নি।</p>';return}
-      window.call('getModuleList',window.token,backendKey).then(function(r){
-        if(!r||r.ok===false){if(body)body.innerHTML='<p>'+esc((r&&r.message)||'তালিকা পাওয়া যায়নি।')+'</p>';return}
-        var rows=Array.isArray(r.rows)?r.rows:(Array.isArray(r.data)?r.data:(Array.isArray(r)?r:[]));
-        if(key==='femaleMadrasas')rows=rows.filter(function(x){return /female|মহিলা|নারী/i.test(String(x.Gender||x.gender||x.Type||x.type||x.Category||x.category||''));});
-        if(key==='maleMadrasas')rows=rows.filter(function(x){return /male|পুরুষ/i.test(String(x.Gender||x.gender||x.Type||x.type||x.Category||x.category||''));});
-        if(key==='mobileNumbers')rows=rows.filter(function(x){return x.Mobile||x.mobile||x.Phone||x.phone});
-        window.__customListKey2026=key;window.__customListBackend2026=backendKey;window.__customListRows2026=rows;
-        var heads=rows.length?Object.keys(rows[0]):[];
-        var h='<div class="table-wrap"><table class="data-table module-list-table"><thead><tr>'+heads.map(function(k){return '<th>'+esc(k)+'</th>'}).join('')+'<th>কার্যক্রম</th></tr></thead><tbody>';
-        if(!rows.length)h+='<tr><td colspan="'+(heads.length+1)+'">কোন তথ্য পাওয়া যায়নি।</td></tr>';
-        rows.forEach(function(x,i){h+='<tr id="customListRow2026_'+i+'">'+heads.map(function(k){return '<td data-key="'+esc(k)+'">'+esc(x[k])+'</td>'}).join('')+'<td><div class="list-actions"><button class="secondary" type="button" onclick="customListDetail2026('+i+')">📄 বিস্তারিত দেখুন</button><button class="secondary" type="button" onclick="customListEdit2026('+i+')">✏️</button></div></td></tr>'});
-        if(body)body.innerHTML=h+'</tbody></table></div>';
-      }).catch(function(e){if(body)body.innerHTML='<p>সার্ভার ত্রুটি: '+esc(e.message||e)+'</p>'});
-    }catch(e){if(body)body.innerHTML='<p>সার্ভার ত্রুটি: '+esc(e.message||e)+'</p>'}
-  }
-  window.customListDetail2026=function(i){
-    var rows=window.__customListRows2026||[],r=rows[i]||{},heads=Object.keys(r);
-    var html='<div class="list-detail-card">'+heads.map(function(k){return '<div class="detail-item"><b>'+esc(k)+'</b><span>'+esc(r[k])+'</span></div>'}).join('')+'</div><button class="secondary" type="button" onclick="openList(window.__customListKey2026,window.__customListBackend2026)">↩ তালিকায় ফিরুন</button>';
-    var b=document.getElementById('moduleListBody');if(b)b.innerHTML=html;
-  };
-  window.customListEdit2026=function(i){
-    var rows=window.__customListRows2026||[],r=rows[i]||{},row=document.getElementById('customListRow2026_'+i);if(!row)return;
-    Object.keys(r).forEach(function(k){var td=row.querySelector('[data-key="'+CSS.escape(k)+'"]');if(td)td.innerHTML='<input class="list-edit-input" data-edit-key="'+esc(k)+'" value="'+esc(r[k])+'">';});
-    var action=row.querySelector('.list-actions');if(action)action.innerHTML='<button class="primary" type="button" onclick="customListSave2026('+i+')">💾 সেভ</button>';
-  };
-  window.customListSave2026=function(i){
-    var rows=window.__customListRows2026||[],r=rows[i]||{},row=document.getElementById('customListRow2026_'+i);if(!row)return;
-    var data={};Object.keys(r).forEach(function(k){var x=row.querySelector('[data-edit-key="'+CSS.escape(k)+'"]');if(x)data[k]=x.value;});
-    var serial=r.Serial||r.serial||r.ID||r.StudentID||r.TeacherID||r.AdminID||r.MadrasaID;
-    if(!serial)return toast('এই তালিকার রেকর্ড আইডি পাওয়া যায়নি।');
-    window.call('updateRecord',window.token,window.__customListBackend2026,data).then(function(v){if(v&&v.ok){Object.keys(data).forEach(function(k){r[k]=data[k]});toast('সেভ/সংরক্ষণ সফল হয়েছে।');openList(window.__customListKey2026,window.__customListBackend2026)}else toast((v&&v.message)||'সেভ ব্যর্থ হয়েছে।')}).catch(function(e){toast('সেভ সার্ভার ত্রুটি: '+(e.message||e))});
-  };
-  function examBoot(){
-    var s=document.getElementById('examClass2026');
-    if(s&&typeof window.loadExamSubjects2026==='function')window.loadExamSubjects2026();
-  }
-  document.addEventListener('click',function(e){
-    var m=document.getElementById('allListsMenu2026'),b=document.getElementById('allListsButton2026');
-    if(m&&m.classList.contains('show')&&!m.contains(e.target)&&e.target!==b)m.classList.remove('show');
-  });
-  window.addEventListener('resize',place);
-  setInterval(function(){bind();examBoot()},700);
+  setInterval(bind,500);bind();
 })();
 </script>
+
 <script id="exam-registration-hard-fix-2026">
 (function(){
   function rebuildExam(){
