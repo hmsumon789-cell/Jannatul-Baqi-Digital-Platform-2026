@@ -1486,17 +1486,8 @@ function dragWindow(el){
 </style>
 <script id="dashboard-two-small-boxes-inside-slider-js">
 (function(){
-  function placeChartsInsideSlider(){
-    var slider=document.querySelector('.dashboard-slider');
-    var charts=document.getElementById('dashboardCharts');
-    var summary=document.getElementById('summary');
-    if(slider && charts && charts.parentElement!==slider){
-      if(summary && summary.parentElement===slider) summary.insertAdjacentElement('afterend',charts);
-      else slider.appendChild(charts);
-    }
-  }  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',placeChartsInsideSlider);
-  else placeChartsInsideSlider();  setTimeout(placeChartsInsideSlider,300);
-  setTimeout(placeChartsInsideSlider,800);
+  /* dashboardCharts is intentionally kept as a direct child of #app main.
+     Do not move it inside the central media slider. */
 })();
 </script>
 
