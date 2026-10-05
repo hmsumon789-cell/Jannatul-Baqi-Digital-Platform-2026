@@ -68,6 +68,15 @@ function doGet() {
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
+function getMainWebAppUrl() {
+  try {
+    const url = ScriptApp.getService().getUrl();
+    return {ok:true,url:String(url||'').trim()};
+  } catch(e) {
+    return {ok:false,url:''};
+  }
+}
+
 function setupSystem() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   Object.keys(SHEETS).forEach(k => ensureSheet_(ss, SHEETS[k], HEADERS[SHEETS[k]] || ['Value']));
