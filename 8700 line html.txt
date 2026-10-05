@@ -9434,3 +9434,26 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   font-weight:900!important;
 }
 </style>
+
+
+<!-- ===== HEADER CLOCK DATE + LOGIN QR + EYE FINAL — 2026-10-06 ===== -->
+<style id="jb-header-clock-qr-eye-final-2026-10-06">
+/* ড্যাশবোর্ডে বাংলা নামের ডানে ঘড়ি + তারিখ + মাস + সন */
+#app .header-tools{display:grid!important;grid-template-columns:auto 1fr auto!important;align-items:center!important;gap:10px!important;min-height:52px!important}
+#app .header-tools .clock,#app .header-tools .date-line,#app #appClock,#app #appDate{display:block!important;visibility:visible!important;opacity:1!important}
+#app .header-tools .clock{font-size:28px!important;font-weight:900!important;line-height:1.15!important;white-space:nowrap!important}
+#app .header-tools .date-line{font-size:20px!important;font-weight:900!important;line-height:1.25!important;text-align:center!important;white-space:nowrap!important}
+#app .header-tools .tools-left,#app .header-tools .tools-right{display:flex!important;align-items:center!important;gap:6px!important}
+@media(max-width:900px){#app .header-tools{grid-template-columns:1fr!important}.header-tools .clock,.header-tools .date-line{text-align:center!important}}
+
+/* লগইন পেজে QR লোগোর একদম পাশে */
+#loginPage .login-brand-qr-2026{display:flex!important;align-items:center!important;justify-content:center!important;gap:5px!important;width:100%!important;margin:0 0 4px!important}
+#loginPage .login-brand-qr-2026 .loginLogoWrap{flex:0 1 auto!important;margin:0!important;text-align:left!important}
+#loginPage .login-brand-qr-2026 .main-qr-802268e{flex:0 0 88px!important;width:88px!important;height:88px!important;padding:3px!important;margin:0!important;border:2px solid #ff1f2f!important;border-radius:10px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:#fff!important}
+#loginPage .login-brand-qr-2026 .main-qr-802268e img{width:80px!important;height:80px!important;object-fit:contain!important;display:block!important}
+
+/* Password-এর চোখ একটু উপরে এবং গোল */
+#loginPage .login-auth-802268e .login-grid .pass-wrap{position:relative!important}
+#loginPage .login-auth-802268e .login-grid .eye{top:1px!important;right:7px!important;width:48px!important;min-width:48px!important;height:48px!important;border:2px solid #b98a16!important;border-radius:50%!important;padding:0!important;display:flex!important;align-items:center!important;justify-content:center!important;background:#fffaf0!important;line-height:1!important}
+body.dark #loginPage .login-auth-802268e .login-grid .eye{border-color:#ff1f2f!important;background:#000!important;color:#ffe95c!important}
+</style>
