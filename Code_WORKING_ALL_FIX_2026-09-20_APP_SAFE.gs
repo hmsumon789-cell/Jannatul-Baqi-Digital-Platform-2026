@@ -684,3 +684,15 @@ function getModules_(){
     ['receipt','মানিরিসিট'],['accountControl','অনুমোদন + ফিচার পারমিশন'],['maleMadrasa','নিবন্ধনকৃত পুরুষ মাদ্রাসা'],['femaleMadrasa','নিবন্ধনকৃত মহিলা মাদ্রাসা'],['help','পরামর্শ+যোগ+অভিযোগ']
   ];
 }
+
+// ===== FULL LIST API — 2026-10-05 =====
+function getModuleList(token,sheetName){
+  auth_(token);
+  const allowed={
+    STUDENTS:'STUDENTS',TEACHERS:'TEACHERS',DONORS:'DONORS',EXECUTIVES:'EXECUTIVES',ADVISERS:'ADVISERS',FOUNDERS:'FOUNDERS',
+    ADMINS:'ADMINS',EXAM_REG:'EXAM_REG',MADRASAS:'MADRASAS',ADMISSIONS:'ADMISSIONS',RESULTS:'RESULTS',SMS_QUEUE:'SMS_QUEUE'
+  };
+  sheetName=String(sheetName||'').trim().toUpperCase();
+  if(!allowed[sheetName] || !HEADERS[sheetName]) return {ok:false,message:'তালিকার ধরন সঠিক নয়।'};
+  return {ok:true,sheet:sheetName,rows:listRows_(sheetName,token,5000)};
+}
