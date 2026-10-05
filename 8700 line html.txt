@@ -971,6 +971,16 @@ function openProtectedSheet2026(){
 
     <section class="dashboard-charts" id="dashboardCharts"></section>
 
+    <!-- ===== CONTACT FOOTER — FINAL BOTTOM 2026-10-05 ===== -->
+    <section id="contactFooter" class="footer card" style="width:100%;box-sizing:border-box;text-align:center;margin:16px 0 0;padding:18px 14px;">
+      <div class="contact-title" style="font-size:24px;font-weight:900;margin-bottom:6px;">📞 যোগাযোগ</div>
+      <div class="contact-name" style="font-size:21px;font-weight:900;margin-bottom:4px;">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div>
+      <div class="contact-address" style="font-size:16px;font-weight:800;margin-bottom:6px;">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div>
+      <div class="contact-info" style="display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:6px 18px;font-size:16px;font-weight:900;">
+        <span>✉️ hmsumon789@gmail.com</span>
+      </div>
+    </section>
+
     <!-- ===== CONTACT FOOTER FULL WIDTH + 2IN DOWN — 2026-10-04 ===== -->
 <style>
 /* পুরো ওয়েব পেজের নিচের অংশ ২ ইঞ্চি বাড়িয়ে তারপর যোগাযোগ বক্স নামানো */
