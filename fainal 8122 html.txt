@@ -8366,86 +8366,19 @@ window.saveResult=async function(k){
 <!-- ===== LIST BUTTON + EXAM REGISTRATION FINAL FIX — 2026-10-03 ===== -->
 <style id="list-exam-final-fix-2026">
 #allListsButton2026{white-space:nowrap!important}
-#allListsMenu2026{position:fixed;z-index:2147483000;display:none;min-width:310px;max-width:94vw;padding:10px;border:3px solid #d40000;background:#f4d56b;color:#111;border-radius:10px;box-shadow:0 8px 25px rgba(0,0,0,.35)}
-#allListsMenu2026.show{display:grid!important;gap:6px}
-#allListsMenu2026 button{width:100%;text-align:left!important;font-weight:900!important}
 </style>
 <script id="list-exam-final-fix-2026-js">
 (function(){
-  var ITEMS=[
-    ['students','👩‍🎓 ছাত্র/ছাত্রী তালিকা','students'],
-    ['teachers','👩‍🏫 শিক্ষক/শিক্ষিকা তালিকা','teachers'],
-    ['donors','🤝 দাতা সদস্য তালিকা','donors'],
-    ['committee','🏛️ পরিচালনা পরিষদ তালিকা','executives'],
-    ['admins','🔐 অ্যাডমিন তালিকা','admins'],
-    ['registration','📝 নিবন্ধন তালিকা','exams'],
-    ['femaleMadrasas','🏫 নিবন্ধনকৃত মহিলা মাদ্রাসার তালিকা','madrasas'],
-    ['maleMadrasas','🏫 নিবন্ধনকৃত পুরুষ মাদ্রাসার তালিকা','madrasas'],
-    ['onlineAdmission','📥 অনলাইন ভর্তি তালিকা','admissions'],
-    ['marksheet','📊 মার্কশিট তালিকা','results'],
-    ['mobileNumbers','📱 মোবাইল নাম্বার তালিকা','students'],
-    ['mms','📨 এমএমএস তালিকা','sms'],
-    ['sms','✉️ এসএমএস তালিকা','sms']
-  ];
-  var LABELS={};
-  ITEMS.forEach(function(x){LABELS[x[0]]=x[1]});
-  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]})}
-  function menu(){
-    var m=document.getElementById('allListsMenu2026');if(m)return m;
-    m=document.createElement('div');m.id='allListsMenu2026';
-    ITEMS.forEach(function(it){
-      var b=document.createElement('button');b.type='button';b.className='secondary';b.textContent=it[1];
-      b.onclick=function(e){e.preventDefault();e.stopPropagation();m.classList.remove('show');openList(it[0],it[2]);};
-      m.appendChild(b);
-    });
-    document.body.appendChild(m);return m;
-  }
-  function place(){
-    var b=document.getElementById('allListsButton2026'),m=menu();if(!b)return;
-    var r=b.getBoundingClientRect();m.style.left=Math.max(5,Math.min(r.left,window.innerWidth-m.offsetWidth-5))+'px';m.style.top=(r.bottom+5)+'px';
-  }
   function bind(){
     var left=document.querySelector('#app .dashboard-title-left');if(!left)return;
     var b=document.getElementById('allListsButton2026');
     if(!b){
       b=document.createElement('button');b.id='allListsButton2026';b.type='button';b.className='primary';b.textContent='📋 তালিকা';
       left.appendChild(b);
-      b.onclick=function(e){e.preventDefault();e.stopPropagation();var m=menu();m.classList.toggle('show');if(m.classList.contains('show'))setTimeout(place,20)};
     }
+    b.onclick=function(e){e.preventDefault();e.stopPropagation();if(typeof window.openFullList2026==='function')window.openFullList2026();};
   }
-  function openList(key,backendKey){
-    var w=document.getElementById('moduleListWin');
-    if(!w&&typeof window.loadModuleList==='function'){window.loadModuleList(backendKey);return;}
-    if(!w&&typeof window.openWindow==='function')window.openWindow('moduleListWin');
-    var body=document.getElementById('moduleListBody'),title=document.getElementById('moduleListTitle');
-    if(title)title.textContent=LABELS[key];
-    if(body)body.innerHTML='<p>⏳ '+esc(LABELS[key])+' লোড হচ্ছে...</p>';
-    try{
-      if(typeof window.call!=='function'||!window.token){if(body)body.innerHTML='<p>লগইন সেশন পাওয়া যায়নি।</p>';return}
-      window.call('getModuleList',window.token,backendKey).then(function(r){
-        if(!r||r.ok===false){if(body)body.innerHTML='<p>'+esc((r&&r.message)||'তালিকা পাওয়া যায়নি।')+'</p>';return}
-        var rows=Array.isArray(r.rows)?r.rows:(Array.isArray(r.data)?r.data:(Array.isArray(r)?r:[]));
-        if(key==='femaleMadrasas')rows=rows.filter(function(x){return /female|মহিলা|নারী/i.test(String(x.Gender||x.gender||x.Type||x.type||x.Category||x.category||''));});
-        if(key==='maleMadrasas')rows=rows.filter(function(x){return /male|পুরুষ/i.test(String(x.Gender||x.gender||x.Type||x.type||x.Category||x.category||''));});
-        if(key==='mobileNumbers')rows=rows.filter(function(x){return x.Mobile||x.mobile||x.Phone||x.phone});
-        var heads=rows.length?Object.keys(rows[0]):[];
-        var h='<div class="table-wrap"><table class="data-table module-list-table"><thead><tr>'+heads.map(function(k){return '<th>'+esc(k)+'</th>'}).join('')+'</tr></thead><tbody>';
-        if(!rows.length)h+='<tr><td>কোন তথ্য পাওয়া যায়নি।</td></tr>';
-        rows.forEach(function(x){h+='<tr>'+heads.map(function(k){return '<td>'+esc(x[k])+'</td>'}).join('')+'</tr>'});
-        if(body)body.innerHTML=h+'</tbody></table></div>';
-      }).catch(function(e){if(body)body.innerHTML='<p>সার্ভার ত্রুটি: '+esc(e.message||e)+'</p>'});
-    }catch(e){if(body)body.innerHTML='<p>সার্ভার ত্রুটি: '+esc(e.message||e)+'</p>'}
-  }
-  function examBoot(){
-    var s=document.getElementById('examClass2026');
-    if(s&&typeof window.loadExamSubjects2026==='function')window.loadExamSubjects2026();
-  }
-  document.addEventListener('click',function(e){
-    var m=document.getElementById('allListsMenu2026'),b=document.getElementById('allListsButton2026');
-    if(m&&m.classList.contains('show')&&!m.contains(e.target)&&e.target!==b)m.classList.remove('show');
-  });
-  window.addEventListener('resize',place);
-  setInterval(function(){bind();examBoot()},700);
+  setInterval(bind,700);bind();
 })();
 </script>
 <script id="exam-registration-hard-fix-2026">
@@ -8597,11 +8530,28 @@ function render(){
 }
 function filtered(){var rows=state.rows.slice(),q=(document.getElementById('fullListSearch2026')?.value||'').trim().toLowerCase();if(state.class)rows=rows.filter(function(r){return String(val(r,['Class','ClassName','Jamaat','JamaatName','শ্রেণি','শ্রেণী','জামাত'])).trim()===state.class});if(q)rows=rows.filter(function(r){return JSON.stringify(r).toLowerCase().includes(q)});return rows}
 window.showListDetail2026=function(i){var rows=filtered(),r=rows[i];if(!r)return;var h='<div class="list-detail-grid-2026">';Object.keys(r).forEach(function(k){h+='<div><b>'+esc(k)+'</b><br>'+esc(r[k])+'</div>'});h+='</div>';document.getElementById('listDetailTitle2026').textContent='🔎 বিস্তারিত দেখুন';document.getElementById('listDetailBody2026').innerHTML=h;document.getElementById('listDetail2026').classList.add('show')};
-window.editListRow2026=function(i){var rows=filtered(),r=rows[i];if(!r)return;window.currentListEdit2026={sheet:state.sheet,row:r};if(typeof window.openModule==='function'){var typ=state.key==='students'?'student':state.key==='teachers'?'teacher':state.key==='donors'?'donor':null;if(typ){window.openModule(typ);setTimeout(function(){var map={StudentID:['StudentID','ID'],NameBN:['NameBN','Name','নাম'],Mobile:['Mobile','Phone'],Address:['Address']};Object.keys(map).forEach(function(id){var el=document.getElementById('f'+id)||document.getElementById(id);if(el){var v=val(r,map[id]);el.value=v}});toast('✏️ এডিটের জন্য তথ্য ফর্মে আনা হয়েছে।')},150)}};
+window.editListRow2026=function(i){
+ var rows=filtered(),r=rows[i];if(!r)return;
+ var table=document.getElementById('fullListTable2026');if(!table)return;
+ var tr=table.tBodies[0]&&table.tBodies[0].rows[i];if(!tr)return;
+ var keys=Object.keys(r);
+ if(tr.dataset.editing==='1'){
+   var data={};keys.forEach(function(k,n){var x=tr.cells[n]&&tr.cells[n].querySelector('input');if(x)data[k]=x.value});
+   var serial=r.Serial;if(serial==null||serial===''){toast('এই তালিকার রেকর্ডে Serial নেই—এডিট সেভ করা যাবে না।');return}
+   if(typeof window.call!=='function'||!window.token){toast('লগইন সেশন পাওয়া যায়নি।');return}
+   window.call('updateRecord',window.token,state.sheet,serial,data).then(function(v){
+     if(v&&v.ok){Object.keys(data).forEach(function(k){r[k]=data[k]});tr.dataset.editing='';render();toast('✅ এডিট সেভ হয়েছে।')}
+     else toast((v&&v.message)||'এডিট সেভ ব্যর্থ হয়েছে।');
+   }).catch(function(e){toast('সেভ সার্ভার ত্রুটি: '+(e&&e.message?e.message:e))});
+   return;
+ }
+ keys.forEach(function(k,n){if(tr.cells[n])tr.cells[n].innerHTML='<input class="field" style="min-width:100px;width:100%" value="'+esc(r[k])+'">'});
+ tr.dataset.editing='1';
+ var action=tr.cells[keys.length]&&tr.cells[keys.length].querySelector('.list-action-2026');if(action)action.textContent='💾 সেভ';
+};if(typeof window.openModule==='function'){var typ=state.key==='students'?'student':state.key==='teachers'?'teacher':state.key==='donors'?'donor':null;if(typ){window.openModule(typ);setTimeout(function(){var map={StudentID:['StudentID','ID'],NameBN:['NameBN','Name','নাম'],Mobile:['Mobile','Phone'],Address:['Address']};Object.keys(map).forEach(function(id){var el=document.getElementById('f'+id)||document.getElementById(id);if(el){var v=val(r,map[id]);el.value=v}});toast('✏️ এডিটের জন্য তথ্য ফর্মে আনা হয়েছে।')},150)}};
 function printList(){var table=document.getElementById('fullListTable2026');if(!table){toast('আগে একটি তালিকা দেখুন।');return}var w=window.open('','_blank');w.document.write('<html><head><meta charset="utf-8"><title>তালিকা</title><style>body{font-family:Arial,sans-serif}h2{text-align:center}table{width:100%;border-collapse:collapse}th,td{border:1px solid #222;padding:5px}th{font-weight:900}</style></head><body><h2>'+esc(document.getElementById('fullListTitle2026').textContent)+'</h2>'+table.outerHTML+'</body></html>');w.document.close();w.focus();w.print()}
 function downloadList(){var rows=filtered();if(!rows.length){toast('ডাউনলোড করার তালিকা নেই।');return}var keys=Object.keys(rows[0]);var csv='\\ufeff'+keys.join(',')+'\\n'+rows.map(function(r){return keys.map(function(k){return '"'+String(r[k]==null?'':r[k]).replace(/"/g,'""')+'"'}).join(',')}).join('\\n');var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='talika-'+state.key+'-'+new Date().toISOString().slice(0,10)+'.csv';a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},1000)}
 window.openFullList2026=open;
 function bind(){var b=document.getElementById('allListsButton2026');if(!b)return;b.onclick=function(e){e.preventDefault();e.stopPropagation();open()};}
-setInterval(bind,700);
-})();
+setInterval(bind,700);setTimeout(bind,0);})();
 </script>
