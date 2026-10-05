@@ -202,12 +202,17 @@ function registerNewAdmin(data){
 function registerMadrasa(data){
   setupSystem();
   data=data||{};
-  const name=String(data.name||'').trim(), year=String(data.foundedYear||'').trim(), username=String(data.username||'').trim(), password=String(data.password||''), address=String(data.address||'').trim();
-  if(!name||!year||!username||!password||!address) return {ok:false,message:'মাদ্রাসার নাম, প্রতিষ্ঠা সন, ঠিকানা, Username ও Password বাধ্যতামূলক।'};
+  const name=String(data.name||'').trim(), year=String(data.foundedYear||'').trim(), username=String(data.username||'').trim(), password=String(data.password||''), address=String(data.address||'').trim(), email=String(data.email||'').trim(), mobile=String(data.mobile||'').trim(), photo=String(data.photo||'');
+  if(!name||!year||!username||!password||!address||!email||!mobile||!photo) return {ok:false,message:'সকল তথ্য পূরণ করা বাধ্যতামূলক।'};
   if(findBy_(SHEETS.MADRASAS,'Username',username)||findBy_(SHEETS.ADMINS,'Username',username)) return {ok:false,message:'এই Username আগে থেকেই ব্যবহার হচ্ছে।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MADRASAS), n=nextSerial_(sh), id='MR-'+String(n).padStart(4,'0');
+  const hdr=sh.getRange(1,1,1,Math.max(sh.getLastColumn(),1)).getValues()[0];
+  if(hdr.indexOf('Email')<0) sh.getRange(1,hdr.length+1).setValue('Email');
+  const hdr2=sh.getRange(1,1,1,Math.max(sh.getLastColumn(),1)).getValues()[0];
+  if(hdr2.indexOf('Photo')<0) sh.getRange(1,hdr2.length+1).setValue('Photo');
   const deps=Array.isArray(data.departments)?data.departments.filter(Boolean).join(', '):String(data.departments||'');
-  sh.appendRow([n,id,'',name,year,'','',''+address,String(data.mobile||''),Number(data.staffCount)||0,Number(data.studentCount)||0,'','PENDING',now_(),username,password,hash_(password),deps,String(data.otherDepartment||''),String(data.ownership||''),'','', '']);
+  const row=[n,id,'',name,year,'','',address,mobile,0,0,'','PENDING',now_(),username,password,hash_(password),deps,String(data.otherDepartment||''),String(data.ownership||''),'','', '',email,photo];
+  sh.getRange(sh.getLastRow()+1,1,1,row.length).setValues([row]);
   log_('PUBLIC','register','MADRASA',id);
   return {ok:true,madrasaId:id,message:'নতুন মাদ্রাসা নিবন্ধন হয়েছে। প্রশাসন/সুপার অ্যাডমিন অনুমোদনের পর Username + Password দিয়ে OTP ছাড়া লগইন করতে পারবেন।'};
 }
