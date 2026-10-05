@@ -8995,3 +8995,58 @@ body.jb-custom-account .header-content .header-identity-contact{color:#fff!impor
   setInterval(run,60000);
 })();
 </script>
+
+
+<!-- ===== ALL PROFILE + PRINT QR = MAIN WEB APP URL — 2026-10-05 ===== -->
+<style id="all-profile-print-main-qr-2026-10-05">
+/* সকল Profile + Print Page: বামে Logo, ডানে একই Main Web App QR */
+.search-profile .search-profile-head{
+  display:grid!important;
+  grid-template-columns:95px minmax(0,1fr) 95px!important;
+  align-items:center!important;
+  gap:10px!important;
+}
+.search-profile .sp-logo{
+  justify-self:start!important;
+  width:82px!important;height:82px!important;
+  object-fit:contain!important;
+}
+.search-profile .sp-qr{
+  justify-self:end!important;
+  width:82px!important;height:82px!important;
+  object-fit:contain!important;
+}
+@media(max-width:700px){
+  .search-profile .search-profile-head{grid-template-columns:62px minmax(0,1fr) 62px!important}
+  .search-profile .sp-logo,.search-profile .sp-qr{width:56px!important;height:56px!important}
+}
+</style>
+<script id="all-profile-print-main-qr-js-2026-10-05">
+(function(){
+  var MAIN_QR_URL='';
+  function qrImage(url){
+    return 'https://quickchart.io/qr?size=220&margin=2&text='+encodeURIComponent(url)+'&v='+Date.now();
+  }
+  function applyMainQR(){
+    if(!MAIN_QR_URL)return;
+    document.querySelectorAll('.search-profile .sp-qr').forEach(function(q){
+      q.src=qrImage(MAIN_QR_URL);
+      q.alt='Main Web App QR Code';
+    });
+  }
+  function loadMainQR(){
+    if(typeof call!=='function')return;
+    call('getMainWebAppUrl').then(function(r){
+      if(r&&r.ok&&r.url){
+        MAIN_QR_URL=String(r.url).trim();
+        applyMainQR();
+      }
+    }).catch(function(){});
+  }
+  window.jbRefreshAllProfilePrintQR2026=function(){applyMainQR();loadMainQR()};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',loadMainQR);
+  else loadMainQR();
+  setTimeout(loadMainQR,1200);
+  setInterval(applyMainQR,5000);
+})();
+</script>
