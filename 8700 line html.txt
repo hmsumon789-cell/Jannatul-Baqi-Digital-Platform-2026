@@ -954,16 +954,6 @@ body.gold #app .header-calendar-select-v2{background:#f4d56b!important;color:#11
     </section>
 
     <section class="dashboard-charts" id="dashboardCharts"></section>
-    <section id="contactFooter" class="footer card" aria-label="যোগাযোগ">
-      <div class="contact-title">📞 যোগাযোগ</div>
-      <div class="contact-name">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div>
-      <div class="contact-address">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div>
-      <div class="contact-info">
-        <span>☎ হটলাইন: 01823316630</span>
-        <span>☎ 01717339288</span>
-        <span>✉ hmsumon789@gmail.com</span>
-      </div>
-    </section>
 
     <!-- ===== CONTACT FOOTER FULL WIDTH + 2IN DOWN — 2026-10-04 ===== -->
 <style>
