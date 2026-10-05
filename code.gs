@@ -673,6 +673,15 @@ function getLocations() {
 
 function getRunningNews_(){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.CONFIG); if(!sh||sh.getLastRow()<2)return 'জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম'; const v=sh.getDataRange().getValues(); for(let i=1;i<v.length;i++){ if(String(v[i][0])==='RUNNING_NEWS') return String(v[i][1]||''); } return 'জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম'; }
 function setRunningNews(token,text){ if(!isSuperAdmin_(token)) return {ok:false,message:'শুধু Super Admin চলমান নিউজ পরিবর্তন করতে পারবেন।'}; text=String(text||'').trim(); if(!text)return {ok:false,message:'নিউজ লিখুন।'}; const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.CONFIG), v=sh.getDataRange().getValues(), idx=v.findIndex((r,i)=>i>0&&String(r[0])==='RUNNING_NEWS'); if(idx<1) sh.appendRow(['RUNNING_NEWS',text,now_()]); else {sh.getRange(idx+1,2).setValue(text);sh.getRange(idx+1,3).setValue(now_());} log_(sessionUser_(token),'update','RUNNING_NEWS',text); return {ok:true,message:'চলমান নিউজ আপডেট হয়েছে।'}; }
+function getDirectSheetUrl() {
+  try {
+    const url = SpreadsheetApp.getActiveSpreadsheet().getUrl();
+    return {ok:true,url:url};
+  } catch(e) {
+    return {ok:false,message:'মূল শিটের ঠিকানা পাওয়া যায়নি।'};
+  }
+}
+
 function getPublicConfig() {
   return {ok:true,institution:APP,classes:getClasses_(),signals:getSignals_(),runningNews:getRunningNews_()};
 }
