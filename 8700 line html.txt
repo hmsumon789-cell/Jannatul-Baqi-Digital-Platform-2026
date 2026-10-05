@@ -9301,3 +9301,22 @@ body.gold #loginPage .login-brand-qr-2026 .main-qr-802268e{
  #loginPage .login-auth-802268e{max-width:100%!important}
 }
 </style>
+
+
+/* ===== CLOCK + DATE DIGITS SIZE BOOST — 2026-10-06 ===== */
+<style id="clock-date-digits-large-2026-10-06">
+/* হেডারের ঘড়ি ও তারিখ—ডিজিটগুলো স্পষ্ট ও বড় */
+#app .header .clock,
+#app .header .date-line{
+  font-size:28px!important;
+  line-height:1.25!important;
+  font-weight:900!important;
+  letter-spacing:.3px!important;
+}
+@media(max-width:700px){
+  #app .header .clock,
+  #app .header .date-line{
+    font-size:24px!important;
+  }
+}
+</style>
