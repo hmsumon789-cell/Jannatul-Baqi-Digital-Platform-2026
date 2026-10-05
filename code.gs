@@ -54,7 +54,7 @@ const HEADERS = {
   ADVISERS:['Serial','MemberID','NameBN','NameAR','NameEN','Role','Mobile','Email','Photo'],
   FOUNDERS:['Serial','MemberID','NameBN','NameAR','NameEN','Role','Mobile','Email','Photo'],
   LOCATION_MASTER:['Division','District','Upazila','Union','Ward','Post','Village'],
-  MADRASAS:['Serial','MadrasaID','GenderType','Name','FoundedYear','Founder','Muhtamim','Address','Mobile','StaffCount','StudentCount','Level','Status','CreatedAt','Username','Password','PasswordHash','ActiveDepartments','OtherDepartment','Ownership','ApprovedBy','ApprovedAt','Permissions'],
+  MADRASAS:['Serial','MadrasaID','GenderType','Name','FoundedYear','Founder','Muhtamim','Address','Mobile','StaffCount','StudentCount','Level','Status','CreatedAt','Username','Password','PasswordHash','ActiveDepartments','OtherDepartment','Ownership','ApprovedBy','ApprovedAt','Permissions','Email','Photo'],
   SALARY:['Serial','SalaryID','EmployeeID','Name','Month','Amount','Method','Date','Note','CreatedAt'],
   CERTIFICATES:['Serial','CertificateID','StudentID','Type','IssueDate','Data'],
   ID_CARDS:['Serial','CardID','StudentID','IssueDate','Data'],
@@ -202,12 +202,12 @@ function registerNewAdmin(data){
 function registerMadrasa(data){
   setupSystem();
   data=data||{};
-  const name=String(data.name||'').trim(), year=String(data.foundedYear||'').trim(), username=String(data.username||'').trim(), password=String(data.password||''), address=String(data.address||'').trim();
-  if(!name||!year||!username||!password||!address) return {ok:false,message:'মাদ্রাসার নাম, প্রতিষ্ঠা সন, ঠিকানা, Username ও Password বাধ্যতামূলক।'};
+  const name=String(data.name||'').trim(), year=String(data.foundedYear||'').trim(), username=String(data.username||'').trim(), password=String(data.password||''), address=String(data.address||'').trim(), email=String(data.email||'').trim(), mobile=String(data.mobile||'').trim(), photo=String(data.photo||'');
+  if(!name||!year||!username||!password||!address||!email||!mobile||!photo) return {ok:false,message:'মাদ্রাসার নাম, প্রতিষ্ঠা সন, Username, Password, ইমেইল, মোবাইল, ঠিকানা ও ফটো বাধ্যতামূলক।'};
   if(findBy_(SHEETS.MADRASAS,'Username',username)||findBy_(SHEETS.ADMINS,'Username',username)) return {ok:false,message:'এই Username আগে থেকেই ব্যবহার হচ্ছে।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MADRASAS), n=nextSerial_(sh), id='MR-'+String(n).padStart(4,'0');
   const deps=Array.isArray(data.departments)?data.departments.filter(Boolean).join(', '):String(data.departments||'');
-  sh.appendRow([n,id,'',name,year,'','',''+address,String(data.mobile||''),Number(data.staffCount)||0,Number(data.studentCount)||0,'','PENDING',now_(),username,password,hash_(password),deps,String(data.otherDepartment||''),String(data.ownership||''),'','', '']);
+  sh.appendRow([n,id,'',name,year,'','',''+address,mobile,Number(data.staffCount)||0,Number(data.studentCount)||0,'','PENDING',now_(),username,password,hash_(password),deps,String(data.otherDepartment||''),String(data.ownership||''),'','', '',email,photo]);
   log_('PUBLIC','register','MADRASA',id);
   return {ok:true,madrasaId:id,message:'নতুন মাদ্রাসা নিবন্ধন হয়েছে। প্রশাসন/সুপার অ্যাডমিন অনুমোদনের পর Username + Password দিয়ে OTP ছাড়া লগইন করতে পারবেন।'};
 }
