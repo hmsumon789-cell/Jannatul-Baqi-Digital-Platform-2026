@@ -8825,7 +8825,7 @@ function placeFullWidth(){
 </style>
 <script id="jb-universal-fullscreen-js-2026">
 (function(){
-  function isTarget(w){return w&&((w.classList&&w.classList.contains('window'))||w.id==='formWin')}
+  function isTarget(w){return w&&((w.classList&&(w.classList.contains('window')||w.classList.contains('form-window')))||w.id==='formWin')}
   function toggle(w){
     if(!isTarget(w))return;
     if(w.classList.contains('jb-universal-fullscreen-2026')){
@@ -8851,11 +8851,11 @@ function placeFullWidth(){
     if(b.dataset.jbBound==='1')return;b.dataset.jbBound='1';
     b.onclick=function(e){e.preventDefault();e.stopPropagation();toggle(w)};
   }
-  function scan(){document.querySelectorAll('.window').forEach(add);var f=document.getElementById('formWin');if(f)add(f)}
+  function scan(){document.querySelectorAll('.window,.form-window').forEach(add);var f=document.getElementById('formWin');if(f)add(f)}
   window.jbUniversalFullscreen2026=toggle;
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
   setTimeout(scan,300);setTimeout(scan,1000);setInterval(scan,1500);
-  new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes&&m.addedNodes.forEach(function(n){if(n.nodeType===1){if(n.matches&&n.matches('.window,#formWin'))add(n);n.querySelectorAll&&n.querySelectorAll('.window').forEach(add)}})})}).observe(document.body,{childList:true,subtree:true});
+  new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes&&m.addedNodes.forEach(function(n){if(n.nodeType===1){if(n.matches&&n.matches('.window,.form-window,#formWin'))add(n);n.querySelectorAll&&n.querySelectorAll('.window').forEach(add)}})})}).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
 
@@ -9361,4 +9361,11 @@ body.gold #loginPage .login-brand-qr-2026 .main-qr-802268e{
     min-height:52px!important;height:52px!important;
   }
 }
+</style>
+
+
+<!-- /* ===== ALL WINDOWS + ALL FORMS FULLSCREEN BUTTON FINAL — 2026-10-06 ===== */ -->
+<style id="all-windows-all-forms-fullscreen-final-2026-10-06">
+/* একই ⛶ Fullscreen বাটন—সব Window এবং সব Form-এর win-head-এ */
+.window .win-head,.form-window .win-head,#formWin .win-head{position:sticky!important;top:0!important;z-index:10!important}
 </style>
