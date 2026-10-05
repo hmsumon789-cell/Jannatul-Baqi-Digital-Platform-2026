@@ -8828,3 +8828,36 @@ function placeFullWidth(){
   margin-bottom:0!important;
 }
 </style>
+
+
+<!-- ===== CONTACT FOOTER FINAL ORDER FIX — 2026-10-05 ===== -->
+<style id="contact-footer-final-order-fix-2026-10-05">
+#app main > #contactFooter{
+  position:static!important;
+  top:auto!important;left:auto!important;right:auto!important;bottom:auto!important;
+  float:none!important;
+  clear:both!important;
+  transform:none!important;
+  width:100%!important;
+  max-width:none!important;
+  margin:28px 0 0!important;
+  display:block!important;
+  box-sizing:border-box!important;
+}
+#app main > #dashboardCharts{
+  margin-bottom:28px!important;
+}
+</style>
+<script id="contact-footer-final-order-fix-js-2026-10-05">
+(function(){
+  function moveContactToBottom(){
+    var main=document.querySelector('#app main');
+    var contact=document.getElementById('contactFooter');
+    if(!main||!contact)return;
+    if(contact.parentElement===main && main.lastElementChild!==contact) main.appendChild(contact);
+  }
+  function run(){moveContactToBottom();}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run);else run();
+  setTimeout(run,300);setTimeout(run,1000);setTimeout(run,2000);
+})();
+</script>
