@@ -8698,3 +8698,80 @@ box-sizing:border-box!important;overflow:hidden!important;
 <script id="dashboard-summary-contact-full-page-js-2026-10-04">
 (function(){
 function placeFullWidth(){
+<!-- ===== FULL LIST WINDOW OVERRIDE FOR 8700 LINE HTML — 2026-10-05 ===== -->
+<style id="full-list-8700-final-css">
+#fullList8700Win{display:none!important;position:fixed!important;inset:1vh 1vw!important;width:auto!important;height:98vh!important;z-index:2147483640!important;background:var(--panel,#fff);color:var(--text,#111);border:4px solid var(--border,#d40000);border-radius:14px;box-shadow:0 20px 80px #000b;overflow:hidden}
+#fullList8700Win.show{display:flex!important;flex-direction:column!important}
+#fullList8700Win .fl87-head{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-bottom:3px solid var(--border,#d40000);flex:0 0 auto}
+#fullList8700Win .fl87-tools{display:grid;grid-template-columns:270px 270px 1fr auto;gap:7px;padding:8px;border-bottom:2px solid var(--border,#d40000);flex:0 0 auto}
+#fullList8700Win .fl87-body{flex:1;overflow:auto;padding:8px}
+#fullList8700Win table{width:100%;border-collapse:collapse;min-width:900px}
+#fullList8700Win th,#fullList8700Win td{border:1px solid var(--border,#d40000);padding:6px;vertical-align:top}
+#fullList8700Win th{position:sticky;top:0;background:var(--panel,#fff);z-index:2}
+#fullList8700Win .fl87-actions{white-space:nowrap;text-align:center}
+#fullList8700Win .fl87-edit{width:100%;min-width:100px;padding:5px;background:#fff;color:#111;border:1px solid #d40000}
+#fullList8700Win .fl87-foot{display:flex;justify-content:center;gap:8px;padding:8px;border-top:3px solid var(--border,#d40000);flex:0 0 auto}
+#fullList8700Win .fl87-detail{display:none;position:fixed;inset:8vh 15vw;z-index:2147483650;background:var(--panel,#fff);color:var(--text,#111);border:4px solid var(--border,#d40000);border-radius:14px;padding:12px;overflow:auto;box-shadow:0 20px 70px #000b}
+#fullList8700Win .fl87-detail.show{display:block}
+#fullList8700Win .fl87-detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+#fullList8700Win .fl87-detail-grid>div{border:1px solid var(--border,#d40000);padding:7px;word-break:break-word}
+@media(max-width:900px){#fullList8700Win .fl87-tools{grid-template-columns:1fr}#fullList8700Win .fl87-detail{inset:5vh 4vw}#fullList8700Win .fl87-detail-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){#fullList8700Win .fl87-detail-grid{grid-template-columns:1fr}}
+</style>
+<script id="full-list-8700-final-js">
+(function(){
+var CL=['প্লে শ্রেনী','শিশু শ্রেনী','আউয়াল জামাত','ছানী জামাত','ছালেছ জামাত','রাবে জামাত','পঞ্চম জামাত','মিজান জামাত','নাহবেমীর জামাত','কুদুরী জামাত','শরহে বেকায়া জামাত','হেদায়া জামাত','মিশকাত জামাত','দাওরায়ে হাদিস'];
+var LT=[
+ ['students','👩‍🎓 ছাত্র/ছাত্রী তালিকা','STUDENTS'],['teachers','👩‍🏫 শিক্ষক/শিক্ষিকা তালিকা','TEACHERS'],['donors','🤝 দাতা সদস্য তালিকা','DONORS'],
+ ['executives','🏛️ নির্বাহী/পরিচালনা পরিষদ','EXECUTIVES'],['advisers','🧑‍🏫 উপদেষ্টা তালিকা','ADVISERS'],['founders','👤 প্রতিষ্ঠাতা তালিকা','FOUNDERS'],
+ ['admins','🔐 অ্যাডমিন তালিকা','ADMINS'],['exams','📝 পরীক্ষার্থী নিবন্ধন তালিকা','EXAM_REG'],['madrasas','🏫 মাদ্রাসা তালিকা','MADRASAS'],
+ ['admissions','📥 ভর্তি তালিকা','ADMISSIONS'],['results','📊 ফলাফল/মার্কশিট তালিকা','RESULTS'],['mobile','📱 মোবাইল নম্বর তালিকা','STUDENTS']
+];
+var state={key:'students',sheet:'STUDENTS',rows:[],shown:[]};
+function e(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function n(v){return String(v==null?'':v).toLowerCase().trim()}
+function pick(o,ks){for(var i=0;i<ks.length;i++)if(o&&o[ks[i]]!=null&&String(o[ks[i]])!=='')return o[ks[i]];return ''}
+function make(){
+ var w=document.getElementById('fullList8700Win');if(w)return w;
+ w=document.createElement('div');w.id='fullList8700Win';
+ w.innerHTML='<div class="fl87-head"><b id="fl87Title" style="font-size:21px">📋 পূর্ণ তালিকা</b><button type="button" class="secondary" id="fl87Close">✕ বন্ধ</button></div>'+
+ '<div class="fl87-tools"><select id="fl87Type" class="field"></select><select id="fl87Class" class="field"><option value="">সকল শ্রেণি / জামাত</option>'+CL.map(function(x){return "<option>"+e(x)+"</option>"}).join('')+'</select><input id="fl87Search" class="field" placeholder="নাম / ID / মোবাইল অনুসন্ধান"><button type="button" class="primary" id="fl87Load">📋 তালিকা দেখুন</button></div>'+
+ '<div class="fl87-body" id="fl87Body"><p>তালিকার ধরন নির্বাচন করুন।</p></div>'+
+ '<div class="fl87-foot"><button type="button" class="primary" id="fl87Print">🖨️ প্রিন্ট</button><button type="button" class="secondary" id="fl87Download">⬇️ ডাউনলোড</button></div>'+
+ '<div class="fl87-detail" id="fl87Detail"><h3>🔎 বিস্তারিত</h3><div id="fl87DetailBody"></div><p style="text-align:center"><button type="button" class="secondary" id="fl87DetailClose">✕ বন্ধ</button></p></div>';
+ document.body.appendChild(w);
+ var t=document.getElementById('fl87Type');LT.forEach(function(x){var o=document.createElement('option');o.value=x[0];o.textContent=x[1];t.appendChild(o)});
+ t.onchange=function(){var x=LT.find(function(a){return a[0]===t.value})||LT[0];state.key=x[0];state.sheet=x[2];document.getElementById('fl87Title').textContent=x[1];document.getElementById('fl87Class').style.display=(state.sheet==='STUDENTS'||state.sheet==='TEACHERS'||state.sheet==='EXAM_REG'||state.sheet==='RESULTS')?'block':'none';state.rows=[];document.getElementById('fl87Body').innerHTML='<p>📋 <b>'+e(x[1])+'</b> নির্বাচন হয়েছে। তালিকা দেখুন চাপুন।</p>'};
+ document.getElementById('fl87Class').onchange=render;document.getElementById('fl87Search').oninput=render;document.getElementById('fl87Load').onclick=load;document.getElementById('fl87Close').onclick=close;document.getElementById('fl87Print').onclick=printAll;document.getElementById('fl87Download').onclick=download;document.getElementById('fl87DetailClose').onclick=function(){document.getElementById('fl87Detail').classList.remove('show')};
+ t.value='students';t.dispatchEvent(new Event('change'));return w;
+}
+function open(){make().classList.add('show')}
+function close(){var w=document.getElementById('fullList8700Win');if(w)w.classList.remove('show')}
+async function load(){
+ var b=document.getElementById('fl87Body');b.innerHTML='<p>⏳ তালিকা লোড হচ্ছে...</p>';
+ if(!window.token){b.innerHTML='<p>লগইন সেশন পাওয়া যায়নি।</p>';return}
+ try{var r=await call('getModuleList',token,state.sheet);if(!r||r.ok===false)throw new Error((r&&r.message)||'তালিকা পাওয়া যায়নি');state.rows=Array.isArray(r.rows)?r.rows:[];render()}catch(x){b.innerHTML='<p>তালিকা লোড করা যায়নি: '+e(x.message||x)+'</p>'}
+}
+function filtered(){
+ var a=state.rows.map(function(r,i){return {r:r,i:i}}),q=n(document.getElementById('fl87Search').value),c=n(document.getElementById('fl87Class').value);
+ if(c)a=a.filter(function(x){return n(pick(x.r,['Class','ClassName','Jamaat','JamaatName','শ্রেণি','শ্রেণী','জামাত']))===c});
+ if(q)a=a.filter(function(x){return n(JSON.stringify(x.r)).indexOf(q)>=0});
+ return a;
+}
+function keys(r){return Object.keys(r).filter(function(k){return !/^(Password|PasswordHash|CreatedAt)$/i.test(k)})}
+function render(){
+ var b=document.getElementById('fl87Body'),a=filtered();state.shown=a;if(!a.length){b.innerHTML='<p>কোন তথ্য পাওয়া যায়নি।</p>';return}
+ var hds=keys(a[0].r),h='<table id="fl87Table"><thead><tr>'+hds.map(function(k){return '<th>'+e(k)+'</th>'}).join('')+'<th>কার্যক্রম</th></tr></thead><tbody>';
+ a.forEach(function(x,i){h+='<tr id="fl87row'+i+'">'+hds.map(function(k){return '<td data-k="'+e(k)+'">'+e(x.r[k])+'</td>'}).join('')+'<td class="fl87-actions"><button type="button" class="secondary" onclick="window.fl87Detail('+i+')">🔎 বিস্তারিত</button> <button type="button" class="primary" onclick="window.fl87Edit('+i+')">✏️ এডিট</button></td></tr>'});
+ b.innerHTML=h+'</tbody></table><p style="text-align:center;font-weight:900">মোট: '+a.length+' জন/টি</p>';
+}
+window.fl87Detail=function(i){var x=state.shown[i];if(!x)return;var r=x.r,h='<div class="fl87-detail-grid">';keys(r).forEach(function(k){h+='<div><b>'+e(k)+'</b><br>'+e(r[k])+'</div>'});h+='</div>';document.getElementById('fl87DetailBody').innerHTML=h;document.getElementById('fl87Detail').classList.add('show')};
+window.fl87Edit=function(i){var x=state.shown[i],row=document.getElementById('fl87row'+i);if(!x||!row)return;keys(x.r).forEach(function(k){var td=row.querySelector('[data-k="'+CSS.escape(k)+'"]');if(td)td.innerHTML='<input class="fl87-edit" data-ek="'+e(k)+'" value="'+e(x.r[k])+'">'});row.querySelector('.fl87-actions').innerHTML='<button type="button" class="primary" onclick="window.fl87Save('+i+')">💾 সেভ</button><button type="button" class="secondary" onclick="window.fl87Cancel()">✕ বাতিল</button>'};
+window.fl87Cancel=function(){render()};
+window.fl87Save=function(i){var x=state.shown[i],row=document.getElementById('fl87row'+i);if(!x||!row)return;var data={};keys(x.r).forEach(function(k){var z=row.querySelector('[data-ek="'+CSS.escape(k)+'"]');if(z)data[k]=z.value});if(x.r.Serial==null||x.r.Serial==='')return toast('এই রেকর্ডের Serial পাওয়া যায়নি।');call('updateRecord',token,state.sheet,x.r.Serial,data).then(function(v){if(v&&v.ok){toast('✅ সেভ সফল হয়েছে।');load()}else toast((v&&v.message)||'সেভ ব্যর্থ হয়েছে।')}).catch(function(er){toast('সেভ সার্ভার ত্রুটি: '+e(er.message||er))})};
+function printAll(){var t=document.getElementById('fl87Table');if(!t)return toast('আগে তালিকা দেখুন।');var w=window.open('','_blank');w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>তালিকা</title><style>body{font-family:Arial,sans-serif}table{width:100%;border-collapse:collapse}th,td{border:1px solid #222;padding:5px}.fl87-actions{display:none}</style></head><body><h2>'+e(document.getElementById('fl87Title').textContent)+'</h2>'+t.outerHTML+'</body></html>');w.document.close();setTimeout(function(){w.print()},200)}
+function download(){var a=state.shown;if(!a.length)return toast('ডাউনলোড করার তালিকা নেই।');var h=keys(a[0].r),csv='\ufeff'+h.join(',')+'\n'+a.map(function(x){return h.map(function(k){return '"'+String(x.r[k]==null?'':x.r[k]).replace(/"/g,'""')+'"'}).join(',')}).join('\n'),u=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),z=document.createElement('a');z.href=u;z.download='talika-'+state.key+'.csv';document.body.appendChild(z);z.click();z.remove();setTimeout(function(){URL.revokeObjectURL(u)},1000)}
+function bind(){var b=document.getElementById('allListsButton2026');if(b)b.onclick=function(ev){ev.preventDefault();ev.stopPropagation();open()}}
+setTimeout(bind,100);setInterval(bind,1000);
+})();
+</script>
