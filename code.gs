@@ -239,6 +239,7 @@ function createDirectSession_(username,type){
   const session=Utilities.getUuid();
   CacheService.getScriptCache().put('SESSION:'+session,JSON.stringify({username:String(username),accountType:type,at:Date.now()}),21600);
   const user=type==='admin'?getAdminSafe_(username):findBy_(SHEETS.MADRASAS,'Username',username)||{};
+  user.accountType=type;
   return {ok:true,token:session,user:user,message:'লগইন সফল হয়েছে।'};
 }
 
