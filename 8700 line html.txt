@@ -8864,3 +8864,51 @@ function placeFullWidth(){
   setTimeout(run,300);setTimeout(run,1000);setTimeout(run,2000);
 })();
 </script>
+
+
+<!-- ===== NEW ACCOUNT LOGIN + APPROVAL GATE + CUSTOM HEADER PHOTO — 2026-10-05 ===== -->
+<style id="jb-new-account-approval-gate-2026-10-05">
+#jbApprovalGateWin .win-body{text-align:center;padding:28px 22px;font-weight:800;line-height:1.8}
+#jbApprovalGateWin .approval-icon{font-size:42px;margin-bottom:8px}
+#jbApprovalGateWin .approval-title{font-size:22px;font-weight:900;margin-bottom:8px}
+#jbApprovalGateWin .approval-text{font-size:17px}
+body.jb-custom-account .header-top{background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}
+body.jb-custom-account .header-top:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.48),rgba(0,0,0,.62));z-index:1;pointer-events:none}
+body.jb-custom-account .header-slides{display:none!important}
+body.jb-custom-account .header-content{color:#fff!important;text-shadow:0 2px 4px #000!important}
+body.jb-custom-account .header-content .header-identity-contact{color:#fff!important}
+</style>
+<script id="jb-new-account-approval-gate-2026-10-05">
+(function(){
+  function roleOf(u){return String((u||{}).Role||(u||{}).role||'').toUpperCase().replace(/\\s+/g,'_')}
+  function isSuper(u){var r=roleOf(u);return r==='SUPER_ADMIN'||r==='SUPERADMIN'}
+  function isCustom(u){var t=String((u||{}).accountType||(u||{}).AccountType||'').toLowerCase();return t==='madrasa'||(t==='admin'&&!isSuper(u))}
+  function isPending(u){return isCustom(u)&&String((u||{}).Status||(u||{}).status||'PENDING').toUpperCase()!=='ACTIVE'}
+  function photoOf(u){return String((u||{}).Photo||(u||{}).photo||(u||{}).PhotoURL||(u||{}).ImageURL||'').trim()}
+  function applyCustomHeader(){
+    var u=window.currentUser||currentUser||{};
+    if(!isCustom(u))return;
+    document.body.classList.add('jb-custom-account');
+    var p=photoOf(u),h=document.querySelector('#app .header-top');
+    if(h&&p)h.style.backgroundImage='url("'+p.replace(/"/g,'&quot;')+'")';
+    var title=String(u.accountType||'').toLowerCase()==='madrasa'?String(u.Name||u.MadrasaName||'').trim():String(u.NameBN||u.Name||'').trim();
+    if(title){var el=document.querySelector('#app .header-content .title-bn');if(el)el.textContent=title;}
+  }
+  function ensureGate(){
+    var w=document.getElementById('jbApprovalGateWin');if(w)return w;
+    w=document.createElement('div');w.id='jbApprovalGateWin';w.className='window';w.style.width='min(620px,94vw)';
+    w.innerHTML='<div class="win-head"><b>🔒 অনুমোদন প্রয়োজন</b><button class="secondary" type="button" onclick="closeWindow(\'jbApprovalGateWin\')">✕</button></div><div class="win-body"><div class="approval-icon">🔐</div><div class="approval-title">দ্রুত জান্নাতুল বাক্বী মহিলা মাদ্রাসার প্রশাসনিক বিভাগ/মহাপরিচালক কর্তৃক অনুমোদন নিন</div><div class="approval-text">অনুমোদন পাওয়ার পর কার্যক্রম পরিচালনা করুন।</div><div style="margin-top:16px"><button class="primary" type="button" onclick="closeWindow(\'jbApprovalGateWin\')">ঠিক আছে</button></div></div>';
+    document.body.appendChild(w);return w;
+  }
+  window.jbApprovalGate=function(){ensureGate();if(typeof openWindow==='function')openWindow('jbApprovalGateWin');else document.getElementById('jbApprovalGateWin').classList.add('show')};
+  var prevOpen=window.openModule;
+  window.openModule=function(key){
+    var u=window.currentUser||currentUser||{};
+    if(isPending(u)&&key){jbApprovalGate();return;}
+    return typeof prevOpen==='function'?prevOpen.apply(this,arguments):undefined;
+  };
+  var oldLoad=window.loadApp;
+  if(typeof oldLoad==='function')window.loadApp=async function(){var r=await oldLoad.apply(this,arguments);setTimeout(applyCustomHeader,50);return r};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',applyCustomHeader);else setTimeout(applyCustomHeader,50);
+})();
+</script>
