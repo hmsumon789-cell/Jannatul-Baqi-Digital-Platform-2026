@@ -973,11 +973,21 @@ function openProtectedSheet2026(){
 
     <!-- ===== CONTACT FOOTER — FINAL BOTTOM 2026-10-05 ===== -->
     <section id="contactFooter" class="footer card" style="width:100%;box-sizing:border-box;text-align:center;margin:16px 0 0;padding:18px 14px;">
-      <div class="contact-title" style="font-size:24px;font-weight:900;margin-bottom:6px;">📞 যোগাযোগ</div>
-      <div class="contact-name" style="font-size:21px;font-weight:900;margin-bottom:4px;">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div>
-      <div class="contact-address" style="font-size:16px;font-weight:800;margin-bottom:6px;">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div>
-      <div class="contact-info" style="display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:6px 18px;font-size:16px;font-weight:900;">
-        <span>✉️ hmsumon789@gmail.com</span>
+      <div class="contact-title" style="font-size:24px;font-weight:900;margin-bottom:8px;">📞 যোগাযোগ</div>
+      <div class="contact-layout-2026">
+        <div class="contact-logo-side-2026"><img id="contactLoginLogo2026" alt="লোগো"></div>
+        <div class="contact-center-2026">
+          <div class="contact-name" style="font-size:21px;font-weight:900;margin-bottom:4px;">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div>
+          <div class="contact-address" style="font-size:16px;font-weight:800;margin-bottom:6px;">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div>
+          <div class="contact-info" style="font-size:16px;font-weight:900;">
+            <span>📞 হটলাইন: 01823316630</span>
+            <span>✉️ hmsumon789@gmail.com</span>
+          </div>
+        </div>
+        <div class="contact-qr-side-2026">
+          <img id="contactMainQR2026" alt="মূল পেজের QR কোড">
+          <div>মূল পেজ</div>
+        </div>
       </div>
     </section>
 
@@ -8916,5 +8926,66 @@ body.jb-custom-account .header-content .header-identity-contact{color:#fff!impor
   var oldLoad=window.loadApp;
   if(typeof oldLoad==='function')window.loadApp=async function(){var r=await oldLoad.apply(this,arguments);setTimeout(applyCustomHeader,50);return r};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',applyCustomHeader);else setTimeout(applyCustomHeader,50);
+})();
+</script>
+
+<!-- ===== CONTACT LOGO + AUTO MAIN PAGE QR — 2026-10-05 ===== -->
+<style id="contact-logo-qr-2026-10-05">
+#contactFooter .contact-layout-2026{
+  display:grid!important;
+  grid-template-columns:120px minmax(0,1fr) 140px!important;
+  align-items:center!important;
+  gap:18px!important;
+  width:100%!important;
+}
+#contactFooter .contact-logo-side-2026,
+#contactFooter .contact-qr-side-2026{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+#contactFooter #contactLoginLogo2026{
+  width:92px!important;height:92px!important;object-fit:contain!important;
+  border:0!important;background:transparent!important;
+}
+#contactFooter #contactMainQR2026{
+  width:100px!important;height:100px!important;object-fit:contain!important;
+  background:#fff!important;border:2px solid var(--border)!important;
+  border-radius:8px!important;padding:4px!important;box-sizing:border-box!important;
+}
+#contactFooter .contact-center-2026{text-align:center!important;min-width:0!important}
+#contactFooter .contact-center-2026 .contact-info{
+  display:flex!important;justify-content:center!important;align-items:center!important;
+  flex-wrap:wrap!important;gap:6px 18px!important;
+}
+@media(max-width:700px){
+  #contactFooter .contact-layout-2026{grid-template-columns:72px minmax(0,1fr) 88px!important;gap:8px!important}
+  #contactFooter #contactLoginLogo2026{width:62px!important;height:62px!important}
+  #contactFooter #contactMainQR2026{width:72px!important;height:72px!important}
+  #contactFooter .contact-center-2026 .contact-name{font-size:17px!important}
+  #contactFooter .contact-center-2026 .contact-address{font-size:13px!important}
+  #contactFooter .contact-center-2026 .contact-info{font-size:13px!important}
+}
+</style>
+<script id="contact-logo-qr-js-2026-10-05">
+(function(){
+  function getMainPageUrl(){
+    try{return window.location.href.split('#')[0];}catch(e){return window.location.origin+window.location.pathname;}
+  }
+  function setContactMedia(){
+    var logo=document.getElementById('contactLoginLogo2026');
+    var login=document.getElementById('loginLogo');
+    if(logo && login && login.src) logo.src=login.src;
+    var qr=document.getElementById('contactMainQR2026');
+    if(qr){
+      var url=getMainPageUrl();
+      qr.src='https://quickchart.io/qr?size=220&margin=2&text='+encodeURIComponent(url)+'&v='+Date.now();
+    }
+  }
+  function run(){setContactMedia();}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run);else run();
+  setTimeout(run,1000);
+  setInterval(run,60000);
 })();
 </script>
