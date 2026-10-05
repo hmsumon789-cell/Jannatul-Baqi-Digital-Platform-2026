@@ -9320,3 +9320,45 @@ body.gold #loginPage .login-brand-qr-2026 .main-qr-802268e{
   }
 }
 </style>
+
+
+<!-- ===== CLOCK DATE + LOGIN FIELDS SIZE FINAL — 2026-10-06 ===== -->
+<style id="clock-date-login-fields-final-2026-10-06">
+#app .header .clock,
+#app .header .date-line{
+  font-size:40px!important;
+  line-height:1.2!important;
+  font-weight:900!important;
+  text-align:center!important;
+}
+#app .header-tools,
+#app .header-tools .date-line,
+#app .header-tools .clock{
+  align-items:center!important;
+  justify-content:center!important;
+}
+#loginPage .login-auth-802268e .login-grid .field,
+#loginPage .login-auth-802268e .login-grid .pass-wrap{
+  min-height:52px!important;
+  height:52px!important;
+  padding-top:13px!important;
+  padding-bottom:13px!important;
+  font-size:19px!important;
+  line-height:1.35!important;
+}
+#loginPage .login-auth-802268e .login-grid .pass-wrap .field{
+  height:52px!important;
+}
+#loginPage .login-auth-802268e .login-grid .eye{
+  height:42px!important;
+  top:5px!important;
+}
+@media(max-width:700px){
+  #app .header .clock,
+  #app .header .date-line{font-size:34px!important}
+  #loginPage .login-auth-802268e .login-grid .field,
+  #loginPage .login-auth-802268e .login-grid .pass-wrap{
+    min-height:52px!important;height:52px!important;
+  }
+}
+</style>
