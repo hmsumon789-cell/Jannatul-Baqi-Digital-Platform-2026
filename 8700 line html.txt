@@ -9457,3 +9457,32 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
 #loginPage .login-auth-802268e .login-grid .eye{top:1px!important;right:7px!important;width:48px!important;min-width:48px!important;height:48px!important;border:2px solid #b98a16!important;border-radius:50%!important;padding:0!important;display:flex!important;align-items:center!important;justify-content:center!important;background:#fffaf0!important;line-height:1!important}
 body.dark #loginPage .login-auth-802268e .login-grid .eye{border-color:#ff1f2f!important;background:#000!important;color:#ffe95c!important}
 </style>
+
+
+<!-- ===== LOGIN CLOCK RIGHT OF BANGLA + QR BESIDE LOGO + PASSWORD POSITION FINAL — 2026-10-06 ===== -->
+<style id="jb-login-clock-qr-password-final-2026-10-06">
+/* বাংলা নামের ডান পাশে লগইন ঘড়ি + তারিখ + মাস + সন */
+#loginPage .login{position:relative!important}
+#loginPage .loginDateTime{
+  display:block!important;position:absolute!important;right:18px!important;top:38px!important;
+  z-index:20!important;font-size:18px!important;font-weight:900!important;
+  line-height:1.35!important;text-align:right!important;white-space:nowrap!important;
+  color:#7a5200!important;background:#fffaf0!important;border:2px solid #c59a25!important;
+  border-radius:999px!important;padding:5px 10px!important;
+}
+body.dark #loginPage .loginDateTime{color:#ffe95c!important;background:#000!important;border-color:#ff1f2f!important}
+/* QR লোগোর একদম পাশে, একই লাইনে */
+#loginPage .login-brand-qr-2026{display:flex!important;align-items:center!important;justify-content:center!important;gap:4px!important}
+#loginPage .login-brand-qr-2026 .main-qr-802268e{width:82px!important;height:82px!important;flex:0 0 82px!important;padding:3px!important;margin-left:0!important}
+#loginPage .login-brand-qr-2026 .main-qr-802268e img{width:74px!important;height:74px!important}
+/* Password বক্স সামান্য উপরে */
+#loginPage .login-auth-802268e .login-grid .pass-wrap{transform:translateY(-5px)!important}
+#loginPage .login-auth-802268e .login-grid .pass-wrap .eye{top:-3px!important}
+/* পাসওয়ার্ড ভুলে গেছেন বাটন ১ ইঞ্চি বামে */
+#loginPage .link-row{transform:translateX(-96px)!important}
+@media(max-width:700px){
+  #loginPage .loginDateTime{position:static!important;margin:4px auto!important;text-align:center!important;font-size:13px!important;width:max-content!important;max-width:100%!important}
+  #loginPage .login-auth-802268e .login-grid .pass-wrap{transform:translateY(-3px)!important}
+  #loginPage .link-row{transform:none!important}
+}
+</style>
