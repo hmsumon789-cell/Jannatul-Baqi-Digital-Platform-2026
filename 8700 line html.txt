@@ -8715,6 +8715,45 @@ box-sizing:border-box!important;overflow:hidden!important;
 (function(){
 function placeFullWidth(){
 
+<!-- ===== CONTACT FOOTER: 2 ROWS + FULL WIDTH BOTTOM — 2026-10-05 ===== -->
+<style id="contact-footer-2row-full-bottom-2026-10-05">
+#app main > #contactFooter{
+  width:100vw!important;
+  max-width:none!important;
+  margin-top:16px!important;
+  margin-left:calc(50% - 50vw)!important;
+  margin-right:0!important;
+  margin-bottom:0!important;
+  box-sizing:border-box!important;
+  display:block!important;
+  border-left-width:3px!important;
+  border-right-width:3px!important;
+  border-radius:0!important;
+}
+#contactFooter .contact-info{
+  width:100%!important;
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-template-rows:repeat(2,auto)!important;
+  gap:6px 18px!important;
+  justify-items:center!important;
+  align-items:center!important;
+}
+#contactFooter .contact-info span{
+  width:100%!important;
+  flex:initial!important;
+  text-align:center!important;
+}
+#contactFooter .contact-info span:nth-child(3),
+#contactFooter .contact-info span:nth-child(4){
+  flex:initial!important;
+  grid-column:auto!important;
+}
+@media(max-width:700px){
+  #contactFooter .contact-info{grid-template-columns:1fr!important;grid-template-rows:auto!important}
+}
+</style>
+
 <!-- ===== FINAL UNIVERSAL FORM + WINDOW FULLSCREEN BUTTON — 2026-10-05 ===== -->
 <style id="jb-universal-fullscreen-2026">
 .jb-universal-fs-2026{width:34px!important;min-width:34px!important;height:30px!important;padding:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;border:2px solid var(--border)!important;border-radius:7px!important;background:var(--panel)!important;color:inherit!important;font-weight:900!important;cursor:pointer!important}
