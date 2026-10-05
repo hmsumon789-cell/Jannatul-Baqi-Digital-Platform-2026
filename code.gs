@@ -221,7 +221,7 @@ function loginNewAdmin(username,password){
   setupSystem(); username=String(username||'').trim(); password=String(password||'');
   const row=findBy_(SHEETS.ADMINS,'Username',username);
   if(!row) return {ok:false,message:'এই Admin Username পাওয়া যায়নি।'};
-  if(String(row.Status||'').toUpperCase()!=='ACTIVE') return {ok:false,message:'এই Admin একাউন্ট এখন '+String(row.Status||'PENDING')+'। Super Admin অনুমোদন প্রয়োজন।'};
+
   if(String(row.PasswordHash||'')!==hash_(password)) return {ok:false,message:'Password সঠিক নয়।'};
   return createDirectSession_(username,'admin');
 }
@@ -230,7 +230,7 @@ function loginMadrasa(username,password){
   setupSystem(); username=String(username||'').trim(); password=String(password||'');
   const row=findBy_(SHEETS.MADRASAS,'Username',username);
   if(!row) return {ok:false,message:'এই Madrasa Username পাওয়া যায়নি।'};
-  if(String(row.Status||'').toUpperCase()!=='ACTIVE') return {ok:false,message:'এই মাদ্রাসা একাউন্ট এখন '+String(row.Status||'PENDING')+'। Super Admin অনুমোদন প্রয়োজন।'};
+
   if(String(row.PasswordHash||'')!==hash_(password)) return {ok:false,message:'Password সঠিক নয়।'};
   return createDirectSession_(username,'madrasa');
 }
@@ -254,10 +254,12 @@ function getModulesForSession_(token){
   const all = getModules_();
   if(s.accountType==='madrasa'){
     const m=findBy_(SHEETS.MADRASAS,'Username',s.username)||{};
+    if(String(m.Status||'PENDING').toUpperCase()!=='ACTIVE') return all;
     const allowed=String(m.Permissions||'').split(',').map(x=>x.trim()).filter(Boolean);
     return all.filter(x=>allowed.includes(x[0]) || x[0]==='institution' || x[0]==='help');
   }
   const a=findBy_(SHEETS.ADMINS,'Username',s.username)||{};
+  if(String(a.Status||'PENDING').toUpperCase()!=='ACTIVE') return all;
   const allowed=String(a.Permissions||'').split(',').map(x=>x.trim()).filter(Boolean);
   return all.filter(x=>allowed.includes(x[0]) || x[0]==='institution' || x[0]==='help');
 }
@@ -284,6 +286,7 @@ function requireFeature_(token,feature){
   const s=auth_(token); const a=findBy_(SHEETS.ADMINS,'Username',s.username)||{};
   const role=String(a.Role||'').toUpperCase(); if(role==='SUPER_ADMIN'||role==='SUPERADMIN') return true;
   const source=s.accountType==='madrasa'?findBy_(SHEETS.MADRASAS,'Username',s.username):a;
+  if(String(source.Status||'PENDING').toUpperCase()!=='ACTIVE') throw new Error('দ্রুত জান্নাতুল বাক্বী মহিলা মাদ্রাসার প্রশাসনিক বিভাগ/মহাপরিচালক কর্তৃক অনুমোদন নিন। এরপর কার্যক্রম পরিচালনা করুন।');
   const allowed=String(source.Permissions||'').split(',').map(x=>x.trim());
   if(!allowed.includes(feature)) throw new Error('এই ফিচারে আপনার অনুমোদন নেই।');
   return true;
