@@ -802,6 +802,14 @@ body.gold #app .header-calendar-select-v2{background:#f4d56b!important;color:#11
   setInterval(stableDigitalClock,1000);
 })();
 </script>
+<script id="direct-sheet-password-2026">
+function openProtectedSheet2026(){
+  var p=prompt('সরাসরি শিটে প্রবেশের পাসওয়ার্ড দিন:');
+  if(p===null)return;
+  if(String(p)==='1234'){openWindow('sheetWin');}
+  else{alert('ভুল পাসওয়ার্ড।');}
+}
+</script>
 </head>
 <body>
 <div id="welcomeScreen">
@@ -898,7 +906,7 @@ body.gold #app .header-calendar-select-v2{background:#f4d56b!important;color:#11
       <div class="header-date-button" id="appDate">--</div>
     </div>
     <div class="header-running-row header-mainline header-mainline-v2" id="headerMainline">
-      <button type="button" class="sheet-btn header-sheet-v2" onclick="openWindow('sheetWin')">📊 সরাসরি শিট</button>
+      <button type="button" class="sheet-btn header-sheet-v2" onclick="openProtectedSheet2026()">📊 সরাসরি শিট</button>
       <div class="news header-news" data-news="জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম">
         <span class="running-news-text"><span class="news-full-run">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম</span></span>
         <button type="button" class="news-mic" title="নতুন নিউজ যোগ করুন" aria-label="নতুন নিউজ যোগ করুন">🎙️</button>
