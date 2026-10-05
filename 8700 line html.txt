@@ -8806,3 +8806,25 @@ function placeFullWidth(){
   new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes&&m.addedNodes.forEach(function(n){if(n.nodeType===1){if(n.matches&&n.matches('.window,#formWin'))add(n);n.querySelectorAll&&n.querySelectorAll('.window').forEach(add)}})})}).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
+
+<!-- ===== CONTACT FOOTER POSITION FIX: BELOW SUMMARY/CHARTS — 2026-10-05 ===== -->
+<style id="contact-footer-no-overlap-final-2026-10-05">
+/* যোগাযোগ বক্সকে সামারি/চার্টের পরে স্বাভাবিক ফ্লোতে রাখুন */
+#app main > section#contactFooter.footer.card{
+  position:relative!important;
+  inset:auto!important;
+  float:none!important;
+  clear:both!important;
+  transform:none!important;
+  margin:24px 0 0!important;
+  width:100%!important;
+  max-width:none!important;
+  box-sizing:border-box!important;
+}
+/* চার্টের নিচে পর্যাপ্ত জায়গা রাখুন */
+#app main > #dashboardCharts{
+  position:relative!important;
+  transform:none!important;
+  margin-bottom:0!important;
+}
+</style>
