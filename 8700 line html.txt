@@ -2454,7 +2454,7 @@ body{padding-top:0!important}
     document.body.appendChild(w);dragWindow(w);return w;
   }
   function showList(key){
-    currentListKey=key;var w=ensureListWindow();
+    currentListKey=key;if(key==='studentsByClass')window.__classWiseAllRows=null;var w=ensureListWindow();
     $('moduleListTitle').textContent=LIST_LABELS[key]||key;
     $('moduleListBody').innerHTML='<p>⏳ তালিকা লোড হচ্ছে...</p>';baseOpenWindow('moduleListWin');
     call('getModuleList',token,key).then(function(r){
