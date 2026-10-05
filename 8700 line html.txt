@@ -848,12 +848,17 @@ function openProtectedSheet2026(){
       <span id="loginDateTime" class="loginDateTime">সময় ০০:০০:০০ • ১৬ সেপ্টেম্বর ২০২৬</span>
       <div class="tools-right"><button class="mode" onclick="setMode('dark')" title="Dark">🌙</button><button class="mode" onclick="setMode('light')" title="Light">☀️</button><button class="mode" onclick="setMode('gold')" title="Golden">🟡</button></div>
     </div>
-    <div class="super-admin-head">সুপার অ্যাডমিন</div>
-    <button class="approved-admin secondary" type="button" onclick="openApprovedLogin()">অনুমোদিত অ্যাডমিন</button>
-    <div class="login-grid">
-      <input id="username" class="field" placeholder="ইউজার নেম">
-      <div class="pass-wrap"><input id="password" class="field" type="password" placeholder="পাসওয়ার্ড"><button class="eye" type="button" onclick="togglePassword()">👁</button></div>
-      <button id="mainLoginBtn" class="primary" type="button" onclick="login()">লগইন</button>
+    <div class="login-auth-qr-802268e">
+      <div class="login-auth-802268e">
+        <div class="super-admin-head">সুপার অ্যাডমিন</div>
+        <button class="approved-admin secondary" type="button" onclick="openApprovedLogin()">অনুমোদিত অ্যাডমিন</button>
+        <div class="login-grid">
+          <input id="username" class="field" placeholder="ইউজার নেম">
+          <div class="pass-wrap"><input id="password" class="field" type="password" placeholder="পাসওয়ার্ড"><button class="eye" type="button" onclick="togglePassword()">👁</button></div>
+          <button id="mainLoginBtn" class="primary" type="button" onclick="login()">লগইন</button>
+        </div>
+      </div>
+      <div class="main-qr-802268e"><img id="loginMainQR802268e" alt="Main Web App QR"></div>
     </div>
     <div class="link-row"><button class="secondary" onclick="openWindow('resetWin')">পাসওয়ার্ড ভুলে গেছেন / রিসেট?</button></div>
     <div id="otpArea" class="otp card">
@@ -1355,7 +1360,30 @@ function downloadCurrentForm(){
     span.style.padding='3px';
     el.replaceWith(span);
   });
-  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title></head><body><h2>'+($('winTitle').textContent||'ফর্ম')+'</h2>'+body.innerHTML+'</body></html>';
+  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title></head><body><h2>'+($('winTitle').textContent||'ফর্ম')+'</h2>'+body.innerHTML+'<style id="login-qr-802268e-css">
+.login-auth-qr-802268e{display:grid!important;grid-template-columns:minmax(0,1fr) 100px!important;gap:8px!important;align-items:center!important;width:100%!important;max-width:620px!important;margin:4px auto!important}
+.login-auth-802268e{min-width:0!important}
+.login-auth-802268e .super-admin-head,.login-auth-802268e .login-grid{width:100%!important}
+.main-qr-802268e{width:100px!important;height:100px!important;padding:4px!important;box-sizing:border-box!important;border:2px solid #ff1f2f!important;border-radius:10px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:#fff!important}
+.main-qr-802268e img{width:88px!important;height:88px!important;display:block!important;object-fit:contain!important}
+@media(max-width:700px){.login-auth-qr-802268e{grid-template-columns:minmax(0,1fr) 88px!important;gap:5px!important}.main-qr-802268e{width:88px!important;height:88px!important}.main-qr-802268e img{width:78px!important;height:78px!important}}
+</style>
+<script id="login-qr-802268e-js">
+(function(){
+ function loadLoginMainQR802268e(){
+  var q=document.getElementById('loginMainQR802268e');
+  if(!q||typeof call!=='function')return;
+  call('getMainWebAppUrl').then(function(r){
+   if(r&&r.ok&&r.url)q.src='https://quickchart.io/qr?size=220&margin=2&text='+encodeURIComponent(String(r.url).trim())+'&v='+Date.now();
+  }).catch(function(){});
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',loadLoginMainQR802268e);
+ else loadLoginMainQR802268e();
+ setTimeout(loadLoginMainQR802268e,700);
+ setTimeout(loadLoginMainQR802268e,1600);
+})();
+</script>
+</body></html>';
   var blob=new Blob([html],{type:'text/html;charset=utf-8'});
   var url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url;a.download=title+'.html';document.body.appendChild(a);a.click();a.remove();
