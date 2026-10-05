@@ -70,10 +70,12 @@ function doGet() {
 
 function getMainWebAppUrl() {
   try {
-    const url = ScriptApp.getService().getUrl();
-    return {ok:true,url:String(url||'').trim()};
+    var url = ScriptApp.getService().getUrl();
+    url = String(url || '').trim();
+    if (!url) return {ok:false,url:'',message:'Web App URL পাওয়া যায়নি'};
+    return {ok:true,url:url};
   } catch(e) {
-    return {ok:false,url:''};
+    return {ok:false,url:'',message:String(e && e.message ? e.message : e)};
   }
 }
 
