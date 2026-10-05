@@ -803,11 +803,15 @@ body.gold #app .header-calendar-select-v2{background:#f4d56b!important;color:#11
 })();
 </script>
 <script id="direct-sheet-password-2026">
-function openProtectedSheet2026(){
+async function openProtectedSheet2026(){
   var p=prompt('সরাসরি শিটে প্রবেশের পাসওয়ার্ড দিন:');
   if(p===null)return;
-  if(String(p)==='1234'){openWindow('sheetWin');}
-  else{alert('ভুল পাসওয়ার্ড।');}
+  if(String(p)!=='1234'){alert('ভুল পাসওয়ার্ড।');return;}
+  try{
+    var r=await call('getDirectSheetUrl');
+    if(r&&r.ok&&r.url){window.open(r.url,'_blank');}
+    else{alert((r&&r.message)||'শিটের ঠিকানা পাওয়া যায়নি।');}
+  }catch(e){alert('সরাসরি শিটে প্রবেশ করা যাচ্ছে না।');}
 }
 </script>
 </head>
