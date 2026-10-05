@@ -8890,7 +8890,13 @@ body.jb-custom-account .header-content .header-identity-contact{color:#fff!impor
     if(!isCustom(u))return;
     document.body.classList.add('jb-custom-account');
     var p=photoOf(u),h=document.querySelector('#app .header-top');
-    if(h&&p)h.style.backgroundImage='url("'+p.replace(/"/g,'&quot;')+'")';
+    if(h&&p){
+      var bg='url("'+p.replace(/"/g,'&quot;')+'")';
+      h.style.setProperty('background-image',bg,'important');
+      h.style.setProperty('background-size','cover','important');
+      h.style.setProperty('background-position','center center','important');
+      h.style.setProperty('background-repeat','no-repeat','important');
+    }
     var title=String(u.accountType||'').toLowerCase()==='madrasa'?String(u.Name||u.MadrasaName||'').trim():String(u.NameBN||u.Name||'').trim();
     if(title){var el=document.querySelector('#app .header-content .title-bn');if(el)el.textContent=title;}
   }
