@@ -9050,3 +9050,70 @@ body.jb-custom-account .header-content .header-identity-contact{color:#fff!impor
   setInterval(applyMainQR,5000);
 })();
 </script>
+
+
+<!-- ===== ALL PROFILE + PRINT HEADER REPAIR — 2026-10-05 ===== -->
+<style id="all-profile-print-header-repair-2026-10-05">
+/* Profile ও Print—সবসময় বামে Logo এবং ডানে Main Web App QR */
+#searchProfilePrint.search-profile .search-profile-head{
+  display:grid!important;
+  grid-template-columns:90px minmax(0,1fr) 90px!important;
+  align-items:center!important;
+  gap:10px!important;
+}
+#searchProfilePrint.search-profile .sp-logo,
+#searchProfilePrint.search-profile .sp-qr{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  width:78px!important;height:78px!important;
+  object-fit:contain!important;
+}
+#searchProfilePrint.search-profile .sp-logo{justify-self:start!important}
+#searchProfilePrint.search-profile .sp-qr{justify-self:end!important}
+</style>
+<script id="all-profile-print-header-repair-js-2026-10-05">
+(function(){
+  var mainUrl='';
+  function qr(url){
+    return 'https://quickchart.io/qr?size=220&margin=2&text='+encodeURIComponent(url)+'&v='+Date.now();
+  }
+  function logoSrc(){
+    var x=document.getElementById('loginLogo');
+    return x && x.src ? x.src : '';
+  }
+  function ensureHeader(){
+    var p=document.getElementById('searchProfilePrint');
+    if(!p)return;
+    var h=p.querySelector('.search-profile-head');
+    if(!h)return;
+    var logo=h.querySelector('.sp-logo');
+    var q=h.querySelector('.sp-qr');
+    if(!logo){
+      logo=document.createElement('img');
+      logo.className='sp-logo';
+      logo.alt='মাদ্রাসার Logo';
+      h.insertBefore(logo,h.firstChild);
+    }
+    var ls=logoSrc();
+    if(ls)logo.src=ls;
+    if(!q){
+      q=document.createElement('img');
+      q.className='sp-qr';
+      q.alt='Main Web App QR Code';
+      h.appendChild(q);
+    }
+    if(mainUrl)q.src=qr(mainUrl);
+  }
+  function loadUrl(){
+    if(typeof call!=='function')return;
+    call('getMainWebAppUrl').then(function(r){
+      if(r&&r.ok&&r.url){mainUrl=String(r.url).trim();ensureHeader();}
+    }).catch(function(){});
+  }
+  function run(){ensureHeader();loadUrl();}
+  window.jbRepairAllProfilePrintHeader2026=run;
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run);else run();
+  setTimeout(run,500);setTimeout(run,1500);setInterval(ensureHeader,3000);
+})();
+</script>
