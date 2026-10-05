@@ -2471,7 +2471,8 @@ body{padding-top:0!important}
     $('moduleListBody').innerHTML=h+'</tbody></table></div>';
   }
   function renderClassWiseStudents(selected){
-    var all=currentListRows||[],seen=[],classKey=function(r){return String(r.Class||r['শ্রেনি/জামাত']||r['শ্রেণি']||r.Jamaat||r.JamaatName||'').trim()};
+    if(!window.__classWiseAllRows)window.__classWiseAllRows=(currentListRows||[]).slice();
+    var all=window.__classWiseAllRows,seen=[],classKey=function(r){return String(r.Class||r['শ্রেনি/জামাত']||r['শ্রেণি']||r.Jamaat||r.JamaatName||'').trim()};
     all.forEach(function(r){var v=classKey(r);if(v&&seen.indexOf(v)<0)seen.push(v)});
     seen.sort(function(a,b){return a.localeCompare(b,'bn')});
     var chosen=selected||'';
