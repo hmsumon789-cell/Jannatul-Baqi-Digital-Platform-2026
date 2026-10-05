@@ -9156,3 +9156,109 @@ body.jb-custom-account .header-content .header-identity-contact{color:#fff!impor
   setTimeout(run,500);setTimeout(run,1500);setInterval(ensureHeader,3000);
 })();
 </script>
+
+
+<!-- ===== LOGIN: LOGO LEFT + MAIN QR RIGHT / LARGE USERNAME PASSWORD ===== -->
+<style id="login-logo-left-qr-right-2026-10-06">
+#loginPage .login-brand-qr-2026{
+  width:100%!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 110px!important;
+  align-items:center!important;
+  gap:10px!important;
+  margin:0 0 4px!important;
+}
+#loginPage .login-brand-qr-2026 .loginLogoWrap{
+  justify-self:start!important;
+  margin:0!important;
+  text-align:left!important;
+}
+#loginPage .login-brand-qr-2026 #loginLogo{
+  display:block!important;
+}
+#loginPage .login-brand-qr-2026 .main-qr-802268e{
+  justify-self:end!important;
+  width:100px!important;height:100px!important;
+  padding:4px!important;
+  box-sizing:border-box!important;
+  border:2px solid #ff1f2f!important;
+  border-radius:10px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  background:#fff!important;
+}
+#loginPage .login-brand-qr-2026 .main-qr-802268e img{
+  width:88px!important;height:88px!important;
+  display:block!important;
+  object-fit:contain!important;
+}
+#loginPage .login-auth-qr-802268e{
+  display:block!important;
+  width:100%!important;
+  max-width:none!important;
+  margin:0!important;
+}
+#loginPage .login-auth-802268e .login-grid{
+  display:grid!important;
+  grid-template-columns:1fr 1fr auto!important;
+  flex-direction:initial!important;
+  gap:8px!important;
+  max-width:680px!important;
+  width:100%!important;
+  margin:0 auto!important;
+  padding:0!important;
+}
+#loginPage .login-auth-802268e .login-grid .field,
+#loginPage .login-auth-802268e .login-grid .pass-wrap{
+  min-width:0!important;
+}
+@media(max-width:700px){
+  #loginPage .login-brand-qr-2026{
+    grid-template-columns:1fr!important;
+    justify-items:center!important;
+  }
+  #loginPage .login-brand-qr-2026 .loginLogoWrap{
+    justify-self:center!important;
+    text-align:center!important;
+  }
+  #loginPage .login-brand-qr-2026 .main-qr-802268e{
+    justify-self:center!important;
+  }
+  #loginPage .login-auth-802268e .login-grid{
+    grid-template-columns:1fr!important;
+  }
+}
+body.dark #loginPage .login-brand-qr-2026 .main-qr-802268e{
+  background:#fff!important;
+  border-color:#ff1f2f!important;
+}
+body.gold #loginPage .login-brand-qr-2026 .main-qr-802268e{
+  background:#fff!important;
+  border-color:#111!important;
+}
+</style>
+<script id="login-logo-left-qr-right-2026-10-06-js">
+(function(){
+  function arrangeLoginBrand(){
+    var page=document.getElementById('loginPage');
+    if(!page)return;
+    var logoWrap=page.querySelector('.loginLogoWrap');
+    var qr=page.querySelector('.main-qr-802268e');
+    var auth=page.querySelector('.login-auth-qr-802268e');
+    if(!logoWrap||!qr||!auth)return;
+    var brand=page.querySelector('.login-brand-qr-2026');
+    if(!brand){
+      brand=document.createElement('div');
+      brand.className='login-brand-qr-2026';
+      logoWrap.parentNode.insertBefore(brand,logoWrap);
+      brand.appendChild(logoWrap);
+    }
+    if(qr.parentNode!==brand)brand.appendChild(qr);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',arrangeLoginBrand);
+  else arrangeLoginBrand();
+  setTimeout(arrangeLoginBrand,300);
+  setTimeout(arrangeLoginBrand,1000);
+})();
+</script>
