@@ -2424,8 +2424,8 @@ body{padding-top:0!important}
 (function(){
   var baseOpenModule=window.openModule;
   var baseOpenWindow=window.openWindow;
-  var LIST_LABELS={students:'ছাত্র/ছাত্রী তালিকা',studentsByClass:'শ্রেণি/ক্লাশ/জামাত ওয়ারী ছাত্র/ছাত্রী তালিকা',teachers:'শিক্ষক/শিক্ষিকা তালিকা',exams:'পরীক্ষার্থী তালিকা',admins:'অ্যাডমিন তালিকা',madrasas:'নতুন নিবন্ধনকৃত মাদ্রাসার তালিকা'};
-  var LIST_SHEETS={students:'STUDENTS',studentsByClass:'STUDENTS',teachers:'TEACHERS',exams:'EXAM_REG',admins:'ADMINS',madrasas:'MADRASAS'};
+  var LIST_LABELS={students:'ছাত্র/ছাত্রী তালিকা',teachers:'শিক্ষক/শিক্ষিকা তালিকা',exams:'পরীক্ষার্থী তালিকা',admins:'অ্যাডমিন তালিকা',madrasas:'নতুন নিবন্ধনকৃত মাদ্রাসার তালিকা'};
+  var LIST_SHEETS={students:'STUDENTS',teachers:'TEACHERS',exams:'EXAM_REG',admins:'ADMINS',madrasas:'MADRASAS'};
   var LIST_HEADS={
     students:['StudentID','NameBN','NameAR','NameEN','Mobile','Class','Department','Branch'],
     teachers:['TeacherID','NameBN','NameAR','NameEN','Mobile','Department','Branch'],
@@ -2454,7 +2454,7 @@ body{padding-top:0!important}
     document.body.appendChild(w);dragWindow(w);return w;
   }
   function showList(key){
-    currentListKey=key;if(key==='studentsByClass')window.__classWiseAllRows=null;var w=ensureListWindow();
+    currentListKey=key;var w=ensureListWindow();
     $('moduleListTitle').textContent=LIST_LABELS[key]||key;
     $('moduleListBody').innerHTML='<p>⏳ তালিকা লোড হচ্ছে...</p>';baseOpenWindow('moduleListWin');
     call('getModuleList',token,key).then(function(r){
@@ -2463,31 +2463,12 @@ body{padding-top:0!important}
     }).catch(function(e){$('moduleListBody').innerHTML='<p>সার্ভার ত্রুটি: '+esc(e&&e.message?e.message:e)+'</p>'});
   }
   function renderList(){
-    if(currentListKey==='studentsByClass')return renderClassWiseStudents();
     var rows=currentListRows,heads=LIST_HEADS[currentListKey]||[];
     var h='<div class="table-wrap"><table class="data-table module-list-table"><thead><tr>'+heads.map(function(x){return '<th>'+esc(x)+'</th>'}).join('')+'<th>কার্যক্রম</th></tr></thead><tbody>';
     if(!rows.length)h+='<tr><td colspan="'+(heads.length+1)+'">কোন তথ্য পাওয়া যায়নি।</td></tr>';
     rows.forEach(function(r,i){h+='<tr id="listRow'+i+'">'+heads.map(function(k){return '<td data-key="'+esc(k)+'">'+esc(r[k])+'</td>'}).join('')+'<td><div class="list-actions"><button class="secondary" onclick="listDetail('+i+')">📄 বিস্তারিত দেখুন</button><button class="secondary" onclick="listEdit('+i+')">✏️</button></div></td></tr>'});
     $('moduleListBody').innerHTML=h+'</tbody></table></div>';
   }
-  function renderClassWiseStudents(selected){
-    if(!window.__classWiseAllRows)window.__classWiseAllRows=(currentListRows||[]).slice();
-    var all=window.__classWiseAllRows,seen=[],classKey=function(r){return String(r.Class||r['শ্রেনি/জামাত']||r['শ্রেণি']||r.Jamaat||r.JamaatName||'').trim()};
-    all.forEach(function(r){var v=classKey(r);if(v&&seen.indexOf(v)<0)seen.push(v)});
-    seen.sort(function(a,b){return a.localeCompare(b,'bn')});
-    var chosen=selected||'';
-    var rows=chosen?all.filter(function(r){return classKey(r)===chosen}):all;
-    var heads=['StudentID','NameBN','NameAR','NameEN','Mobile','Class','Department','Branch'];
-    var h='<div style="margin-bottom:10px"><label style="font-weight:900;display:block;margin-bottom:5px">শ্রেণি / ক্লাশ / জামাত নির্বাচন করুন</label><select id="classWiseListSelect" class="field" style="width:100%"><option value="">— সকল শ্রেণি / ক্লাশ / জামাত —</option>'+seen.map(function(v){return '<option value="'+esc(v)+'"'+(v===chosen?' selected':'')+'>'+esc(v)+'</option>'}).join('')+'</select></div>';
-    h+='<div style="font-weight:900;margin:7px 0">মোট শিক্ষার্থী: '+rows.length+' জন</div>';
-    h+='<div class="table-wrap"><table class="data-table module-list-table"><thead><tr>'+heads.map(function(x){return '<th>'+esc(x)+'</th>'}).join('')+'<th>কার্যক্রম</th></tr></thead><tbody>';
-    if(!rows.length)h+='<tr><td colspan="'+(heads.length+1)+'">এই শ্রেণি/ক্লাশ/জামাতে কোনো শিক্ষার্থী পাওয়া যায়নি।</td></tr>';
-    rows.forEach(function(r,i){h+='<tr id="listRow'+i+'">'+heads.map(function(k){return '<td data-key="'+esc(k)+'">'+esc(r[k])+'</td>'}).join('')+'<td><div class="list-actions"><button class="secondary" onclick="listDetail('+i+')">📄 বিস্তারিত দেখুন</button><button class="secondary" onclick="listEdit('+i+')">✏️</button></div></td></tr>'});
-    $('moduleListBody').innerHTML=h+'</tbody></table></div>';
-    var sel=$('classWiseListSelect');if(sel)sel.onchange=function(){renderClassWiseStudents(this.value)};
-    currentListRows=rows;
-  }
-  window.renderClassWiseStudents=renderClassWiseStudents;
   window.loadModuleList=showList;window.renderModuleList=renderList;
   window.listDetail=function(i){var r=currentListRows[i]||{},heads=LIST_HEADS[currentListKey]||Object.keys(r);var html='<div class="list-detail-card">'+heads.map(function(k){return '<div class="detail-item"><b>'+esc(k)+'</b><span>'+esc(r[k])+'</span></div>'}).join('')+'</div><button class="secondary" onclick="renderList()">↩ তালিকায় ফিরুন</button>';$('moduleListBody').innerHTML=html};
   window.listEdit=function(i){var r=currentListRows[i]||{},heads=LIST_HEADS[currentListKey]||Object.keys(r),row=document.getElementById('listRow'+i);if(!row)return;heads.forEach(function(k){var td=row.querySelector('[data-key="'+CSS.escape(k)+'"]');if(td)td.innerHTML='<input class="list-edit-input" data-edit-key="'+esc(k)+'" value="'+esc(r[k])+'">'});toast('✏️ এডিট মোড চালু হয়েছে। শেষে সেভ/সংরক্ষণ চাপুন।')};
