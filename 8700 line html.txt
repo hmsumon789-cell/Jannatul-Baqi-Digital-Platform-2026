@@ -875,7 +875,7 @@ body.gold #loginPage .main-qr-802268e{background:#fff!important;border-color:#11
     <div class="title-ar">المدرسة الجنة الباقية للبنات ودار الايتام</div>
     <div class="title-en">Jannatul Baky Mohila Madrasha &amp; Eatimkhana</div>
     <div class="login-address">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div>
-    <div class="login-contact"><span>☎ হটলাইন: 01823316630</span><span>✉ hmsumon789@gmail.com</span><span>✉ jannatubakymrs@gmail.com</span></div>
+    <div class="login-contact"><span>☎ হটলাইন: 01823316630</span><span>✉ hmsumon789@gmail.com</span></div>
     <div class="ticker"><div class="ticker-text">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম</div></div>
     <div class="login-tools">
       <select id="loginLang" class="field" onchange="setLang(this.value)"><option value="bn">বাংলা</option><option value="ar">العربية</option><option value="en">English</option></select>
@@ -9262,3 +9262,42 @@ body.gold #loginPage .login-brand-qr-2026 .main-qr-802268e{
   setTimeout(arrangeLoginBrand,1000);
 })();
 </script>
+
+<style id="login-compact-stacked-2026-10-06">
+#loginPage .login-auth-qr-802268e{display:block!important;width:100%!important;margin:0 auto!important}
+#loginPage .login-auth-802268e{width:100%!important;max-width:520px!important;margin:0 auto!important}
+#loginPage .login-auth-802268e .super-admin-head,
+#loginPage .login-auth-802268e .approved-admin,
+#loginPage .login-auth-802268e .login-grid,
+#loginPage .login-auth-802268e .login-grid .field,
+#loginPage .login-auth-802268e .login-grid .pass-wrap,
+#loginPage .login-auth-802268e .login-grid #mainLoginBtn{width:100%!important;box-sizing:border-box!important}
+#loginPage .login-auth-802268e .super-admin-head{
+  margin:2px 0 4px!important;padding:7px 10px!important;
+  min-height:36px!important;box-sizing:border-box!important;
+  font-weight:800!important;
+}
+#loginPage .login-auth-802268e .approved-admin{
+  display:block!important;margin:0 0 4px!important;
+  min-height:40px!important;padding:8px 12px!important;
+  font-weight:800!important;
+}
+#loginPage .login-auth-802268e .login-grid{
+  display:flex!important;flex-direction:column!important;
+  gap:4px!important;max-width:520px!important;margin:0 auto!important;
+}
+#loginPage .login-auth-802268e .login-grid .field,
+#loginPage .login-auth-802268e .login-grid .pass-wrap{
+  min-height:40px!important;height:40px!important;
+}
+#loginPage .login-auth-802268e .login-grid #mainLoginBtn{
+  min-height:40px!important;height:40px!important;
+  padding:7px 12px!important;font-weight:800!important;
+}
+#loginPage .login-auth-802268e .login-grid .pass-wrap{display:flex!important}
+#loginPage .login-auth-802268e .login-grid .pass-wrap .field{flex:1!important;width:auto!important}
+#loginPage .login-auth-802268e .login-grid .eye{height:40px!important;min-width:42px!important}
+@media(max-width:700px){
+ #loginPage .login-auth-802268e{max-width:100%!important}
+}
+</style>
