@@ -1460,10 +1460,31 @@ body.gold .form-grid input.field{border-radius:0!important}
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
   function first(r,keys){for(var i=0;i<keys.length;i++){if(r&&r[keys[i]]!==undefined&&r[keys[i]]!==null&&String(r[keys[i]])!=='')return r[keys[i]]}return ''}
   function isStudent(r){var s=JSON.stringify(r||{}).toLowerCase();return /student|studentid|ছাত্র|ছাত্রী/.test(s)||first(r,['Class','শ্রেনি/জামাত','শ্রেণি','NameBN'])!==''}
-  function qrUrl(text){return 'https://quickchart.io/qr?size=140&text='+encodeURIComponent(text||'Jannatul Baqi Digital Platform 2026')}
+  function qrUrl(text){
+    var fallback = window.location.href.split('#')[0].split('?')[0];
+    var payload = fallback;
+    try{
+      if(window.__mainWebAppUrl) payload = window.__mainWebAppUrl;
+    }catch(e){}
+    return 'https://quickchart.io/qr?size=140&text='+encodeURIComponent(payload);
+  }
+  function loadMainWebAppUrl(cb){
+    if(window.__mainWebAppUrl){ if(cb) cb(window.__mainWebAppUrl); return; }
+    try{
+      google.script.run.withSuccessHandler(function(r){
+        if(r && r.ok && r.url) window.__mainWebAppUrl=String(r.url);
+        if(cb) cb(window.__mainWebAppUrl || window.location.href.split('#')[0].split('?')[0]);
+      }).withFailureHandler(function(){
+        if(cb) cb(window.location.href.split('#')[0].split('?')[0]);
+      }).getMainWebAppUrl();
+    }catch(e){
+      if(cb) cb(window.location.href.split('#')[0].split('?')[0]);
+    }
+  }
   function logoSrc(){var x=document.getElementById('headerLogo')||document.getElementById('loginLogo');return x&&x.src?x.src:''}
   window.renderSearchProfiles=function(rows,signal,q){
     var logo=logoSrc();
+    loadMainWebAppUrl(function(){});
     var head='<div class="search-profile-head"><img class="sp-logo" src="'+esc(logo)+'" alt="Logo"><div class="sp-inst"><div class="bn">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div><div class="ar">المدرسة الجنة الباقية للبنات ودار الايتام</div><div class="en">Jannatul Baky Mohila Madrasha &amp; Eatimkhana</div><div class="sp-contact">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০<br>মোবাইল: 01823316630, 01717339288<br>ইমেইল: hmsumon789@gmail.com, jannatubakymrs@gmail.com</div></div><img class="sp-qr" src="'+qrUrl(signal+' '+q)+'" alt="QR Code"></div>';
     var cards=(rows||[]).map(function(r,idx){
       var photo=first(r,['Photo','ছবি','PhotoURL','Image','ImageURL']);
