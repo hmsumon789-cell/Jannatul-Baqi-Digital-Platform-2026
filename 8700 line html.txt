@@ -8757,22 +8757,3 @@ function placeFullWidth(){
   new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes&&m.addedNodes.forEach(function(n){if(n.nodeType===1){if(n.matches&&n.matches('.window,#formWin'))add(n);n.querySelectorAll&&n.querySelectorAll('.window').forEach(add)}})})}).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
-
-
-<!-- ===== ALL SEARCH ACTION LINE ABOVE HEADER — 2026-10-05 ===== -->
-<style id="all-search-line-above-header-2026-10-05">
-/* Home + 3 modes + সংকেত + All Search + Logout — Header-এর ঠিক উপরে */
-#app > #topActionBar{
-  position:relative!important;
-  top:auto!important;
-  bottom:auto!important;
-  left:auto!important;
-  right:auto!important;
-  width:100%!important;
-  min-height:54px!important;
-  margin:0 0 8px!important;
-  z-index:950!important;
-  box-sizing:border-box!important;
-}
-@media(max-width:900px){#app > #topActionBar{margin-bottom:7px!important;}}
-</style>
