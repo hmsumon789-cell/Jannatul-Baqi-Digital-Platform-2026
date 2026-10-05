@@ -578,6 +578,73 @@ body.gold #formWin .form-language-fixed span{border-radius:999px!important}
 </style>
 <style id="login-working-final-fix-2026-09-18">
 #mainLoginBtn:disabled{opacity:.7!important;cursor:wait!important;pointer-events:none!important}
+
+/* ===== LOGIN AUTH LEFT + MAIN QR RIGHT — 2026-10-05 ===== */
+#loginPage .login-auth-qr-row{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 145px!important;
+  gap:12px!important;
+  align-items:center!important;
+  width:100%!important;
+  max-width:680px!important;
+  margin:6px auto 0!important;
+}
+#loginPage .login-auth-left{min-width:0!important;}
+#loginPage .login-auth-left .super-admin-head{width:100%!important;max-width:none!important;}
+#loginPage .login-auth-left .login-grid{width:100%!important;max-width:none!important;}
+#loginPage .login-main-qr-box{
+  width:145px!important;
+  min-height:145px!important;
+  padding:8px!important;
+  box-sizing:border-box!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:4px!important;
+  border:3px solid #ff1f2f!important;
+  box-shadow:inset 0 0 0 2px #ffd21a,0 0 14px #ff1f2f22!important;
+  border-radius:14px!important;
+  background:#fffaf0!important;
+  color:#704900!important;
+  font-weight:900!important;
+}
+#loginPage .login-main-qr-box img{
+  width:112px!important;
+  height:112px!important;
+  display:block!important;
+  object-fit:contain!important;
+  background:#fff!important;
+  border:2px solid #b98a16!important;
+  border-radius:8px!important;
+}
+body.dark #loginPage .login-main-qr-box{
+  background:#000!important;
+  color:#ffe95c!important;
+  border-color:#ff1f2f!important;
+}
+body.dark #loginPage .login-main-qr-box img{
+  background:#fff!important;
+  border-color:#ff1f2f!important;
+}
+body.gold #loginPage .login-main-qr-box{
+  background:#efc64e!important;
+  color:#111!important;
+  border-color:#ff1f2f!important;
+}
+@media(max-width:700px){
+  #loginPage .login-auth-qr-row{
+    grid-template-columns:1fr!important;
+    max-width:100%!important;
+  }
+  #loginPage .login-main-qr-box{
+    width:132px!important;
+    min-height:132px!important;
+    justify-self:end!important;
+  }
+  #loginPage .login-main-qr-box img{width:100px!important;height:100px!important;}
+}
+
 </style>
 </head>
 <body>
@@ -609,12 +676,21 @@ body.gold #formWin .form-language-fixed span{border-radius:999px!important}
       <span id="loginDateTime" class="loginDateTime">সময় ০০:০০:০০ • ১৬ সেপ্টেম্বর ২০২৬</span>
       <div class="tools-right"><button class="mode" onclick="setMode('dark')" title="Dark">🌙</button><button class="mode" onclick="setMode('light')" title="Light">☀️</button><button class="mode" onclick="setMode('gold')" title="Golden">🟡</button></div>
     </div>
-    <div class="super-admin-head">সুপার অ্যাডমিন</div>
-    <button class="approved-admin secondary" type="button" onclick="openApprovedLogin()">অনুমোদিত অ্যাডমিন</button>
-    <div class="login-grid">
-      <input id="username" class="field" placeholder="ইউজার নেম">
-      <div class="pass-wrap"><input id="password" class="field" type="password" placeholder="পাসওয়ার্ড"><button class="eye" type="button" onclick="togglePassword()">👁</button></div>
-      <button id="mainLoginBtn" class="primary" type="button" onclick="login()">লগইন</button>
+    <!-- ===== LOGIN AUTH + MAIN QR — 2026-10-05 ===== -->
+    <div class="login-auth-qr-row">
+      <div class="login-auth-left">
+        <div class="super-admin-head">সুপার অ্যাডমিন</div>
+        <button class="approved-admin secondary" type="button" onclick="openApprovedLogin()">অনুমোদিত অ্যাডমিন</button>
+        <div class="login-grid">
+          <input id="username" class="field" placeholder="ইউজার নেম">
+          <div class="pass-wrap"><input id="password" class="field" type="password" placeholder="পাসওয়ার্ড"><button class="eye" type="button" onclick="togglePassword()">👁</button></div>
+          <button id="mainLoginBtn" class="primary" type="button" onclick="login()">লগইন</button>
+        </div>
+      </div>
+      <div class="login-main-qr-box">
+        <img id="loginMainQR2026" alt="মূল পেজের QR কোড">
+        <div>মূল পেজ</div>
+      </div>
     </div>
     <div class="link-row"><button class="secondary" onclick="openWindow('resetWin')">পাসওয়ার্ড ভুলে গেছেন / রিসেট?</button></div>
     <div id="otpArea" class="otp card">
@@ -1196,6 +1272,24 @@ function downloadCurrentForm(){
   window.renderMedia=draw;
   document.addEventListener('DOMContentLoaded',function(){setTimeout(draw,300);setTimeout(draw,1000);});
   setTimeout(draw,1500);
+})();
+</script>
+
+<script id="login-main-qr-2026-10-05">
+(function(){
+  function setLoginMainQR2026(){
+    var img=document.getElementById('loginMainQR2026');
+    if(!img || typeof call!=='function') return;
+    call('getMainWebAppUrl').then(function(r){
+      if(r&&r.ok&&r.url){
+        img.src='https://quickchart.io/qr?size=220&margin=2&text='+encodeURIComponent(String(r.url).trim())+'&v='+Date.now();
+      }
+    }).catch(function(){});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setLoginMainQR2026);
+  else setLoginMainQR2026();
+  setTimeout(setLoginMainQR2026,800);
+  setTimeout(setLoginMainQR2026,1800);
 })();
 </script>
 </body></html>';
@@ -2420,4 +2514,3 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
  window.deleteCurrentMedia=function(){if(!media||!media.length)return toast('ডিলেট করার মিডিয়া নেই।');deleteMediaByIndex(mediaIndex)};
 })();
 </script>
-
