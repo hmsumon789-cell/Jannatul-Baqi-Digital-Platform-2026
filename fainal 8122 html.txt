@@ -8605,3 +8605,63 @@ function bind(){var b=document.getElementById('allListsButton2026');if(!b)return
 setInterval(bind,700);
 })();
 </script>
+
+
+<!-- ===== FULL LIST FINAL WORKING OVERRIDE — 2026-10-05 ===== -->
+<style id="full-list-final-working-2026-css">
+#fullListWinFinal2026{display:none;position:fixed!important;inset:1vh 1vw!important;width:auto!important;height:98vh!important;z-index:2147483640!important;background:var(--panel);color:var(--text);border:4px solid var(--border);border-radius:16px;box-shadow:0 20px 80px #000b;overflow:hidden}
+#fullListWinFinal2026.show{display:flex!important;flex-direction:column!important}
+#fullListWinFinal2026 .fl-head{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-bottom:3px solid var(--border);background:var(--panel);flex:0 0 auto}
+#fullListWinFinal2026 .fl-tools{display:grid;grid-template-columns:260px 260px 1fr auto;gap:7px;padding:8px;border-bottom:2px solid var(--border);background:var(--panel);flex:0 0 auto}
+#fullListWinFinal2026 .fl-body{flex:1;overflow:auto;padding:8px}
+#fullListWinFinal2026 table{width:100%;border-collapse:collapse;min-width:900px}
+#fullListWinFinal2026 th,#fullListWinFinal2026 td{border:1px solid var(--border);padding:6px;vertical-align:top}
+#fullListWinFinal2026 th{position:sticky;top:0;background:var(--panel);z-index:2;font-weight:900}
+#fullListWinFinal2026 .fl-actions{white-space:nowrap;text-align:center}
+#fullListWinFinal2026 .fl-actions button{margin:2px;padding:5px 8px!important}
+#fullListWinFinal2026 .fl-foot{display:flex;justify-content:center;gap:8px;padding:8px;border-top:3px solid var(--border);background:var(--panel);flex:0 0 auto}
+#fullListWinFinal2026 .fl-edit{min-width:120px;width:100%;padding:5px;border:2px solid var(--border);background:#fff;color:#111}
+#fullListWinFinal2026 .fl-detail{position:fixed;inset:10vh 18vw;z-index:2147483650;background:var(--panel);color:var(--text);border:4px solid var(--border);border-radius:14px;box-shadow:0 20px 70px #000b;overflow:auto;padding:12px;display:none}
+#fullListWinFinal2026 .fl-detail.show{display:block}
+#fullListWinFinal2026 .fl-detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+#fullListWinFinal2026 .fl-detail-grid div{border:1px solid var(--border);padding:7px;word-break:break-word}
+@media(max-width:900px){#fullListWinFinal2026 .fl-tools{grid-template-columns:1fr}.fl-detail{inset:6vh 4vw!important}.fl-detail-grid{grid-template-columns:1fr 1fr!important}}
+</style>
+<script id="full-list-final-working-2026-js">
+(function(){
+var CLASSES=['প্লে শ্রেনী','শিশু শ্রেনী','আউয়াল জামাত','ছানী জামাত','ছালেছ জামাত','রাবে জামাত','পঞ্চম জামাত','মিজান জামাত','নাহবেমীর জামাত','কুদুরী জামাত','শরহে বেকায়া জামাত','হেদায়া জামাত','মিশকাত জামাত','দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)'];
+var LISTS=[
+ ['students','👩‍🎓 ছাত্র/ছাত্রী তালিকা','STUDENTS'],['teachers','👩‍🏫 শিক্ষক/শিক্ষিকা তালিকা','TEACHERS'],['donors','🤝 দাতা সদস্য তালিকা','DONORS'],['committee','🏛️ পরিচালনা পরিষদ তালিকা','EXECUTIVES'],['advisers','🧑‍🏫 উপদেষ্টা তালিকা','ADVISERS'],['founders','👤 প্রতিষ্ঠাতা তালিকা','FOUNDERS'],['admins','🔐 অ্যাডমিন তালিকা','ADMINS'],['registration','📝 পরীক্ষার্থী নিবন্ধন তালিকা','EXAM_REG'],['femaleMadrasas','🏫 নিবন্ধনকৃত মহিলা মাদ্রাসার তালিকা','MADRASAS'],['maleMadrasas','🏫 নিবন্ধনকৃত পুরুষ মাদ্রাসার তালিকা','MADRASAS'],['onlineAdmission','📥 অনলাইন ভর্তি তালিকা','ADMISSIONS'],['marksheet','📊 মার্কশিট তালিকা','RESULTS'],['mobileNumbers','📱 মোবাইল নাম্বার তালিকা','STUDENTS'],['mms','📨 এমএমএস তালিকা','SMS_QUEUE'],['sms','✉️ এসএমএস তালিকা','SMS_QUEUE']
+];
+var state={key:'students',sheet:'STUDENTS',rows:[],filtered:[]};
+function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]})}
+function norm(v){return String(v==null?'':v).trim().toLowerCase().replace(/\\s+/g,' ')}
+function val(o,names){for(var i=0;i<names.length;i++)if(o&&o[names[i]]!=null&&String(o[names[i]])!=='')return o[names[i]];return ''}
+function listMeta(){return LISTS.find(function(x){return x[0]===state.key})||LISTS[0]}
+function ensure(){
+ var old=document.getElementById('fullListWinFinal2026');if(old)return old;
+ var w=document.createElement('div');w.id='fullListWinFinal2026';
+ w.innerHTML='<div class="fl-head"><b id="flTitle2026" style="font-size:22px">📋 পূর্ণ তালিকা</b><button type="button" class="secondary" id="flClose2026">✖ বন্ধ</button></div><div class="fl-tools"><select id="flType2026" class="field"></select><select id="flClass2026" class="field"><option value="">সকল শ্রেণি / জামাত</option>'+CLASSES.map(function(x){return '<option>'+esc(x)+'</option>'}).join('')+'</select><input id="flSearch2026" class="field" placeholder="নাম / আইডি / মোবাইল দিয়ে অনুসন্ধান"><button type="button" class="primary" id="flLoad2026">📋 তালিকা দেখুন</button></div><div class="fl-body" id="flBody2026"><p>তালিকার ধরন নির্বাচন করুন।</p></div><div class="fl-foot"><button type="button" class="primary" id="flPrint2026">🖨️ প্রিন্ট</button><button type="button" class="secondary" id="flDownload2026">⬇️ ডাউনলোড</button></div><div class="fl-detail" id="flDetail2026"><h3>🔎 বিস্তারিত</h3><div class="fl-detail-grid" id="flDetailBody2026"></div><div style="text-align:center;margin-top:10px"><button type="button" class="secondary" id="flDetailClose2026">✖ বন্ধ</button></div></div>';
+ document.body.appendChild(w);
+ var t=document.getElementById('flType2026');LISTS.forEach(function(x){var o=document.createElement('option');o.value=x[0];o.textContent=x[1];t.appendChild(o)});
+ t.onchange=function(){var x=listMeta();state.key=t.value;state.sheet=x[2];document.getElementById('flTitle2026').textContent=x[1];document.getElementById('flClass2026').style.display=(state.key==='students'||state.key==='teachers'||state.key==='registration'||state.key==='marksheet')?'block':'none';state.rows=[];document.getElementById('flBody2026').innerHTML='<p>📋 '+esc(x[1])+' নির্বাচন করা হয়েছে। <b>তালিকা দেখুন</b> চাপুন।</p>'};
+ document.getElementById('flClass2026').onchange=render;document.getElementById('flSearch2026').oninput=render;document.getElementById('flLoad2026').onclick=load;document.getElementById('flClose2026').onclick=close;document.getElementById('flDetailClose2026').onclick=function(){document.getElementById('flDetail2026').classList.remove('show')};document.getElementById('flPrint2026').onclick=printList;document.getElementById('flDownload2026').onclick=downloadList;
+ t.value='students';t.dispatchEvent(new Event('change'));return w;
+}
+function open(){ensure().classList.add('show');document.getElementById('flType2026').focus()}
+function close(){var w=document.getElementById('fullListWinFinal2026');if(w)w.classList.remove('show');var d=document.getElementById('flDetail2026');if(d)d.classList.remove('show')}
+async function load(){var x=listMeta(),b=document.getElementById('flBody2026');b.innerHTML='<p>⏳ '+esc(x[1])+' লোড হচ্ছে...</p>';if(typeof window.call!=='function'||!window.token){b.innerHTML='<p>লগইন সেশন পাওয়া যায়নি।</p>';return}try{var r=await window.call('getModuleList',window.token,state.sheet);if(!r||r.ok===false)throw new Error((r&&r.message)||'তালিকা পাওয়া যায়নি');state.rows=Array.isArray(r.rows)?r.rows:[];render()}catch(e){state.rows=[];b.innerHTML='<p>তালিকা লোড করা যায়নি: '+esc(e.message||e)+'</p>'}}
+function filtered(){var rows=state.rows.map(function(r,i){return {r:r,i:i}}),q=norm(document.getElementById('flSearch2026')?.value||''),c=document.getElementById('flClass2026')?.value||'';if(c)rows=rows.filter(function(x){return norm(val(x.r,['Class','ClassName','Jamaat','JamaatName','শ্রেণি','শ্রেণী','জামাত']))===norm(c)});if(q)rows=rows.filter(function(x){return norm(JSON.stringify(x.r)).indexOf(q)>=0});if(state.key==='femaleMadrasas')rows=rows.filter(function(x){return /female|মহিলা|নারী/i.test(String(val(x.r,['GenderType','Gender','Type','Category','MadrasaType'])))});if(state.key==='maleMadrasas')rows=rows.filter(function(x){return /male|পুরুষ/i.test(String(val(x.r,['GenderType','Gender','Type','Category','MadrasaType'])))});return rows}
+function editableKeys(r){return Object.keys(r).filter(function(k){return !/^(Serial|CreatedAt|PasswordHash|Password)$/i.test(k)})}
+function render(){var b=document.getElementById('flBody2026');if(!b)return;var rows=filtered();state.filtered=rows;if(!rows.length){b.innerHTML='<p>কোন তথ্য পাওয়া যায়নি।</p>';return}var heads=Object.keys(rows[0].r),h='<div class="table-wrap"><table id="flTable2026"><thead><tr>'+heads.map(function(k){return '<th>'+esc(k)+'</th>'}).join('')+'<th>কার্যক্রম</th></tr></thead><tbody>';rows.forEach(function(x,j){h+='<tr id="flRow2026_'+j+'">'+heads.map(function(k){return '<td data-k="'+esc(k)+'">'+esc(x.r[k])+'</td>'}).join('')+'<td class="fl-actions"><button type="button" class="secondary" onclick="window.flDetail2026('+j+')">🔎 বিস্তারিত</button><button type="button" class="primary" onclick="window.flEdit2026('+j+')">✏️ এডিট</button></td></tr>'});b.innerHTML=h+'</tbody></table><p style="text-align:center;font-weight:900">মোট: '+rows.length+' জন/টি</p></div>'}
+window.flDetail2026=function(j){var x=state.filtered[j];if(!x)return;var r=x.r,h='<div class="fl-detail-grid">';Object.keys(r).forEach(function(k){h+='<div><b>'+esc(k)+'</b><br>'+esc(r[k])+'</div>'});h+='</div>';document.getElementById('flDetailBody2026').innerHTML=h;document.getElementById('flDetail2026').classList.add('show')};
+window.flEdit2026=function(j){var x=state.filtered[j];if(!x)return;var row=document.getElementById('flRow2026_'+j),r=x.r;editableKeys(r).forEach(function(k){var td=row.querySelector('[data-k="'+CSS.escape(k)+'"]');if(td)td.innerHTML='<input class="fl-edit" data-edit="'+esc(k)+'" value="'+esc(r[k])+'">'});var act=row.querySelector('.fl-actions');if(act)act.innerHTML='<button type="button" class="primary" onclick="window.flSave2026('+j+')">💾 সেভ</button><button type="button" class="secondary" onclick="window.flCancel2026()">✖ বাতিল</button>';};
+window.flCancel2026=function(){render()};
+window.flSave2026=function(j){var x=state.filtered[j],row=document.getElementById('flRow2026_'+j);if(!x||!row)return;var data={};editableKeys(x.r).forEach(function(k){var el=row.querySelector('[data-edit="'+CSS.escape(k)+'"]');if(el)data[k]=el.value});var serial=x.r.Serial;if(serial==null||serial===''){toast('এই রেকর্ডের Serial পাওয়া যায়নি।');return}var saveBtn=row.querySelector('.fl-actions button');if(saveBtn)saveBtn.disabled=true;window.call('updateRecord',window.token,state.sheet,serial,data).then(function(v){if(v&&v.ok){toast('✅ সেভ সফল হয়েছে।');load()}else{toast((v&&v.message)||'সেভ ব্যর্থ হয়েছে।');if(saveBtn)saveBtn.disabled=false}}).catch(function(e){toast('সেভ সার্ভার ত্রুটি: '+esc(e.message||e));if(saveBtn)saveBtn.disabled=false})};
+function printList(){var t=document.getElementById('flTable2026');if(!t){toast('আগে একটি তালিকা দেখুন।');return}var w=window.open('','_blank');w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>তালিকা</title><style>body{font-family:Arial,"Noto Sans Bengali",sans-serif}table{width:100%;border-collapse:collapse}th,td{border:1px solid #222;padding:5px}th{font-weight:900}.fl-actions{display:none!important}</style></head><body><h2>'+esc(document.getElementById('flTitle2026').textContent)+'</h2>'+t.outerHTML+'</body></html>');w.document.close();w.focus();setTimeout(function(){w.print()},200)}
+function downloadList(){var rows=state.filtered;if(!rows.length){toast('ডাউনলোড করার তালিকা নেই।');return}var keys=Object.keys(rows[0].r),csv='\\ufeff'+keys.join(',')+'\\n'+rows.map(function(x){return keys.map(function(k){return '"'+String(x.r[k]==null?'':x.r[k]).replace(/"/g,'""')+'"'}).join(',')}).join('\\n'),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='talika-'+state.key+'-'+new Date().toISOString().slice(0,10)+'.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href)},1000)}
+window.openFullList2026=open;
+function bind(){var b=document.getElementById('allListsButton2026');if(!b)return;b.onclick=function(e){e.preventDefault();e.stopPropagation();open()}}
+setInterval(bind,800);setTimeout(bind,100);
+})();
+</script>
