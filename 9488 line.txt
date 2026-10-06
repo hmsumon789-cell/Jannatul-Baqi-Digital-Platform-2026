@@ -9834,3 +9834,52 @@ body.dark #jbDocBuilderWin{background:#000;color:#ffe95c;border-color:#ff1f2f}bo
 })();
 </script>
 <!-- ===== END EDIT SYNC SAFETY ===== -->
+
+
+<!-- ===== CENTRAL DOCUMENT BUILDER — SAVED QR VERIFICATION FIX — 2026-10-06 ===== -->
+<script id="central-document-builder-saved-qr-verification-fix-2026-10-06">
+(function(){
+  function currentKey(){
+    var t=document.getElementById('jbDocBuilderTitle')?.textContent||'';
+    return t.indexOf('ফলাফল')>=0?'result':
+      t.indexOf('মার্কশিট')>=0?'marks':
+      t.indexOf('আইডি কার্ড')>=0?'id_cards':
+      t.indexOf('অ্যাডমিট কার্ড')>=0?'admit_cards':
+      t.indexOf('সার্টিফিকেট')>=0?'certificates':
+      t.indexOf('মানি রিসিট')>=0?'receipts':'marks';
+  }
+  function addSavedQR(docId){
+    var wrap=document.getElementById('jbDocPreviewWrap');
+    var p=wrap&&wrap.querySelector('.jb-doc-preview');
+    if(!p||!docId||!window.jbAddVerificationQR)return;
+    p.querySelectorAll('.jb-verification-qr').forEach(function(x){x.remove()});
+    window.jbAddVerificationQR(currentKey(),String(docId));
+  }
+  window.jbDocCurrentKey=currentKey;
+  var oldSave=window.jbSaveDraft;
+  if(typeof oldSave==='function'){
+    window.jbSaveDraft=function(){
+      return Promise.resolve(oldSave.apply(this,arguments)).then(function(r){
+        if(r&&r.ok&&r.documentId){
+          addSavedQR(r.documentId);
+          toast('🔐 QR যাচাই কোড Document-এর সাথে যুক্ত হয়েছে।');
+        }
+        return r;
+      });
+    };
+  }
+  var oldCreate=window.jbCreatePreview;
+  if(typeof oldCreate==='function'){
+    window.jbCreatePreview=function(){
+      var r=oldCreate.apply(this,arguments);
+      setTimeout(function(){
+        var wrap=document.getElementById('jbDocPreviewWrap');
+        var p=wrap&&wrap.querySelector('.jb-doc-preview');
+        if(p)p.querySelectorAll('.jb-verification-qr').forEach(function(x){x.remove()});
+      },20);
+      return r;
+    };
+  }
+})();
+</script>
+<!-- ===== END SAVED QR VERIFICATION FIX ===== -->
