@@ -1018,3 +1018,29 @@ function getDocumentBuilderRecord(token, docKey, recordId) {
   if(!data.Category && row.Type) data.Category=row.Type;
   return {ok:true,docKey:key,recordId:rid,row:row,data:data,html:payload&&payload.html?String(payload.html):''};
 }
+
+
+/* ===== CENTRAL DOCUMENT BUILDER — QR VERIFICATION PHASE — 2026-10-06 ===== */
+function getDocumentVerification(token, docKey, recordId) {
+  if (token) auth_(token);
+  const key=String(docKey||'').trim(), rid=String(recordId||'').trim();
+  if(!rid) return {ok:false,verified:false,message:'Document ID প্রয়োজন।'};
+  let sheet='', idField='';
+  if(key==='marks'||key==='result'){sheet=SHEETS.RESULTS;idField='ResultID';}
+  else if(key==='id_cards'){sheet=SHEETS.ID_CARDS;idField='CardID';}
+  else if(key==='admit_cards'){sheet=SHEETS.ADMIT_CARDS;idField='AdmitID';}
+  else if(key==='certificates'){sheet=SHEETS.CERTIFICATES;idField='CertificateID';}
+  else if(key==='receipts'){sheet=SHEETS.RECEIPTS;idField='ReceiptID';}
+  else return {ok:false,verified:false,message:'Document type সঠিক নয়।'};
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheet);
+  if(!sh||sh.getLastRow()<2) return {ok:true,verified:false,message:'রেকর্ড পাওয়া যায়নি।'};
+  const vals=sh.getDataRange().getValues(), h=vals[0], idx=h.indexOf(idField);
+  if(idx<0) return {ok:true,verified:false,message:'Document ID field পাওয়া যায়নি।'};
+  for(let i=1;i<vals.length;i++){
+    if(String(vals[i][idx]).trim()===rid){
+      const row=objectFrom_(h,vals[i]);
+      return {ok:true,verified:true,docKey:key,recordId:rid,studentId:row.StudentID||row.RefID||'',issueDate:row.IssueDate||row.Date||'',name:row.Name||'',className:row.Class||'',exam:row.Exam||'',type:row.Type||'',amount:row.Amount||'',message:'Documentটি যাচাই করা হয়েছে।'};
+    }
+  }
+  return {ok:true,verified:false,message:'এই Document ID-এর কোনো রেকর্ড পাওয়া যায়নি।'};
+}
