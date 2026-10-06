@@ -9748,3 +9748,41 @@ body.dark #jbDocBuilderWin{background:#000;color:#ffe95c;border-color:#ff1f2f}bo
 })();
 </script>
 <!-- ===== END DRAFT LIFECYCLE SAFETY ===== -->
+
+<!-- ===== CENTRAL DOCUMENT BUILDER — DRAFT SAVE SUCCESS SAFETY FIX — 2026-10-06 ===== -->
+<script id="central-document-builder-draft-save-success-safety-2026-10-06">
+(function(){
+  var DKEY='jbDocAutoDraft2026';
+  function key(){
+    var t=document.getElementById('jbDocBuilderTitle')?.textContent||'';
+    return t.indexOf('মার্কশিট')>=0?'marks':t.indexOf('ফলাফল')>=0?'result':t.indexOf('আইডি কার্ড')>=0?'id_cards':t.indexOf('অ্যাডমিট কার্ড')>=0?'admit_cards':t.indexOf('সার্টিফিকেট')>=0?'certificates':t.indexOf('মানি রিসিট')>=0?'receipts':'marks';
+  }
+  function clearStored(){try{localStorage.removeItem(DKEY)}catch(e){}}
+  function saveSafely(){
+    var p=document.getElementById('jbDocPreviewWrap')?.querySelector('.jb-doc-preview');
+    if(!p)return toast('আগে Document তৈরি করুন।');
+    var id=(document.getElementById('jbDocId')?.value||'').trim();
+    if(!id)return toast('Student ID প্রয়োজন।');
+    var data={};
+    document.querySelectorAll('#jbDocFields [data-key]').forEach(function(x){data[x.dataset.key]=x.value||''});
+    var draftRaw=null;
+    try{draftRaw=localStorage.getItem(DKEY)}catch(e){}
+    return call('saveDocumentBuilderRecord',token,key(),id,data,p.outerHTML).then(function(r){
+      if(r&&r.ok){
+        clearStored();
+        toast('💾 Document + History-তে সংরক্ষণ হয়েছে। Draft মুছে দেওয়া হয়েছে।');
+      }else{
+        if(draftRaw!==null)try{localStorage.setItem(DKEY,draftRaw)}catch(e){}
+        toast((r&&r.message)||'সার্ভারে সংরক্ষণ হয়নি। Draft নিরাপদে রাখা হয়েছে।');
+      }
+      return r;
+    }).catch(function(e){
+      if(draftRaw!==null)try{localStorage.setItem(DKEY,draftRaw)}catch(x){}
+      toast('সার্ভারে সংরক্ষণ হয়নি: '+(e&&e.message?e.message:e)+' — Draft নিরাপদে রাখা হয়েছে।');
+      return {ok:false,message:e&&e.message?e.message:String(e)};
+    });
+  }
+  window.jbSaveDraft=saveSafely;
+})();
+</script>
+<!-- ===== END DRAFT SAVE SUCCESS SAFETY FIX ===== -->
