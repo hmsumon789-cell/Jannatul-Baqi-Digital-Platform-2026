@@ -842,6 +842,50 @@ function getStudentDocumentData(token, studentId) {
   return {ok:true,found:true,source:admission?'ADMISSIONS':'STUDENTS',admissionFound:!!admission,studentFound:!!student,studentId:id,data:data};
 }
 
+/* ===== CENTRAL DOCUMENT BUILDER — SAVE + HISTORY — 2026-10-06 ===== */
+function saveDocumentBuilderRecord(token, docKey, studentId, data, html) {
+  auth_(token);
+  const key=String(docKey||'').trim();
+  const sid=String(studentId||data?.StudentID||'').trim();
+  if(!sid) return {ok:false,message:'Student ID আবশ্যক।'};
+  if(!data || !data.Mobile) return {ok:false,message:'মোবাইল নম্বর আবশ্যক।'};
+  const now=now_(), stamp=Utilities.formatDate(new Date(),APP.timezone,'yyyyMMddHHmmss');
+  const payload=JSON.stringify({docKey:key,studentId:sid,fields:data,html:String(html||'')});
+  let sheetName='', row={};
+  if(key==='marks'||key==='result') {
+    sheetName=SHEETS.RESULTS;
+    row={ResultID:'RES-'+stamp+'-'+sid,StudentID:sid,Name:data.NameBN||data.NameEN||'',Class:data.Class||'',Exam:data.Exam||'',SubjectData:data.SubjectData||'',Total:data.Total||'',GPA:data.GPA||'',Grade:data.Grade||'',Published:'NO',Date:data.Date||now};
+  } else if(key==='id_cards') {
+    sheetName=SHEETS.ID_CARDS;
+    row={CardID:'IDC-'+stamp+'-'+sid,StudentID:sid,IssueDate:data.IssueDate||now,Data:payload};
+  } else if(key==='admit_cards') {
+    sheetName=SHEETS.ADMIT_CARDS;
+    row={AdmitID:'ADC-'+stamp+'-'+sid,StudentID:sid,Exam:data.Exam||'',IssueDate:data.IssueDate||now,Data:payload};
+  } else if(key==='certificates') {
+    sheetName=SHEETS.CERTIFICATES;
+    row={CertificateID:data.CertificateNo||('CFT-'+stamp+'-'+sid),StudentID:sid,Type:data.Type||'সার্টিফিকেট',IssueDate:data.IssueDate||now,Data:payload};
+  } else if(key==='receipts') {
+    sheetName=SHEETS.RECEIPTS;
+    row={ReceiptID:data.ReceiptNo||('RCT-'+stamp+'-'+sid),RefID:sid,Type:data.Category||'মানি রিসিট',Amount:data.Amount||'',Date:data.Date||now,Data:payload};
+  } else return {ok:false,message:'এই Document type-এর Save এখনো সংযুক্ত হয়নি।'};
+  const saved=saveRecord(token,sheetName,row);
+  return {ok:true,sheet:sheetName,record:saved.row,documentId:row.ResultID||row.CardID||row.AdmitID||row.CertificateID||row.ReceiptID,message:'Document History-তে সংরক্ষণ হয়েছে।'};
+}
+
+function getDocumentBuilderHistory(token, studentId, docKey) {
+  auth_(token);
+  const sid=String(studentId||'').trim(), key=String(docKey||'').trim();
+  let sheet='', rows=[];
+  if(key==='marks'||key==='result') sheet=SHEETS.RESULTS;
+  else if(key==='id_cards') sheet=SHEETS.ID_CARDS;
+  else if(key==='admit_cards') sheet=SHEETS.ADMIT_CARDS;
+  else if(key==='certificates') sheet=SHEETS.CERTIFICATES;
+  else if(key==='receipts') sheet=SHEETS.RECEIPTS;
+  else return {ok:false,message:'Document type সঠিক নয়।'};
+  rows=listRows_(sheet,token,5000).filter(r=>!sid||String(r.StudentID||r.RefID||'').trim()===sid);
+  return {ok:true,sheet,rows:rows.slice().reverse(),count:rows.length};
+}
+
 /* ===== DASHBOARD PERIOD SUMMARY — DAILY/WEEKLY/MONTHLY/YEARLY — 2026-09-22 ===== */
 function getDashboardPeriodStats(token, period) {
   auth_(token);
