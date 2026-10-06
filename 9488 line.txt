@@ -9494,26 +9494,6 @@ body.dark #loginPage .loginDateTime{color:#ffe95c!important;background:#000!impo
 #jbDocBuilderHead{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px;background:var(--panel);border-bottom:3px solid var(--border)}
 #jbDocBuilderTools{display:flex;gap:6px;flex-wrap:wrap;padding:9px;border-bottom:2px solid var(--border)}
 #jbDocBuilderBody{padding:12px}.jb-doc-idbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-bottom:10px}.jb-doc-idbar input{min-width:220px;flex:1}.jb-doc-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.jb-doc-field{border:2px solid var(--border);padding:7px;border-radius:10px;background:var(--panel)}.jb-doc-field label{display:flex;gap:7px;align-items:center;font-weight:800}.jb-doc-field input{width:100%;margin-top:5px;padding:7px;border:1px solid var(--border);border-radius:7px;background:transparent;color:inherit}.jb-doc-note{padding:8px;border:2px dashed var(--border);margin:8px 0;border-radius:10px}.jb-doc-preview-wrap{display:flex;justify-content:center;margin-top:12px}.jb-doc-preview{position:relative;background:#fff;color:#111;border:8px solid #8b5e00;box-shadow:inset 0 0 0 5px #1976d2,inset 0 0 0 10px #2e7d32;padding:20px;overflow:hidden}.jb-doc-preview.a4{width:210mm;min-height:297mm}.jb-doc-preview.half{width:210mm;min-height:148mm}.jb-doc-preview.idcard{width:86mm;min-height:54mm;padding:10px;border-width:4px;font-size:12px}.jb-doc-preview .jb-corner{position:absolute;inset:0;border:3px solid #c62828;pointer-events:none}.jb-doc-head{text-align:center;border-bottom:2px solid #333;padding-bottom:8px;margin-bottom:10px}.jb-doc-head h2,.jb-doc-head h3,.jb-doc-head p{margin:3px}.jb-doc-photo{float:right;width:90px;height:110px;object-fit:cover;border:2px solid #222;margin-left:10px}.jb-doc-idcard .jb-doc-photo{width:70px;height:82px}.jb-doc-row{display:flex;gap:8px;padding:4px 0;border-bottom:1px dotted #999}.jb-doc-row b{min-width:135px}.jb-doc-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
-#jbDocBuilderHead .jb-doc-window-controls{display:flex;gap:4px;margin-left:auto;align-items:center}
-#jbDocBuilderHead .jb-doc-window-controls button{width:34px;height:30px;padding:0;border:2px solid var(--border);border-radius:7px;background:var(--panel);color:inherit;font-weight:900;cursor:pointer}
-#jbDocBuilderWin.jb-doc-minimized-2026{display:none!important}
-#jbDocTaskbar2026{position:fixed;left:8px;right:8px;bottom:8px;z-index:2147483000;display:flex;gap:6px;align-items:center;flex-wrap:wrap;pointer-events:none}
-#jbDocTaskbar2026 button{pointer-events:auto;border:2px solid var(--border);background:var(--panel);color:inherit;border-radius:8px;padding:5px 10px;font-weight:900;cursor:pointer}
-#jbDocBuilderWin.jb-doc-fullscreen-2026{inset:0!important;left:0!important;top:0!important;width:100vw!important;height:100vh!important;max-height:none!important;border-radius:0!important;transform:none!important;overflow:hidden!important}
-#jbDocBuilderWin.jb-doc-fullscreen-2026 #jbDocBuilderBody{height:calc(100vh - 58px);overflow:auto}
-.jb-marks-entry{margin:10px 0;padding:10px;border:3px solid var(--border);border-radius:12px;background:var(--panel)}
-.jb-marks-title{font-size:18px;font-weight:900;margin-bottom:8px}
-.jb-marks-class{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
-.jb-marks-class label{font-weight:900}
-.jb-marks-class select{min-width:260px;padding:8px;border:2px solid var(--border);border-radius:9px;background:var(--panel);color:inherit}
-.jb-subject-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-.jb-subject-item{border:2px solid var(--border);border-radius:10px;padding:7px;background:var(--panel)}
-.jb-subject-item .jb-subject-no{font-weight:900;margin-bottom:5px}
-.jb-subject-item select,.jb-subject-item input{width:100%;padding:7px;border:1px solid var(--border);border-radius:7px;background:transparent;color:inherit}
-.jb-subject-item input{margin-top:5px}
-.jb-subject-item input::placeholder{color:inherit;opacity:.65}
-@media(max-width:800px){.jb-subject-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:500px){.jb-subject-grid{grid-template-columns:1fr}}
 body.dark #jbDocBuilderWin{background:#000;color:#ffe95c;border-color:#ff1f2f}body.dark #jbDocBuilderWin .jb-doc-field{background:#000;border-color:#ff1f2f}body.dark #jbDocBuilderWin input{color:#fff;background:#000;border-color:#ff1f2f}
 @media(max-width:800px){.jb-doc-fields{grid-template-columns:1fr}.jb-doc-preview.a4,.jb-doc-preview.half{width:100%;min-height:0}.jb-doc-preview.idcard{width:100%;min-height:0}}
 @media print{body *{visibility:hidden!important}#jbDocBuilderWin,#jbDocBuilderWin *{visibility:visible!important}#jbDocBuilderWin{position:static!important;inset:auto!important;border:0!important;box-shadow:none!important;width:auto!important;height:auto!important;overflow:visible!important;background:#fff!important}#jbDocBuilderHead,#jbDocBuilderTools,.jb-doc-idbar,.jb-doc-fields,.jb-doc-note,.jb-doc-actions{display:none!important}.jb-doc-preview-wrap{margin:0!important}.jb-doc-preview{box-shadow:none!important}}
@@ -9525,14 +9505,12 @@ body.dark #jbDocBuilderWin{background:#000;color:#ffe95c;border-color:#ff1f2f}bo
   function E(id){return document.getElementById(id)}
   function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
   function first(row,names){for(var i=0;i<names.length;i++){var k=names[i];if(row&&row[k]!=null&&String(row[k]).trim()!=='')return row[k]}return ''}
-  function openBuilder(k){currentDoc=DOC_KEYS[k]||DOC_KEYS.marks;currentDoc.key=k;selected={};var w=E('jbDocBuilderWin');if(!w){w=document.createElement('div');w.id='jbDocBuilderWin';w.innerHTML='<div id="jbDocBuilderHead"><b id="jbDocBuilderTitle"></b><span class="jb-doc-window-controls"><button type="button" title="মিনিমাইজ" onclick="jbDocMinimize2026()">—</button><button type="button" title="ফুল স্ক্রিন / স্বাভাবিক" onclick="jbDocFullscreen2026()">⛶</button><button type="button" title="বন্ধ করুন" onclick="jbCloseDocBuilder()">✕</button></span></div><div id="jbDocBuilderTools"></div><div id="jbDocBuilderBody"></div>';document.body.appendChild(w)}E('jbDocBuilderTitle').textContent=currentDoc.title;E('jbDocBuilderTools').innerHTML='<div class="jb-doc-idbar"><input id="jbDocId" class="field" placeholder="শিক্ষার্থী ID লিখুন"><button class="primary" onclick="jbFindStudent()">🔎 ID দিয়ে তথ্য আনুন</button></div><div class="jb-doc-note">ID লিখে <b>Enter</b> চাপলেও তথ্য আসবে। ভর্তি-কালীন সংরক্ষিত তথ্য থেকে প্রয়োজনীয় ঘর ☑ নির্বাচন করুন।</div><div id="jbDocFields" class="jb-doc-fields"></div>'+(currentDoc.key==='marks'?'<div id="jbMarksEntry2026"></div>':'')+'<div class="jb-doc-actions"><button class="primary" onclick="jbCreatePreview()">📄 '+currentDoc.title+' তৈরি করুন</button><button class="secondary" onclick="jbClearDoc()">🧹 ক্লিয়ার</button></div><div id="jbDocPreviewWrap" class="jb-doc-preview-wrap"></div>';w.classList.add('show');w.classList.remove('jb-doc-minimized-2026');E('jbDocId').focus();E('jbDocId').onkeydown=function(ev){if(ev.key==='Enter'){ev.preventDefault();jbFindStudent()}};if(currentDoc.key==='marks')renderMarksEntry(currentRows[0]||{})}
-  function fields(row){var defs=[['StudentID','ID',['StudentID']],['NameBN','বাংলা নাম',['NameBN']],['NameAR','আরবি নাম',['NameAR']],['NameEN','ইংরেজি নাম',['NameEN']],['FatherBN','পিতার নাম',['FatherBN','FatherNameBN']],['FatherAR','পিতার নাম — আরবি',['FatherAR','FatherNameAR']],['FatherEN','পিতার নাম — English',['FatherEN','FatherNameEN']],['MotherBN','মাতার নাম',['MotherBN','MotherNameBN']],['MotherAR','মাতার নাম — আরবি',['MotherAR','MotherNameAR']],['MotherEN','মাতার নাম — English',['MotherEN','MotherNameEN']],['DOB','জন্ম তারিখ',['DOB']],['Mobile','মোবাইল',['Mobile']],['WhatsApp','WhatsApp',['WhatsApp']],['Email','ইমেইল',['Email']],['Address','ঠিকানা',['Address']],['Division','বিভাগ',['Division']],['District','জেলা',['District']],['Upazila','উপজেলা',['Upazila']],['Union','ইউনিয়ন',['Union']],['Post','ডাকঘর',['Post','PostOffice']],['PostCode','পোস্ট কোড',['PostCode']],['Ward','ওয়ার্ড',['Ward']],['Village','গ্রাম',['Village']],['Class','শ্রেণি/জামাত',['Class']],['Department','বিভাগ/ডিপার্টমেন্ট',['Department']],['Branch','শাখা',['Branch']],['Roll','রোল',['Roll']],['BirthReg','জন্ম নিবন্ধন',['BirthReg']],['NID','NID',['NID']],['Exam','পরীক্ষা',['Exam']],['ExamYear','পরীক্ষা সাল',['ExamYear']],['Photo','ছবি',['Photo']]];if(currentDoc.key==='marks'){defs=defs.filter(function(d){return d[0]!=='Class'});}if(currentDoc.key==='result'){defs.push(['SubjectData','বিষয় ও নম্বর',['SubjectData']],['Total','মোট নম্বর',['Total']],['GPA','GPA',['GPA']],['Grade','গ্রেড',['Grade']]);}if(currentDoc.key==='marks'||currentDoc.key==='result'){defs.push(['Exam','পরীক্ষা',['Exam']]);}if(currentDoc.key==='admit_cards'){defs.push(['Exam','পরীক্ষা',['Exam']],['ExamYear','পরীক্ষা সাল',['ExamYear']],['SubjectData','বিষয়সমূহ',['SubjectData']],['ExamDate','পরীক্ষার তারিখ',['ExamDate']],['ExamTime','সময়',['ExamTime']],['Center','পরীক্ষা কেন্দ্র',['Center']]);}if(currentDoc.key==='certificates'){defs.push(['CertificateNo','সনদ নম্বর',['CertificateNo']],['IssueDate','প্রদানের তারিখ',['IssueDate']],['Result','ফলাফল',['Result']],['Signature','স্বাক্ষর',['Signature']],['Seal','সিল',['Seal']]);}if(currentDoc.key==='receipts'){defs.push(['ReceiptNo','রিসিট নম্বর',['ReceiptNo']],['Month','মাস/সময়',['Month']],['Category','খাত/কারণ',['Category']],['Amount','টাকার পরিমাণ',['Amount']],['Method','পরিশোধের মাধ্যম',['Method']],['Date','তারিখ',['Date']],['Note','বিবরণ',['Note']]);}if(currentDoc.key==='id_cards'){defs.push(['EmergencyContact','জরুরি যোগাযোগ',['EmergencyContact']],['Guardian','অভিভাবক',['Guardian']],['QR','QR কোড',['QR']]);};var host=E('jbDocFields');host.innerHTML='';defs.forEach(function(d){var v=first(row,d[2]||[d[0],d[0].toLowerCase()]);var div=document.createElement('div');div.className='jb-doc-field';var cb=document.createElement('input');cb.type='checkbox';cb.checked=selected[d[0]]!==false;cb.onchange=function(){selected[d[0]]=cb.checked};var lab=document.createElement('label');lab.appendChild(cb);lab.appendChild(document.createTextNode(d[1]));div.appendChild(lab);var inp=document.createElement('input');inp.value=(typeof v==='object'?'':v);inp.dataset.key=d[0];inp.disabled=false;if(d[0]==='Photo')inp.placeholder='Photo URL / data';div.appendChild(inp);host.appendChild(div)});if(currentDoc.key==='marks')renderMarksEntry(row)}
-  function renderMarksEntry(row){var host=E('jbMarksEntry2026');if(!host)return;var classes=['প্লে','নার্সারি','কেজি','প্রথম','দ্বিতীয়','তৃতীয়','চতুর্থ','পঞ্চম','ষষ্ঠ','সপ্তম','অষ্টম','নবম','দশম','আলিম ১ম','আলিম ২য়','আলিম ৩য়','আলিম ৪র্থ','আলিম ৫ম','দাওরায়ে হাদিস'];var subjects=['কুরআন মাজীদ','হাদিস','আকাইদ ও ফিকহ','আরবি ১ম পত্র','আরবি ২য় পত্র','বাংলা','ইংরেজি','গণিত','বিজ্ঞান','সমাজবিজ্ঞান','ইতিহাস','ভূগোল','কম্পিউটার/আইসিটি','তাজবিদ','নাহু','সরফ','ফারায়েজ','আদব','মানতিক','উসুলুল ফিকহ'];var oldClass=String(row.Class||'');var data=[];try{data=JSON.parse(String(row.SubjectData||'[]'));}catch(e){};if(!Array.isArray(data))data=[];var map={};data.forEach(function(x){if(x&&x.subject)map[String(x.no||'')]=x});host.innerHTML='<div class="jb-marks-entry"><div class="jb-marks-title">১) শ্রেণি / জামাত নির্বাচন</div><div class="jb-marks-class"><label>শ্রেণি/জামাত:</label><select id="jbMarksClass"><option value="">নির্বাচন করুন</option>'+classes.map(function(x){return '<option>'+esc(x)+'</option>'}).join('')+'</select></div><div class="jb-marks-title">২) বিষয় / Subject নির্বাচন + ৩) নম্বর</div><div class="jb-subject-grid">'+Array.from({length:12},function(_,i){var n=i+1,m=map[String(n)]||{};return '<div class="jb-subject-item"><div class="jb-subject-no">'+n+'. বিষয়</div><select class="jbMarksSubject" data-no="'+n+'"><option value="">বিষয় নির্বাচন করুন</option>'+subjects.map(function(s){return '<option>'+esc(s)+'</option>'}).join('')+'</select><input class="jbMarksMark" data-no="'+n+'" type="number" min="0" max="100" placeholder="নম্বর লিখুন"></div>'}).join('')+'</div></div>';var cs=E('jbMarksClass');if(cs)cs.value=classes.indexOf(oldClass)>=0?oldClass:'';for(var i=1;i<=12;i++){var m=map[String(i)]||{};var se=document.querySelector('#jbMarksEntry2026 .jbMarksSubject[data-no="'+i+'"]');var mi=document.querySelector('#jbMarksEntry2026 .jbMarksMark[data-no="'+i+'"]');if(se)se.value=m.subject||'';if(mi)mi.value=m.mark==null?'':m.mark}}
-  function collectMarks(){if(currentDoc.key!=='marks')return;var host=E('jbDocFields');if(host&&!host.querySelector('[data-key="SubjectData"]')){['SubjectData','Total'].forEach(function(k){var h=document.createElement('input');h.type='hidden';h.dataset.key=k;host.appendChild(h)})}var cs=E('jbMarksClass');var cls=cs?cs.value:'';var arr=[];document.querySelectorAll('#jbMarksEntry2026 .jbMarksSubject').forEach(function(s){var n=s.dataset.no,mark=document.querySelector('#jbMarksEntry2026 .jbMarksMark[data-no="'+n+'"]');if(s.value||mark&&mark.value!=='')arr.push({no:n,subject:s.value,mark:mark?mark.value:''})});var ci=document.querySelector('#jbDocFields [data-key="Class"]');if(ci)ci.value=cls;var sd=document.querySelector('#jbDocFields [data-key="SubjectData"]');if(sd)sd.value=JSON.stringify(arr);var total=arr.reduce(function(t,x){var n=Number(x.mark);return t+(isFinite(n)?n:0)},0);var ti=document.querySelector('#jbDocFields [data-key="Total"]');if(ti)ti.value=String(total)}
+  function openBuilder(k){currentDoc=DOC_KEYS[k]||DOC_KEYS.marks;currentDoc.key=k;selected={};var w=E('jbDocBuilderWin');if(!w){w=document.createElement('div');w.id='jbDocBuilderWin';w.innerHTML='<div id="jbDocBuilderHead"><b id="jbDocBuilderTitle"></b><button class="secondary" onclick="jbCloseDocBuilder()">✕ বন্ধ</button></div><div id="jbDocBuilderTools"></div><div id="jbDocBuilderBody"></div>';document.body.appendChild(w)}E('jbDocBuilderTitle').textContent=currentDoc.title;E('jbDocBuilderTools').innerHTML='<div class="jb-doc-idbar"><input id="jbDocId" class="field" placeholder="শিক্ষার্থী ID লিখুন"><button class="primary" onclick="jbFindStudent()">🔎 ID দিয়ে তথ্য আনুন</button></div><div class="jb-doc-note">ID লিখে <b>Enter</b> চাপলেও তথ্য আসবে। ভর্তি-কালীন সংরক্ষিত তথ্য থেকে প্রয়োজনীয় ঘর ☑ নির্বাচন করুন।</div><div id="jbDocFields" class="jb-doc-fields"></div><div class="jb-doc-actions"><button class="primary" onclick="jbCreatePreview()">📄 '+currentDoc.title+' তৈরি করুন</button><button class="secondary" onclick="jbClearDoc()">🧹 ক্লিয়ার</button></div><div id="jbDocPreviewWrap" class="jb-doc-preview-wrap"></div>';w.classList.add('show');E('jbDocId').focus();E('jbDocId').onkeydown=function(ev){if(ev.key==='Enter'){ev.preventDefault();jbFindStudent()}}}
+  function fields(row){var defs=[['StudentID','ID',['StudentID']],['NameBN','বাংলা নাম',['NameBN']],['NameAR','আরবি নাম',['NameAR']],['NameEN','ইংরেজি নাম',['NameEN']],['FatherBN','পিতার নাম',['FatherBN','FatherNameBN']],['FatherAR','পিতার নাম — আরবি',['FatherAR','FatherNameAR']],['FatherEN','পিতার নাম — English',['FatherEN','FatherNameEN']],['MotherBN','মাতার নাম',['MotherBN','MotherNameBN']],['MotherAR','মাতার নাম — আরবি',['MotherAR','MotherNameAR']],['MotherEN','মাতার নাম — English',['MotherEN','MotherNameEN']],['DOB','জন্ম তারিখ',['DOB']],['Mobile','মোবাইল',['Mobile']],['WhatsApp','WhatsApp',['WhatsApp']],['Email','ইমেইল',['Email']],['Address','ঠিকানা',['Address']],['Division','বিভাগ',['Division']],['District','জেলা',['District']],['Upazila','উপজেলা',['Upazila']],['Union','ইউনিয়ন',['Union']],['Post','ডাকঘর',['Post','PostOffice']],['PostCode','পোস্ট কোড',['PostCode']],['Ward','ওয়ার্ড',['Ward']],['Village','গ্রাম',['Village']],['Class','শ্রেণি/জামাত',['Class']],['Department','বিভাগ/ডিপার্টমেন্ট',['Department']],['Branch','শাখা',['Branch']],['Roll','রোল',['Roll']],['BirthReg','জন্ম নিবন্ধন',['BirthReg']],['NID','NID',['NID']],['Exam','পরীক্ষা',['Exam']],['ExamYear','পরীক্ষা সাল',['ExamYear']],['Photo','ছবি',['Photo']]];if(currentDoc.key==='marks'||currentDoc.key==='result'){defs.push(['Exam','পরীক্ষা',['Exam']],['SubjectData','বিষয় ও নম্বর',['SubjectData']],['Total','মোট নম্বর',['Total']],['GPA','GPA',['GPA']],['Grade','গ্রেড',['Grade']]);}if(currentDoc.key==='admit_cards'){defs.push(['Exam','পরীক্ষা',['Exam']],['ExamYear','পরীক্ষা সাল',['ExamYear']],['SubjectData','বিষয়সমূহ',['SubjectData']],['ExamDate','পরীক্ষার তারিখ',['ExamDate']],['ExamTime','সময়',['ExamTime']],['Center','পরীক্ষা কেন্দ্র',['Center']]);}if(currentDoc.key==='certificates'){defs.push(['CertificateNo','সনদ নম্বর',['CertificateNo']],['IssueDate','প্রদানের তারিখ',['IssueDate']],['Result','ফলাফল',['Result']],['Signature','স্বাক্ষর',['Signature']],['Seal','সিল',['Seal']]);}if(currentDoc.key==='receipts'){defs.push(['ReceiptNo','রিসিট নম্বর',['ReceiptNo']],['Month','মাস/সময়',['Month']],['Category','খাত/কারণ',['Category']],['Amount','টাকার পরিমাণ',['Amount']],['Method','পরিশোধের মাধ্যম',['Method']],['Date','তারিখ',['Date']],['Note','বিবরণ',['Note']]);}if(currentDoc.key==='id_cards'){defs.push(['EmergencyContact','জরুরি যোগাযোগ',['EmergencyContact']],['Guardian','অভিভাবক',['Guardian']],['QR','QR কোড',['QR']]);};var host=E('jbDocFields');host.innerHTML='';defs.forEach(function(d){var v=first(row,d[2]||[d[0],d[0].toLowerCase()]);var div=document.createElement('div');div.className='jb-doc-field';var cb=document.createElement('input');cb.type='checkbox';cb.checked=selected[d[0]]!==false;cb.onchange=function(){selected[d[0]]=cb.checked};var lab=document.createElement('label');lab.appendChild(cb);lab.appendChild(document.createTextNode(d[1]));div.appendChild(lab);var inp=document.createElement('input');inp.value=(typeof v==='object'?'':v);inp.dataset.key=d[0];inp.disabled=false;if(d[0]==='Photo')inp.placeholder='Photo URL / data';div.appendChild(inp);host.appendChild(div)});}
   async function findStudent(){var id=(E('jbDocId').value||'').trim();if(!id)return toast('শিক্ষার্থীর ID দিন।');try{var r=await call('getStudentDocumentData',token,id);if(!r||!r.found){E('jbDocFields').innerHTML='<div class="jb-doc-note" style="grid-column:1/-1">⚠️ <b>কোন তথ্য পাওয়া যায়নি।</b> অনুগ্রহ করে প্রয়োজনীয় তথ্য হাতে পূরণ করে তৈরি করুন।<br><br><button class="primary" onclick="jbManualEntry()">✍️ হাতে পূরণ করুন</button></div>';currentRows=[{StudentID:id}];return}currentRows=[r.data||{StudentID:id}];selected={};fields(currentRows[0]);toast(r.admissionFound?'ভর্তি-কালীন পূর্ণ তথ্য পাওয়া গেছে।':'শিক্ষার্থী তথ্য পাওয়া গেছে।')}catch(e){toast('তথ্য খোঁজার সময় সার্ভার ত্রুটি হয়েছে।')}}
   function manualEntry(){var row=currentRows[0]||{};var host=E('jbDocFields');host.innerHTML='';['StudentID','NameBN','NameAR','NameEN','FatherNameBN','MotherNameBN','DOB','Mobile','Address','Class','Roll','Exam','ExamYear','Photo'].forEach(function(k){var d=document.createElement('div');d.className='jb-doc-field';d.innerHTML='<label>'+k+'</label><input data-key="'+k+'" class="field">';host.appendChild(d)});host.querySelector('[data-key="StudentID"]').value=row.StudentID||E('jbDocId').value;toast('Manual Entry চালু হয়েছে।')}
   function val(k){var x=document.querySelector('#jbDocFields [data-key="'+k+'"]');return x?x.value:''}
-  function createPreview(){if(currentDoc.key==='marks')collectMarks();var checks=[].slice.call(document.querySelectorAll('#jbDocFields .jb-doc-field input[type="checkbox"]'));var vals=[];checks.forEach(function(cb){if(cb.checked){var inp=cb.closest('.jb-doc-field').querySelector('input[data-key]');if(inp&&inp.value.trim())vals.push([inp.dataset.key,inp.value.trim()])}});var mobile=val('Mobile');if(!mobile){var m=document.createElement('div');m.className='jb-doc-note';m.innerHTML='⚠️ মোবাইল নম্বর প্রয়োজন। এখানে হাতে মোবাইল নম্বর দিন।';E('jbDocPreviewWrap').innerHTML='';E('jbDocPreviewWrap').appendChild(m);var mi=document.querySelector('#jbDocFields [data-key="Mobile"]');if(mi){mi.disabled=false;mi.focus()}return}var cls=currentDoc.size;var p=document.createElement('div');p.className='jb-doc-preview '+cls+(cls==='idcard'?' jb-doc-idcard':'');p.innerHTML='<div class="jb-corner"></div><div class="jb-doc-head"><h2>জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</h2><p>উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</p><h3>'+esc(currentDoc.title)+'</h3></div>';var photo=val('Photo');if(photo&&/^data:image|^https?:/i.test(photo))p.innerHTML+='<img class="jb-doc-photo" src="'+esc(photo)+'">';vals.forEach(function(a){p.innerHTML+='<div class="jb-doc-row"><b>'+esc(label(a[0]))+'</b><span contenteditable="true">'+esc(a[1])+'</span></div>'});p.innerHTML+='<div style="clear:both"></div><div style="margin-top:25px;text-align:right">তারিখ: '+new Date().toLocaleDateString('bn-BD')+'</div>';E('jbDocPreviewWrap').innerHTML='';E('jbDocPreviewWrap').appendChild(p);var bar=document.createElement('div');bar.className='jb-doc-actions';bar.innerHTML='<button class="secondary" onclick="jbEditPreview()">✏️ এডিট</button><button class="secondary" onclick="jbSaveDraft()">💾 সেভ + History</button><button class="secondary" onclick="jbShowHistory()">📚 History</button><button class="secondary" onclick="jbShowAllHistory()">📚 সব কার্ডের তালিকা</button><button class="secondary" onclick="jbDownload()">⬇️ ডাউনলোড</button><button class="primary" onclick="jbPrint()">🖨️ প্রিন্ট</button>';E('jbDocPreviewWrap').appendChild(bar)}
+  function createPreview(){var checks=[].slice.call(document.querySelectorAll('#jbDocFields .jb-doc-field input[type="checkbox"]'));var vals=[];checks.forEach(function(cb){if(cb.checked){var inp=cb.closest('.jb-doc-field').querySelector('input[data-key]');if(inp&&inp.value.trim())vals.push([inp.dataset.key,inp.value.trim()])}});var mobile=val('Mobile');if(!mobile){var m=document.createElement('div');m.className='jb-doc-note';m.innerHTML='⚠️ মোবাইল নম্বর প্রয়োজন। এখানে হাতে মোবাইল নম্বর দিন।';E('jbDocPreviewWrap').innerHTML='';E('jbDocPreviewWrap').appendChild(m);var mi=document.querySelector('#jbDocFields [data-key="Mobile"]');if(mi){mi.disabled=false;mi.focus()}return}var cls=currentDoc.size;var p=document.createElement('div');p.className='jb-doc-preview '+cls+(cls==='idcard'?' jb-doc-idcard':'');p.innerHTML='<div class="jb-corner"></div><div class="jb-doc-head"><h2>জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</h2><p>উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</p><h3>'+esc(currentDoc.title)+'</h3></div>';var photo=val('Photo');if(photo&&/^data:image|^https?:/i.test(photo))p.innerHTML+='<img class="jb-doc-photo" src="'+esc(photo)+'">';vals.forEach(function(a){p.innerHTML+='<div class="jb-doc-row"><b>'+esc(label(a[0]))+'</b><span contenteditable="true">'+esc(a[1])+'</span></div>'});p.innerHTML+='<div style="clear:both"></div><div style="margin-top:25px;text-align:right">তারিখ: '+new Date().toLocaleDateString('bn-BD')+'</div>';E('jbDocPreviewWrap').innerHTML='';E('jbDocPreviewWrap').appendChild(p);var bar=document.createElement('div');bar.className='jb-doc-actions';bar.innerHTML='<button class="secondary" onclick="jbEditPreview()">✏️ এডিট</button><button class="secondary" onclick="jbSaveDraft()">💾 সেভ + History</button><button class="secondary" onclick="jbShowHistory()">📚 History</button><button class="secondary" onclick="jbShowAllHistory()">📚 সব কার্ডের তালিকা</button><button class="secondary" onclick="jbDownload()">⬇️ ডাউনলোড</button><button class="primary" onclick="jbPrint()">🖨️ প্রিন্ট</button>';E('jbDocPreviewWrap').appendChild(bar)}
   function label(k){var m={StudentID:'ID',NameBN:'নাম',NameAR:'আরবি নাম',NameEN:'ইংরেজি নাম',FatherNameBN:'পিতা',FatherNameAR:'পিতা — আরবি',FatherNameEN:'পিতা — English',MotherNameBN:'মাতা',MotherNameAR:'মাতা — আরবি',MotherNameEN:'মাতা — English',DOB:'জন্ম তারিখ',Mobile:'মোবাইল',WhatsApp:'WhatsApp',Email:'ইমেইল',Address:'ঠিকানা',Division:'বিভাগ',District:'জেলা',Upazila:'উপজেলা',Union:'ইউনিয়ন',Post:'ডাকঘর',PostCode:'পোস্ট কোড',Ward:'ওয়ার্ড',Village:'গ্রাম',Class:'শ্রেণি/জামাত',Department:'বিভাগ/ডিপার্টমেন্ট',Branch:'শাখা',Roll:'রোল',BirthReg:'জন্ম নিবন্ধন',NID:'NID',Exam:'পরীক্ষা',ExamYear:'পরীক্ষা সাল',Photo:'ছবি'};return m[k]||k}
   function editPreview(){document.querySelectorAll('#jbDocPreviewWrap .jb-doc-preview [contenteditable]').forEach(function(x){x.style.outline='2px dashed #1976d2';x.focus()});toast('✏️ প্রিভিউ Edit mode চালু হয়েছে।')}
   async function saveDraft(){var p=E('jbDocPreviewWrap').querySelector('.jb-doc-preview');if(!p)return toast('আগে Document তৈরি করুন।');var data={};document.querySelectorAll('#jbDocFields [data-key]').forEach(function(x){data[x.dataset.key]=x.value||''});localStorage.setItem('jbDocDraft2026',JSON.stringify({key:currentDoc.key,title:currentDoc.title,html:p.outerHTML,id:E('jbDocId').value,data:data}));try{var r=await call('saveDocumentBuilderRecord',token,currentDoc.key,E('jbDocId').value,data,p.outerHTML);toast(r&&r.ok?'💾 Document + History-তে সংরক্ষণ হয়েছে।':((r&&r.message)||'সংরক্ষণ হয়নি।'))}catch(e){toast('সার্ভারে সংরক্ষণ হয়নি: '+(e&&e.message?e.message:e))}}
@@ -9559,13 +9537,9 @@ body.dark #jbDocBuilderWin{background:#000;color:#ffe95c;border-color:#ff1f2f}bo
     w.document.close();
     setTimeout(function(){try{w.focus();w.print()}catch(e){}},500);
   }
-  function jbDocTaskbar(){var b=E('jbDocTaskbar2026');if(!b){b=document.createElement('div');b.id='jbDocTaskbar2026';document.body.appendChild(b)}return b}
-  function jbDocRemoveTask(){var id=E('jbDocBuilderWin')?.dataset.jbTaskId;if(id){var b=E(id);if(b)b.remove();delete E('jbDocBuilderWin').dataset.jbTaskId}}
-  function jbDocMinimize(){var w=E('jbDocBuilderWin');if(!w)return;jbDocRemoveTask();var b=document.createElement('button');b.type='button';b.textContent='▣ '+(E('jbDocBuilderTitle')?.textContent||'Document Builder');b.onclick=function(){w.classList.remove('jb-doc-minimized-2026');b.remove();delete w.dataset.jbTaskId};b.id='jbDocRestore_'+Date.now();jbDocTaskbar().appendChild(b);w.dataset.jbTaskId=b.id;w.classList.remove('jb-doc-fullscreen-2026');w.classList.add('jb-doc-minimized-2026')}
-  function jbDocFullscreen(){var w=E('jbDocBuilderWin');if(!w)return;w.classList.toggle('jb-doc-fullscreen-2026');w.classList.remove('jb-doc-minimized-2026')}
   function clearDoc(){E('jbDocId').value='';E('jbDocFields').innerHTML='';E('jbDocPreviewWrap').innerHTML='';currentRows=[];selected={}}
   function closeBuilder(){E('jbDocBuilderWin')?.classList.remove('show')}
-  window.jbCloseDocBuilder=closeBuilder;window.jbDocMinimize2026=jbDocMinimize;window.jbDocFullscreen2026=jbDocFullscreen;window.jbFindStudent=findStudent;window.jbManualEntry=manualEntry;window.jbCreatePreview=createPreview;window.jbEditPreview=editPreview;window.jbSaveDraft=saveDraft;window.jbDownload=download;window.jbPrint=print;window.jbClearDoc=clearDoc;window.jbOpenDocumentType2026=openBuilder;
+  window.jbCloseDocBuilder=closeBuilder;window.jbFindStudent=findStudent;window.jbManualEntry=manualEntry;window.jbCreatePreview=createPreview;window.jbEditPreview=editPreview;window.jbSaveDraft=saveDraft;window.jbDownload=download;window.jbPrint=print;window.jbClearDoc=clearDoc;window.jbOpenDocumentType2026=openBuilder;
   var oldOpen=window.openModule;window.openModule=function(k){if(DOC_KEYS[k]){openBuilder(k);return}return oldOpen(k)};
 })();
 </script>
@@ -9657,7 +9631,7 @@ body.dark #jbDocBuilderWin{background:#000;color:#ffe95c;border-color:#ff1f2f}bo
       var d=document.createElement('div');d.className='jb-doc-note';
       d.innerHTML='<b>📚 সব Document / Card — '+esc(sid)+'</b><br><br>'+
         (rows.length?rows.map(function(x){
-          var id=x._docId||rid(x),k=x._docKey||'';
+          var id=rid(x),k=x._docKey||'';
           return '<div style="padding:9px 0;border-bottom:1px solid #ccc;display:flex;gap:7px;align-items:center;flex-wrap:wrap">'+
             '<b style="min-width:145px">'+esc(title(k))+'</b><span style="min-width:210px">'+esc(String(id))+'</span>'+
             '<span style="margin-right:auto">'+esc(String(dt(x)))+'</span>'+
@@ -10380,3 +10354,140 @@ body.dark #jbDocumentBuilderEntry2026{background:#000;color:#ffe95c;border-color
 })();
 </script>
 <!-- ===== END QR WHITE PAGE FIX ===== -->
+
+
+<!-- ===== DOCUMENT BUILDER MARKSHEET 12 SUBJECTS + WINDOW CONTROLS — BASE a1c71c6 — 2026-10-06 ===== -->
+<style id="jb-marksheet-12-subjects-window-2026">
+#jbMarksPanel{grid-column:1/-1;border:3px solid var(--border);border-radius:14px;padding:10px;background:var(--panel);margin-top:4px}
+#jbMarksPanel .jb-marks-top{display:grid;grid-template-columns:220px 1fr;gap:8px;align-items:center;margin-bottom:9px}
+#jbMarksPanel select,#jbMarksPanel input{width:100%;min-height:38px;padding:6px;border:2px solid var(--border);border-radius:8px;background:var(--panel);color:inherit}
+#jbMarksPanel .jb-subject-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+#jbMarksPanel .jb-subject-cell{border:2px solid var(--border);border-radius:9px;padding:7px;background:var(--panel)}
+#jbMarksPanel .jb-subject-cell small{display:block;font-weight:900;margin-bottom:4px}
+#jbMarksPanel .jb-subject-cell .jb-mark-row{display:grid;grid-template-columns:minmax(0,1fr) 78px;gap:5px}
+#jbMarksPanel .jb-marks-summary{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px;font-weight:900}
+#jbMarksPanel .jb-marks-summary span{padding:6px 10px;border:2px solid var(--border);border-radius:8px}
+#jbDocBuilderWin.jb-win-fullscreen-2026{inset:0!important;width:100vw!important;height:100vh!important;max-height:none!important;border-radius:0!important;transform:none!important;top:0!important;left:0!important}
+#jbDocBuilderWin.jb-win-minimized-2026{display:none!important}
+#jbDocBuilderTaskbar2026{position:fixed;left:8px;right:8px;bottom:8px;z-index:1000010;display:flex;gap:6px;flex-wrap:wrap;pointer-events:none}
+#jbDocBuilderTaskbar2026 button{pointer-events:auto;border:2px solid var(--border);background:var(--panel);color:inherit;border-radius:8px;padding:6px 11px;font-weight:900;cursor:pointer}
+#jbDocBuilderHead .jb-doc-window-controls{display:flex;gap:5px;align-items:center}
+#jbDocBuilderHead .jb-doc-window-controls button{min-width:34px;height:30px;padding:0}
+@media(max-width:800px){#jbMarksPanel .jb-marks-top{grid-template-columns:1fr}#jbMarksPanel .jb-subject-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+<script id="jb-marksheet-12-subjects-window-controls-2026">
+(function(){
+  var classes=['প্লে','নার্সারি','কেজি','১ম','২য়','৩য়','৪র্থ','৫ম','৬ষ্ঠ','৭ম','৮ম','৯ম','১০ম','আলিম ১ম','আলিম ২য়','আলিম ৩য়','আলিম ৪র্থ','আলিম ৫ম','দাওরায়ে হাদিস'];
+  var common=['বাংলা','ইংরেজি','গণিত','আরবি','কুরআন মাজিদ','হাদিস','আকাইদ ও ফিকহ','তাজবিদ','নাহু','সরফ','আদব','ইসলামি ইতিহাস','সাধারণ জ্ঞান','বিজ্ঞান','সমাজবিজ্ঞান','কম্পিউটার'];
+  var catalogs={
+    'প্লে':['বাংলা','আরবি','কুরআন মাজিদ','আদব'],
+    'নার্সারি':['বাংলা','ইংরেজি','আরবি','কুরআন মাজিদ','আদব'],
+    'কেজি':['বাংলা','ইংরেজি','গণিত','আরবি','কুরআন মাজিদ','আদব'],
+    '১ম':['বাংলা','ইংরেজি','গণিত','আরবি','কুরআন মাজিদ','আদব','আকাইদ ও ফিকহ'],
+    '২য়':['বাংলা','ইংরেজি','গণিত','আরবি','কুরআন মাজিদ','আদব','আকাইদ ও ফিকহ'],
+    '৩য়':['বাংলা','ইংরেজি','গণিত','আরবি','কুরআন মাজিদ','হাদিস','আকাইদ ও ফিকহ'],
+    '৪র্থ':['বাংলা','ইংরেজি','গণিত','আরবি','কুরআন মাজিদ','হাদিস','আকাইদ ও ফিকহ','নাহু'],
+    '৫ম':['বাংলা','ইংরেজি','গণিত','আরবি','কুরআন মাজিদ','হাদিস','আকাইদ ও ফিকহ','নাহু','সরফ'],
+    '৬ষ্ঠ':['বাংলা','ইংরেজি','গণিত','আরবি','কুরআন মাজিদ','হাদিস','আকাইদ ও ফিকহ','নাহু','সরফ','ইসলামি ইতিহাস'],
+    '৭ম':['বাংলা','ইংরেজি','গণিত','আরবি','কুরআন মাজিদ','হাদিস','আকাইদ ও ফিকহ','নাহু','সরফ','ইসলামি ইতিহাস'],
+    '৮ম':['বাংলা','ইংরেজি','গণিত','আরবি','কুরআন মাজিদ','হাদিস','আকাইদ ও ফিকহ','নাহু','সরফ','ইসলামি ইতিহাস'],
+    '৯ম':['বাংলা','ইংরেজি','গণিত','আরবি','কুরআন মাজিদ','হাদিস','আকাইদ ও ফিকহ','নাহু','সরফ','ইসলামি ইতিহাস','বিজ্ঞান','কম্পিউটার'],
+    '১০ম':['বাংলা','ইংরেজি','গণিত','আরবি','কুরআন মাজিদ','হাদিস','আকাইদ ও ফিকহ','নাহু','সরফ','ইসলামি ইতিহাস','বিজ্ঞান','কম্পিউটার'],
+    'আলিম ১ম':common,'আলিম ২য়':common,'আলিম ৩য়':common,'আলিম ৪র্থ':common,'আলিম ৫ম':common,
+    'দাওরায়ে হাদিস':['তাফসির','হাদিস','ফিকহ','উসুলুল ফিকহ','আকাইদ','আরবি','নাহু','সরফ','আদব','ইসলামি ইতিহাস']
+  };
+  function E(id){return document.getElementById(id)}
+  function currentKey(){var t=E('jbDocBuilderTitle')?.textContent||'';return t.indexOf('ফলাফল')>=0?'result':t.indexOf('মার্কশিট')>=0?'marks':''}
+  function hidden(key){var x=document.querySelector('#jbDocFields [data-key="'+key+'"]');if(x&&x.parentElement)x.parentElement.style.display='none';return x}
+  function subjectList(cls){var a=(catalogs[cls]||common).slice();common.forEach(function(x){if(a.indexOf(x)<0&&a.length<16)a.push(x)});return a}
+  function parseSubjects(){
+    var x=hidden('SubjectData'),raw=x?x.value:'',a=[];
+    if(raw){try{a=JSON.parse(raw)}catch(e){a=raw.split(/\n|,/).map(function(s){return {subject:String(s).trim(),mark:''}}).filter(function(v){return v.subject})}}
+    while(a.length<12)a.push({subject:'',mark:''});return a.slice(0,12);
+  }
+  function updateHidden(state){
+    var sd=hidden('SubjectData'),cls=E('jbMarksClass'),total=0;
+    state.forEach(function(x){var n=Number(x.mark);if(isFinite(n))total+=n});
+    if(sd)sd.value=JSON.stringify(state);
+    var ci=hidden('Class');if(ci&&cls)ci.value=cls.value;
+    var ti=hidden('Total');if(ti)ti.value=String(total);
+    var gi=hidden('GPA'),gr=hidden('Grade'),avg=total/12,g='F',gp=0;
+    if(avg>=80){g='A+';gp=5}else if(avg>=70){g='A';gp=4}else if(avg>=60){g='A-';gp=3.5}else if(avg>=50){g='B';gp=3}else if(avg>=40){g='C';gp=2}else if(avg>=33){g='D';gp=1}
+    if(gi)gi.value=String(gp);if(gr)gr.value=g;
+    if(E('jbMarksTotal'))E('jbMarksTotal').textContent='মোট: '+total;
+    if(E('jbMarksGPA'))E('jbMarksGPA').textContent='GPA: '+gp;
+    if(E('jbMarksGrade'))E('jbMarksGrade').textContent='গ্রেড: '+g;
+  }
+  function render(){
+    var key=currentKey(),fields=E('jbDocFields');if(!fields)return;
+    var old=E('jbMarksPanel');
+    if(key!=='marks'&&key!=='result'){if(old)old.remove();return}
+    ['Class','SubjectData','Total','GPA','Grade'].forEach(hidden);
+    var state=parseSubjects();if(old)old.remove();
+    var panel=document.createElement('div');panel.id='jbMarksPanel';
+    var top=document.createElement('div');top.className='jb-marks-top';
+    var lab=document.createElement('b');lab.textContent='১) শ্রেণি / জামাত নির্বাচন';top.appendChild(lab);
+    var sel=document.createElement('select');sel.id='jbMarksClass';
+    classes.forEach(function(c){var o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o)});
+    var oldClass=(document.querySelector('#jbDocFields [data-key="Class"]')||{}).value||'';
+    sel.value=classes.indexOf(oldClass)>=0?oldClass:classes[0];top.appendChild(sel);panel.appendChild(top);
+    var sub=document.createElement('b');sub.textContent='২) বিষয় / সাবজেক্ট নির্বাচন — ১২টি ঘর + নম্বর';panel.appendChild(sub);
+    var grid=document.createElement('div');grid.className='jb-subject-grid';
+    state.forEach(function(item,i){
+      var cell=document.createElement('div');cell.className='jb-subject-cell';
+      var sm=document.createElement('small');sm.textContent=(i+1)+' নম্বর বিষয়';cell.appendChild(sm);
+      var row=document.createElement('div');row.className='jb-mark-row';
+      var s=document.createElement('select');s.dataset.idx=i;
+      var b=document.createElement('option');b.value='';b.textContent='বিষয় নির্বাচন';s.appendChild(b);
+      subjectList(sel.value).forEach(function(v){var o=document.createElement('option');o.value=v;o.textContent=v;s.appendChild(o)});
+      if(item.subject)s.value=item.subject;
+      var m=document.createElement('input');m.type='number';m.min='0';m.max='100';m.step='1';m.placeholder='নম্বর';m.value=item.mark==null?'':item.mark;
+      row.appendChild(s);row.appendChild(m);cell.appendChild(row);grid.appendChild(cell);
+      function sync(){state[i]={subject:s.value,mark:m.value};updateHidden(state)}
+      s.onchange=sync;m.oninput=sync;
+    });
+    sel.onchange=function(){
+      var vals=state.map(function(x){return {subject:x.subject,mark:x.mark}});
+      render();
+      var p=E('jbMarksPanel');if(!p)return;
+      var ss=p.querySelectorAll('select:not(#jbMarksClass)'),ms=p.querySelectorAll('input[type=number]');
+      for(var i=0;i<12;i++){if(ss[i]&&subjectList(sel.value).indexOf(vals[i].subject)>=0)ss[i].value=vals[i].subject;if(ms[i])ms[i].value=vals[i].mark}
+      var st=[];for(var j=0;j<12;j++)st.push({subject:ss[j]?ss[j].value:'',mark:ms[j]?ms[j].value:''});updateHidden(st);
+    };
+    panel.appendChild(grid);
+    var sum=document.createElement('div');sum.className='jb-marks-summary';
+    ['jbMarksTotal','jbMarksGPA','jbMarksGrade'].forEach(function(id){var sp=document.createElement('span');sp.id=id;sum.appendChild(sp)});
+    panel.appendChild(sum);fields.appendChild(panel);updateHidden(state);
+  }
+  function run(){setTimeout(render,40)}
+  var oldOpen=window.openBuilder;if(typeof oldOpen==='function')window.openBuilder=function(){var r=oldOpen.apply(this,arguments);run();setTimeout(addControls,60);return r};
+  var oldFind=window.jbFindStudent;if(typeof oldFind==='function')window.jbFindStudent=function(){var r=oldFind.apply(this,arguments);Promise.resolve(r).then(run);return r};
+  var oldManual=window.jbManualEntry;if(typeof oldManual==='function')window.jbManualEntry=function(){var r=oldManual.apply(this,arguments);run();return r};
+  var obs=new MutationObserver(function(){if(E('jbDocFields'))run()});if(document.body)obs.observe(document.body,{childList:true,subtree:true});
+  window.jbRenderMarksPanel2026=render;
+  function taskbar(){
+    var bar=E('jbDocBuilderTaskbar2026');if(!bar){bar=document.createElement('div');bar.id='jbDocBuilderTaskbar2026';document.body.appendChild(bar)}return bar;
+  }
+  function removeTaskbar(){var bar=E('jbDocBuilderTaskbar2026');if(bar)bar.innerHTML=''}
+  function addTaskbar(w){
+    var bar=taskbar();if(bar.querySelector('[data-jb-doc-restore]'))return;
+    var b=document.createElement('button');b.type='button';b.dataset.jbDocRestore='1';b.textContent='▣ '+(E('jbDocBuilderTitle')?.textContent||'Document');
+    b.onclick=function(){w.classList.remove('jb-win-minimized-2026');b.remove()};bar.appendChild(b);
+  }
+  function addControls(){
+    var w=E('jbDocBuilderWin'),head=E('jbDocBuilderHead');if(!w||!head)return;
+    if(head.querySelector('.jb-doc-window-controls'))return;
+    var box=document.createElement('span');box.className='jb-doc-window-controls';
+    var min=document.createElement('button');min.type='button';min.className='secondary';min.textContent='—';min.title='মিনিমাইজ';
+    var fs=document.createElement('button');fs.type='button';fs.className='secondary';fs.textContent='⛶';fs.title='ফুল স্ক্রিন / স্বাভাবিক';
+    var cl=document.createElement('button');cl.type='button';cl.className='secondary';cl.textContent='✕';cl.title='বন্ধ';
+    min.onclick=function(){w.classList.remove('jb-win-fullscreen-2026');w.classList.add('jb-win-minimized-2026');addTaskbar(w)};
+    fs.onclick=function(){w.classList.remove('jb-win-minimized-2026');w.classList.toggle('jb-win-fullscreen-2026');removeTaskbar()};
+    cl.onclick=function(){w.classList.remove('show','jb-win-minimized-2026','jb-win-fullscreen-2026');removeTaskbar()};
+    box.appendChild(min);box.appendChild(fs);box.appendChild(cl);head.appendChild(box);
+  }
+  setTimeout(function(){run();addControls()},500);
+})();
+</script>
+<!-- ===== END DOCUMENT BUILDER MARKSHEET 12 SUBJECTS + WINDOW CONTROLS ===== -->
+
