@@ -1043,3 +1043,31 @@ function submitPublicPayment(data){
   sh.appendRow(row);
   return {ok:true,paymentId:'PAY-'+Date.now(),status:'PENDING_CONFIRMATION',message:'পেমেন্ট অনুরোধ সংরক্ষিত হয়েছে। যাচাই শেষে চূড়ান্ত করা যাবে।'};
 }
+
+
+function upsertMasterStudentFromManual(token,data){
+  auth_(token);
+  setupSystem();
+  data=data||{};
+  const id=String(data.StudentID||'').trim();
+  if(!id)return {ok:false,message:'ID বাধ্যতামূলক।'};
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.STUDENTS);
+  const h=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
+  const mobile=String(data.Mobile||data.GuardianMobile||APP.hotline1||'').trim();
+  const mobileType=String(data.Mobile?data.MobileType||'নিজস্ব':data.GuardianMobile?'অভিভাবকের':'মাদ্রাসার');
+  data.Mobile=mobile; data.MobileType=mobileType; data.GuardianMobile=String(data.GuardianMobile||'');
+  data.MasterDataJSON=JSON.stringify(data); data.UpdatedAt=now_();
+  let rowIndex=-1;
+  const idj=h.indexOf('StudentID');
+  if(idj>=0 && sh.getLastRow()>1){
+    const vals=sh.getRange(2,idj+1,sh.getLastRow()-1,1).getValues();
+    for(let i=0;i<vals.length;i++){if(String(vals[i][0]).trim()===id){rowIndex=i+2;break;}}
+  }
+  const row=h.map(function(k){return data[k]!==undefined?data[k]:'';});
+  if(h.indexOf('Serial')>=0)row[h.indexOf('Serial')]=rowIndex>0?sh.getRange(rowIndex,1).getValue():nextSerial_(sh);
+  if(idj>=0)row[idj]=id;
+  if(h.indexOf('CreatedAt')>=0 && rowIndex>0)row[h.indexOf('CreatedAt')]=sh.getRange(rowIndex,h.indexOf('CreatedAt')+1).getValue();
+  if(rowIndex>0)sh.getRange(rowIndex,1,1,h.length).setValues([row]);
+  else sh.appendRow(row);
+  return {ok:true,found:true,message:'Master Student Data-তে তথ্য সংরক্ষণ হয়েছে।',student:getStudentMasterById(id).student};
+}
