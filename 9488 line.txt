@@ -997,8 +997,7 @@ body.gold #loginPage .main-qr-802268e{background:#fff!important;border-color:#11
             <button class="secondary slider-arrow" onclick="prevMedia()" title="আগের স্লাইড">◀</button>
             <div class="slider-center-controls">
               <button class="secondary slider-action" onclick="toggleMediaPlay()" id="mediaPlayBtn" title="Play / Pause">▶ Play</button>
-              <button class="secondary slider-action" onclick="openModule('gallery')" title="Upload">⬆ Load</button>
-              <button class="secondary slider-action" onclick="deleteCurrentMedia()" title="Delete">🗑 Delete</button>
+              <button class="secondary slider-action" onclick="openModule('gallery')" title="Upload">⬆ Load</button>              <button class="secondary slider-action" onclick="deleteCurrentMedia()" title="Delete">🗑 Delete</button>
             </div>
             <button class="secondary slider-arrow" onclick="nextMedia()" title="পরের স্লাইড">▶</button>
           </div>
@@ -1997,8 +1996,7 @@ function escA(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){retu
   background:var(--panel)!important;
 }
 .header-mode-icons{
-  display:flex!important;
-  align-items:center!important;
+  display:flex!important;  align-items:center!important;
   gap:5px!important;
   white-space:nowrap!important;
 }
@@ -2997,8 +2995,7 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
 (function(){
   function driveId(u){
     var s=String(u||''),m=s.match(/[?&]id=([^&]+)/);
-    if(m)return decodeURIComponent(m[1]);
-    m=s.match(/\/d\/([^/]+)/);
+    if(m)return decodeURIComponent(m[1]);    m=s.match(/\/d\/([^/]+)/);
     return m?m[1]:'';
   }
   function arrows(){
@@ -3997,8 +3994,7 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
         head.appendChild(tools);
       }
       var close=head.querySelector('button');
-      if(close && !close.classList.contains('win-fullscreen-2026')){
-        /* The first header button is the previous close button in the existing windows. */
+      if(close && !close.classList.contains('win-fullscreen-2026')){        /* The first header button is the previous close button in the existing windows. */
         close.textContent='⛶';
         close.title='ফুল স্ক্রিন / স্বাভাবিক';
         close.setAttribute('aria-label','ফুল স্ক্রিন / স্বাভাবিক');
@@ -4997,8 +4993,7 @@ body #app .header-news *{
   background:#111!important;display:block!important;
 }
 #mediaStageContent .media-stable-video{
-  width:100%!important;height:100%!important;object-fit:contain!important;
-  background:#111!important;display:block!important;
+  width:100%!important;height:100%!important;object-fit:contain!important;  background:#111!important;display:block!important;
 }
 </style>
 <script id="media-playback-stability-js-2026-09-22">
@@ -5997,8 +5992,7 @@ body #app .header-news *{
 }
 #summary.dashboard-summary-inside .stat{
   transform:none!important;
-}
-</style>
+}</style>
 <script id="final-true-media-autoplay-2026-09-22">
 (function(){
   var busy=false;
@@ -6997,8 +6991,7 @@ body.dark #headerSlideDeleteWindow{border-radius:22px!important}
 }
 #headerCalendarWindow .hc-weekday,
 #headerCalendarWindow .hc-day{
-  min-height:54px;
-  display:flex;align-items:center;justify-content:center;
+  min-height:54px;  display:flex;align-items:center;justify-content:center;
   border:2px solid var(--border);
   border-radius:14px;
   font-weight:900;
@@ -7997,8 +7990,7 @@ body.gold #searchProfilePrint .sp-field{border-color:#d40000!important}
   }
   function typeOf(x){return String(x&& (x.Type||x.type)||'').toLowerCase();}
   function esc(v){
-    return String(v==null?'':v).replace(/[&<>"']/g,function(c){
-      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    return String(v==null?'':v).replace(/[&<>"']/g,function(c){      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
     });
   }
 
@@ -8997,8 +8989,7 @@ body.jb-custom-account .header-content .header-identity-contact{color:#fff!impor
 #contactFooter .contact-center-2026 .contact-info{
   display:flex!important;justify-content:center!important;align-items:center!important;
   flex-wrap:wrap!important;gap:6px 18px!important;
-}
-@media(max-width:700px){
+}@media(max-width:700px){
   #contactFooter .contact-layout-2026{grid-template-columns:72px minmax(0,1fr) 88px!important;gap:8px!important}
   #contactFooter #contactLoginLogo2026{width:62px!important;height:62px!important}
   #contactFooter #contactMainQR2026{width:72px!important;height:72px!important}
@@ -9997,8 +9988,7 @@ body.dark #jbDocBuilderWin{background:#000;color:#ffe95c;border-color:#ff1f2f}bo
 #jbPublicVerifyCard .vrow{border:1px solid #777;border-radius:9px;padding:8px;background:#fafafa}
 #jbPublicVerifyCard .vrow b{display:block;font-size:12px;color:#555;margin-bottom:2px}
 #jbPublicVerifyCard .vfoot{font-size:12px;color:#555;margin-top:10px}
-@media(max-width:520px){#jbPublicVerifyCard .vgrid{grid-template-columns:1fr}}
-</style>
+@media(max-width:520px){#jbPublicVerifyCard .vgrid{grid-template-columns:1fr}}</style>
 <script id="central-document-builder-public-qr-panel-polish-2026-10-06">
 (function(){
   function e(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
@@ -10070,13 +10060,31 @@ body.dark #jbDocBuilderWin{background:#000;color:#ffe95c;border-color:#ff1f2f}bo
       }else{var t=document.createElement('textarea');t.value=url;document.body.appendChild(t);t.select();try{document.execCommand('copy');copy.textContent='✅ লিংক কপি হয়েছে'}catch(e){toast('লিংক কপি করা যায়নি।')}t.remove()}
     };
     var share=document.createElement('button');share.className='secondary';share.textContent='📤 শেয়ার';
-    share.onclick=function(){
-      if(navigator.share) navigator.share({title:'Document Verification',text:'Jannatul Baqi Document Verification',url:url}).catch(function(){});
-      else copy.click();
-    };
-    tools.appendChild(copy);tools.appendChild(share);
-    var foot=card.querySelector('.vfoot');if(foot)card.insertBefore(tools,foot);else card.appendChild(tools);
-  };
+
+<!-- ===== CENTRAL DOCUMENT BUILDER — PUBLIC QR VERIFY PRINT — 2026-10-06 ===== -->
+<style id="central-document-builder-public-qr-verify-print-2026-10-06">
+@media print{
+  body>*:not(#jbPublicVerifyPanel){display:none!important}
+  #jbPublicVerifyPanel{position:static!important;display:block!important;background:#fff!important;padding:0!important}
+  #jbPublicVerifyCard{width:180mm!important;max-width:none!important;max-height:none!important;overflow:visible!important;margin:0 auto!important;border:3px solid #8b5e00!important;box-shadow:none!important;border-radius:0!important}
+  #jbPublicVerifyCard .vprintbtn,#jbPublicVerifyCard .secondary{display:none!important}
+}
+#jbPublicVerifyCard .vprintbtn{margin-top:10px}
+</style>
+<script id="central-document-builder-public-qr-verify-print-2026-10-06">
+(function(){
+  function addPrintButton(){
+    var card=document.getElementById('jbPublicVerifyCard');
+    if(!card||card.querySelector('.vprintbtn'))return;
+    var b=document.createElement('button');
+    b.className='secondary vprintbtn';
+    b.textContent='🖨️ যাচাই ফলাফল প্রিন্ট';
+    b.onclick=function(){window.print()};
+    var foot=card.querySelector('.vfoot');
+    if(foot)card.insertBefore(b,foot);else card.appendChild(b);
+  }
+  new MutationObserver(addPrintButton).observe(document.body,{childList:true,subtree:true});
+  setTimeout(addPrintButton,500);
 })();
 </script>
-<!-- ===== END QR VERIFICATION LINK SHARE ===== -->
+<!-- ===== END PUBLIC QR VERIFY PRINT ===== -->
