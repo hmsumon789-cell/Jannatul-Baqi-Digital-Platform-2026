@@ -86,6 +86,8 @@ function setupSystem() {
   seedAdmin_(ss);
   seedPeople_(ss);
   seedLocation_(ss);
+  ensureDocumentSystemSheets_(ss);
+  ensureMasterStudentColumns_(ss);
   return {ok:true, message:'System setup complete'};
 }
 
@@ -884,4 +886,160 @@ function getDashboardPeriodStats(token, period) {
     rangeStart:Utilities.formatDate(start,tz,'yyyy-MM-dd'),
     rangeEnd:Utilities.formatDate(end,tz,'yyyy-MM-dd')
   };
+}
+
+
+/* =========================================================
+   DOCUMENT + PAYMENT CENTER 2026-10-06
+   SAFE ADD-ON: isolated functions; existing location/media
+   functions are intentionally untouched.
+========================================================= */
+const DOC_SYS = {
+  documentSheets: {
+    DOCUMENT_TEMPLATES:['Serial','TemplateID','DocumentType','Name','PageSize','Color1','Color2','Color3','Color4','Border','Active','CreatedAt'],
+    DOCUMENTS:['Serial','DocumentID','DocumentType','StudentID','Mobile','MobileType','SelectedFields','DataJSON','PageSize','Status','CreatedAt','UpdatedAt'],
+    PAYMENT_METHODS:['Serial','MethodID','MethodName','AccountName','AccountNumber','Instruction','Active','CreatedAt'],
+    PAYMENT_CATALOG:['Serial','ItemID','ItemName','Month','DefaultAmount','Active','CreatedAt']
+  },
+  masterExtra:['Division','District','Upazila','Union','PostOffice','PostCode','Ward','Village','GuardianMobile','MobileType','BloodGroup','AdmissionDate','MasterDataJSON','UpdatedAt']
+};
+
+function ensureDocumentSystemSheets_(ss){
+  Object.keys(DOC_SYS.documentSheets).forEach(function(name){
+    ensureSheet_(ss,name,DOC_SYS.documentSheets[name]);
+  });
+  const pm=ss.getSheetByName('PAYMENT_METHODS');
+  if(pm && pm.getLastRow()===1){
+    pm.getRange(2,1,4,8).setValues([
+      [1,'BKASH','বিকাশ','','','প্রদত্ত অ্যাকাউন্ট/নির্দেশনা অনুযায়ী পেমেন্ট করুন','ACTIVE',now_()],
+      [2,'NAGAD','নগদ','','','প্রদত্ত অ্যাকাউন্ট/নির্দেশনা অনুযায়ী পেমেন্ট করুন','ACTIVE',now_()],
+      [3,'BANK','ব্যাংক অ্যাকাউন্ট','','','ব্যাংক তথ্য অনুযায়ী পেমেন্ট করুন','ACTIVE',now_()],
+      [4,'CASH','ক্যাশ','','','অফিসে সরাসরি পরিশোধ','ACTIVE',now_()]
+    ]);
+  }
+  const pc=ss.getSheetByName('PAYMENT_CATALOG');
+  if(pc && pc.getLastRow()===1){
+    const months=['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+    const rows=months.map(function(m,i){return [i+1,'MONTH_'+String(i+1).padStart(2,'0'),m,m,'','ACTIVE',now_()];});
+    rows.push([13,'OTHER','অন্যান্য','অন্যান্য','','ACTIVE',now_()]);
+    pc.getRange(2,1,rows.length,7).setValues(rows);
+  }
+}
+
+function ensureMasterStudentColumns_(ss){
+  const sh=ss.getSheetByName(SHEETS.STUDENTS);
+  if(!sh)return;
+  const existing=sh.getRange(1,1,1,Math.max(1,sh.getLastColumn())).getValues()[0].map(String);
+  DOC_SYS.masterExtra.forEach(function(h){
+    if(existing.indexOf(h)<0){
+      sh.getRange(1,sh.getLastColumn()+1).setValue(h);
+      existing.push(h);
+    }
+  });
+}
+
+function getStudentMasterById(studentId){
+  setupSystem();
+  const id=String(studentId||'').trim();
+  if(!id)return {ok:false,message:'ID দিন।'};
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.STUDENTS);
+  if(!sh || sh.getLastRow()<2)return {ok:false,found:false,message:'কোন তথ্য পাওয়া যায়নি। অনুগ্রহ করে প্রয়োজনীয় তথ্য হাতে পূরণ করে তৈরি করুন।'};
+  const h=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
+  const rows=sh.getDataRange().getValues();
+  const idCols=['StudentID','ID','FormID','MobileID'];
+  let idx=-1;
+  for(let r=1;r<rows.length;r++){
+    for(let k=0;k<idCols.length;k++){
+      const j=h.indexOf(idCols[k]);
+      if(j>=0 && String(rows[r][j]).trim()===id){idx=r;break;}
+    }
+    if(idx>=0)break;
+  }
+  if(idx<0)return {ok:true,found:false,message:'কোন তথ্য পাওয়া যায়নি। অনুগ্রহ করে প্রয়োজনীয় তথ্য হাতে পূরণ করে তৈরি করুন।'};
+  const student=objectFrom_(h,rows[idx]);
+  const fallback=String(APP.hotline1||APP.hotline2||'').trim();
+  const mobile=String(student.Mobile||student.GuardianMobile||student.WhatsApp||'').trim() || fallback;
+  const mobileType=String(student.Mobile?'নিজস্ব':student.GuardianMobile?'অভিভাবকের':'মাদ্রাসার').trim();
+  student.EffectiveMobile=mobile;
+  student.EffectiveMobileType=mobileType;
+  student._row=idx+1;
+  return {ok:true,found:true,student:student};
+}
+
+function getDocumentCenterBootstrap(token,studentId){
+  auth_(token);
+  setupSystem();
+  const s=getStudentMasterById(studentId);
+  const templates=listRows_('DOCUMENT_TEMPLATES',token,100);
+  const methods=listRows_('PAYMENT_METHODS',token,50).filter(function(x){return String(x.Active).toUpperCase()==='ACTIVE';});
+  const catalog=listRows_('PAYMENT_CATALOG',token,50).filter(function(x){return String(x.Active).toUpperCase()==='ACTIVE';});
+  return {ok:true,student:s,templates:templates,methods:methods,catalog:catalog,fields:documentFieldCatalog_()};
+}
+
+function documentFieldCatalog_(){
+  return [
+    ['StudentID','ID'],['NameBN','বাংলা নাম'],['NameAR','আরবি নাম'],['NameEN','ইংরেজি নাম'],
+    ['Photo','ছবি'],['FatherBN','পিতার নাম'],['MotherBN','মাতার নাম'],['DOB','জন্মতারিখ'],
+    ['Gender','লিঙ্গ'],['Class','শ্রেণি/জামাত'],['Department','বিভাগ'],['Branch','শাখা'],
+    ['Mobile','মোবাইল'],['GuardianMobile','অভিভাবকের মোবাইল'],['MobileType','মোবাইলের ধরন'],
+    ['Email','ই-মেইল'],['BirthReg','জন্মনিবন্ধন'],['NID','NID'],['Division','বিভাগ/Division'],
+    ['District','জেলা'],['Upazila','উপজেলা'],['Union','ইউনিয়ন'],['PostOffice','ডাকঘর'],
+    ['PostCode','পোস্ট কোড'],['Ward','ওয়ার্ড'],['Village','গ্রাম'],['AdmissionDate','ভর্তি তারিখ'],
+    ['Roll','রোল'],['BloodGroup','রক্তের গ্রুপ']
+  ];
+}
+
+function saveGeneratedDocument(token,data){
+  auth_(token);
+  setupSystem();
+  data=data||{};
+  const studentId=String(data.StudentID||'').trim();
+  const type=String(data.DocumentType||'').trim();
+  if(!studentId||!type) return {ok:false,message:'ID এবং Document Type প্রয়োজন।'};
+  const s=getStudentMasterById(studentId);
+  const student=s.student||{};
+  const mobile=String(data.Mobile||student.EffectiveMobile||APP.hotline1||'').trim();
+  if(!mobile)return {ok:false,message:'মোবাইল নম্বর বাধ্যতামূলক।'};
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName('DOCUMENTS');
+  const id='DOC-'+Utilities.formatDate(new Date(),APP.timezone,'yyyyMMddHHmmss')+'-'+Math.floor(Math.random()*1000);
+  sh.appendRow([nextSerial_(sh),id,type,studentId,mobile,String(data.MobileType||student.EffectiveMobileType||'মাদ্রাসার'),String(data.SelectedFields||''),JSON.stringify(data.Data||student),String(data.PageSize||'A4'),'SAVED',now_(),now_()]);
+  return {ok:true,documentId:id,message:'ডকুমেন্ট সংরক্ষণ হয়েছে।'};
+}
+
+function getPublicPaymentBootstrap(studentId){
+  setupSystem();
+  const s=getStudentMasterById(studentId);
+  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  const methods=listRows_('PAYMENT_METHODS','',50).filter(function(x){return String(x.Active).toUpperCase()==='ACTIVE';});
+  const catalog=listRows_('PAYMENT_CATALOG','',50).filter(function(x){return String(x.Active).toUpperCase()==='ACTIVE';});
+  return {ok:true,student:s,methods:methods,catalog:catalog,institution:APP};
+}
+
+function submitPublicPayment(data){
+  setupSystem();
+  data=data||{};
+  const studentId=String(data.StudentID||'').trim();
+  const method=String(data.Method||'').trim();
+  const months=String(data.Months||'').trim();
+  const amount=String(data.Amount||'').trim();
+  if(!studentId)return {ok:false,message:'Student ID দিন।'};
+  if(!method)return {ok:false,message:'পেমেন্ট মাধ্যম নির্বাচন করুন।'};
+  if(!months)return {ok:false,message:'কোন বাবদ/মাস নির্বাচন করুন।'};
+  if(!amount || Number(amount)<=0)return {ok:false,message:'পরিমাণ দিন।'};
+  const s=getStudentMasterById(studentId);
+  if(!s.found)return {ok:false,message:'কোন তথ্য পাওয়া যায়নি। অনুগ্রহ করে প্রয়োজনীয় তথ্য হাতে পূরণ করে তৈরি করুন।'};
+  const mobile=String(data.Mobile||s.student.EffectiveMobile||APP.hotline1||'').trim();
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.PAYMENTS);
+  const h=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
+  const row=new Array(h.length).fill('');
+  function put(k,v){const j=h.indexOf(k);if(j>=0)row[j]=v;}
+  put('Serial',nextSerial_(sh)); put('PaymentID','PAY-'+Date.now()); put('StudentID',studentId);
+  put('Name',s.student.NameBN||s.student.NameEN||''); put('Month',months); put('Category',data.Category||'শিক্ষা/মাদ্রাসা');
+  put('Amount',Number(amount)); put('Method',method); put('Reference',data.Reference||'');
+  put('Date',now_()); put('Note',data.Note||''); put('CreatedAt',now_());
+  put('Mobile',mobile); put('MobileType',data.MobileType||s.student.EffectiveMobileType||'মাদ্রাসার');
+  put('Status','PENDING_CONFIRMATION');
+  put('MonthsJSON',JSON.stringify(data.MonthList||[]));
+  sh.appendRow(row);
+  return {ok:true,paymentId:'PAY-'+Date.now(),status:'PENDING_CONFIRMATION',message:'পেমেন্ট অনুরোধ সংরক্ষিত হয়েছে। যাচাই শেষে চূড়ান্ত করা যাবে।'};
 }
