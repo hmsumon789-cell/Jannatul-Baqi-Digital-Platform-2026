@@ -10160,8 +10160,8 @@ body.dark #jbDocumentBuilderEntry2026{background:#000;color:#ffe95c;border-color
     var u=String(window.location.href||'').split('#')[0];
     return u;
   }
-  function verifyUrl(key,id){
-    var base=appUrl();
+  function verifyUrl(key,id,base){
+    base=String(base||appUrl()).split('#')[0];
     return base+(base.indexOf('?')>=0?'&':'?')+
       'verify=1&doc='+encodeURIComponent(String(key||'marks'))+
       '&id='+encodeURIComponent(String(id||''));
@@ -10170,18 +10170,32 @@ body.dark #jbDocumentBuilderEntry2026{background:#000;color:#ffe95c;border-color
     var p=document.getElementById('jbDocPreview');
     if(!p||!id)return;
     p.querySelectorAll('.jb-verification-qr').forEach(function(x){x.remove()});
-    var url=verifyUrl(key,id);
     var holder=document.createElement('div');
     holder.className='jb-verification-qr';
     holder.style.cssText='text-align:center;margin:12px auto;padding:8px;border:1px dashed #777;width:max-content;background:#fff';
     holder.innerHTML='<div style="font-weight:700;margin-bottom:5px">QR যাচাই</div><div class="jb-qr-box"></div><small>Document ID: '+String(id).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]})+'</small>';
     p.appendChild(holder);
     var box=holder.querySelector('.jb-qr-box');
+    function renderQR(base){
+      var url=verifyUrl(key,id,base);
+      try{
+        if(window.QRCode)new QRCode(box,{text:url,width:110,height:110});
+        else box.innerHTML='<img alt="QR" style="width:110px;height:110px" src="https://quickchart.io/qr?size=220&margin=2&text='+encodeURIComponent(url)+'">';
+      }catch(e){
+        box.innerHTML='<img alt="QR" style="width:110px;height:110px" src="https://quickchart.io/qr?size=220&margin=2&text='+encodeURIComponent(url)+'">';
+      }
+    }
     try{
-      if(window.QRCode)new QRCode(box,{text:url,width:110,height:110});
-      else box.innerHTML='<img alt="QR" style="width:110px;height:110px" src="https://quickchart.io/qr?size=220&margin=2&text='+encodeURIComponent(url)+'">';
+      if(window.google&&google.script&&google.script.run&&google.script.run.getMainWebAppUrl){
+        google.script.run
+          .withSuccessHandler(function(u){renderQR(String(u||appUrl()));})
+          .withFailureHandler(function(){renderQR(appUrl());})
+          .getMainWebAppUrl();
+      }else{
+        renderQR(appUrl());
+      }
     }catch(e){
-      box.innerHTML='<img alt="QR" style="width:110px;height:110px" src="https://quickchart.io/qr?size=220&margin=2&text='+encodeURIComponent(url)+'">';
+      renderQR(appUrl());
     }
   }
   window.jbAddVerificationQR=safeQR;
