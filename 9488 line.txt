@@ -10152,3 +10152,71 @@ body.dark #jbDocumentBuilderEntry2026{background:#000;color:#ffe95c;border-color
 })();
 </script>
 <!-- ===== END DOCUMENT BUILDER DASHBOARD ENTRY ===== -->
+
+<!-- ===== CENTRAL DOCUMENT BUILDER — QR WHITE PAGE FIX — 2026-10-06 ===== -->
+<script id="central-document-builder-qr-white-page-fix-2026-10-06">
+(function(){
+  function appUrl(){
+    var u=String(window.location.href||'').split('#')[0];
+    return u;
+  }
+  function verifyUrl(key,id){
+    var base=appUrl();
+    return base+(base.indexOf('?')>=0?'&':'?')+
+      'verify=1&doc='+encodeURIComponent(String(key||'marks'))+
+      '&id='+encodeURIComponent(String(id||''));
+  }
+  function safeQR(key,id){
+    var p=document.getElementById('jbDocPreview');
+    if(!p||!id)return;
+    p.querySelectorAll('.jb-verification-qr').forEach(function(x){x.remove()});
+    var url=verifyUrl(key,id);
+    var holder=document.createElement('div');
+    holder.className='jb-verification-qr';
+    holder.style.cssText='text-align:center;margin:12px auto;padding:8px;border:1px dashed #777;width:max-content;background:#fff';
+    holder.innerHTML='<div style="font-weight:700;margin-bottom:5px">QR যাচাই</div><div class="jb-qr-box"></div><small>Document ID: '+String(id).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]})+'</small>';
+    p.appendChild(holder);
+    var box=holder.querySelector('.jb-qr-box');
+    try{
+      if(window.QRCode)new QRCode(box,{text:url,width:110,height:110});
+      else box.innerHTML='<img alt="QR" style="width:110px;height:110px" src="https://quickchart.io/qr?size=220&margin=2&text='+encodeURIComponent(url)+'">';
+    }catch(e){
+      box.innerHTML='<img alt="QR" style="width:110px;height:110px" src="https://quickchart.io/qr?size=220&margin=2&text='+encodeURIComponent(url)+'">';
+    }
+  }
+  window.jbAddVerificationQR=safeQR;
+  window.jbRenderSavedVerificationQR2026=function(key,id){safeQR(key,id)};
+  var oldShow=window.jbShowPublicVerification2026;
+  if(typeof oldShow==='function'){
+    window.jbShowPublicVerification2026=function(key,id,r){
+      oldShow.apply(this,arguments);
+      var card=document.getElementById('jbPublicVerifyCard');
+      if(!card)return;
+      var base=appUrl();
+      var url=base+(base.indexOf('?')>=0?'&':'?')+
+        'verify=1&doc='+encodeURIComponent(String(key||'marks'))+
+        '&id='+encodeURIComponent(String(id||''));
+      var old=card.querySelector('.jb-whitepage-link-tools');
+      if(old)old.remove();
+      var tools=document.createElement('div');
+      tools.className='jb-whitepage-link-tools';
+      tools.style.cssText='display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin-top:10px';
+      var copy=document.createElement('button');
+      copy.className='secondary';
+      copy.textContent='🔗 যাচাই লিংক কপি';
+      copy.onclick=function(){
+        if(navigator.clipboard&&navigator.clipboard.writeText){
+          navigator.clipboard.writeText(url).then(function(){copy.textContent='✅ লিংক কপি হয়েছে';});
+        }else{
+          var t=document.createElement('textarea');t.value=url;document.body.appendChild(t);t.select();
+          try{document.execCommand('copy');copy.textContent='✅ লিংক কপি হয়েছে';}catch(e){}
+          t.remove();
+        }
+      };
+      tools.appendChild(copy);
+      card.appendChild(tools);
+    };
+  }
+})();
+</script>
+<!-- ===== END QR WHITE PAGE FIX ===== -->
