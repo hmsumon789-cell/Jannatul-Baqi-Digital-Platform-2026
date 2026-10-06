@@ -10463,7 +10463,8 @@ body.dark #jbDocumentBuilderEntry2026{background:#000;color:#ffe95c;border-color
   var oldOpen=window.openBuilder;if(typeof oldOpen==='function')window.openBuilder=function(){var r=oldOpen.apply(this,arguments);run();setTimeout(addControls,60);return r};
   var oldFind=window.jbFindStudent;if(typeof oldFind==='function')window.jbFindStudent=function(){var r=oldFind.apply(this,arguments);Promise.resolve(r).then(run);return r};
   var oldManual=window.jbManualEntry;if(typeof oldManual==='function')window.jbManualEntry=function(){var r=oldManual.apply(this,arguments);run();return r};
-  var obs=new MutationObserver(function(){if(E('jbDocFields'))run()});if(document.body)obs.observe(document.body,{childList:true,subtree:true});
+  var oldCreate=window.jbCreatePreview;
+  if(typeof oldCreate==='function')window.jbCreatePreview=function(){run();return oldCreate.apply(this,arguments)};
   window.jbRenderMarksPanel2026=render;
   function taskbar(){
     var bar=E('jbDocBuilderTaskbar2026');if(!bar){bar=document.createElement('div');bar.id='jbDocBuilderTaskbar2026';document.body.appendChild(bar)}return bar;
