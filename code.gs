@@ -908,6 +908,7 @@ function ensureDocumentSystemSheets_(ss){
   Object.keys(DOC_SYS.documentSheets).forEach(function(name){
     ensureSheet_(ss,name,DOC_SYS.documentSheets[name]);
   });
+  ensurePaymentColumns_(ss);
   const pm=ss.getSheetByName('PAYMENT_METHODS');
   if(pm && pm.getLastRow()===1){
     pm.getRange(2,1,4,8).setValues([
@@ -1070,4 +1071,14 @@ function upsertMasterStudentFromManual(token,data){
   if(rowIndex>0)sh.getRange(rowIndex,1,1,h.length).setValues([row]);
   else sh.appendRow(row);
   return {ok:true,found:true,message:'Master Student Data-তে তথ্য সংরক্ষণ হয়েছে।',student:getStudentMasterById(id).student};
+}
+
+
+function ensurePaymentColumns_(ss){
+  const sh=ss.getSheetByName(SHEETS.PAYMENTS);
+  if(!sh)return;
+  ['Mobile','MobileType','Status','MonthsJSON','CategoryDetails'].forEach(function(h){
+    const existing=sh.getRange(1,1,1,Math.max(1,sh.getLastColumn())).getValues()[0].map(String);
+    if(existing.indexOf(h)<0)sh.getRange(1,sh.getLastColumn()+1).setValue(h);
+  });
 }
