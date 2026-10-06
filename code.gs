@@ -1039,7 +1039,19 @@ function getDocumentVerification(token, docKey, recordId) {
   for(let i=1;i<vals.length;i++){
     if(String(vals[i][idx]).trim()===rid){
       const row=objectFrom_(h,vals[i]);
-      return {ok:true,verified:true,docKey:key,recordId:rid,studentId:row.StudentID||row.RefID||'',issueDate:row.IssueDate||row.Date||'',name:row.Name||'',className:row.Class||'',exam:row.Exam||'',type:row.Type||'',amount:row.Amount||'',message:'Documentটি যাচাই করা হয়েছে।'};
+      let payload=null, fields={};
+      if(row.Data){
+        try{payload=typeof row.Data==='string'?JSON.parse(row.Data):row.Data;}catch(e){payload=null;}
+        if(payload&&payload.fields&&typeof payload.fields==='object') fields=payload.fields;
+      }
+      const studentId=row.StudentID||row.RefID||fields.StudentID||'';
+      const name=row.Name||fields.NameBN||fields.NameEN||'';
+      const className=row.Class||fields.Class||'';
+      const exam=row.Exam||fields.Exam||'';
+      const issueDate=row.IssueDate||row.Date||fields.IssueDate||fields.Date||'';
+      const type=row.Type||fields.Type||fields.Category||'';
+      const amount=row.Amount||fields.Amount||'';
+      return {ok:true,verified:true,docKey:key,recordId:rid,studentId:studentId,issueDate:issueDate,name:name,className:className,exam:exam,type:type,amount:amount,message:'Documentটি যাচাই করা হয়েছে।'};
     }
   }
   return {ok:true,verified:false,message:'এই Document ID-এর কোনো রেকর্ড পাওয়া যায়নি।'};
