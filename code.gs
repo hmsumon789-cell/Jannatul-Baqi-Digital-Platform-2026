@@ -801,6 +801,47 @@ function getModules_(){
     ['receipt','মানিরিসিট'],['accountControl','অনুমোদন + ফিচার পারমিশন'],['maleMadrasa','নিবন্ধনকৃত পুরুষ মাদ্রাসা'],['femaleMadrasa','নিবন্ধনকৃত মহিলা মাদ্রাসা'],['help','পরামর্শ+যোগ+অভিযোগ']
   ];
 }
+/* ===== CENTRAL DOCUMENT BUILDER — ADMISSION MASTER DATA — 2026-10-06 ===== */
+function getStudentDocumentData(token, studentId) {
+  auth_(token);
+  const id = String(studentId || '').trim();
+  if (!id) return {ok:false, message:'শিক্ষার্থীর ID দিন।'};
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const studentSh = ss.getSheetByName(SHEETS.STUDENTS);
+  const admissionSh = ss.getSheetByName(SHEETS.ADMISSIONS);
+  let student = null;
+  if (studentSh && studentSh.getLastRow() >= 2) {
+    const vals = studentSh.getDataRange().getValues(), h = vals[0], idCol = h.indexOf('StudentID');
+    if (idCol >= 0) for (let i=1;i<vals.length;i++) if (String(vals[i][idCol]).trim()===id) { student=objectFrom_(h,vals[i]); break; }
+  }
+  let admission = null;
+  if (admissionSh && admissionSh.getLastRow() >= 2) {
+    const vals = admissionSh.getDataRange().getValues(), h = vals[0], idCol = h.indexOf('StudentID'), createdCol = h.indexOf('CreatedAt');
+    if (idCol >= 0) for (let i=1;i<vals.length;i++) if (String(vals[i][idCol]).trim()===id) {
+      const candidate=objectFrom_(h,vals[i]);
+      if (!admission || String(candidate.CreatedAt||'') > String(admission.CreatedAt||'')) admission=candidate;
+    }
+  }
+  if (!student && !admission) return {ok:true,found:false,studentId:id,data:{StudentID:id}};
+  const data={};
+  if(student) Object.keys(student).forEach(k=>{if(student[k]!==''&&student[k]!=null)data[k]=student[k];});
+  if(admission){
+    ['StudentID','Class','Branch'].forEach(k=>{if(admission[k]!==''&&admission[k]!=null)data[k]=admission[k];});
+    let form=admission.FormData;
+    if(form&&typeof form==='string'){try{form=JSON.parse(form);}catch(e){form=null;}}
+    if(form&&typeof form==='object'&&!Array.isArray(form)){
+      const merge=src=>Object.keys(src).forEach(k=>{const v=src[k];if(v&&typeof v==='object'&&!Array.isArray(v))merge(v);else if(v!==''&&v!=null)data[k]=v;});
+      merge(form);
+    }
+    data.StudentID=id;
+    if(!data.Class&&admission.Class)data.Class=admission.Class;
+    if(!data.Branch&&admission.Branch)data.Branch=admission.Branch;
+  }
+  const aliases={FatherNameBN:'FatherBN',FatherNameAR:'FatherAR',FatherNameEN:'FatherEN',MotherNameBN:'MotherBN',MotherNameAR:'MotherAR',MotherNameEN:'MotherEN',PostOffice:'Post',PostName:'Post',PostCodeBN:'PostCode',StudentMobile:'Mobile',Phone:'Mobile',MobileNo:'Mobile',PhotoURL:'Photo',Image:'Photo',StudentPhoto:'Photo',ClassName:'Class',Jamaat:'Class',Jamath:'Class',RollNo:'Roll',BirthRegistration:'BirthReg',BirthRegistrationNo:'BirthReg'};
+  Object.keys(aliases).forEach(src=>{const dest=aliases[src];if((!data[dest]||String(data[dest]).trim()==='')&&data[src]!=null&&String(data[src]).trim()!=='')data[dest]=data[src];});
+  return {ok:true,found:true,source:admission?'ADMISSIONS':'STUDENTS',admissionFound:!!admission,studentFound:!!student,studentId:id,data:data};
+}
+
 /* ===== DASHBOARD PERIOD SUMMARY — DAILY/WEEKLY/MONTHLY/YEARLY — 2026-09-22 ===== */
 function getDashboardPeriodStats(token, period) {
   auth_(token);
