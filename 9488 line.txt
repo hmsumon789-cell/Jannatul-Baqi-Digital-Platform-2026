@@ -10160,45 +10160,103 @@ body.dark #jbDocumentBuilderEntry2026{background:#000;color:#ffe95c;border-color
     var u=String(window.location.href||'').split('#')[0];
     return u;
   }
+
+  function canonicalWebAppUrl_(u){
+    u=String(u||'').trim().split('#')[0];
+
+    // Never put the temporary googleusercontent userCodeAppPanel URL in a QR.
+    if(/userCodeAppPanel/i.test(u)) return '';
+
+    // Accept only the Apps Script web-app /exec URL.
+    if(/https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec/i.test(u)){
+      return u;
+    }
+
+    return '';
+  }
+
   function verifyUrl(key,id,base){
-    base=String(base||appUrl()).split('#')[0];
+    base=canonicalWebAppUrl_(base);
+
+    if(!base){
+      base=canonicalWebAppUrl_(appUrl());
+    }
+
+    if(!base){
+      // Last-resort: keep the current host but remove the temporary panel path.
+      var origin=String(window.location.origin||'');
+      if(/^https:\/\/script\.google\.com$/i.test(origin)){
+        base=origin;
+      }
+    }
+
+    if(!base) return '';
+
     return base+(base.indexOf('?')>=0?'&':'?')+
       'verify=1&doc='+encodeURIComponent(String(key||'marks'))+
       '&id='+encodeURIComponent(String(id||''));
   }
+
   function safeQR(key,id){
     var p=document.getElementById('jbDocPreview');
     if(!p||!id)return;
-    p.querySelectorAll('.jb-verification-qr').forEach(function(x){x.remove()});
+
+    p.querySelectorAll('.jb-verification-qr').forEach(function(x){
+      x.remove();
+    });
+
     var holder=document.createElement('div');
     holder.className='jb-verification-qr';
     holder.style.cssText='text-align:center;margin:12px auto;padding:8px;border:1px dashed #777;width:max-content;background:#fff';
     holder.innerHTML='<div style="font-weight:700;margin-bottom:5px">QR যাচাই</div><div class="jb-qr-box"></div><small>Document ID: '+String(id).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]})+'</small>';
     p.appendChild(holder);
+
     var box=holder.querySelector('.jb-qr-box');
+
     function renderQR(base){
       var url=verifyUrl(key,id,base);
+
+      // Do not generate a QR at all if a canonical /exec URL cannot be obtained.
+      // This prevents another broken white-page QR from being saved.
+      if(!url){
+        box.innerHTML='<div style="color:#b00;font-weight:700;padding:8px">QR URL পাওয়া যায়নি</div>';
+        return;
+      }
+
       try{
-        if(window.QRCode)new QRCode(box,{text:url,width:110,height:110});
-        else box.innerHTML='<img alt="QR" style="width:110px;height:110px" src="https://quickchart.io/qr?size=220&margin=2&text='+encodeURIComponent(url)+'">';
+        if(window.QRCode){
+          new QRCode(box,{text:url,width:110,height:110});
+        }else{
+          box.innerHTML='<img alt="QR" style="width:110px;height:110px" src="https://quickchart.io/qr?size=220&margin=2&text='+encodeURIComponent(url)+'">';
+        }
       }catch(e){
         box.innerHTML='<img alt="QR" style="width:110px;height:110px" src="https://quickchart.io/qr?size=220&margin=2&text='+encodeURIComponent(url)+'">';
       }
     }
+
     try{
       if(window.google&&google.script&&google.script.run&&google.script.run.getMainWebAppUrl){
         google.script.run
-          .withSuccessHandler(function(u){renderQR(String(u||appUrl()));})
-          .withFailureHandler(function(){renderQR(appUrl());})
+          .withSuccessHandler(function(u){
+            var canonical=canonicalWebAppUrl_(u);
+            if(canonical){
+              renderQR(canonical);
+            }else{
+              renderQR('');
+            }
+          })
+          .withFailureHandler(function(){
+            renderQR('');
+          })
           .getMainWebAppUrl();
       }else{
-        renderQR(appUrl());
+        renderQR('');
       }
     }catch(e){
-      renderQR(appUrl());
+      renderQR('');
     }
   }
-  window.jbAddVerificationQR=safeQR;
+    window.jbAddVerificationQR=safeQR;
   window.jbRenderSavedVerificationQR2026=function(key,id){safeQR(key,id)};
   var oldShow=window.jbShowPublicVerification2026;
   if(typeof oldShow==='function'){
