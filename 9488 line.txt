@@ -10051,3 +10051,32 @@ body.dark #jbDocBuilderWin{background:#000;color:#ffe95c;border-color:#ff1f2f}bo
 })();
 </script>
 <!-- ===== END QR VERIFICATION CONTACT + SECURITY POLISH ===== -->
+
+<!-- ===== CENTRAL DOCUMENT BUILDER — QR VERIFICATION LINK SHARE — 2026-10-06 ===== -->
+<script id="central-document-builder-qr-verification-link-share-2026-10-06">
+(function(){
+  var oldShow=window.jbShowPublicVerification2026;
+  if(typeof oldShow!=='function')return;
+  window.jbShowPublicVerification2026=function(key,id,r){
+    oldShow.apply(this,arguments);
+    var card=document.getElementById('jbPublicVerifyCard');if(!card)return;
+    var base=(window.getMainWebAppUrl?window.getMainWebAppUrl():window.location.href).split('#')[0];
+    var url=base+(base.indexOf('?')>=0?'&':'?')+'verify=1&doc='+encodeURIComponent(key)+'&id='+encodeURIComponent(id);
+    var tools=document.createElement('div');tools.style.cssText='display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin-top:10px';
+    var copy=document.createElement('button');copy.className='secondary';copy.textContent='🔗 যাচাই লিংক কপি';
+    copy.onclick=function(){
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(url).then(function(){copy.textContent='✅ লিংক কপি হয়েছে';setTimeout(function(){copy.textContent='🔗 যাচাই লিংক কপি'},1800)}).catch(function(){toast('লিংক কপি করা যায়নি।')});
+      }else{var t=document.createElement('textarea');t.value=url;document.body.appendChild(t);t.select();try{document.execCommand('copy');copy.textContent='✅ লিংক কপি হয়েছে'}catch(e){toast('লিংক কপি করা যায়নি।')}t.remove()}
+    };
+    var share=document.createElement('button');share.className='secondary';share.textContent='📤 শেয়ার';
+    share.onclick=function(){
+      if(navigator.share) navigator.share({title:'Document Verification',text:'Jannatul Baqi Document Verification',url:url}).catch(function(){});
+      else copy.click();
+    };
+    tools.appendChild(copy);tools.appendChild(share);
+    var foot=card.querySelector('.vfoot');if(foot)card.insertBefore(tools,foot);else card.appendChild(tools);
+  };
+})();
+</script>
+<!-- ===== END QR VERIFICATION LINK SHARE ===== -->
