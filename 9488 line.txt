@@ -9985,3 +9985,49 @@ body.dark #jbDocBuilderWin{background:#000;color:#ffe95c;border-color:#ff1f2f}bo
 })();
 </script>
 <!-- ===== END HISTORY EDIT NEW VERSION + QR CYCLE SAFETY ===== -->
+
+<!-- ===== CENTRAL DOCUMENT BUILDER — PUBLIC QR VERIFICATION PANEL POLISH — 2026-10-06 ===== -->
+<style id="central-document-builder-public-qr-panel-polish-2026-10-06">
+#jbPublicVerifyPanel{position:fixed;inset:0;z-index:10000000;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.72)}
+#jbPublicVerifyCard{width:min(560px,96vw);max-height:90vh;overflow:auto;background:#fff;color:#171717;border:4px solid #8b5e00;border-radius:20px;box-shadow:0 25px 90px #000b;padding:18px;text-align:center}
+#jbPublicVerifyCard .vhead{border-bottom:2px solid #222;padding-bottom:10px;margin-bottom:12px}
+#jbPublicVerifyCard .vbrand{font-size:21px;font-weight:900}
+#jbPublicVerifyCard .vstatus{font-size:25px;font-weight:900;margin:10px 0}
+#jbPublicVerifyCard .vgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;text-align:left;margin:12px 0}
+#jbPublicVerifyCard .vrow{border:1px solid #777;border-radius:9px;padding:8px;background:#fafafa}
+#jbPublicVerifyCard .vrow b{display:block;font-size:12px;color:#555;margin-bottom:2px}
+#jbPublicVerifyCard .vfoot{font-size:12px;color:#555;margin-top:10px}
+@media(max-width:520px){#jbPublicVerifyCard .vgrid{grid-template-columns:1fr}}
+</style>
+<script id="central-document-builder-public-qr-panel-polish-2026-10-06">
+(function(){
+  function e(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+  function label(k){return ({recordId:'Document ID',studentId:'Student ID',name:'নাম',className:'শ্রেণি',exam:'পরীক্ষা',type:'ধরন',amount:'পরিমাণ',issueDate:'ইস্যু তারিখ'})[k]||k}
+  window.jbShowPublicVerification2026=function(key,id,r){
+    var old=document.getElementById('jbPublicVerifyPanel');if(old)old.remove();
+    var d=document.createElement('div');d.id='jbPublicVerifyPanel';
+    var ok=!!(r&&r.verified);
+    var rows='';
+    ['recordId','studentId','name','className','exam','type','amount','issueDate'].forEach(function(k){
+      if(r&&r[k]!=null&&String(r[k]).trim()!=='')rows+='<div class="vrow"><b>'+e(label(k))+'</b>'+e(r[k])+'</div>';
+    });
+    d.innerHTML='<div id="jbPublicVerifyCard"><div class="vhead"><div class="vbrand">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div><div class="vstatus">'+(ok?'✅ ডকুমেন্ট যাচাই সফল':'❌ ডকুমেন্ট যাচাই ব্যর্থ')+'</div></div><div>'+e((r&&r.message)||(ok?'রেকর্ডটি সঠিকভাবে পাওয়া গেছে।':'রেকর্ড পাওয়া যায়নি।'))+'</div>'+(rows?'<div class="vgrid">'+rows+'</div>':'')+'<div class="vfoot">QR Verification • Jannatul Baqi Digital Platform 2026</div></div>';
+    var card=d.querySelector('#jbPublicVerifyCard');
+    var b=document.createElement('button');b.className='secondary';b.textContent='বন্ধ করুন';b.style.marginTop='10px';b.onclick=function(){d.remove()};
+    card.appendChild(b);document.body.appendChild(d);
+  };
+  window.jbVerifyDocument=async function(key,id){
+    try{
+      var r=await call('getDocumentVerification','',key,id);
+      window.jbShowPublicVerification2026(key,id,r);
+    }catch(err){toast('যাচাই করা যায়নি: '+(err&&err.message?err.message:err));}
+  };
+  window.addEventListener('load',function(){
+    var q=new URLSearchParams(location.search);
+    if(q.get('verify')==='1'&&q.get('doc')&&q.get('id')){
+      setTimeout(function(){window.jbVerifyDocument(q.get('doc'),q.get('id'));},300);
+    }
+  });
+})();
+</script>
+<!-- ===== END PUBLIC QR VERIFICATION PANEL POLISH ===== -->
