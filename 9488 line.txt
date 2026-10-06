@@ -9883,3 +9883,46 @@ body.dark #jbDocBuilderWin{background:#000;color:#ffe95c;border-color:#ff1f2f}bo
 })();
 </script>
 <!-- ===== END SAVED QR VERIFICATION FIX ===== -->
+
+<!-- ===== CENTRAL DOCUMENT BUILDER — QR RENDER TARGET FIX — 2026-10-06 ===== -->
+<script id="central-document-builder-qr-render-target-fix-2026-10-06">
+(function(){
+  function renderSavedQR(key,id){
+    var wrap=document.getElementById('jbDocPreviewWrap');
+    var p=wrap&&wrap.querySelector('.jb-doc-preview');
+    if(!p||!id)return;
+    p.querySelectorAll('.jb-verification-qr').forEach(function(x){x.remove()});
+    var url=(window.getMainWebAppUrl?window.getMainWebAppUrl():window.location.href).split('#')[0];
+    url+= (url.indexOf('?')>=0?'&':'?')+'verify=1&doc='+encodeURIComponent(key)+'&id='+encodeURIComponent(id);
+    var holder=document.createElement('div');
+    holder.className='jb-verification-qr';
+    holder.style.cssText='text-align:center;margin:12px auto;padding:8px;border:1px dashed #777;width:max-content;background:#fff';
+    holder.innerHTML='<div style="font-weight:700;margin-bottom:5px">QR যাচাই</div><div class="jb-qr-box"></div><small>Document ID: '+String(id).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]})+'</small>';
+    p.appendChild(holder);
+    var box=holder.querySelector('.jb-qr-box');
+    try{
+      if(window.QRCode){
+        new QRCode(box,{text:url,width:110,height:110});
+      }else{
+        box.innerHTML='<img alt="QR" style="width:110px;height:110px" src="https://quickchart.io/qr?size=220&margin=2&text='+encodeURIComponent(url)+'">';
+      }
+    }catch(e){
+      box.innerHTML='<img alt="QR" style="width:110px;height:110px" src="https://quickchart.io/qr?size=220&margin=2&text='+encodeURIComponent(url)+'">';
+    }
+  }
+  window.jbRenderSavedVerificationQR2026=renderSavedQR;
+  var oldSave=window.jbSaveDraft;
+  if(typeof oldSave==='function'){
+    window.jbSaveDraft=function(){
+      return Promise.resolve(oldSave.apply(this,arguments)).then(function(r){
+        if(r&&r.ok&&r.documentId){
+          var key=(typeof window.jbDocCurrentKey==='function'?window.jbDocCurrentKey():'marks');
+          renderSavedQR(key,String(r.documentId));
+        }
+        return r;
+      });
+    };
+  }
+})();
+</script>
+<!-- ===== END QR RENDER TARGET FIX ===== -->
