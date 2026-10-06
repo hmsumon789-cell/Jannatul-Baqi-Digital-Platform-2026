@@ -891,6 +891,27 @@ function saveDocumentBuilderRecord(token, docKey, studentId, data, html) {
   return {ok:true,sheet:sheetName,record:saved.row,documentId:row.ResultID||row.CardID||row.AdmitID||row.CertificateID||row.ReceiptID,message:'Document History-তে সংরক্ষণ হয়েছে।'};
 }
 
+function getAllDocumentBuilderHistory(token, studentId) {
+  auth_(token);
+  const sid=String(studentId||'').trim();
+  if(!sid) return {ok:false,message:'Student ID আবশ্যক।'};
+  const defs=[
+    ['marks',SHEETS.RESULTS,'ResultID'],
+    ['result',SHEETS.RESULTS,'ResultID'],
+    ['id_cards',SHEETS.ID_CARDS,'CardID'],
+    ['admit_cards',SHEETS.ADMIT_CARDS,'AdmitID'],
+    ['certificates',SHEETS.CERTIFICATES,'CertificateID'],
+    ['receipts',SHEETS.RECEIPTS,'ReceiptID']
+  ];
+  const rows=[];
+  defs.forEach(function(d){
+    const rs=listRows_(d[1],token,5000).filter(function(r){return String(r.StudentID||r.RefID||'').trim()===sid;});
+    rs.forEach(function(r){const x=Object.assign({},r);x._docKey=d[0];x._docId=r[d[2]]||'';rows.push(x);});
+  });
+  rows.sort(function(a,b){return String(b.CreatedAt||b.IssueDate||b.Date||'').localeCompare(String(a.CreatedAt||a.IssueDate||a.Date||''));});
+  return {ok:true,studentId:sid,rows:rows,count:rows.length};
+}
+
 function getDocumentBuilderHistory(token, studentId, docKey) {
   auth_(token);
   const sid=String(studentId||'').trim(), key=String(docKey||'').trim();
