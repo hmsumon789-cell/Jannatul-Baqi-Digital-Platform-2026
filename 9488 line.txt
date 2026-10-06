@@ -10460,7 +10460,8 @@ body.dark #jbDocumentBuilderEntry2026{background:#000;color:#ffe95c;border-color
     panel.appendChild(sum);fields.appendChild(panel);updateHidden(state);
   }
   function run(){setTimeout(render,40)}
-  var oldOpen=window.openBuilder;if(typeof oldOpen==='function')window.openBuilder=function(){var r=oldOpen.apply(this,arguments);run();setTimeout(addControls,60);return r};
+  var oldOpen=window.jbOpenDocumentType2026;
+  if(typeof oldOpen==='function')window.jbOpenDocumentType2026=function(){var r=oldOpen.apply(this,arguments);run();setTimeout(addControls,60);return r};
   var oldFind=window.jbFindStudent;if(typeof oldFind==='function')window.jbFindStudent=function(){var r=oldFind.apply(this,arguments);Promise.resolve(r).then(run);return r};
   var oldManual=window.jbManualEntry;if(typeof oldManual==='function')window.jbManualEntry=function(){var r=oldManual.apply(this,arguments);run();return r};
   var oldCreate=window.jbCreatePreview;
