@@ -891,27 +891,6 @@ function saveDocumentBuilderRecord(token, docKey, studentId, data, html) {
   return {ok:true,sheet:sheetName,record:saved.row,documentId:row.ResultID||row.CardID||row.AdmitID||row.CertificateID||row.ReceiptID,message:'Document History-তে সংরক্ষণ হয়েছে।'};
 }
 
-function getAllDocumentBuilderHistory(token, studentId) {
-  auth_(token);
-  const sid=String(studentId||'').trim();
-  if(!sid) return {ok:false,message:'Student ID আবশ্যক।'};
-  const defs=[
-    ['marks',SHEETS.RESULTS,'ResultID'],
-    ['result',SHEETS.RESULTS,'ResultID'],
-    ['id_cards',SHEETS.ID_CARDS,'CardID'],
-    ['admit_cards',SHEETS.ADMIT_CARDS,'AdmitID'],
-    ['certificates',SHEETS.CERTIFICATES,'CertificateID'],
-    ['receipts',SHEETS.RECEIPTS,'ReceiptID']
-  ];
-  const rows=[];
-  defs.forEach(function(d){
-    const rs=listRows_(d[1],token,5000).filter(function(r){return String(r.StudentID||r.RefID||'').trim()===sid;});
-    rs.forEach(function(r){const x=Object.assign({},r);x._docKey=d[0];x._docId=r[d[2]]||'';rows.push(x);});
-  });
-  rows.sort(function(a,b){return String(b.CreatedAt||b.IssueDate||b.Date||'').localeCompare(String(a.CreatedAt||a.IssueDate||a.Date||''));});
-  return {ok:true,studentId:sid,rows:rows,count:rows.length};
-}
-
 function getDocumentBuilderHistory(token, studentId, docKey) {
   auth_(token);
   const sid=String(studentId||'').trim(), key=String(docKey||'').trim();
@@ -924,6 +903,42 @@ function getDocumentBuilderHistory(token, studentId, docKey) {
   else return {ok:false,message:'Document type সঠিক নয়।'};
   rows=listRows_(sheet,token,5000).filter(r=>!sid||String(r.StudentID||r.RefID||'').trim()===sid);
   return {ok:true,sheet,rows:rows.slice().reverse(),count:rows.length};
+}
+
+
+/* ===== CENTRAL DOCUMENT BUILDER — ALL DOCUMENT HISTORY — BASE a1c71c6 — 2026-10-06 ===== */
+function getAllDocumentBuilderHistory(token, studentId) {
+  auth_(token);
+  const sid=String(studentId||'').trim();
+  const defs=[
+    {key:'marks',sheet:SHEETS.RESULTS,idField:'ResultID'},
+    {key:'result',sheet:SHEETS.RESULTS,idField:'ResultID'},
+    {key:'id_cards',sheet:SHEETS.ID_CARDS,idField:'CardID'},
+    {key:'admit_cards',sheet:SHEETS.ADMIT_CARDS,idField:'AdmitID'},
+    {key:'certificates',sheet:SHEETS.CERTIFICATES,idField:'CertificateID'},
+    {key:'receipts',sheet:SHEETS.RECEIPTS,idField:'ReceiptID'}
+  ];
+  const rows=[];
+  defs.forEach(d=>{
+    const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(d.sheet);
+    if(!sh || sh.getLastRow()<2) return;
+    const vals=sh.getDataRange().getValues(), h=vals[0], idIdx=h.indexOf(d.idField);
+    if(idIdx<0) return;
+    for(let i=1;i<vals.length;i++){
+      const r=objectFrom_(h,vals[i]);
+      const owner=String(r.StudentID||r.RefID||'').trim();
+      if(sid && owner!==sid) continue;
+      r._docKey=d.key;
+      r._recordId=String(vals[i][idIdx]||'');
+      rows.push(r);
+    }
+  });
+  rows.sort((a,b)=>{
+    const da=new Date(a.IssueDate||a.Date||a.CreatedAt||0).getTime();
+    const db=new Date(b.IssueDate||b.Date||b.CreatedAt||0).getTime();
+    return db-da;
+  });
+  return {ok:true,rows,count:rows.length};
 }
 
 /* ===== DASHBOARD PERIOD SUMMARY — DAILY/WEEKLY/MONTHLY/YEARLY — 2026-09-22 ===== */
