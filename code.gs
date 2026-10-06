@@ -911,12 +911,11 @@ function getAllDocumentBuilderHistory(token, studentId) {
   auth_(token);
   const sid=String(studentId||'').trim();
   const defs=[
-    {key:'marks',sheet:SHEETS.RESULTS,idField:'ResultID'},
-    {key:'result',sheet:SHEETS.RESULTS,idField:'ResultID'},
-    {key:'id_cards',sheet:SHEETS.ID_CARDS,idField:'CardID'},
-    {key:'admit_cards',sheet:SHEETS.ADMIT_CARDS,idField:'AdmitID'},
-    {key:'certificates',sheet:SHEETS.CERTIFICATES,idField:'CertificateID'},
-    {key:'receipts',sheet:SHEETS.RECEIPTS,idField:'ReceiptID'}
+    {sheet:SHEETS.RESULTS,idField:'ResultID',fallbackKey:'marks'},
+    {sheet:SHEETS.ID_CARDS,idField:'CardID',fallbackKey:'id_cards'},
+    {sheet:SHEETS.ADMIT_CARDS,idField:'AdmitID',fallbackKey:'admit_cards'},
+    {sheet:SHEETS.CERTIFICATES,idField:'CertificateID',fallbackKey:'certificates'},
+    {sheet:SHEETS.RECEIPTS,idField:'ReceiptID',fallbackKey:'receipts'}
   ];
   const rows=[];
   defs.forEach(d=>{
@@ -928,7 +927,14 @@ function getAllDocumentBuilderHistory(token, studentId) {
       const r=objectFrom_(h,vals[i]);
       const owner=String(r.StudentID||r.RefID||'').trim();
       if(sid && owner!==sid) continue;
-      r._docKey=d.key;
+      let key=d.fallbackKey;
+      if(r.Data){
+        try{
+          const p=typeof r.Data==='string'?JSON.parse(r.Data):r.Data;
+          if(p&&p.docKey) key=String(p.docKey);
+        }catch(e){}
+      }
+      r._docKey=key;
       r._recordId=String(vals[i][idIdx]||'');
       rows.push(r);
     }
