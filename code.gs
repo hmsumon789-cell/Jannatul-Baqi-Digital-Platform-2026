@@ -899,7 +899,8 @@ const DOC_SYS = {
     DOCUMENT_TEMPLATES:['Serial','TemplateID','DocumentType','Name','PageSize','Color1','Color2','Color3','Color4','Border','Active','CreatedAt'],
     DOCUMENTS:['Serial','DocumentID','DocumentType','StudentID','Mobile','MobileType','SelectedFields','DataJSON','PageSize','Status','CreatedAt','UpdatedAt'],
     PAYMENT_METHODS:['Serial','MethodID','MethodName','AccountName','AccountNumber','Instruction','Active','CreatedAt'],
-    PAYMENT_CATALOG:['Serial','ItemID','ItemName','Month','DefaultAmount','Active','CreatedAt']
+    PAYMENT_CATALOG:['Serial','ItemID','ItemName','Month','DefaultAmount','Active','CreatedAt'],
+    DOCUMENT_FIELDS:['Serial','FieldID','FieldName','Label','Required','DefaultSelected','Active','CreatedAt']
   },
   masterExtra:['Division','District','Upazila','Union','PostOffice','PostCode','Ward','Village','GuardianMobile','MobileType','BloodGroup','AdmissionDate','MasterDataJSON','UpdatedAt']
 };
@@ -909,6 +910,24 @@ function ensureDocumentSystemSheets_(ss){
     ensureSheet_(ss,name,DOC_SYS.documentSheets[name]);
   });
   ensurePaymentColumns_(ss);
+  const dt=ss.getSheetByName('DOCUMENT_TEMPLATES');
+  if(dt && dt.getLastRow()===1){
+    const docs=[
+      ['A4','MARKSHEET','Marksheet / মার্কশিট','A4'],['ID_CARD','ID_CARD','Student ID Card / পরিচয়পত্র','IDCARD'],
+      ['ADMIT_CARD','ADMIT_CARD','Admit Card / প্রবেশপত্র','A4'],['CERTIFICATE','CERTIFICATE','Certificate / সনদপত্র','A4'],
+      ['MONEY_RECEIPT','MONEY_RECEIPT','Money Receipt / মানি রিসিট','A5'],['EXAM_REGISTRATION','EXAM_REGISTRATION','পরীক্ষার্থী নিবন্ধন','A4'],
+      ['ADMISSION_RECEIPT','ADMISSION_RECEIPT','ভর্তি রশিদ','A5'],['CHARACTER_CERTIFICATE','CHARACTER_CERTIFICATE','চারিত্রিক সনদ','A4'],
+      ['TESTIMONIAL','TESTIMONIAL','প্রশংসাপত্র','A4'],['STUDENT_PROFILE','STUDENT_PROFILE','Student Profile / শিক্ষার্থী প্রোফাইল','A4']
+    ];
+    const rows=docs.map(function(x,i){return [i+1,x[0],x[1],x[3],'#b30000','#0b5da7','#16833a','#d39b00','4-side','ACTIVE',now_()];});
+    dt.getRange(2,1,rows.length,12).setValues(rows);
+  }
+  const df=ss.getSheetByName('DOCUMENT_FIELDS');
+  if(df && df.getLastRow()===1){
+    const fields=documentFieldCatalog_();
+    const rows=fields.map(function(x,i){return [i+1,x[0],x[0],x[1],x[0]==='Mobile'?'YES':'NO',['StudentID','NameBN','NameAR','NameEN','Photo','FatherBN','MotherBN','DOB','Class','Roll','Mobile','Address'].indexOf(x[0])>=0?'YES':'NO','ACTIVE',now_()];});
+    df.getRange(2,1,rows.length,8).setValues(rows);
+  }
   const pm=ss.getSheetByName('PAYMENT_METHODS');
   if(pm && pm.getLastRow()===1){
     pm.getRange(2,1,4,8).setValues([
