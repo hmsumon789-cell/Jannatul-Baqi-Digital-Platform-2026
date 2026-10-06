@@ -9598,3 +9598,68 @@ body.dark #jbDocBuilderWin{background:#000;color:#ffe95c;border-color:#ff1f2f}bo
 })();
 </script>
 <!-- ===== END HISTORY ACTIONS FINAL ===== -->
+
+
+<!-- ===== CENTRAL DOCUMENT BUILDER — QR VERIFICATION CLIENT — 2026-10-06 ===== -->
+<script id="central-document-builder-qr-verification-2026-10-06">
+(function(){
+  function escQ(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+  function b64(s){try{return btoa(unescape(encodeURIComponent(s)));}catch(e){return btoa(String(s));}}
+  function docVerifyUrl(key,id){
+    var base=(window.getMainWebAppUrl?window.getMainWebAppUrl():window.location.href).split('#')[0];
+    var q='verify=1&doc='+encodeURIComponent(key)+'&id='+encodeURIComponent(id);
+    return base+(base.indexOf('?')>=0?'&':'?')+q;
+  }
+  function addQR(container,key,id){
+    if(!container||!id)return;
+    var url=docVerifyUrl(key,id);
+    var box=document.createElement('div');
+    box.style.cssText='text-align:center;margin:12px auto;padding:8px;border:1px dashed #777;width:max-content;background:#fff';
+    box.innerHTML='<div style="font-weight:700;margin-bottom:5px">QR যাচাই</div><div class="jb-qr-box" data-qr="'+escQ(url)+'"></div><small>Document ID: '+escQ(id)+'</small>';
+    container.appendChild(box);
+    try{
+      if(window.QRCode){new QRCode(box.querySelector('.jb-qr-box'),{text:url,width:110,height:110});}
+      else box.querySelector('.jb-qr-box').textContent=url;
+    }catch(e){box.querySelector('.jb-qr-box').textContent=url;}
+  }
+  window.jbAddVerificationQR=function(key,id){
+    var p=document.getElementById('jbDocPreview');
+    if(!p)return;
+    var old=p.querySelector('.jb-verification-qr');if(old)old.remove();
+    var holder=document.createElement('div');holder.className='jb-verification-qr';
+    p.appendChild(holder);addQR(holder,key,id);
+  };
+  window.jbVerifyDocument=async function(key,id){
+    try{
+      var r=await call('getDocumentVerification','',key,id);
+      var p=document.getElementById('jbDocPreviewWrap')||document.body;
+      var old=document.getElementById('jbDocVerifyResult');if(old)old.remove();
+      var d=document.createElement('div');d.id='jbDocVerifyResult';d.style.cssText='position:fixed;z-index:999999;left:50%;top:50%;transform:translate(-50%,-50%);max-width:420px;width:90%;padding:22px;border:4px solid #222;background:#fff;box-shadow:0 10px 35px rgba(0,0,0,.35);text-align:center';
+      if(r&&r.verified){
+        d.innerHTML='<div style="font-size:28px">✅</div><h3>ডকুমেন্ট যাচাই সফল</h3><p><b>Document ID:</b> '+escQ(r.recordId)+'</p><p><b>Student ID:</b> '+escQ(r.studentId)+'</p><p><b>নাম:</b> '+escQ(r.name)+'</p><p><b>শ্রেণি:</b> '+escQ(r.className)+'</p><p>'+escQ(r.message)+'</p>';
+      }else d.innerHTML='<div style="font-size:28px">❌</div><h3>ডকুমেন্ট যাচাই হয়নি</h3><p>'+escQ((r&&r.message)||'রেকর্ড পাওয়া যায়নি।')+'</p>';
+      var btn=document.createElement('button');btn.textContent='বন্ধ করুন';btn.className='secondary';btn.onclick=function(){d.remove();};d.appendChild(btn);
+      document.body.appendChild(d);
+    }catch(e){toast('যাচাই করা যায়নি: '+(e&&e.message?e.message:e));}
+  };
+  var oldCreate=window.jbCreatePreview;
+  if(typeof oldCreate==='function'){
+    window.jbCreatePreview=function(){
+      var r=oldCreate.apply(this,arguments);
+      setTimeout(function(){
+        var key=(typeof window.jbDocCurrentKey==='function'?window.jbDocCurrentKey():'');
+        var id=(document.getElementById('jbDocId')?.value||'').trim();
+        if(key&&id&&window.jbAddVerificationQR) window.jbAddVerificationQR(key,id);
+      },80);
+      return r;
+    };
+  }
+  window.addEventListener('load',function(){
+    var q=new URLSearchParams(location.search);
+    if(q.get('verify')==='1'&&q.get('doc')&&q.get('id')){
+      setTimeout(function(){jbVerifyDocument(q.get('doc'),q.get('id'));},300);
+    }
+  });
+})();
+</script>
+<!-- ===== END QR VERIFICATION CLIENT ===== -->
