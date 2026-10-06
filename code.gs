@@ -970,3 +970,51 @@ function getDashboardPeriodStats(token, period) {
     rangeEnd:Utilities.formatDate(end,tz,'yyyy-MM-dd')
   };
 }
+
+
+/* ===== CENTRAL DOCUMENT BUILDER — HISTORY VIEW/EDIT/DOWNLOAD/PRINT — 2026-10-06 ===== */
+function getDocumentBuilderRecord(token, docKey, recordId) {
+  auth_(token);
+  const key=String(docKey||'').trim(), rid=String(recordId||'').trim();
+  if(!rid) return {ok:false,message:'History record ID প্রয়োজন।'};
+  let sheet='', idField='';
+  if(key==='marks'||key==='result'){sheet=SHEETS.RESULTS;idField='ResultID';}
+  else if(key==='id_cards'){sheet=SHEETS.ID_CARDS;idField='CardID';}
+  else if(key==='admit_cards'){sheet=SHEETS.ADMIT_CARDS;idField='AdmitID';}
+  else if(key==='certificates'){sheet=SHEETS.CERTIFICATES;idField='CertificateID';}
+  else if(key==='receipts'){sheet=SHEETS.RECEIPTS;idField='ReceiptID';}
+  else return {ok:false,message:'Document type সঠিক নয়।'};
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheet);
+  if(!sh||sh.getLastRow()<2) return {ok:false,message:'History record পাওয়া যায়নি।'};
+  const vals=sh.getDataRange().getValues(), h=vals[0], idx=h.indexOf(idField);
+  if(idx<0) return {ok:false,message:'Record ID field পাওয়া যায়নি।'};
+  let row=null;
+  for(let i=1;i<vals.length;i++){
+    if(String(vals[i][idx]).trim()===rid){row=objectFrom_(h,vals[i]);break;}
+  }
+  if(!row) return {ok:false,message:'History record পাওয়া যায়নি।'};
+  let payload=null;
+  if(row.Data){
+    try{payload=typeof row.Data==='string'?JSON.parse(row.Data):row.Data;}catch(e){payload=null;}
+  }
+  let data=(payload&&payload.fields&&typeof payload.fields==='object')?payload.fields:{};
+  if(key==='marks'||key==='result'){
+    data=Object.assign({},data,{
+      StudentID:row.StudentID||'',
+      NameBN:row.Name||'',
+      Class:row.Class||'',
+      Exam:row.Exam||'',
+      SubjectData:row.SubjectData||'',
+      Total:row.Total||'',
+      GPA:row.GPA||'',
+      Grade:row.Grade||'',
+      Date:row.Date||''
+    });
+  }
+  if(!data.StudentID) data.StudentID=row.StudentID||row.RefID||'';
+  if(!data.IssueDate && row.IssueDate) data.IssueDate=row.IssueDate;
+  if(!data.Date && row.Date) data.Date=row.Date;
+  if(!data.Amount && row.Amount!=null) data.Amount=row.Amount;
+  if(!data.Category && row.Type) data.Category=row.Type;
+  return {ok:true,docKey:key,recordId:rid,row:row,data:data,html:payload&&payload.html?String(payload.html):''};
+}
