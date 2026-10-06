@@ -2407,6 +2407,7 @@ body{padding-top:0!important}
   window.listPrintOne=function(i){var r=currentListRows[i]||{};var title=LIST_LABELS[currentListKey]||'তালিকা';var html='<h2>'+esc(title)+'</h2><table border="1" cellspacing="0" cellpadding="6">'+Object.keys(r).map(function(k){return '<tr><th>'+esc(k)+'</th><td>'+esc(r[k])+'</td></tr>'}).join('')+'</table>';var w=window.open('','_blank');w.document.write('<!doctype html><html><body>'+html+'</body></html>');w.document.close();w.print()};
   window.listDownloadOne=function(i){var r=currentListRows[i]||{};var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(r,null,2)],{type:'application/json'}));a.download=(LIST_LABELS[currentListKey]||'record')+'-'+(r.Serial||i+1)+'.json';document.body.appendChild(a);a.click();a.remove()};
   window.printModuleList=function(){var box=$('moduleListBody');if(!box)return;var w=window.open('','_blank');w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>'+esc(LIST_LABELS[currentListKey]||'List')+'</title><style>body{font-family:Arial}.data-table{border-collapse:collapse;width:100%}.data-table th,.data-table td{border:1px solid #333;padding:5px}.list-actions{display:none!important}</style></head><body><h2>'+esc(LIST_LABELS[currentListKey]||'List')+'</h2>'+box.innerHTML+'</body>
+</script>
 <style id="JB-DOCUMENT-CENTER-2026">
 .jb-doc-win{display:none;position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.72);overflow:auto;padding:24px}
 .jb-doc-win.show{display:block}
@@ -2602,4 +2603,5 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
  };
  window.deleteCurrentMedia=function(){if(!media||!media.length)return toast('ডিলেট করার মিডিয়া নেই।');deleteMediaByIndex(mediaIndex)};
 })();
-</script>
+
+
