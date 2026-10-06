@@ -9663,3 +9663,52 @@ body.dark #jbDocBuilderWin{background:#000;color:#ffe95c;border-color:#ff1f2f}bo
 })();
 </script>
 <!-- ===== END QR VERIFICATION CLIENT ===== -->
+
+<!-- ===== CENTRAL DOCUMENT BUILDER — AUTO SAVE DRAFT + RESTORE — 2026-10-06 ===== -->
+<script id="central-document-builder-autosave-restore-2026-10-06">
+(function(){
+  var DKEY='jbDocAutoDraft2026';
+  var timer=null;
+  function E(id){return document.getElementById(id)}
+  function key(){
+    var t=E('jbDocBuilderTitle')?.textContent||'';
+    return t.indexOf('মার্কশিট')>=0?'marks':t.indexOf('ফলাফল')>=0?'result':t.indexOf('আইডি কার্ড')>=0?'id_cards':t.indexOf('অ্যাডমিট কার্ড')>=0?'admit_cards':t.indexOf('সার্টিফিকেট')>=0?'certificates':t.indexOf('মানি রিসিট')>=0?'receipts':'marks';
+  }
+  function collect(){
+    var data={};document.querySelectorAll('#jbDocFields [data-key]').forEach(function(x){data[x.dataset.key]=x.value||''});
+    return {key:key(),id:(E('jbDocId')?.value||'').trim(),data:data,updatedAt:new Date().toISOString()};
+  }
+  function saveAuto(){
+    if(!E('jbDocBuilderWin')?.classList.contains('show')||!E('jbDocFields'))return;
+    var d=collect();if(!d.id&&!Object.values(d.data).some(Boolean))return;
+    try{localStorage.setItem(DKEY,JSON.stringify(d));var s=E('jbDocAutoStatus');if(s)s.textContent='📝 Draft auto-save: '+new Date().toLocaleTimeString('bn-BD')}catch(e){}
+  }
+  function restore(d){
+    if(!d)return;
+    if(E('jbDocId'))E('jbDocId').value=d.id||'';
+    Object.keys(d.data||{}).forEach(function(k){var e=document.querySelector('#jbDocFields [data-key="'+CSS.escape(k)+'"]');if(e)e.value=d.data[k]==null?'':d.data[k]});
+    if(typeof toast==='function')toast('♻️ Draft পুনরুদ্ধার হয়েছে। এখন তথ্য যাচাই করে Document তৈরি করুন।');
+  }
+  function offer(){
+    var raw;try{raw=localStorage.getItem(DKEY)}catch(e){return} if(!raw)return;
+    var d;try{d=JSON.parse(raw)}catch(e){return} if(!d||!d.data)return;
+    var box=E('jbDocDraftRestore');if(box)box.remove();
+    box=document.createElement('div');box.id='jbDocDraftRestore';box.className='jb-doc-note';
+    box.style.cssText='position:sticky;top:0;z-index:20;margin:8px 0;padding:10px;border:2px solid #b8860b;background:#fff8dc';
+    var when=d.updatedAt?new Date(d.updatedAt).toLocaleString('bn-BD'):'আগের কোনো সময়';
+    box.innerHTML='<b>📝 সংরক্ষিত Draft পাওয়া গেছে</b><br><span>শেষ Auto-save: '+esc(when)+'</span> ';
+    var yes=document.createElement('button');yes.className='primary';yes.textContent='♻️ পুনরুদ্ধার';yes.onclick=function(){restore(d);box.remove()};
+    var no=document.createElement('button');no.className='secondary';no.textContent='✖️ বাদ দিন';no.onclick=function(){try{localStorage.removeItem(DKEY)}catch(e){}box.remove()};
+    box.appendChild(yes);box.appendChild(no);
+    var fields=E('jbDocFields');if(fields&&fields.parentNode)fields.parentNode.insertBefore(box,fields);
+  }
+  function start(){clearInterval(timer);timer=setInterval(saveAuto,10000);setTimeout(offer,300)}
+  var oldOpen=window.openBuilder;
+  if(typeof oldOpen==='function')window.openBuilder=function(){var r=oldOpen.apply(this,arguments);setTimeout(start,500);return r};
+  window.jbAutoSaveDraft=saveAuto;
+  window.jbRestoreAutoDraft=function(){offer()};
+  window.addEventListener('beforeunload',saveAuto);
+  window.addEventListener('load',function(){setTimeout(offer,800)});
+})();
+</script>
+<!-- ===== END AUTO SAVE DRAFT + RESTORE ===== -->
