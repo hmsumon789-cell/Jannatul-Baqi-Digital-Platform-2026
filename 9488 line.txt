@@ -9948,3 +9948,40 @@ body.dark #jbDocBuilderWin{background:#000;color:#ffe95c;border-color:#ff1f2f}bo
 }
 </style>
 <!-- ===== END A4 PRINT POLISH ===== -->
+
+<!-- ===== CENTRAL DOCUMENT BUILDER — HISTORY EDIT NEW VERSION + QR CYCLE SAFETY — 2026-10-06 ===== -->
+<script id="central-document-builder-history-edit-new-version-qr-cycle-2026-10-06">
+(function(){
+  var editingFrom='';
+  var oldEdit=window.jbHistoryEdit;
+  if(typeof oldEdit==='function'){
+    window.jbHistoryEdit=async function(id){
+      editingFrom=String(id||'');
+      var r=await oldEdit.apply(this,arguments);
+      if(editingFrom) toast('🔁 History থেকে Edit চলছে — Save করলে পুরোনো রেকর্ড অপরিবর্তিত রেখে নতুন History version তৈরি হবে।');
+      return r;
+    };
+  }
+
+  var oldSave=window.jbSaveDraft;
+  if(typeof oldSave==='function'){
+    window.jbSaveDraft=function(){
+      var source=editingFrom;
+      return Promise.resolve(oldSave.apply(this,arguments)).then(function(r){
+        if(source && r && r.ok && r.documentId){
+          if(window.jbRenderSavedVerificationQR2026){
+            window.jbRenderSavedVerificationQR2026(
+              typeof window.jbDocCurrentKey==='function'?window.jbDocCurrentKey():'marks',
+              String(r.documentId)
+            );
+          }
+          toast('✅ নতুন History version সংরক্ষিত হয়েছে। পুরোনোটি রাখা হয়েছে। নতুন QR-ও যুক্ত হয়েছে।');
+          editingFrom='';
+        }
+        return r;
+      });
+    };
+  }
+})();
+</script>
+<!-- ===== END HISTORY EDIT NEW VERSION + QR CYCLE SAFETY ===== -->
