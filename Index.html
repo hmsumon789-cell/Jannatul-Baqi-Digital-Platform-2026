@@ -1526,7 +1526,7 @@ body.dark #jbDocBuilderWin{background:#000;color:#ffe95c;border-color:#ff1f2f}bo
     box.appendChild(min);box.appendChild(fs);box.appendChild(cl);head.appendChild(box);
   }
   window.jbOpenDocumentType2026=function(k){originalOpen(k);setTimeout(function(){controls();if(k==='marks')renderMarks({})},0)};
-  window.jbFindStudent=async function(){var r=await originalFind();setTimeout(function(){var k=(E('jbDocBuilderTitle')?.textContent||'');if(k.indexOf('মার্কশিট')>=0)renderMarks(window.__jbCurrentRow||{})},0);return r};
+  window.jbFindStudent=async function(){await originalFind();setTimeout(function(){var k=(E('jbDocBuilderTitle')?.textContent||'');if(k.indexOf('মার্কশিট')>=0){var row={};document.querySelectorAll('#jbDocFields [data-key]').forEach(function(x){row[x.dataset.key]=x.value||''});renderMarks(row)}},80)};
   window.jbCreatePreview=function(){var t=E('jbDocBuilderTitle')?.textContent||'';if(t.indexOf('মার্কশিট')>=0)collectMarks();return originalCreate()};
   var oldOpen=window.jbOpenDocumentType2026;
   document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('button');if(!b)return;var w=E('jbDocBuilderWin');if(w&&w.classList.contains('show')&&(!w.querySelector('.jb-request-controls')))controls()});
