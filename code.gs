@@ -913,13 +913,13 @@ function ensureDocumentSystemSheets_(ss){
   const dt=ss.getSheetByName('DOCUMENT_TEMPLATES');
   if(dt && dt.getLastRow()===1){
     const docs=[
-      ['A4','MARKSHEET','Marksheet / মার্কশিট','A4'],['ID_CARD','ID_CARD','Student ID Card / পরিচয়পত্র','IDCARD'],
-      ['ADMIT_CARD','ADMIT_CARD','Admit Card / প্রবেশপত্র','A4'],['CERTIFICATE','CERTIFICATE','Certificate / সনদপত্র','A4'],
-      ['MONEY_RECEIPT','MONEY_RECEIPT','Money Receipt / মানি রিসিট','A5'],['EXAM_REGISTRATION','EXAM_REGISTRATION','পরীক্ষার্থী নিবন্ধন','A4'],
-      ['ADMISSION_RECEIPT','ADMISSION_RECEIPT','ভর্তি রশিদ','A5'],['CHARACTER_CERTIFICATE','CHARACTER_CERTIFICATE','চারিত্রিক সনদ','A4'],
-      ['TESTIMONIAL','TESTIMONIAL','প্রশংসাপত্র','A4'],['STUDENT_PROFILE','STUDENT_PROFILE','Student Profile / শিক্ষার্থী প্রোফাইল','A4']
+      ['TPL_MARKSHEET','MARKSHEET','Marksheet / মার্কশিট','A4'],['TPL_ID_CARD','ID_CARD','Student ID Card / পরিচয়পত্র','IDCARD'],
+      ['TPL_ADMIT_CARD','ADMIT_CARD','Admit Card / প্রবেশপত্র','A4'],['TPL_CERTIFICATE','CERTIFICATE','Certificate / সনদপত্র','A4'],
+      ['TPL_MONEY_RECEIPT','MONEY_RECEIPT','Money Receipt / মানি রিসিট','A5'],['TPL_EXAM_REG','EXAM_REGISTRATION','পরীক্ষার্থী নিবন্ধন','A4'],
+      ['TPL_ADMISSION_RECEIPT','ADMISSION_RECEIPT','ভর্তি রশিদ','A5'],['TPL_CHARACTER','CHARACTER_CERTIFICATE','চারিত্রিক সনদ','A4'],
+      ['TPL_TESTIMONIAL','TESTIMONIAL','প্রশংসাপত্র','A4'],['TPL_STUDENT_PROFILE','STUDENT_PROFILE','Student Profile / শিক্ষার্থী প্রোফাইল','A4']
     ];
-    const rows=docs.map(function(x,i){return [i+1,x[0],x[1],x[3],'#b30000','#0b5da7','#16833a','#d39b00','4-side','ACTIVE',now_()];});
+    const rows=docs.map(function(x,i){return [i+1,x[0],x[1],x[2],x[3],'#b30000','#0b5da7','#16833a','#d39b00','4-side','ACTIVE',now_()];});
     dt.getRange(2,1,rows.length,12).setValues(rows);
   }
   const df=ss.getSheetByName('DOCUMENT_FIELDS');
