@@ -9712,3 +9712,39 @@ body.dark #jbDocBuilderWin{background:#000;color:#ffe95c;border-color:#ff1f2f}bo
 })();
 </script>
 <!-- ===== END AUTO SAVE DRAFT + RESTORE ===== -->
+
+<!-- ===== CENTRAL DOCUMENT BUILDER — DRAFT LIFECYCLE SAFETY — 2026-10-06 ===== -->
+<script id="central-document-builder-draft-lifecycle-safety-2026-10-06">
+(function(){
+  var DKEY='jbDocAutoDraft2026';
+  function currentKey(){
+    var t=document.getElementById('jbDocBuilderTitle')?.textContent||'';
+    return t.indexOf('মার্কশিট')>=0?'marks':t.indexOf('ফলাফল')>=0?'result':t.indexOf('আইডি কার্ড')>=0?'id_cards':t.indexOf('অ্যাডমিট কার্ড')>=0?'admit_cards':t.indexOf('সার্টিফিকেট')>=0?'certificates':t.indexOf('মানি রিসিট')>=0?'receipts':'marks';
+  }
+  function clearStored(){try{localStorage.removeItem(DKEY)}catch(e){}}
+  var oldSave=window.jbSaveDraft;
+  if(typeof oldSave==='function')window.jbSaveDraft=async function(){
+    var r=await oldSave.apply(this,arguments);
+    /* Final server save completed; prevent an old Draft from reappearing. */
+    clearStored();
+    return r;
+  };
+  var oldClear=window.jbClearDoc;
+  if(typeof oldClear==='function')window.jbClearDoc=function(){clearStored();return oldClear.apply(this,arguments)};
+  var oldRestore=window.jbRestoreAutoDraft;
+  if(typeof oldRestore==='function')window.jbRestoreAutoDraft=function(){return oldRestore.apply(this,arguments)};
+  /* Only offer a Draft for the currently opened document type. */
+  var oldOpen=window.openBuilder;
+  if(typeof oldOpen==='function')window.openBuilder=function(){
+    var r=oldOpen.apply(this,arguments);
+    setTimeout(function(){
+      try{
+        var raw=localStorage.getItem(DKEY);if(!raw)return;
+        var d=JSON.parse(raw);if(d&&d.key&&d.key!==currentKey()){localStorage.removeItem(DKEY);}
+      }catch(e){}
+    },700);
+    return r;
+  };
+})();
+</script>
+<!-- ===== END DRAFT LIFECYCLE SAFETY ===== -->
