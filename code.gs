@@ -82,18 +82,35 @@ function doGet(e) {
 
 function buildPublicVerificationHtml_(docKey, recordId, verifyResult) {
   var esc = function(v) {
-    return String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    return String(v == null ? '' : v)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   };
-  var html = '<!doctype html><html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Document Verification</title>' +
-    '<style>body{margin:0;background:#f4f1e8;font-family:Arial,"Noto Sans Bengali",sans-serif;color:#171717}.card{width:min(560px,92vw);margin:8vh auto;padding:22px;background:#fff;border:4px solid #8b5e00;border-radius:18px;box-shadow:0 12px 35px #0003;text-align:center}.brand{font-size:22px;font-weight:900;border-bottom:2px solid #222;padding-bottom:12px}.status{font-size:25px;font-weight:900;margin:16px 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;text-align:left}.row{border:1px solid #777;border-radius:9px;padding:9px}.row b{display:block;font-size:12px;color:#555;margin-bottom:3px}.foot{margin-top:14px;font-size:13px;color:#555}.btn{margin-top:12px;padding:10px 16px;border:2px solid #222;border-radius:10px;background:#fff;cursor:pointer}@media(max-width:520px){.grid{grid-template-columns:1fr}}</style></head><body>' +
-    '<div class="card"><div class="brand">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div><div id="status" class="status">⏳ ডকুমেন্ট যাচাই হচ্ছে...</div><div id="result"></div><div class="foot">হটলাইন: 01823316630<br>Jannatul Baqi Digital Platform 2026</div><button class="btn" onclick="window.print()">🖨️ প্রিন্ট</button></div>' +
-    '<script>' +
-    'function e(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/\\x27/g,"&#39;");}' +
-    'function show(r){var s=document.getElementById("status"),out=document.getElementById("result");if(r&&r.verified){s.textContent="✅ ডকুমেন্ট যাচাই সফল";var a=[["Document ID",r.recordId],["Student ID",r.studentId],["নাম",r.name],["শ্রেণি",r.className],["পরীক্ষা",r.exam],["ধরন",r.type],["পরিমাণ",r.amount],["ইস্যু তারিখ",r.issueDate]];out.innerHTML="<div class=\\"grid\\">"+a.filter(function(x){return String(x[1]||"").trim();}).map(function(x){return "<div class=\\"row\\"><b>"+e(x[0])+"</b>"+e(x[1])+"</div>";}).join("")+"</div><p>"+e(r.message)+"</p>";}else{s.textContent="❌ ডকুমেন্ট যাচাই ব্যর্থ";out.innerHTML="<p>"+e((r&&r.message)||"রেকর্ড পাওয়া যায়নি।")+"</p>";}}' +
-    'var verifyResult='+JSON.stringify(verifyResult||{ok:false,verified:false,message:'রেকর্ড পাওয়া যায়নি।'})+';' +
-    'show(verifyResult);' +
-    '</script></body></html>';
-  return html;
+  var r=verifyResult||{ok:false,verified:false,message:'রেকর্ড পাওয়া যায়নি।'};
+  var ok=!!r.verified;
+  var rows='';
+  if(ok){
+    var data=[
+      ['Document ID',r.recordId],['Student ID',r.studentId],['নাম',r.name],
+      ['শ্রেণি',r.className],['পরীক্ষা',r.exam],['ধরন',r.type],
+      ['পরিমাণ',r.amount],['ইস্যু তারিখ',r.issueDate]
+    ];
+    rows=data.filter(function(x){return String(x[1]||'').trim()!=='';}).map(function(x){
+      return '<div class="row"><b>'+esc(x[0])+'</b>'+esc(x[1])+'</div>';
+    }).join('');
+  }
+  var status=ok?'✅ ডকুমেন্ট যাচাই সফল':'❌ ডকুমেন্ট যাচাই ব্যর্থ';
+  var message=String(r.message||(ok?'ডকুমেন্টটি যাচাই করা হয়েছে।':'রেকর্ড পাওয়া যায়নি।'));
+  return '<!doctype html><html lang="bn"><head><meta charset="UTF-8">'+
+    '<meta name="viewport" content="width=device-width,initial-scale=1">'+
+    '<title>Document Verification</title>'+
+    '<style>body{margin:0;background:#f4f1e8;font-family:Arial,"Noto Sans Bengali",sans-serif;color:#171717}.card{width:min(560px,92vw);margin:8vh auto;padding:22px;background:#fff;border:4px solid #8b5e00;border-radius:18px;box-shadow:0 12px 35px #0003;text-align:center;box-sizing:border-box}.brand{font-size:22px;font-weight:900;border-bottom:2px solid #222;padding-bottom:12px}.status{font-size:25px;font-weight:900;margin:16px 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;text-align:left}.row{border:1px solid #777;border-radius:9px;padding:9px}.row b{display:block;font-size:12px;color:#555;margin-bottom:3px}.msg{margin:14px 0;font-weight:700}.foot{margin-top:14px;font-size:13px;color:#555}.btn{margin-top:12px;padding:10px 16px;border:2px solid #222;border-radius:10px;background:#fff;cursor:pointer}@media(max-width:520px){.grid{grid-template-columns:1fr}}</style></head><body>'+
+    '<div class="card"><div class="brand">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div>'+
+    '<div class="status">'+status+'</div>'+
+    (rows?'<div class="grid">'+rows+'</div>':'')+
+    '<div class="msg">'+esc(message)+'</div>'+
+    '<div class="foot">হটলাইন: 01823316630<br>Jannatul Baqi Digital Platform 2026</div>'+
+    '<button class="btn" onclick="window.print()">🖨️ প্রিন্ট</button></div></body></html>';
 }
 function getMainWebAppUrl() {
   try {
