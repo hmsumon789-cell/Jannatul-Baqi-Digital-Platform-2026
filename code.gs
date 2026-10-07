@@ -1075,3 +1075,25 @@ function getDocumentVerification(token, docKey, recordId) {
   }
   return {ok:true,verified:false,message:'এই Document ID-এর কোনো রেকর্ড পাওয়া যায়নি।'};
 }
+
+/* ===== TRUE MARKSHEET MERIT — SAME EXAM + SAME CLASS — 2026-10-07 ===== */
+function getMarksMerit(token,studentId,className,examName,currentTotal){
+  auth_(token);
+  const sid=String(studentId||'').trim(),cls=String(className||'').trim(),exam=String(examName||'').trim(),mine=Number(currentTotal);
+  if(!cls||!exam||!isFinite(mine)) return {ok:true,rank:null,label:'মেধা স্থান হিসাব করা যায়নি',count:0,total:mine};
+  const rows=listRows_(SHEETS.RESULTS,token,5000),latest={};
+  rows.forEach(function(r){
+    const rid=String(r.StudentID||'').trim();
+    if(!rid||rid===sid||String(r.Class||'').trim()!==cls||String(r.Exam||'').trim()!==exam)return;
+    let n=Number(r.Total);
+    if(!isFinite(n)){
+      n=0;
+      try{const a=JSON.parse(String(r.SubjectData||'[]'))||[];a.forEach(function(x){const v=Number(x&&(x.Marks!=null&&x.Marks!==''?x.Marks:x.marks));if(isFinite(v))n+=v;});}catch(e){}
+    }
+    if(isFinite(n))latest[rid]=n;
+  });
+  let rank=1;Object.keys(latest).forEach(function(k){if(latest[k]>mine)rank++;});
+  const bn=String(rank).replace(/\\d/g,function(x){return '০১২৩৪৫৬৭৮৯'[x]});
+  const suffix={1:'ম',2:'য়',3:'য়',4:'র্থ',5:'ম',6:'ষ্ঠ',7:'ম',8:'ম',9:'ম',10:'ম'};
+  return {ok:true,rank:rank,label:bn+(suffix[rank]||'তম'),count:Object.keys(latest).length+1,total:mine};
+}
