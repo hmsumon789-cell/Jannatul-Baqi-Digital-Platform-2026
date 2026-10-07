@@ -10492,7 +10492,7 @@ window.jbFindStudent=async function(){var r=await oldFind.apply(this,arguments);
 var oldManual=window.jbManualEntry;
 window.jbManualEntry=function(){var r=oldManual.apply(this,arguments);setTimeout(addGrid,80);return r};
 var oldCreate=window.jbCreatePreview;
-window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid2026');if(box){var data=[];box.querySelectorAll('.jb-ms-item').forEach(function(it,n){var s=it.querySelector('.jb-ms-subject')?.value||'',m=it.querySelector('.jb-ms-mark')?.value||'';if(s||m)data.push({no:n+1,subject:s,marks:m});var c=box.querySelector('#jbMsClass2026')?.value||'',ci=document.querySelector('#jbDocFields input[data-key="Class"]');if(ci)ci.value=c;var sd=document.querySelector('#jbDocFields input[data-key="SubjectData"]');if(sd)sd.value=JSON.stringify(data)})}return oldCreate.apply(this,arguments)};
+window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid2026');if(box){var data=[];box.querySelectorAll('.jb-ms-item').forEach(function(it,n){var s=it.querySelector('.jb-ms-subject')?.value||'',m=it.querySelector('.jb-ms-mark')?.value||'',ok=it.querySelector('.jb-ms-subject-toggle')?.checked;if(ok&&(s||m))data.push({no:n+1,subject:s,marks:m});var c=box.querySelector('#jbMsClass2026')?.value||'',ci=document.querySelector('#jbDocFields input[data-key="Class"]');if(ci)ci.value=c;var sd=document.querySelector('#jbDocFields input[data-key="SubjectData"]');if(sd)sd.value=JSON.stringify(data)})}return oldCreate.apply(this,arguments)};
 })();
 </script>
 <!-- ===== END CLASS-WISE SUBJECT MASTER ===== -->
