@@ -10430,3 +10430,91 @@ body.dark #jbDocumentBuilderEntry2026{background:#000;color:#ffe95c;border-color
 })();
 </script>
 <!-- ===== END QR WHITE PAGE FIX ===== -->
+
+<!-- ===== MARKSHEET: CLASS + 12 SUBJECT/MARK GRID — 2026-10-07 ===== -->
+<style id="jb-marksheet-class-subject-grid-2026-10-07">
+#jbMarksGrid2026{margin:10px 0 12px;padding:12px;border:3px solid var(--border);border-radius:16px;background:var(--panel)}
+#jbMarksGrid2026 .jb-ms-class{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-weight:900;font-size:18px}
+#jbMarksGrid2026 .jb-ms-class select{flex:1;min-width:220px;padding:9px;border:2px solid var(--border);border-radius:999px;background:var(--panel);color:var(--text)}
+#jbMarksGrid2026 .jb-ms-subjects{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+#jbMarksGrid2026 .jb-ms-item{border:2px solid var(--border);border-radius:13px;padding:8px;background:var(--panel)}
+#jbMarksGrid2026 .jb-ms-no{font-weight:900;text-align:center;margin-bottom:5px}
+#jbMarksGrid2026 .jb-ms-item select,#jbMarksGrid2026 .jb-ms-item input{width:100%;padding:8px;border:1px solid var(--border);border-radius:9px;background:transparent;color:inherit}
+#jbMarksGrid2026 .jb-ms-item input{margin-top:5px}
+#jbMarksGrid2026 .jb-ms-item input::placeholder{color:inherit;opacity:.65}
+@media(max-width:800px){#jbMarksGrid2026 .jb-ms-subjects{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:480px){#jbMarksGrid2026 .jb-ms-subjects{grid-template-columns:1fr}}
+</style>
+<script id="jb-marksheet-class-subject-grid-js-2026-10-07">
+(function(){
+  var SUBJECTS=[
+    'কুরআন মাজীদ','হাদিস শরীফ','আকাইদ ও ফিকহ','আরবি ১ম পত্র',
+    'আরবি ২য় পত্র','বাংলা','ইংরেজি','গণিত',
+    'ইসলামের ইতিহাস','উর্দু','ফারায়েজ','তাজবিদ'
+  ];
+  var CLASSES=['প্লে','নার্সারি','প্রথম','দ্বিতীয়','তৃতীয়','চতুর্থ','পঞ্চম','ষষ্ঠ','সপ্তম','অষ্টম','নবম','দশম','একাদশ','দ্বাদশ','জামাত-১','জামাত-২','জামাত-৩','জামাত-৪','জামাত-৫','জামাত-৬','জামাত-৭','জামাত-৮','জামাত-৯','দাওরায়ে হাদিস'];
+  function addGrid(){
+    var host=document.getElementById('jbDocFields');
+    if(!host)return;
+    var key=(window.jbDocCurrentKey&&window.jbDocCurrentKey())||'';
+    if(key!=='marks'&&key!=='result')return;
+    var old=document.getElementById('jbMarksGrid2026');if(old)old.remove();
+    host.querySelectorAll('.jb-doc-field').forEach(function(d){
+      var i=d.querySelector('input[data-key]');
+      if(i&&['Class','SubjectData','Total','GPA','Grade'].indexOf(i.dataset.key)>=0)d.style.display='none';
+    });
+    var box=document.createElement('div');box.id='jbMarksGrid2026';
+    box.innerHTML='<div class="jb-ms-class"><span>শ্রেণি/জামাত নির্বাচন</span><select id="jbMsClass2026"><option value="">নির্বাচন করুন</option></select></div><div class="jb-ms-subjects" id="jbMsSubjects2026"></div>';
+    host.parentNode.insertBefore(box,host.nextSibling);
+    var cs=box.querySelector('#jbMsClass2026');
+    CLASSES.forEach(function(c){var o=document.createElement('option');o.value=c;o.textContent=c;cs.appendChild(o)});
+    var oldClass=host.querySelector('input[data-key="Class"]');if(oldClass&&oldClass.value)cs.value=oldClass.value;
+    var sg=box.querySelector('#jbMsSubjects2026');
+    for(var n=1;n<=12;n++){
+      var item=document.createElement('div');item.className='jb-ms-item';
+      var sel=document.createElement('select');sel.className='jb-ms-subject';sel.dataset.no=n;
+      var op=document.createElement('option');op.value='';op.textContent='বিষয় নির্বাচন করুন';sel.appendChild(op);
+      SUBJECTS.forEach(function(s){var x=document.createElement('option');x.value=s;x.textContent=s;sel.appendChild(x)});
+      var mark=document.createElement('input');mark.type='number';mark.min='0';mark.max='100';mark.step='1';mark.className='jb-ms-mark';mark.placeholder='নম্বর';
+      item.innerHTML='<div class="jb-ms-no">বিষয় '+n+'</div>';item.appendChild(sel);item.appendChild(mark);sg.appendChild(item);
+    }
+    cs.onchange=function(){if(oldClass)oldClass.value=cs.value};
+  }
+  function sync(){
+    var box=document.getElementById('jbMarksGrid2026');if(!box)return;
+    var data=[];
+    box.querySelectorAll('.jb-ms-item').forEach(function(item,i){
+      var s=item.querySelector('.jb-ms-subject')?.value||'';
+      var m=item.querySelector('.jb-ms-mark')?.value||'';
+      if(s||m)data.push({no:i+1,subject:s,marks:m});
+    });
+    var target=document.querySelector('#jbDocFields input[data-key="SubjectData"]');
+    if(target)target.value=JSON.stringify(data);
+    var cls=box.querySelector('#jbMsClass2026')?.value||'';
+    var ci=document.querySelector('#jbDocFields input[data-key="Class"]');if(ci)ci.value=cls;
+  }
+  var oldFind=window.jbFindStudent;
+  window.jbFindStudent=async function(){
+    var r=await oldFind.apply(this,arguments);
+    setTimeout(addGrid,80);
+    return r;
+  };
+  var oldManual=window.jbManualEntry;
+  window.jbManualEntry=function(){
+    var r=oldManual.apply(this,arguments);
+    setTimeout(addGrid,80);
+    return r;
+  };
+  var oldCreate=window.jbCreatePreview;
+  window.jbCreatePreview=function(){
+    sync();
+    return oldCreate.apply(this,arguments);
+  };
+  var oldSave=window.jbSaveDraft;
+  window.jbSaveDraft=function(){
+    sync();
+    return oldSave.apply(this,arguments);
+  };
+})();
+</script>
+<!-- ===== END MARKSHEET CLASS + 12 SUBJECT/MARK GRID ===== -->
