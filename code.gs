@@ -964,7 +964,7 @@ function onlineServiceCleanHtml_(html) {
   s=s.replace(/<button\b[^>]*>[\s\S]*?<\/button>/gi,'');
   s=s.replace(/\s+on[a-z]+\s*=\s*(".*?"|'.*?'|[^\s>]+)/gi,'');
   s=s.replace(/contenteditable\s*=\s*("true"|'true'|true)/gi,'');
-  s=s.replace(/<div[^>]*class=(["'])[^"']*jb-verification-qr[^"']*\\1[^>]*>[\\s\\S]*?<\\/div>/gi,'');
+  s=s.replace(/<div[^>]*class=(["'])[^"']*jb-verification-qr[^"']*\1[^>]*>[\s\S]*?<\/div>/gi,'');
   return s;
 }
 function onlineServicePdf_(title,html,serviceId) {
