@@ -11535,3 +11535,85 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 })();
 </script>
 <!-- ===== END DOCUMENT BUILDER — UNIFIED ACTION BAR FOR ALL CARDS — 2026-10-07 ===== -->
+<!-- ===== ONLINE SERVICE — HOME DELIVERY BUTTON + SAVE — 2026-10-07 ===== -->
+<style id="jb-online-service-home-2026-10-07">
+#jbDocBuilderWin .jb-online-service-save-2026{
+  flex:1 1 0!important;min-width:0!important;height:56px!important;min-height:56px!important;
+  padding:8px 12px!important;border-radius:999px!important;border:2px solid #222!important;
+  background:linear-gradient(135deg,#00695c,#26a69a)!important;color:#fff!important;
+  font-weight:900!important;box-shadow:0 5px 12px #0003!important;
+}
+@media(max-width:700px){#jbDocBuilderWin .jb-online-service-save-2026{height:52px!important;min-height:52px!important;font-size:11px!important}}
+#jbLoginOnlineService2026{
+  display:block;width:min(520px,92vw);margin:12px auto 0;padding:12px 18px;
+  border:3px solid #8b5e00;border-radius:999px;background:linear-gradient(135deg,#00695c,#26a69a);
+  color:#fff;font-weight:900;font-size:16px;cursor:pointer;box-shadow:0 7px 18px #0003;
+}
+@media print{#jbDocBuilderWin .jb-online-service-save-2026{display:none!important}}
+</style>
+<script id="jb-online-service-home-2026-10-07-js">
+(function(){
+  var CODES={
+    marks:'MS',result:'RS',id_cards:'ID',admit_cards:'AC',certificates:'CT',receipts:'RC',
+    teacher_id:'TI',admission_form:'AF',leave_form:'LF',exam_routine:'ER',tc:'TC',attestation:'AP',
+    lifetime_member_form:'LM',lifetime_member_certificate:'LC',teacher_recruitment_form:'TR',
+    teacher_appointment:'TA',executive_form:'EF',executive_id:'EI'
+  };
+  function key(){
+    if(typeof window.__jbAdditionalDocKey==='string'&&CODES[window.__jbAdditionalDocKey])return window.__jbAdditionalDocKey;
+    var t=(document.getElementById('jbDocBuilderTitle')||{}).textContent||'';
+    var map={
+      'ফলাফল / মার্কশিট':'result','মার্কশিট':'marks','আইডি কার্ড':'id_cards','অ্যাডমিট কার্ড':'admit_cards',
+      'সার্টিফিকেট':'certificates','মানি রিসিট':'receipts','শিক্ষক/শিক্ষিকা আইডি কার্ড':'teacher_id',
+      'ভর্তি আবেদন ফর্ম':'admission_form','ছুটির আবেদন ফর্ম':'leave_form','পরীক্ষার রুটিন':'exam_routine',
+      'টিসি / ছাড়পত্র':'tc','প্রত্যয়ন পত্র':'attestation','আজীবন সদস্য ফর্ম':'lifetime_member_form',
+      'আজীবন সদস্য সনদ':'lifetime_member_certificate','শিক্ষক/শিক্ষিকা নিয়োগ আবেদন':'teacher_recruitment_form',
+      'শিক্ষক/শিক্ষিকা নিয়োগ পত্র':'teacher_appointment','নির্বাহী পরিষদ ফর্ম':'executive_form',
+      'নির্বাহী পরিষদ সদস্য আইডি কার্ড':'executive_id'
+    };
+    for(var n in map)if(t.indexOf(n)>=0)return map[n];return 'marks';
+  }
+  function addOnlineButton(){
+    document.querySelectorAll('#jbDocPreviewWrap .jb-doc-preview > .jb-doc-actions').forEach(function(bar){
+      if(bar.querySelector('.jb-online-service-save-2026'))return;
+      var b=document.createElement('button');b.type='button';b.className='jb-online-service-save-2026';
+      b.textContent='🌐 দ্রুত সেবা / ঘরে সংরক্ষণ';
+      b.onclick=async function(){
+        var p=document.querySelector('#jbDocPreviewWrap .jb-doc-preview');
+        var id=(document.getElementById('jbDocId')?.value||'').trim();
+        if(!p)return toast('আগে Document তৈরি করুন।');
+        if(!id)return toast('ID প্রয়োজন।');
+        var data={};document.querySelectorAll('#jbDocFields [data-key]').forEach(function(x){data[x.dataset.key]=x.value||''});
+        var k=key(),code=CODES[k]||'DOC';
+        try{
+          b.disabled=true;b.textContent='⏳ অনলাইন সেবায় সংরক্ষণ হচ্ছে...';
+          var r=await call('saveOnlineServiceRecord',token,k,id,data,p.outerHTML);
+          if(r&&r.ok){
+            b.textContent='✅ অনলাইন সেবায় সংরক্ষিত';
+            toast('🌐 '+r.message+' সংকেত: '+r.serviceCode+' | ID: '+r.personId);
+            if(r.publicUrl)setTimeout(function(){try{window.open(r.publicUrl,'_blank')}catch(e){}},250);
+          }else{
+            b.disabled=false;b.textContent='🌐 দ্রুত সেবা / ঘরে সংরক্ষণ';
+            toast((r&&r.message)||'অনলাইন সেবায় সংরক্ষণ হয়নি।');
+          }
+        }catch(e){
+          b.disabled=false;b.textContent='🌐 দ্রুত সেবা / ঘরে সংরক্ষণ';
+          toast('অনলাইন সেবা সংরক্ষণে ত্রুটি: '+(e&&e.message?e.message:e));
+        }
+      };
+      bar.appendChild(b);
+    });
+  }
+  function addLoginButton(){
+    var lp=document.getElementById('loginPage');if(!lp||document.getElementById('jbLoginOnlineService2026'))return;
+    var b=document.createElement('button');b.id='jbLoginOnlineService2026';b.type='button';
+    b.textContent='🌐 অনলাইন সেবা — ঘরে বসে মার্কশিট / সনদ / কার্ড';
+    b.onclick=function(){var u=location.href.split('#')[0].split('?')[0];window.open(u+'?online=1','_blank')};
+    lp.appendChild(b);
+  }
+  function scan(){addOnlineButton();addLoginButton()}
+  scan();
+  if(document.body)new MutationObserver(scan).observe(document.body,{childList:true,subtree:true});
+})();
+</script>
+<!-- ===== END ONLINE SERVICE — HOME DELIVERY BUTTON + SAVE ===== -->
