@@ -11874,3 +11874,96 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 })();
 </script>
 <!-- ===== END ONLINE SERVICE PUBLIC SEARCH ===== -->
+
+<!-- ===== FINAL USER UI POLISH — LOGIN ONLINE SERVICE + CARD ICON ACTIONS — 2026-10-07 ===== -->
+<style id="jb-final-user-ui-polish-2026-10-07">
+/* লগইন: অনলাইন সেবা বাটনটি সর্বনিচে এক কলামে */
+#jbLoginOnlineService2026{
+  display:block!important;
+  width:100%!important;
+  max-width:none!important;
+  min-height:54px!important;
+  height:54px!important;
+  margin:10px 0 0!important;
+  border-radius:999px!important;
+  box-sizing:border-box!important;
+  font-size:16px!important;
+  font-weight:900!important;
+}
+/* কার্ডের নিচের ৪টি: শুধু আইকন, কোনো বক্স/ব্যাকগ্রাউন্ড নয় */
+#jbDocBuilderWin #jbDocPreviewWrap .jb-final-icon-btn-2026{
+  width:42px!important;
+  min-width:42px!important;
+  max-width:42px!important;
+  height:42px!important;
+  min-height:42px!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  text-shadow:none!important;
+  font-size:24px!important;
+  color:inherit!important;
+}
+#jbDocBuilderWin #jbDocPreviewWrap .jb-final-icon-btn-2026:hover{
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  transform:scale(1.12)!important;
+}
+/* মাঝখানে Online + Save History + History একই লাইনে */
+#jbDocBuilderWin #jbDocPreviewWrap .jb-final-center-group-2026{
+  display:flex!important;
+  justify-content:center!important;
+  align-items:center!important;
+  flex-wrap:nowrap!important;
+  gap:7px!important;
+}
+#jbDocBuilderWin #jbDocPreviewWrap .jb-final-center-btn-2026{
+  height:48px!important;
+  min-height:48px!important;
+  border-radius:999px!important;
+  font-weight:900!important;
+}
+#jbDocBuilderWin #jbDocPreviewWrap .jb-online-service-save-2026{
+  height:48px!important;
+  min-height:48px!important;
+  min-width:190px!important;
+  border-radius:999px!important;
+  font-weight:900!important;
+}
+@media(max-width:700px){
+  #jbDocBuilderWin #jbDocPreviewWrap .jb-final-icon-btn-2026{
+    width:36px!important;min-width:36px!important;max-width:36px!important;
+    height:36px!important;min-height:36px!important;font-size:20px!important;
+  }
+  #jbDocBuilderWin #jbDocPreviewWrap .jb-final-center-group-2026{gap:4px!important}
+  #jbDocBuilderWin #jbDocPreviewWrap .jb-final-center-btn-2026,
+  #jbDocBuilderWin #jbDocPreviewWrap .jb-online-service-save-2026{
+    height:42px!important;min-height:42px!important;font-size:10px!important;padding:5px 7px!important;
+  }
+}
+@media print{
+  #jbLoginOnlineService2026,
+  #jbDocBuilderWin #jbDocPreviewWrap .jb-doc-actions,
+  #jbDocBuilderWin #jbDocPreviewWrap .jb-online-service-save-2026{
+    display:none!important;
+    visibility:hidden!important;
+  }
+}
+</style>
+<script id="jb-final-user-ui-polish-2026-10-07-js">
+(function(){
+  function textFix(){
+    var login=document.getElementById('jbLoginOnlineService2026');
+    if(login)login.textContent='🌐 অনলাইন সেবা ঘরে বসেই গ্রহন করুন';
+    document.querySelectorAll('#jbDocPreviewWrap .jb-online-service-save-2026').forEach(function(b){
+      b.textContent='🌐 অনলাইন সেবা ঘরে বসেই গ্রহন করুন';
+    });
+  }
+  textFix();
+  if(document.body)new MutationObserver(function(){textFix()}).observe(document.body,{childList:true,subtree:true});
+})();
+</script>
+<!-- ===== END FINAL USER UI POLISH ===== -->
