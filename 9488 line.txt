@@ -10786,3 +10786,104 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 })();
 </script>
 <!-- ===== END ALL DOCUMENTS CONTACT HEADER ===== -->
+
+<!-- ===== DOCUMENT BUILDER — NON-MARKS CARD PREVIEW FIX — 2026-10-07 ===== -->
+<script id="document-builder-non-marks-card-preview-fix-2026-10-07">
+(function(){
+  var oldCreate=window.jbCreatePreview;
+  if(typeof oldCreate!=='function')return;
+
+  function key(){
+    var t=document.getElementById('jbDocBuilderTitle')?.textContent||'';
+    return t.indexOf('ফলাফল')>=0?'result':
+      t.indexOf('মার্কশিট')>=0?'marks':
+      t.indexOf('আইডি কার্ড')>=0?'id_cards':
+      t.indexOf('অ্যাডমিট কার্ড')>=0?'admit_cards':
+      t.indexOf('সার্টিফিকেট')>=0?'certificates':
+      t.indexOf('মানি রিসিট')>=0?'receipts':'marks';
+  }
+  function e(v){
+    return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function v(k){
+    var x=document.querySelector('#jbDocFields [data-key="'+k+'"]');
+    return x?String(x.value||'').trim():'';
+  }
+  function checked(k){
+    var x=document.querySelector('#jbDocFields [data-key="'+k+'"]');
+    var box=x&&x.parentElement?x.parentElement.querySelector('input[type="checkbox"]'):null;
+    return !box||box.checked;
+  }
+  function title(k){
+    return k==='id_cards'?'আইডি কার্ড':
+      k==='admit_cards'?'অ্যাডমিট কার্ড':
+      k==='certificates'?'সার্টিফিকেট':
+      k==='receipts'?'মানি রিসিট':
+      k==='result'?'ফলাফল / মার্কশিট':'মার্কশিট';
+  }
+  function make(){
+    var k=key();
+    if(k==='marks'||k==='result')return oldCreate.apply(this,arguments);
+
+    var wrap=document.getElementById('jbDocPreviewWrap');
+    if(!wrap)return;
+    var sid=v('StudentID')||document.getElementById('jbDocId')?.value||'';
+    var name=v('NameBN'), photo=v('Photo'), cls=v('Class'), roll=v('Roll'), mobile=v('Mobile');
+    var rows=[],defs=[
+      ['StudentID','ID'],['NameBN','নাম'],['NameAR','আরবি নাম'],['NameEN','ইংরেজি নাম'],
+      ['FatherBN','পিতার নাম'],['MotherBN','মাতার নাম'],['DOB','জন্ম তারিখ'],['Mobile','মোবাইল'],
+      ['WhatsApp','WhatsApp'],['Address','ঠিকানা'],['Division','বিভাগ'],['District','জেলা'],
+      ['Upazila','উপজেলা'],['Union','ইউনিয়ন'],['Post','ডাকঘর'],['PostCode','পোস্ট কোড'],
+      ['Ward','ওয়ার্ড'],['Village','গ্রাম'],['Class','শ্রেণি/জামাত'],['Department','বিভাগ/ডিপার্টমেন্ট'],
+      ['Branch','শাখা'],['Roll','রোল'],['BirthReg','জন্ম নিবন্ধন'],['NID','NID'],
+      ['Exam','পরীক্ষা'],['ExamYear','পরীক্ষা সাল'],['ExamDate','পরীক্ষার তারিখ'],
+      ['ExamTime','সময়'],['Center','পরীক্ষা কেন্দ্র'],['CertificateNo','সনদ নম্বর'],
+      ['IssueDate','প্রদানের তারিখ'],['Result','ফলাফল'],['Signature','স্বাক্ষর'],['Seal','সিল'],
+      ['ReceiptNo','রিসিট নম্বর'],['Month','মাস/সময়'],['Category','খাত/কারণ'],
+      ['Amount','টাকার পরিমাণ'],['Method','পরিশোধের মাধ্যম'],['Date','তারিখ'],['Note','বিবরণ'],
+      ['EmergencyContact','জরুরি যোগাযোগ'],['Guardian','অভিভাবক']
+    ];
+    defs.forEach(function(d){
+      var val=v(d[0]);
+      if(val&&checked(d[0]))rows.push('<div class="jb-doc-row"><b>'+e(d[1])+'</b><span>'+e(val)+'</span></div>');
+    });
+
+    var extra='';
+    if(k==='admit_cards'){
+      var subs=v('SubjectData');
+      if(subs)extra='<div style="margin-top:8px;border:1px solid #555;padding:7px"><b>বিষয়সমূহ:</b><div style="white-space:pre-wrap;margin-top:4px">'+e(subs)+'</div></div>';
+    }
+    if(k==='certificates'){
+      extra='<div style="margin-top:24px;display:flex;justify-content:space-between;gap:20px;font-size:12px"><span>স্বাক্ষর</span><span>সিল</span><span>প্রধান শিক্ষিকা / মুহতামিম</span></div>';
+    }
+    if(k==='receipts'){
+      extra='<div style="margin-top:10px;border:2px solid #222;padding:8px;text-align:center;font-size:16px"><b>টাকার পরিমাণ: '+e(v('Amount'))+'</b></div>';
+    }
+
+    var size=k==='id_cards'?'idcard':k==='receipts'?'half':'a4';
+    var p=document.createElement('div');
+    p.className='jb-doc-preview '+size;
+    p.style.cssText='box-sizing:border-box;background:#fff;color:#111;position:relative;overflow:hidden;font-family:"Noto Sans Bengali","Noto Sans",Arial,sans-serif';
+
+    var photoHtml=photo?'<img class="jb-doc-photo" src="'+e(photo)+'" alt="ছবি">':'';
+    var head='<div class="jb-doc-head"><h2>'+e(title(k))+'</h2><p>'+e(name||'')+'</p></div>';
+    if(k==='id_cards'){
+      head='<div class="jb-doc-head"><h2>আইডি কার্ড</h2><p style="font-weight:900">'+e(name||'')+'</p></div>';
+      p.innerHTML=photoHtml+head+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:3px">'+rows.join('')+'</div>'+
+        '<div style="margin-top:8px;text-align:center;font-weight:900">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div>';
+    }else{
+      p.innerHTML=photoHtml+head+
+        '<div style="text-align:center;font-size:11px;margin-bottom:7px">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div>'+
+        rows.join('')+extra;
+    }
+
+    wrap.innerHTML='';
+    var bar=document.createElement('div');bar.className='jb-doc-actions';
+    bar.innerHTML='<button class="secondary" onclick="jbEditPreview()">✏️ এডিট</button><button class="secondary" onclick="jbSaveDraft()">💾 সেভ + History</button><button class="secondary" onclick="jbShowHistory()">📚 History</button><button class="secondary" onclick="jbDownload()">⬇️ ডাউনলোড</button><button class="primary" onclick="jbPrint()">🖨️ প্রিন্ট</button>';
+    p.appendChild(bar);wrap.appendChild(p);
+  }
+  window.jbCreatePreview=make;
+})();
+</script>
+<!-- ===== END NON-MARKS CARD PREVIEW FIX ===== -->
