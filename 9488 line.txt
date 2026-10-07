@@ -9564,7 +9564,11 @@ function label(k){var m={StudentID:'ID',NameBN:'নাম',NameAR:'আরবি 
       '.jb-doc-row{display:flex;gap:8px;padding:4px 0;border-bottom:1px dotted #999}.jb-doc-row b{min-width:135px}.jb-corner{position:absolute;inset:0;border:3px solid #c62828;pointer-events:none}'+
       '.jb-verification-qr{break-inside:avoid}.jb-verification-qr img{display:block;margin:auto}'+
       '@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}'+
-      '</style></head><body>'+p.outerHTML+'</body></html>');
+      '</style></head><body>'+p.outerHTML+'
+<!-- ===== TRUE AUTOMATIC MERIT POSITION — 2026-10-07 ===== -->
+<script id="jb-true-merit-ranking-2026-10-07">(function(){function F(k){return document.querySelector('#jbDocFields [data-key="'+k+'"]')}function S(k,v){var x=F(k);if(x)x.value=(v==null?'':String(v))}function G(n){n=Number(n)||0;return n>=80?['A+',5]:n>=70?['A',4]:n>=60?['A-',3.5]:n>=50?['B',3]:n>=40?['C',2]:n>=33?['D',1]:['F',0]}function C(){var b=document.getElementById('jbMarksGrid2026'),a=[];if(!b)return a;b.querySelectorAll('.jb-ms-item').forEach(function(i){var c=i.querySelector('.jb-ms-check'),s=i.querySelector('.jb-ms-subject'),m=i.querySelector('.jb-ms-mark');if(c&&c.checked&&s&&s.value&&a.length<12)a.push({no:a.length+1,subject:s.value,marks:m?m.value:''})});return a}var old=window.jbCreatePreview;if(typeof old!=='function')return;window.jbCreatePreview=async function(){var b=document.getElementById('jbMarksGrid2026'),key=(window.currentDocKey||window.jbCurrentDocKey||'').toLowerCase();if(!b||(key!=='marks'&&key!=='result'))return old.apply(this,arguments);var a=C(),sd=F('SubjectData');if(sd)sd.value=JSON.stringify(a);var cl=b.querySelector('#jbMsClass2026')?.value||'',cf=F('Class');if(cf)cf.value=cl;var total=0,n=0;a.forEach(function(x){var z=Number(x.marks);if(!isNaN(z)){total+=z;n++}}),avg=n?total/n:0,gpa=n?(a.reduce(function(s,x){return s+G(x.marks)[1]},0)/n):0,grade=n?G(avg)[0]:'—';S('Total',total);S('Average',n?avg.toFixed(2):'0');S('GPA',n?gpa.toFixed(2):'0.00');S('Grade',grade);var merit='—',sid=F('StudentID')?.value||document.getElementById('jbDocId')?.value||'',ex=F('Exam')?.value||'',ey=F('ExamYear')?.value||'';try{if(n&&cl&&ex){var r=await call('getResultMerit2026',token,cl,ex,ey,sid,total);if(r&&r.ok&&r.eligible&&r.merit)merit=r.merit}}catch(e){}S('Merit',merit);return old.apply(this,arguments)}})();</script>
+<!-- ===== END TRUE AUTOMATIC MERIT POSITION ===== -->
+</body></html>');
     w.document.close();
     setTimeout(function(){try{w.focus();w.print()}catch(e){}},500);
   }
