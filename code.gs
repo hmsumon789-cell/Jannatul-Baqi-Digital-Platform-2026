@@ -65,7 +65,13 @@ const HEADERS = {
 function doGet(e) {
   var p = (e && e.parameter) || {};
   if (String(p.verify || '') === '1' && String(p.doc || '').trim() && String(p.id || '').trim()) {
-    return HtmlService.createHtmlOutput(buildPublicVerificationHtml_(String(p.doc).trim(), String(p.id).trim()))
+    var verifyKey=String(p.doc).trim(), verifyId=String(p.id).trim(), verifyResult;
+    try {
+      verifyResult=getDocumentVerification('',verifyKey,verifyId);
+    } catch(err) {
+      verifyResult={ok:false,verified:false,message:'ডকুমেন্ট যাচাইয়ের সময় সার্ভার ত্রুটি হয়েছে।'};
+    }
+    return HtmlService.createHtmlOutput(buildPublicVerificationHtml_(verifyKey,verifyId,verifyResult))
       .setTitle(APP.nameEn + ' | Document Verification')
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
   }
@@ -74,17 +80,19 @@ function doGet(e) {
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
-function buildPublicVerificationHtml_(docKey, recordId) {
+function buildPublicVerificationHtml_(docKey, recordId, verifyResult) {
   var esc = function(v) {
     return String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   };
   var html = '<!doctype html><html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Document Verification</title>' +
     '<style>body{margin:0;background:#f4f1e8;font-family:Arial,"Noto Sans Bengali",sans-serif;color:#171717}.card{width:min(560px,92vw);margin:8vh auto;padding:22px;background:#fff;border:4px solid #8b5e00;border-radius:18px;box-shadow:0 12px 35px #0003;text-align:center}.brand{font-size:22px;font-weight:900;border-bottom:2px solid #222;padding-bottom:12px}.status{font-size:25px;font-weight:900;margin:16px 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;text-align:left}.row{border:1px solid #777;border-radius:9px;padding:9px}.row b{display:block;font-size:12px;color:#555;margin-bottom:3px}.foot{margin-top:14px;font-size:13px;color:#555}.btn{margin-top:12px;padding:10px 16px;border:2px solid #222;border-radius:10px;background:#fff;cursor:pointer}@media(max-width:520px){.grid{grid-template-columns:1fr}}</style></head><body>' +
     '<div class="card"><div class="brand">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div><div id="status" class="status">⏳ ডকুমেন্ট যাচাই হচ্ছে...</div><div id="result"></div><div class="foot">হটলাইন: 01823316630<br>Jannatul Baqi Digital Platform 2026</div><button class="btn" onclick="window.print()">🖨️ প্রিন্ট</button></div>' +
-    '<script>var DOC_KEY=' + JSON.stringify(String(docKey)) + ',RECORD_ID=' + JSON.stringify(String(recordId)) + ';' +
+    '<script>' +
     'function e(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/\\x27/g,"&#39;");}' +
     'function show(r){var s=document.getElementById("status"),out=document.getElementById("result");if(r&&r.verified){s.textContent="✅ ডকুমেন্ট যাচাই সফল";var a=[["Document ID",r.recordId],["Student ID",r.studentId],["নাম",r.name],["শ্রেণি",r.className],["পরীক্ষা",r.exam],["ধরন",r.type],["পরিমাণ",r.amount],["ইস্যু তারিখ",r.issueDate]];out.innerHTML="<div class=\\"grid\\">"+a.filter(function(x){return String(x[1]||"").trim();}).map(function(x){return "<div class=\\"row\\"><b>"+e(x[0])+"</b>"+e(x[1])+"</div>";}).join("")+"</div><p>"+e(r.message)+"</p>";}else{s.textContent="❌ ডকুমেন্ট যাচাই ব্যর্থ";out.innerHTML="<p>"+e((r&&r.message)||"রেকর্ড পাওয়া যায়নি।")+"</p>";}}' +
-    'google.script.run.withSuccessHandler(show).withFailureHandler(function(err){document.getElementById("status").textContent="❌ যাচাই করা যায়নি";document.getElementById("result").innerHTML="<p>"+e(err&&err.message?err.message:err)+"</p>";}).getDocumentVerification("",DOC_KEY,RECORD_ID);</script></body></html>';
+    'var verifyResult='+JSON.stringify(verifyResult||{ok:false,verified:false,message:'রেকর্ড পাওয়া যায়নি।'})+';' +
+    'show(verifyResult);' +
+    '</script></body></html>';
   return html;
 }
 function getMainWebAppUrl() {
