@@ -997,8 +997,7 @@ body.gold #loginPage .main-qr-802268e{background:#fff!important;border-color:#11
             <button class="secondary slider-arrow" onclick="prevMedia()" title="আগের স্লাইড">◀</button>
             <div class="slider-center-controls">
               <button class="secondary slider-action" onclick="toggleMediaPlay()" id="mediaPlayBtn" title="Play / Pause">▶ Play</button>
-              <button class="secondary slider-action" onclick="openModule('gallery')" title="Upload">⬆ Load</button>              <button class="secondary slider-action" onclick="deleteCurrentMedia()" title="Delete">🗑 Delete</button>
-            </div>
+              <button class="secondary slider-action" onclick="openModule('gallery')" title="Upload">⬆ Load</button>              <button class="secondary slider-action" onclick="deleteCurrentMedia()" title="Delete">🗑 Delete</button>            </div>
             <button class="secondary slider-arrow" onclick="nextMedia()" title="পরের স্লাইড">▶</button>
           </div>
         </div>
@@ -1997,8 +1996,7 @@ function escA(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){retu
 }
 .header-mode-icons{
   display:flex!important;  align-items:center!important;
-  gap:5px!important;
-  white-space:nowrap!important;
+  gap:5px!important;  white-space:nowrap!important;
 }
 .header-mode-icons .mode{
   width:40px!important;
@@ -2997,8 +2995,7 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
     var s=String(u||''),m=s.match(/[?&]id=([^&]+)/);
     if(m)return decodeURIComponent(m[1]);    m=s.match(/\/d\/([^/]+)/);
     return m?m[1]:'';
-  }
-  function arrows(){
+  }  function arrows(){
     var box=document.getElementById('mediaStageContent');
     if(!box)return;
     box.querySelectorAll('.media-inner-arrow').forEach(function(x){x.remove()});
@@ -3997,8 +3994,7 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
       if(close && !close.classList.contains('win-fullscreen-2026')){        /* The first header button is the previous close button in the existing windows. */
         close.textContent='⛶';
         close.title='ফুল স্ক্রিন / স্বাভাবিক';
-        close.setAttribute('aria-label','ফুল স্ক্রিন / স্বাভাবিক');
-        close.classList.add('win-fullscreen-2026');
+        close.setAttribute('aria-label','ফুল স্ক্রিন / স্বাভাবিক');        close.classList.add('win-fullscreen-2026');
         oldFs=close;
       }else{
         tools.appendChild(oldFs);
@@ -4997,8 +4993,7 @@ body #app .header-news *{
 }
 </style>
 <script id="media-playback-stability-js-2026-09-22">
-(function(){
-  function driveId(u){
+(function(){  function driveId(u){
     var s=String(u||''),m=s.match(/[?&]id=([^&]+)/i);
     if(m)return decodeURIComponent(m[1]);
     m=s.match(/\/d\/([^/]+)/i);
@@ -5997,8 +5992,7 @@ body #app .header-news *{
 (function(){
   var busy=false;
   function getMedia(){return Array.isArray(window.media)?window.media:[]}
-  function next(){
-    var m=getMedia();
+  function next(){    var m=getMedia();
     if(m.length>1){mediaIndex=(Number(mediaIndex||0)+1)%m.length;window.renderMedia&&window.renderMedia();setTimeout(bind,120)}
   }
   function bind(){
@@ -6997,8 +6991,7 @@ body.dark #headerSlideDeleteWindow{border-radius:22px!important}
   font-weight:900;
 }
 #headerCalendarWindow .hc-weekday{
-  min-height:38px;background:var(--accent);color:var(--panel);
-}
+  min-height:38px;background:var(--accent);color:var(--panel);}
 #headerCalendarWindow .hc-day.empty{border-color:transparent;background:transparent}
 #headerCalendarWindow .hc-day.today{
   outline:4px solid #f2c94c;
@@ -7997,8 +7990,7 @@ body.gold #searchProfilePrint .sp-field{border-color:#d40000!important}
   function draw(){
     norm();
     var box=document.getElementById('mediaStageContent');
-    if(!box)return;
-    var m=arr();
+    if(!box)return;    var m=arr();
     if(!m.length){
       box.innerHTML='<span class="media-empty">মিডিয়া আপলোড করে স্লাইড দেখুন</span>';
       renderList();
@@ -8997,8 +8989,7 @@ body.jb-custom-account .header-content .header-identity-contact{color:#fff!impor
   #contactFooter .contact-layout-2026{grid-template-columns:72px minmax(0,1fr) 88px!important;gap:8px!important}
   #contactFooter #contactLoginLogo2026{width:62px!important;height:62px!important}
   #contactFooter #contactMainQR2026{width:72px!important;height:72px!important}
-  #contactFooter .contact-center-2026 .contact-name{font-size:17px!important}
-  #contactFooter .contact-center-2026 .contact-address{font-size:13px!important}
+  #contactFooter .contact-center-2026 .contact-name{font-size:17px!important}  #contactFooter .contact-center-2026 .contact-address{font-size:13px!important}
   #contactFooter .contact-center-2026 .contact-info{font-size:13px!important}
 }
 </style>
@@ -9997,8 +9988,7 @@ var wrap=document.getElementById('jbDocPreviewWrap');if(!wrap)return;wrap.innerH
     });
     wrap.querySelectorAll('.jb-doc-row').forEach(function(row){
       var b=row.querySelector('b'), span=row.querySelector('[contenteditable]');
-      if(!b||!span)return;
-      var inp=map[b.textContent.trim()];
+      if(!b||!span)return;      var inp=map[b.textContent.trim()];
       if(!inp)return;
       span.dataset.jbEditKey=inp.dataset.key;
       span.oninput=function(){inp.value=span.textContent.trim()};
@@ -10997,8 +10987,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 }#jbDocBuilderWin .jb-institution-header-2026{
   position:relative!important;
   grid-template-columns:24mm minmax(0,1fr) 24mm!important;
-  min-height:22mm!important;
-}
+  min-height:22mm!important;}
 #jbDocBuilderWin .jb-institution-header-2026 .jb-inst-side-2026{
   position:relative!important;
   z-index:2!important;
@@ -11971,3 +11960,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 })();
 </script>
 <!-- ===== END FINAL USER UI POLISH ===== -->
+
+<!-- ===== SAFE SCRIPT TERMINATION — LOGIN BLANK PAGE FIX — 2026-10-07 ===== -->
+</script>
+<!-- ===== END SAFE SCRIPT TERMINATION ===== -->
