@@ -8688,6 +8688,8 @@ window.openModule=function(k){
 <script id="media-list-final-sync-fix-js">
 (function(){
   var busy=false,tries=0;
+})();
+</script>
 
 <style id="header-top-gap-and-logo-bn-final-2026-10-04">
 /* Header-এর উপরের খালি জায়গা ও Logo-বাংলা নামের অতিরিক্ত gap বাদ */
@@ -8767,7 +8769,9 @@ box-sizing:border-box!important;overflow:hidden!important;
 </style>
 <script id="dashboard-summary-contact-full-page-js-2026-10-04">
 (function(){
-function placeFullWidth(){
+  function placeFullWidth(){}
+})();
+</script>
 
 <!-- ===== CONTACT FOOTER: 2 ROWS + FULL WIDTH BOTTOM — 2026-10-05 ===== -->
 <style id="contact-footer-2row-full-bottom-2026-10-05">
