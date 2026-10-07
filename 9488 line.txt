@@ -10537,3 +10537,107 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 </script>
 <!-- ===== END CLASS-WISE SUBJECT MASTER ===== -->
 
+
+
+<!-- ===== MARKSHEET WINDOW — FULLSCREEN / MINIMIZE / DRAG FIX — 2026-10-07 ===== -->
+<style id="marksheet-window-controls-2026-10-07">
+#jbDocBuilderWin.jb-window-full{
+  inset:0!important;left:0!important;top:0!important;right:0!important;bottom:0!important;
+  width:100vw!important;height:100vh!important;max-width:none!important;max-height:none!important;
+  border-radius:0!important;transform:none!important;overflow:auto!important;
+}
+#jbDocBuilderWin.jb-window-min{
+  top:auto!important;left:10px!important;right:auto!important;bottom:8px!important;
+  width:360px!important;height:48px!important;min-height:48px!important;max-height:48px!important;
+  inset:auto auto 8px 10px!important;transform:none!important;overflow:hidden!important;
+  border-radius:14px!important;box-shadow:0 8px 30px #0008!important;
+}
+#jbDocBuilderWin.jb-window-min #jbDocBuilderTools,
+#jbDocBuilderWin.jb-window-min #jbDocBuilderBody{display:none!important}
+#jbDocBuilderWin.jb-window-min #jbDocBuilderHead{height:48px!important;min-height:48px!important;padding:6px 8px!important;border-bottom:0!important}
+#jbDocBuilderWin.jb-window-min #jbDocBuilderHead>b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#jbDocBuilderHead .jb-win-controls-2026{display:flex!important;align-items:center!important;gap:5px!important;margin-left:auto!important}
+#jbDocBuilderHead .jb-win-control-2026{
+  width:36px!important;height:32px!important;min-width:36px!important;padding:0!important;
+  border:2px solid var(--border)!important;border-radius:9px!important;
+  background:var(--panel)!important;color:var(--text)!important;font-weight:900!important;
+}
+#jbDocBuilderHead .jb-win-control-2026:hover{filter:brightness(1.08)!important;transform:translateY(-1px)!important}
+#jbDocBuilderWin.jb-window-min #jbDocBuilderHead{cursor:pointer!important}
+#jbDocBuilderWin.jb-window-full #jbDocBuilderHead{cursor:move!important}
+#jbDocBuilderWin.jb-window-dragging{user-select:none!important}
+@media(max-width:600px){
+  #jbDocBuilderWin.jb-window-min{left:5px!important;right:5px!important;width:auto!important;bottom:5px!important}
+  #jbDocBuilderHead .jb-win-control-2026{width:34px!important;min-width:34px!important}
+}
+</style>
+<script id="marksheet-window-controls-2026-10-07-js">
+(function(){
+  var state={x:null,y:null,full:false,min:false,drag:false,sx:0,sy:0,ox:0,oy:0};
+  function get(){return document.getElementById('jbDocBuilderWin')}
+  function controls(w){
+    if(!w||document.getElementById('jbDocWindowControls2026'))return;
+    var head=document.getElementById('jbDocBuilderHead');if(!head)return;
+    var close=head.querySelector('button');
+    var box=document.createElement('div');box.id='jbDocWindowControls2026';box.className='jb-win-controls-2026';
+    var min=document.createElement('button');min.type='button';min.className='jb-win-control-2026';min.title='মিনিমাইজ';min.textContent='—';
+    var full=document.createElement('button');full.type='button';full.className='jb-win-control-2026';full.title='ফুল স্ক্রিন';full.textContent='⛶';
+    box.appendChild(min);box.appendChild(full);
+    if(close){head.insertBefore(box,close);close.title='বন্ধ'}else head.appendChild(box);
+    min.onclick=function(e){e.preventDefault();e.stopPropagation();toggleMin(w)};
+    full.onclick=function(e){e.preventDefault();e.stopPropagation();toggleFull(w)};
+  }
+  function savePos(w){
+    var r=w.getBoundingClientRect();state.x=r.left;state.y=r.top;
+  }
+  function clamp(w,x,y){
+    var maxX=Math.max(0,window.innerWidth-w.offsetWidth),maxY=Math.max(0,window.innerHeight-w.offsetHeight);
+    return {x:Math.min(Math.max(0,x),maxX),y:Math.min(Math.max(0,y),maxY)};
+  }
+  function restorePosition(w){
+    if(state.x==null||state.y==null)return;
+    w.style.left=state.x+'px';w.style.top=state.y+'px';w.style.right='auto';w.style.bottom='auto';w.style.inset='auto';w.style.transform='none';
+    var p=clamp(w,state.x,state.y);w.style.left=p.x+'px';w.style.top=p.y+'px';state.x=p.x;state.y=p.y;
+  }
+  function toggleMin(w){
+    if(state.min){state.min=false;w.classList.remove('jb-window-min');if(state.full){w.classList.add('jb-window-full')}else restorePosition(w);return;}
+    if(state.full){state.full=false;w.classList.remove('jb-window-full')}
+    savePos(w);state.min=true;w.classList.add('jb-window-min');
+  }
+  function toggleFull(w){
+    if(state.min){state.min=false;w.classList.remove('jb-window-min')}
+    state.full=!state.full;
+    w.classList.toggle('jb-window-full',state.full);
+    if(!state.full)restorePosition(w);
+  }
+  function bindDrag(w){
+    if(w.dataset.jbDragBound==='1')return;w.dataset.jbDragBound='1';
+    var head=document.getElementById('jbDocBuilderHead');if(!head)return;
+    head.addEventListener('pointerdown',function(e){
+      if(e.button!==0)return;
+      if(e.target.closest('button,input,select,textarea,a'))return;
+      if(state.min){state.min=false;w.classList.remove('jb-window-min');state.full=false;w.classList.remove('jb-window-full')}
+      if(state.full)return;
+      var r=w.getBoundingClientRect();state.drag=true;state.sx=e.clientX;state.sy=e.clientY;state.ox=r.left;state.oy=r.top;
+      w.classList.add('jb-window-dragging');w.setPointerCapture&&w.setPointerCapture(e.pointerId);e.preventDefault();
+    });
+    head.addEventListener('pointermove',function(e){
+      if(!state.drag)return;
+      var p=clamp(w,state.ox+(e.clientX-state.sx),state.oy+(e.clientY-state.sy));
+      w.style.left=p.x+'px';w.style.top=p.y+'px';w.style.right='auto';w.style.bottom='auto';w.style.inset='auto';w.style.transform='none';state.x=p.x;state.y=p.y;
+    });
+    function up(){state.drag=false;w.classList.remove('jb-window-dragging')}
+    head.addEventListener('pointerup',up);head.addEventListener('pointercancel',up);
+  }
+  function ensure(){var w=get();if(!w)return;controls(w);bindDrag(w)}
+  var oldOpen=window.jbOpenDocumentType2026;
+  if(typeof oldOpen==='function')window.jbOpenDocumentType2026=function(){var r=oldOpen.apply(this,arguments);setTimeout(ensure,30);return r};
+  var oldModule=window.openModule;
+  if(typeof oldModule==='function')window.openModule=function(k){var r=oldModule.apply(this,arguments);setTimeout(ensure,30);return r};
+  var oldCreate=window.jbCreatePreview;
+  if(typeof oldCreate==='function')window.jbCreatePreview=function(){var r=oldCreate.apply(this,arguments);setTimeout(ensure,30);return r};
+  window.addEventListener('resize',function(){var w=get();if(!w||!w.classList.contains('show')||state.full)return;if(state.min)return;var p=clamp(w,state.x==null?w.getBoundingClientRect().left:state.x,state.y==null?w.getBoundingClientRect().top:state.y);w.style.left=p.x+'px';w.style.top=p.y+'px';w.style.right='auto';w.style.bottom='auto';w.style.inset='auto';w.style.transform='none';state.x=p.x;state.y=p.y});
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ensure);else ensure();
+})();
+</script>
+<!-- ===== END MARKSHEET WINDOW CONTROLS ===== -->
