@@ -11519,3 +11519,27 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 })();
 </script>
 <!-- ===== END DOCUMENT BUILDER — FINAL WINDOW NAV + CONTACT + QR ABOVE ACTIONS — 2026-10-07 ===== -->
+
+
+<!-- ===== DOCUMENT BUILDER — UNIFIED ACTION BAR FOR ALL CARDS — 2026-10-07 ===== -->
+<script id="jb-doc-unified-action-bar-2026-10-07">
+(function(){
+  function normalize(){
+    document.querySelectorAll('#jbDocPreviewWrap .jb-doc-preview > .jb-doc-actions').forEach(function(bar){
+      if(bar.dataset.jbUnifiedActions==='1')return;
+      bar.dataset.jbUnifiedActions='1';
+      bar.innerHTML=
+        '<button class="secondary" onclick="jbEditPreview()">✏️ এডিট</button>'+
+        '<button class="secondary" onclick="jbSaveDraft()">💾 সেভ + History</button>'+
+        '<button class="secondary" onclick="jbShowHistory()">📚 History</button>'+
+        '<button class="primary" onclick="jbPrint()">🖨️ প্রিন্ট</button>'+
+        '<button class="secondary" onclick="jbDownload()">⬇️ ডাউনলোড</button>';
+    });
+  }
+  normalize();
+  if(document.body)new MutationObserver(normalize).observe(document.body,{childList:true,subtree:true});
+  setTimeout(normalize,100);
+  setTimeout(normalize,500);
+})();
+</script>
+<!-- ===== END DOCUMENT BUILDER — UNIFIED ACTION BAR FOR ALL CARDS — 2026-10-07 ===== -->
