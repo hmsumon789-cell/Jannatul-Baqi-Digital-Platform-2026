@@ -11218,3 +11218,304 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 })();
 </script>
 <!-- ===== END ADDITIONAL CARD / FORM TYPES ===== -->
+
+
+<!-- ===== DOCUMENT BUILDER — FINAL WINDOW NAV + CONTACT + QR ABOVE ACTIONS — 2026-10-07 ===== -->
+<style id="jb-doc-final-window-nav-contact-qr-layout-2026-10-07">
+/* সব Document window: পূর্বে / পরে */
+#jbDocBuilderHead .jb-doc-nav-2026{
+  display:flex!important;
+  align-items:center!important;
+  gap:5px!important;
+  margin-left:auto!important;
+}
+#jbDocBuilderHead .jb-doc-nav-2026 button{
+  min-width:72px!important;
+  min-height:38px!important;
+  height:38px!important;
+  padding:5px 10px!important;
+  border:2px solid var(--border)!important;
+  border-radius:10px!important;
+  font-weight:900!important;
+  cursor:pointer!important;
+}
+#jbDocBuilderHead .jb-doc-nav-2026 button:hover{
+  filter:brightness(1.08)!important;
+  transform:translateY(-1px)!important;
+}
+
+/* ঠিকানার নিচে Hotline + Email */
+#jbDocBuilderWin .jb-institution-contact-2026{
+  margin:2px 0 0!important;
+  font-size:9px!important;
+  line-height:1.25!important;
+  font-weight:900!important;
+  text-align:center!important;
+  white-space:nowrap!important;
+}
+#jbDocBuilderWin .jb-institution-contact-2026 .jb-hotline-2026,
+#jbDocBuilderWin .jb-institution-contact-2026 .jb-email-2026{
+  display:inline-block!important;
+  margin:0 4px!important;
+}
+#jbDocBuilderWin .jb-doc-preview.idcard .jb-institution-contact-2026{
+  font-size:5px!important;
+  line-height:1.15!important;
+  white-space:normal!important;
+}
+#jbDocBuilderWin .jb-doc-preview.half .jb-institution-contact-2026{
+  font-size:7px!important;
+}
+
+/* যাচাই QR সবসময় action button-এর ঠিক উপরে */
+#jbDocBuilderWin .jb-doc-preview{
+  position:relative!important;
+}
+#jbDocBuilderWin .jb-doc-preview > .jb-verification-qr{
+  position:absolute!important;
+  left:50%!important;
+  transform:translateX(-50%)!important;
+  bottom:24mm!important;
+  z-index:20!important;
+  margin:0!important;
+  box-sizing:border-box!important;
+}
+#jbDocBuilderWin .jb-doc-preview > .jb-doc-actions{
+  position:absolute!important;
+  left:6mm!important;
+  right:6mm!important;
+  bottom:5mm!important;
+  z-index:21!important;
+  margin:0!important;
+  width:auto!important;
+  box-sizing:border-box!important;
+  display:flex!important;
+  justify-content:center!important;
+  align-items:center!important;
+  flex-wrap:nowrap!important;
+}
+#jbDocBuilderWin .jb-doc-preview > .jb-doc-actions button{
+  height:56px!important;
+  min-height:56px!important;
+}
+
+/* ছোট ID card-এ QR + buttons-এর জন্য compact layout */
+#jbDocBuilderWin .jb-doc-preview.idcard > .jb-verification-qr{
+  bottom:15mm!important;
+  padding:3px!important;
+  font-size:7px!important;
+}
+#jbDocBuilderWin .jb-doc-preview.idcard > .jb-verification-qr .jb-qr-box canvas,
+#jbDocBuilderWin .jb-doc-preview.idcard > .jb-verification-qr .jb-qr-box img{
+  width:12mm!important;
+  height:12mm!important;
+}
+#jbDocBuilderWin .jb-doc-preview.idcard > .jb-doc-actions{
+  left:3mm!important;
+  right:3mm!important;
+  bottom:2mm!important;
+  gap:2px!important;
+}
+#jbDocBuilderWin .jb-doc-preview.idcard > .jb-doc-actions button{
+  height:24px!important;
+  min-height:24px!important;
+  padding:2px 4px!important;
+  font-size:7px!important;
+  border-width:1px!important;
+}
+
+/* half receipt */
+#jbDocBuilderWin .jb-doc-preview.half > .jb-verification-qr{
+  bottom:20mm!important;
+}
+#jbDocBuilderWin .jb-doc-preview.half > .jb-doc-actions{
+  left:4mm!important;
+  right:4mm!important;
+  bottom:3mm!important;
+}
+#jbDocBuilderWin .jb-doc-preview.half > .jb-doc-actions button{
+  height:38px!important;
+  min-height:38px!important;
+  padding:5px 8px!important;
+}
+
+/* Print: শুধু card/document, কোনো action/nav/back button নয় */
+@media print{
+  #jbDocBuilderHead,
+  #jbDocBuilderTools,
+  #jbDocBuilderWin .jb-doc-nav-2026,
+  #jbDocBuilderWin .jb-doc-actions,
+  #jbDocBuilderWin .jb-marksheet-back-2026{
+    display:none!important;
+    visibility:hidden!important;
+  }
+  #jbDocBuilderWin .jb-doc-preview{
+    position:relative!important;
+  }
+  #jbDocBuilderWin .jb-doc-preview > .jb-verification-qr{
+    position:absolute!important;
+    left:50%!important;
+    transform:translateX(-50%)!important;
+    bottom:27mm!important;
+  }
+  #jbDocBuilderWin .jb-doc-preview > .jb-doc-actions{
+    display:none!important;
+  }
+  #jbDocBuilderWin .jb-institution-contact-2026{
+    display:block!important;
+    visibility:visible!important;
+  }
+}
+</style>
+
+<script id="jb-doc-final-window-nav-contact-qr-layout-js-2026-10-07">
+(function(){
+  var ORDER=[
+    'marks','result','id_cards','admit_cards','certificates','receipts',
+    'teacher_id','admission_form','leave_form','exam_routine','tc','attestation',
+    'lifetime_member_form','lifetime_member_certificate',
+    'teacher_recruitment_form','teacher_appointment','executive_form','executive_id'
+  ];
+
+  function currentKey(){
+    if(typeof window.jbDocCurrentKey==='function'){
+      var k=window.jbDocCurrentKey();
+      if(k&&ORDER.indexOf(k)>=0)return k;
+    }
+    var t=(document.getElementById('jbDocBuilderTitle')||{}).textContent||'';
+    var map={
+      'মার্কশিট':'marks','ফলাফল / মার্কশিট':'result','আইডি কার্ড':'id_cards',
+      'অ্যাডমিট কার্ড':'admit_cards','সার্টিফিকেট':'certificates','মানি রিসিট':'receipts',
+      'শিক্ষক/শিক্ষিকা আইডি কার্ড':'teacher_id','ভর্তি আবেদন ফর্ম':'admission_form',
+      'ছুটির আবেদন ফর্ম':'leave_form','পরীক্ষার রুটিন':'exam_routine','টিসি / ছাড়পত্র':'tc',
+      'প্রত্যয়ন পত্র':'attestation','আজীবন সদস্য ফর্ম':'lifetime_member_form',
+      'আজীবন সদস্য সনদ':'lifetime_member_certificate','শিক্ষক/শিক্ষিকা নিয়োগ আবেদন':'teacher_recruitment_form',
+      'শিক্ষক/শিক্ষিকা নিয়োগ পত্র':'teacher_appointment','নির্বাহী পরিষদ ফর্ম':'executive_form',
+      'নির্বাহী পরিষদ সদস্য আইডি কার্ড':'executive_id'
+    };
+    for(var name in map)if(t.indexOf(name)>=0)return map[name];
+    return '';
+  }
+
+  function addNav(){
+    var head=document.getElementById('jbDocBuilderHead');
+    if(!head||document.getElementById('jbDocNav2026'))return;
+    var close=head.querySelector('button');
+    var box=document.createElement('div');
+    box.id='jbDocNav2026';
+    box.className='jb-doc-nav-2026';
+
+    var prev=document.createElement('button');
+    prev.type='button';
+    prev.className='secondary';
+    prev.textContent='◀ পূর্বে';
+    prev.title='পূর্বের Document';
+    prev.onclick=function(e){
+      e.preventDefault();e.stopPropagation();
+      var k=currentKey(),i=ORDER.indexOf(k);
+      if(i<0)i=0;
+      var target=ORDER[(i-1+ORDER.length)%ORDER.length];
+      if(typeof window.jbOpenDocumentType2026==='function')window.jbOpenDocumentType2026(target);
+    };
+
+    var next=document.createElement('button');
+    next.type='button';
+    next.className='secondary';
+    next.textContent='পরে ▶';
+    next.title='পরের Document';
+    next.onclick=function(e){
+      e.preventDefault();e.stopPropagation();
+      var k=currentKey(),i=ORDER.indexOf(k);
+      if(i<0)i=-1;
+      var target=ORDER[(i+1)%ORDER.length];
+      if(typeof window.jbOpenDocumentType2026==='function')window.jbOpenDocumentType2026(target);
+    };
+
+    box.appendChild(prev);box.appendChild(next);
+    if(close)head.insertBefore(box,close);else head.appendChild(box);
+  }
+
+  function addContact(p){
+    if(!p||p.querySelector('.jb-institution-contact-2026'))return;
+    var address=p.querySelector('.jb-inst-address-2026');
+    if(!address)return;
+    var c=document.createElement('div');
+    c.className='jb-institution-contact-2026';
+    c.innerHTML='<span class="jb-hotline-2026">হটলাইন-01823316630</span><span class="jb-email-2026">ইমেইল-hmatik90@gmail.com</span>';
+    address.insertAdjacentElement('afterend',c);
+  }
+
+  function moveQRBeforeActions(p){
+    if(!p)return;
+    var qr=p.querySelector('.jb-verification-qr');
+    var bar=p.querySelector(':scope > .jb-doc-actions');
+    if(qr&&bar&&bar.previousElementSibling!==qr)bar.parentNode.insertBefore(qr,bar);
+
+    if(qr){
+      qr.style.position='absolute';
+      qr.style.left='50%';
+      qr.style.transform='translateX(-50%)';
+    }
+  }
+
+  function patchQR(){
+    var old=window.jbAddVerificationQR;
+    if(typeof old!=='function'||old.__jbFinalLayout2026)return;
+    function wrapped(key,id){
+      var r=old.apply(this,arguments);
+      setTimeout(function(){
+        var p=document.querySelector('#jbDocPreviewWrap .jb-doc-preview');
+        if(p)moveQRBeforeActions(p);
+      },0);
+      setTimeout(function(){
+        var p=document.querySelector('#jbDocPreviewWrap .jb-doc-preview');
+        if(p)moveQRBeforeActions(p);
+      },120);
+      return r;
+    }
+    wrapped.__jbFinalLayout2026=true;
+    window.jbAddVerificationQR=wrapped;
+    window.jbRenderSavedVerificationQR2026=wrapped;
+  }
+
+  function scan(){
+    addNav();
+    document.querySelectorAll('#jbDocPreviewWrap .jb-doc-preview').forEach(function(p){
+      addContact(p);
+      moveQRBeforeActions(p);
+    });
+    patchQR();
+  }
+
+  var oldOpen=window.jbOpenDocumentType2026;
+  if(typeof oldOpen==='function'&&!oldOpen.__jbFinalNav2026){
+    function openWrapped(){
+      var r=oldOpen.apply(this,arguments);
+      setTimeout(scan,30);
+      setTimeout(scan,150);
+      return r;
+    }
+    openWrapped.__jbFinalNav2026=true;
+    window.jbOpenDocumentType2026=openWrapped;
+  }
+
+  var oldCreate=window.jbCreatePreview;
+  if(typeof oldCreate==='function'&&!oldCreate.__jbFinalNav2026){
+    function createWrapped(){
+      var r=oldCreate.apply(this,arguments);
+      setTimeout(scan,30);
+      setTimeout(scan,150);
+      return r;
+    }
+    createWrapped.__jbFinalNav2026=true;
+    window.jbCreatePreview=createWrapped;
+  }
+
+  addNav();
+  scan();
+  if(document.body){
+    new MutationObserver(function(){scan()}).observe(document.body,{childList:true,subtree:true});
+  }
+})();
+</script>
+<!-- ===== END DOCUMENT BUILDER — FINAL WINDOW NAV + CONTACT + QR ABOVE ACTIONS — 2026-10-07 ===== -->
