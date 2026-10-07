@@ -983,7 +983,7 @@ function onlineServicePdf_(title,html,serviceId) {
     folder=it.hasNext()?it.next():DriveApp.createFolder(folderName);
     const file=folder.createFile(blob);
     try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW)}catch(e){}
-    return {fileId:file.getId(),url:'https://drive.google.com/uc?export=download&id='+encodeURIComponent(file.getId())};
+    return {fileId:file.getId(),url:file.getDownloadUrl()};
   } catch(e) {
     return {fileId:'',url:'',error:String(e&&e.message?e.message:e)};
   }
