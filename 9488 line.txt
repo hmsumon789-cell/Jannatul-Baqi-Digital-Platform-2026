@@ -10969,3 +10969,76 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 })();
 </script>
 <!-- ===== END NARROW ID INFO WINDOW + MARKSHEET BACK BUTTON ===== -->
+
+
+<!-- ===== DOCUMENT BUILDER — PRINT LAYOUT + ACTION BUTTON HEIGHT POLISH — 2026-10-07 ===== -->
+<style id="document-builder-print-layout-button-polish-2026-10-07">
+#jbDocBuilderWin #jbDocPreviewWrap .jb-doc-actions button{
+  height:56px!important;
+  min-height:56px!important;
+  padding:10px 18px!important;
+}
+#jbDocBuilderWin .jb-institution-header-2026{
+  position:relative!important;
+  grid-template-columns:24mm minmax(0,1fr) 24mm!important;
+  min-height:22mm!important;
+}
+#jbDocBuilderWin .jb-institution-header-2026 .jb-inst-side-2026{
+  position:relative!important;
+  z-index:2!important;
+}
+#jbDocBuilderWin .jb-institution-header-2026 .jb-inst-center-2026{
+  position:relative!important;
+  z-index:1!important;
+}
+@media print{
+  #jbDocBuilderWin #jbDocPreviewWrap .jb-doc-actions,
+  #jbDocBuilderWin .jb-marksheet-back-2026{
+    display:none!important;
+    visibility:hidden!important;
+  }
+  #jbDocBuilderWin .jb-institution-header-2026{
+    position:relative!important;
+    display:grid!important;
+    grid-template-columns:20mm minmax(0,1fr) 20mm!important;
+    align-items:start!important;
+    min-height:20mm!important;
+    padding:0 0 3mm!important;
+    margin:0 0 4mm!important;
+    box-sizing:border-box!important;
+  }
+  #jbDocBuilderWin .jb-institution-header-2026 .jb-inst-side-2026{
+    width:20mm!important;
+    min-width:20mm!important;
+    height:20mm!important;
+    display:flex!important;
+    align-items:flex-start!important;
+    justify-content:center!important;
+  }
+  #jbDocBuilderWin .jb-institution-header-2026 .jb-inst-side-2026:last-child{
+    justify-content:flex-end!important;
+    align-items:flex-start!important;
+  }
+  #jbDocBuilderWin .jb-institution-header-2026 .jb-inst-side-2026 img{
+    width:18mm!important;
+    height:18mm!important;
+    max-width:18mm!important;
+    max-height:18mm!important;
+    object-fit:contain!important;
+    display:block!important;
+    margin:0!important;
+  }
+  #jbDocBuilderWin .jb-institution-header-2026 .jb-inst-center-2026{
+    min-width:0!important;
+    align-self:start!important;
+    text-align:center!important;
+  }
+}
+@media(max-width:700px){
+  #jbDocBuilderWin #jbDocPreviewWrap .jb-doc-actions button{
+    height:52px!important;
+    min-height:52px!important;
+  }
+}
+</style>
+<!-- ===== END PRINT LAYOUT + ACTION BUTTON HEIGHT POLISH ===== -->
