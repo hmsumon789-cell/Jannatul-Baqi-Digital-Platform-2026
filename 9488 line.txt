@@ -9500,7 +9500,7 @@ body.dark #jbDocBuilderWin{background:#000;color:#ffe95c;border-color:#ff1f2f}bo
 </style>
 <script id="central-document-builder-2026-10-06-js">
 (function(){
-  var DOC_KEYS={marks:{title:'মার্কশিট',size:'a4'},result:{title:'ফলাফল / মার্কশিট',size:'a4'},id_cards:{title:'আইডি কার্ড',size:'idcard'},admit_cards:{title:'অ্যাডমিট কার্ড',size:'a4'},certificates:{title:'সার্টিফিকেট',size:'a4'},receipts:{title:'মানি রিসিট',size:'half'}};
+  var DOC_KEYS={marks:{title:'মার্কশিট',size:'a4'},result:{title:'ফলাফল / মার্কশিট',size:'a4'},id_cards:{title:'আইডি কার্ড',size:'idcard'},admit_cards:{title:'অ্যাডমিট কার্ড',size:'a4'},certificates:{title:'সার্টিফিকেট',size:'a4'},receipts:{title:'মানি রিসিট',size:'half'},teacher_id:{title:'শিক্ষক/শিক্ষিকা আইডি কার্ড',size:'idcard'},admission_form:{title:'ভর্তি আবেদন ফর্ম',size:'a4'},leave_form:{title:'ছুটির আবেদন ফর্ম',size:'a4'},exam_routine:{title:'পরীক্ষার রুটিন',size:'a4'},tc:{title:'টিসি / ছাড়পত্র',size:'a4'},attestation:{title:'প্রত্যয়ন পত্র',size:'a4'},lifetime_member_form:{title:'আজীবন সদস্য ফর্ম',size:'a4'},lifetime_member_certificate:{title:'আজীবন সদস্য সনদ',size:'a4'},teacher_recruitment_form:{title:'শিক্ষক/শিক্ষিকা নিয়োগ আবেদন',size:'a4'},teacher_appointment:{title:'শিক্ষক/শিক্ষিকা নিয়োগ পত্র',size:'a4'},executive_form:{title:'নির্বাহী পরিষদ ফর্ম',size:'a4'},executive_id:{title:'নির্বাহী পরিষদ সদস্য আইডি কার্ড',size:'idcard'}};
   var currentDoc=null,currentRows=[],selected={};
   function E(id){return document.getElementById(id)}
   function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
@@ -11106,3 +11106,115 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 })();
 </script>
 <!-- ===== END DIRECT PRINT WINDOW FIX ===== -->
+
+<!-- ===== CENTRAL DOCUMENT BUILDER — ADDITIONAL CARD / FORM TYPES — 2026-10-07 ===== -->
+<script id="central-document-builder-additional-types-2026-10-07">
+(function(){
+  var TYPES=[
+    ['marks','📋 মার্কশিট তৈরি'],['result','🏆 রেজাল্ট / মার্কশিট তৈরি'],['id_cards','🪪 আইডি কার্ড তৈরি'],
+    ['admit_cards','🎫 অ্যাডমিট কার্ড তৈরি'],['certificates','📜 সার্টিফিকেট তৈরি'],['receipts','🧾 মানি রিসিট তৈরি'],
+    ['teacher_id','👩‍🏫 শিক্ষক/শিক্ষিকা আইডি কার্ড'],['admission_form','📝 ভর্তি আবেদন ফর্ম'],
+    ['leave_form','🏖️ ছুটির আবেদন ফর্ম'],['exam_routine','🗓️ পরীক্ষার রুটিন'],['tc','📄 টিসি / ছাড়পত্র'],
+    ['attestation','📜 প্রত্যয়ন পত্র'],['lifetime_member_form','🤝 আজীবন সদস্য ফর্ম'],
+    ['lifetime_member_certificate','🏅 আজীবন সদস্য সনদ'],['teacher_recruitment_form','👩‍🏫 শিক্ষক/শিক্ষিকা নিয়োগ আবেদন'],
+    ['teacher_appointment','📑 শিক্ষক/শিক্ষিকা নিয়োগ পত্র'],['executive_form','🏛️ নির্বাহী পরিষদ ফর্ম'],
+    ['executive_id','🪪 নির্বাহী পরিষদ সদস্য আইডি কার্ড']
+  ];
+  var META={
+    teacher_id:[['Designation','পদবি'],['JoiningDate','যোগদানের তারিখ'],['Department','বিভাগ/শাখা'],['EmployeeID','কর্মী ID']],
+    admission_form:[['Guardian','অভিভাবকের নাম'],['GuardianMobile','অভিভাবকের মোবাইল'],['PreviousSchool','পূর্ববর্তী প্রতিষ্ঠান'],['AdmissionClass','ভর্তির শ্রেণি/জামাত'],['AdmissionDate','ভর্তির তারিখ'],['ApplicantSignature','আবেদনকারীর স্বাক্ষর']],
+    leave_form:[['LeaveFrom','ছুটি শুরু'],['LeaveTo','ছুটি শেষ'],['LeaveDays','ছুটির দিন সংখ্যা'],['LeaveReason','ছুটির কারণ'],['ApplicantSignature','আবেদনকারীর স্বাক্ষর'],['Approval','অনুমোদন']],
+    exam_routine:[['ExamName','পরীক্ষার নাম'],['ExamYear','সন'],['RoutineNote','নির্দেশনা']],
+    tc:[['TCNo','টিসি / ছাড়পত্র নম্বর'],['LeavingDate','ছাড়ার তারিখ'],['Reason','ছাড়ার কারণ'],['Conduct','আচরণ/মন্তব্য'],['HeadSignature','প্রধান শিক্ষিকার স্বাক্ষর']],
+    attestation:[['CertificateNo','প্রত্যয়ন নম্বর'],['Purpose','প্রয়োজনের কারণ'],['IssueDate','প্রদানের তারিখ'],['Statement','প্রত্যয়নের বক্তব্য'],['HeadSignature','প্রধান শিক্ষিকার স্বাক্ষর']],
+    lifetime_member_form:[['MemberNo','সদস্য নম্বর'],['Profession','পেশা'],['NID','জাতীয় পরিচয়পত্র'],['MemberAddress','সদস্যের ঠিকানা'],['Contribution','অনুদান/চাঁদার পরিমাণ'],['JoinDate','সদস্য হওয়ার তারিখ'],['ApplicantSignature','আবেদনকারীর স্বাক্ষর']],
+    lifetime_member_certificate:[['MemberNo','সদস্য নম্বর'],['Profession','পেশা'],['MemberAddress','ঠিকানা'],['Contribution','অনুদান/চাঁদার পরিমাণ'],['IssueDate','প্রদানের তারিখ'],['CertificateText','সনদের বক্তব্য']],
+    teacher_recruitment_form:[['PostApplied','আবেদনকৃত পদ'],['Qualification','শিক্ষাগত যোগ্যতা'],['Experience','অভিজ্ঞতা'],['SalaryExpectation','প্রত্যাশিত বেতন'],['ApplicationDate','আবেদনের তারিখ'],['ApplicantSignature','আবেদনকারীর স্বাক্ষর']],
+    teacher_appointment:[['AppointmentNo','নিয়োগ পত্র নম্বর'],['Designation','পদবি'],['JoiningDate','যোগদানের তারিখ'],['Salary','বেতন'],['Probation','পরীক্ষাকাল'],['AppointmentTerms','নিয়োগের শর্তাবলি'],['HeadSignature','প্রধান শিক্ষিকার স্বাক্ষর']],
+    executive_form:[['MemberNo','সদস্য নম্বর'],['Position','পদ/দায়িত্ব'],['Term','মেয়াদ'],['Profession','পেশা'],['MeetingDate','সভা/নির্ধারণের তারিখ'],['Decision','সিদ্ধান্ত/মন্তব্য'],['MemberSignature','সদস্যের স্বাক্ষর']],
+    executive_id:[['MemberNo','সদস্য নম্বর'],['Position','পদ/দায়িত্ব'],['Term','মেয়াদ'],['MeetingDate','ইস্যুর তারিখ']]
+  };
+  var TITLES={};TYPES.forEach(function(x){TITLES[x[0]]=x[1].replace(/^\\S+\\s*/,'').replace(' তৈরি','')});
+  var NEW={};['teacher_id','admission_form','leave_form','exam_routine','tc','attestation','lifetime_member_form','lifetime_member_certificate','teacher_recruitment_form','teacher_appointment','executive_form','executive_id'].forEach(function(k){NEW[k]=1});
+  function title(){return document.getElementById('jbDocBuilderTitle')?.textContent||''}
+  function key(){
+    var t=title();
+    for(var k in TITLES){if(t.indexOf(TITLES[k])>=0)return k}
+    return window.__jbAdditionalDocKey||'';
+  }
+  function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+  function addFields(k){
+    var defs=META[k]||[],host=document.getElementById('jbDocFields');if(!host||!defs.length)return;
+    defs.forEach(function(d){
+      if(host.querySelector('[data-key="'+d[0]+'"]'))return;
+      var div=document.createElement('div');div.className='jb-doc-field';
+      var cb=document.createElement('input');cb.type='checkbox';cb.checked=true;
+      var lab=document.createElement('label');lab.appendChild(cb);lab.appendChild(document.createTextNode(d[1]));div.appendChild(lab);
+      var inp=document.createElement('input');inp.dataset.key=d[0];inp.placeholder=d[1];div.appendChild(inp);host.appendChild(div);
+    });
+  }
+  var oldOpen=window.jbOpenDocumentType2026;
+  window.jbOpenDocumentType2026=function(k){
+    window.__jbAdditionalDocKey=k;
+    var r=oldOpen?oldOpen.apply(this,arguments):null;
+    if(NEW[k])setTimeout(function(){addFields(k)},30);
+    return r;
+  };
+  var oldFind=window.jbFindStudent;
+  if(typeof oldFind==='function')window.jbFindStudent=async function(){var r=await oldFind.apply(this,arguments);var k=window.__jbAdditionalDocKey;if(NEW[k])setTimeout(function(){addFields(k)},40);return r};
+  window.jbDocCurrentKey=function(){
+    var k=window.__jbAdditionalDocKey||key();
+    return k||'';
+  };
+  function val(k){var x=document.querySelector('#jbDocFields [data-key="'+k+'"]');return x?String(x.value||'').trim():''}
+  function fieldRows(k){
+    var rows=[];
+    var common=[['StudentID','ID'],['NameBN','নাম'],['NameAR','আরবি নাম'],['NameEN','ইংরেজি নাম'],['FatherBN','পিতার নাম'],['MotherBN','মাতার নাম'],['DOB','জন্ম তারিখ'],['Mobile','মোবাইল'],['Address','ঠিকানা'],['Class','শ্রেণি/জামাত'],['Roll','রোল']];
+    common.forEach(function(d){var v=val(d[0]);if(v)rows.push([d[1],v])});
+    (META[k]||[]).forEach(function(d){var v=val(d[0]);if(v)rows.push([d[1],v])});
+    return rows;
+  }
+  function makePreview(){
+    var k=window.__jbAdditionalDocKey||key();if(!NEW[k])return false;
+    var wrap=document.getElementById('jbDocPreviewWrap');if(!wrap)return true;
+    var size=(k==='teacher_id'||k==='executive_id')?'idcard':'a4';
+    var p=document.createElement('div');p.className='jb-doc-preview '+size;
+    p.style.cssText='box-sizing:border-box;background:#fff;color:#111;position:relative;overflow:hidden;font-family:"Noto Sans Bengali","Noto Sans",Arial,sans-serif';
+    var rows=fieldRows(k), titleText=TITLES[k]||'ডকুমেন্ট';
+    var photo=val('Photo');
+    var photoHtml=photo?'<img class="jb-doc-photo" src="'+esc(photo)+'" alt="ছবি">':'';
+    var table='<table style="width:100%;border-collapse:collapse;font-size:12px"><tbody>'+rows.map(function(r){return '<tr><td style="width:30%;border:1px solid #555;padding:5px;font-weight:900">'+esc(r[0])+'</td><td style="border:1px solid #555;padding:5px">'+esc(r[1])+'</td></tr>'}).join('')+'</tbody></table>';
+    var intro='';
+    if(k==='admission_form')intro='<p style="font-size:12px;line-height:1.8;margin:8px 0">আমি উপরোক্ত তথ্য সঠিকভাবে প্রদান করে জান্নাতুল বাক্বী মহিলা মাদ্রাসায় ভর্তির জন্য আবেদন করছি।</p>';
+    if(k==='leave_form')intro='<p style="font-size:12px;line-height:1.8;margin:8px 0">বিনীত আবেদন, উপরোক্ত কারণে নির্ধারিত সময়ের জন্য ছুটি মঞ্জুর করার অনুরোধ করছি।</p>';
+    if(k==='teacher_recruitment_form')intro='<p style="font-size:12px;line-height:1.8;margin:8px 0">আমি উল্লিখিত পদে নিয়োগের জন্য আবেদন করছি এবং প্রদত্ত তথ্য সত্য বলে ঘোষণা করছি।</p>';
+    if(k==='lifetime_member_form')intro='<p style="font-size:12px;line-height:1.8;margin:8px 0">মাদ্রাসার আজীবন সদস্য হিসেবে নির্ধারিত নিয়ম ও শর্ত মেনে সদস্যপদ গ্রহণের আবেদন করছি।</p>';
+    if(k==='executive_form')intro='<p style="font-size:12px;line-height:1.8;margin:8px 0">নির্বাহী পরিষদের দায়িত্ব ও সিদ্ধান্ত সংক্রান্ত প্রয়োজনীয় তথ্য।</p>';
+    if(k==='exam_routine')intro='<div style="margin:8px 0;border:1px dashed #555;padding:8px;text-align:center;font-weight:900">পরীক্ষার সময়সূচি</div>';
+    if(k==='tc')intro='<p style="font-size:12px;line-height:1.8;margin:8px 0">এই মর্মে প্রত্যয়ন করা যাচ্ছে যে, উপরোক্ত শিক্ষার্থী মাদ্রাসা থেকে ছাড়পত্র গ্রহণের জন্য প্রযোজ্য প্রক্রিয়া সম্পন্ন করেছে।</p>';
+    if(k==='attestation')intro='<p style="font-size:12px;line-height:1.9;margin:8px 0">'+esc(val('Statement')||'এই মর্মে প্রত্যয়ন করা যাচ্ছে যে, উপরোক্ত তথ্য মাদ্রাসার নথি অনুযায়ী সঠিক।')+'</p>';
+    if(k==='lifetime_member_certificate')intro='<div style="border:2px solid #8b5e00;padding:18px;margin:12px 0;text-align:center;font-size:15px;line-height:2">'+esc(val('CertificateText')||'তাঁকে জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার আজীবন সদস্য হিসেবে এই সনদ প্রদান করা হলো।')+'</div>';
+    if(k==='teacher_appointment')intro='<p style="font-size:12px;line-height:1.8;margin:8px 0">আপনাকে উল্লিখিত পদে জান্নাতুল বাক্বী মহিলা মাদ্রাসায় নিয়োগ প্রদান করা হলো। নিয়োগের শর্তাবলি প্রযোজ্য হবে।</p>';
+    if(k==='teacher_id'||k==='executive_id'){
+      p.innerHTML=photoHtml+'<div class="jb-doc-head"><h2 style="font-size:16px">'+esc(titleText)+'</h2><p style="font-weight:900">'+esc(val('NameBN'))+'</p></div>'+table+'<div style="text-align:center;margin-top:8px;font-size:10px;font-weight:900">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div>';
+    }else{
+      p.innerHTML='<div class="jb-doc-head"><h2>'+esc(titleText)+'</h2><p>জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</p><p style="font-size:10px">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</p></div>'+intro+table+'<div style="display:flex;justify-content:space-between;margin-top:28px;font-size:11px"><span>আবেদনকারী/সদস্য</span><span>যাচাইকারী</span><span>প্রধান শিক্ষিকা/মুহতামিম</span></div>';
+    }
+    wrap.innerHTML='';var bar=document.createElement('div');bar.className='jb-doc-actions';
+    bar.innerHTML='<button class="secondary" onclick="jbEditPreview()">✏️ এডিট</button><button class="secondary" onclick="jbDownload()">⬇️ ডাউনলোড</button><button class="primary" onclick="jbPrint()">🖨️ প্রিন্ট</button>';
+    p.appendChild(bar);wrap.appendChild(p);return true;
+  }
+  var oldCreate=window.jbCreatePreview;
+  window.jbCreatePreview=function(){if(makePreview())return;return oldCreate.apply(this,arguments)};
+  window.jbShowCardTypeList2026=function(){
+    var old=document.getElementById('jbCardTypeList2026');if(old)old.remove();
+    var box=document.createElement('div');box.id='jbCardTypeList2026';box.style.cssText='position:fixed;inset:0;z-index:100002;background:#0008;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box';
+    var panel=document.createElement('div');panel.style.cssText='width:min(760px,96vw);max-height:90vh;overflow:auto;background:var(--panel);color:var(--text);border:4px solid var(--border);border-radius:20px;padding:14px;box-shadow:0 20px 70px #0009';
+    panel.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px"><b style="font-size:21px">📋 কার্ড / ডকুমেন্ট তৈরির তালিকা</b><button class="secondary" type="button" id="jbCardTypeClose2026">✕ বন্ধ</button></div><div id="jbCardTypeGrid2026" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px"></div>';
+    box.appendChild(panel);document.body.appendChild(box);var grid=panel.querySelector('#jbCardTypeGrid2026');
+    TYPES.forEach(function(x){var b=document.createElement('button');b.type='button';b.className='primary';b.textContent=x[1];b.style.cssText='min-height:52px;border-radius:999px;font-weight:900';b.onclick=function(){box.remove();window.jbOpenDocumentType2026(x[0])};grid.appendChild(b)});
+    panel.querySelector('#jbCardTypeClose2026').onclick=function(){box.remove()};box.onclick=function(e){if(e.target===box)box.remove()};
+  };
+})();
+</script>
+<!-- ===== END ADDITIONAL CARD / FORM TYPES ===== -->
