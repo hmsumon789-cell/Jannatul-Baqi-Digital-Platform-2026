@@ -10641,3 +10641,148 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 })();
 </script>
 <!-- ===== END MARKSHEET WINDOW CONTROLS ===== -->
+
+
+<!-- ===== ALL DOCUMENTS — MADRASA HEADER WITH CONTACT LOGO + MAIN QR — 2026-10-07 ===== -->
+<style id="all-documents-contact-header-2026-10-07">
+#jbDocBuilderWin .jb-institution-header-2026{
+  display:grid!important;
+  grid-template-columns:24mm minmax(0,1fr) 24mm!important;
+  align-items:center!important;
+  gap:5mm!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+  padding:2mm 0 3mm!important;
+  margin:0 0 4mm!important;
+  border-bottom:2px solid #222!important;
+  background:#fff!important;
+  color:#111!important;
+  direction:ltr!important;
+}
+#jbDocBuilderWin .jb-institution-header-2026 .jb-inst-side-2026{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-width:0!important;
+}
+#jbDocBuilderWin .jb-institution-header-2026 .jb-inst-side-2026 img{
+  display:block!important;
+  width:20mm!important;
+  height:20mm!important;
+  max-width:20mm!important;
+  max-height:20mm!important;
+  object-fit:contain!important;
+  background:#fff!important;
+  border:0!important;
+  box-shadow:none!important;
+  border-radius:0!important;
+}
+#jbDocBuilderWin .jb-institution-header-2026 .jb-inst-center-2026{
+  min-width:0!important;
+  text-align:center!important;
+  line-height:1.25!important;
+}
+#jbDocBuilderWin .jb-institution-header-2026 .jb-inst-name-2026{
+  font-size:16px!important;
+  font-weight:900!important;
+  margin:0 0 2px!important;
+}
+#jbDocBuilderWin .jb-institution-header-2026 .jb-inst-address-2026{
+  font-size:10px!important;
+  font-weight:800!important;
+  margin:0!important;
+}
+#jbDocBuilderWin .jb-doc-preview.idcard .jb-institution-header-2026{
+  grid-template-columns:15mm minmax(0,1fr) 15mm!important;
+  gap:2mm!important;
+  padding:1mm 0 2mm!important;
+  margin-bottom:2mm!important;
+}
+#jbDocBuilderWin .jb-doc-preview.idcard .jb-institution-header-2026 .jb-inst-side-2026 img{
+  width:12mm!important;height:12mm!important;max-width:12mm!important;max-height:12mm!important;
+}
+#jbDocBuilderWin .jb-doc-preview.idcard .jb-institution-header-2026 .jb-inst-name-2026{font-size:7px!important}
+#jbDocBuilderWin .jb-doc-preview.idcard .jb-institution-header-2026 .jb-inst-address-2026{font-size:5.5px!important}
+#jbDocBuilderWin .jb-doc-preview.half .jb-institution-header-2026 .jb-inst-side-2026 img{
+  width:17mm!important;height:17mm!important;max-width:17mm!important;max-height:17mm!important;
+}
+#jbDocBuilderWin .jb-doc-preview.half .jb-institution-header-2026 .jb-inst-name-2026{font-size:13px!important}
+#jbDocBuilderWin .jb-doc-preview.half .jb-institution-header-2026 .jb-inst-address-2026{font-size:8px!important}
+@media(max-width:700px){
+  #jbDocBuilderWin .jb-institution-header-2026{
+    grid-template-columns:18mm minmax(0,1fr) 18mm!important;
+    gap:2mm!important;
+  }
+  #jbDocBuilderWin .jb-institution-header-2026 .jb-inst-side-2026 img{
+    width:15mm!important;height:15mm!important;max-width:15mm!important;max-height:15mm!important;
+  }
+  #jbDocBuilderWin .jb-institution-header-2026 .jb-inst-name-2026{font-size:13px!important}
+  #jbDocBuilderWin .jb-institution-header-2026 .jb-inst-address-2026{font-size:8px!important}
+}
+@media print{
+  #jbDocBuilderWin .jb-institution-header-2026{break-inside:avoid!important;page-break-inside:avoid!important}
+}
+</style>
+<script id="all-documents-contact-header-2026-10-07-js">
+(function(){
+  var NAME='জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা';
+  var ADDRESS='উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০';
+
+  function esc(v){
+    return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function logoSrc(){
+    var x=document.getElementById('contactLoginLogo2026')||document.getElementById('loginLogo')||document.getElementById('headerLogo');
+    return x&&x.src?x.src:'';
+  }
+  function qrSrc(){
+    var x=document.getElementById('contactMainQR2026');
+    if(x&&x.src)return x.src;
+    var base=String(window.location.href||'').split('#')[0];
+    return 'https://quickchart.io/qr?size=220&margin=2&text='+encodeURIComponent(base);
+  }
+  function removeOldInstitutionLines(p){
+    var nodes=Array.prototype.slice.call(p.querySelectorAll('h1,h2,h3,p,div,span'));
+    nodes.forEach(function(n){
+      if(n.dataset&&n.dataset.jbKeepInstitution==='1')return;
+      var t=(n.textContent||'').trim();
+      if((t===NAME||t===ADDRESS)&&n.parentNode){
+        n.remove();
+      }
+    });
+  }
+  function addHeader(p){
+    if(!p||p.dataset.jbContactHeader2026==='1')return;
+    p.dataset.jbContactHeader2026='1';
+
+    var h=document.createElement('div');
+    h.className='jb-institution-header-2026';
+    h.innerHTML=
+      '<div class="jb-inst-side-2026"><img alt="মাদ্রাসার লোগো" src="'+esc(logoSrc())+'"></div>'+
+      '<div class="jb-inst-center-2026">'+
+        '<div class="jb-inst-name-2026" data-jb-keep-institution="1">'+NAME+'</div>'+
+        '<div class="jb-inst-address-2026" data-jb-keep-institution="1">'+ADDRESS+'</div>'+
+      '</div>'+
+      '<div class="jb-inst-side-2026"><img alt="মূল পেজের QR কোড" src="'+esc(qrSrc())+'"></div>';
+    p.insertBefore(h,p.firstChild);
+    removeOldInstitutionLines(p);
+  }
+  function scan(){
+    document.querySelectorAll('#jbDocPreviewWrap .jb-doc-preview').forEach(addHeader);
+  }
+  var oldCreate=window.jbCreatePreview;
+  if(typeof oldCreate==='function'){
+    window.jbCreatePreview=function(){
+      var r=oldCreate.apply(this,arguments);
+      setTimeout(scan,30);
+      setTimeout(scan,250);
+      return r;
+    };
+  }
+  var obs=new MutationObserver(function(){scan()});
+  if(document.body)obs.observe(document.body,{childList:true,subtree:true});
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
+  setTimeout(scan,500);
+})();
+</script>
+<!-- ===== END ALL DOCUMENTS CONTACT HEADER ===== -->
