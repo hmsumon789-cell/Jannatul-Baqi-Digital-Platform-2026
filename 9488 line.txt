@@ -11543,13 +11543,13 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   background:linear-gradient(135deg,#00695c,#26a69a)!important;color:#fff!important;
   font-weight:900!important;box-shadow:0 5px 12px #0003!important;
 }
-@media(max-width:700px){#jbDocBuilderWin .jb-online-service-save-2026{height:52px!important;min-height:52px!important;font-size:11px!important}}
+@media(max-width:700px){#jbDocBuilderWin .jb-online-service-save-2026,#jbDocPreviewWrap > .jb-online-service-save-2026{height:48px!important;min-height:48px!important;font-size:11px!important}}
 #jbLoginOnlineService2026{
   display:block;width:min(520px,92vw);margin:12px auto 0;padding:12px 18px;
   border:3px solid #8b5e00;border-radius:999px;background:linear-gradient(135deg,#00695c,#26a69a);
   color:#fff;font-weight:900;font-size:16px;cursor:pointer;box-shadow:0 7px 18px #0003;
 }
-@media print{#jbDocBuilderWin .jb-online-service-save-2026{display:none!important}}
+@media print{#jbDocBuilderWin .jb-online-service-save-2026,#jbDocPreviewWrap > .jb-online-service-save-2026{display:none!important;visibility:hidden!important}}
 </style>
 <script id="jb-online-service-home-2026-10-07-js">
 (function(){
@@ -11574,17 +11574,16 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     for(var n in map)if(t.indexOf(n)>=0)return map[n];return 'marks';
   }
   function addOnlineButton(){
-    document.querySelectorAll('#jbDocPreviewWrap .jb-doc-preview > .jb-doc-actions').forEach(function(bar){
-      if(bar.querySelector('.jb-online-service-save-2026'))return;
+    document.querySelectorAll('#jbDocPreviewWrap .jb-doc-preview').forEach(function(p){
+      var wrap=p.parentNode;
+      if(!wrap||wrap.querySelector('.jb-online-service-save-2026'))return;
       var b=document.createElement('button');b.type='button';b.className='jb-online-service-save-2026';
       b.textContent='🌐 দ্রুত সেবা / ঘরে সংরক্ষণ';
       b.onclick=async function(){
-        var p=document.querySelector('#jbDocPreviewWrap .jb-doc-preview');
         var id=(document.getElementById('jbDocId')?.value||'').trim();
-        if(!p)return toast('আগে Document তৈরি করুন।');
         if(!id)return toast('ID প্রয়োজন।');
         var data={};document.querySelectorAll('#jbDocFields [data-key]').forEach(function(x){data[x.dataset.key]=x.value||''});
-        var k=key(),code=CODES[k]||'DOC';
+        var k=key();
         try{
           b.disabled=true;b.textContent='⏳ অনলাইন সেবায় সংরক্ষণ হচ্ছে...';
           var r=await call('saveOnlineServiceRecord',token,k,id,data,p.outerHTML);
@@ -11601,7 +11600,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
           toast('অনলাইন সেবা সংরক্ষণে ত্রুটি: '+(e&&e.message?e.message:e));
         }
       };
-      bar.appendChild(b);
+      wrap.appendChild(b);
     });
   }
   function addLoginButton(){
