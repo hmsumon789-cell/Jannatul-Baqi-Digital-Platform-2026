@@ -9617,7 +9617,6 @@ body.dark #jbDocBuilderWin{background:#000;color:#ffe95c;border-color:#ff1f2f}bo
   window.jbOpenDocumentType2026=function(k){
     return oldBuilder.apply(this,arguments);
   };
-  window.addEventListener('load',function(){setTimeout(window.jbShowCardTypeList2026,500)});
 })();
 </script>
 <!-- ===== END CENTRAL DOCUMENT BUILDER PHASE 1 ===== -->
