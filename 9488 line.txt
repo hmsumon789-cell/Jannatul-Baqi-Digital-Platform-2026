@@ -11616,3 +11616,44 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 })();
 </script>
 <!-- ===== END ONLINE SERVICE — HOME DELIVERY BUTTON + SAVE ===== -->
+
+
+<!-- ===== ONLINE SERVICE PUBLIC SEARCH — SIGNAL + ID DIRECT VIEW — 2026-10-07 ===== -->
+<script id="jb-online-service-public-search-2026-10-07">
+(function(){
+  var CODES={TI:1,AF:1,LF:1,ER:1,TC:1,AP:1,LM:1,LC:1,TR:1,TA:1,EF:1,EI:1};
+  function E(id){return document.getElementById(id)}
+  function openOnline(sig,q){
+    var base='';
+    try{
+      if(typeof call==='function'){
+        call('getMainWebAppUrl').then(function(r){
+          base=String(r&&r.ok&&r.url?r.url:window.location.href).split('#')[0].split('?')[0];
+          window.open(base+'?online=1&code='+encodeURIComponent(sig)+'&id='+encodeURIComponent(q),'_blank');
+        }).catch(function(){
+          base=window.location.href.split('#')[0].split('?')[0];
+          window.open(base+'?online=1&code='+encodeURIComponent(sig)+'&id='+encodeURIComponent(q),'_blank');
+        });
+        return;
+      }
+    }catch(e){}
+    base=window.location.href.split('#')[0].split('?')[0];
+    window.open(base+'?online=1&code='+encodeURIComponent(sig)+'&id='+encodeURIComponent(q),'_blank');
+  }
+  var old=window.doSearch;
+  if(typeof old!=='function')return;
+  window.doSearch=function(where){
+    var se=E(where==='login'?'loginSignal':'appSignal');
+    var inp=E(where==='login'?'loginSearch':'appSearch');
+    var sig=String(se&&se.value||'').trim().toUpperCase();
+    var q=String(inp&&inp.value||'').trim();
+    if(CODES[sig]){
+      if(!q)return toast('সংকেত নির্বাচন করে ID দিন।');
+      openOnline(sig,q);
+      return;
+    }
+    return old.apply(this,arguments);
+  };
+})();
+</script>
+<!-- ===== END ONLINE SERVICE PUBLIC SEARCH ===== -->
