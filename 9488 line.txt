@@ -997,8 +997,7 @@ body.gold #loginPage .main-qr-802268e{background:#fff!important;border-color:#11
             <button class="secondary slider-arrow" onclick="prevMedia()" title="আগের স্লাইড">◀</button>
             <div class="slider-center-controls">
               <button class="secondary slider-action" onclick="toggleMediaPlay()" id="mediaPlayBtn" title="Play / Pause">▶ Play</button>
-              <button class="secondary slider-action" onclick="openModule('gallery')" title="Upload">⬆ Load</button>
-              <button class="secondary slider-action" onclick="deleteCurrentMedia()" title="Delete">🗑 Delete</button>
+              <button class="secondary slider-action" onclick="openModule('gallery')" title="Upload">⬆ Load</button>              <button class="secondary slider-action" onclick="deleteCurrentMedia()" title="Delete">🗑 Delete</button>
             </div>
             <button class="secondary slider-arrow" onclick="nextMedia()" title="পরের স্লাইড">▶</button>
           </div>
@@ -1997,8 +1996,7 @@ function escA(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){retu
   background:var(--panel)!important;
 }
 .header-mode-icons{
-  display:flex!important;
-  align-items:center!important;
+  display:flex!important;  align-items:center!important;
   gap:5px!important;
   white-space:nowrap!important;
 }
@@ -2997,8 +2995,7 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
 (function(){
   function driveId(u){
     var s=String(u||''),m=s.match(/[?&]id=([^&]+)/);
-    if(m)return decodeURIComponent(m[1]);
-    m=s.match(/\/d\/([^/]+)/);
+    if(m)return decodeURIComponent(m[1]);    m=s.match(/\/d\/([^/]+)/);
     return m?m[1]:'';
   }
   function arrows(){
@@ -3997,8 +3994,7 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
         head.appendChild(tools);
       }
       var close=head.querySelector('button');
-      if(close && !close.classList.contains('win-fullscreen-2026')){
-        /* The first header button is the previous close button in the existing windows. */
+      if(close && !close.classList.contains('win-fullscreen-2026')){        /* The first header button is the previous close button in the existing windows. */
         close.textContent='⛶';
         close.title='ফুল স্ক্রিন / স্বাভাবিক';
         close.setAttribute('aria-label','ফুল স্ক্রিন / স্বাভাবিক');
@@ -4997,8 +4993,7 @@ body #app .header-news *{
   background:#111!important;display:block!important;
 }
 #mediaStageContent .media-stable-video{
-  width:100%!important;height:100%!important;object-fit:contain!important;
-  background:#111!important;display:block!important;
+  width:100%!important;height:100%!important;object-fit:contain!important;  background:#111!important;display:block!important;
 }
 </style>
 <script id="media-playback-stability-js-2026-09-22">
@@ -5997,8 +5992,7 @@ body #app .header-news *{
 }
 #summary.dashboard-summary-inside .stat{
   transform:none!important;
-}
-</style>
+}</style>
 <script id="final-true-media-autoplay-2026-09-22">
 (function(){
   var busy=false;
@@ -6997,8 +6991,7 @@ body.dark #headerSlideDeleteWindow{border-radius:22px!important}
 }
 #headerCalendarWindow .hc-weekday,
 #headerCalendarWindow .hc-day{
-  min-height:54px;
-  display:flex;align-items:center;justify-content:center;
+  min-height:54px;  display:flex;align-items:center;justify-content:center;
   border:2px solid var(--border);
   border-radius:14px;
   font-weight:900;
@@ -7997,8 +7990,7 @@ body.gold #searchProfilePrint .sp-field{border-color:#d40000!important}
   }
   function typeOf(x){return String(x&& (x.Type||x.type)||'').toLowerCase();}
   function esc(v){
-    return String(v==null?'':v).replace(/[&<>"']/g,function(c){
-      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    return String(v==null?'':v).replace(/[&<>"']/g,function(c){      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
     });
   }
 
@@ -8997,8 +8989,7 @@ body.jb-custom-account .header-content .header-identity-contact{color:#fff!impor
 #contactFooter .contact-center-2026 .contact-info{
   display:flex!important;justify-content:center!important;align-items:center!important;
   flex-wrap:wrap!important;gap:6px 18px!important;
-}
-@media(max-width:700px){
+}@media(max-width:700px){
   #contactFooter .contact-layout-2026{grid-template-columns:72px minmax(0,1fr) 88px!important;gap:8px!important}
   #contactFooter #contactLoginLogo2026{width:62px!important;height:62px!important}
   #contactFooter #contactMainQR2026{width:72px!important;height:72px!important}
@@ -9997,8 +9988,7 @@ var wrap=document.getElementById('jbDocPreviewWrap');if(!wrap)return;wrap.innerH
     fields.forEach(function(inp){
       var lab=inp.closest('.jb-doc-field')?.querySelector('label');
       if(lab){
-        var text=Array.from(lab.childNodes).map(function(n){return n.nodeType===3?n.textContent:''}).join('').trim();
-        if(text&&!map[text])map[text]=inp;
+        var text=Array.from(lab.childNodes).map(function(n){return n.nodeType===3?n.textContent:''}).join('').trim();        if(text&&!map[text])map[text]=inp;
       }
     });
     wrap.querySelectorAll('.jb-doc-row').forEach(function(row){
@@ -10932,9 +10922,11 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 }
 .jb-marksheet-back-2026{
   display:block!important;
-  width:100%!important;
+  width:auto!important;
+  flex:1 1 0!important;
+  min-width:0!important;
   box-sizing:border-box!important;
-  margin:14px 0 0!important;
+  margin:0!important;
   padding:11px 16px!important;
   min-height:46px!important;
   border:2px solid #222!important;
@@ -10972,7 +10964,8 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       var id=document.getElementById('jbDocId');
       if(id)setTimeout(function(){id.focus()},250);
     };
-    p.appendChild(b);
+    var bar=p.querySelector('.jb-doc-actions');
+    if(bar)bar.appendChild(b);else p.appendChild(b);
   }
   var old=window.jbCreatePreview;
   if(typeof old==='function'){
@@ -10997,8 +10990,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   height:56px!important;
   min-height:56px!important;
   padding:10px 18px!important;
-}
-#jbDocBuilderWin .jb-institution-header-2026{
+}#jbDocBuilderWin .jb-institution-header-2026{
   position:relative!important;
   grid-template-columns:24mm minmax(0,1fr) 24mm!important;
   min-height:22mm!important;
