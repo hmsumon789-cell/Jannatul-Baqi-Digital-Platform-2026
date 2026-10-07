@@ -475,7 +475,10 @@ function searchAll(token,signal,query) {
   const map={
     std:SHEETS.STUDENTS,thr:SHEETS.TEACHERS,olp:SHEETS.PAYMENTS,mrs:SHEETS.RESULTS,rjt:SHEETS.RESULTS,
     adm:SHEETS.ADMINS,npn:SHEETS.EXAM_REG,npt:SHEETS.STUDENTS,nmt:SHEETS.STUDENTS,ofd:SHEETS.RESULTS,
-    cft:SHEETS.CERTIFICATES,idc:SHEETS.ID_CARDS,adc:SHEETS.ADMIT_CARDS,rct:SHEETS.RECEIPTS,tcp:SHEETS.STUDENTS,sjs:SHEETS.STUDENTS
+    cft:SHEETS.CERTIFICATES,idc:SHEETS.ID_CARDS,adc:SHEETS.ADMIT_CARDS,rct:SHEETS.RECEIPTS,tcp:SHEETS.STUDENTS,sjs:SHEETS.STUDENTS,
+    ti:SHEETS.ONLINE_SERVICES,af:SHEETS.ONLINE_SERVICES,lf:SHEETS.ONLINE_SERVICES,er:SHEETS.ONLINE_SERVICES,
+    tc:SHEETS.ONLINE_SERVICES,ap:SHEETS.ONLINE_SERVICES,lm:SHEETS.ONLINE_SERVICES,lc:SHEETS.ONLINE_SERVICES,
+    tr:SHEETS.ONLINE_SERVICES,ta:SHEETS.ONLINE_SERVICES,ef:SHEETS.ONLINE_SERVICES,ei:SHEETS.ONLINE_SERVICES
   };
   const sheet=map[signal];
   if(!sheet) return {ok:false,message:'সংকেত সঠিক নয়।'};
@@ -494,7 +497,10 @@ function listSignalRecords(token,signal,className) {
     std:SHEETS.STUDENTS,thr:SHEETS.TEACHERS,olp:SHEETS.PAYMENTS,mrs:SHEETS.RESULTS,rjt:SHEETS.RESULTS,
     adm:SHEETS.ADMINS,npn:SHEETS.EXAM_REG,npt:SHEETS.MADRASAS,nmt:SHEETS.MADRASAS,
     ofd:SHEETS.RESULTS,cft:SHEETS.CERTIFICATES,idc:SHEETS.ID_CARDS,adc:SHEETS.ADMIT_CARDS,
-    rct:SHEETS.RECEIPTS,tcp:SHEETS.STUDENTS
+    rct:SHEETS.RECEIPTS,tcp:SHEETS.STUDENTS,
+    ti:SHEETS.ONLINE_SERVICES,af:SHEETS.ONLINE_SERVICES,lf:SHEETS.ONLINE_SERVICES,er:SHEETS.ONLINE_SERVICES,
+    tc:SHEETS.ONLINE_SERVICES,ap:SHEETS.ONLINE_SERVICES,lm:SHEETS.ONLINE_SERVICES,lc:SHEETS.ONLINE_SERVICES,
+    tr:SHEETS.ONLINE_SERVICES,ta:SHEETS.ONLINE_SERVICES,ef:SHEETS.ONLINE_SERVICES,ei:SHEETS.ONLINE_SERVICES
   };
   const sheet=map[signal];
   if(!sheet) return {ok:false,message:'তালিকার সংকেত সঠিক নয়।'};
@@ -844,7 +850,10 @@ function getSignals_(){
     ['std','ছাত্র/ছাত্রী প্রোফাইল'],['thr','শিক্ষক/শিক্ষিকা'],['olp','অনলাইন পেমেন্ট'],['mrs','মার্কশিট'],['rjt','রেজাল্ট'],
     ['adm','নতুন অ্যাডমিন তালিকা'],['npn','নতুন পরীক্ষার্থী নিবন্ধন'],['npt','নিবন্ধনকৃত পুরুষ মাদ্রাসা'],
     ['nmt','নিবন্ধনকৃত মহিলা মাদ্রাসা'],['ofd','অনলাইন/মোবাইল ফলাফল'],['cft','সার্টিফিকেট/সনদপত্র'],
-    ['idc','আইডি কার্ড'],['adc','এডমিট কার্ড'],['rct','রিসিট'],['tcp','টিসি/ছাড়পত্র'],['sjs','শ্রেনি/ক্লাশ-জামাত']
+    ['idc','আইডি কার্ড'],['adc','এডমিট কার্ড'],['rct','রিসিট'],['tcp','টিসি/ছাড়পত্র'],['sjs','শ্রেনি/ক্লাশ-জামাত'],
+    ['ti','শিক্ষক/শিক্ষিকা আইডি কার্ড'],['af','ভর্তি আবেদন ফর্ম'],['lf','ছুটির আবেদন ফর্ম'],['er','পরীক্ষার রুটিন'],
+    ['tc','টিসি / ছাড়পত্র'],['ap','প্রত্যয়ন পত্র'],['lm','আজীবন সদস্য ফর্ম'],['lc','আজীবন সদস্য সনদ'],
+    ['tr','শিক্ষক/শিক্ষিকা নিয়োগ আবেদন'],['ta','শিক্ষক/শিক্ষিকা নিয়োগ পত্র'],['ef','নির্বাহী পরিষদ ফর্ম'],['ei','নির্বাহী পরিষদ সদস্য আইডি কার্ড']
   ];
 }
 function getModules_(){
