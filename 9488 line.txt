@@ -9593,21 +9593,42 @@ var wrap=document.getElementById('jbDocPreviewWrap');if(!wrap)return;wrap.innerH
 <style id="central-document-builder-card-actions-round-2026-10-07">
 #jbDocBuilderWin .jb-doc-actions{
   display:flex!important;justify-content:center!important;align-items:center!important;
-  flex-wrap:wrap!important;gap:10px!important;margin:14px 0!important;
+  flex-wrap:wrap!important;gap:10px!important;margin:14px 0 4px!important;
 }
 #jbDocBuilderWin .jb-doc-actions button{
-  min-width:150px!important;height:44px!important;padding:8px 18px!important;
-  border-radius:999px!important;border:2px solid var(--border)!important;
-  font-weight:900!important;box-shadow:0 4px 10px #0002!important;
+  min-width:132px!important;height:48px!important;padding:8px 18px!important;
+  border-radius:999px!important;border:2px solid #222!important;
+  font-weight:900!important;box-shadow:0 5px 12px #0003!important;
+  color:#fff!important;text-shadow:0 1px 1px #0008!important;
+  transition:transform .18s,box-shadow .18s,filter .18s!important;
+}
+#jbDocBuilderWin .jb-doc-actions button:hover{
+  transform:translateY(-2px) scale(1.03)!important;
+  box-shadow:0 8px 16px #0004!important;filter:brightness(1.08)!important;
+}
+#jbDocBuilderWin .jb-doc-actions button:nth-child(1){
+  background:linear-gradient(135deg,#1976d2,#42a5f5)!important;
+}
+#jbDocBuilderWin .jb-doc-actions button:nth-child(2){
+  background:linear-gradient(135deg,#087f23,#43a047)!important;
+}
+#jbDocBuilderWin .jb-doc-actions button:nth-child(3){
+  background:linear-gradient(135deg,#7b1fa2,#ab47bc)!important;
+}
+#jbDocBuilderWin .jb-doc-actions button:nth-child(4){
+  background:linear-gradient(135deg,#ef6c00,#ffa726)!important;
+}
+#jbDocBuilderWin .jb-doc-actions button:nth-child(5){
+  background:linear-gradient(135deg,#c62828,#ef5350)!important;
 }
 #jbDocBuilderWin #jbDocPreviewWrap .jb-doc-actions{
-  margin-top:14px!important;padding-top:10px!important;border-top:2px solid var(--border)!important;
+  margin-top:8px!important;padding-top:10px!important;border-top:0!important;
 }
 #jbDocBuilderWin #jbDocPreviewWrap .jb-doc-actions button{
-  min-width:118px!important;height:44px!important;padding:7px 16px!important;
+  min-width:132px!important;height:48px!important;padding:8px 18px!important;
 }
 @media(max-width:700px){
-  #jbDocBuilderWin .jb-doc-actions button{min-width:130px!important}
+  #jbDocBuilderWin .jb-doc-actions button{min-width:132px!important;height:46px!important}
 }
 </style>
 <script id="central-document-builder-card-actions-round-js-2026-10-07">
