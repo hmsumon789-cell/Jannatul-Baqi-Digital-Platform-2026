@@ -10441,7 +10441,12 @@ body.dark #jbDocumentBuilderEntry2026{background:#000;color:#ffe95c;border-color
 #jbMarksGrid2026 .jb-ms-subjects{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
 #jbMarksGrid2026 .jb-ms-item{border:2px solid var(--border);border-radius:13px;padding:8px;background:var(--panel)}
 #jbMarksGrid2026 .jb-ms-no{font-weight:900;text-align:center;margin-bottom:5px}
-#jbMarksGrid2026 .jb-ms-item input{width:100%;box-sizing:border-box;padding:8px;margin-top:5px;border:1px solid var(--border);border-radius:9px;background:transparent;color:inherit}
+#jbMarksGrid2026 .jb-ms-selectrow{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+#jbMarksGrid2026 .jb-ms-check{width:20px;height:20px;accent-color:#e0b400;cursor:pointer;flex:0 0 auto}
+#jbMarksGrid2026 .jb-ms-tick{font-weight:900;white-space:nowrap}
+#jbMarksGrid2026 .jb-ms-mark{width:100%;box-sizing:border-box;padding:8px;margin-top:5px;border:1px solid var(--border);border-radius:9px;background:transparent;color:inherit}
+#jbMarksGrid2026 .jb-ms-mark:disabled,#jbMarksGrid2026 .jb-ms-subject:disabled{opacity:.5;cursor:not-allowed}
+#jbMarksGrid2026 .jb-ms-note{grid-column:1/-1;text-align:center;font-weight:800;margin:2px 0 4px}
 @media(max-width:800px){#jbMarksGrid2026 .jb-ms-subjects{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:480px){#jbMarksGrid2026 .jb-ms-subjects{grid-template-columns:1fr}}
 </style>
@@ -10464,35 +10469,52 @@ var CLASS_SUBJECTS={
 'দাওরায়ে হাদীস':['বুখারী শরিফ ১ম','বুখারী শরিফ ২য়','মুসলিম শরিফ ১ম','মুসলিম শরিফ ২য়','তিরমিযী শরীফ ১ম','তিরমিযী শরীফ ২য়','আবু দাউদ শরিফ পুর্ন','তাহাবী শরীফ পূর্ন','নাসায়ী ও ইবনু মাজাহ পুন','মুয়াত্তা ইমাম মালেক ও মুহাম্মদ পূর্ন','তেলাওয়াত ও তাজবিদ পুর্ন কুরআান শরীফ']
 };
 var CLASSES=['প্লে','শিশু','আউয়াল','ছানী','ছালেছ','রাবে','পঞ্চম','মিজান','নাহবেমীর','কুদুরী','শরহে বেকায়া','হেদায়া','মেশকাত','দাওরায়ে হাদীস'];
-window.jbClassSubjects2026=CLASS_SUBJECTS;
-function currentKey(){var t=document.getElementById('jbDocBuilderTitle');var s=t?t.textContent:'';return /ফলাফল/.test(s)?'result':/মার্কশিট/.test(s)?'marks':''}
+function currentKey(){return (window.currentDocKey||window.jbCurrentDocKey||'').toLowerCase()}
 function addGrid(){
- var host=document.getElementById('jbDocFields'); if(!host)return;
- var key=currentKey(); if(key!=='marks'&&key!=='result')return;
+ var host=document.getElementById('jbDocFields');if(!host)return;
+ var key=currentKey();if(key!=='marks'&&key!=='result')return;
  var old=document.getElementById('jbMarksGrid2026');if(old)old.remove();
  host.querySelectorAll('.jb-doc-field').forEach(function(d){var x=d.querySelector('input[data-key]');if(x&&['Class','SubjectData','Total','GPA','Grade'].indexOf(x.dataset.key)>=0)d.style.display='none'});
  var box=document.createElement('div');box.id='jbMarksGrid2026';
- box.innerHTML='<div class="jb-ms-class"><span>শ্রেণি/জামাত নির্বাচন</span><select id="jbMsClass2026"><option value="">নির্বাচন করুন</option></select></div><div class="jb-ms-subjects" id="jbMsSubjects2026"></div>';
+ box.innerHTML='<div class="jb-ms-class"><span>শ্রেণি/জামাত নির্বাচন</span><select id="jbMsClass2026"><option value="">নির্বাচন করুন</option></select></div><div class="jb-ms-note">প্রতিটি বিষয়ের পাশে ☑️ নির্বাচন করুন। টিক দেওয়া বিষয় ও নম্বর পত্রে যাবে। সর্বোচ্চ ১২টি বিষয়।</div><div class="jb-ms-subjects" id="jbMsSubjects2026"></div>';
  host.parentNode.insertBefore(box,host.nextSibling);
- var cs=box.querySelector('#jbMsClass2026'); CLASSES.forEach(function(c){var o=document.createElement('option');o.value=c;o.textContent=c;cs.appendChild(o)});
+ var cs=box.querySelector('#jbMsClass2026');CLASSES.forEach(function(c){var o=document.createElement('option');o.value=c;o.textContent=c;cs.appendChild(o)});
  var oldClass=host.querySelector('input[data-key="Class"]');if(oldClass&&oldClass.value)cs.value=oldClass.value;
  function buildSubjects(){
    var sg=box.querySelector('#jbMsSubjects2026');sg.innerHTML='';
-   (CLASS_SUBJECTS[cs.value]||[]).slice(0,12).forEach(function(s,n){
+   var subs=CLASS_SUBJECTS[cs.value]||[];
+   for(var n=0;n<12;n++){
      var item=document.createElement('div');item.className='jb-ms-item';
-     item.innerHTML='<div class="jb-ms-no">বিষয় '+(n+1)+'</div><select class="jb-ms-subject"><option value="'+String(s).replace(/"/g,'&quot;')+'">'+s+'</option></select><input type="number" min="0" max="100" step="1" class="jb-ms-mark" placeholder="নম্বর">';
+     var opts='<option value="">বিষয় নির্বাচন করুন</option>'+subs.map(function(s){return '<option value="'+String(s).replace(/"/g,'&quot;')+'">'+s+'</option>'}).join('');
+     item.innerHTML='<div class="jb-ms-no">বিষয় '+(n+1)+'</div><div class="jb-ms-selectrow"><input type="checkbox" class="jb-ms-check" title="বিষয় নির্বাচন"><span class="jb-ms-tick">☑️ নির্বাচন</span></div><select class="jb-ms-subject" disabled>'+opts+'</select><input type="number" min="0" max="100" step="1" class="jb-ms-mark" placeholder="নম্বর" disabled>';
+     var ck=item.querySelector('.jb-ms-check'),ss=item.querySelector('.jb-ms-subject'),mk=item.querySelector('.jb-ms-mark');
+     ck.onchange=function(){var it=this.closest('.jb-ms-item'),s=it.querySelector('.jb-ms-subject'),m=it.querySelector('.jb-ms-mark');s.disabled=!this.checked;m.disabled=!this.checked;if(!this.checked)m.value=''};
+     ss.onchange=function(){var it=this.closest('.jb-ms-item');var ck=it.querySelector('.jb-ms-check'),m=it.querySelector('.jb-ms-mark');m.disabled=!(ck.checked&&this.value)};
      sg.appendChild(item);
-   });
+   }
  }
  cs.onchange=function(){if(oldClass)oldClass.value=cs.value;buildSubjects()};
  buildSubjects();
 }
 var oldFind=window.jbFindStudent;
-window.jbFindStudent=async function(){var r=await oldFind.apply(this,arguments);setTimeout(addGrid,80);return r};
+if(oldFind)window.jbFindStudent=async function(){var r=await oldFind.apply(this,arguments);setTimeout(addGrid,80);return r};
 var oldManual=window.jbManualEntry;
-window.jbManualEntry=function(){var r=oldManual.apply(this,arguments);setTimeout(addGrid,80);return r};
+if(oldManual)window.jbManualEntry=function(){var r=oldManual.apply(this,arguments);setTimeout(addGrid,80);return r};
 var oldCreate=window.jbCreatePreview;
-window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid2026');if(box){var data=[];box.querySelectorAll('.jb-ms-item').forEach(function(it,n){var s=it.querySelector('.jb-ms-subject')?.value||'',m=it.querySelector('.jb-ms-mark')?.value||'';if(s||m)data.push({no:n+1,subject:s,marks:m});var c=box.querySelector('#jbMsClass2026')?.value||'',ci=document.querySelector('#jbDocFields input[data-key="Class"]');if(ci)ci.value=c;var sd=document.querySelector('#jbDocFields input[data-key="SubjectData"]');if(sd)sd.value=JSON.stringify(data)})}return oldCreate.apply(this,arguments)};
+if(oldCreate)window.jbCreatePreview=function(){
+ var box=document.getElementById('jbMarksGrid2026');
+ if(box){
+   var data=[],count=0;
+   box.querySelectorAll('.jb-ms-item').forEach(function(it){
+     var ck=it.querySelector('.jb-ms-check'),s=it.querySelector('.jb-ms-subject'),m=it.querySelector('.jb-ms-mark');
+     if(ck&&ck.checked&&s&&s.value&&count<12){data.push({no:count+1,subject:s.value,marks:m?m.value:''});count++}
+   });
+   var c=box.querySelector('#jbMsClass2026')?.value||'',ci=document.querySelector('#jbDocFields input[data-key="Class"]');
+   if(ci)ci.value=c;
+   var sd=document.querySelector('#jbDocFields input[data-key="SubjectData"]');if(sd)sd.value=JSON.stringify(data)
+ }
+ return oldCreate.apply(this,arguments);
+};
 })();
 </script>
-<!-- ===== END CLASS-WISE SUBJECT MASTER ===== -->
+<!-- END CLASS-WISE STUDENT + SUBJECT DROPDOWNS — 2026-10-07 -->
