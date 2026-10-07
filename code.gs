@@ -28,7 +28,7 @@ const SHEETS = {
   CONFIG:'CONFIG', AUDIT:'AUDIT', OTP_LOG:'OTP_LOG', EXECUTIVES:'EXECUTIVES',
   ADVISERS:'ADVISERS', FOUNDERS:'FOUNDERS', LOCATION_MASTER:'LOCATION_MASTER',
   MADRASAS:'MADRASAS', SALARY:'SALARY', CERTIFICATES:'CERTIFICATES',
-  ID_CARDS:'ID_CARDS', ADMIT_CARDS:'ADMIT_CARDS', RECEIPTS:'RECEIPTS'
+  ID_CARDS:'ID_CARDS', ADMIT_CARDS:'ADMIT_CARDS', RECEIPTS:'RECEIPTS', ONLINE_SERVICES:'ONLINE_SERVICES'
 };
 
 const HEADERS = {
@@ -59,11 +59,25 @@ const HEADERS = {
   CERTIFICATES:['Serial','CertificateID','StudentID','Type','IssueDate','Data'],
   ID_CARDS:['Serial','CardID','StudentID','IssueDate','Data'],
   ADMIT_CARDS:['Serial','AdmitID','StudentID','Exam','IssueDate','Data'],
-  RECEIPTS:['Serial','ReceiptID','RefID','Type','Amount','Date','Data']
+  RECEIPTS:['Serial','ReceiptID','RefID','Type','Amount','Date','Data'],
+  ONLINE_SERVICES:['Serial','ServiceID','ServiceCode','DocKey','PersonID','Name','Title','IssueDate','PdfFileId','PdfUrl','Data','HTML','Status','CreatedAt']
 };
 
 function doGet(e) {
   var p = (e && e.parameter) || {};
+  if (String(p.online || '') === '1') {
+    var code=String(p.code||'').trim().toUpperCase();
+    var personId=String(p.id||'').trim();
+    var onlineResult=null;
+    try {
+      if(code && personId) onlineResult=getOnlineServicePublic_(code,personId);
+    } catch(err) {
+      onlineResult={ok:false,message:'অনলাইন সেবা লোড করার সময় সার্ভার ত্রুটি হয়েছে।'};
+    }
+    return HtmlService.createHtmlOutput(buildPublicOnlineServiceHtml_(code,personId,onlineResult))
+      .setTitle(APP.nameEn + ' | Online Service')
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  }
   if (String(p.verify || '') === '1' && String(p.doc || '').trim() && String(p.id || '').trim()) {
     var verifyKey=String(p.doc).trim(), verifyId=String(p.id).trim(), verifyResult;
     try {
@@ -915,6 +929,124 @@ function saveDocumentBuilderRecord(token, docKey, studentId, data, html) {
   const saved=saveRecord(token,sheetName,row);
   return {ok:true,sheet:sheetName,record:saved.row,documentId:row.ResultID||row.CardID||row.AdmitID||row.CertificateID||row.ReceiptID,message:'Document History-তে সংরক্ষণ হয়েছে।'};
 }
+
+
+/* ===== ONLINE SERVICE / HOME DELIVERY — 2026-10-07 ===== */
+function onlineServiceCode_(key) {
+  const m={
+    marks:'MS',result:'RS',id_cards:'ID',admit_cards:'AC',certificates:'CT',receipts:'RC',
+    teacher_id:'TI',admission_form:'AF',leave_form:'LF',exam_routine:'ER',tc:'TC',attestation:'AP',
+    lifetime_member_form:'LM',lifetime_member_certificate:'LC',teacher_recruitment_form:'TR',
+    teacher_appointment:'TA',executive_form:'EF',executive_id:'EI'
+  };
+  return m[String(key||'').trim()]||'DOC';
+}
+function onlineServiceTitle_(key) {
+  const m={
+    marks:'মার্কশিট',result:'রেজাল্ট / মার্কশিট',id_cards:'আইডি কার্ড',admit_cards:'অ্যাডমিট কার্ড',
+    certificates:'সার্টিফিকেট',receipts:'মানি রিসিট',teacher_id:'শিক্ষক/শিক্ষিকা আইডি কার্ড',
+    admission_form:'ভর্তি আবেদন ফর্ম',leave_form:'ছুটির আবেদন ফর্ম',exam_routine:'পরীক্ষার রুটিন',
+    tc:'টিসি / ছাড়পত্র',attestation:'প্রত্যয়ন পত্র',lifetime_member_form:'আজীবন সদস্য ফর্ম',
+    lifetime_member_certificate:'আজীবন সদস্য সনদ',teacher_recruitment_form:'শিক্ষক/শিক্ষিকা নিয়োগ আবেদন',
+    teacher_appointment:'শিক্ষক/শিক্ষিকা নিয়োগ পত্র',executive_form:'নির্বাহী পরিষদ ফর্ম',
+    executive_id:'নির্বাহী পরিষদ সদস্য আইডি কার্ড'
+  };
+  return m[String(key||'').trim()]||String(key||'ডকুমেন্ট');
+}
+function onlineServicePersonId_(data,docKey,fallback) {
+  data=data||{};
+  return String(data.StudentID||data.TeacherID||data.MemberID||data.ExecutiveID||data.MadrasaID||
+    data.AdmissionID||data.ExamRegID||data.CertificateNo||data.ReceiptNo||fallback||'').trim();
+}
+function onlineServiceCleanHtml_(html) {
+  let s=String(html||'');
+  s=s.replace(/<script[\\s\\S]*?<\\/script>/gi,'');
+  s=s.replace(/<button\\b[^>]*>[\\s\\S]*?<\\/button>/gi,'');
+  s=s.replace(/\\s+on[a-z]+\\s*=\\s*(".*?"|'.*?'|[^\\s>]+)/gi,'');
+  s=s.replace(/contenteditable\\s*=\\s*("true"|'true'|true)/gi,'');
+  s=s.replace(/<div[^>]*class=(["'])[^"']*jb-verification-qr[^"']*\\1[^>]*>[\\s\\S]*?<\\/div>/gi,'');
+  return s;
+}
+function onlineServicePdf_(title,html,serviceId) {
+  try {
+    const clean=onlineServiceCleanHtml_(html);
+    const full='<!doctype html><html lang="bn"><head><meta charset="UTF-8"><style>'+
+      '@page{size:A4 portrait;margin:8mm}body{margin:0;background:#fff;color:#111;font-family:Arial,"Noto Sans Bengali",sans-serif}'+
+      '.jb-doc-actions,.jb-marksheet-back-2026{display:none!important}'+
+      '.jb-doc-preview{margin:0 auto!important;box-sizing:border-box!important;box-shadow:none!important}'+
+      '.jb-verification-qr{break-inside:avoid!important;page-break-inside:avoid!important}'+
+      '</style></head><body>'+clean+'</body></html>';
+    const blob=HtmlService.createHtmlOutput(full).getAs('application/pdf').setName(serviceId+'-'+onlineServiceCode_(title)+'.pdf');
+    const folderName='Jannatul Baqi — Online Services PDFs';
+    let folder;
+    const it=DriveApp.getFoldersByName(folderName);
+    folder=it.hasNext()?it.next():DriveApp.createFolder(folderName);
+    const file=folder.createFile(blob);
+    try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW)}catch(e){}
+    return {fileId:file.getId(),url:'https://drive.google.com/uc?export=download&id='+encodeURIComponent(file.getId())};
+  } catch(e) {
+    return {fileId:'',url:'',error:String(e&&e.message?e.message:e)};
+  }
+}
+function saveOnlineServiceRecord(token,docKey,personId,data,html) {
+  auth_(token);
+  setupSystem();
+  const key=String(docKey||'').trim(), title=onlineServiceTitle_(key);
+  if(!key) return {ok:false,message:'Document type প্রয়োজন।'};
+  data=data||{};
+  if(!data.Mobile) return {ok:false,message:'মোবাইল নম্বর আবশ্যক।'};
+  const pid=onlineServicePersonId_(data,key,personId);
+  if(!pid) return {ok:false,message:'অনলাইন সেবার জন্য ID প্রয়োজন।'};
+  const stamp=Utilities.formatDate(new Date(),APP.timezone,'yyyyMMddHHmmss');
+  const serviceId='ONS-'+stamp+'-'+Utilities.getUuid().slice(0,8).toUpperCase();
+  const clean=onlineServiceCleanHtml_(html);
+  const pdf=onlineServicePdf_(key,clean,serviceId);
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ONLINE_SERVICES);
+  const row=[nextSerial_(sh),serviceId,onlineServiceCode_(key),key,pid,
+    data.NameBN||data.NameEN||'',title,data.IssueDate||data.Date||now_(),
+    pdf.fileId||'',pdf.url||'',JSON.stringify(data),clean,'ACTIVE',now_()];
+  sh.appendRow(row);
+  return {ok:true,serviceId,serviceCode:onlineServiceCode_(key),personId:pid,pdfUrl:pdf.url||'',pdfFileId:pdf.fileId||'',
+    publicUrl:(getMainWebAppUrl().url||'')+'?online=1&code='+encodeURIComponent(onlineServiceCode_(key))+'&id='+encodeURIComponent(pid),
+    message:pdf.url?'অনলাইন সেবা + PDF সংরক্ষণ হয়েছে।':'অনলাইন সেবা সংরক্ষণ হয়েছে; PDF লিংক তৈরি হয়নি, প্রিন্ট থেকে PDF নেওয়া যাবে।'};
+}
+function getOnlineServicePublic_(code,personId) {
+  const c=String(code||'').trim().toUpperCase(), pid=String(personId||'').trim();
+  if(!c||!pid) return {ok:false,message:'সংকেত ও ID দুটিই দিন।'};
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ONLINE_SERVICES);
+  if(!sh||sh.getLastRow()<2) return {ok:false,message:'এখনো কোনো অনলাইন সেবা সংরক্ষিত হয়নি।'};
+  const vals=sh.getDataRange().getValues(), h=vals[0], ci=h.indexOf('ServiceCode'), pi=h.indexOf('PersonID'), si=h.indexOf('Status');
+  for(let i=vals.length-1;i>0;i--){
+    if(String(vals[i][ci]).trim().toUpperCase()===c && String(vals[i][pi]).trim()===pid && (!si||String(vals[i][si]).toUpperCase()!=='DELETED')){
+      const row=objectFrom_(h,vals[i]);
+      return {ok:true,row,serviceId:row.ServiceID,serviceCode:c,personId:pid,title:row.Title||'',html:row.HTML||'',pdfUrl:row.PdfUrl||'',
+        message:'অনলাইন সেবা পাওয়া গেছে।'};
+    }
+  }
+  return {ok:false,message:'এই সংকেত + ID-এর কোনো অনলাইন সেবা পাওয়া যায়নি।'};
+}
+function buildPublicOnlineServiceHtml_(code,personId,result) {
+  const esc=function(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')};
+  const r=result||{ok:false,message:'সংকেত + ID দিয়ে খুঁজুন।'};
+  const codes=[
+    ['MS','মার্কশিট'],['RS','রেজাল্ট / মার্কশিট'],['ID','আইডি কার্ড'],['AC','অ্যাডমিট কার্ড'],['CT','সার্টিফিকেট'],['RC','মানি রিসিট'],
+    ['TI','শিক্ষক/শিক্ষিকা আইডি'],['AF','ভর্তি আবেদন ফর্ম'],['LF','ছুটির আবেদন ফর্ম'],['ER','পরীক্ষার রুটিন'],['TC','টিসি / ছাড়পত্র'],
+    ['AP','প্রত্যয়ন পত্র'],['LM','আজীবন সদস্য ফর্ম'],['LC','আজীবন সদস্য সনদ'],['TR','শিক্ষক/শিক্ষিকা নিয়োগ আবেদন'],['TA','শিক্ষক/শিক্ষিকা নিয়োগ পত্র'],
+    ['EF','নির্বাহী পরিষদ ফর্ম'],['EI','নির্বাহী পরিষদ সদস্য আইডি কার্ড']
+  ];
+  const opts=codes.map(x=>'<option value="'+x[0]+'"'+(String(code||'').toUpperCase()===x[0]?' selected':'')+'>'+x[0]+' — '+x[1]+'</option>').join('');
+  const body=r.ok?
+    '<div class="ok">✅ অনলাইন সেবা পাওয়া গেছে</div><div class="meta"><b>সংকেত:</b> '+esc(r.serviceCode)+' &nbsp; <b>ID:</b> '+esc(r.personId)+'<br><b>সেবা:</b> '+esc(r.title)+'<br><b>Service ID:</b> '+esc(r.serviceId)+'</div>'+
+    '<div class="doc">'+onlineServiceCleanHtml_(r.html)+'</div>'+
+    '<div class="actions">'+(r.pdfUrl?'<a class="btn pdf" href="'+esc(r.pdfUrl)+'" target="_blank">⬇️ PDF ডাউনলোড</a>':'')+'<button class="btn print" onclick="window.print()">🖨️ প্রিন্ট / PDF</button></div>'
+    :'<div class="bad">❌ '+esc(r.message||'রেকর্ড পাওয়া যায়নি।')+'</div>';
+  return '<!doctype html><html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>অনলাইন সেবা</title><style>'+
+    'body{margin:0;background:linear-gradient(135deg,#f5f0df,#eef7ff);font-family:Arial,"Noto Sans Bengali",sans-serif;color:#151515}.wrap{width:min(1100px,96vw);margin:20px auto}.panel{background:#fff;border:4px solid #8b5e00;border-radius:20px;box-shadow:0 15px 50px #0003;padding:18px}.brand{text-align:center;border-bottom:3px solid #8b5e00;padding-bottom:12px}.brand b{font-size:25px}.search{display:grid;grid-template-columns:1fr 1fr auto;gap:9px;margin:14px 0}.search select,.search input{width:100%;box-sizing:border-box;padding:12px;border:2px solid #777;border-radius:10px;font-weight:800}.btn{display:inline-flex;align-items:center;justify-content:center;padding:11px 18px;border:2px solid #222;border-radius:999px;text-decoration:none;font-weight:900;cursor:pointer;background:#fff}.go{background:#1976d2;color:#fff}.pdf{background:#087f23;color:#fff}.print{background:#c62828;color:#fff}.ok{padding:12px;background:#e8f5e9;border:2px solid #2e7d32;border-radius:12px;font-weight:900;text-align:center}.bad{padding:16px;background:#ffebee;border:2px solid #c62828;border-radius:12px;font-weight:900;text-align:center}.meta{margin:12px 0;padding:10px;background:#fff8dc;border:2px solid #b8860b;border-radius:10px}.doc{background:#fff;padding:8px;overflow:auto}.actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:16px;border-top:3px solid #8b5e00;padding-top:14px}@media(max-width:700px){.search{grid-template-columns:1fr}.brand b{font-size:19px}}@media print{body{background:#fff}.panel{border:0;box-shadow:none;padding:0}.brand,.search,.meta,.actions{display:none!important}.doc{padding:0}.doc .jb-doc-actions,.doc .jb-marksheet-back-2026{display:none!important}}'+
+    '</style></head><body><div class="wrap"><div class="panel"><div class="brand"><b>জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</b><div>অনলাইন সেবা — ঘরে বসেই আপনার সংরক্ষিত ডকুমেন্ট</div><div>হটলাইন-01823316630 &nbsp; | &nbsp; ইমেইল-hmatik90@gmail.com</div></div>'+
+    '<form class="search" method="get"><input type="hidden" name="online" value="1"><select name="code">'+opts+'</select><input name="id" value="'+esc(personId||'')+'" placeholder="শিক্ষার্থী/শিক্ষক/সদস্য ID"><button class="btn go" type="submit">🔎 সেবা খুঁজুন</button></form>'+
+    body+'</div></div></body></html>';
+}
+/* ===== END ONLINE SERVICE / HOME DELIVERY ===== */
 
 function getDocumentBuilderHistory(token, studentId, docKey) {
   auth_(token);
