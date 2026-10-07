@@ -9512,7 +9512,10 @@ var isMR=currentDoc.key==='marks'||currentDoc.key==='result';
 var markSubjects=window.JB_MARKS_SUBJECTS_2026||{};
 function markSync(){
   var hidden=document.querySelector('#jbDocFields [data-key="SubjectData"]'),arr=[];
-  for(var mi=1;mi<=12;mi++){var ss=E('jbMsSubject'+mi),mm=E('jbMsMark'+mi);if(ss&&ss.value)arr.push({subject:ss.value,marks:mm?mm.value:'',grade:''});}
+  for(var mi=1;mi<=12;mi++){
+    var ck=E('jbMsCheck'+mi),mm=E('jbMsMark'+mi);
+    if(ck&&ck.checked)arr.push({subject:ck.getAttribute('data-subject')||'',marks:mm?mm.value:'',grade:''});
+  }
   if(hidden)hidden.value=JSON.stringify(arr);
   var total=arr.reduce(function(a,x){return a+(Number(x.marks)||0)},0);
   var tc=document.querySelector('#jbDocFields [data-key="Total"]');if(tc)tc.value=total;
@@ -9520,18 +9523,59 @@ function markSync(){
 function fillMarkSubjects(selectedClass,oldData){
   var list=markSubjects[selectedClass]||[],parsed=[];
   try{parsed=JSON.parse(String(oldData||'[]'))||[]}catch(e){}
-  parsed=parsed.map(function(x){return {subject:x.subject||x.Subject||'',marks:(x.marks!=null&&x.marks!=='')?x.marks:(x.Marks||'')}});
+  var old={};
+  parsed.forEach(function(x){
+    var n=x&&((x.subject!=null&&x.subject!=='')?x.subject:x.Subject)||'';
+    if(n)old[n]={marks:(x.marks!=null&&x.marks!=='')?x.marks:(x.Marks||'')};
+  });
+  var box=document.getElementById('jbMsSubjectChoices');
+  if(!box)return;
+  box.innerHTML='';
   for(var mi=1;mi<=12;mi++){
-    var ss=E('jbMsSubject'+mi),mm=E('jbMsMark'+mi);if(!ss)continue;
-    ss.innerHTML='<option value="">বিষয় নির্বাচন করুন</option>'+list.map(function(x){return '<option value="'+String(x).replace(/"/g,'&quot;')+'">'+x+'</option>'}).join('');
-    var old=parsed[mi-1]||{};
-    if(old.subject&&list.indexOf(old.subject)>=0)ss.value=old.subject;
-    if(mm)mm.value=old.marks||'';
-    ss.disabled=mi>list.length;if(mm)mm.disabled=mi>list.length;
+    var name=list[mi-1]||'';
+    var rowBox=document.createElement('div');
+    rowBox.className='jb-ms-choice-row';
+    if(!name){rowBox.style.display='none';box.appendChild(rowBox);continue;}
+    var ck=document.createElement('input');ck.type='checkbox';ck.id='jbMsCheck'+mi;ck.setAttribute('data-subject',name);
+    var oldItem=old[name];ck.checked=!!oldItem;
+    ck.onchange=markSync;
+    var lab=document.createElement('label');lab.className='jb-ms-choice-label';lab.setAttribute('for','jbMsCheck'+mi);
+    lab.appendChild(ck);lab.appendChild(document.createTextNode(name));
+    var mm=document.createElement('input');mm.id='jbMsMark'+mi;mm.className='field jb-ms-mark';mm.type='number';mm.min='0';mm.max='100';mm.placeholder='নম্বর';
+    mm.value=oldItem?oldItem.marks:'';
+    mm.disabled=!ck.checked;mm.oninput=markSync;
+    ck.addEventListener('change',function(){var id=this.id.replace('jbMsCheck','');var m=E('jbMsMark'+id);if(m)m.disabled=!this.checked;markSync();});
+    rowBox.appendChild(lab);rowBox.appendChild(mm);box.appendChild(rowBox);
   }
   markSync();
 }
 defs.forEach(function(d){
+  var v=first(row,d[2]||[d[0],d[0].toLowerCase()]),div=document.createElement('div');div.className='jb-doc-field';
+  var isSpecialMR=isMR&&(d[0]==='Class'||d[0]==='SubjectData');
+  if(!isSpecialMR){
+    var cb=document.createElement('input');cb.type='checkbox';cb.checked=selected[d[0]]!==false;cb.onchange=function(){selected[d[0]]=cb.checked};
+    var lab=document.createElement('label');lab.appendChild(cb);lab.appendChild(document.createTextNode(d[1]));div.appendChild(lab);
+  }else{
+    var title0=document.createElement('div');title0.textContent=d[0]==='Class'?'১. শ্রেণি / জামাত নির্বাচন':'২. বিষয় / Subject নির্বাচন — টিক দিন';title0.style.cssText='font-weight:900;margin:2px 0 7px;font-size:17px';div.appendChild(title0);
+  }
+  if(isMR&&d[0]==='Class'){
+    var hiddenClass=document.createElement('input');hiddenClass.type='hidden';hiddenClass.dataset.key='Class';hiddenClass.value=v||Object.keys(markSubjects)[0]||'';div.appendChild(hiddenClass);
+    var sel=document.createElement('select');sel.className='field jb-ms-class-select';sel.dataset.uiKey='Class';
+    Object.keys(markSubjects).forEach(function(x){var o=document.createElement('option');o.value=x;o.textContent=x;sel.appendChild(o)});
+    sel.value=hiddenClass.value||sel.options[0]?.value||'';hiddenClass.value=sel.value;
+    sel.onchange=function(){hiddenClass.value=sel.value;fillMarkSubjects(sel.value,'[]')};
+    div.appendChild(sel);host.appendChild(div);return;
+  }
+  if(isMR&&d[0]==='SubjectData'){
+    var hidden=document.createElement('input');hidden.type='hidden';hidden.dataset.key='SubjectData';hidden.value=typeof v==='object'?'':(v||'[]');div.appendChild(hidden);
+    var boxTitle=document.createElement('div');boxTitle.textContent='শ্রেণি/জামাত অনুযায়ী নির্দিষ্ট বিষয় — যে বিষয় পড়ানো হয়েছে শুধু সেটিতে টিক দিন এবং নম্বর লিখুন';boxTitle.className='jb-ms-choice-help';div.appendChild(boxTitle);
+    var box=document.createElement('div');box.id='jbMsSubjectChoices';box.className='jb-ms-choice-box';div.appendChild(box);
+    host.appendChild(div);
+    setTimeout(function(){var cls=document.querySelector('#jbDocFields [data-key="Class"]');fillMarkSubjects(cls?cls.value:(Object.keys(markSubjects)[0]||''),hidden.value);},0);
+    return;
+  }
+  var inp=document.createElement('input');inp.value=(typeof v==='object'?'':v);inp.dataset.key=d[0];inp.disabled=false;if(d[0]==='Photo')inp.placeholder='Photo URL / data';div.appendChild(inp);host.appendChild(div);
+});defs.forEach(function(d){
   var v=first(row,d[2]||[d[0],d[0].toLowerCase()]),div=document.createElement('div');div.className='jb-doc-field';
   var cb=document.createElement('input');cb.type='checkbox';cb.checked=selected[d[0]]!==false;cb.onchange=function(){selected[d[0]]=cb.checked};
   var lab=document.createElement('label');lab.appendChild(cb);lab.appendChild(document.createTextNode(d[1]));div.appendChild(lab);
@@ -9642,6 +9686,15 @@ function label(k){var m={StudentID:'ID',NameBN:'নাম',NameAR:'আরবি 
 #jbDocPreviewWrap .jb-ms-summary strong{font-size:18px;margin-top:3px}
 @media(max-width:700px){#jbDocPreviewWrap .jb-ms-student-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#jbDocPreviewWrap .jb-ms-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media print{#jbDocPreviewWrap .jb-ms-layer{break-inside:avoid}.jb-ms-paper{break-before:page}}
+
+#jbDocFields .jb-ms-class-select{font-size:17px;font-weight:900;min-height:46px;border:3px solid var(--border);border-radius:12px}
+#jbDocFields .jb-ms-choice-help{margin:6px 0 8px;padding:9px 10px;border:2px dashed var(--border);border-radius:10px;font-weight:800}
+#jbDocFields .jb-ms-choice-box{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+#jbDocFields .jb-ms-choice-row{display:grid;grid-template-columns:minmax(0,1fr) 110px;align-items:center;gap:8px;padding:7px;border:1.5px solid var(--border);border-radius:10px}
+#jbDocFields .jb-ms-choice-label{display:flex;align-items:center;gap:8px;font-weight:800;cursor:pointer}
+#jbDocFields .jb-ms-choice-label input{width:20px;height:20px;accent-color:var(--border)}
+#jbDocFields .jb-ms-mark{min-width:0}
+@media(max-width:700px){#jbDocFields .jb-ms-choice-box{grid-template-columns:1fr}#jbDocFields .jb-ms-choice-row{grid-template-columns:minmax(0,1fr) 100px}}
 </style>\n<!-- ===== CENTRAL DOCUMENT BUILDER — CARD TYPE LIST FIX — 2026-10-07 ===== -->
 <script id="central-document-builder-card-type-list-fix-2026-10-07">
 (function(){
