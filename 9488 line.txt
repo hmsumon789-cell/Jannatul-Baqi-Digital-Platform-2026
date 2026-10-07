@@ -11617,6 +11617,223 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 </script>
 <!-- ===== END ONLINE SERVICE — HOME DELIVERY BUTTON + SAVE ===== -->
 
+<!-- ===== FINAL LOGIN + DOCUMENT ACTION LAYOUT — 2026-10-07 ===== -->
+<style id="jb-final-login-document-action-layout-2026-10-07">
+/* লগইন: ৬টি দ্রুত বাটন = ৩ কলাম × ২ রো */
+#loginPage .quick{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:9px!important;
+  width:100%!important;
+  margin-top:12px!important;
+}
+#loginPage .quick button{
+  width:100%!important;
+  min-height:52px!important;
+  height:52px!important;
+  padding:8px 10px!important;
+  border-radius:14px!important;
+  font-weight:900!important;
+}
+#loginPage #jbLoginOnlineService2026{
+  width:100%!important;
+  max-width:none!important;
+  min-height:54px!important;
+  height:54px!important;
+  margin:10px 0 0!important;
+  box-sizing:border-box!important;
+}
+
+/* কার্ড/মার্কশিট: একই লাইনে ছোট গোল আইকন + মাঝখানে Online/Save/History */
+#jbDocBuilderWin #jbDocPreviewWrap .jb-doc-actions.jb-final-actionbar-2026{
+  display:grid!important;
+  grid-template-columns:auto minmax(0,1fr) auto!important;
+  align-items:center!important;
+  gap:8px!important;
+  width:100%!important;
+  margin:10px 0 0!important;
+  padding:8px 0 0!important;
+  box-sizing:border-box!important;
+}
+#jbDocBuilderWin .jb-final-icon-group-2026{
+  display:flex!important;
+  align-items:center!important;
+  gap:6px!important;
+  flex:0 0 auto!important;
+}
+#jbDocBuilderWin .jb-final-center-group-2026{
+  display:flex!important;
+  justify-content:center!important;
+  align-items:center!important;
+  gap:7px!important;
+  min-width:0!important;
+}
+#jbDocBuilderWin .jb-final-actionbar-2026 .jb-final-icon-btn-2026{
+  width:52px!important;
+  min-width:52px!important;
+  max-width:52px!important;
+  height:52px!important;
+  min-height:52px!important;
+  padding:0!important;
+  flex:0 0 52px!important;
+  border-radius:50%!important;
+  border:2px solid #222!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-size:22px!important;
+  line-height:1!important;
+  font-weight:900!important;
+  box-shadow:0 4px 10px #0003!important;
+}
+#jbDocBuilderWin .jb-final-actionbar-2026 .jb-final-center-btn-2026{
+  min-width:0!important;
+  min-height:52px!important;
+  height:52px!important;
+  padding:8px 14px!important;
+  border-radius:999px!important;
+  border:2px solid #222!important;
+  font-weight:900!important;
+  white-space:nowrap!important;
+  box-shadow:0 4px 10px #0003!important;
+}
+#jbDocBuilderWin .jb-final-actionbar-2026 .jb-online-service-save-2026{
+  width:auto!important;
+  min-width:150px!important;
+  max-width:none!important;
+  height:52px!important;
+  min-height:52px!important;
+  margin:0!important;
+  padding:8px 14px!important;
+  flex:0 1 auto!important;
+}
+#jbDocBuilderWin .jb-final-actionbar-2026 .jb-final-save-2026{
+  background:linear-gradient(135deg,#087f23,#43a047)!important;
+  color:#fff!important;
+}
+#jbDocBuilderWin .jb-final-actionbar-2026 .jb-final-history-2026{
+  background:linear-gradient(135deg,#7b1fa2,#ab47bc)!important;
+  color:#fff!important;
+}
+#jbDocBuilderWin .jb-final-actionbar-2026 .jb-final-edit-2026{
+  background:linear-gradient(135deg,#1976d2,#42a5f5)!important;
+  color:#fff!important;
+}
+#jbDocBuilderWin .jb-final-actionbar-2026 .jb-final-print-2026{
+  background:linear-gradient(135deg,#c62828,#ef5350)!important;
+  color:#fff!important;
+}
+#jbDocBuilderWin .jb-final-actionbar-2026 .jb-final-download-2026{
+  background:linear-gradient(135deg,#ef6c00,#ffa726)!important;
+  color:#fff!important;
+}
+#jbDocBuilderWin .jb-final-actionbar-2026 .jb-final-back-2026{
+  background:linear-gradient(135deg,#5d4037,#8d6e63)!important;
+  color:#fff!important;
+}
+@media(max-width:900px){
+  #jbDocBuilderWin #jbDocPreviewWrap .jb-doc-actions.jb-final-actionbar-2026{
+    grid-template-columns:1fr!important;
+  }
+  #jbDocBuilderWin .jb-final-icon-group-2026,
+  #jbDocBuilderWin .jb-final-center-group-2026{
+    justify-content:center!important;
+    width:100%!important;
+  }
+}
+@media(max-width:700px){
+  #loginPage .quick{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important}
+  #loginPage .quick button{min-height:48px!important;height:48px!important;font-size:12px!important;padding:6px!important}
+  #jbDocBuilderWin .jb-final-actionbar-2026 .jb-final-icon-btn-2026{
+    width:46px!important;min-width:46px!important;max-width:46px!important;
+    height:46px!important;min-height:46px!important;flex-basis:46px!important;font-size:19px!important;
+  }
+  #jbDocBuilderWin .jb-final-actionbar-2026 .jb-final-center-btn-2026,
+  #jbDocBuilderWin .jb-final-actionbar-2026 .jb-online-service-save-2026{
+    height:46px!important;min-height:46px!important;font-size:11px!important;padding:6px 9px!important;
+  }
+}
+@media print{
+  #jbDocBuilderWin #jbDocPreviewWrap .jb-doc-actions.jb-final-actionbar-2026,
+  #jbDocBuilderWin .jb-online-service-save-2026{
+    display:none!important;
+    visibility:hidden!important;
+  }
+}
+</style>
+<script id="jb-final-login-document-action-layout-2026-10-07-js">
+(function(){
+  function makeIconButton(cls,icon,title,fn){
+    var b=document.createElement('button');
+    b.type='button';b.className='jb-final-icon-btn-2026 '+cls;
+    b.textContent=icon;b.title=title;b.setAttribute('aria-label',title);
+    b.onclick=fn;return b;
+  }
+  function makeCenterButton(cls,text,fn){
+    var b=document.createElement('button');
+    b.type='button';b.className='jb-final-center-btn-2026 '+cls;
+    b.textContent=text;b.onclick=fn;return b;
+  }
+  function arrange(){
+    document.querySelectorAll('#jbDocPreviewWrap .jb-doc-preview').forEach(function(p){
+      var bar=p.querySelector(':scope > .jb-doc-actions');
+      if(!bar||bar.dataset.jbFinalActionLayout==='1')return;
+      var online=p.parentNode.querySelector(':scope > .jb-online-service-save-2026');
+      if(!online)online=document.querySelector('#jbDocPreviewWrap > .jb-online-service-save-2026');
+      var back=bar.querySelector('.jb-marksheet-back-2026');
+
+      bar.innerHTML='';
+      bar.classList.add('jb-final-actionbar-2026');
+      bar.dataset.jbFinalActionLayout='1';
+
+      var left=document.createElement('div');
+      left.className='jb-final-icon-group-2026';
+      if(back){
+        back.removeAttribute('style');
+        back.className='jb-final-icon-btn-2026 jb-final-back-2026';
+        back.textContent='↩️';
+        back.title='পূর্বে ফিরে যান';
+        back.setAttribute('aria-label','পূর্বে ফিরে যান');
+        back.onclick=back.onclick||function(){};
+        left.appendChild(back);
+      }
+      left.appendChild(makeIconButton('jb-final-edit-2026','✏️','এডিট',function(){jbEditPreview()}));
+
+      var center=document.createElement('div');
+      center.className='jb-final-center-group-2026';
+      if(online){
+        online.removeAttribute('style');
+        online.classList.add('jb-final-center-btn-2026');
+        center.appendChild(online);
+      }
+      center.appendChild(makeCenterButton('jb-final-save-2026','💾 সেভ হিস্ট্রি',function(){jbSaveDraft()}));
+      center.appendChild(makeCenterButton('jb-final-history-2026','📚 হিস্ট্রি',function(){jbShowHistory()}));
+
+      var right=document.createElement('div');
+      right.className='jb-final-icon-group-2026';
+      right.appendChild(makeIconButton('jb-final-print-2026','🖨️','প্রিন্ট',function(){jbPrint()}));
+      right.appendChild(makeIconButton('jb-final-download-2026','⬇️','ডাউনলোড',function(){jbDownload()}));
+
+      bar.appendChild(left);bar.appendChild(center);bar.appendChild(right);
+    });
+  }
+  function scan(){
+    arrange();
+    var wrap=document.getElementById('jbDocPreviewWrap');
+    if(wrap&&!wrap.dataset.jbFinalObserver){
+      wrap.dataset.jbFinalObserver='1';
+      new MutationObserver(function(){setTimeout(arrange,0)}).observe(wrap,{childList:true,subtree:true});
+    }
+  }
+  scan();
+  if(document.body)new MutationObserver(function(){scan()}).observe(document.body,{childList:true,subtree:true});
+  setTimeout(scan,100);
+  setTimeout(scan,400);
+})();
+</script>
+<!-- ===== END FINAL LOGIN + DOCUMENT ACTION LAYOUT ===== -->
+
+
 
 <!-- ===== ONLINE SERVICE PUBLIC SEARCH — SIGNAL + ID DIRECT VIEW — 2026-10-07 ===== -->
 <script id="jb-online-service-public-search-2026-10-07">
