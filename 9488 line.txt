@@ -10440,7 +10440,7 @@ body.dark #jbDocumentBuilderEntry2026{background:#000;color:#ffe95c;border-color
 #jbMarksGrid2026 .jb-ms-class select{flex:1;min-width:220px;border-radius:999px}
 #jbMarksGrid2026 .jb-ms-subjects{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
 #jbMarksGrid2026 .jb-ms-item{border:2px solid var(--border);border-radius:13px;padding:8px;background:var(--panel)}
-#jbMarksGrid2026 .jb-ms-no{font-weight:900;text-align:center;margin-bottom:5px}
+#jbMarksGrid2026 .jb-ms-no{font-weight:900;text-align:center;margin-bottom:5px}\n#jbMarksGrid2026 .jb-ms-subject-check{display:flex!important;align-items:center!important;gap:6px!important;font-weight:900!important;margin-bottom:4px!important;cursor:pointer!important}\n#jbMarksGrid2026 .jb-ms-subject-toggle{display:inline-block!important;width:15px!important;height:15px!important;margin:0!important;padding:0!important;accent-color:#8b5e00!important;cursor:pointer!important;flex:0 0 auto!important}
 #jbMarksGrid2026 .jb-ms-item input{width:100%;box-sizing:border-box;padding:8px;margin-top:5px;border:1px solid var(--border);border-radius:9px;background:transparent;color:inherit}
 @media(max-width:800px){#jbMarksGrid2026 .jb-ms-subjects{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:480px){#jbMarksGrid2026 .jb-ms-subjects{grid-template-columns:1fr}}
@@ -10480,7 +10480,7 @@ function addGrid(){
    var sg=box.querySelector('#jbMsSubjects2026');sg.innerHTML='';
    (CLASS_SUBJECTS[cs.value]||[]).slice(0,12).forEach(function(s,n){
      var item=document.createElement('div');item.className='jb-ms-item';
-     item.innerHTML='<div class="jb-ms-no">বিষয় '+(n+1)+'</div><select class="jb-ms-subject"><option value="'+String(s).replace(/"/g,'&quot;')+'">'+s+'</option></select><input type="number" min="0" max="100" step="1" class="jb-ms-mark" placeholder="নম্বর">';
+     item.innerHTML='<label class="jb-ms-subject-check"><input type="checkbox" class="jb-ms-subject-toggle" checked><span>বিষয় '+(n+1)+'</span></label><select class="jb-ms-subject"><option value="'+String(s).replace(/"/g,'&quot;')+'">'+s+'</option></select><input type="number" min="0" max="100" step="1" class="jb-ms-mark" placeholder="নম্বর">';
      sg.appendChild(item);
    });
  }
