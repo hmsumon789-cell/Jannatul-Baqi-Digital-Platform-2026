@@ -11657,3 +11657,41 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 })();
 </script>
 <!-- ===== END ONLINE SERVICE PUBLIC SEARCH ===== -->
+
+<!-- ===== LOGIN WHITE PAGE — SAFE REVEAL GUARD — 2026-10-07 ===== -->
+<style id="jb-login-white-safe-reveal-2026-10-07">
+/* শুধু প্রাথমিক login অবস্থায় সাদা/আবৃত পেজ হলে login দৃশ্যমান রাখবে। Dashboard এ ঢোকার পর কোনো জোরপূর্বক display নয়। */
+html,body{min-height:100%}
+#welcomeScreen{pointer-events:none}
+</style>
+<script id="jb-login-white-safe-reveal-2026-10-07-js">
+(function(){
+  function revealLogin(){
+    var lp=document.getElementById('loginPage');
+    var app=document.getElementById('app');
+    var welcome=document.getElementById('welcomeScreen');
+    if(!lp)return;
+    /* Dashboard চালু হয়ে গেলে login-কে আর ফিরিয়ে আনবে না। */
+    if(app && app.classList.contains('show'))return;
+    lp.style.display='flex';
+    lp.style.visibility='visible';
+    lp.style.opacity='1';
+    if(welcome){
+      welcome.style.pointerEvents='none';
+      welcome.style.opacity='0';
+      setTimeout(function(){
+        var w=document.getElementById('welcomeScreen');
+        var a=document.getElementById('app');
+        if(w && !(a&&a.classList.contains('show')))w.remove();
+      },550);
+    }
+  }
+  function init(){
+    revealLogin();
+    setTimeout(revealLogin,5200);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
+  else init();
+})();
+</script>
+<!-- ===== END LOGIN WHITE PAGE — SAFE REVEAL GUARD ===== -->
