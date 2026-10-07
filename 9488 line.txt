@@ -11571,7 +11571,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       var wrap=p.parentNode;
       if(!wrap||wrap.querySelector('.jb-online-service-save-2026'))return;
       var b=document.createElement('button');b.type='button';b.className='jb-online-service-save-2026';
-      b.textContent='🌐 দ্রুত সেবা / ঘরে সংরক্ষণ';
+      b.textContent='🌐 অনলাইন সেবা ঘরে বসেই গ্রহণ করুন';
       b.onclick=async function(){
         var id=(document.getElementById('jbDocId')?.value||'').trim();
         if(!id)return toast('ID প্রয়োজন।');
@@ -11585,11 +11585,11 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
             toast('🌐 '+r.message+' সংকেত: '+r.serviceCode+' | ID: '+r.personId);
             if(r.publicUrl)setTimeout(function(){try{window.open(r.publicUrl,'_blank')}catch(e){}},250);
           }else{
-            b.disabled=false;b.textContent='🌐 দ্রুত সেবা / ঘরে সংরক্ষণ';
+            b.disabled=false;b.textContent='🌐 অনলাইন সেবা ঘরে বসেই গ্রহণ করুন';
             toast((r&&r.message)||'অনলাইন সেবায় সংরক্ষণ হয়নি।');
           }
         }catch(e){
-          b.disabled=false;b.textContent='🌐 দ্রুত সেবা / ঘরে সংরক্ষণ';
+          b.disabled=false;b.textContent='🌐 অনলাইন সেবা ঘরে বসেই গ্রহণ করুন';
           toast('অনলাইন সেবা সংরক্ষণে ত্রুটি: '+(e&&e.message?e.message:e));
         }
       };
@@ -11599,7 +11599,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   function addLoginButton(){
     var lp=document.getElementById('loginPage');if(!lp||document.getElementById('jbLoginOnlineService2026'))return;
     var b=document.createElement('button');b.id='jbLoginOnlineService2026';b.type='button';
-    b.textContent='🌐 অনলাইন সেবা — ঘরে বসে মার্কশিট / সনদ / কার্ড';
+    b.textContent='🌐 অনলাইন সেবা ঘরে বসেই গ্রহণ করুন';
     b.onclick=function(){var u=location.href.split('#')[0].split('?')[0];window.open(u+'?online=1','_blank')};
     lp.appendChild(b);
   }
