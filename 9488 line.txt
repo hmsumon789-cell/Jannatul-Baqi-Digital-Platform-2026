@@ -10956,7 +10956,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     var b=document.createElement('button');
     b.type='button';
     b.className='jb-marksheet-back-2026';
-    b.textContent='↩️ পূর্বে ফিরে যান';
+    b.textContent='↩️';b.title='পূর্বে ফিরে যান';b.setAttribute('aria-label','পূর্বে ফিরে যান');
     b.onclick=function(){
       wrap.innerHTML='';
       var body=document.getElementById('jbDocBuilderBody');
@@ -11521,11 +11521,11 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       if(bar.dataset.jbUnifiedActions==='1')return;
       bar.dataset.jbUnifiedActions='1';
       bar.innerHTML=
-        '<button class="secondary" onclick="jbEditPreview()">✏️ এডিট</button>'+
-        '<button class="secondary" onclick="jbSaveDraft()">💾 সেভ + History</button>'+
-        '<button class="secondary" onclick="jbShowHistory()">📚 History</button>'+
-        '<button class="primary" onclick="jbPrint()">🖨️ প্রিন্ট</button>'+
-        '<button class="secondary" onclick="jbDownload()">⬇️ ডাউনলোড</button>';
+        '<button class="secondary jb-icon-action-2026" onclick="jbEditPreview()" title="এডিট" aria-label="এডিট">✏️</button>'+
+        '<button class="secondary jb-pill-action-2026" onclick="jbSaveDraft()">💾 সেভ + History</button>'+
+        '<button class="secondary jb-pill-action-2026" onclick="jbShowHistory()">📚 History</button>'+
+        '<button class="primary jb-icon-action-2026" onclick="jbPrint()" title="প্রিন্ট" aria-label="প্রিন্ট">🖨️</button>'+
+        '<button class="secondary jb-icon-action-2026" onclick="jbDownload()" title="ডাউনলোড" aria-label="ডাউনলোড">⬇️</button>';
     });
   }
   normalize();
@@ -11578,7 +11578,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       var wrap=p.parentNode;
       if(!wrap||wrap.querySelector('.jb-online-service-save-2026'))return;
       var b=document.createElement('button');b.type='button';b.className='jb-online-service-save-2026';
-      b.textContent='🌐 দ্রুত সেবা / ঘরে সংরক্ষণ';
+      b.textContent='🌐 অনলাইন সেবা ঘরে বসেই গ্রহন করুন';
       b.onclick=async function(){
         var id=(document.getElementById('jbDocId')?.value||'').trim();
         if(!id)return toast('ID প্রয়োজন।');
@@ -11592,21 +11592,22 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
             toast('🌐 '+r.message+' সংকেত: '+r.serviceCode+' | ID: '+r.personId);
             if(r.publicUrl)setTimeout(function(){try{window.open(r.publicUrl,'_blank')}catch(e){}},250);
           }else{
-            b.disabled=false;b.textContent='🌐 দ্রুত সেবা / ঘরে সংরক্ষণ';
+            b.disabled=false;b.textContent='🌐 অনলাইন সেবা ঘরে বসেই গ্রহন করুন';
             toast((r&&r.message)||'অনলাইন সেবায় সংরক্ষণ হয়নি।');
           }
         }catch(e){
-          b.disabled=false;b.textContent='🌐 দ্রুত সেবা / ঘরে সংরক্ষণ';
+          b.disabled=false;b.textContent='🌐 অনলাইন সেবা ঘরে বসেই গ্রহন করুন';
           toast('অনলাইন সেবা সংরক্ষণে ত্রুটি: '+(e&&e.message?e.message:e));
         }
       };
-      wrap.appendChild(b);
+      var bar=p.querySelector('.jb-doc-actions');
+      if(bar)bar.appendChild(b);else wrap.appendChild(b);
     });
   }
   function addLoginButton(){
     var lp=document.getElementById('loginPage');if(!lp||document.getElementById('jbLoginOnlineService2026'))return;
     var b=document.createElement('button');b.id='jbLoginOnlineService2026';b.type='button';
-    b.textContent='🌐 অনলাইন সেবা — ঘরে বসে মার্কশিট / সনদ / কার্ড';
+    b.textContent='🌐 অনলাইন সেবা ঘরে বসেই গ্রহন করুন';
     b.onclick=function(){var u=location.href.split('#')[0].split('?')[0];window.open(u+'?online=1','_blank')};
     lp.appendChild(b);
   }
@@ -11657,3 +11658,29 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 })();
 </script>
 <!-- ===== END ONLINE SERVICE PUBLIC SEARCH ===== -->
+
+<!-- ===== FINAL SAFE UI POLISH — LOGIN 3x2 + ONLINE SERVICE + ICON ACTIONS — 2026-10-08 ===== -->
+<style id="jb-final-safe-ui-polish-2026-10-08">
+#loginPage .quick{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
+#loginPage .quick button{min-width:0!important}
+#jbLoginOnlineService2026{display:block!important;width:min(820px,92vw)!important;margin:10px auto 0!important;min-height:54px!important;padding:11px 18px!important}
+#jbDocBuilderWin .jb-doc-preview > .jb-doc-actions{display:flex!important;align-items:center!important;justify-content:center!important;flex-wrap:nowrap!important;gap:6px!important}
+#jbDocBuilderWin .jb-doc-preview > .jb-doc-actions .jb-pill-action-2026,
+#jbDocBuilderWin .jb-doc-preview > .jb-doc-actions .jb-online-service-save-2026{flex:1 1 0!important;min-width:0!important;height:44px!important;min-height:44px!important;padding:7px 12px!important;border:2px solid #222!important;border-radius:999px!important;font-weight:900!important;white-space:nowrap!important;box-shadow:0 4px 10px #0002!important}
+#jbDocBuilderWin .jb-doc-preview > .jb-doc-actions .jb-online-service-save-2026{background:linear-gradient(135deg,#00695c,#26a69a)!important;color:#fff!important}
+#jbDocBuilderWin .jb-doc-preview > .jb-doc-actions .jb-icon-action-2026,
+#jbDocBuilderWin .jb-doc-preview > .jb-doc-actions .jb-marksheet-back-2026{flex:0 0 42px!important;width:42px!important;min-width:42px!important;height:42px!important;min-height:42px!important;padding:0!important;margin:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;color:inherit!important;font-size:22px!important;font-weight:900!important}
+#jbDocBuilderWin .jb-doc-preview > .jb-doc-actions .jb-icon-action-2026:hover,
+#jbDocBuilderWin .jb-doc-preview > .jb-doc-actions .jb-marksheet-back-2026:hover{transform:scale(1.12)!important;filter:none!important;box-shadow:none!important}
+#jbDocBuilderWin .jb-doc-preview > .jb-doc-actions .jb-online-service-save-2026{order:1!important}
+#jbDocBuilderWin .jb-doc-preview > .jb-doc-actions button[onclick="jbSaveDraft()"]{order:2!important}
+#jbDocBuilderWin .jb-doc-preview > .jb-doc-actions button[onclick="jbShowHistory()"]{order:3!important}
+#jbDocBuilderWin .jb-doc-preview > .jb-doc-actions button[onclick="jbEditPreview()"]{order:4!important}
+#jbDocBuilderWin .jb-doc-preview > .jb-doc-actions button[onclick="jbPrint()"]{order:5!important}
+#jbDocBuilderWin .jb-doc-preview > .jb-doc-actions button[onclick="jbDownload()"]{order:6!important}
+#jbDocBuilderWin .jb-doc-preview > .jb-doc-actions .jb-marksheet-back-2026{order:7!important}
+@media(max-width:900px){#loginPage .quick{grid-template-columns:repeat(3,minmax(0,1fr))!important}#jbDocBuilderWin .jb-doc-preview > .jb-doc-actions{gap:3px!important}#jbDocBuilderWin .jb-doc-preview > .jb-doc-actions .jb-pill-action-2026,#jbDocBuilderWin .jb-doc-preview > .jb-doc-actions .jb-online-service-save-2026{font-size:11px!important;padding:6px 5px!important}#jbDocBuilderWin .jb-doc-preview > .jb-doc-actions .jb-icon-action-2026,#jbDocBuilderWin .jb-doc-preview > .jb-doc-actions .jb-marksheet-back-2026{flex-basis:34px!important;width:34px!important;min-width:34px!important;height:34px!important;min-height:34px!important;font-size:18px!important}}
+@media print{#jbDocBuilderWin .jb-doc-preview > .jb-doc-actions,#jbDocBuilderWin .jb-online-service-save-2026,#jbDocBuilderWin .jb-marksheet-back-2026{display:none!important;visibility:hidden!important}}
+</style>
+<!-- ===== END FINAL SAFE UI POLISH ===== -->
+
