@@ -11042,3 +11042,47 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 }
 </style>
 <!-- ===== END PRINT LAYOUT + ACTION BUTTON HEIGHT POLISH ===== -->
+
+
+<!-- ===== DOCUMENT BUILDER — DIRECT PRINT WINDOW FIX — 2026-10-07 ===== -->
+<script id="document-builder-direct-print-window-fix-2026-10-07">
+(function(){
+  var oldPrint=window.jbPrint;
+  if(typeof oldPrint!=='function')return;
+  window.jbPrint=function(){
+    var p=document.getElementById('jbDocPreviewWrap')?.querySelector('.jb-doc-preview');
+    if(!p)return toast('আগে Document তৈরি করুন।');
+    var w=window.open('','_blank','width=1100,height=900');
+    if(!w)return toast('Print window খোলা যায়নি। Browser popup অনুমতি দিন।');
+    var title=String((window.currentDoc&&window.currentDoc.title)||document.getElementById('jbDocBuilderTitle')?.textContent||'Document')
+      .replace(/[<>&"]/g,'');
+    w.document.open();
+    w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>'+title+'</title><style>'+
+      '@page{size:A4 portrait;margin:8mm}'+
+      'html,body{margin:0!important;padding:0!important;background:#fff!important;color:#111!important}'+
+      '.jb-doc-preview{position:relative!important;box-sizing:border-box!important;margin:0 auto!important;background:#fff!important;color:#111!important;overflow:hidden!important}'+
+      '.jb-doc-preview.a4{width:194mm!important;min-height:281mm!important;height:281mm!important;padding:12mm!important;border:4px solid #8b5e00!important;box-shadow:inset 0 0 0 3px #1976d2,inset 0 0 0 7px #2e7d32!important}'+
+      '.jb-doc-preview.half{width:194mm!important;min-height:135mm!important;height:135mm!important;padding:10mm!important;border:4px solid #8b5e00!important}'+
+      '.jb-doc-preview.idcard{width:86mm!important;min-height:54mm!important;height:54mm!important;padding:10px!important;border:4px solid #8b5e00!important}'+
+      '.jb-doc-actions,.jb-marksheet-back-2026{display:none!important;visibility:hidden!important;height:0!important;overflow:hidden!important}'+
+      '.jb-institution-header-2026{display:grid!important;grid-template-columns:20mm minmax(0,1fr) 20mm!important;align-items:start!important;width:100%!important;min-height:20mm!important;box-sizing:border-box!important;padding:0 0 3mm!important;margin:0 0 4mm!important;border-bottom:2px solid #222!important}'+
+      '.jb-institution-header-2026 .jb-inst-side-2026{display:flex!important;align-items:flex-start!important;justify-content:flex-start!important;width:20mm!important;min-width:20mm!important;height:20mm!important}'+
+      '.jb-institution-header-2026 .jb-inst-side-2026:last-child{justify-content:flex-end!important}'+
+      '.jb-institution-header-2026 .jb-inst-side-2026 img{display:block!important;width:18mm!important;height:18mm!important;max-width:18mm!important;max-height:18mm!important;object-fit:contain!important;margin:0!important}'+
+      '.jb-institution-header-2026 .jb-inst-center-2026{text-align:center!important;min-width:0!important;align-self:start!important;line-height:1.25!important}'+
+      '.jb-institution-header-2026 .jb-inst-name-2026{font-size:16px!important;font-weight:900!important;margin:0 0 2px!important}'+
+      '.jb-institution-header-2026 .jb-inst-address-2026{font-size:10px!important;font-weight:800!important;margin:0!important}'+
+      '.jb-doc-head{text-align:center;border-bottom:2px solid #333;padding-bottom:8px;margin-bottom:10px}'+
+      '.jb-doc-head h2,.jb-doc-head h3,.jb-doc-head p{margin:3px}'+
+      '.jb-doc-photo{float:right;width:90px;height:110px;object-fit:cover;border:2px solid #222;margin-left:10px}'+
+      '.jb-doc-idcard .jb-doc-photo{width:70px;height:82px}'+
+      '.jb-doc-row{display:flex;gap:8px;padding:4px 0;border-bottom:1px dotted #999}.jb-doc-row b{min-width:135px}'+
+      '.jb-verification-qr{break-inside:avoid!important;page-break-inside:avoid!important}'+
+      '@media print{.jb-doc-actions,.jb-marksheet-back-2026{display:none!important;visibility:hidden!important}}'+
+      '</style></head><body>'+p.outerHTML+'</body></html>');
+    w.document.close();
+    setTimeout(function(){try{w.focus();w.print()}catch(e){}},500);
+  };
+})();
+</script>
+<!-- ===== END DIRECT PRINT WINDOW FIX ===== -->
