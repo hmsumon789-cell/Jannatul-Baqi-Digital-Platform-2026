@@ -10887,3 +10887,85 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 })();
 </script>
 <!-- ===== END NON-MARKS CARD PREVIEW FIX ===== -->
+
+
+<!-- ===== DOCUMENT BUILDER — NARROW ID INFO WINDOW + MARKSHEET BACK BUTTON — 2026-10-07 ===== -->
+<style id="document-builder-narrow-info-window-2026-10-07">
+#jbDocBuilderWin{
+  width:78vw!important;
+  max-width:1180px!important;
+  left:11vw!important;
+  right:auto!important;
+}
+#jbDocBuilderWin.jb-window-full{
+  width:100vw!important;left:0!important;right:0!important;
+}
+@media(max-width:900px){
+  #jbDocBuilderWin{
+    width:92vw!important;
+    left:4vw!important;
+    max-width:none!important;
+  }
+}
+@media print{
+  #jbDocBuilderWin{width:auto!important;left:auto!important;right:auto!important}
+}
+.jb-marksheet-back-2026{
+  display:block!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+  margin:14px 0 0!important;
+  padding:11px 16px!important;
+  min-height:46px!important;
+  border:2px solid #222!important;
+  border-radius:12px!important;
+  background:linear-gradient(135deg,#5d4037,#8d6e63)!important;
+  color:#fff!important;
+  font-size:15px!important;
+  font-weight:900!important;
+  cursor:pointer!important;
+  box-shadow:0 5px 12px #0003!important;
+}
+.jb-marksheet-back-2026:hover{filter:brightness(1.08)!important;transform:translateY(-1px)!important}
+@media print{.jb-marksheet-back-2026{display:none!important}}
+</style>
+<script id="document-builder-narrow-info-window-2026-10-07-js">
+(function(){
+  function addBack(){
+    var title=document.getElementById('jbDocBuilderTitle');
+    if(!title)return;
+    var t=title.textContent||'';
+    if(t.indexOf('মার্কশিট')<0 && t.indexOf('ফলাফল')<0)return;
+    var wrap=document.getElementById('jbDocPreviewWrap');
+    if(!wrap)return;
+    var p=wrap.querySelector('.jb-doc-preview');
+    if(!p)return;
+    if(p.querySelector('.jb-marksheet-back-2026'))return;
+    var b=document.createElement('button');
+    b.type='button';
+    b.className='jb-marksheet-back-2026';
+    b.textContent='↩️ পূর্বে ফিরে যান';
+    b.onclick=function(){
+      wrap.innerHTML='';
+      var body=document.getElementById('jbDocBuilderBody');
+      if(body)body.scrollIntoView({behavior:'smooth',block:'start'});
+      var id=document.getElementById('jbDocId');
+      if(id)setTimeout(function(){id.focus()},250);
+    };
+    p.appendChild(b);
+  }
+  var old=window.jbCreatePreview;
+  if(typeof old==='function'){
+    window.jbCreatePreview=function(){
+      var r=old.apply(this,arguments);
+      setTimeout(addBack,60);
+      return r;
+    };
+  }
+  document.addEventListener('click',function(e){
+    if(e.target && e.target.id==='jbDocBuilderTitle')return;
+    setTimeout(addBack,80);
+  });
+})();
+</script>
+<!-- ===== END NARROW ID INFO WINDOW + MARKSHEET BACK BUTTON ===== -->
