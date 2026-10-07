@@ -9524,12 +9524,15 @@ var total=0,count=0;items=items.filter(function(x){return x&&x.subject}).slice(0
 items.forEach(function(x){var n=Number(x.marks);if(!isNaN(n)){total+=n;count++}});
 var avg=count?total/count:0;
 function gradeGpa(n){n=Number(n)||0;return n>=80?['A+',5]:n>=70?['A',4]:n>=60?['A-',3.5]:n>=50?['B',3]:n>=40?['C',2]:n>=33?['D',1]:['F',0]}
+var autoGpa=count?(items.reduce(function(s,x){return s+gradeGpa(x.marks)[1]},0)/count):0;
+var autoGrade=count?gradeGpa(avg)[0]:'—';
+var autoMerit=val('Merit')||'অটো হিসাব হবে';
 var photo=val('Photo');if(photo&&/^data:image|^https?:/i.test(photo))p.innerHTML+='<img class="jb-doc-photo" src="'+esc(photo)+'">';
 p.innerHTML+='<section class="jb-ms-layer jb-ms-student"><div class="jb-ms-layer-title">১ম স্তর — শিক্ষার্থীর তথ্য</div><div class="jb-ms-student-grid">';
 [['StudentID','আইডি'],['NameBN','নাম'],['NameAR','আরবি নাম'],['NameEN','ইংরেজি নাম'],['FatherNameBN','পিতার নাম'],['MotherNameBN','মাতার নাম'],['DOB','জন্ম তারিখ'],['Mobile','মোবাইল'],['Class','শ্রেণি/জামাত'],['Roll','রোল'],['Exam','পরীক্ষা'],['ExamYear','পরীক্ষা সাল']].forEach(function(x){var v=val(x[0]);if(v)p.innerHTML+='<div class="jb-ms-student-cell"><b>'+x[1]+'</b><span>'+esc(v)+'</span></div>'});
 p.innerHTML+='</div></section><section class="jb-ms-layer jb-ms-paper"><div class="jb-ms-layer-title">২য় স্তর — নম্বর পত্র</div><table class="jb-ms-table"><thead><tr><th>ক্রম</th><th>বিষয়</th><th>নম্বর</th><th>গ্রেড</th><th>GPA</th></tr></thead><tbody>';
 items.forEach(function(x,i){var g=gradeGpa(x.marks);p.innerHTML+='<tr><td>'+bnNum(i+1)+'</td><td>'+esc(x.subject)+'</td><td>'+esc(x.marks||'—')+'</td><td>'+g[0]+'</td><td>'+g[1]+'</td></tr>'});
-p.innerHTML+='</tbody></table><div class="jb-ms-summary"><div><b>মোট নাম্বার</b><strong>'+esc(String(total))+'</strong></div><div><b>গড় নাম্বার</b><strong>'+esc(count?avg.toFixed(2):'0')+'</strong></div><div><b>GPA</b><strong>'+esc(count?(items.reduce(function(s,x){return s+(gradeGpa(x.marks)[1]);},0)/items.length).toFixed(2):'0')+'</strong></div><div><b>গ্রেড</b><strong>'+esc(count?gradeGpa(avg)[0]:'—')+'</strong></div><div><b>মেধা স্থান</b><strong>'+esc(val('Merit')||'—')+'</strong></div></div></section>';
+p.innerHTML+='</tbody></table><div class="jb-ms-summary"><div><b>মোট নাম্বার</b><strong>'+esc(String(total))+'</strong></div><div><b>গড় নাম্বার</b><strong>'+esc(count?avg.toFixed(2):'0')+'</strong></div><div><b>GPA</b><strong>'+esc(autoGpa.toFixed(2))+'</strong></div><div><b>গ্রেড</b><strong>'+esc(autoGrade)+'</strong></div><div><b>মেধা স্থান</b><strong>'+esc(autoMerit)+'</strong></div></div></section>';
 }else{
 var photo2=val('Photo');if(photo2&&/^data:image|^https?:/i.test(photo2))p.innerHTML+='<img class="jb-doc-photo" src="'+esc(photo2)+'">';
 vals.forEach(function(a){p.innerHTML+='<div class="jb-doc-row"><b>'+esc(label(a[0]))+'</b><span contenteditable="true">'+esc(a[1])+'</span></div>'});
