@@ -9790,22 +9790,35 @@ var wrap=document.getElementById('jbDocPreviewWrap');if(!wrap)return;wrap.innerH
 (function(){
   function escQ(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
   function b64(s){try{return btoa(unescape(encodeURIComponent(s)));}catch(e){return btoa(String(s));}}
-  function docVerifyUrl(key,id){
-    var base=(window.getMainWebAppUrl?window.getMainWebAppUrl():window.location.href).split('#')[0];
+  function docVerifyUrl(base,key,id){
+    base=String(base||window.location.href||'').split('#')[0];
     var q='verify=1&doc='+encodeURIComponent(key)+'&id='+encodeURIComponent(id);
     return base+(base.indexOf('?')>=0?'&':'?')+q;
   }
+  function renderQR(box,url){
+    box.setAttribute('data-qr',url);
+    box.innerHTML='';
+    try{
+      if(window.QRCode){new QRCode(box,{text:url,width:110,height:110});}
+      else box.textContent=url;
+    }catch(e){box.textContent=url;}
+  }
   function addQR(container,key,id){
     if(!container||!id)return;
-    var url=docVerifyUrl(key,id);
     var box=document.createElement('div');
     box.style.cssText='text-align:center;margin:12px auto;padding:8px;border:1px dashed #777;width:max-content;background:#fff';
-    box.innerHTML='<div style="font-weight:700;margin-bottom:5px">QR যাচাই</div><div class="jb-qr-box" data-qr="'+escQ(url)+'"></div><small>Document ID: '+escQ(id)+'</small>';
+    box.innerHTML='<div style="font-weight:700;margin-bottom:5px">QR যাচাই</div><div class="jb-qr-box"></div><small>Document ID: '+escQ(id)+'</small>';
     container.appendChild(box);
+    var qrBox=box.querySelector('.jb-qr-box');
+    var fallback=docVerifyUrl(window.location.href,key,id);
+    renderQR(qrBox,fallback);
     try{
-      if(window.QRCode){new QRCode(box.querySelector('.jb-qr-box'),{text:url,width:110,height:110});}
-      else box.querySelector('.jb-qr-box').textContent=url;
-    }catch(e){box.querySelector('.jb-qr-box').textContent=url;}
+      if(typeof call==='function'){
+        call('getMainWebAppUrl').then(function(r){
+          if(r&&r.ok&&r.url) renderQR(qrBox,docVerifyUrl(String(r.url).trim(),key,id));
+        }).catch(function(){});
+      }
+    }catch(e){}
   }
   window.jbAddVerificationQR=function(key,id){
     var p=document.getElementById('jbDocPreview');
