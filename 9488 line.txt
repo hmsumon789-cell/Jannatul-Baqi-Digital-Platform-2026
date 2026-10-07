@@ -8386,13 +8386,14 @@ body.gold #searchProfilePrint .sp-field{border-color:#d40000!important}
   }
 
   window.loadMarkResultSubjects2026=fillSubjects2026;
+  window.JB_MARKS_SUBJECTS_2026=SUBJECTS_12_2026;
   window.saveMarkResult2026=async function(k){
     const subjects=[];
     for(let i=1;i<=12;i++){
       const name=document.getElementById('mrSubject'+i)?.value||'';
       const mark=document.getElementById('mrMark'+i)?.value||'';
       const grade=document.getElementById('mrGrade'+i)?.value||'';
-      if(name)subjects.push({Subject:name,Marks:mark,Grade:grade});
+      if(name)subjects.push({subject:name,marks:mark,grade:grade});
     }
     const d={
       StudentID:document.getElementById('mrStudent')?.value||document.getElementById('mrStudentID')?.value||'',
@@ -9506,11 +9507,61 @@ body.dark #jbDocBuilderWin{background:#000;color:#ffe95c;border-color:#ff1f2f}bo
   function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
   function first(row,names){for(var i=0;i<names.length;i++){var k=names[i];if(row&&row[k]!=null&&String(row[k]).trim()!=='')return row[k]}return ''}
   function openBuilder(k,selectedType){currentDoc=DOC_KEYS[k]||DOC_KEYS.marks;currentDoc.key=k;selected={};var w=E('jbDocBuilderWin');if(!w){w=document.createElement('div');w.id='jbDocBuilderWin';w.innerHTML='<div id="jbDocBuilderHead"><b id="jbDocBuilderTitle"></b><button class="secondary" onclick="jbCloseDocBuilder()">✕ বন্ধ</button></div><div id="jbDocBuilderTools"></div><div id="jbDocBuilderBody"></div>';document.body.appendChild(w)}E('jbDocBuilderTitle').textContent=currentDoc.title;E('jbDocBuilderTools').innerHTML='<div class="jb-doc-idbar"><input id="jbDocId" class="field" placeholder="শিক্ষার্থী ID লিখুন"><button class="primary" onclick="jbFindStudent()">🔎 ID দিয়ে তথ্য আনুন</button></div><div class="jb-doc-note">ID লিখে <b>Enter</b> চাপলেও তথ্য আসবে। ভর্তি-কালীন সংরক্ষিত তথ্য থেকে প্রয়োজনীয় ঘর ☑ নির্বাচন করুন।</div><div id="jbDocFields" class="jb-doc-fields"></div><div class="jb-doc-actions">'+(selectedType?'<button class="primary" onclick="jbCreatePreview()">📄 '+currentDoc.title+' তৈরি করুন</button>':'<button class="primary" onclick="jbShowCardTypeList2026()">📋 কার্ড তালিকা</button>')+'<button class="secondary" onclick="jbClearDoc()">🧹 ক্লিয়ার</button></div><div id="jbDocPreviewWrap" class="jb-doc-preview-wrap"></div>';w.classList.add('show');E('jbDocId').focus();E('jbDocId').onkeydown=function(ev){if(ev.key==='Enter'){ev.preventDefault();jbFindStudent()}}}
-  function fields(row){var defs=[['StudentID','ID',['StudentID']],['NameBN','বাংলা নাম',['NameBN']],['NameAR','আরবি নাম',['NameAR']],['NameEN','ইংরেজি নাম',['NameEN']],['FatherBN','পিতার নাম',['FatherBN','FatherNameBN']],['FatherAR','পিতার নাম — আরবি',['FatherAR','FatherNameAR']],['FatherEN','পিতার নাম — English',['FatherEN','FatherNameEN']],['MotherBN','মাতার নাম',['MotherBN','MotherNameBN']],['MotherAR','মাতার নাম — আরবি',['MotherAR','MotherNameAR']],['MotherEN','মাতার নাম — English',['MotherEN','MotherNameEN']],['DOB','জন্ম তারিখ',['DOB']],['Mobile','মোবাইল',['Mobile']],['WhatsApp','WhatsApp',['WhatsApp']],['Email','ইমেইল',['Email']],['Address','ঠিকানা',['Address']],['Division','বিভাগ',['Division']],['District','জেলা',['District']],['Upazila','উপজেলা',['Upazila']],['Union','ইউনিয়ন',['Union']],['Post','ডাকঘর',['Post','PostOffice']],['PostCode','পোস্ট কোড',['PostCode']],['Ward','ওয়ার্ড',['Ward']],['Village','গ্রাম',['Village']],['Class','শ্রেণি/জামাত',['Class']],['Department','বিভাগ/ডিপার্টমেন্ট',['Department']],['Branch','শাখা',['Branch']],['Roll','রোল',['Roll']],['BirthReg','জন্ম নিবন্ধন',['BirthReg']],['NID','NID',['NID']],['Exam','পরীক্ষা',['Exam']],['ExamYear','পরীক্ষা সাল',['ExamYear']],['Photo','ছবি',['Photo']]];if(currentDoc.key==='marks'||currentDoc.key==='result'){defs.push(['Exam','পরীক্ষা',['Exam']],['SubjectData','বিষয় ও নম্বর',['SubjectData']],['Total','মোট নম্বর',['Total']],['Average','গড় নাম্বার',['Average']],['GPA','GPA',['GPA']],['Grade','গ্রেড',['Grade']],['Merit','মেধা স্থান',['Merit']]);}if(currentDoc.key==='admit_cards'){defs.push(['Exam','পরীক্ষা',['Exam']],['ExamYear','পরীক্ষা সাল',['ExamYear']],['SubjectData','বিষয়সমূহ',['SubjectData']],['ExamDate','পরীক্ষার তারিখ',['ExamDate']],['ExamTime','সময়',['ExamTime']],['Center','পরীক্ষা কেন্দ্র',['Center']]);}if(currentDoc.key==='certificates'){defs.push(['CertificateNo','সনদ নম্বর',['CertificateNo']],['IssueDate','প্রদানের তারিখ',['IssueDate']],['Result','ফলাফল',['Result']],['Signature','স্বাক্ষর',['Signature']],['Seal','সিল',['Seal']]);}if(currentDoc.key==='receipts'){defs.push(['ReceiptNo','রিসিট নম্বর',['ReceiptNo']],['Month','মাস/সময়',['Month']],['Category','খাত/কারণ',['Category']],['Amount','টাকার পরিমাণ',['Amount']],['Method','পরিশোধের মাধ্যম',['Method']],['Date','তারিখ',['Date']],['Note','বিবরণ',['Note']]);}if(currentDoc.key==='id_cards'){defs.push(['EmergencyContact','জরুরি যোগাযোগ',['EmergencyContact']],['Guardian','অভিভাবক',['Guardian']],['QR','QR কোড',['QR']]);};var host=E('jbDocFields');host.innerHTML='';defs.forEach(function(d){var v=first(row,d[2]||[d[0],d[0].toLowerCase()]);var div=document.createElement('div');div.className='jb-doc-field';var cb=document.createElement('input');cb.type='checkbox';cb.checked=selected[d[0]]!==false;cb.onchange=function(){selected[d[0]]=cb.checked};var lab=document.createElement('label');lab.appendChild(cb);lab.appendChild(document.createTextNode(d[1]));div.appendChild(lab);var inp=document.createElement('input');inp.value=(typeof v==='object'?'':v);inp.dataset.key=d[0];inp.disabled=false;if(d[0]==='Photo')inp.placeholder='Photo URL / data';div.appendChild(inp);host.appendChild(div)});}
+  function fields(row){var defs=[['StudentID','ID',['StudentID']],['NameBN','বাংলা নাম',['NameBN']],['NameAR','আরবি নাম',['NameAR']],['NameEN','ইংরেজি নাম',['NameEN']],['FatherBN','পিতার নাম',['FatherBN','FatherNameBN']],['FatherAR','পিতার নাম — আরবি',['FatherAR','FatherNameAR']],['FatherEN','পিতার নাম — English',['FatherEN','FatherNameEN']],['MotherBN','মাতার নাম',['MotherBN','MotherNameBN']],['MotherAR','মাতার নাম — আরবি',['MotherAR','MotherNameAR']],['MotherEN','মাতার নাম — English',['MotherEN','MotherNameEN']],['DOB','জন্ম তারিখ',['DOB']],['Mobile','মোবাইল',['Mobile']],['WhatsApp','WhatsApp',['WhatsApp']],['Email','ইমেইল',['Email']],['Address','ঠিকানা',['Address']],['Division','বিভাগ',['Division']],['District','জেলা',['District']],['Upazila','উপজেলা',['Upazila']],['Union','ইউনিয়ন',['Union']],['Post','ডাকঘর',['Post','PostOffice']],['PostCode','পোস্ট কোড',['PostCode']],['Ward','ওয়ার্ড',['Ward']],['Village','গ্রাম',['Village']],['Class','শ্রেণি/জামাত',['Class']],['Department','বিভাগ/ডিপার্টমেন্ট',['Department']],['Branch','শাখা',['Branch']],['Roll','রোল',['Roll']],['BirthReg','জন্ম নিবন্ধন',['BirthReg']],['NID','NID',['NID']],['Exam','পরীক্ষা',['Exam']],['ExamYear','পরীক্ষা সাল',['ExamYear']],['Photo','ছবি',['Photo']]];if(currentDoc.key==='marks'||currentDoc.key==='result'){defs.push(['Exam','পরীক্ষা',['Exam']],['SubjectData','বিষয় ও নম্বর',['SubjectData']],['Total','মোট নম্বর',['Total']],['Average','গড় নাম্বার',['Average']],['GPA','GPA',['GPA']],['Grade','গ্রেড',['Grade']],['Merit','মেধা স্থান',['Merit']]);}if(currentDoc.key==='admit_cards'){defs.push(['Exam','পরীক্ষা',['Exam']],['ExamYear','পরীক্ষা সাল',['ExamYear']],['SubjectData','বিষয়সমূহ',['SubjectData']],['ExamDate','পরীক্ষার তারিখ',['ExamDate']],['ExamTime','সময়',['ExamTime']],['Center','পরীক্ষা কেন্দ্র',['Center']]);}if(currentDoc.key==='certificates'){defs.push(['CertificateNo','সনদ নম্বর',['CertificateNo']],['IssueDate','প্রদানের তারিখ',['IssueDate']],['Result','ফলাফল',['Result']],['Signature','স্বাক্ষর',['Signature']],['Seal','সিল',['Seal']]);}if(currentDoc.key==='receipts'){defs.push(['ReceiptNo','রিসিট নম্বর',['ReceiptNo']],['Month','মাস/সময়',['Month']],['Category','খাত/কারণ',['Category']],['Amount','টাকার পরিমাণ',['Amount']],['Method','পরিশোধের মাধ্যম',['Method']],['Date','তারিখ',['Date']],['Note','বিবরণ',['Note']]);}if(currentDoc.key==='id_cards'){defs.push(['EmergencyContact','জরুরি যোগাযোগ',['EmergencyContact']],['Guardian','অভিভাবক',['Guardian']],['QR','QR কোড',['QR']]);};var host=E('jbDocFields');host.innerHTML='';
+var isMR=currentDoc.key==='marks'||currentDoc.key==='result';
+var markSubjects=window.JB_MARKS_SUBJECTS_2026||{};
+function markSync(){
+  var hidden=document.querySelector('#jbDocFields [data-key="SubjectData"]'),arr=[];
+  for(var mi=1;mi<=12;mi++){var ss=E('jbMsSubject'+mi),mm=E('jbMsMark'+mi);if(ss&&ss.value)arr.push({subject:ss.value,marks:mm?mm.value:'',grade:''});}
+  if(hidden)hidden.value=JSON.stringify(arr);
+  var total=arr.reduce(function(a,x){return a+(Number(x.marks)||0)},0);
+  var tc=document.querySelector('#jbDocFields [data-key="Total"]');if(tc)tc.value=total;
+}
+function fillMarkSubjects(selectedClass,oldData){
+  var list=markSubjects[selectedClass]||[],parsed=[];
+  try{parsed=JSON.parse(String(oldData||'[]'))||[]}catch(e){}
+  parsed=parsed.map(function(x){return {subject:x.subject||x.Subject||'',marks:(x.marks!=null&&x.marks!=='')?x.marks:(x.Marks||'')}});
+  for(var mi=1;mi<=12;mi++){
+    var ss=E('jbMsSubject'+mi),mm=E('jbMsMark'+mi);if(!ss)continue;
+    ss.innerHTML='<option value="">বিষয় নির্বাচন করুন</option>'+list.map(function(x){return '<option value="'+String(x).replace(/"/g,'&quot;')+'">'+x+'</option>'}).join('');
+    var old=parsed[mi-1]||{};
+    if(old.subject&&list.indexOf(old.subject)>=0)ss.value=old.subject;
+    if(mm)mm.value=old.marks||'';
+    ss.disabled=mi>list.length;if(mm)mm.disabled=mi>list.length;
+  }
+  markSync();
+}
+defs.forEach(function(d){
+  var v=first(row,d[2]||[d[0],d[0].toLowerCase()]),div=document.createElement('div');div.className='jb-doc-field';
+  var cb=document.createElement('input');cb.type='checkbox';cb.checked=selected[d[0]]!==false;cb.onchange=function(){selected[d[0]]=cb.checked};
+  var lab=document.createElement('label');lab.appendChild(cb);lab.appendChild(document.createTextNode(d[1]));div.appendChild(lab);
+  if(isMR&&d[0]==='Class'){
+    var hiddenClass=document.createElement('input');hiddenClass.type='hidden';hiddenClass.dataset.key='Class';hiddenClass.value=v||Object.keys(markSubjects)[0]||'';div.appendChild(hiddenClass);
+    var sel=document.createElement('select');sel.className='field';sel.dataset.uiKey='Class';
+    Object.keys(markSubjects).forEach(function(x){var o=document.createElement('option');o.value=x;o.textContent=x;sel.appendChild(o)});
+    sel.value=hiddenClass.value||sel.options[0]?.value||'';hiddenClass.value=sel.value;
+    sel.onchange=function(){hiddenClass.value=sel.value;fillMarkSubjects(sel.value,(document.querySelector('#jbDocFields [data-key="SubjectData"]')||{}).value||'')};
+    div.appendChild(sel);host.appendChild(div);return;
+  }
+  if(isMR&&d[0]==='SubjectData'){
+    var hidden=document.createElement('input');hidden.type='hidden';hidden.dataset.key='SubjectData';hidden.value=typeof v==='object'?'':(v||'[]');div.appendChild(hidden);
+    var title=document.createElement('div');title.textContent='বিষয় ও নম্বর — শ্রেণি/জামাত অনুযায়ী';title.style.cssText='font-weight:900;margin:8px 0 6px';div.appendChild(title);
+    for(var mi=1;mi<=12;mi++){
+      var rowBox=document.createElement('div');rowBox.style.cssText='display:grid;grid-template-columns:minmax(0,1fr) 120px;gap:7px;margin:5px 0';
+      var ss=document.createElement('select');ss.id='jbMsSubject'+mi;ss.className='field';ss.onchange=markSync;
+      var mm=document.createElement('input');mm.id='jbMsMark'+mi;mm.className='field';mm.type='number';mm.min='0';mm.max='100';mm.placeholder='নম্বর';mm.oninput=markSync;
+      rowBox.appendChild(ss);rowBox.appendChild(mm);div.appendChild(rowBox);
+    }
+    host.appendChild(div);
+    setTimeout(function(){var cls=document.querySelector('#jbDocFields [data-key="Class"]');fillMarkSubjects(cls?cls.value:(Object.keys(markSubjects)[0]||''),hidden.value);},0);
+    return;
+  }
+  var inp=document.createElement('input');inp.value=(typeof v==='object'?'':v);inp.dataset.key=d[0];inp.disabled=false;if(d[0]==='Photo')inp.placeholder='Photo URL / data';div.appendChild(inp);host.appendChild(div);
+});}
   async function findStudent(){var id=(E('jbDocId').value||'').trim();if(!id)return toast('শিক্ষার্থীর ID দিন।');try{var r=await call('getStudentDocumentData',token,id);if(!r||!r.found){E('jbDocFields').innerHTML='<div class="jb-doc-note" style="grid-column:1/-1">⚠️ <b>কোন তথ্য পাওয়া যায়নি।</b> অনুগ্রহ করে প্রয়োজনীয় তথ্য হাতে পূরণ করে তৈরি করুন।<br><br><button class="primary" onclick="jbManualEntry()">✍️ হাতে পূরণ করুন</button></div>';currentRows=[{StudentID:id}];return}currentRows=[r.data||{StudentID:id}];selected={};fields(currentRows[0]);toast(r.admissionFound?'ভর্তি-কালীন পূর্ণ তথ্য পাওয়া গেছে।':'শিক্ষার্থী তথ্য পাওয়া গেছে।')}catch(e){toast('তথ্য খোঁজার সময় সার্ভার ত্রুটি হয়েছে।')}}
-  function manualEntry(){var row=currentRows[0]||{};var host=E('jbDocFields');host.innerHTML='';['StudentID','NameBN','NameAR','NameEN','FatherNameBN','MotherNameBN','DOB','Mobile','Address','Class','Roll','Exam','ExamYear','Photo'].forEach(function(k){var d=document.createElement('div');d.className='jb-doc-field';d.innerHTML='<label>'+k+'</label><input data-key="'+k+'" class="field">';host.appendChild(d)});host.querySelector('[data-key="StudentID"]').value=row.StudentID||E('jbDocId').value;toast('Manual Entry চালু হয়েছে।')}
+  function manualEntry(){var row=currentRows[0]||{};if(currentDoc.key==='marks'||currentDoc.key==='result'){selected={};fields(row);toast('Manual Entry চালু হয়েছে — ১৪টি শ্রেণি/জামাত ও নির্দিষ্ট বিষয় তালিকা প্রস্তুত।');return}var host=E('jbDocFields');host.innerHTML='';['StudentID','NameBN','NameAR','NameEN','FatherNameBN','MotherNameBN','DOB','Mobile','Address','Class','Roll','Exam','ExamYear','Photo'].forEach(function(k){var d=document.createElement('div');d.className='jb-doc-field';d.innerHTML='<label>'+k+'</label><input data-key="'+k+'" class="field">';host.appendChild(d)});host.querySelector('[data-key="StudentID"]').value=row.StudentID||E('jbDocId').value;toast('Manual Entry চালু হয়েছে।')}
   function val(k){var x=document.querySelector('#jbDocFields [data-key="'+k+'"]');return x?x.value:''}
-  function createPreview(){
+  async function createPreview(){
 var isMR=currentDoc.key==='marks'||currentDoc.key==='result';
 var checks=[].slice.call(document.querySelectorAll('#jbDocFields .jb-doc-field input[type="checkbox"]')),vals=[];
 checks.forEach(function(cb){if(cb.checked){var inp=cb.closest('.jb-doc-field').querySelector('input[data-key]');if(inp&&inp.value.trim())vals.push([inp.dataset.key,inp.value.trim()])}});
@@ -9520,13 +9571,14 @@ var p=document.createElement('div');p.className='jb-doc-preview '+currentDoc.siz
 p.innerHTML='<div class="jb-corner"></div><div class="jb-doc-head"><h2>জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</h2><p>উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</p><h3>'+esc(currentDoc.title)+'</h3></div>';
 if(isMR){
 var raw=val('SubjectData')||'[]',items=[];try{items=JSON.parse(raw)||[]}catch(e){items=[]}
-var total=0,count=0;items=items.filter(function(x){return x&&x.subject}).slice(0,12);
+items=items.filter(function(x){return x&&(x.subject||x.Subject)}).map(function(x){return {subject:x.subject||x.Subject,marks:(x.marks!=null&&x.marks!=='')?x.marks:x.Marks,grade:x.grade||x.Grade||''}}).slice(0,12);
+var total=0,count=0;
 items.forEach(function(x){var n=Number(x.marks);if(!isNaN(n)){total+=n;count++}});
 var avg=count?total/count:0;
 function gradeGpa(n){n=Number(n)||0;return n>=80?['A+',5]:n>=70?['A',4]:n>=60?['A-',3.5]:n>=50?['B',3]:n>=40?['C',2]:n>=33?['D',1]:['F',0]}
 var autoGpa=count?(items.reduce(function(s,x){return s+gradeGpa(x.marks)[1]},0)/count):0;
 var autoGrade=count?gradeGpa(avg)[0]:'—';
-var autoMerit=val('Merit')||'অটো হিসাব হবে';
+var autoMerit='অটো হিসাব হবে';if(count&&val('StudentID')&&val('Class')&&val('Exam')&&typeof call==='function'&&token){try{var meritRes=await call('getMarksMerit',token,val('StudentID'),val('Class'),val('Exam'),total);if(meritRes&&meritRes.ok&&meritRes.label)autoMerit=meritRes.label;}catch(e){}}
 var photo=val('Photo');if(photo&&/^data:image|^https?:/i.test(photo))p.innerHTML+='<img class="jb-doc-photo" src="'+esc(photo)+'">';
 p.innerHTML+='<section class="jb-ms-layer jb-ms-student"><div class="jb-ms-layer-title">১ম স্তর — শিক্ষার্থীর তথ্য</div><div class="jb-ms-student-grid">';
 [['StudentID','আইডি'],['NameBN','নাম'],['NameAR','আরবি নাম'],['NameEN','ইংরেজি নাম'],['FatherNameBN','পিতার নাম'],['MotherNameBN','মাতার নাম'],['DOB','জন্ম তারিখ'],['Mobile','মোবাইল'],['Class','শ্রেণি/জামাত'],['Roll','রোল'],['Exam','পরীক্ষা'],['ExamYear','পরীক্ষা সাল']].forEach(function(x){var v=val(x[0]);if(v)p.innerHTML+='<div class="jb-ms-student-cell"><b>'+x[1]+'</b><span>'+esc(v)+'</span></div>'});
