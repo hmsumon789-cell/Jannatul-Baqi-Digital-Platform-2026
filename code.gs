@@ -960,10 +960,10 @@ function onlineServicePersonId_(data,docKey,fallback) {
 }
 function onlineServiceCleanHtml_(html) {
   let s=String(html||'');
-  s=s.replace(/<script[\\s\\S]*?<\\/script>/gi,'');
-  s=s.replace(/<button\\b[^>]*>[\\s\\S]*?<\\/button>/gi,'');
-  s=s.replace(/\\s+on[a-z]+\\s*=\\s*(".*?"|'.*?'|[^\\s>]+)/gi,'');
-  s=s.replace(/contenteditable\\s*=\\s*("true"|'true'|true)/gi,'');
+  s=s.replace(/<script[\s\S]*?<\/script>/gi,'');
+  s=s.replace(/<button\b[^>]*>[\s\S]*?<\/button>/gi,'');
+  s=s.replace(/\s+on[a-z]+\s*=\s*(".*?"|'.*?'|[^\s>]+)/gi,'');
+  s=s.replace(/contenteditable\s*=\s*("true"|'true'|true)/gi,'');
   s=s.replace(/<div[^>]*class=(["'])[^"']*jb-verification-qr[^"']*\\1[^>]*>[\\s\\S]*?<\\/div>/gi,'');
   return s;
 }
