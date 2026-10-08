@@ -1566,10 +1566,10 @@ function submitOnlinePayment(data,token){
   if(!id||!isFinite(amount)||amount<=0||!method)return {ok:false,message:'Student ID, Amount ও পেমেন্ট মাধ্যম সঠিকভাবে দিন।'};
   if(method!=='হ্যান্ড ক্যাশ'&&!ref)return {ok:false,message:'Transaction / Reference ID দিন।'};
   const st=findBy_(SHEETS.STUDENTS,'StudentID',id);if(!st)return {ok:false,message:'Student ID সঠিক নয়।'};
-  const payerMobile=String(data.PayerMobile||st.Mobile||st.WhatsApp||'').trim();
-  const payerEmail=String(data.PayerEmail||st.Email||'').trim();
-  if(payerMobile&&st.Mobile&&payerMobile!==String(st.Mobile).trim()&&!token)return {ok:false,message:'ভর্তি সময়ের মোবাইল নম্বরের সাথে মিল নেই।'};
-  if(payerEmail&&st.Email&&payerEmail.toLowerCase()!==String(st.Email).trim().toLowerCase()&&!token)return {ok:false,message:'ভর্তি সময়ের ইমেইলের সাথে মিল নেই।'};
+  const payerMobile=String(data.PayerMobile||'').trim();
+  const payerEmail=String(data.PayerEmail||'').trim();
+  if(!payerMobile&&!payerEmail)return {ok:false,message:'পেমেন্টের সময় বর্তমান মোবাইল অথবা ইমেইল দিন।'};
+  if(payerEmail && (payerEmail.indexOf('@')<1 || payerEmail.indexOf('.')<3))return {ok:false,message:'সঠিক ইমেইল ঠিকানা দিন।'};
   data.PayerMobile=payerMobile;data.PayerEmail=payerEmail;data.Name=st.NameBN||st.NameEN||data.Name||'';
   const sh=ensureOnlinePaymentRequestSheet_(),vals=sh.getDataRange().getValues(),hh=vals[0].map(String),ri=hh.indexOf('Reference'),si=hh.indexOf('Status');
   if(ref){for(let i=1;i<vals.length;i++){if(String(vals[i][ri]||'').trim()===ref&&['PENDING','APPROVED'].includes(String(vals[i][si]||'').toUpperCase()))return {ok:false,message:'এই Transaction / Reference ID আগে ব্যবহার হয়েছে।'};}}
