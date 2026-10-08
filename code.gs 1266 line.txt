@@ -1114,6 +1114,67 @@ function getModules_(){
     ['receipt','মানিরিসিট'],['accountControl','অনুমোদন + ফিচার পারমিশন'],['maleMadrasa','নিবন্ধনকৃত পুরুষ মাদ্রাসা'],['femaleMadrasa','নিবন্ধনকৃত মহিলা মাদ্রাসা'],['help','পরামর্শ+যোগ+অভিযোগ']
   ];
 }
+/* ===== SMS PORTAL — MASTER CONTACT DIRECTORY + QUEUE — 2026-10-08 ===== */
+function getSmsPortalContacts(token){
+  auth_(token);
+  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  const out=[];
+  const addSheet=function(sheetName,type,idKeys,nameKeys){
+    try{
+      const sh=ss.getSheetByName(sheetName);
+      if(!sh||sh.getLastRow()<2)return;
+      const vals=sh.getDataRange().getValues(),h=vals[0].map(String),ix={};
+      h.forEach(function(x,i){ix[x]=i;});
+      const pick=function(r,keys){for(let i=0;i<keys.length;i++){if(ix[keys[i]]!=null&&String(r[ix[keys[i]]]||'').trim()!=='')return r[ix[keys[i]]];}return '';};
+      vals.slice(1).forEach(function(r){
+        const id=String(pick(r,idKeys)||'').trim(),name=String(pick(r,nameKeys)||'').trim();
+        const mobile=normalizeBdMobile_(pick(r,['Mobile','mobile','Phone','PhoneNo','Contact','Hotline']));
+        const wa=normalizeBdMobile_(pick(r,['WhatsApp','whatsapp','WA','WhatsAppNo']));
+        const email=String(pick(r,['Email','email','EmailID'])||'').trim();
+        if(!id&&!name)return;
+        if(!mobile&&!wa&&!email)return;
+        out.push({source:sheetName,type:type,id:id||('AUTO-'+sheetName+'-'+(out.length+1)),name:name||id,mobile:mobile,whatsapp:wa,email:email});
+      });
+    }catch(e){}
+  };
+  addSheet(SHEETS.STUDENTS,'স্টুডেন্ট',['StudentID','ID'],['NameBN','Name','NameEN']);
+  addSheet(SHEETS.TEACHERS,'শিক্ষক/শিক্ষিকা',['TeacherID','ID'],['NameBN','Name','NameEN']);
+  addSheet(SHEETS.CONTACTS,'স্টাফ/কর্মী/সদস্য',['ContactID','ID'],['Name','NameBN','NameEN']);
+  addSheet(SHEETS.EXECUTIVES,'নির্বাহী পরিষদ সদস্য',['MemberID','ID'],['NameBN','Name','NameEN']);
+  addSheet(SHEETS.ADVISERS,'উপদেষ্টা সদস্য',['MemberID','ID'],['NameBN','Name','NameEN']);
+  addSheet(SHEETS.FOUNDERS,'প্রতিষ্ঠাতা সদস্য',['MemberID','ID'],['NameBN','Name','NameEN']);
+  addSheet(SHEETS.DONORS,'দাতা সদস্য',['DonorID','ID'],['NameBN','Name','NameEN']);
+  addSheet(SHEETS.ADMINS,'অ্যাডমিন',['AdminID','ID'],['NameBN','Name','NameEN','Username']);
+  addSheet(SHEETS.MADRASAS,'মাদ্রাসা/প্রতিষ্ঠান',['MadrasaID','ID'],['Name','NameBN','NameEN']);
+  const seen={};
+  return {ok:true,rows:out.filter(function(x){const k=x.source+'|'+x.id;if(seen[k])return false;seen[k]=1;return true;})};
+}
+function sendSmsPortal(token,recipients,message){
+  auth_(token);
+  if(!Array.isArray(recipients)||!recipients.length)return {ok:false,message:'কমপক্ষে একজন প্রাপক নির্বাচন করুন।'};
+  const msg=String(message||'').trim();
+  if(!msg)return {ok:false,message:'SMS মেসেজ লিখুন।'};
+  if(msg.length>1000)return {ok:false,message:'মেসেজ সর্বোচ্চ ১০০০ অক্ষরের মধ্যে রাখুন।'};
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.SMS_QUEUE);
+  if(!sh)return {ok:false,message:'SMS_QUEUE শিট পাওয়া যায়নি।'};
+  let queued=0,skipped=0,now=now_();
+  const unique={};
+  recipients.forEach(function(x){
+    x=x||{};
+    const mobile=normalizeBdMobile_(x.mobile||x.Mobile||'');
+    if(!mobile||unique[mobile]){if(!mobile)skipped++;return;}
+    unique[mobile]=1;
+    const id=String(x.id||x.ID||'').trim(),name=String(x.name||x.Name||'').trim();
+    append_(SHEETS.SMS_QUEUE,[nextSerial_(sh),'SMS-'+Date.now()+'-'+Math.floor(Math.random()*100000),mobile,msg,'QUEUED','', '',now]);
+    queued++;
+  });
+  return {ok:true,queued:queued,skipped:skipped,message:queued+' জনের SMS পাঠানোর queue-তে যোগ হয়েছে।'+(skipped?' '+skipped+' জনের বৈধ মোবাইল পাওয়া যায়নি।':'')};
+}
+function getSmsQueueHistory(token,limit){
+  auth_(token);
+  return {ok:true,rows:listRows_(SHEETS.SMS_QUEUE,token,Math.min(Number(limit)||500,1000)).reverse()};
+}
+
 /* ===== CENTRAL DOCUMENT BUILDER — ADMISSION MASTER DATA — 2026-10-06 ===== */
 function getStudentDocumentData(token, studentId) {
   auth_(token);
