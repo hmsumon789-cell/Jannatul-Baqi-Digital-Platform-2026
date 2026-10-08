@@ -1912,7 +1912,7 @@ window.refreshAccountManager=async function(){
     var wrap=document.createElement('div');wrap.className='account-manager-wrap';
     wrap.innerHTML='<div class="account-manager-title">🔐 Account Approval & Permission Control</div><div class="account-manager-note">এখান থেকে Super Admin নতুন Admin/Madrasa Account অনুমোদন করবেন, কোন কোন কাজ করতে পারবে তা টিক দেবেন, প্রয়োজনে Suspend/Active করবেন এবং Password Reset করতে পারবেন।</div>';
     var tabs=document.createElement('div');tabs.className='account-tabs';
-    [['admin','Admin Account'],['madrasa','Madrasa Account'],['all','সব Account']].forEach(function(t){var b=document.createElement('button');b.type='button';b.className='account-tab';b.textContent=t[1];b.onclick=function(){renderAccountList(t[0])};tabs.appendChild(b)});
+    [['admin','Admin Account'],['madrasa','Madrasa Account'],['students','Pending Student ভর্তি'],['all','সব Account']].forEach(function(t){var b=document.createElement('button');b.type='button';b.className='account-tab';b.textContent=t[1];b.onclick=function(){renderAccountList(t[0])};tabs.appendChild(b)});
     wrap.appendChild(tabs);var list=document.createElement('div');list.id='accountListUi';list.className='account-list';wrap.appendChild(list);body.appendChild(wrap);
     window._accountData=r;renderAccountList('all');
   }catch(e){toast('Account Manager সার্ভার ত্রুটি: '+(e&&e.message?e.message:e))}
@@ -1921,18 +1921,26 @@ window.renderAccountList=function(type){
   var d=window._accountData||{},arr=[];
   if(type==='admin'||type==='all')arr=arr.concat((d.admins||[]).map(function(x){return Object.assign({_type:'admin'},x)}));
   if(type==='madrasa'||type==='all')arr=arr.concat((d.madrasas||[]).map(function(x){return Object.assign({_type:'madrasa'},x)}));
+  if(type==='students'||type==='all')arr=arr.concat((d.admissions||[]).map(function(x){return Object.assign({_type:'studentAdmission'},x)}));
   var box=$('accountListUi');if(!box)return;
   box.innerHTML='';
   if(!arr.length){box.innerHTML='<div class="account-card">কোনো Account পাওয়া যায়নি।</div>';return}
   arr.forEach(function(x){
-    var id=x._type==='admin'?x.AdminID:x.MadrasaID;
-    var name=x._type==='admin'?(x.NameBN||x.Name||'Admin'):(x.Name||x.NameBN||'Madrasa');
+    var id=x._type==='admin'?x.AdminID:(x._type==='madrasa'?x.MadrasaID:x.AdmissionID);
+    var name=x._type==='admin'?(x.NameBN||x.Name||'Admin'):(x._type==='madrasa'?(x.Name||x.NameBN||'Madrasa'):(x.nameBN||x.NameBN||x.StudentID||'শিক্ষার্থী'));
     var status=x.Status||'PENDING';
     var checked=String(x.Permissions||'').split(',').map(function(s){return s.trim()}).filter(Boolean);
     var card=document.createElement('div');card.className='account-card '+(String(status).toUpperCase()==='PENDING'?'pending':'');card.dataset.type=x._type;card.dataset.id=String(id||'');
     var head=document.createElement('div');head.className='account-card-head';head.innerHTML='<span>'+escA(name)+'</span><span>Status: <b>'+escA(status)+'</b></span>';card.appendChild(head);
     var meta=document.createElement('div');meta.className='account-meta';
     [['ID',id],['Username',x.Username||''],['Password',x.Password||''],['Mobile',x.Mobile||''],['Type',_typeLabel(x._type)],['Approved By',x.ApprovedBy||'']].forEach(function(a){var q=document.createElement('div');q.innerHTML=escA(a[0])+': <b>'+escA(a[1])+'</b>';meta.appendChild(q)});card.appendChild(meta);
+    if(x._type==='studentAdmission'){
+      var sm=document.createElement('div');sm.className='account-meta';
+      [['Student ID',x.StudentID||''],['Class',x.Class||''],['Branch',x.Branch||''],['Source',x.FormData||''],['Status',x.Status||'PENDING']].forEach(function(a){var q=document.createElement('div');q.innerHTML=escA(a[0])+': <b>'+escA(a[1])+'</b>';sm.appendChild(q)});card.appendChild(sm);
+      var sa=document.createElement('div');sa.className='account-actions-ui';
+      var sb=document.createElement('button');sb.type='button';sb.className='approve';sb.textContent='✅ ভর্তি অনুমোদন';sb.onclick=function(){approvePendingStudent2026(sb)};sa.appendChild(sb);card.appendChild(sa);
+      box.appendChild(card);return;
+    }
     var label=document.createElement('div');label.innerHTML='<b>অনুমোদিত কাজ নির্বাচন করুন:</b>';card.appendChild(label);
     var pg=document.createElement('div');pg.className='perm-grid-ui';
     ACCOUNT_PERMS.forEach(function(p){var l=document.createElement('label');var cb=document.createElement('input');cb.className='perm-ui';cb.type='checkbox';cb.dataset.key=p[0];cb.checked=checked.indexOf(p[0])>=0;l.appendChild(cb);l.appendChild(document.createTextNode(' '+p[1]));pg.appendChild(l)});card.appendChild(pg);
@@ -1943,6 +1951,13 @@ window.renderAccountList=function(type){
     var rp=document.createElement('button');rp.type='button';rp.className='reset';rp.textContent='🔑 Password Reset';rp.onclick=function(){resetAccountPasswordUi(rp)};acts.appendChild(rp);
     card.appendChild(acts);box.appendChild(card);
   });
+};
+window.approvePendingStudent2026=async function(btn){
+  var c=btn&&btn.closest?btn.closest('.account-card'):null;if(!c)return;
+  btn.disabled=true;btn.textContent='⏳ অনুমোদন হচ্ছে...';
+  try{var r=await call('approveStudentAdmission',token,c.dataset.id);toast((r&&r.message)||'অনুমোদন সম্পন্ন');if(r&&r.ok)setTimeout(function(){refreshAccountManager()},500);}
+  catch(e){toast('অনুমোদন ব্যর্থ: '+(e&&e.message?e.message:e));}
+  finally{setTimeout(function(){btn.disabled=false;btn.textContent='✅ ভর্তি অনুমোদন'},800)}
 };
 window.saveAccountApproval=async function(btn){
   var c=btn&&btn.closest?btn.closest('.account-card'):null;if(!c)return toast('Account card পাওয়া যায়নি।');
