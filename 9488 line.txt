@@ -852,6 +852,14 @@ body.gold #loginPage .main-qr-802268e{background:#fff!important;border-color:#11
  setTimeout(loadLoginMainQR802268e,1600);
 })();
 </script>
+
+<style id="old-online-service-login-button-position-2026-10-08">
+#loginPage .jb-login-online-service-2026{
+  display:block!important;width:min(820px,100%)!important;min-height:54px!important;
+  margin:12px auto 0!important;padding:10px 16px!important;font-size:16px!important;
+  font-weight:900!important;border-radius:999px!important;box-sizing:border-box!important;
+}
+</style>
 </head>
 <body>
 <div id="welcomeScreen">
@@ -11608,9 +11616,10 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     var lp=document.getElementById('loginPage');if(!lp||document.getElementById('jbLoginOnlineService2026'))return;
     var b=document.createElement('button');b.id='jbLoginOnlineService2026';b.type='button';
     b.textContent='🌐 অনলাইন সেবা ঘরে বসেই গ্রহন করুন';
+    b.className='primary jb-login-online-service-2026';
     b.onclick=function(){var u=location.href.split('#')[0].split('?')[0];window.open(u+'?online=1','_blank')};
-    var loginActions=lp.querySelector('.actions');
-    if(loginActions)loginActions.insertAdjacentElement('afterend',b);else lp.appendChild(b);
+    var q=lp.querySelector('.quick');
+    if(q)q.insertAdjacentElement('afterend',b);else lp.appendChild(b);
   }
   function scan(){addOnlineButton();addLoginButton()}
   scan();
