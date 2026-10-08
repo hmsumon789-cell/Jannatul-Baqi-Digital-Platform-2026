@@ -673,6 +673,24 @@ function getStudent360(token,studentId) {
   const pick=function(sheet,key){return listRows_(sheet,token,10000).filter(function(r){return String(r[key]||'')===id;});};
   return {ok:true,student:student,admissions:pick(SHEETS.ADMISSIONS,'StudentID'),exams:pick(SHEETS.EXAM_REG,'StudentID'),payments:pick(SHEETS.PAYMENTS,'StudentID'),results:pick(SHEETS.RESULTS,'StudentID'),attendance:pick(SHEETS.ATTENDANCE,'StudentID'),admitCards:pick(SHEETS.ADMIT_CARDS,'StudentID')};
 }
+function syncExistingAdmissionsToStudents(token) {
+  if(!isSuperAdmin_(token)) return {ok:false,message:'শুধু Super Admin পুরোনো ভর্তি রেকর্ড Master Student তালিকায় যুক্ত করতে পারবেন।'};
+  ensureStudentWorkflowColumns_();
+  const rows=listRows_(SHEETS.ADMISSIONS,token,10000);
+  let created=0,updated=0,skipped=0;
+  rows.forEach(function(r){
+    try{
+      const x=syncAdmissionToStudent_(token,r);
+      if(x && x.skipped) skipped++;
+      else if(x && x.created) created++;
+      else if(x && x.ok) updated++;
+    }catch(e){ skipped++; }
+  });
+  return {ok:true,created:created,updated:updated,skipped:skipped,message:'পুরোনো ভর্তি রেকর্ড থেকে Master Student তালিকা সমন্বয় সম্পন্ন হয়েছে।'};
+}
+function getStudentLinkedLists(token,studentId) {
+  return getStudent360(token,studentId);
+}
 /* ===== END STUDENT MASTER WORKFLOW ===== */
 
 function saveRecord(token,sheetName,data) {
@@ -704,6 +722,7 @@ function saveRecord(token,sheetName,data) {
   if(sheetName==='ADMISSIONS') workflow=syncAdmissionToStudent_(token,data);
   log_(sessionUser_(token),'create',sheetName,JSON.stringify(data).slice(0,1000));
   return {ok:true,row:objectFrom_(headers,row),studentWorkflow:workflow};
+}
 
 function updateRecord(token,sheetName,serial,data) {
   auth_(token); const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
