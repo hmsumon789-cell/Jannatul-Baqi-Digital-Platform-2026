@@ -1062,6 +1062,7 @@ body.gold #loginPage .main-qr-802268e{background:#fff!important;border-color:#11
   </main>
 </div>
 
+<div id="onlinePaymentManagerWin" class="window" style="width:min(1400px,97vw)"><div class="win-head"><b>💳 Online Payment — পেমেন্ট ম্যানেজমেন্ট</b><button class="secondary" type="button" onclick="closeWindow('onlinePaymentManagerWin')">✕</button></div><div class="win-body" id="onlinePaymentManagerBody"></div></div>
 <div id="accountManagerWin" class="window" style="width:min(1100px,96vw)"><div class="win-head"><b>🔐 Super Admin — Account Approval & Permission</b><span><button class="secondary" onclick="refreshAccountManager()">↻</button><button class="secondary" onclick="closeWindow('accountManagerWin')">✕</button></span></div><div class="win-body"></div></div>
 <div id="formWin" class="window"><div class="win-head"><b id="winTitle">ফর্ম</b><div class="win-actions"><button class="secondary" type="button" onclick="minimizeWin()" title="Minimize">—</button><button class="secondary" type="button" onclick="clearFormWindow()" title="Clear">🧹</button><button class="secondary" type="button" onclick="closeWindow('formWin')" title="Close">✕</button></div></div><div class="win-body" id="winBody"></div></div>
 <div id="searchWin" class="window"><div class="win-head"><b>সার্চ প্রোফাইল</b><button class="secondary" onclick="closeWindow('searchWin')">✕</button></div><div class="win-body" id="searchBody"></div></div>
@@ -1292,32 +1293,33 @@ async function savePayment(){
   if(r.ok){$('pReference').value='';$('pPayerMobile').value='';$('pAmount').value='';$('pNote').value='';}
 }
 async function openPendingPayments(){
-  const box=$('pendingPaymentArea');
-  if(box) box.innerHTML='<div class="card" style="padding:12px;margin-top:8px;text-align:center;font-weight:900">⏳ Pending পেমেন্ট তালিকা লোড হচ্ছে...</div>';
+  if(!superUser())return toast('শুধু Super Admin Pending পেমেন্ট অনুমোদন করতে পারবেন।');
+  openWindow('onlinePaymentManagerWin');
+  await loadOnlinePaymentManager('inbox');
+}
+async function loadOnlinePaymentManager(tab){
+  const body=$('onlinePaymentManagerBody');if(!body)return;
+  body.innerHTML='<div style="text-align:center;padding:25px;font-weight:900">⏳ পেমেন্ট তথ্য লোড হচ্ছে...</div>';
   try{
-    if(typeof superUser==='function'&&!superUser()){
-      const msg='শুধু Super Admin Pending পেমেন্ট অনুমোদন করতে পারবেন।';
-      if(box) box.innerHTML='<div class="card" style="padding:12px;margin-top:8px;color:#b00020;font-weight:900">'+esc(msg)+'</div>';
-      toast(msg); return;
+    const r=await call('getOnlinePaymentManagerData',token);
+    if(!r||!r.ok){body.innerHTML='<div class="card" style="padding:15px;color:#b00020;font-weight:900">❌ '+esc((r&&r.message)||'তথ্য পাওয়া যায়নি।')+'</div>';return;}
+    const inbox=(r.inbox||[]).filter(x=>String(x.Status||'').toUpperCase()==='PENDING');
+    const history=r.history||[],outbox=r.outbox||[];
+    let html='<div class="payment-manager-tabs"><button class="primary" type="button" onclick="loadOnlinePaymentManager(\'inbox\')">📥 ইনবক্স ('+inbox.length+')</button><button class="secondary" type="button" onclick="loadOnlinePaymentManager(\'outbox\')">📤 আউটবক্স ('+outbox.length+')</button><button class="secondary" type="button" onclick="loadOnlinePaymentManager(\'history\')">🧾 লেনদেন হিস্ট্রি ('+history.length+')</button></div>';
+    if(tab==='inbox'){
+      html+='<div class="table-wrap"><table class="data-table"><thead><tr><th>Request ID</th><th>প্রদানকারী</th><th>Student ID</th><th>Amount</th><th>Method</th><th>Reference</th><th>মোবাইল</th><th>Action</th></tr></thead><tbody>';
+      html+=inbox.map(x=>'<tr><td>'+esc(x.RequestID||'')+'</td><td>'+esc(x.Name||'')+'</td><td>'+esc(x.StudentID||'')+'</td><td>'+Number(x.Amount||0).toLocaleString('bn-BD')+' টাকা</td><td>'+esc(x.Method||'')+'</td><td>'+esc(x.Reference||'')+'</td><td>'+esc(x.PayerMobile||'')+'</td><td><button class="primary" onclick="approveOnlinePayment(\''+String(x.RequestID||'').replace(/'/g,"\\'")+'\')">✅ Approve</button> <button class="secondary" onclick="rejectOnlinePayment(\''+String(x.RequestID||'').replace(/'/g,"\\'")+'\')">❌ Reject</button></td></tr>').join('');
+      html+='</tbody></table></div>';
+      if(!inbox.length)html+='<div class="card" style="padding:15px;text-align:center">📥 কোনো Pending পেমেন্ট নেই।</div>';
+    }else if(tab==='outbox'){
+      html+='<div class="table-wrap"><table class="data-table"><thead><tr><th>মোবাইল</th><th>মেসেজ</th><th>Status</th><th>সময়</th></tr></thead><tbody>'+outbox.map(x=>'<tr><td>'+esc(x.Mobile||'')+'</td><td>'+esc(x.Message||'')+'</td><td>'+esc(x.Status||'')+'</td><td>'+esc(x.CreatedAt||'')+'</td></tr>').join('')+'</tbody></table></div>';
+      if(!outbox.length)html+='<div class="card" style="padding:15px;text-align:center">📤 কোনো Online Payment message নেই।</div>';
+    }else{
+      html+='<div class="table-wrap"><table class="data-table"><thead><tr><th>Payment ID</th><th>Student ID</th><th>নাম</th><th>মাস</th><th>খাত</th><th>Amount</th><th>Method</th><th>Reference</th><th>Date</th></tr></thead><tbody>'+history.map(x=>'<tr><td>'+esc(x.PaymentID||'')+'</td><td>'+esc(x.StudentID||'')+'</td><td>'+esc(x.Name||'')+'</td><td>'+esc(x.Month||'')+'</td><td>'+esc(x.Category||'')+'</td><td>'+Number(x.Amount||0).toLocaleString('bn-BD')+' টাকা</td><td>'+esc(x.Method||'')+'</td><td>'+esc(x.Reference||'')+'</td><td>'+esc(x.Date||'')+'</td></tr>').join('')+'</tbody></table></div>';
+      if(!history.length)html+='<div class="card" style="padding:15px;text-align:center">🧾 কোনো লেনদেন নেই।</div>';
     }
-    const r=await call('getPendingOnlinePayments',token);
-    if(!r||!r.ok){
-      const msg=(r&&r.message)||'Pending তালিকা পাওয়া যায়নি।';
-      if(box) box.innerHTML='<div class="card" style="padding:12px;margin-top:8px;color:#b00020;font-weight:900">❌ '+esc(msg)+'</div>';
-      toast(msg); return;
-    }
-    const rows=Array.isArray(r.rows)?r.rows:[];
-    if(!box)return;
-    if(!rows.length){
-      box.innerHTML='<div class="card" style="padding:12px;margin-top:8px;text-align:center;font-weight:900">📋 কোনো Pending পেমেন্ট নেই।</div>';
-      return;
-    }
-    box.innerHTML='<div class="card" style="padding:10px;margin-top:8px"><h3>📋 Pending Online Payments ('+rows.length+')</h3><div class="table-wrap"><table class="data-table"><thead><tr><th>ID</th><th>Student</th><th>Amount</th><th>Method</th><th>Reference</th><th>Action</th></tr></thead><tbody>'+rows.map(x=>'<tr><td>'+esc(x.RequestID||'')+'</td><td>'+esc((x.Name||'')+' / '+(x.StudentID||''))+'</td><td>'+Number(x.Amount||0).toLocaleString('bn-BD')+'</td><td>'+esc(x.Method||'')+'</td><td>'+esc(x.Reference||'')+'</td><td><button class="primary" type="button" onclick="approveOnlinePayment(\''+String(x.RequestID||'').replace(/'/g,"\\'")+'\')">✅ Approve</button> <button class="secondary" type="button" onclick="rejectOnlinePayment(\''+String(x.RequestID||'').replace(/'/g,"\\'")+'\')">❌ Reject</button></td></tr>').join('')+'</tbody></table></div></div>';
-  }catch(e){
-    const msg='Pending তালিকা লোডে সার্ভার ত্রুটি: '+(e&&e.message?e.message:e);
-    if(box) box.innerHTML='<div class="card" style="padding:12px;margin-top:8px;color:#b00020;font-weight:900">❌ '+esc(msg)+'</div>';
-    toast(msg);
-  }
+    body.innerHTML=html;
+  }catch(e){body.innerHTML='<div class="card" style="padding:15px;color:#b00020;font-weight:900">❌ '+esc(e&&e.message?e.message:e)+'</div>';}
 }
 async function approveOnlinePayment(id){
   const r=await call('approveOnlinePayment',token,id);
