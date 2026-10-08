@@ -11946,7 +11946,49 @@ function jbQpClear(){['jbQpExam','jbQpClass','jbQpSubject','jbQpDate','jbQpMarks
   window.printOnlineExamResult2026=function(){
     var body=document.getElementById('jbOnlineResultBody2026');if(!body)return;
     var w=window.open('','_blank');if(!w)return;
-    w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>অনলাইন ফলাফল</title><style>body{font-family:Arial,sans-serif;padding:20px}.jb-or-table{width:100%;border-collapse:collapse}.jb-or-table th,.jb-or-table td{border:1px solid #333;padding:7px;text-align:center}.jb-or-actions{display:none!important}</style></head><body>'+body.innerHTML+'</body></html>');
+    w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>অনলাইন ফলাফল</title><style>body{font-family:Arial,sans-serif;padding:20px}.jb-or-table{width:100%;border-collapse:collapse}.jb-or-table th,.jb-or-table td{border:1px solid #333;padding:7px;text-align:center}.jb-or-actions{display:none!important}</style></head><body>'+body.innerHTML+'<!-- ===== LOGIN-FREE ONLINE PAYMENT ENTRY — 2026-10-08 ===== -->
+<style id="jb-login-online-payment-2026">
+#jbLoginOnlinePayment2026{
+  display:block!important;width:min(820px,92vw)!important;margin:10px auto 0!important;
+  min-height:54px!important;padding:11px 18px!important;border:3px solid #8b5e00!important;
+  border-radius:999px!important;background:linear-gradient(135deg,#8b5e00,#d4af37)!important;
+  color:#111!important;font-weight:900!important;font-size:17px!important;cursor:pointer!important;
+  box-shadow:0 7px 18px #0003!important;
+}
+</style>
+<script id="jb-login-online-payment-2026-js">
+(function(){
+  function add(){
+    var lp=document.getElementById('loginPage');
+    if(!lp||document.getElementById('jbLoginOnlinePayment2026'))return;
+    var b=document.createElement('button');
+    b.id='jbLoginOnlinePayment2026';b.type='button';
+    b.textContent='💳 অনলাইন পেমেন্ট — লগইন ছাড়াই';
+    b.onclick=function(){
+      var w=window.open('about:blank','_blank');
+      if(!w){alert('নতুন পেমেন্ট উইন্ডো খোলা যাচ্ছে না। Browser popup অনুমতি দিন।');return;}
+      try{
+        if(typeof google!=='undefined'&&google.script&&google.script.run){
+          google.script.run.withSuccessHandler(function(r){
+            var u=String(r&&r.ok&&r.url?r.url:location.href).split('#')[0].split('?')[0];
+            w.location.href=u+'?payment=1';
+          }).withFailureHandler(function(){
+            w.location.href=location.href.split('#')[0].split('?')[0]+'?payment=1';
+          }).getMainWebAppUrl();
+        }else{
+          w.location.href=location.href.split('#')[0].split('?')[0]+'?payment=1';
+        }
+      }catch(e){w.location.href=location.href.split('#')[0].split('?')[0]+'?payment=1';}
+    };
+    var q=lp.querySelector('.quick');
+    if(q)q.insertAdjacentElement('afterend',b);else lp.appendChild(b);
+  }
+  add();
+  if(document.body)new MutationObserver(add).observe(document.body,{childList:true,subtree:true});
+})();
+</script>
+<!-- ===== END LOGIN-FREE ONLINE PAYMENT ENTRY ===== -->
+</body></html>');
     w.document.close();w.print();
   };
   window.shareOnlineExamResult2026=function(){
