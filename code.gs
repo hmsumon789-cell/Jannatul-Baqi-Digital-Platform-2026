@@ -338,7 +338,20 @@ function requireFeature_(token,feature){
 
 function getAccountControlData(token){
   if(!isSuperAdmin_(token)) return {ok:false,message:'শুধু Super Admin অনুমোদন ও পারমিশন পরিবর্তন করতে পারবেন।'};
-  return {ok:true,admins:listRows_(SHEETS.ADMINS,token,500),madrasas:listRows_(SHEETS.MADRASAS,token,500),modules:getModules_()};
+  const admissions=listRows_(SHEETS.ADMISSIONS,token,500).filter(function(x){return String(x.Status||'').toUpperCase()==='PENDING';});
+  return {ok:true,admins:listRows_(SHEETS.ADMINS,token,500),madrasas:listRows_(SHEETS.MADRASAS,token,500),admissions:admissions,modules:getModules_()};
+}
+function approveStudentAdmission(token,admissionId){
+  if(!isSuperAdmin_(token)) return {ok:false,message:'শুধু Super Admin শিক্ষার্থী ভর্তি অনুমোদন করতে পারবেন।'};
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ADMISSIONS);
+  if(!sh||sh.getLastRow()<2) return {ok:false,message:'Pending ভর্তি পাওয়া যায়নি।'};
+  const v=sh.getDataRange().getValues(),h=v[0],idc=h.indexOf('AdmissionID'),stc=h.indexOf('Status');
+  const idx=v.findIndex(function(r,i){return i>0&&String(r[idc]||'')===String(admissionId||'');});
+  if(idx<1) return {ok:false,message:'ভর্তি রেকর্ড পাওয়া যায়নি।'};
+  if(stc>=0) sh.getRange(idx+1,stc+1).setValue('ACTIVE');
+  const ac=h.indexOf('CreatedAt'); if(ac>=0) sh.getRange(idx+1,ac+1).setValue(now_());
+  log_(sessionUser_(token),'approve','ADMISSIONS',String(admissionId));
+  return {ok:true,message:'✅ শিক্ষার্থীর ভর্তি অনুমোদিত হয়েছে।'};
 }
 function approveAccount(token,type,id,status,permissions){
   try{
