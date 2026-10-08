@@ -1478,7 +1478,7 @@ function downloadCurrentForm(){
   var oldComing=window.examComing;
   window.examComing=function(n){var s=String(n||'');if(s.indexOf('পরীক্ষার্থী')>-1){if(typeof window.openModule==='function'){window.openModule('exam');}return}if(s.indexOf('পরীক্ষার রুটিন')>-1){openWindow('jbExamRoutineWin2026');render();return}return oldComing(n)};
 })();
-</script>
+<\/script>
 <!-- ===== END EXAM ROUTINE MODULE 2026 ===== -->
 
 </body></html>';
