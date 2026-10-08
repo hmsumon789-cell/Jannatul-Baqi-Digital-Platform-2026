@@ -603,8 +603,13 @@ function syncAdmissionToStudent_(token,data) {
   return {ok:true,studentId:String(sid),created:true,status:info.status};
 }
 function getStudentMasterList(token,status) {
-  auth_(token); ensureStudentWorkflowColumns_();
+  const session=auth_(token); ensureStudentWorkflowColumns_();
   let rows=listRows_(SHEETS.STUDENTS,token,10000);
+  // Super Admin সব Student দেখবেন; Admin/Madrasa শুধু নিজের SourceAccount-এর রেকর্ড দেখবে।
+  if(!isSuperAdminSession_(token)) {
+    const account=String(session.username||'').trim();
+    rows=rows.filter(function(r){return String(r.SourceAccount||'').trim()===account;});
+  }
   if(status) rows=rows.filter(function(r){return String(r.ApprovalStatus||'ACTIVE').toUpperCase()===String(status).toUpperCase();});
   return {ok:true,rows:rows,count:rows.length};
 }
