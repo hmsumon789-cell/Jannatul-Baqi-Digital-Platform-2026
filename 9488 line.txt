@@ -12013,18 +12013,18 @@ function jbQpClear(){['jbQpExam','jbQpClass','jbQpSubject','jbQpDate','jbQpMarks
 
 <style id="jb-login-layout-fix-2026-10-08">
 #loginPage{min-height:100vh!important;height:auto!important;overflow-x:hidden!important;overflow-y:auto!important;display:flex!important;align-items:flex-start!important;justify-content:center!important;padding:22px 12px 40px!important}
-#loginPage .login{margin:20px auto 0!important;position:relative!important;transform:none!important;width:min(820px,96vw)!important;max-width:820px!important}
+#loginPage .login{margin:20px auto 0!important;position:relative!important;transform:none!important;width:min(820px,96vw)!important;max-width:820px!important;min-height:620px!important;padding-bottom:28px!important;box-sizing:border-box!important}
 @media(max-width:700px){#loginPage{padding:12px 8px 30px!important}#loginPage .login{margin:10px auto 0!important;width:96vw!important}}
 </style>
 <!-- ===== LOGIN ONLINE SERVICE + PAYMENT 2-COLUMN ROW — 2026-10-08 ===== -->
 <style id="jb-login-service-payment-row-2026">
-#loginPage .jb-login-service-payment-row-2026{
+#loginPage .login .jb-login-service-payment-row-2026{
   display:grid!important;
   grid-template-columns:repeat(2,minmax(0,1fr))!important;
   gap:12px!important;
-  width:calc(100% - 24px)!important;
-  max-width:680px!important;
-  margin:16px auto 0!important;
+  width:100%!important;
+  max-width:none!important;
+  margin:24px auto 0!important;
   padding:0!important;
   position:relative!important;
   left:auto!important;
@@ -12033,36 +12033,38 @@ function jbQpClear(){['jbQpExam','jbQpClass','jbQpSubject','jbQpDate','jbQpMarks
   box-sizing:border-box!important;
   align-items:stretch!important;
 }
-#loginPage .jb-login-service-payment-row-2026 > *{
+#loginPage .login .jb-login-service-payment-row-2026 > *{
   width:100%!important;
   min-width:0!important;
   margin:0!important;
   box-sizing:border-box!important;
 }
 @media(max-width:700px){
-  #loginPage .jb-login-service-payment-row-2026{
+  #loginPage .login .jb-login-service-payment-row-2026{
     grid-template-columns:repeat(2,minmax(0,1fr))!important;
     gap:8px!important;
-    width:calc(100% - 20px)!important;
-    max-width:680px!important;
+    width:100%!important;
+    max-width:none!important;
   }
-  #loginPage .jb-login-service-payment-row-2026 > *{font-size:12px!important;padding:10px 6px!important}
+  #loginPage .login .jb-login-service-payment-row-2026 > *{font-size:12px!important;padding:10px 6px!important}
 }
 </style>
 <script id="jb-login-service-payment-row-2026-js">
 (function(){
   function arrange(){
     var lp=document.getElementById('loginPage'),
+        panel=lp&&lp.querySelector('.login'),
         p=document.getElementById('jbLoginOnlinePayment2026'),
         s=document.getElementById('jbLoginOnlineService2026');
     if(!lp||!p||!s)return;
+    panel=panel||lp;
     var row=document.getElementById('jbLoginServicePaymentRow2026');
     if(!row){
       row=document.createElement('div');
       row.id='jbLoginServicePaymentRow2026';
       row.className='jb-login-service-payment-row-2026';
     }
-    if(row.parentNode!==lp)lp.appendChild(row);
+    if(row.parentNode!==panel)panel.appendChild(row);
     if(s.parentNode!==row)row.appendChild(s);
     if(p.parentNode!==row)row.appendChild(p);
     row.style.position='relative';
