@@ -275,6 +275,37 @@ function getModulesForSession_(token){
   const allowed=String(a.Permissions||'').split(',').map(x=>x.trim()).filter(Boolean);
   return all.filter(x=>allowed.includes(x[0]) || x[0]==='institution' || x[0]==='help');
 }
+function getPublicExamResult(query){
+  try{
+    query=String(query||'').trim();
+    if(!query) return {ok:false,message:'Student ID / মোবাইল নম্বর দিন।'};
+    const ss=SpreadsheetApp.getActiveSpreadsheet();
+    const resultRows=listRows_(SHEETS.RESULTS,null,10000);
+    const studentRows=listRows_(SHEETS.STUDENTS,null,10000);
+    const q=query.toLowerCase();
+    const students=studentRows.filter(function(s){
+      return [s.StudentID,s.MobileID,s.Mobile,s.WhatsApp,s.FormID].some(function(v){
+        return String(v||'').trim().toLowerCase()===q;
+      });
+    });
+    const studentIds=students.map(function(s){return String(s.StudentID||'').trim();}).filter(Boolean);
+    let rows=resultRows.filter(function(r){
+      if(String(r.Published||'').toUpperCase()!=='TRUE' && String(r.Published||'')!=='1' && String(r.Published||'').toLowerCase()!=='yes') return false;
+      const sid=String(r.StudentID||'').trim().toLowerCase();
+      return sid===q || studentIds.some(function(id){return id.toLowerCase()===sid;});
+    });
+    if(!rows.length) return {ok:false,message:'প্রকাশিত কোনো ফলাফল পাওয়া যায়নি।'};
+    const student=students[0]||{};
+    rows=rows.map(function(r){
+      let subjects=[];
+      try{subjects=typeof r.SubjectData==='string'?JSON.parse(r.SubjectData||'[]'):(r.SubjectData||[]);}catch(e){subjects=[];}
+      if(!Array.isArray(subjects) && subjects && typeof subjects==='object') subjects=Object.keys(subjects).map(function(k){return {subject:k,marks:subjects[k]};});
+      return {resultId:r.ResultID||'',studentId:r.StudentID||'',name:r.Name||student.NameBN||'',className:r.Class||student.Class||'',exam:r.Exam||'',subjects:subjects,total:r.Total||'',gpa:r.GPA||'',grade:r.Grade||'',date:r.Date||''};
+    });
+    return {ok:true,student:{studentId:student.StudentID||rows[0].studentId||'',nameBN:student.NameBN||rows[0].name||'',nameAR:student.NameAR||'',nameEN:student.NameEN||'',className:student.Class||rows[0].className||'',mobile:student.Mobile||''},results:rows};
+  }catch(e){return {ok:false,message:'ফলাফল খুঁজতে সার্ভার ত্রুটি: '+e.message};}
+}
+
 function getModuleList(token,key){
   auth_(token);
   const map={
