@@ -1585,7 +1585,9 @@ function submitOnlinePayment(data,token){
     }catch(e){return {ok:false,message:'সরাসরি পেমেন্টে সার্ভার ত্রুটি: '+(e&&e.message?e.message:e)};}
   }
   const req='OPR-'+Utilities.formatDate(new Date(),APP.timezone||'Asia/Dhaka','yyyyMMddHHmmss')+'-'+Math.floor(Math.random()*900+100),now=now_();
-  sh.appendRow([nextSerial_(sh),req,id,data.Name,st.Class||'',String(data.Month||'').trim(),String(data.Category||'').trim(),amount,method,ref,payerMobile,payerEmail,String(data.Note||'').trim(),'PENDING',now,'','','','',now,mode]);
+  const paymentReq={Serial:nextSerial_(sh),RequestID:req,StudentID:id,Name:data.Name,Class:st.Class||'',Month:String(data.Month||'').trim(),Category:String(data.Category||'').trim(),Amount:amount,Method:method,Reference:ref,PayerMobile:payerMobile,PayerEmail:payerEmail,Note:String(data.Note||'').trim(),Status:'PENDING',SubmittedAt:now,ApprovedBy:'',ApprovedAt:'',FailureReason:'',ReceiptID:'',CreatedAt:now,PaymentMode:mode};
+  const reqHeaders=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
+  sh.appendRow(reqHeaders.map(function(h){return paymentReq[h]!==undefined?paymentReq[h]:'';}));
   notifyOnlinePayment_(data,'PENDING','');
   log_('ONLINE','submit','ONLINE_PAYMENT',req+' / '+id+' / '+amount+' / '+mode);
   return {ok:true,requestId:req,status:'PENDING',message:'পেমেন্ট গ্রহণ হয়েছে। আপনার ভর্তি-সময়কার মোবাইল ও ইমেইলে তথ্য পাঠানো হয়েছে এবং Super Admin-কে জানানো হয়েছে। অনুমোদনের পর পেমেন্ট সম্পন্ন হবে।'};
@@ -1639,7 +1641,10 @@ function buildPublicOnlinePaymentHtml_(){
     if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin এই পেমেন্ট ম্যানেজমেন্ট দেখতে পারবেন।'};
     const ss=SpreadsheetApp.getActiveSpreadsheet();
     const reqSh=ss.getSheetByName(ONLINE_PAYMENT_REQUEST_SHEET);
-    const inbox=reqSh&&reqSh.getLastRow()>1?reqSh.getDataRange().getValues().slice(1).map(r=>objectFrom_(ONLINE_PAYMENT_REQUEST_HEADERS,r)).reverse():[];
+    const inbox=reqSh&&reqSh.getLastRow()>1?(function(){
+      const vv=reqSh.getDataRange().getValues(),hh=vv[0].map(String);
+      return vv.slice(1).map(function(r){return objectFrom_(hh,r);}).reverse();
+    })():[];
     const paySh=ss.getSheetByName(SHEETS.PAYMENTS);
     const history=paySh&&paySh.getLastRow()>1?paySh.getDataRange().getValues().slice(1).map(r=>objectFrom_(HEADERS[SHEETS.PAYMENTS],r)).reverse().slice(0,500):[];
     const smsSh=ss.getSheetByName(SHEETS.SMS_QUEUE);
