@@ -646,6 +646,22 @@ body.gold #loginPage .login-main-qr-box{
 }
 
 </style>
+
+<style id="exam-dashboard-2026-10-08">
+.exam-dashboard-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+.exam-dashboard-card{padding:14px;border:3px solid var(--border);border-radius:14px;background:var(--panel);color:var(--text);font-weight:900;text-align:center;min-height:92px;box-shadow:0 5px 14px #0002}
+.exam-dashboard-card b{display:block;font-size:25px;margin-bottom:5px}
+.exam-dashboard-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
+.exam-dashboard-actions button{min-height:58px;font-weight:900}
+.exam-form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.exam-form-grid label{display:flex;flex-direction:column;gap:4px;font-weight:800}
+.exam-form-grid .full{grid-column:1/-1}
+.exam-list{margin-top:12px}.exam-list table{width:100%;border-collapse:collapse}.exam-list th,.exam-list td{border:1px solid var(--border);padding:7px;text-align:center}
+.exam-empty{text-align:center;padding:18px;border:2px dashed var(--border);margin-top:10px}
+@media(max-width:900px){.exam-dashboard-grid{grid-template-columns:repeat(2,1fr)}.exam-dashboard-actions{grid-template-columns:1fr 1fr}.exam-form-grid{grid-template-columns:1fr}}
+@media(max-width:560px){.exam-dashboard-grid,.exam-dashboard-actions{grid-template-columns:1fr}}
+body.dark .exam-dashboard-card,body.dark .exam-dashboard-actions button{background:#000;color:#ffe95c;border-color:#ff1f2f}
+</style>
 </head>
 <body>
 <div id="welcomeScreen">
@@ -775,7 +791,7 @@ body.gold #loginPage .login-main-qr-box{
       </div>
       <h2>প্রশাসনিক ড্যাশবোর্ড</h2>
       <div class="dashboard-title-right">
-        <button id="accountManagerBtn" class="primary" style="display:none" onclick="openAccountManager()">🔐 Account অনুমোদন</button>
+        <button id="accountManagerBtn" class="primary" style="display:none" onclick="openAccountManager()">🔐 Account অনুমোদন</button><button class="primary" type="button" onclick="openExamDashboard()">📝 পরীক্ষা ড্যাশবোর্ড</button>
         <select class="field dashboard-lang" id="appLang" onchange="setLang(this.value)">
           <option value="bn">বাংলা</option>
           <option value="ar">العربية</option>
@@ -817,6 +833,51 @@ body.gold #loginPage .login-main-qr-box{
 <div id="approvedLoginWin" class="window approved-login-window"><div class="win-head"><b>🔐 অনুমোদিত Account Login</b><button class="secondary" type="button" onclick="closeWindow('approvedLoginWin')">✕</button></div><div class="win-body"><div class="approved-login-note">Super Admin কর্তৃক অনুমোদিত <b>নতুন Admin</b> অথবা <b>নতুন Madrasa</b> Account এখানে Username + Password দিয়ে OTP ছাড়া লগইন করবে।</div><div class="approved-login-tabs"><button id="approvedAdminTab" class="primary" type="button" onclick="setApprovedLoginType('admin')">👤 নতুন Admin</button><button id="approvedMadrasaTab" class="secondary" type="button" onclick="setApprovedLoginType('madrasa')">🏫 নতুন Madrasa</button></div><label>Username<input id="approvedLoginUser" class="field" autocomplete="username" placeholder="নিজস্ব Username"></label><label>Password<div class="pass-wrap"><input id="approvedLoginPass" class="field" type="password" autocomplete="current-password" placeholder="নিজস্ব Password"><button class="eye" type="button" onclick="toggleApprovedPassword()">👁</button></div></label><div class="approved-login-actions"><button class="primary" type="button" id="approvedLoginBtn" onclick="approvedLoginSubmit()">🔐 Admin Login</button><button class="secondary" type="button" onclick="closeWindow('approvedLoginWin')">বন্ধ করুন</button></div><div id="approvedLoginMsg" class="small"></div></div></div>
 <div id="resetWin" class="window"><div class="win-head"><b>Password Reset</b><button class="secondary" onclick="closeWindow('resetWin')">✕</button></div><div class="win-body"><p>ইউজার নেম দিন এবং OTP পুনরায় পাঠান। নতুন পাসওয়ার্ড পরিবর্তনের জন্য প্রশাসনিক অনুমোদন প্রয়োজন।</p><input id="resetUser" class="field" placeholder="Username"><button class="primary" onclick="resetOtp()">OTP পাঠান</button></div></div>
 <div id="sheetWin" class="window"><div class="win-head"><b>শিট ডাটা</b><button class="secondary" onclick="closeWindow('sheetWin')">✕</button></div><div class="win-body"><select id="sheetSelect" class="field" onchange="loadSheet()"></select><div id="sheetBody"></div></div></div>
+<div id="examDashboardWin" class="window" style="width:min(1150px,96vw)">
+  <div class="win-head"><b>📝 পরীক্ষা ড্যাশবোর্ড</b><button class="secondary" type="button" onclick="closeWindow('examDashboardWin')">✕</button></div>
+  <div class="win-body">
+    <div class="exam-dashboard-grid">
+      <div class="exam-dashboard-card"><b id="examDashCount">0</b>পরীক্ষা</div>
+      <div class="exam-dashboard-card"><b id="examDashPublished">0</b>প্রকাশিত ফলাফল</div>
+      <div class="exam-dashboard-card"><b>১৪</b>শ্রেণি/জামাত</div>
+      <div class="exam-dashboard-card"><b id="examDashDraft">0</b>খসড়া পরীক্ষা</div>
+    </div>
+    <div class="exam-dashboard-actions">
+      <button class="primary" type="button" onclick="openExamManager()">➕ পরীক্ষা তৈরি/ব্যবস্থাপনা</button>
+      <button class="secondary" type="button" onclick="toast('পরীক্ষার প্রশ্নপত্র মডিউল পরবর্তী ধাপে চালু হবে।')">📄 প্রশ্নপত্র</button>
+      <button class="secondary" type="button" onclick="toast('পরীক্ষার রুটিন মডিউল পরবর্তী ধাপে চালু হবে।')">📅 পরীক্ষার রুটিন</button>
+      <button class="secondary" type="button" onclick="toast('পরীক্ষার্থী নিবন্ধন মডিউল পরবর্তী ধাপে যুক্ত হবে।')">👩‍🎓 পরীক্ষার্থী</button>
+      <button class="secondary" type="button" onclick="toast('নম্বর প্রদান মডিউল পরবর্তী ধাপে যুক্ত হবে।')">✍️ নম্বর প্রদান</button>
+      <button class="secondary" type="button" onclick="toast('ফলাফল/মেধাক্রম মডিউল পরবর্তী ধাপে যুক্ত হবে।')">🏆 ফলাফল ও মেধাক্রম</button>
+      <button class="secondary" type="button" onclick="toast('অনলাইন/মোবাইল ফলাফল পরবর্তী ধাপে যুক্ত হবে।')">📱 অনলাইন ফলাফল</button>
+      <button class="secondary" type="button" onclick="toast('Admit Card ও Seat Plan পরবর্তী ধাপে যুক্ত হবে।')">🎫 Admit Card / Seat Plan</button>
+      <button class="secondary" type="button" onclick="toast('মার্কশিট/রিপোর্ট মডিউল পরবর্তী ধাপে যুক্ত হবে।')">🖨️ মার্কশিট / রিপোর্ট</button>
+    </div>
+    <div id="examDashboardList"></div>
+  </div>
+</div>
+
+<div id="examManagerWin" class="window" style="width:min(1050px,96vw)">
+  <div class="win-head"><b>➕ পরীক্ষা তৈরি / ব্যবস্থাপনা</b><button class="secondary" type="button" onclick="closeWindow('examManagerWin')">✕</button></div>
+  <div class="win-body">
+    <div class="exam-form-grid">
+      <label>পরীক্ষার নাম<input id="examNameNew" class="field" placeholder="যেমন: অর্ধবার্ষিক পরীক্ষা ২০২৬"></label>
+      <label>শিক্ষাবর্ষ<input id="examYearNew" class="field" value="২০২৬"></label>
+      <label>পরীক্ষার ধরন<select id="examTypeNew" class="field"><option>সাময়িক পরীক্ষা</option><option>অর্ধবার্ষিক পরীক্ষা</option><option>বার্ষিক পরীক্ষা</option><option>মডেল টেস্ট</option><option>বোর্ড/কেন্দ্রীয় পরীক্ষা</option></select></label>
+      <label>শুরু তারিখ<input id="examStartNew" class="field" type="date"></label>
+      <label>শেষ তারিখ<input id="examEndNew" class="field" type="date"></label>
+      <label>ফলাফল প্রকাশ<select id="examPublishNew" class="field"><option value="NO">প্রকাশ নয়</option><option value="YES">প্রকাশযোগ্য</option></select></label>
+      <label class="full">নোট / নির্দেশনা<textarea id="examNoteNew" class="field" rows="3" placeholder="পরীক্ষা সংক্রান্ত নির্দেশনা"></textarea></label>
+    </div>
+    <div class="form-action-bar" style="margin-top:10px">
+      <button class="primary" type="button" onclick="saveExamDraft()">💾 সংরক্ষণ</button>
+      <button class="secondary" type="button" onclick="clearExamDraftForm()">🧹 ক্লিয়ার</button>
+      <button class="secondary" type="button" onclick="closeWindow('examManagerWin')">বন্ধ করুন</button>
+    </div>
+    <div id="examManagerList" class="exam-list"></div>
+  </div>
+</div>
+
 <div id="toast" class="toast"></div>
 
 <script>
@@ -1299,7 +1360,21 @@ function downloadCurrentForm(){
   setTimeout(function(){URL.revokeObjectURL(url);},1000);
   toast('ফর্ম ডাউনলোড করা হয়েছে');
 }
-function goHome(){window.scrollTo({top:0,behavior:'smooth'})}
+
+
+/* ===== EXAM DASHBOARD — stage 1, exam-only ===== */
+const EXAM_DRAFT_KEY='jb_exam_dashboard_drafts_2026';
+function examDrafts(){try{return JSON.parse(localStorage.getItem(EXAM_DRAFT_KEY)||'[]')}catch(e){return[]}}
+function setExamDrafts(a){localStorage.setItem(EXAM_DRAFT_KEY,JSON.stringify(a||[]))}
+function openExamDashboard(){renderExamDashboard();openWindow('examDashboardWin')}
+function openExamManager(){renderExamManager();openWindow('examManagerWin')}
+function renderExamDashboard(){const a=examDrafts();const pub=a.filter(x=>x.publish==='YES').length;const d=a.filter(x=>x.publish!=='YES').length;if($('examDashCount'))$('examDashCount').textContent=a.length;if($('examDashPublished'))$('examDashPublished').textContent=pub;if($('examDashDraft'))$('examDashDraft').textContent=d;const box=$('examDashboardList');if(!box)return;box.innerHTML='<h3>সাম্প্রতিক পরীক্ষা</h3>'+(a.length?a.slice().reverse().map(x=>'<div class="card" style="padding:9px;margin:6px 0"><b>'+escExam(x.name)+'</b> — '+escExam(x.type)+' — '+escExam(x.year)+' <span>('+escExam(x.start||'তারিখ নেই')+' → '+escExam(x.end||'')+')</span></div>').join(''):'<div class="exam-empty">এখনও কোনো পরীক্ষা তৈরি হয়নি। “পরীক্ষা তৈরি/ব্যবস্থাপনা” থেকে শুরু করুন।</div>')}
+function renderExamManager(){const a=examDrafts();const box=$('examManagerList');if(!box)return;box.innerHTML='<h3>পরীক্ষার তালিকা</h3>'+(a.length?'<table><thead><tr><th>পরীক্ষা</th><th>শিক্ষাবর্ষ</th><th>ধরন</th><th>সময়</th><th>অবস্থা</th><th>অ্যাকশন</th></tr></thead><tbody>'+a.slice().reverse().map((x,i)=>'<tr><td>'+escExam(x.name)+'</td><td>'+escExam(x.year)+'</td><td>'+escExam(x.type)+'</td><td>'+escExam(x.start||'')+' → '+escExam(x.end||'')+'</td><td>'+ (x.publish==='YES'?'প্রকাশযোগ্য':'খসড়া')+'</td><td><button class="secondary" type="button" onclick="deleteExamDraft('+JSON.stringify(x.id)+')">🗑</button></td></tr>').join('')+'</tbody></table>':'<div class="exam-empty">কোনো পরীক্ষা নেই।</div>')}
+function escExam(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function clearExamDraftForm(){['examNameNew','examYearNew','examStartNew','examEndNew','examNoteNew'].forEach(id=>{if($(id))$(id).value=id==='examYearNew'?'২০২৬':''});if($('examTypeNew'))$('examTypeNew').selectedIndex=0;if($('examPublishNew'))$('examPublishNew').value='NO'}
+function saveExamDraft(){const name=$('examNameNew')?.value.trim()||'',year=$('examYearNew')?.value.trim()||'',type=$('examTypeNew')?.value||'',start=$('examStartNew')?.value||'',end=$('examEndNew')?.value||'',publish=$('examPublishNew')?.value||'NO',note=$('examNoteNew')?.value.trim()||'';if(!name)return toast('পরীক্ষার নাম দিন।');if(start&&end&&end<start)return toast('শেষ তারিখ শুরুর তারিখের আগে হতে পারবে না।');const a=examDrafts();a.push({id:'EX-'+Date.now(),name,year,type,start,end,publish,note,createdAt:new Date().toISOString()});setExamDrafts(a);clearExamDraftForm();renderExamManager();renderExamDashboard();toast('পরীক্ষার খসড়া সংরক্ষণ হয়েছে।')}
+function deleteExamDraft(id){const a=examDrafts().filter(x=>x.id!==id);setExamDrafts(a);renderExamManager();renderExamDashboard();toast('পরীক্ষাটি মুছে ফেলা হয়েছে।')}
+\nfunction goHome(){window.scrollTo({top:0,behavior:'smooth'})}
 function setMode(m){document.body.classList.remove('dark','gold');if(m==='dark')document.body.classList.add('dark');if(m==='gold')document.body.classList.add('gold');localStorage.mode=m}
 function setLang(l){localStorage.lang=l;document.documentElement.dir=l==='ar'?'rtl':'ltr'}
 function toast(t){const x=$('toast');x.textContent=t;x.style.display='block';clearTimeout(window._toast);window._toast=setTimeout(()=>x.style.display='none',3500)}
