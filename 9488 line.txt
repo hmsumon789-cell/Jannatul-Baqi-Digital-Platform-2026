@@ -1409,7 +1409,28 @@ function downloadCurrentForm(){
     span.style.padding='3px';
     el.replaceWith(span);
   });
-  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title></head><body><h2>'+($('winTitle').textContent||'ফর্ম')+'</h2>'+body.innerHTML+'</body></html>';
+  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title></head><body><h2>'+($('winTitle').textContent||'ফর্ম')+'</h2>'+body.innerHTML+'
+<!-- ===== FINAL LOGIN BUTTON SAFE BINDING — 2026-10-08 ===== -->
+<script id="final-login-button-safe-binding-2026-10-08">
+(function(){
+  function bindLoginButton(){
+    var b=document.getElementById('mainLoginBtn');
+    if(!b || b.dataset.loginSafeBound==='1')return;
+    b.dataset.loginSafeBound='1';
+    b.type='button';
+    b.onclick=function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      if(typeof window.login==='function')window.login();
+      else if(typeof toast==='function')toast('লগইন ফাংশন পাওয়া যাচ্ছে না। পেজটি রিফ্রেশ করুন।');
+    };
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindLoginButton);else bindLoginButton();
+  setTimeout(bindLoginButton,300);
+  setTimeout(bindLoginButton,1000);
+})();
+</script>
+</body></html>';
   var blob=new Blob([html],{type:'text/html;charset=utf-8'});
   var url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url;a.download=title+'.html';document.body.appendChild(a);a.click();a.remove();
