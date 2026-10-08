@@ -860,7 +860,11 @@ body.gold #loginPage .main-qr-802268e{background:#fff!important;border-color:#11
   font-weight:900!important;border-radius:999px!important;box-sizing:border-box!important;
 }
 </style>
-<style id="marksheet-signature-position-2026-10-08">#jbDocBuilderWin .jb-marksheet-signatures-2026{position:absolute!important;left:8mm!important;right:8mm!important;bottom:25.4mm!important;display:flex!important;justify-content:space-between!important;align-items:flex-end!important;font-size:8.5px!important}@media print{#jbDocBuilderWin .jb-marksheet-signatures-2026{position:absolute!important;bottom:25.4mm!important}}</style></head>
+<style id="marksheet-signature-position-2026-10-08">#jbDocBuilderWin .jb-marksheet-signatures-2026{position:absolute!important;left:8mm!important;right:8mm!important;bottom:25.4mm!important;display:flex!important;justify-content:space-between!important;align-items:flex-end!important;font-size:8.5px!important}@media print{#jbDocBuilderWin .jb-marksheet-signatures-2026{position:absolute!important;bottom:25.4mm!important}}</style>
+<style id="marksheet-signature-exact-2inch-2026-10-08">
+#jbDocBuilderWin .jb-doc-preview.a4 .jb-marksheet-signatures-2026{position:absolute!important;left:8mm!important;right:8mm!important;bottom:50.8mm!important;display:flex!important;justify-content:space-between!important;align-items:flex-end!important;margin:0!important;font-size:8.5px!important;line-height:1.2!important}
+</style>
+</head>
 <body>
 <div id="welcomeScreen">
   <div id="welcomeOrbit">
