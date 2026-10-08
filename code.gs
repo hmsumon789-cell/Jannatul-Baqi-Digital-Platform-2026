@@ -311,7 +311,8 @@ function getModuleList(token,key){
   const map={
     students:[SHEETS.STUDENTS,'student'],
     teachers:[SHEETS.TEACHERS,'teacher'],
-    exams:[SHEETS.EXAM_REG,'exam'],
+    // পরীক্ষার্থী তালিকা সবসময় মূল STUDENTS তালিকা থেকে পূর্ণ তালিকা দেখাবে।
+    exams:[SHEETS.STUDENTS,'exam'],
     admins:[SHEETS.ADMINS,'admin'],
     madrasas:[SHEETS.MADRASAS,'madrasa']
   };
@@ -493,6 +494,32 @@ function saveRecord(token,sheetName,data) {
     const s=nextSerial_(sh); row[1]=String(s).padStart(3,'0'); row[2]='F-'+String(s).padStart(4,'0'); row[3]=data.Mobile||''; row[4]=data.Email||'';
   }
   sh.appendRow(row);
+  // ===== STUDENT MASTER AUTO-SYNC — 2026-10-08 =====
+  // Keep a single student master record and mirror new admissions into
+  // ADMISSIONS for the Super Admin approval workflow.
+  if(sheetName==='STUDENTS'){
+    try{
+      const s=auth_(token);
+      const studentId=String(row[headers.indexOf('StudentID')]||data.StudentID||'').trim();
+      if(studentId){
+        const ash=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ADMISSIONS);
+        const ah=HEADERS[SHEETS.ADMISSIONS];
+        const av=ash.getDataRange().getValues();
+        const sidCol=ah.indexOf('StudentID');
+        const exists=av.slice(1).some(r=>String(r[sidCol]||'').trim()===studentId);
+        if(!exists){
+          const adm=findBy_(SHEETS.ADMINS,'Username',s.username)||{};
+          const role=String(adm.Role||'').toUpperCase().replace(/\\s+/g,'_');
+          const status=(role==='SUPER_ADMIN'||role==='SUPERADMIN')?'ACTIVE':'PENDING';
+          const payload={sourceAccount:s.username||'',accountType:s.accountType||'',nameBN:data.NameBN||'',mobile:data.Mobile||'',createdAt:now_()};
+          const ar=ah.map(h=>data[h]??'');
+          ar[0]=nextSerial_(ash); ar[1]='ADM-'+Date.now(); ar[2]=studentId;
+          ar[4]=data.Class||''; ar[5]=data.Branch||''; ar[6]=status; ar[7]=JSON.stringify(payload); ar[8]=now_();
+          ash.appendRow(ar);
+        }
+      }
+    }catch(syncErr){ log_('SYSTEM','student_auto_sync','ADMISSIONS',String(syncErr&&syncErr.message||syncErr)); }
+  }
   log_(sessionUser_(token),'create',sheetName,JSON.stringify(data).slice(0,1000));
   return {ok:true,row:objectFrom_(headers,row)};
 }
