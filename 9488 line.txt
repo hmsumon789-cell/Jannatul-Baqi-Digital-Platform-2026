@@ -11637,6 +11637,40 @@ function jbQpClear(){['jbQpExam','jbQpClass','jbQpSubject','jbQpDate','jbQpMarks
 })();
 </script>
 <!-- ===== END DOCUMENT BUILDER — UNIFIED ACTION BAR FOR ALL CARDS — 2026-10-07 ===== -->
+<!-- ===== EXAM DASHBOARD — GLOBAL BUTTON FIX — 2026-10-08 ===== -->
+<script id="jb-exam-dashboard-global-fix-2026">
+(function(){
+  function render(){
+    try{
+      var a=JSON.parse(localStorage.getItem('jb_exam_dashboard_drafts_2026')||'[]');
+      var total=document.getElementById('examStatTotal');
+      var pub=document.getElementById('examStatPublished');
+      var draft=document.getElementById('examStatDraft');
+      if(total)total.textContent=String(a.length);
+      if(pub)pub.textContent=String(a.filter(function(x){return x&&x.published}).length);
+      if(draft)draft.textContent=String(a.filter(function(x){return !x||!x.published}).length);
+    }catch(e){}
+  }
+  window.openExamDashboard=function(){
+    var w=document.getElementById('examDashboardWin');
+    if(!w){try{toast('পরীক্ষা ড্যাশবোর্ড পাওয়া যাচ্ছে না।')}catch(e){}return;}
+    w.style.display='block';
+    w.classList.add('show');
+    render();
+  };
+  function bind(){
+    var b=document.getElementById('jbExamDashboardEntry2026');
+    if(b)b.onclick=function(e){
+      if(e){e.preventDefault();e.stopPropagation();}
+      window.openExamDashboard();
+    };
+  }
+  bind();
+  if(document.body)new MutationObserver(bind).observe(document.body,{childList:true,subtree:true});
+})();
+</script>
+<!-- ===== END EXAM DASHBOARD — GLOBAL BUTTON FIX — 2026-10-08 ===== -->
+
 <!-- ===== ONLINE SERVICE — HOME DELIVERY BUTTON + SAVE — 2026-10-07 ===== -->
 <style id="jb-online-service-home-2026-10-07">
 #jbDocBuilderWin .jb-online-service-save-2026{
