@@ -918,7 +918,7 @@ body.gold #loginPage .main-qr-802268e{background:#fff!important;border-color:#11
       <select id="loginSignal" class="field" onchange="syncSearchSignal('login')"><option value="">সংকেত নির্বাচন করুন</option></select><input id="loginSearch" class="field" placeholder="সংকেত নির্বাচন করে ID / মোবাইল / ইমেইল লিখুন" onkeydown="if(event.key==='Enter')doSearch('login')"><button class="primary" onclick="doSearch('login')">🔎</button>
     </div>
     <div class="quick">
-      <button onclick="openModule('payment')">অনলাইন পেমেন্ট</button><button onclick="openOnlineResult2026()">অনলাইন রেজাল্ট</button><button onclick="openModule('exam')">পরীক্ষার্থী নিবন্ধন</button><button onclick="openModule('admin')">নতুন অ্যাডমিন একাউন্ট</button><button onclick="openModule('madrasa')">নতুন মাদ্রাসা নিবন্ধন</button><button onclick="openWindow('quickWin')">দ্রুত সেবা</button>
+      <button onclick="openModule('payment')">অনলাইন পেমেন্ট</button><button onclick="openModule('result')">অনলাইন রেজাল্ট</button><button onclick="openModule('exam')">পরীক্ষার্থী নিবন্ধন</button><button onclick="openModule('admin')">নতুন অ্যাডমিন একাউন্ট</button><button onclick="openModule('madrasa')">নতুন মাদ্রাসা নিবন্ধন</button><button onclick="openWindow('quickWin')">দ্রুত সেবা</button>
     </div>
   </section>
 </div>
@@ -11838,10 +11838,6 @@ function jbQpClear(){['jbQpExam','jbQpClass','jbQpSubject','jbQpDate','jbQpMarks
   };
   function addEntry(){
     var lp=document.getElementById('loginPage');
-    if(lp&&!document.getElementById('jbLoginOnlineResult2026')){
-      var b=document.createElement('button');b.id='jbLoginOnlineResult2026';b.type='button';b.className='jb-online-result-entry';b.textContent='📱 অনলাইন ফলাফল — মোবাইল থেকে সহজে দেখুন';b.onclick=open;
-      var q=lp.querySelector('.quick');if(q)q.appendChild(b);else lp.appendChild(b);
-    }
     var d=document.getElementById('examDashboardWin');
     if(d&&!document.getElementById('jbExamOnlineResult2026')){
       var b2=document.createElement('button');b2.id='jbExamOnlineResult2026';b2.type='button';b2.className='secondary';b2.textContent='📱 অনলাইন ফলাফল';b2.onclick=open;
