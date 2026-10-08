@@ -864,6 +864,10 @@ body.gold #loginPage .main-qr-802268e{background:#fff!important;border-color:#11
 <style id="marksheet-signature-exact-2inch-2026-10-08">
 #jbDocBuilderWin .jb-doc-preview.a4 .jb-marksheet-signatures-2026{position:absolute!important;left:8mm!important;right:8mm!important;bottom:50.8mm!important;display:flex!important;justify-content:space-between!important;align-items:flex-end!important;margin:0!important;font-size:8.5px!important;line-height:1.2!important}
 </style>
+
+<style id="marksheet-signature-print-fixed-2026-10-08">@media print{
+#jbDocBuilderWin .jb-doc-preview.a4 .jb-marksheet-signatures-2026{position:absolute!important;left:8mm!important;right:8mm!important;bottom:50.8mm!important;top:auto!important;margin:0!important;display:flex!important;justify-content:space-between!important;align-items:flex-end!important;font-size:8.5px!important;line-height:1.2!important;}
+}</style>
 </head>
 <body>
 <div id="welcomeScreen">
