@@ -1482,3 +1482,66 @@ function getMarksMerit(token,studentId,className,examName,currentTotal){
   const suffix={1:'ম',2:'য়',3:'য়',4:'র্থ',5:'ম',6:'ষ্ঠ',7:'ম',8:'ম',9:'ম',10:'ম'};
   return {ok:true,rank:rank,label:bn+(suffix[rank]||'তম'),count:Object.keys(latest).length+1,total:mine};
 }
+
+/* ===== ONLINE PAYMENT — SAFE PENDING/APPROVAL WORKFLOW 2026-10-08 ===== */
+const ONLINE_PAYMENT_REQUEST_SHEET='ONLINE_PAYMENT_REQUESTS';
+const ONLINE_PAYMENT_REQUEST_HEADERS=['Serial','RequestID','StudentID','Name','Class','Month','Category','Amount','Method','Reference','PayerMobile','Note','Status','SubmittedAt','ApprovedBy','ApprovedAt','FailureReason','ReceiptID','CreatedAt'];
+function ensureOnlinePaymentRequestSheet_(){
+  const ss=SpreadsheetApp.getActiveSpreadsheet(); let sh=ss.getSheetByName(ONLINE_PAYMENT_REQUEST_SHEET);
+  if(!sh){sh=ss.insertSheet(ONLINE_PAYMENT_REQUEST_SHEET);sh.getRange(1,1,1,ONLINE_PAYMENT_REQUEST_HEADERS.length).setValues([ONLINE_PAYMENT_REQUEST_HEADERS]);}
+  return sh;
+}
+function getOnlinePaymentStudent(studentId){
+  const id=String(studentId||'').trim(); if(!id)return {ok:false,message:'Student ID দিন।'};
+  const st=findBy_(SHEETS.STUDENTS,'StudentID',id);
+  if(!st)return {ok:false,message:'এই Student ID-এর শিক্ষার্থী পাওয়া যায়নি।'};
+  const pays=listRows_(SHEETS.PAYMENTS,'',10000).filter(r=>String(r.StudentID||'').trim()===id);
+  let paid=0;pays.forEach(r=>{const n=Number(String(r.Amount||'').replace(/[^0-9.-]/g,''));if(isFinite(n))paid+=n;});
+  return {ok:true,student:{StudentID:st.StudentID||id,NameBN:st.NameBN||'',NameEN:st.NameEN||'',Class:st.Class||'',Mobile:st.Mobile||'',WhatsApp:st.WhatsApp||''},paid:paid};
+}
+function submitOnlinePayment(data){
+  data=data||{};const id=String(data.StudentID||'').trim(),ref=String(data.Reference||'').trim(),amount=Number(data.Amount||0);
+  if(!id||!ref||!isFinite(amount)||amount<=0)return {ok:false,message:'Student ID, Amount ও Transaction/Reference ID সঠিকভাবে দিন।'};
+  const st=findBy_(SHEETS.STUDENTS,'StudentID',id);if(!st)return {ok:false,message:'Student ID সঠিক নয়।'};
+  const sh=ensureOnlinePaymentRequestSheet_();const vals=sh.getDataRange().getValues(),h=vals[0].map(String),ri=h.indexOf('Reference'),si=h.indexOf('Status');
+  for(let i=1;i<vals.length;i++){if(String(vals[i][ri]||'').trim()===ref&&['PENDING','APPROVED'].includes(String(vals[i][si]||'').toUpperCase()))return {ok:false,message:'এই Transaction / Reference ID আগে ব্যবহার হয়েছে।'};}
+  const req='OPR-'+Utilities.formatDate(new Date(),APP.timezone||'Asia/Dhaka','yyyyMMddHHmmss')+'-'+Math.floor(Math.random()*900+100);
+  const now=now_();
+  sh.appendRow([nextSerial_(sh),req,id,st.NameBN||st.NameEN||'',st.Class||'',String(data.Month||'').trim(),String(data.Category||'').trim(),amount,String(data.Method||'').trim(),ref,String(data.PayerMobile||st.Mobile||'').trim(),String(data.Note||'').trim(),'PENDING',now,'','', '', '',now]);
+  log_('ONLINE','submit','ONLINE_PAYMENT',req+' / '+id+' / '+amount);
+  return {ok:true,requestId:req,status:'PENDING',message:'অনলাইন পেমেন্ট অনুরোধ গ্রহণ করা হয়েছে।'};
+}
+function getPendingOnlinePayments(token){
+  if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin এই তালিকা দেখতে পারবেন।'};
+  const rows=listRows_(ONLINE_PAYMENT_REQUEST_SHEET,token,5000).filter(r=>String(r.Status||'').toUpperCase()==='PENDING');
+  return {ok:true,rows:rows.slice().reverse()};
+}
+function approveOnlinePayment(token,requestId){
+  if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin অনুমোদন করতে পারবেন।'};
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(ONLINE_PAYMENT_REQUEST_SHEET);if(!sh)return {ok:false,message:'Pending payment sheet পাওয়া যায়নি।'};
+  const vals=sh.getDataRange().getValues(),h=vals[0].map(String),idx=h.indexOf('RequestID');let rowNo=-1,row=null;
+  for(let i=1;i<vals.length;i++){if(String(vals[i][idx]).trim()===String(requestId).trim()){rowNo=i+1;row=objectFrom_(h,vals[i]);break;}}
+  if(!row)return {ok:false,message:'Payment request পাওয়া যায়নি।'};
+  if(String(row.Status).toUpperCase()!=='PENDING')return {ok:false,message:'এই payment ইতিমধ্যে processed হয়েছে।'};
+  const student=findBy_(SHEETS.STUDENTS,'StudentID',row.StudentID);if(!student)return {ok:false,message:'শিক্ষার্থী পাওয়া যায়নি।'};
+  const pay=saveRecord(token,SHEETS.PAYMENTS,{StudentID:row.StudentID,Name:row.Name,Month:row.Month,Category:row.Category,Amount:Number(row.Amount||0),Method:row.Method,Reference:row.Reference,Date:now_(),Note:row.Note});
+  if(!pay||!pay.ok)return {ok:false,message:(pay&&pay.message)||'PAYMENTS-এ সংরক্ষণ ব্যর্থ।'};
+  const receiptId='RCT-OP-'+Date.now();const receiptData={ReceiptID:receiptId,StudentID:row.StudentID,Name:row.Name,Month:row.Month,Category:row.Category,Amount:Number(row.Amount||0),Method:row.Method,Reference:row.Reference,Date:now_(),PaymentID:pay.paymentId||''};
+  append_(SHEETS.RECEIPTS,[nextSerial_(SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.RECEIPTS)),receiptId,row.StudentID,'ONLINE_PAYMENT',Number(row.Amount||0),now_(),JSON.stringify(receiptData)]);
+  const user=sessionUser_(token)||'';const now=now_();
+  sh.getRange(rowNo,h.indexOf('Status')+1).setValue('APPROVED');sh.getRange(rowNo,h.indexOf('ApprovedBy')+1).setValue(user);sh.getRange(rowNo,h.indexOf('ApprovedAt')+1).setValue(now);sh.getRange(rowNo,h.indexOf('ReceiptID')+1).setValue(receiptId);
+  const mobile=String(row.PayerMobile||student.Mobile||student.WhatsApp||'').trim();if(mobile){const msg='আপনার '+Number(row.Amount||0).toLocaleString('bn-BD')+' টাকার অনলাইন পেমেন্ট অনুমোদিত হয়েছে। Receipt: '+receiptId;append_(SHEETS.SMS_QUEUE,[nextSerial_(SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.SMS_QUEUE)),'SMS-'+Date.now(),mobile,msg,'QUEUED','', '',now]);}
+  log_(user,'approve','ONLINE_PAYMENT',requestId+' / '+receiptId);
+  return {ok:true,receiptId:receiptId,receipt:receiptData,message:'পেমেন্ট অনুমোদিত এবং রসিদ তৈরি হয়েছে।'};
+}
+function rejectOnlinePayment(token,requestId,reason){
+  if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin Reject করতে পারবেন।'};
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(ONLINE_PAYMENT_REQUEST_SHEET);if(!sh)return {ok:false,message:'Pending payment sheet পাওয়া যায়নি।'};
+  const vals=sh.getDataRange().getValues(),h=vals[0].map(String),idx=h.indexOf('RequestID');let rowNo=-1,row=null;
+  for(let i=1;i<vals.length;i++){if(String(vals[i][idx]).trim()===String(requestId).trim()){rowNo=i+1;row=objectFrom_(h,vals[i]);break;}}
+  if(!row)return {ok:false,message:'Payment request পাওয়া যায়নি।'};
+  if(String(row.Status).toUpperCase()!=='PENDING')return {ok:false,message:'এই payment ইতিমধ্যে processed হয়েছে।'};
+  const now=now_();sh.getRange(rowNo,h.indexOf('Status')+1).setValue('REJECTED');sh.getRange(rowNo,h.indexOf('ApprovedBy')+1).setValue(sessionUser_(token)||'');sh.getRange(rowNo,h.indexOf('ApprovedAt')+1).setValue(now);sh.getRange(rowNo,h.indexOf('FailureReason')+1).setValue(String(reason||'যাচাই হয়নি'));
+  log_(sessionUser_(token)||'','reject','ONLINE_PAYMENT',requestId+' / '+String(reason||''));return {ok:true,message:'Payment rejected.'};
+}
+/* ===== END ONLINE PAYMENT ===== */
