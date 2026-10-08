@@ -852,6 +852,35 @@ body.gold #loginPage .main-qr-802268e{background:#fff!important;border-color:#11
  setTimeout(loadLoginMainQR802268e,1600);
 })();
 </script>
+
+<style id="login-online-service-size-position-2026-10-08">
+#loginPage .login-wrap{
+  align-items:flex-start!important;
+  padding-top:28px!important;
+  padding-bottom:24px!important;
+}
+#loginPage .login{
+  width:min(1000px,97vw)!important;
+  padding:24px!important;
+  transform:translateY(8px)!important;
+}
+#loginPage .online-service-login-btn-2026{
+  display:block!important;
+  width:100%!important;
+  min-height:54px!important;
+  margin-top:12px!important;
+  font-size:16px!important;
+  font-weight:900!important;
+  box-sizing:border-box!important;
+}
+@media(max-width:700px){
+  #loginPage .login{
+    width:98vw!important;
+    padding:16px!important;
+    transform:translateY(4px)!important;
+  }
+}
+</style>
 </head>
 <body>
 <div id="welcomeScreen">
@@ -908,6 +937,7 @@ body.gold #loginPage .main-qr-802268e{background:#fff!important;border-color:#11
     <div class="quick">
       <button onclick="openModule('payment')">অনলাইন পেমেন্ট</button><button onclick="openModule('result')">অনলাইন রেজাল্ট</button><button onclick="openModule('exam')">পরীক্ষার্থী নিবন্ধন</button><button onclick="openModule('admin')">নতুন অ্যাডমিন একাউন্ট</button><button onclick="openModule('madrasa')">নতুন মাদ্রাসা নিবন্ধন</button><button onclick="openWindow('quickWin')">দ্রুত সেবা</button>
     </div>
+    <button id="onlineServiceLoginBtn2026" class="primary online-service-login-btn-2026" type="button" onclick="openModule('onlineService')">🌐 অনলাইন সেবা ঘরে বসেই গ্রহন করুন</button>
   </section>
 </div>
 
