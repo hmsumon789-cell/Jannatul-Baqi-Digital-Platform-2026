@@ -575,6 +575,7 @@ function buildStudentFromAdmission_(data,form) {
 }
 function syncAdmissionToStudent_(token,data) {
   ensureStudentWorkflowColumns_();
+  if(!data) return {ok:true,skipped:true,message:'ভর্তি রেকর্ড পাওয়া যায়নি।'};
   let form=data && data.FormData;
   if(typeof form==='string'){try{form=JSON.parse(form);}catch(e){form={};}}
   const src=buildStudentFromAdmission_(data,form);
@@ -720,7 +721,19 @@ function saveRecord(token,sheetName,data) {
     if(headers.indexOf('ApprovedBy')>=0) row[headers.indexOf('ApprovedBy')]=info.status==='ACTIVE'?info.sourceAccount:'';
     if(headers.indexOf('ApprovedAt')>=0) row[headers.indexOf('ApprovedAt')]=info.status==='ACTIVE'?now_():'';
     const sid=String(row[headers.indexOf('StudentID')]||'').trim();
-    if(sid && findBy_(SHEETS.STUDENTS,'StudentID',sid)) return {ok:false,message:'এই Student ID আগে থেকেই আছে।'};
+    const mobile=String(row[headers.indexOf('Mobile')]||'').trim();
+    const birth=String(row[headers.indexOf('BirthReg')]||'').trim();
+    const nid=String(row[headers.indexOf('NID')]||'').trim();
+    const existing=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.STUDENTS);
+    const ev=existing&&existing.getLastRow()>1?existing.getDataRange().getValues():[];
+    const eh=ev.length?ev[0].map(String):[];
+    for(let i=1;i<ev.length;i++){
+      const sameId=sid&&eh.indexOf('StudentID')>=0&&String(ev[i][eh.indexOf('StudentID')]).trim()===sid;
+      const sameMobile=mobile&&eh.indexOf('Mobile')>=0&&String(ev[i][eh.indexOf('Mobile')]).trim()===mobile;
+      const sameBirth=birth&&eh.indexOf('BirthReg')>=0&&String(ev[i][eh.indexOf('BirthReg')]).trim()===birth;
+      const sameNid=nid&&eh.indexOf('NID')>=0&&String(ev[i][eh.indexOf('NID')]).trim()===nid;
+      if(sameId||sameMobile||sameBirth||sameNid) return {ok:false,message:'এই Student-এর তথ্য আগে থেকেই Master Student তালিকায় আছে। Duplicate Student তৈরি করা যাবে না।'};
+    }
   }
   sh.appendRow(row);
   let workflow=null;
@@ -738,8 +751,14 @@ function updateRecord(token,sheetName,serial,data) {
   const idx=values.findIndex((r,i)=>i>0 && String(r[0])===String(serial));
   if(idx<1) throw new Error('Record not found');
   headers.forEach((h,j)=>{if(Object.prototype.hasOwnProperty.call(data,h)) sh.getRange(idx+1,j+1).setValue(data[h]);});
+  SpreadsheetApp.flush();
+  let workflow=null;
+  if(sheetName==='ADMISSIONS'){
+    const updatedRow=objectFrom_(headers,sh.getRange(idx+1,1,1,headers.length).getValues()[0]);
+    workflow=syncAdmissionToStudent_(token,updatedRow);
+  }
   log_(sessionUser_(token),'update',sheetName,String(serial));
-  return {ok:true};
+  return {ok:true,studentWorkflow:workflow};
 }
 
 function deleteRecord(token,sheetName,serial) {
