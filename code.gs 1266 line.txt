@@ -38,7 +38,7 @@ const HEADERS = {
   DONORS:['Serial','DonorID','NameBN','NameAR','NameEN','Mobile','WhatsApp','Email','Address','Amount','Fund','Photo','CreatedAt'],
   ADMISSIONS:['Serial','AdmissionID','StudentID','Session','Class','Branch','Status','FormData','CreatedAt'],
   EXAM_REG:['Serial','ExamRegID','StudentID','Exam','Class','Branch','Status','FormData','CreatedAt'],
-  PAYMENTS:['Serial','PaymentID','StudentID','Name','Month','Category','Amount','Method','Reference','Date','Note','CreatedAt'],
+  PAYMENTS:['Serial','PaymentID','StudentID','Name','Month','Category','Amount','Method','Reference','Date','Note','Status','PayerMobile','Proof','SubmittedAt','ApprovedBy','ApprovedAt','FailureReason','ReceiptID','CreatedAt'],
   EXPENSES:['Serial','ExpenseID','Category','Amount','Method','Date','Note','CreatedAt'],
   RESULTS:['Serial','ResultID','StudentID','Name','Class','Exam','SubjectData','Total','GPA','Grade','Published','Date','CreatedAt'],
   NOTICES:['Serial','NoticeID','TitleBN','TitleAR','TitleEN','BodyBN','BodyAR','BodyEN','Date','Status','CreatedAt'],
@@ -140,6 +140,8 @@ function getMainWebAppUrl() {
 function setupSystem() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   Object.keys(SHEETS).forEach(k => ensureSheet_(ss, SHEETS[k], HEADERS[SHEETS[k]] || ['Value']));
+  ensurePaymentWorkflowColumns_();
+  ensureStudentPaymentColumns_();
   seedConfig_(ss);
   seedAdmin_(ss);
   seedPeople_(ss);
@@ -700,6 +702,74 @@ function getStudentLinkedLists(token,studentId) {
   return getStudent360(token,studentId);
 }
 /* ===== END STUDENT MASTER WORKFLOW ===== */
+
+/* ===== ONLINE PAYMENT WORKFLOW — PENDING / APPROVAL / RECEIPT ===== */
+function ensureHeaders_(sheetName, headers){
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);if(!sh)return;
+  const last=Math.max(1,sh.getLastColumn()),current=sh.getRange(1,1,1,last).getValues()[0].map(String),missing=headers.filter(h=>current.indexOf(h)<0);
+  if(missing.length)sh.getRange(1,current.length+1,1,missing.length).setValues([missing]);
+}
+function ensurePaymentWorkflowColumns_(){ensureHeaders_(SHEETS.PAYMENTS,HEADERS[SHEETS.PAYMENTS]);}
+function ensureStudentPaymentColumns_(){ensureHeaders_(SHEETS.STUDENTS,['TotalDue','PaidAmount','DueAmount']);}
+function paymentStatus_(v){return String(v||'PENDING').trim().toUpperCase()||'PENDING';}
+function isDuplicatePaymentReference_(reference,excludeId){
+  const ref=String(reference||'').trim().toLowerCase();if(!ref)return false;
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.PAYMENTS);if(!sh||sh.getLastRow()<2)return false;
+  const vals=sh.getDataRange().getValues(),h=vals[0].map(String),ri=h.indexOf('Reference'),pi=h.indexOf('PaymentID');if(ri<0)return false;
+  return vals.slice(1).some(r=>String(r[ri]||'').trim().toLowerCase()===ref&&(!excludeId||String(r[pi]||'').trim()!==String(excludeId).trim()));
+}
+function submitOnlinePayment(data){
+  setupSystem();data=data||{};
+  const sid=String(data.StudentID||'').trim(),method=String(data.Method||'').trim(),reference=String(data.Reference||'').trim(),payerMobile=String(data.PayerMobile||'').trim(),amount=Number(data.Amount||0);
+  if(!sid||!method||!reference||!payerMobile||!isFinite(amount)||amount<=0)return {ok:false,message:'Student ID, পেমেন্ট মাধ্যম, টাকা, Transaction/Reference ID এবং প্রেরকের মোবাইল বাধ্যতামূলক।'};
+  if(isDuplicatePaymentReference_(reference))return {ok:false,message:'এই Transaction/Reference ID আগে জমা হয়েছে। একই লেনদেন আবার গ্রহণ করা যাবে না।'};
+  const student=findBy_(SHEETS.STUDENTS,'StudentID',sid);if(!student)return {ok:false,message:'এই Student ID-এর শিক্ষার্থী পাওয়া যায়নি।'};
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.PAYMENTS),paymentId='PAY-'+Date.now(),now=now_(),row=HEADERS[SHEETS.PAYMENTS].map(h=>data[h]??'');
+  const set=(k,v)=>{const i=HEADERS[SHEETS.PAYMENTS].indexOf(k);if(i>=0)row[i]=v;};
+  set('Serial',nextSerial_(sh));set('PaymentID',paymentId);set('StudentID',sid);set('Name',data.Name||student.NameBN||student.Name||'');set('Amount',amount);set('Method',method);set('Reference',reference);set('Date',data.Date||now);set('Note',data.Note||'');set('Status','PENDING');set('PayerMobile',payerMobile);set('Proof',data.Proof||'');set('SubmittedAt',now);set('CreatedAt',now);
+  sh.appendRow(row);log_('PUBLIC','create','PAYMENTS',paymentId+' | PENDING');
+  return {ok:true,paymentId:paymentId,status:'PENDING',message:'পেমেন্ট জমা হয়েছে। এখন Super Admin যাচাই করবেন।',studentName:student.NameBN||student.Name||''};
+}
+function getPendingPayments(token,status){
+  if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin পেমেন্ট অনুমোদন করতে পারবেন।'};
+  ensurePaymentWorkflowColumns_();const wanted=String(status||'PENDING').toUpperCase(),rows=listRows_(SHEETS.PAYMENTS,token,5000).filter(r=>wanted==='ALL'||paymentStatus_(r.Status)===wanted).reverse();
+  return {ok:true,rows:rows};
+}
+function updateStudentPaymentTotals_(studentId){
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.STUDENTS);if(!sh||sh.getLastRow()<2)return;
+  const vals=sh.getDataRange().getValues(),h=vals[0].map(String),sidI=h.indexOf('StudentID');if(sidI<0)return;
+  let rowIndex=-1;for(let i=1;i<vals.length;i++)if(String(vals[i][sidI]).trim()===String(studentId).trim()){rowIndex=i+1;break;}if(rowIndex<0)return;
+  const psh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.PAYMENTS);let paid=0;
+  if(psh&&psh.getLastRow()>1){const pv=psh.getDataRange().getValues(),ph=pv[0].map(String),ps=ph.indexOf('StudentID'),pa=ph.indexOf('Amount'),pst=ph.indexOf('Status');for(let i=1;i<pv.length;i++)if(String(pv[i][ps]||'').trim()===String(studentId).trim()&&paymentStatus_(pv[i][pst])==='APPROVED'){const n=Number(pv[i][pa]);if(isFinite(n))paid+=n;}}
+  const totalI=h.indexOf('TotalDue'),paidI=h.indexOf('PaidAmount'),dueI=h.indexOf('DueAmount'),total=totalI>=0?Number(vals[rowIndex-1][totalI]||0):0;
+  if(paidI>=0)sh.getRange(rowIndex,paidI+1).setValue(paid);if(dueI>=0)sh.getRange(rowIndex,dueI+1).setValue(Math.max(0,total-paid));
+}
+function approveOnlinePayment(token,paymentId){
+  if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin অনুমোদন করতে পারবেন।'};setupSystem();
+  const id=String(paymentId||'').trim(),sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.PAYMENTS);if(!id)return {ok:false,message:'Payment ID প্রয়োজন।'};
+  const vals=sh.getDataRange().getValues(),h=vals[0].map(String),pi=h.indexOf('PaymentID'),si=h.indexOf('Status');if(pi<0||si<0)return {ok:false,message:'Payment workflow columns পাওয়া যায়নি।'};
+  let ri=-1;for(let i=1;i<vals.length;i++)if(String(vals[i][pi]).trim()===id){ri=i+1;break;}if(ri<0)return {ok:false,message:'Payment record পাওয়া যায়নি।'};
+  const current=paymentStatus_(sh.getRange(ri,si+1).getValue());if(current==='APPROVED')return {ok:false,message:'এই পেমেন্ট ইতোমধ্যে অনুমোদিত।'};if(current==='FAILED')return {ok:false,message:'এই পেমেন্ট ইতোমধ্যে বাতিল হয়েছে।'};
+  const row=sh.getRange(ri,1,1,h.length).getValues()[0],obj=objectFrom_(h,row),now=now_(),receiptId='RCT-PAY-'+Date.now();
+  sh.getRange(ri,si+1).setValue('APPROVED');const ab=h.indexOf('ApprovedBy'),at=h.indexOf('ApprovedAt'),rid=h.indexOf('ReceiptID');if(ab>=0)sh.getRange(ri,ab+1).setValue(sessionUser_(token));if(at>=0)sh.getRange(ri,at+1).setValue(now);if(rid>=0)sh.getRange(ri,rid+1).setValue(receiptId);
+  const rsh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.RECEIPTS),rh=HEADERS[SHEETS.RECEIPTS],rr=rh.map(()=>''),put=(k,v)=>{const i=rh.indexOf(k);if(i>=0)rr[i]=v;};
+  put('Serial',nextSerial_(rsh));put('ReceiptID',receiptId);put('RefID',obj.StudentID||'');put('Type','অনলাইন পেমেন্ট');put('Amount',obj.Amount||'');put('Date',obj.Date||now);put('Data',JSON.stringify({PaymentID:id,StudentID:obj.StudentID,Name:obj.Name,Category:obj.Category,Method:obj.Method,Reference:obj.Reference,ApprovedBy:sessionUser_(token),ApprovedAt:now}));rsh.appendRow(rr);
+  updateStudentPaymentTotals_(obj.StudentID);
+  const mobile=String(obj.PayerMobile||'').trim();if(mobile){const q=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.SMS_QUEUE);if(q)q.appendRow([nextSerial_(q),'SMS-'+Date.now(),mobile,'আপনার '+String(obj.Amount||'')+' টাকা অনলাইন পেমেন্ট অনুমোদিত হয়েছে। Payment ID: '+id,'QUEUED','','',now]);}
+  log_(sessionUser_(token),'approve','PAYMENTS',id+' | '+receiptId);return {ok:true,paymentId:id,receiptId:receiptId,status:'APPROVED',message:'পেমেন্ট অনুমোদিত হয়েছে এবং মানি রিসিট তৈরি হয়েছে।'};
+}
+function rejectOnlinePayment(token,paymentId,reason){
+  if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin পেমেন্ট বাতিল করতে পারবেন।'};
+  const id=String(paymentId||'').trim(),sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.PAYMENTS),vals=sh.getDataRange().getValues(),h=vals[0].map(String),pi=h.indexOf('PaymentID'),si=h.indexOf('Status');let ri=-1;
+  for(let i=1;i<vals.length;i++)if(String(vals[i][pi]).trim()===id){ri=i+1;break;}if(ri<0)return {ok:false,message:'Payment record পাওয়া যায়নি।'};if(paymentStatus_(sh.getRange(ri,si+1).getValue())==='APPROVED')return {ok:false,message:'অনুমোদিত পেমেন্ট বাতিল করা যাবে না।'};
+  sh.getRange(ri,si+1).setValue('FAILED');const fi=h.indexOf('FailureReason'),ab=h.indexOf('ApprovedBy'),at=h.indexOf('ApprovedAt');if(fi>=0)sh.getRange(ri,fi+1).setValue(String(reason||'Super Admin কর্তৃক যাচাইয়ে ব্যর্থ'));if(ab>=0)sh.getRange(ri,ab+1).setValue(sessionUser_(token));if(at>=0)sh.getRange(ri,at+1).setValue(now_());
+  log_(sessionUser_(token),'reject','PAYMENTS',id);return {ok:true,status:'FAILED',message:'পেমেন্ট বাতিল করা হয়েছে।'};
+}
+function getStudentPaymentSummary(token,studentId){
+  auth_(token);const sid=String(studentId||'').trim(),student=findBy_(SHEETS.STUDENTS,'StudentID',sid);if(!student)return {ok:false,message:'Student পাওয়া যায়নি।'};
+  const rows=listRows_(SHEETS.PAYMENTS,token,5000).filter(r=>String(r.StudentID||'').trim()===sid),paid=rows.filter(r=>paymentStatus_(r.Status)==='APPROVED').reduce((s,r)=>s+(Number(r.Amount)||0),0),due=Math.max(0,(Number(student.TotalDue)||0)-paid);
+  return {ok:true,student:student,paid:paid,due:due,pending:rows.filter(r=>paymentStatus_(r.Status)==='PENDING').reduce((s,r)=>s+(Number(r.Amount)||0),0),rows:rows.reverse()};
+}
 
 function saveRecord(token,sheetName,data) {
   auth_(token);
