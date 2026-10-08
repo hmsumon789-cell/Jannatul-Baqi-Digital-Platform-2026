@@ -2503,7 +2503,7 @@ body{padding-top:0!important}
   var LIST_HEADS={
     students:['StudentID','NameBN','NameAR','NameEN','Mobile','Class','Department','Branch'],
     teachers:['TeacherID','NameBN','NameAR','NameEN','Mobile','Department','Branch'],
-    exams:['ExamRegID','StudentID','Exam','Class','Branch','Status'],
+    exams:['StudentID','NameBN','NameAR','NameEN','Mobile','Class','Department','Branch'],
     admins:['AdminID','NameBN','Username','Email','Mobile','Role','Status'],
     madrasas:['MadrasaID','Name','FoundedYear','Address','Mobile','StaffCount','StudentCount','Status','Username']
   };
@@ -2538,11 +2538,38 @@ body{padding-top:0!important}
   }
   function renderList(){
     var rows=currentListRows,heads=LIST_HEADS[currentListKey]||[];
+    if(currentListKey==='exams'){
+      var selectedExam=(document.getElementById('examCandidateName')||{}).value||'';
+      var h='<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px"><label style="font-weight:900">পরীক্ষার নাম <input id="examCandidateName" class="field" value="'+esc(selectedExam)+'" placeholder="যে পরীক্ষায় যুক্ত করবেন"></label><b>☑ টিক দিলেই পরীক্ষার্থী যুক্ত + Admit Card তৈরি হবে</b></div>';
+      h+='<div class="table-wrap"><table class="data-table module-list-table"><thead><tr><th>☑</th>'+heads.map(function(x){return '<th>'+esc(x)+'</th>'}).join('')+'<th>কার্যক্রম</th></tr></thead><tbody>';
+      if(!rows.length)h+='<tr><td colspan="'+(heads.length+2)+'">কোন শিক্ষার্থী পাওয়া যায়নি।</td></tr>';
+      rows.forEach(function(r,i){
+        h+='<tr id="listRow'+i+'"><td><input type="checkbox" title="পরীক্ষার্থী হিসেবে যুক্ত করুন" onchange="addExamCandidate2026('+i+',this.checked)"></td>'+heads.map(function(k){return '<td data-key="'+esc(k)+'">'+esc(r[k])+'</td>'}).join('')+'<td><div class="list-actions"><button class="secondary" onclick="listDetail('+i+')">📄 বিস্তারিত দেখুন</button><button class="secondary" onclick="listEdit('+i+')">✏️</button></div></td></tr>';
+      });
+      $('moduleListBody').innerHTML=h+'</tbody></table></div>';
+      return;
+    }
     var h='<div class="table-wrap"><table class="data-table module-list-table"><thead><tr>'+heads.map(function(x){return '<th>'+esc(x)+'</th>'}).join('')+'<th>কার্যক্রম</th></tr></thead><tbody>';
     if(!rows.length)h+='<tr><td colspan="'+(heads.length+1)+'">কোন তথ্য পাওয়া যায়নি।</td></tr>';
-    rows.forEach(function(r,i){h+='<tr id="listRow'+i+'">'+heads.map(function(k){return '<td data-key="'+esc(k)+'">'+esc(r[k])+'</td>'}).join('')+'<td><div class="list-actions"><button class="secondary" onclick="listDetail('+i+')">📄 বিস্তারিত দেখুন</button><button class="secondary" onclick="listEdit('+i+')">✏️</button></div></td></tr>'});
+    rows.forEach(function(r,i){h+='<tr id="listRow'+i+'">'+heads.map(function(k){return '<td data-key="'+esc(k)+'">'+esc(r[k])+'</td>').join('')+'<td><div class="list-actions"><button class="secondary" onclick="listDetail('+i+')">📄 বিস্তারিত দেখুন</button><button class="secondary" onclick="listEdit('+i+')">✏️</button></div></td></tr>'});
     $('moduleListBody').innerHTML=h+'</tbody></table></div>';
   }
+  window.addExamCandidate2026=async function(i,checked){
+    if(!checked)return;
+    var r=currentListRows[i]||{},exam=(document.getElementById('examCandidateName')||{}).value.trim();
+    if(!exam){exam=window.prompt('পরীক্ষার নাম লিখুন:','বার্ষিক পরীক্ষা ২০২৬')||'';if(!exam){renderList();return}}
+    try{
+      var d={StudentID:r.StudentID||'',Name:r.NameBN||'',Class:r.Class||'',Branch:r.Branch||'',Exam:exam,SubjectData:'',Published:'NO',Date:new Date().toISOString()};
+      if(!d.StudentID)return toast('Student ID পাওয়া যায়নি।');
+      var er=await call('saveRecord',token,'EXAM_REG',d);
+      if(!er||!er.ok){toast((er&&er.message)||'পরীক্ষার্থী হিসেবে যুক্ত করা যায়নি।');renderList();return}
+      var ad={StudentID:d.StudentID,Exam:exam,IssueDate:new Date().toISOString(),Data:JSON.stringify({nameBN:r.NameBN||'',nameAR:r.NameAR||'',nameEN:r.NameEN||'',className:r.Class||'',branch:r.Branch||''})};
+      var ar=await call('saveRecord',token,'ADMIT_CARDS',ad);
+      if(!ar||!ar.ok){toast((ar&&ar.message)||'পরীক্ষার্থী যুক্ত হয়েছে, কিন্তু Admit Card তৈরি হয়নি।');return}
+      toast('✅ '+(r.NameBN||d.StudentID)+' পরীক্ষার্থী তালিকায় যুক্ত হয়েছে এবং Admit Card তৈরি হয়েছে।');
+    }catch(e){toast('সার্ভার ত্রুটি: '+esc(e&&e.message?e.message:e))}
+  };
+
   window.loadModuleList=showList;window.renderModuleList=renderList;
   window.listDetail=function(i){var r=currentListRows[i]||{},heads=LIST_HEADS[currentListKey]||Object.keys(r);var html='<div class="list-detail-card">'+heads.map(function(k){return '<div class="detail-item"><b>'+esc(k)+'</b><span>'+esc(r[k])+'</span></div>'}).join('')+'</div><button class="secondary" onclick="renderList()">↩ তালিকায় ফিরুন</button>';$('moduleListBody').innerHTML=html};
   window.listEdit=function(i){var r=currentListRows[i]||{},heads=LIST_HEADS[currentListKey]||Object.keys(r),row=document.getElementById('listRow'+i);if(!row)return;heads.forEach(function(k){var td=row.querySelector('[data-key="'+CSS.escape(k)+'"]');if(td)td.innerHTML='<input class="list-edit-input" data-edit-key="'+esc(k)+'" value="'+esc(r[k])+'">'});toast('✏️ এডিট মোড চালু হয়েছে। শেষে সেভ/সংরক্ষণ চাপুন।')};
