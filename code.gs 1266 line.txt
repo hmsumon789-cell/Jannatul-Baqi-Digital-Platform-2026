@@ -1544,4 +1544,18 @@ function rejectOnlinePayment(token,requestId,reason){
   const now=now_();sh.getRange(rowNo,h.indexOf('Status')+1).setValue('REJECTED');sh.getRange(rowNo,h.indexOf('ApprovedBy')+1).setValue(sessionUser_(token)||'');sh.getRange(rowNo,h.indexOf('ApprovedAt')+1).setValue(now);sh.getRange(rowNo,h.indexOf('FailureReason')+1).setValue(String(reason||'যাচাই হয়নি'));
   log_(sessionUser_(token)||'','reject','ONLINE_PAYMENT',requestId+' / '+String(reason||''));return {ok:true,message:'Payment rejected.'};
 }
+function getOnlinePaymentManagerData(token){
+  try{
+    if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin এই পেমেন্ট ম্যানেজমেন্ট দেখতে পারবেন।'};
+    const ss=SpreadsheetApp.getActiveSpreadsheet();
+    const reqSh=ss.getSheetByName(ONLINE_PAYMENT_REQUEST_SHEET);
+    const inbox=reqSh&&reqSh.getLastRow()>1?reqSh.getDataRange().getValues().slice(1).map(r=>objectFrom_(ONLINE_PAYMENT_REQUEST_HEADERS,r)).reverse():[];
+    const paySh=ss.getSheetByName(SHEETS.PAYMENTS);
+    const history=paySh&&paySh.getLastRow()>1?paySh.getDataRange().getValues().slice(1).map(r=>objectFrom_(HEADERS[SHEETS.PAYMENTS],r)).reverse().slice(0,500):[];
+    const smsSh=ss.getSheetByName(SHEETS.SMS_QUEUE);
+    const outbox=smsSh&&smsSh.getLastRow()>1?smsSh.getDataRange().getValues().slice(1).map(r=>objectFrom_(HEADERS[SHEETS.SMS_QUEUE],r)).filter(r=>String(r.Message||'').includes('অনলাইন পেমেন্ট')).reverse().slice(0,500):[];
+    return {ok:true,inbox:inbox.slice(0,500),history:history,outbox:outbox};
+  }catch(e){return {ok:false,message:'পেমেন্ট ম্যানেজমেন্ট লোডে সার্ভার ত্রুটি: '+(e&&e.message?e.message:e)};}
+}
+
 /* ===== END ONLINE PAYMENT ===== */
