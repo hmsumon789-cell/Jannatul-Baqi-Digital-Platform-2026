@@ -12022,17 +12022,30 @@ function jbQpClear(){['jbQpExam','jbQpClass','jbQpSubject','jbQpDate','jbQpMarks
   display:grid!important;
   grid-template-columns:repeat(2,minmax(0,1fr))!important;
   gap:12px!important;
-  width:min(820px,92vw)!important;
-  margin:10px auto 0!important;
+  width:calc(100% - 24px)!important;
+  max-width:680px!important;
+  margin:16px auto 0!important;
+  padding:0!important;
+  position:relative!important;
+  left:auto!important;
+  right:auto!important;
+  transform:none!important;
+  box-sizing:border-box!important;
   align-items:stretch!important;
 }
 #loginPage .jb-login-service-payment-row-2026 > *{
   width:100%!important;
   min-width:0!important;
   margin:0!important;
+  box-sizing:border-box!important;
 }
 @media(max-width:700px){
-  #loginPage .jb-login-service-payment-row-2026{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;width:94vw!important}
+  #loginPage .jb-login-service-payment-row-2026{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:8px!important;
+    width:calc(100% - 20px)!important;
+    max-width:680px!important;
+  }
   #loginPage .jb-login-service-payment-row-2026 > *{font-size:12px!important;padding:10px 6px!important}
 }
 </style>
@@ -12048,10 +12061,16 @@ function jbQpClear(){['jbQpExam','jbQpClass','jbQpSubject','jbQpDate','jbQpMarks
       row=document.createElement('div');
       row.id='jbLoginServicePaymentRow2026';
       row.className='jb-login-service-payment-row-2026';
-      lp.appendChild(row);
-    }else if(row.parentNode!==lp){lp.appendChild(row)}
+    }
+    if(row.parentNode!==lp)lp.appendChild(row);
     if(s.parentNode!==row)row.appendChild(s);
     if(p.parentNode!==row)row.appendChild(p);
+    row.style.position='relative';
+    row.style.left='auto';
+    row.style.right='auto';
+    row.style.transform='none';
+    row.style.marginLeft='auto';
+    row.style.marginRight='auto';
   }
   arrange();
   if(document.body)new MutationObserver(arrange).observe(document.body,{childList:true,subtree:true});
