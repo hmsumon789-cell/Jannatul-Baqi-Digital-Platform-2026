@@ -724,8 +724,8 @@ function submitOnlinePayment(data){
   if(!sid||!method||!reference||!payerMobile||!isFinite(amount)||amount<=0)return {ok:false,message:'Student ID, পেমেন্ট মাধ্যম, টাকা, Transaction/Reference ID এবং প্রেরকের মোবাইল বাধ্যতামূলক।'};
   if(isDuplicatePaymentReference_(reference))return {ok:false,message:'এই Transaction/Reference ID আগে জমা হয়েছে। একই লেনদেন আবার গ্রহণ করা যাবে না।'};
   const student=findBy_(SHEETS.STUDENTS,'StudentID',sid);if(!student)return {ok:false,message:'এই Student ID-এর শিক্ষার্থী পাওয়া যায়নি।'};
-  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.PAYMENTS),paymentId='PAY-'+Date.now(),now=now_(),row=HEADERS[SHEETS.PAYMENTS].map(h=>data[h]??'');
-  const set=(k,v)=>{const i=HEADERS[SHEETS.PAYMENTS].indexOf(k);if(i>=0)row[i]=v;};
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.PAYMENTS),paymentId='PAY-'+Date.now(),now=now_(),actualHeaders=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String),row=actualHeaders.map(h=>data[h]??'');
+  const set=(k,v)=>{const i=actualHeaders.indexOf(k);if(i>=0)row[i]=v;};
   set('Serial',nextSerial_(sh));set('PaymentID',paymentId);set('StudentID',sid);set('Name',data.Name||student.NameBN||student.Name||'');set('Amount',amount);set('Method',method);set('Reference',reference);set('Date',data.Date||now);set('Note',data.Note||'');set('Status','PENDING');set('PayerMobile',payerMobile);set('Proof',data.Proof||'');set('SubmittedAt',now);set('CreatedAt',now);
   sh.appendRow(row);log_('PUBLIC','create','PAYMENTS',paymentId+' | PENDING');
   return {ok:true,paymentId:paymentId,status:'PENDING',message:'পেমেন্ট জমা হয়েছে। এখন Super Admin যাচাই করবেন।',studentName:student.NameBN||student.Name||''};
