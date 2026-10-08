@@ -11681,6 +11681,101 @@ function jbQpClear(){['jbQpExam','jbQpClass','jbQpSubject','jbQpDate','jbQpMarks
 </script>
 <!-- ===== END EXAM DASHBOARD — GLOBAL BUTTON FIX — 2026-10-08 ===== -->
 
+<!-- ===== MOBILE + ONLINE EXAM RESULT VIEWER — 2026-10-08 ===== -->
+<style id="jb-mobile-online-result-2026">
+#jbOnlineResultWin2026{width:min(760px,96vw);top:4vh;max-height:92vh}
+#jbOnlineResultWin2026 .jb-or-search{display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:12px}
+#jbOnlineResultWin2026 .jb-or-search input{min-height:48px;border:2px solid var(--border);border-radius:12px;padding:10px 13px}
+#jbOnlineResultWin2026 .jb-or-card{border:3px solid var(--border);border-radius:16px;padding:14px;background:var(--panel)}
+#jbOnlineResultWin2026 .jb-or-head{text-align:center;border-bottom:2px solid var(--border);padding-bottom:10px;margin-bottom:10px}
+#jbOnlineResultWin2026 .jb-or-name{font-size:22px;font-weight:900}
+#jbOnlineResultWin2026 .jb-or-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:9px 0}
+#jbOnlineResultWin2026 .jb-or-meta div{border:1px solid var(--border);border-radius:9px;padding:8px;text-align:center}
+#jbOnlineResultWin2026 .jb-or-table{width:100%;border-collapse:collapse}
+#jbOnlineResultWin2026 .jb-or-table th,#jbOnlineResultWin2026 .jb-or-table td{border:1px solid var(--border);padding:8px;text-align:center}
+#jbOnlineResultWin2026 .jb-or-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.jb-online-result-entry{width:100%;min-height:52px;border:2px solid #c59a25!important;border-radius:999px!important;background:linear-gradient(180deg,#fffdf6,#f8edc9)!important;color:#5c4300!important;font-weight:900!important}
+@media(max-width:600px){
+  #jbOnlineResultWin2026{top:2vh;max-height:96vh}
+  #jbOnlineResultWin2026 .jb-or-search{grid-template-columns:1fr}
+  #jbOnlineResultWin2026 .jb-or-meta{grid-template-columns:1fr 1fr}
+  #jbOnlineResultWin2026 .jb-or-card{padding:9px;border-radius:12px}
+  #jbOnlineResultWin2026 .jb-or-name{font-size:18px}
+  #jbOnlineResultWin2026 .jb-or-table th,#jbOnlineResultWin2026 .jb-or-table td{padding:6px;font-size:13px}
+}
+</style>
+<script id="jb-mobile-online-result-2026">
+(function(){
+  function esc(v){return String(v==null?'':v).replace(/[&<>"]/g,function(s){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s];});}
+  function ensure(){
+    var w=document.getElementById('jbOnlineResultWin2026');
+    if(w)return w;
+    w=document.createElement('div');w.id='jbOnlineResultWin2026';w.className='window';
+    w.innerHTML='<div class="win-head"><b>📱 অনলাইন ফলাফল</b><button class="secondary" type="button" id="jbOnlineResultClose2026">✕</button></div>'+
+      '<div class="win-body"><p style="text-align:center;font-weight:800">Student ID / মোবাইল নম্বর দিয়ে প্রকাশিত ফলাফল দেখুন</p>'+
+      '<div class="jb-or-search"><input id="jbOnlineResultQuery2026" class="field" placeholder="Student ID / মোবাইল নম্বর"><button id="jbOnlineResultSearch2026" class="primary" type="button">🔎 ফলাফল দেখুন</button></div>'+
+      '<div id="jbOnlineResultBody2026"><div style="text-align:center;padding:20px">উপরের ঘরে তথ্য দিয়ে ফলাফল দেখুন।</div></div></div>';
+    document.body.appendChild(w);
+    document.getElementById('jbOnlineResultClose2026').onclick=function(){w.classList.remove('show');w.style.display='none';};
+    document.getElementById('jbOnlineResultSearch2026').onclick=search;
+    document.getElementById('jbOnlineResultQuery2026').addEventListener('keydown',function(e){if(e.key==='Enter')search();});
+    return w;
+  }
+  function open(){
+    var w=ensure();w.style.display='block';w.classList.add('show');
+    setTimeout(function(){var x=document.getElementById('jbOnlineResultQuery2026');if(x)x.focus();},80);
+  }
+  function escResult(r){return r;}
+  function render(r){
+    var body=document.getElementById('jbOnlineResultBody2026');if(!body)return;
+    if(!r||!r.ok){body.innerHTML='<div style="padding:20px;text-align:center;font-weight:900">❌ '+esc(r&&r.message||'ফলাফল পাওয়া যায়নি।')+'</div>';return;}
+    var s=r.student||{},out='<div class="jb-or-card"><div class="jb-or-head"><div class="jb-or-name">'+esc(s.nameBN||'শিক্ষার্থী')+'</div><div>'+esc(s.nameAR||'')+'</div></div>';
+    out+='<div class="jb-or-meta"><div><b>ID</b><br>'+esc(s.studentId)+'</div><div><b>শ্রেণি/জামাত</b><br>'+esc(s.className)+'</div><div><b>মোবাইল</b><br>'+esc(s.mobile)+'</div></div>';
+    (r.results||[]).forEach(function(x){
+      out+='<h3 style="text-align:center;margin:14px 0 7px">📘 '+esc(x.exam)+'</h3><div class="jb-or-meta"><div><b>মোট</b><br>'+esc(x.total)+'</div><div><b>GPA</b><br>'+esc(x.gpa)+'</div><div><b>Grade</b><br>'+esc(x.grade)+'</div></div>';
+      out+='<div style="overflow:auto"><table class="jb-or-table"><thead><tr><th>বিষয়</th><th>নম্বর</th></tr></thead><tbody>';
+      (x.subjects||[]).forEach(function(z){var n=z.subject||z.name||z.Subject||z.SubjectName||z.label||'';var m=z.marks!=null?z.marks:(z.mark!=null?z.mark:(z.Marks!=null?z.Marks:z.value));out+='<tr><td>'+esc(n)+'</td><td>'+esc(m)+'</td></tr>';});
+      out+='</tbody></table></div>';
+    });
+    out+='<div class="jb-or-actions"><button class="primary" type="button" onclick="window.printOnlineExamResult2026()">🖨️ প্রিন্ট</button><button class="secondary" type="button" onclick="window.shareOnlineExamResult2026()">📤 শেয়ার</button></div></div>';
+    body.innerHTML=out;window.__jbOnlineResultData=r;
+  }
+  function search(){
+    var q=String((document.getElementById('jbOnlineResultQuery2026')||{}).value||'').trim();
+    var body=document.getElementById('jbOnlineResultBody2026');if(!q){if(body)body.innerHTML='<div style="padding:20px;text-align:center">Student ID / মোবাইল নম্বর দিন।</div>';return;}
+    if(body)body.innerHTML='<div style="padding:20px;text-align:center">⏳ ফলাফল খোঁজা হচ্ছে...</div>';
+    try{google.script.run.withSuccessHandler(render).withFailureHandler(function(e){render({ok:false,message:'সার্ভার ত্রুটি: '+(e&&e.message||e)});}).getPublicExamResult(q);}
+    catch(e){render({ok:false,message:String(e&&e.message||e)});}
+  }
+  window.openOnlineExamResult2026=open;
+  window.printOnlineExamResult2026=function(){
+    var body=document.getElementById('jbOnlineResultBody2026');if(!body)return;
+    var w=window.open('','_blank');if(!w)return;
+    w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>অনলাইন ফলাফল</title><style>body{font-family:Arial,sans-serif;padding:20px}.jb-or-table{width:100%;border-collapse:collapse}.jb-or-table th,.jb-or-table td{border:1px solid #333;padding:7px;text-align:center}.jb-or-actions{display:none!important}</style></head><body>'+body.innerHTML+'</body></html>');
+    w.document.close();w.print();
+  };
+  window.shareOnlineExamResult2026=function(){
+    var s=(window.__jbOnlineResultData||{}).student||{},txt='জান্নাতুল বাক্বী মহিলা মাদ্রাসা — '+(s.nameBN||'ফলাফল')+' | ID: '+(s.studentId||'');
+    if(navigator.share)navigator.share({title:'অনলাইন ফলাফল',text:txt}).catch(function(){});
+    else if(navigator.clipboard)navigator.clipboard.writeText(txt).then(function(){if(typeof toast==='function')toast('ফলাফলের শেয়ার তথ্য কপি হয়েছে।');});
+  };
+  function addEntry(){
+    var lp=document.getElementById('loginPage');
+    if(lp&&!document.getElementById('jbLoginOnlineResult2026')){
+      var b=document.createElement('button');b.id='jbLoginOnlineResult2026';b.type='button';b.className='jb-online-result-entry';b.textContent='📱 অনলাইন ফলাফল — মোবাইল থেকে সহজে দেখুন';b.onclick=open;
+      var q=lp.querySelector('.quick');if(q)q.appendChild(b);else lp.appendChild(b);
+    }
+    var d=document.getElementById('examDashboardWin');
+    if(d&&!document.getElementById('jbExamOnlineResult2026')){
+      var b2=document.createElement('button');b2.id='jbExamOnlineResult2026';b2.type='button';b2.className='secondary';b2.textContent='📱 অনলাইন ফলাফল';b2.onclick=open;
+      var a=d.querySelector('.jb-exam-actions');if(a)a.appendChild(b2);
+    }
+  }
+  addEntry();if(document.body)new MutationObserver(addEntry).observe(document.body,{childList:true,subtree:true});
+})();
+</script>
+<!-- ===== END MOBILE + ONLINE EXAM RESULT VIEWER — 2026-10-08 ===== -->
+
 <!-- ===== ONLINE SERVICE — HOME DELIVERY BUTTON + SAVE — 2026-10-07 ===== -->
 <style id="jb-online-service-home-2026-10-07">
 #jbDocBuilderWin .jb-online-service-save-2026{
