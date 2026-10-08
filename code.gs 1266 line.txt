@@ -33,7 +33,7 @@ const SHEETS = {
 
 const HEADERS = {
   ADMINS:['Serial','AdminID','NameBN','NameAR','NameEN','Username','PasswordHash','Email','Mobile','WhatsApp','Address','Photo','BirthReg','NID','ApprovalID','Role','Status','CreatedAt','Password','Permissions','ApprovedBy','ApprovedAt'],
-  STUDENTS:['Serial','StudentID','FormID','MobileID','EmailID','NameBN','NameAR','NameEN','FatherBN','FatherAR','FatherEN','MotherBN','MotherAR','MotherEN','DOB','Gender','Class','Department','Branch','Residence','Mobile','WhatsApp','Email','Address','Photo','BirthReg','NID','Documents','CreatedAt'],
+  STUDENTS:['Serial','StudentID','FormID','MobileID','EmailID','NameBN','NameAR','NameEN','FatherBN','FatherAR','FatherEN','MotherBN','MotherAR','MotherEN','DOB','Gender','Class','Department','Branch','Residence','Mobile','WhatsApp','Email','Address','Photo','BirthReg','NID','Documents','CreatedAt','ApprovalStatus','SourceType','SourceAccount','ApprovedBy','ApprovedAt'],
   TEACHERS:['Serial','TeacherID','NameBN','NameAR','NameEN','FatherBN','FatherAR','FatherEN','Mobile','WhatsApp','Email','Department','Branch','Gender','Address','Photo','BirthReg','NID','Documents','CreatedAt'],
   DONORS:['Serial','DonorID','NameBN','NameAR','NameEN','Mobile','WhatsApp','Email','Address','Amount','Fund','Photo','CreatedAt'],
   ADMISSIONS:['Serial','AdmissionID','StudentID','Session','Class','Branch','Status','FormData','CreatedAt'],
@@ -513,6 +513,168 @@ function listSignalRecords(token,signal,className) {
   return {ok:true,signal,className,rows:rows.slice(0,5000),count:rows.length};
 }
 
+
+/* ===== STUDENT MASTER WORKFLOW — AUTO LIST / PENDING APPROVAL — 2026-10-08 ===== */
+function ensureStudentWorkflowColumns_() {
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.STUDENTS);
+  if(!sh) return;
+  ['ApprovalStatus','SourceType','SourceAccount','ApprovedBy','ApprovedAt'].forEach(function(h){
+    if(sh.getRange(1,1,1,Math.max(1,sh.getLastColumn())).getValues()[0].indexOf(h)<0){
+      sh.getRange(1,sh.getLastColumn()+1).setValue(h);
+    }
+  });
+}
+function isSuperAdminSession_(token) {
+  try { return isSuperAdmin_(token); } catch(e) { return false; }
+}
+function studentSourceInfo_(token) {
+  const s=auth_(token);
+  const superAdmin=isSuperAdminSession_(token);
+  if(superAdmin) return {status:'ACTIVE',sourceType:'SUPER_ADMIN',sourceAccount:s.username};
+  return {status:'PENDING',sourceType:String(s.accountType||'ADMIN').toUpperCase(),sourceAccount:String(s.username||'')};
+}
+function getStudentField_(d,keys) {
+  d=d||{};
+  for(let i=0;i<keys.length;i++) {
+    const k=keys[i];
+    if(d[k]!==undefined && d[k]!==null && String(d[k]).trim()!=='') return d[k];
+  }
+  return '';
+}
+function buildStudentFromAdmission_(data,form) {
+  const d=Object.assign({},form||{},data||{});
+  return {
+    StudentID:getStudentField_(d,['StudentID','studentId','ID']),
+    FormID:getStudentField_(d,['FormID','formId','AdmissionID','admissionId']),
+    MobileID:getStudentField_(d,['MobileID','Mobile','mobile']),
+    EmailID:getStudentField_(d,['EmailID','Email','email']),
+    NameBN:getStudentField_(d,['NameBN','nameBn','Name','name','StudentNameBN']),
+    NameAR:getStudentField_(d,['NameAR','nameAr']),
+    NameEN:getStudentField_(d,['NameEN','nameEn']),
+    FatherBN:getStudentField_(d,['FatherBN','fatherBn','FatherName']),
+    FatherAR:getStudentField_(d,['FatherAR','fatherAr']),
+    FatherEN:getStudentField_(d,['FatherEN','fatherEn']),
+    MotherBN:getStudentField_(d,['MotherBN','motherBn','MotherName']),
+    MotherAR:getStudentField_(d,['MotherAR','motherAr']),
+    MotherEN:getStudentField_(d,['MotherEN','motherEn']),
+    DOB:getStudentField_(d,['DOB','dob','BirthDate']),
+    Gender:getStudentField_(d,['Gender','gender']),
+    Class:getStudentField_(d,['Class','class','ClassName']),
+    Department:getStudentField_(d,['Department','department']),
+    Branch:getStudentField_(d,['Branch','branch']),
+    Residence:getStudentField_(d,['Residence','residence']),
+    Mobile:getStudentField_(d,['Mobile','mobile','GuardianMobile','guardianMobile']),
+    WhatsApp:getStudentField_(d,['WhatsApp','whatsapp']),
+    Email:getStudentField_(d,['Email','email']),
+    Address:getStudentField_(d,['Address','address']),
+    Photo:getStudentField_(d,['Photo','photo']),
+    BirthReg:getStudentField_(d,['BirthReg','birthReg']),
+    NID:getStudentField_(d,['NID','nid']),
+    Documents:getStudentField_(d,['Documents','documents'])
+  };
+}
+function syncAdmissionToStudent_(token,data) {
+  ensureStudentWorkflowColumns_();
+  let form=data && data.FormData;
+  if(typeof form==='string'){try{form=JSON.parse(form);}catch(e){form={};}}
+  const src=buildStudentFromAdmission_(data,form);
+  if(!src.NameBN && !src.StudentID) return {ok:true,skipped:true,message:'ভর্তি রেকর্ডে Student তথ্য পাওয়া যায়নি।'};
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.STUDENTS);
+  const h=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
+  const vals=sh.getDataRange().getValues();
+  const idCol=h.indexOf('StudentID'), mobileCol=h.indexOf('Mobile'), birthCol=h.indexOf('BirthReg'), nidCol=h.indexOf('NID');
+  let existing=-1;
+  if(idCol>=0 && src.StudentID) for(let i=1;i<vals.length;i++) if(String(vals[i][idCol]).trim()===String(src.StudentID).trim()){existing=i+1;break;}
+  if(existing<0 && birthCol>=0 && src.BirthReg) for(let i=1;i<vals.length;i++) if(String(vals[i][birthCol]).trim()===String(src.BirthReg).trim()){existing=i+1;break;}
+  if(existing<0 && nidCol>=0 && src.NID) for(let i=1;i<vals.length;i++) if(String(vals[i][nidCol]).trim()===String(src.NID).trim()){existing=i+1;break;}
+  const info=studentSourceInfo_(token);
+  if(existing>1){
+    h.forEach(function(k,j){if(Object.prototype.hasOwnProperty.call(src,k) && String(src[k]??'').trim()!=='') sh.getRange(existing,j+1).setValue(src[k]);});
+    if(h.indexOf('ApprovalStatus')>=0) sh.getRange(existing,h.indexOf('ApprovalStatus')+1).setValue(info.status);
+    if(h.indexOf('SourceType')>=0) sh.getRange(existing,h.indexOf('SourceType')+1).setValue(info.sourceType);
+    if(h.indexOf('SourceAccount')>=0) sh.getRange(existing,h.indexOf('SourceAccount')+1).setValue(info.sourceAccount);
+    SpreadsheetApp.flush();
+    return {ok:true,studentId:String(sh.getRange(existing,idCol+1).getValue()),created:false,status:info.status};
+  }
+  const serial=nextSerial_(sh), sid=src.StudentID||String(serial).padStart(3,'0');
+  const row=h.map(function(k){return k==='Serial'?serial:k==='StudentID'?sid:k==='CreatedAt'?now_():k==='ApprovalStatus'?info.status:k==='SourceType'?info.sourceType:k==='SourceAccount'?info.sourceAccount:k==='ApprovedBy'?(info.status==='ACTIVE'?info.sourceAccount:''):k==='ApprovedAt'?(info.status==='ACTIVE'?now_():''):(src[k]??'');});
+  sh.appendRow(row);
+  SpreadsheetApp.flush();
+  return {ok:true,studentId:String(sid),created:true,status:info.status};
+}
+function getStudentMasterList(token,status) {
+  auth_(token); ensureStudentWorkflowColumns_();
+  let rows=listRows_(SHEETS.STUDENTS,token,10000);
+  if(status) rows=rows.filter(function(r){return String(r.ApprovalStatus||'ACTIVE').toUpperCase()===String(status).toUpperCase();});
+  return {ok:true,rows:rows,count:rows.length};
+}
+function getPendingStudents(token) {
+  if(!isSuperAdmin_(token)) return {ok:false,message:'শুধু Super Admin Pending Student অনুমোদন করতে পারবেন।'};
+  return getStudentMasterList(token,'PENDING');
+}
+function approveStudent(token,studentId,status) {
+  if(!isSuperAdmin_(token)) return {ok:false,message:'শুধু Super Admin Student অনুমোদন করতে পারবেন।'};
+  ensureStudentWorkflowColumns_();
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.STUDENTS);
+  const vals=sh.getDataRange().getValues(), h=vals[0].map(String), idCol=h.indexOf('StudentID');
+  const idx=vals.findIndex(function(r,i){return i>0 && String(r[idCol])===String(studentId);});
+  if(idx<1) return {ok:false,message:'Student পাওয়া যায়নি।'};
+  const finalStatus=String(status||'ACTIVE').toUpperCase();
+  if(h.indexOf('ApprovalStatus')>=0) sh.getRange(idx+1,h.indexOf('ApprovalStatus')+1).setValue(finalStatus);
+  if(h.indexOf('ApprovedBy')>=0) sh.getRange(idx+1,h.indexOf('ApprovedBy')+1).setValue(sessionUser_(token));
+  if(h.indexOf('ApprovedAt')>=0) sh.getRange(idx+1,h.indexOf('ApprovedAt')+1).setValue(now_());
+  SpreadsheetApp.flush();
+  log_(sessionUser_(token),'approve','STUDENT',String(studentId)+' | '+finalStatus);
+  return {ok:true,message:'Student '+studentId+' '+finalStatus+' করা হয়েছে।',studentId:String(studentId),status:finalStatus};
+}
+function getExamCandidateList(token,exam,className) {
+  auth_(token); ensureStudentWorkflowColumns_();
+  let students=listRows_(SHEETS.STUDENTS,token,10000).filter(function(s){return String(s.ApprovalStatus||'ACTIVE').toUpperCase()==='ACTIVE';});
+  if(className) students=students.filter(function(s){return String(s.Class||'').trim()===String(className).trim();});
+  const regs=listRows_(SHEETS.EXAM_REG,token,10000).filter(function(r){return !exam||String(r.Exam||'').trim()===String(exam).trim();});
+  const registered={}; regs.forEach(function(r){registered[String(r.StudentID||'')]=r;});
+  return {ok:true,exam:String(exam||''),className:String(className||''),rows:students.map(function(s){return {student:s,registered:!!registered[String(s.StudentID||'')],registration:registered[String(s.StudentID||'')]||null};}),count:students.length};
+}
+function registerExamCandidate(token,studentId,exam,className,branch) {
+  auth_(token); requireFeature_(token,'exam');
+  const id=String(studentId||'').trim(), ex=String(exam||'').trim();
+  if(!id||!ex) return {ok:false,message:'Student ID ও পরীক্ষা আবশ্যক।'};
+  const student=findBy_(SHEETS.STUDENTS,'StudentID',id);
+  if(!student) return {ok:false,message:'Student পাওয়া যায়নি।'};
+  if(String(student.ApprovalStatus||'ACTIVE').toUpperCase()!=='ACTIVE') return {ok:false,message:'Student এখনো Super Admin অনুমোদন পায়নি।'};
+  const old=listRows_(SHEETS.EXAM_REG,token,10000).find(function(r){return String(r.StudentID)===id&&String(r.Exam)===ex;});
+  if(old) return {ok:true,duplicate:true,examRegId:old.ExamRegID,message:'এই Student ইতিমধ্যে পরীক্ষায় যুক্ত আছে।'};
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.EXAM_REG);
+  const serial=nextSerial_(sh), regId='EX-'+String(serial).padStart(4,'0');
+  sh.appendRow([serial,regId,id,ex,className||student.Class||'',branch||student.Branch||'','ACTIVE','',now_()]);
+  return {ok:true,examRegId:regId,studentId:id,message:'পরীক্ষার্থী হিসেবে যুক্ত হয়েছে।'};
+}
+function createAdmitCardFromCandidate(token,studentId,exam) {
+  auth_(token); requireFeature_(token,'admit');
+  const id=String(studentId||'').trim(), ex=String(exam||'').trim();
+  if(!id||!ex) return {ok:false,message:'Student ID ও পরীক্ষা আবশ্যক।'};
+  const student=findBy_(SHEETS.STUDENTS,'StudentID',id);
+  if(!student) return {ok:false,message:'Student পাওয়া যায়নি।'};
+  const reg=listRows_(SHEETS.EXAM_REG,token,10000).find(function(r){return String(r.StudentID)===id&&String(r.Exam)===ex;});
+  if(!reg) return {ok:false,message:'আগে পরীক্ষার্থী হিসেবে যুক্ত করুন।'};
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ADMIT_CARDS);
+  const existing=listRows_(SHEETS.ADMIT_CARDS,token,10000).find(function(r){return String(r.StudentID)===id&&String(r.Exam)===ex;});
+  if(existing) return {ok:true,duplicate:true,admitId:existing.AdmitID,message:'Admit Card আগে থেকেই তৈরি আছে।'};
+  const serial=nextSerial_(sh), aid='ADM-'+String(serial).padStart(4,'0');
+  const data={studentId:id,exam:ex,name:student.NameBN||'',className:student.Class||'',branch:student.Branch||'',mobile:student.Mobile||'',createdAt:now_()};
+  sh.appendRow([serial,aid,id,ex,now_(),JSON.stringify(data)]);
+  return {ok:true,admitId:aid,studentId:id,message:'Admit Card তৈরি হয়েছে।'};
+}
+function getStudent360(token,studentId) {
+  auth_(token);
+  const id=String(studentId||'').trim();
+  const student=findBy_(SHEETS.STUDENTS,'StudentID',id);
+  if(!student) return {ok:false,message:'Student পাওয়া যায়নি।'};
+  const pick=function(sheet,key){return listRows_(sheet,token,10000).filter(function(r){return String(r[key]||'')===id;});};
+  return {ok:true,student:student,admissions:pick(SHEETS.ADMISSIONS,'StudentID'),exams:pick(SHEETS.EXAM_REG,'StudentID'),payments:pick(SHEETS.PAYMENTS,'StudentID'),results:pick(SHEETS.RESULTS,'StudentID'),attendance:pick(SHEETS.ATTENDANCE,'StudentID'),admitCards:pick(SHEETS.ADMIT_CARDS,'StudentID')};
+}
+/* ===== END STUDENT MASTER WORKFLOW ===== */
+
 function saveRecord(token,sheetName,data) {
   auth_(token);
   const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
@@ -525,10 +687,23 @@ function saveRecord(token,sheetName,data) {
   if(headers.includes('StudentID') && !data.StudentID && sheetName==='STUDENTS') {
     const s=nextSerial_(sh); row[1]=String(s).padStart(3,'0'); row[2]='F-'+String(s).padStart(4,'0'); row[3]=data.Mobile||''; row[4]=data.Email||'';
   }
+  if(sheetName==='STUDENTS'){
+    ensureStudentWorkflowColumns_();
+    const info=studentSourceInfo_(token);
+    const idxStatus=headers.indexOf('ApprovalStatus'), idxSource=headers.indexOf('SourceType'), idxAccount=headers.indexOf('SourceAccount');
+    if(idxStatus>=0) row[idxStatus]=info.status;
+    if(idxSource>=0) row[idxSource]=info.sourceType;
+    if(idxAccount>=0) row[idxAccount]=info.sourceAccount;
+    if(headers.indexOf('ApprovedBy')>=0) row[headers.indexOf('ApprovedBy')]=info.status==='ACTIVE'?info.sourceAccount:'';
+    if(headers.indexOf('ApprovedAt')>=0) row[headers.indexOf('ApprovedAt')]=info.status==='ACTIVE'?now_():'';
+    const sid=String(row[headers.indexOf('StudentID')]||'').trim();
+    if(sid && findBy_(SHEETS.STUDENTS,'StudentID',sid)) return {ok:false,message:'এই Student ID আগে থেকেই আছে।'};
+  }
   sh.appendRow(row);
+  let workflow=null;
+  if(sheetName==='ADMISSIONS') workflow=syncAdmissionToStudent_(token,data);
   log_(sessionUser_(token),'create',sheetName,JSON.stringify(data).slice(0,1000));
-  return {ok:true,row:objectFrom_(headers,row)};
-}
+  return {ok:true,row:objectFrom_(headers,row),studentWorkflow:workflow};
 
 function updateRecord(token,sheetName,serial,data) {
   auth_(token); const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
