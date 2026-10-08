@@ -1407,7 +1407,81 @@ function downloadCurrentForm(){
     span.style.padding='3px';
     el.replaceWith(span);
   });
-  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title></head><body><h2>'+($('winTitle').textContent||'ফর্ম')+'</h2>'+body.innerHTML+'</body></html>';
+  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title></head><body><h2>'+($('winTitle').textContent||'ফর্ম')+'</h2>'+body.innerHTML+'
+<!-- ===== EXAM ROUTINE MODULE 2026 ===== -->
+<style id="jb-exam-routine-style-2026">
+#jbExamRoutineWin2026 .jb-routine-form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+#jbExamRoutineWin2026 .jb-routine-form label{display:flex;flex-direction:column;gap:4px;font-weight:800}
+#jbExamRoutineWin2026 input,#jbExamRoutineWin2026 select{width:100%;box-sizing:border-box;padding:9px;border:2px solid var(--border);border-radius:9px;background:var(--panel);color:var(--text)}
+#jbExamRoutineWin2026 .jb-routine-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+#jbExamRoutineWin2026 .jb-routine-preview{margin-top:12px;border:2px solid var(--border);padding:14px;background:#fff;color:#111}
+#jbExamRoutineWin2026 .jb-routine-preview h2,#jbExamRoutineWin2026 .jb-routine-preview h3{text-align:center;margin:4px}
+#jbExamRoutineWin2026 table{width:100%;border-collapse:collapse;margin-top:12px}
+#jbExamRoutineWin2026 th,#jbExamRoutineWin2026 td{border:1px solid #555;padding:7px;text-align:center}
+@media(max-width:800px){#jbExamRoutineWin2026 .jb-routine-form{grid-template-columns:1fr}}
+</style>
+<div id="jbExamRoutineWin2026" class="window" style="display:none">
+  <div class="windowHead"><b>📅 পরীক্ষার রুটিন</b><button onclick="closeWindow('jbExamRoutineWin2026')">✕</button></div>
+  <div class="windowBody">
+    <div class="jb-routine-form">
+      <label>পরীক্ষার নাম<input id="jbRtExam" placeholder="যেমন: বার্ষিক পরীক্ষা ২০২৬"></label>
+      <label>শ্রেণি/জামাত<select id="jbRtClass"><option value="">নির্বাচন করুন</option>
+        <option>প্লে শ্রেনি</option><option>শিশু শ্রেনি</option><option>আউয়াল জামাত</option><option>ছানী জামাত</option>
+        <option>ছালেছ জামাত</option><option>রাবে জামাত</option><option>পঞ্চম জামাত</option><option>মিজান জামাত</option>
+        <option>নাহবেমীর জামাত</option><option>কুদুরী জামাত</option><option>শরহে বেকায়া জামাত</option><option>হেদায়া জামাত</option>
+        <option>মিশকাত জামাত</option><option>দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)</option>
+      </select></label>
+      <label>বিষয়<input id="jbRtSubject" placeholder="বিষয়ের নাম"></label>
+      <label>পরীক্ষার তারিখ<input id="jbRtDate" type="date"></label>
+      <label>শুরু সময়<input id="jbRtStart" type="time"></label>
+      <label>শেষ সময়<input id="jbRtEnd" type="time"></label>
+      <label>কক্ষ/কেন্দ্র<input id="jbRtRoom" placeholder="কক্ষ / কেন্দ্র"></label>
+      <label>পরীক্ষক/দায়িত্বপ্রাপ্ত শিক্ষক<input id="jbRtTeacher" placeholder="নাম"></label>
+    </div>
+    <div class="jb-routine-actions">
+      <button class="primary" onclick="jbRtAdd()">➕ রুটিনে যোগ</button>
+      <button class="secondary" onclick="jbRtPreview()">👁️ পূর্বরূপ</button>
+      <button class="secondary" onclick="jbRtPrint()">🖨️ প্রিন্ট</button>
+      <button class="secondary" onclick="jbRtClear()">♻️ পরিষ্কার</button>
+    </div>
+    <div id="jbRtPreview" class="jb-routine-preview"><div style="text-align:center">রুটিনের পূর্বরূপ এখানে দেখা যাবে</div></div>
+  </div>
+</div>
+<script id="jb-exam-routine-js-2026">
+(function(){
+  var KEY='jb_exam_routine_2026';
+  var $r=function(id){return document.getElementById(id)};
+  var CLASSES=['প্লে শ্রেনি','শিশু শ্রেনি','আউয়াল জামাত','ছানী জামাত','ছালেছ জামাত','রাবে জামাত','পঞ্চম জামাত','মিজান জামাত','নাহবেমীর জামাত','কুদুরী জামাত','শরহে বেকায়া জামাত','হেদায়া জামাত','মিশকাত জামাত','দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)'];
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(m){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]})}
+  function data(){try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){return[]}}
+  function save(a){localStorage.setItem(KEY,JSON.stringify(a))}
+  function values(){return {exam:$r('jbRtExam').value.trim(),cls:$r('jbRtClass').value,subject:$r('jbRtSubject').value.trim(),date:$r('jbRtDate').value,start:$r('jbRtStart').value,end:$r('jbRtEnd').value,room:$r('jbRtRoom').value.trim(),teacher:$r('jbRtTeacher').value.trim()}}
+  function render(){
+    var a=data(),p=$r('jbRtPreview');if(!p)return;
+    if(!a.length){p.innerHTML='<div style="text-align:center">রুটিনের পূর্বরূপ এখানে দেখা যাবে</div>';return}
+    a.sort(function(x,y){return String(x.date+' '+x.start).localeCompare(String(y.date+' '+y.start))});
+    var rows=a.map(function(x,i){return '<tr><td>'+(i+1)+'</td><td>'+esc(x.cls)+'</td><td>'+esc(x.subject)+'</td><td>'+esc(x.date)+'</td><td>'+esc(x.start)+' - '+esc(x.end)+'</td><td>'+esc(x.room)+'</td><td>'+esc(x.teacher)+'</td><td><button onclick="jbRtDelete('+x.id+')">🗑️</button></td></tr>'}).join('');
+    p.innerHTML='<h2>জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</h2><h3>'+esc((a[0]&&a[0].exam)||'পরীক্ষার রুটিন')+'</h3><table><thead><tr><th>ক্রম</th><th>শ্রেণি/জামাত</th><th>বিষয়</th><th>তারিখ</th><th>সময়</th><th>কক্ষ/কেন্দ্র</th><th>পরীক্ষক</th><th>কার্যক্রম</th></tr></thead><tbody>'+rows+'</tbody></table>';
+  }
+  window.jbRtAdd=function(){
+    var v=values();
+    if(!v.exam||!v.cls||!v.subject||!v.date||!v.start){toast('পরীক্ষার নাম, শ্রেণি/জামাত, বিষয়, তারিখ ও শুরু সময় দিন।');return}
+    if(v.end&&v.end<=v.start){toast('শেষ সময় শুরু সময়ের পরে হতে হবে।');return}
+    var a=data();a.push({id:Date.now(),...v});save(a);render();toast('রুটিনে যোগ হয়েছে।');
+  };
+  window.jbRtDelete=function(id){save(data().filter(function(x){return x.id!==id}));render();toast('রুটিনের এন্ট্রি মুছে দেওয়া হয়েছে।')};
+  window.jbRtPreview=render;
+  window.jbRtClear=function(){['jbRtExam','jbRtClass','jbRtSubject','jbRtDate','jbRtStart','jbRtEnd','jbRtRoom','jbRtTeacher'].forEach(function(id){var x=$r(id);if(x)x.value=''});render()};
+  window.jbRtPrint=function(){render();var p=$r('jbRtPreview');var w=window.open('','_blank');if(!w){toast('প্রিন্ট উইন্ডো খোলা যাচ্ছে না।');return}w.document.write('<html><head><title>পরীক্ষার রুটিন</title><style>body{font-family:Arial,sans-serif;padding:20px;color:#111}table{width:100%;border-collapse:collapse}th,td{border:1px solid #555;padding:7px;text-align:center}button{display:none}</style></head><body>'+p.innerHTML+'</body></html>');w.document.close();setTimeout(function(){w.focus();w.print()},300)};
+  window.openExamRoutine2026=function(){openWindow('jbExamRoutineWin2026');render()};
+  window.examComing=window.examComing||function(n){if(String(n).indexOf('প্রশ্নপত্র')>-1){openWindow('jbQuestionPaperWin2026');return}if(String(n).indexOf('পরীক্ষার রুটিন')>-1){openWindow('jbExamRoutineWin2026');render();return}toast(n+' মডিউল পরবর্তী ধাপে যুক্ত হবে।')};
+  var oldComing=window.examComing;
+  window.examComing=function(n){if(String(n).indexOf('পরীক্ষার রুটিন')>-1){openWindow('jbExamRoutineWin2026');render();return}return oldComing(n)};
+})();
+</script>
+<!-- ===== END EXAM ROUTINE MODULE 2026 ===== -->
+
+</body></html>';
   var blob=new Blob([html],{type:'text/html;charset=utf-8'});
   var url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url;a.download=title+'.html';document.body.appendChild(a);a.click();a.remove();
