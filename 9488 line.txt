@@ -11601,8 +11601,25 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
         var data={};document.querySelectorAll('#jbDocFields [data-key]').forEach(function(x){data[x.dataset.key]=x.value||''});
         var k=key();
         try{
+          /* অনলাইন সেবার জন্য একটি মাত্র পরিষ্কার header রেখে সংরক্ষণ করি।
+             Preview-তে থাকা action/QR duplicate অংশ PDF/Online copy-তে যাবে না। */
+          var savedNode=p.cloneNode(true);
+          savedNode.querySelectorAll('.jb-doc-actions,.jb-verification-qr').forEach(function(x){x.remove()});
+          var headers=savedNode.querySelectorAll('.jb-institution-header-2026');
+          headers.forEach(function(h,i){
+            if(i>0)h.remove();
+            else{
+              h.style.cssText='display:grid!important;grid-template-columns:24mm minmax(0,1fr) 24mm!important;align-items:center!important;gap:5mm!important;width:100%!important;box-sizing:border-box!important;padding:2mm 0 3mm!important;margin:0 0 4mm!important;border-bottom:2px solid #222!important;background:#fff!important;color:#111!important;direction:ltr!important;';
+              var sides=h.querySelectorAll('.jb-inst-side-2026');
+              sides.forEach(function(x){x.style.cssText='display:flex!important;align-items:center!important;justify-content:center!important;min-width:0!important;'});
+              var imgs=h.querySelectorAll('.jb-inst-side-2026 img');
+              imgs.forEach(function(x){x.style.cssText='display:block!important;width:20mm!important;height:20mm!important;max-width:20mm!important;max-height:20mm!important;object-fit:contain!important;margin:0!important;'});
+              var center=h.querySelector('.jb-inst-center-2026');
+              if(center)center.style.cssText='min-width:0!important;text-align:center!important;line-height:1.25!important;';
+            }
+          });
           b.disabled=true;b.textContent='⏳ অনলাইন সেবায় সংরক্ষণ হচ্ছে...';
-          var r=await call('saveOnlineServiceRecord',token,k,id,data,p.outerHTML);
+          var r=await call('saveOnlineServiceRecord',token,k,id,data,savedNode.outerHTML);
           if(r&&r.ok){
             b.textContent='✅ অনলাইন সেবায় সংরক্ষিত';
             toast('🌐 '+r.message+' সংকেত: '+r.serviceCode+' | ID: '+r.personId);
