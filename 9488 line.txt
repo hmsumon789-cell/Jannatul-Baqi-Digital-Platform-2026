@@ -11102,6 +11102,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       '.jb-doc-idcard .jb-doc-photo{width:70px;height:82px}'+
       '.jb-doc-row{display:flex;gap:8px;padding:4px 0;border-bottom:1px dotted #999}.jb-doc-row b{min-width:135px}'+
       '.jb-verification-qr{break-inside:avoid!important;page-break-inside:avoid!important}'+
+       '.jb-doc-preview.a4 .jb-marksheet-signatures-2026{position:absolute!important;left:8mm!important;right:8mm!important;bottom:50.8mm!important;display:flex!important;justify-content:space-between!important;align-items:flex-end!important;margin:0!important;font-size:8.5px!important;line-height:1.2!important}'+
       '@media print{.jb-doc-actions,.jb-marksheet-back-2026{display:none!important;visibility:hidden!important}}'+
       '</style></head><body>'+p.outerHTML+'</body></html>');
     w.document.close();
