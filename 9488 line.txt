@@ -12243,3 +12243,121 @@ function jbQpClear(){['jbQpExam','jbQpClass','jbQpSubject','jbQpDate','jbQpMarks
 </style>
 <!-- ===== END FINAL SAFE UI POLISH ===== -->
 
+
+<!-- ===== SMS PORTAL UI — MASTER CONTACT DIRECTORY — 2026-10-08 ===== -->
+<style id="jb-sms-portal-2026-10-08">
+#jbSmsPortal2026{display:flex;flex-direction:column;gap:10px}
+#jbSmsPortal2026 .sms-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+#jbSmsPortal2026 .sms-head b{font-size:20px}
+#jbSmsPortal2026 .sms-tools{display:grid;grid-template-columns:150px minmax(180px,1fr) auto auto;gap:8px;align-items:center}
+#jbSmsPortal2026 .sms-tools select,#jbSmsPortal2026 .sms-tools input{min-height:42px}
+#jbSmsPortal2026 .sms-summary{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+#jbSmsPortal2026 .sms-summary .stat{padding:8px 14px}
+#jbSmsPortal2026 .sms-table-wrap{max-height:430px;overflow:auto;border:2px solid var(--border);border-radius:10px}
+#jbSmsPortal2026 table{width:100%;border-collapse:collapse}
+#jbSmsPortal2026 th,#jbSmsPortal2026 td{border:1px solid var(--border);padding:7px;vertical-align:middle}
+#jbSmsPortal2026 th{position:sticky;top:0;background:var(--panel);z-index:2}
+#jbSmsPortal2026 .sms-check{text-align:center;width:44px}
+#jbSmsPortal2026 .sms-id{white-space:nowrap;font-weight:900}
+#jbSmsPortal2026 .sms-contact{font-size:12px;line-height:1.45}
+#jbSmsPortal2026 .sms-compose{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:start}
+#jbSmsPortal2026 .sms-compose textarea{min-height:105px;resize:vertical}
+#jbSmsPortal2026 .sms-templates{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+#jbSmsPortal2026 .sms-templates button{font-size:12px;padding:6px 9px}
+#jbSmsPortal2026 .sms-history{display:none}
+@media(max-width:800px){
+  #jbSmsPortal2026 .sms-tools{grid-template-columns:1fr 1fr}
+  #jbSmsPortal2026 .sms-compose{grid-template-columns:1fr}
+}
+</style>
+<script id="jb-sms-portal-2026-10-08">
+(function(){
+  var oldModuleForm=null;
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function smsPortalHtml(){
+    return '<div id="jbSmsPortal2026">'+
+      '<div class="sms-head"><b>📨 SMS Portal</b><span>স্টুডেন্ট, শিক্ষক/শিক্ষিকা, স্টাফ/কর্মী, সদস্য, দাতা, অ্যাডমিন ও অন্যান্য সকল সংরক্ষিত যোগাযোগ</span></div>'+
+      '<div class="sms-tools"><select id="jbSmsType2026" class="field" onchange="jbSmsFilter2026()"><option value="ALL">সকল</option><option>স্টুডেন্ট</option><option>শিক্ষক/শিক্ষিকা</option><option>স্টাফ/কর্মী/সদস্য</option><option>নির্বাহী পরিষদ সদস্য</option><option>উপদেষ্টা সদস্য</option><option>প্রতিষ্ঠাতা সদস্য</option><option>দাতা সদস্য</option><option>অ্যাডমিন</option><option>মাদ্রাসা/প্রতিষ্ঠান</option></select>'+
+      '<input id="jbSmsSearch2026" class="field" placeholder="ID / নাম / মোবাইল / ইমেইল দিয়ে খুঁজুন" oninput="jbSmsFilter2026()">'+
+      '<button type="button" class="secondary" onclick="jbSmsSelectAll2026()">☑️ অল সিলেক্ট</button>'+
+      '<button type="button" class="secondary" onclick="jbSmsClear2026()">☐ ক্লিয়ার</button></div>'+
+      '<div class="sms-summary"><div class="stat"><b id="jbSmsTotal2026">0</b> মোট যোগাযোগ</div><div class="stat"><b id="jbSmsSelected2026">0</b> নির্বাচিত</div><div class="stat"><b id="jbSmsMobile2026">0</b> SMS-যোগ্য</div><button type="button" class="secondary" onclick="jbSmsHistory2026()">📋 SMS Queue / ইতিহাস</button></div>'+
+      '<div class="sms-table-wrap"><table><thead><tr><th class="sms-check"><input id="jbSmsAllCheck2026" type="checkbox" onchange="jbSmsToggleVisible2026(this.checked)"></th><th>ধরন</th><th>ID</th><th>নাম</th><th>মোবাইল</th><th>ইমেইল</th><th>WhatsApp</th></tr></thead><tbody id="jbSmsRows2026"><tr><td colspan="7" style="text-align:center;padding:25px">⏳ যোগাযোগ তালিকা লোড হচ্ছে...</td></tr></tbody></table></div>'+
+      '<div class="sms-compose"><div><textarea id="jbSmsMessage2026" class="field" maxlength="1000" placeholder="এখানে SMS লিখুন..."></textarea><div class="sms-templates"><button type="button" class="secondary" onclick="jbSmsTemplate2026(1)">📢 সাধারণ ঘোষণা</button><button type="button" class="secondary" onclick="jbSmsTemplate2026(2)">💰 বেতন/ফি</button><button type="button" class="secondary" onclick="jbSmsTemplate2026(3)">📝 পরীক্ষা</button><button type="button" class="secondary" onclick="jbSmsTemplate2026(4)">📚 উপস্থিতি</button></div></div><button type="button" class="primary" style="min-width:170px;min-height:58px" onclick="jbSmsSend2026()">📤 SMS পাঠান</button></div>'+
+      '<div id="jbSmsFeedback2026" class="card" style="padding:10px;font-weight:900">SMS Portal প্রস্তুত হচ্ছে...</div>'+
+      '</div>';
+  }
+  function bindModule(){
+    try{
+      if(!oldModuleForm && typeof moduleForm==='function')oldModuleForm=moduleForm;
+      if(typeof oldModuleForm!=='function')return;
+      window.moduleForm=function(k){
+        if(k==='sms')return smsPortalHtml();
+        return oldModuleForm.apply(this,arguments);
+      };
+    }catch(e){}
+  }
+  function rows(){return window.__jbSmsRows2026||[]}
+  function filtered(){
+    var type=(document.getElementById('jbSmsType2026')||{}).value||'ALL',q=((document.getElementById('jbSmsSearch2026')||{}).value||'').trim().toLowerCase();
+    return rows().filter(function(x){return (type==='ALL'||x.type===type)&&(!q||[x.id,x.name,x.mobile,x.whatsapp,x.email].join(' ').toLowerCase().indexOf(q)>=0)});
+  }
+  function selected(){return rows().filter(function(x){var e=document.querySelector('[data-jb-sms-check="'+CSS.escape(String(x.source)+'|'+String(x.id))+'"]');return e&&e.checked})}
+  window.jbSmsFilter2026=function(){renderRows()};
+  window.jbSmsToggleVisible2026=function(on){filtered().forEach(function(x){var e=document.querySelector('[data-jb-sms-check="'+CSS.escape(String(x.source)+'|'+String(x.id))+'"]');if(e)e.checked=on});updateCount()};
+  window.jbSmsSelectAll2026=function(){rows().forEach(function(x){x.__selected=true});renderRows(true)};
+  window.jbSmsClear2026=function(){rows().forEach(function(x){x.__selected=false});renderRows()};
+  function keyOf(x){return String(x.source)+'|'+String(x.id)}
+  function renderRows(forceSelected){
+    var b=document.getElementById('jbSmsRows2026');if(!b)return;
+    var f=filtered();
+    b.innerHTML=f.map(function(x){
+      var key=keyOf(x),checked=forceSelected||x.__selected?' checked':'';
+      return '<tr><td class="sms-check"><input type="checkbox" data-jb-sms-check="'+esc(key)+'"'+checked+' onchange="jbSmsOneChange2026(this)"></td><td>'+esc(x.type)+'</td><td class="sms-id">'+esc(x.id)+'</td><td>'+esc(x.name)+'</td><td>'+esc(x.mobile||'—')+'</td><td class="sms-contact">'+esc(x.email||'—')+'</td><td class="sms-contact">'+esc(x.whatsapp||'—')+'</td></tr>';
+    }).join('')||( '<tr><td colspan="7" style="text-align:center;padding:25px">কোনো যোগাযোগ পাওয়া যায়নি।</td></tr>');
+    f.forEach(function(x){var e=document.querySelector('[data-jb-sms-check="'+CSS.escape(keyOf(x))+'"]');if(e)e.checked=!!x.__selected||!!forceSelected;});
+    updateCount();
+  }
+  window.jbSmsOneChange2026=function(el){
+    var k=String(el.getAttribute('data-jb-sms-check')||''),a=k.indexOf('|'),s=k.slice(0,a),id=k.slice(a+1);
+    rows().forEach(function(x){if(String(x.source)===s&&String(x.id)===id)x.__selected=!!el.checked});
+    updateCount();
+  };
+  function updateCount(){
+    var a=rows(),s=a.filter(function(x){return x.__selected}),m=s.filter(function(x){return !!x.mobile||!!x.whatsapp});
+    var t=document.getElementById('jbSmsTotal2026'),z=document.getElementById('jbSmsSelected2026'),mm=document.getElementById('jbSmsMobile2026');
+    if(t)t.textContent=a.length;if(z)z.textContent=s.length;if(mm)mm.textContent=m.length;
+  }
+  window.jbSmsTemplate2026=function(n){
+    var a=['','আসসালামু আলাইকুম। জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার একটি গুরুত্বপূর্ণ ঘোষণা রয়েছে।','আসসালামু আলাইকুম। আপনার বেতন/ফি সংক্রান্ত তথ্য জানার জন্য মাদ্রাসার প্রশাসনিক বিভাগে যোগাযোগ করুন।','আসসালামু আলাইকুম। পরীক্ষার সময়সূচি/পরীক্ষা সংক্রান্ত গুরুত্বপূর্ণ তথ্যের জন্য মাদ্রাসার নোটিশ দেখুন।','আসসালামু আলাইকুম। উপস্থিতি/অনুপস্থিতি সংক্রান্ত তথ্যের জন্য মাদ্রাসার প্রশাসনিক বিভাগে যোগাযোগ করুন।'];var e=document.getElementById('jbSmsMessage2026');if(e)e.value=a[n]||''};
+  window.jbSmsSend2026=async function(){
+    var s=rows().filter(function(x){return x.__selected}),msg=((document.getElementById('jbSmsMessage2026')||{}).value||'').trim();
+    if(!s.length)return toast('প্রথমে নামের পাশে টিক দিয়ে প্রাপক নির্বাচন করুন।');
+    if(!msg)return toast('SMS মেসেজ লিখুন।');
+    var r=await call('sendSmsPortal',token,s.map(function(x){return {id:x.id,name:x.name,mobile:x.mobile,source:x.source};}),msg);
+    var fb=document.getElementById('jbSmsFeedback2026');if(fb)fb.textContent=r&&r.ok?'✅ '+r.message:'❌ '+((r&&r.message)||'SMS পাঠানো যায়নি।');
+    toast((r&&r.message)||'SMS সম্পন্ন হয়নি।');
+    if(r&&r.ok){s.forEach(function(x){x.__selected=false});renderRows();jbSmsHistory2026();}
+  };
+  window.jbSmsHistory2026=async function(){
+    var r=await call('getSmsQueueHistory',token,500),b=document.getElementById('jbSmsRows2026');if(!b)return;
+    if(!r||!r.ok)return toast((r&&r.message)||'SMS history পাওয়া যায়নি।');
+    var h=r.rows||[];
+    b.innerHTML='<tr><td colspan="7"><div style="padding:8px"><b>SMS Queue / ইতিহাস — '+h.length+' টি</b></div>'+h.map(function(x){return '<div style="padding:7px;border-top:1px solid var(--border)"><b>'+esc(x.Mobile||'')+'</b> — '+esc(x.Status||'')+' — '+esc(x.CreatedAt||'')+'<br>'+esc(x.Message||'')+'</div>'}).join('')+'</td></tr>';
+  };
+  function load(){
+    if(!document.getElementById('jbSmsPortal2026')||typeof call!=='function'||!window.token)return;
+    call('getSmsPortalContacts',token).then(function(r){
+      window.__jbSmsRows2026=(r&&r.ok?r.rows:[])||[];
+      renderRows();
+      var fb=document.getElementById('jbSmsFeedback2026');if(fb)fb.textContent='✅ '+window.__jbSmsRows2026.length+' জনের যোগাযোগ তথ্য স্বয়ংক্রিয়ভাবে পাওয়া গেছে।';
+    }).catch(function(e){var fb=document.getElementById('jbSmsFeedback2026');if(fb)fb.textContent='❌ SMS Portal লোডে সার্ভার ত্রুটি: '+(e&&e.message?e.message:e)});
+  }
+  var oldOpen=window.openModule;
+  window.openModule=function(k){var r=oldOpen.apply(this,arguments);if(k==='sms')setTimeout(load,120);return r};
+  function boot(){bindModule()}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+  setTimeout(bindModule,500);setTimeout(bindModule,1500);
+})();
+</script>
+<!-- ===== END SMS PORTAL UI ===== -->
