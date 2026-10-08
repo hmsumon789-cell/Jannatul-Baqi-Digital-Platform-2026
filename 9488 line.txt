@@ -11617,7 +11617,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     var b=document.createElement('button');b.id='jbLoginOnlineService2026';b.type='button';
     b.textContent='🌐 অনলাইন সেবা ঘরে বসেই গ্রহন করুন';
     b.className='primary jb-login-online-service-2026';
-    b.onclick=function(){var u=location.href.split('#')[0].split('?')[0];window.open(u+'?online=1','_blank')};
+    b.onclick=function(){var w=window.open('about:blank','_blank');if(!w){alert('নতুন সেবা উইন্ডো খোলা যাচ্ছে না। Browser popup অনুমতি দিন।');return;}try{if(typeof google!=='undefined'&&google.script&&google.script.run){google.script.run.withSuccessHandler(function(r){var u=String(r&&r.ok&&r.url?r.url:location.href).split('#')[0].split('?')[0];w.location.href=u+'?online=1';}).withFailureHandler(function(){w.location.href=location.href.split('#')[0].split('?')[0]+'?online=1';}).getMainWebAppUrl();}else{w.location.href=location.href.split('#')[0].split('?')[0]+'?online=1';}}catch(e){w.location.href=location.href.split('#')[0].split('?')[0]+'?online=1';}};
     var q=lp.querySelector('.quick');
     if(q)q.insertAdjacentElement('afterend',b);else lp.appendChild(b);
   }
