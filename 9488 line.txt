@@ -1409,7 +1409,54 @@ function downloadCurrentForm(){
     span.style.padding='3px';
     el.replaceWith(span);
   });
-  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title></head><body><h2>'+($('winTitle').textContent||'ফর্ম')+'</h2>'+body.innerHTML+'</body></html>';
+  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title></head><body><h2>'+($('winTitle').textContent||'ফর্ম')+'</h2>'+body.innerHTML+'</body>
+<!-- ===== UNIVERSAL FEEDBACK + MARKSHEET PRINT POSITION FIX — 2026-10-08 ===== -->
+<style id="universal-feedback-signature-final-2026-10-08">
+/* All system feedback stays visible in front of every window. */
+.toast{
+  position:fixed!important;
+  top:105px!important;
+  bottom:auto!important;
+  left:50%!important;
+  right:auto!important;
+  transform:translateX(-50%)!important;
+  z-index:2000000!important;
+  max-width:min(92vw,760px)!important;
+  max-height:28vh!important;
+  overflow:auto!important;
+  text-align:center!important;
+  white-space:normal!important;
+}
+/* Marksheet signature: print must keep the exact 2-inch bottom position. */
+#jbDocBuilderWin .jb-doc-preview.a4 .jb-marksheet-signatures-2026{
+  position:absolute!important;
+  left:8mm!important;
+  right:8mm!important;
+  top:auto!important;
+  bottom:50.8mm!important;
+  margin:0!important;
+  display:flex!important;
+  justify-content:space-between!important;
+  align-items:flex-end!important;
+  font-size:8.5px!important;
+  line-height:1.2!important;
+}
+@media print{
+  #jbDocBuilderWin .jb-doc-preview.a4 .jb-marksheet-signatures-2026{
+    position:absolute!important;
+    left:8mm!important;
+    right:8mm!important;
+    top:auto!important;
+    bottom:50.8mm!important;
+    margin:0!important;
+    display:flex!important;
+    justify-content:space-between!important;
+    align-items:flex-end!important;
+  }
+}
+</style>
+<!-- ===== END UNIVERSAL FEEDBACK + MARKSHEET PRINT POSITION FIX ===== -->
+</html>';
   var blob=new Blob([html],{type:'text/html;charset=utf-8'});
   var url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url;a.download=title+'.html';document.body.appendChild(a);a.click();a.remove();
@@ -11707,4 +11754,3 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 @media print{#jbDocBuilderWin .jb-doc-preview > .jb-doc-actions,#jbDocBuilderWin .jb-online-service-save-2026,#jbDocBuilderWin .jb-marksheet-back-2026{display:none!important;visibility:hidden!important}}
 </style>
 <!-- ===== END FINAL SAFE UI POLISH ===== -->
-
