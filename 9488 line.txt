@@ -12011,6 +12011,49 @@ function jbQpClear(){['jbQpExam','jbQpClass','jbQpSubject','jbQpDate','jbQpMarks
 </script>
 <!-- ===== END LOGIN-FREE ONLINE PAYMENT ENTRY ===== -->
 
+<!-- ===== LOGIN ONLINE SERVICE + PAYMENT 2-COLUMN ROW — 2026-10-08 ===== -->
+<style id="jb-login-service-payment-row-2026">
+#loginPage .jb-login-service-payment-row-2026{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:12px!important;
+  width:min(820px,92vw)!important;
+  margin:10px auto 0!important;
+  align-items:stretch!important;
+}
+#loginPage .jb-login-service-payment-row-2026 > *{
+  width:100%!important;
+  min-width:0!important;
+  margin:0!important;
+}
+@media(max-width:700px){
+  #loginPage .jb-login-service-payment-row-2026{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;width:94vw!important}
+  #loginPage .jb-login-service-payment-row-2026 > *{font-size:12px!important;padding:10px 6px!important}
+}
+</style>
+<script id="jb-login-service-payment-row-2026-js">
+(function(){
+  function arrange(){
+    var lp=document.getElementById('loginPage'),
+        p=document.getElementById('jbLoginOnlinePayment2026'),
+        s=document.getElementById('jbLoginOnlineService2026');
+    if(!lp||!p||!s)return;
+    var row=document.getElementById('jbLoginServicePaymentRow2026');
+    if(!row){
+      row=document.createElement('div');
+      row.id='jbLoginServicePaymentRow2026';
+      row.className='jb-login-service-payment-row-2026';
+      lp.appendChild(row);
+    }else if(row.parentNode!==lp){lp.appendChild(row)}
+    if(s.parentNode!==row)row.appendChild(s);
+    if(p.parentNode!==row)row.appendChild(p);
+  }
+  arrange();
+  if(document.body)new MutationObserver(arrange).observe(document.body,{childList:true,subtree:true});
+})();
+</script>
+<!-- ===== END LOGIN ONLINE SERVICE + PAYMENT 2-COLUMN ROW ===== -->
+
 <!-- ===== ONLINE SERVICE — HOME DELIVERY BUTTON + SAVE — 2026-10-07 ===== -->
 <style id="jb-online-service-home-2026-10-07">
 #jbDocBuilderWin .jb-online-service-save-2026{
