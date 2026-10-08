@@ -1311,7 +1311,7 @@ async function loadOnlinePaymentManager(tab){
   try{
     const r=await call('getOnlinePaymentManagerData',token);
     if(!r||!r.ok){body.innerHTML='<div class="card" style="padding:15px;color:#b00020;font-weight:900">❌ '+esc((r&&r.message)||'তথ্য পাওয়া যায়নি।')+'</div>';return;}
-    const inbox=(r.inbox||[]).filter(x=>String(x.Status||'').toUpperCase()==='PENDING');
+    const inbox=(r.pending||[]).filter(x=>String(x.Status||'').toUpperCase()==='PENDING');
     const history=r.history||[],outbox=r.outbox||[];
     let html='<div class="payment-manager-tabs"><button class="primary" type="button" onclick="loadOnlinePaymentManager(\'inbox\')">📥 ইনবক্স ('+inbox.length+')</button><button class="secondary" type="button" onclick="loadOnlinePaymentManager(\'outbox\')">📤 আউটবক্স ('+outbox.length+')</button><button class="secondary" type="button" onclick="loadOnlinePaymentManager(\'history\')">🧾 লেনদেন হিস্ট্রি ('+history.length+')</button></div>';
     if(tab==='inbox'){
