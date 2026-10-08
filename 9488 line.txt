@@ -11946,7 +11946,29 @@ function jbQpClear(){['jbQpExam','jbQpClass','jbQpSubject','jbQpDate','jbQpMarks
   window.printOnlineExamResult2026=function(){
     var body=document.getElementById('jbOnlineResultBody2026');if(!body)return;
     var w=window.open('','_blank');if(!w)return;
-    w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>অনলাইন ফলাফল</title><style>body{font-family:Arial,sans-serif;padding:20px}.jb-or-table{width:100%;border-collapse:collapse}.jb-or-table th,.jb-or-table td{border:1px solid #333;padding:7px;text-align:center}.jb-or-actions{display:none!important}</style></head><body>'+body.innerHTML+'<!-- ===== LOGIN-FREE ONLINE PAYMENT ENTRY — 2026-10-08 ===== -->
+    w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>অনলাইন ফলাফল</title><style>body{font-family:Arial,sans-serif;padding:20px}.jb-or-table{width:100%;border-collapse:collapse}.jb-or-table th,.jb-or-table td{border:1px solid #333;padding:7px;text-align:center}.jb-or-actions{display:none!important}</style></head><body>'+body.innerHTML+'
+</body></html>');
+    w.document.close();w.print();
+  };
+  window.shareOnlineExamResult2026=function(){
+    var s=(window.__jbOnlineResultData||{}).student||{},txt='জান্নাতুল বাক্বী মহিলা মাদ্রাসা — '+(s.nameBN||'ফলাফল')+' | ID: '+(s.studentId||'');
+    if(navigator.share)navigator.share({title:'অনলাইন ফলাফল',text:txt}).catch(function(){});
+    else if(navigator.clipboard)navigator.clipboard.writeText(txt).then(function(){if(typeof toast==='function')toast('ফলাফলের শেয়ার তথ্য কপি হয়েছে।');});
+  };
+  function addEntry(){
+    var lp=document.getElementById('loginPage');
+    var d=document.getElementById('examDashboardWin');
+    if(d&&!document.getElementById('jbExamOnlineResult2026')){
+      var b2=document.createElement('button');b2.id='jbExamOnlineResult2026';b2.type='button';b2.className='secondary';b2.textContent='📱 অনলাইন ফলাফল';b2.onclick=open;
+      var a=d.querySelector('.jb-exam-actions');if(a)a.appendChild(b2);
+    }
+  }
+  addEntry();if(document.body)new MutationObserver(addEntry).observe(document.body,{childList:true,subtree:true});
+})();
+</script>
+<!-- ===== END MOBILE + ONLINE EXAM RESULT VIEWER — 2026-10-08 ===== -->
+
+<!-- ===== LOGIN-FREE ONLINE PAYMENT ENTRY — 2026-10-08 ===== -->
 <style id="jb-login-online-payment-2026">
 #jbLoginOnlinePayment2026{
   display:block!important;width:min(820px,92vw)!important;margin:10px auto 0!important;
@@ -11988,26 +12010,6 @@ function jbQpClear(){['jbQpExam','jbQpClass','jbQpSubject','jbQpDate','jbQpMarks
 })();
 </script>
 <!-- ===== END LOGIN-FREE ONLINE PAYMENT ENTRY ===== -->
-</body></html>');
-    w.document.close();w.print();
-  };
-  window.shareOnlineExamResult2026=function(){
-    var s=(window.__jbOnlineResultData||{}).student||{},txt='জান্নাতুল বাক্বী মহিলা মাদ্রাসা — '+(s.nameBN||'ফলাফল')+' | ID: '+(s.studentId||'');
-    if(navigator.share)navigator.share({title:'অনলাইন ফলাফল',text:txt}).catch(function(){});
-    else if(navigator.clipboard)navigator.clipboard.writeText(txt).then(function(){if(typeof toast==='function')toast('ফলাফলের শেয়ার তথ্য কপি হয়েছে।');});
-  };
-  function addEntry(){
-    var lp=document.getElementById('loginPage');
-    var d=document.getElementById('examDashboardWin');
-    if(d&&!document.getElementById('jbExamOnlineResult2026')){
-      var b2=document.createElement('button');b2.id='jbExamOnlineResult2026';b2.type='button';b2.className='secondary';b2.textContent='📱 অনলাইন ফলাফল';b2.onclick=open;
-      var a=d.querySelector('.jb-exam-actions');if(a)a.appendChild(b2);
-    }
-  }
-  addEntry();if(document.body)new MutationObserver(addEntry).observe(document.body,{childList:true,subtree:true});
-})();
-</script>
-<!-- ===== END MOBILE + ONLINE EXAM RESULT VIEWER — 2026-10-08 ===== -->
 
 <!-- ===== ONLINE SERVICE — HOME DELIVERY BUTTON + SAVE — 2026-10-07 ===== -->
 <style id="jb-online-service-home-2026-10-07">
