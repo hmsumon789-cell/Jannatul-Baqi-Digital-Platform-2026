@@ -873,6 +873,7 @@ async function login(){
     if(btn){btn.disabled=false;btn.textContent=btn.dataset.oldText||'লগইন';}
   }
 } 
+window.login=login;
 async function verifyOtp(){const code=[...document.querySelectorAll('.otp-box')].map(x=>x.value).join('');if(code.length!==6)return toast('৬ সংখ্যার OTP দিন।');const r=await call('verifyLoginOtp',otpToken,$('username').value.trim(),code);if(!r.ok)return toast(r.message);token=r.token;currentUser=r.user;$('loginPage').style.display='none';$('app').classList.add('show');await loadApp()}
 async function resendOtp(){const r=await call('requestOtp',$('username').value.trim());toast(r.message)}
 function clearOtp(){document.querySelectorAll('.otp-box').forEach(x=>x.value='');$('otpBoxes').firstElementChild.focus()}
@@ -1606,7 +1607,7 @@ body.gold .form-grid input.field{border-radius:0!important}
     var p=document.getElementById('password');
     if(!btn||!u||!p||btn.dataset.bound==='1')return;
     btn.dataset.bound='1';
-    btn.addEventListener('click',function(ev){ev.preventDefault();if(!btn.disabled)window.login();});
+    btn.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();if(btn.disabled)return;try{window.login();}catch(e){if(typeof toast==='function')toast('লগইন চালু করা যায়নি: '+(e&&e.message?e.message:e));}});
     [u,p].forEach(function(el){el.addEventListener('keydown',function(ev){if(ev.key==='Enter'){ev.preventDefault();login();}});});
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindLogin);else bindLogin();
