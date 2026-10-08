@@ -1,0 +1,58 @@
+name: Apply marksheet arrangement patch
+on:
+  push:
+    branches:
+      - c952d59-marksheet-final-arrangement-2026-10-08
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply patch
+        env:
+          BRANCH: c952d59-marksheet-final-arrangement-2026-10-08
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path("9488 line.txt")
+          s=p.read_text(encoding="utf-8")
+          old_css='''<style id="card-buttons-marksheet-signature-2026-10-08">
+          .jb-doc-actions{display:flex!important;flex-wrap:nowrap!important;justify-content:center!important;align-items:center!important;gap:4px!important;margin:5px 0!important}
+          .jb-doc-actions button{height:32px!important;min-height:32px!important;padding:4px 9px!important;font-size:12px!important;line-height:1!important;border-radius:7px!important;white-space:nowrap!important}
+          .jb-marksheet-signatures-2026{position:absolute!important;left:8mm!important;right:8mm!important;bottom:25.4mm!important;display:flex!important;justify-content:space-between!important;font-size:8.5px!important}
+          @media(max-width:700px){.jb-doc-actions{gap:3px!important}.jb-doc-actions button{padding:3px 6px!important;font-size:11px!important}}
+          @media print{.jb-doc-actions{display:none!important}}
+          </style>'''
+          new_css='''<style id="card-buttons-marksheet-signature-2026-10-08">
+          .jb-doc-actions{display:flex!important;flex-wrap:nowrap!important;justify-content:center!important;align-items:center!important;gap:5px!important;margin:5px 0!important;width:100%!important;overflow:hidden!important}
+          .jb-doc-actions button{flex:0 0 auto!important;height:28px!important;min-height:28px!important;padding:3px 9px!important;font-size:11px!important;line-height:1!important;border-radius:999px!important;white-space:nowrap!important;box-sizing:border-box!important}
+          .jb-marksheet-signatures-2026{position:absolute!important;left:8mm!important;right:8mm!important;bottom:25.4mm!important;display:flex!important;justify-content:space-between!important;align-items:flex-end!important;font-size:8.5px!important}
+          @media(max-width:700px){.jb-doc-actions{gap:3px!important}.jb-doc-actions button{height:26px!important;min-height:26px!important;padding:2px 6px!important;font-size:10px!important}}
+          @media print{.jb-doc-actions{display:none!important}}
+          </style>'''
+          if old_css not in s:
+              raise SystemExit("Expected CSS block not found")
+          s=s.replace(old_css,new_css,1)
+          rank_div='<div style="border:2px solid #222;margin-top:5px;padding:4px;text-align:center;font-size:10.5px"><b>সত্যিকারের মেধা স্থান:</b> <span style="font-size:14px;font-weight:900">\'+esc(rankLabel)+'</span></div>'
+          if rank_div not in s:
+              # exact source contains '+esc(rankLabel)+' rather than escaped backslashes
+              rank_div='<div style="border:2px solid #222;margin-top:5px;padding:4px;text-align:center;font-size:10.5px"><b>সত্যিকারের মেধা স্থান:</b> <span style="font-size:14px;font-weight:900">\'+esc(rankLabel)+'</span></div>'
+          # Remove the merit block from the marksheet preview string.
+          marker='<div style="border:2px solid #222;margin-top:5px;padding:4px;text-align:center;font-size:10.5px"><b>সত্যিকারের মেধা স্থান:</b>'
+          pos=s.find(marker)
+          if pos<0:
+              raise SystemExit("Merit block marker not found")
+          end=s.find('</div><div class="jb-marksheet-signatures-2026">',pos)
+          if end<0:
+              raise SystemExit("Signature marker not found")
+          s=s[:pos]+s[end+len('</div>'):]
+          p.write_text(s,encoding="utf-8")
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "9488 line.txt"
+          git rm -f .github/workflows/apply-marksheet-patch.yml
+          git commit -m "Finalize marksheet print layout"
+          git push origin "$BRANCH"
