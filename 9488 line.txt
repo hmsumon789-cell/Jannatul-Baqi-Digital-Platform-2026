@@ -991,7 +991,7 @@ body.gold #loginPage .main-qr-802268e{background:#fff!important;border-color:#11
       </div>
       <h2>প্রশাসনিক ড্যাশবোর্ড</h2>
       <div class="dashboard-title-right">
-        <button id="accountManagerBtn" class="primary" style="display:none" onclick="openAccountManager()">🔐 Account অনুমোদন</button><button class="primary" onclick="openExamDashboard()">📝 পরীক্ষা ড্যাশবোর্ড</button>
+        <button id="accountManagerBtn" class="primary" style="display:none" onclick="openAccountManager()">🔐 Account অনুমোদন</button>
         <select class="field dashboard-lang" id="appLang" onchange="setLang(this.value)">
           <option value="bn">বাংলা</option>
           <option value="ar">العربية</option>
@@ -10344,8 +10344,20 @@ body.dark #jbDocumentBuilderEntry2026{background:#000;color:#ffe95c;border-color
       else if(typeof window.openModule==='function')window.openModule('marks');
     };
     var anchor=app.querySelector('.dashboard-nav')||app.querySelector('main')||app.firstElementChild;
-    if(anchor&&anchor.parentNode)anchor.parentNode.insertBefore(b,anchor.nextSibling);
-    else app.appendChild(b);
+    if(anchor&&anchor.parentNode){
+      var row=document.getElementById('jbExamDocumentRow2026');
+      if(!row){
+        row=document.createElement('div');
+        row.id='jbExamDocumentRow2026';
+        row.style.cssText='display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:6px 0;';
+        var exam=document.createElement('button');
+        exam.type='button';exam.className='primary';exam.id='jbExamDashboardEntry2026';
+        exam.textContent='📝 পরীক্ষা ড্যাশবোর্ড';
+        exam.onclick=function(){if(typeof window.openExamDashboard==='function')window.openExamDashboard();};
+        row.appendChild(exam);row.appendChild(b);
+        anchor.parentNode.insertBefore(row,anchor.nextSibling);
+      }else if(!row.contains(b))row.appendChild(b);
+    }else app.appendChild(b);
   }
   addEntry();
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',addEntry);
