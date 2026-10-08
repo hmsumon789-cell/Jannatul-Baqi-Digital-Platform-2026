@@ -23,7 +23,7 @@ const APP = {
 const SHEETS = {
   ADMINS:'ADMINS', STUDENTS:'STUDENTS', TEACHERS:'TEACHERS', DONORS:'DONORS',
   ADMISSIONS:'ADMISSIONS', EXAM_REG:'EXAM_REG', PAYMENTS:'PAYMENTS',
-  EXPENSES:'EXPENSES', RESULTS:'RESULTS', NOTICES:'NOTICES', ATTENDANCE:'ATTENDANCE',
+  EXPENSES:'EXPENSES', INCOME:'INCOME', RESULTS:'RESULTS', NOTICES:'NOTICES', ATTENDANCE:'ATTENDANCE',
   MEDIA:'MEDIA', FILES:'FILES', SMS_QUEUE:'SMS_QUEUE', CONTACTS:'CONTACTS',
   CONFIG:'CONFIG', AUDIT:'AUDIT', OTP_LOG:'OTP_LOG', EXECUTIVES:'EXECUTIVES',
   ADVISERS:'ADVISERS', FOUNDERS:'FOUNDERS', LOCATION_MASTER:'LOCATION_MASTER',
@@ -40,6 +40,7 @@ const HEADERS = {
   EXAM_REG:['Serial','ExamRegID','StudentID','Exam','Class','Branch','Status','FormData','CreatedAt'],
   PAYMENTS:['Serial','PaymentID','StudentID','Name','Month','Category','Amount','Method','Reference','Date','Note','CreatedAt'],
   EXPENSES:['Serial','ExpenseID','Category','Amount','Method','Date','Note','CreatedAt'],
+  INCOME:['Serial','IncomeID','Category','Amount','Method','Date','Note','CreatedAt'],
   RESULTS:['Serial','ResultID','StudentID','Name','Class','Exam','SubjectData','Total','GPA','Grade','Published','Date','CreatedAt'],
   NOTICES:['Serial','NoticeID','TitleBN','TitleAR','TitleEN','BodyBN','BodyAR','BodyEN','Date','Status','CreatedAt'],
   ATTENDANCE:['Serial','AttendanceID','StudentID','Date','Status','Class','Branch','Note','CreatedAt'],
@@ -1742,5 +1743,26 @@ function buildPublicOnlinePaymentHtml_(){
     return {ok:true,inbox:inbox.slice(0,500),pending:pending.slice(0,500),history:history,outbox:outbox};
   }catch(e){return {ok:false,message:'পেমেন্ট ম্যানেজমেন্ট লোডে সার্ভার ত্রুটি: '+(e&&e.message?e.message:e)};}
 }
+
+
+/* ===== INCOME + EXPENSE LEDGER — 2026-10-08 ===== */
+function saveFinanceEntry(token,data){
+  if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin আয়-ব্যয়ের হিসাব সংরক্ষণ করতে পারবেন।'};
+  data=data||{};var type=String(data.Type||'INCOME').toUpperCase(),amount=Number(data.Amount||0),category=String(data.Category||'').trim();
+  if(type!=='INCOME'&&type!=='EXPENSE')return {ok:false,message:'ধরন সঠিক নয়।'};
+  if(!category||!isFinite(amount)||amount<=0)return {ok:false,message:'খাত ও সঠিক পরিমাণ দিন।'};
+  var sheetName=type==='INCOME'?SHEETS.INCOME:SHEETS.EXPENSES,sh=ensureSheet_(SpreadsheetApp.getActiveSpreadsheet(),sheetName,HEADERS[sheetName]);
+  var id=(type==='INCOME'?'INC-':'EXP-')+Date.now();
+  append_(sheetName,[nextSerial_(sh),id,category,amount,String(data.Method||'হ্যান্ড ক্যাশ'),String(data.Date||now_()),String(data.Note||''),now_()]);
+  log_(sessionUser_(token)||'','finance-'+type.toLowerCase(),sheetName,id+' / '+amount);
+  return {ok:true,message:(type==='INCOME'?'আয়ের':'ব্যয়ের')+' হিসাব সংরক্ষণ হয়েছে।',id:id};
+}
+function getFinanceRecords(token){
+  if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin আয়-ব্যয়ের তালিকা দেখতে পারবেন।'};
+  var ss=SpreadsheetApp.getActiveSpreadsheet(),out=[];
+  [SHEETS.INCOME,SHEETS.EXPENSES].forEach(function(n){var sh=ss.getSheetByName(n);if(!sh||sh.getLastRow()<=1)return;var h=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String),v=sh.getDataRange().getValues();v.slice(1).forEach(function(r){var o=objectFrom_(h,r);o.Type=n===SHEETS.INCOME?'আয়':'ব্যয়';out.push(o);});});
+  out.sort(function(a,b){return String(b.CreatedAt||'').localeCompare(String(a.CreatedAt||''));});return {ok:true,rows:out.slice(0,1000)};
+}
+/* ===== END INCOME + EXPENSE LEDGER ===== */
 
 /* ===== END ONLINE PAYMENT ===== */
