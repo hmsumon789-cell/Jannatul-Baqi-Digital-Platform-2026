@@ -1485,7 +1485,7 @@ function getMarksMerit(token,studentId,className,examName,currentTotal){
 
 /* ===== ONLINE PAYMENT — SAFE PENDING/APPROVAL WORKFLOW 2026-10-08 ===== */
 const ONLINE_PAYMENT_REQUEST_SHEET='ONLINE_PAYMENT_REQUESTS';
-const ONLINE_PAYMENT_REQUEST_HEADERS=['Serial','RequestID','StudentID','Name','Class','Month','Category','Amount','Method','Reference','PayerMobile','Note','Status','SubmittedAt','ApprovedBy','ApprovedAt','FailureReason','ReceiptID','CreatedAt'];
+const ONLINE_PAYMENT_REQUEST_HEADERS=['Serial','RequestID','StudentID','Name','Class','Month','Category','Amount','Method','Reference','PayerMobile','Note','Status','SubmittedAt','ApprovedBy','ApprovedAt','FailureReason','ReceiptID','CreatedAt','PaymentMode'];
 function ensureOnlinePaymentRequestSheet_(){
   const ss=SpreadsheetApp.getActiveSpreadsheet(); let sh=ss.getSheetByName(ONLINE_PAYMENT_REQUEST_SHEET);
   if(!sh){sh=ss.insertSheet(ONLINE_PAYMENT_REQUEST_SHEET);sh.getRange(1,1,1,ONLINE_PAYMENT_REQUEST_HEADERS.length).setValues([ONLINE_PAYMENT_REQUEST_HEADERS]);}
@@ -1499,17 +1499,28 @@ function getOnlinePaymentStudent(studentId){
   let paid=0;pays.forEach(r=>{const n=Number(String(r.Amount||'').replace(/[^0-9.-]/g,''));if(isFinite(n))paid+=n;});
   return {ok:true,student:{StudentID:st.StudentID||id,NameBN:st.NameBN||'',NameEN:st.NameEN||'',Class:st.Class||'',Mobile:st.Mobile||'',WhatsApp:st.WhatsApp||''},paid:paid};
 }
-function submitOnlinePayment(data){
-  data=data||{};const id=String(data.StudentID||'').trim(),ref=String(data.Reference||'').trim(),amount=Number(data.Amount||0);
-  if(!id||!ref||!isFinite(amount)||amount<=0)return {ok:false,message:'Student ID, Amount ও Transaction/Reference ID সঠিকভাবে দিন।'};
+function submitOnlinePayment(data,token){
+  data=data||{};const id=String(data.StudentID||'').trim(),ref=String(data.Reference||'').trim(),amount=Number(data.Amount||0),method=String(data.Method||'').trim(),mode=String(data.PaymentMode||'PENDING').toUpperCase();
+  if(!id||!isFinite(amount)||amount<=0||!method)return {ok:false,message:'Student ID, Amount ও পেমেন্ট মাধ্যম সঠিকভাবে দিন।'};
+  if(method!=='হ্যান্ড ক্যাশ'&&!ref)return {ok:false,message:'Transaction / Reference ID দিন।'};
   const st=findBy_(SHEETS.STUDENTS,'StudentID',id);if(!st)return {ok:false,message:'Student ID সঠিক নয়।'};
-  const sh=ensureOnlinePaymentRequestSheet_();const vals=sh.getDataRange().getValues(),h=vals[0].map(String),ri=h.indexOf('Reference'),si=h.indexOf('Status');
-  for(let i=1;i<vals.length;i++){if(String(vals[i][ri]||'').trim()===ref&&['PENDING','APPROVED'].includes(String(vals[i][si]||'').toUpperCase()))return {ok:false,message:'এই Transaction / Reference ID আগে ব্যবহার হয়েছে।'};}
-  const req='OPR-'+Utilities.formatDate(new Date(),APP.timezone||'Asia/Dhaka','yyyyMMddHHmmss')+'-'+Math.floor(Math.random()*900+100);
-  const now=now_();
-  sh.appendRow([nextSerial_(sh),req,id,st.NameBN||st.NameEN||'',st.Class||'',String(data.Month||'').trim(),String(data.Category||'').trim(),amount,String(data.Method||'').trim(),ref,String(data.PayerMobile||st.Mobile||'').trim(),String(data.Note||'').trim(),'PENDING',now,'','', '', '',now]);
-  log_('ONLINE','submit','ONLINE_PAYMENT',req+' / '+id+' / '+amount);
-  return {ok:true,requestId:req,status:'PENDING',message:'অনলাইন পেমেন্ট অনুরোধ গ্রহণ করা হয়েছে।'};
+  if((mode==='QUICK'||method==='হ্যান্ড ক্যাশ')&&!token)return {ok:false,message:'সরাসরি পেমেন্টের জন্য লগইন সেশন প্রয়োজন।'};
+  if(mode==='QUICK'||method==='হ্যান্ড ক্যাশ'){
+    try{
+      const pay=saveRecord(token,SHEETS.PAYMENTS,{StudentID:id,Name:st.NameBN||st.NameEN||data.Name||'',Month:String(data.Month||'').trim(),Category:String(data.Category||'').trim(),Amount:amount,Method:method,Reference:ref,Date:now_(),Note:String(data.Note||'').trim()});
+      if(!pay||!pay.ok)return {ok:false,message:(pay&&pay.message)||'PAYMENTS-এ সরাসরি সংরক্ষণ ব্যর্থ।'};
+      const receiptId='RCT-OP-'+Date.now(),receiptData={ReceiptID:receiptId,StudentID:id,Name:st.NameBN||st.NameEN||data.Name||'',Month:String(data.Month||'').trim(),Category:String(data.Category||'').trim(),Amount:amount,Method:method,Reference:ref,Date:now_(),PaymentID:pay.paymentId||''};
+      const rsh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.RECEIPTS);append_(SHEETS.RECEIPTS,[nextSerial_(rsh),receiptId,id,'ONLINE_PAYMENT',amount,now_(),JSON.stringify(receiptData)]);
+      log_(sessionUser_(token)||'','quick-pay','ONLINE_PAYMENT',id+' / '+amount+' / '+method+' / '+receiptId);
+      return {ok:true,status:'PAID',receiptId:receiptId,receipt:receiptData,message:method==='হ্যান্ড ক্যাশ'?'হ্যান্ড ক্যাশ পেমেন্ট সরাসরি গ্রহণ করা হয়েছে এবং রসিদ তৈরি হয়েছে।':'দ্রুত পেমেন্ট সরাসরি PAYMENTS-এ সংরক্ষণ হয়েছে এবং রসিদ তৈরি হয়েছে।'};
+    }catch(e){return {ok:false,message:'সরাসরি পেমেন্টে সার্ভার ত্রুটি: '+(e&&e.message?e.message:e)};}
+  }
+  const sh=ensureOnlinePaymentRequestSheet_(),vals=sh.getDataRange().getValues(),hh=vals[0].map(String),ri=hh.indexOf('Reference'),si=hh.indexOf('Status');
+  if(ref){for(let i=1;i<vals.length;i++){if(String(vals[i][ri]||'').trim()===ref&&['PENDING','APPROVED'].includes(String(vals[i][si]||'').toUpperCase()))return {ok:false,message:'এই Transaction / Reference ID আগে ব্যবহার হয়েছে।'};}}
+  const req='OPR-'+Utilities.formatDate(new Date(),APP.timezone||'Asia/Dhaka','yyyyMMddHHmmss')+'-'+Math.floor(Math.random()*900+100),now=now_();
+  sh.appendRow([nextSerial_(sh),req,id,st.NameBN||st.NameEN||'',st.Class||'',String(data.Month||'').trim(),String(data.Category||'').trim(),amount,method,ref,String(data.PayerMobile||st.Mobile||'').trim(),String(data.Note||'').trim(),'PENDING',now,'','','','',now,mode]);
+  log_('ONLINE','submit','ONLINE_PAYMENT',req+' / '+id+' / '+amount+' / '+mode);
+  return {ok:true,requestId:req,status:'PENDING',message:'পেমেন্ট Pending-এ সংরক্ষণ হয়েছে — Super Admin অনুমোদনের অপেক্ষায়।'};
 }
 function getPendingOnlinePayments(token){
   if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin এই তালিকা দেখতে পারবেন।'};
