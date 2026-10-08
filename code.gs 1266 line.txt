@@ -711,6 +711,7 @@ function saveRecord(token,sheetName,data) {
   const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
   if(!HEADERS[sheetName]) throw new Error('Invalid sheet');
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
+  data=normalizeMobileFields_(data);
   const headers=HEADERS[sheetName];
   const row=headers.map(h=>data[h] ?? '');
   row[0]=nextSerial_(sh);
@@ -749,6 +750,7 @@ function saveRecord(token,sheetName,data) {
 
 function updateRecord(token,sheetName,serial,data) {
   auth_(token); const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
+  data=normalizeMobileFields_(data);
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
   const values=sh.getDataRange().getValues();
   if(values.length<2) throw new Error('No data');
@@ -1054,7 +1056,28 @@ function listRows_(sheet,token,limit){
   const v=sh.getDataRange().getValues(), h=v[0];
   return v.slice(1,Math.min(v.length,(limit||1000)+1)).map(r=>objectFrom_(h,r));
 }
-function objectFrom_(h,r){ const o={}; h.forEach((x,i)=>o[x]=r[i] instanceof Date?Utilities.formatDate(r[i],APP.timezone,'yyyy-MM-dd HH:mm:ss'):r[i]); return o; }
+function normalizeBdMobile_(value){
+  let s=String(value==null?'':value).trim();
+  if(!s)return '';
+  s=s.replace(/[\s().-]/g,'');
+  if(s.startsWith('+8801')&&/^\+8801\d{9}$/.test(s))return '0'+s.slice(4);
+  if(s.startsWith('8801')&&/^8801\d{9}$/.test(s))return '0'+s.slice(3);
+  if(/^1\d{9}$/.test(s))return '0'+s;
+  if(/^01\d{9}$/.test(s))return s;
+  return s;
+}
+function normalizeMobileFields_(data){
+  const o=Object.assign({},data||{});
+  Object.keys(o).forEach(function(k){
+    if(/mobile|phone|whatsapp|hotline|contact(?:number|no)?/i.test(String(k))) o[k]=normalizeBdMobile_(o[k]);
+  });
+  return o;
+}
+function objectFrom_(h,r){
+  const o={};
+  h.forEach((x,i)=>o[x]=r[i] instanceof Date?Utilities.formatDate(r[i],APP.timezone,'yyyy-MM-dd HH:mm:ss'):r[i]);
+  return normalizeMobileFields_(o);
+}
 function nextSerial_(sh){ return Math.max(0,sh.getLastRow()); }
 function countData_(s){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(s); return sh?Math.max(0,sh.getLastRow()-1):0; }
 function sumCol_(s,key){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(s); if(!sh||sh.getLastRow()<2)return 0; const h=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0],j=h.indexOf(key); if(j<0)return 0; return sh.getRange(2,j+1,sh.getLastRow()-1,1).getValues().reduce((a,r)=>a+(Number(r[0])||0),0); }
@@ -1524,7 +1547,7 @@ function getOnlinePaymentNotifyTargets_(){
         const role=String(r[ix.Role]||'').toUpperCase().replace(/\\s+/g,'_');
         const status=String(r[ix.Status]||'ACTIVE').toUpperCase();
         if((role==='SUPER_ADMIN'||role==='SUPERADMIN')&&status==='ACTIVE'){
-          out.admins.push({name:String(r[ix.NameBN]||r[ix.NameEN]||'Super Admin'),mobile:String(r[ix.Mobile]||r[ix.WhatsApp]||''),email:String(r[ix.Email]||'')});
+          out.admins.push({name:String(r[ix.NameBN]||r[ix.NameEN]||'Super Admin'),mobile:normalizeBdMobile_(r[ix.Mobile]||r[ix.WhatsApp]||''),email:String(r[ix.Email]||'')});
         }
       });
     }
@@ -1538,7 +1561,7 @@ function sendOnlinePaymentEmail_(to,subject,body){
   try{MailApp.sendEmail(email,subject,body);return {ok:true};}catch(e){return {ok:false,message:String(e&&e.message?e.message:e)};}
 }
 function queueOnlinePaymentSms_(mobile,message){
-  const m=String(mobile||'').trim();if(!m)return;
+  const m=normalizeBdMobile_(mobile);if(!m)return;
   try{
     const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.SMS_QUEUE);
     if(sh)append_(SHEETS.SMS_QUEUE,[nextSerial_(sh),'SMS-OP-'+Date.now()+'-'+Math.floor(Math.random()*1000),m,message,'QUEUED','','',now_()]);
@@ -1546,7 +1569,7 @@ function queueOnlinePaymentSms_(mobile,message){
 }
 function notifyOnlinePayment_(data,status,receiptId){
   data=data||{};const targets=getOnlinePaymentNotifyTargets_();
-  const payerMobile=String(data.PayerMobile||data.Mobile||'').trim();
+  const payerMobile=normalizeBdMobile_(data.PayerMobile||data.Mobile||'');
   const payerEmail=String(data.PayerEmail||data.Email||'').trim();
   const amount=Number(data.Amount||0).toLocaleString('bn-BD');
   const studentId=String(data.StudentID||'').trim(),name=String(data.Name||'').trim();
@@ -1566,7 +1589,8 @@ function submitOnlinePayment(data,token){
   if(!id||!isFinite(amount)||amount<=0||!method)return {ok:false,message:'Student ID, Amount ও পেমেন্ট মাধ্যম সঠিকভাবে দিন।'};
   if(method!=='হ্যান্ড ক্যাশ'&&!ref)return {ok:false,message:'Transaction / Reference ID দিন।'};
   const st=findBy_(SHEETS.STUDENTS,'StudentID',id);if(!st)return {ok:false,message:'Student ID সঠিক নয়।'};
-  const payerMobile=String(data.PayerMobile||'').trim();
+  data=normalizeMobileFields_(data);
+  const payerMobile=normalizeBdMobile_(data.PayerMobile||'');
   const payerEmail=String(data.PayerEmail||'').trim();
   if(!payerMobile&&!payerEmail)return {ok:false,message:'পেমেন্টের সময় বর্তমান মোবাইল অথবা ইমেইল দিন।'};
   if(payerEmail && (payerEmail.indexOf('@')<1 || payerEmail.indexOf('.')<3))return {ok:false,message:'সঠিক ইমেইল ঠিকানা দিন।'};
