@@ -2551,7 +2551,7 @@ body{padding-top:0!important}
     }
     var h='<div class="table-wrap"><table class="data-table module-list-table"><thead><tr>'+heads.map(function(x){return '<th>'+esc(x)+'</th>'}).join('')+'<th>কার্যক্রম</th></tr></thead><tbody>';
     if(!rows.length)h+='<tr><td colspan="'+(heads.length+1)+'">কোন তথ্য পাওয়া যায়নি।</td></tr>';
-    rows.forEach(function(r,i){h+='<tr id="listRow'+i+'">'+heads.map(function(k){return '<td data-key="'+esc(k)+'">'+esc(r[k])+'</td>').join('')+'<td><div class="list-actions"><button class="secondary" onclick="listDetail('+i+')">📄 বিস্তারিত দেখুন</button><button class="secondary" onclick="listEdit('+i+')">✏️</button></div></td></tr>'});
+    rows.forEach(function(r,i){h+='<tr id="listRow'+i+'">'+heads.map(function(k){return '<td data-key="'+esc(k)+'">'+esc(r[k])+'</td>'}).join('')+'<td><div class="list-actions"><button class="secondary" onclick="listDetail('+i+')">📄 বিস্তারিত দেখুন</button><button class="secondary" onclick="listEdit('+i+')">✏️</button></div></td></tr>'});
     $('moduleListBody').innerHTML=h+'</tbody></table></div>';
   }
   window.addExamCandidate2026=async function(i,checked){
