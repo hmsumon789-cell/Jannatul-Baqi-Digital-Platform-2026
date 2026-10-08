@@ -591,7 +591,9 @@ function syncAdmissionToStudent_(token,data) {
   const info=studentSourceInfo_(token);
   if(existing>1){
     h.forEach(function(k,j){if(Object.prototype.hasOwnProperty.call(src,k) && String(src[k]??'').trim()!=='') sh.getRange(existing,j+1).setValue(src[k]);});
-    if(h.indexOf('ApprovalStatus')>=0) sh.getRange(existing,h.indexOf('ApprovalStatus')+1).setValue(info.status);
+    const currentStatus=h.indexOf('ApprovalStatus')>=0?String(sh.getRange(existing,h.indexOf('ApprovalStatus')+1).getValue()||'').toUpperCase():'';
+    const finalExistingStatus=(currentStatus==='ACTIVE' && info.status==='PENDING')?'ACTIVE':info.status;
+    if(h.indexOf('ApprovalStatus')>=0) sh.getRange(existing,h.indexOf('ApprovalStatus')+1).setValue(finalExistingStatus);
     if(h.indexOf('SourceType')>=0) sh.getRange(existing,h.indexOf('SourceType')+1).setValue(info.sourceType);
     if(h.indexOf('SourceAccount')>=0) sh.getRange(existing,h.indexOf('SourceAccount')+1).setValue(info.sourceAccount);
     SpreadsheetApp.flush();
@@ -721,7 +723,6 @@ function saveRecord(token,sheetName,data) {
     if(headers.indexOf('ApprovedBy')>=0) row[headers.indexOf('ApprovedBy')]=info.status==='ACTIVE'?info.sourceAccount:'';
     if(headers.indexOf('ApprovedAt')>=0) row[headers.indexOf('ApprovedAt')]=info.status==='ACTIVE'?now_():'';
     const sid=String(row[headers.indexOf('StudentID')]||'').trim();
-    const mobile=String(row[headers.indexOf('Mobile')]||'').trim();
     const birth=String(row[headers.indexOf('BirthReg')]||'').trim();
     const nid=String(row[headers.indexOf('NID')]||'').trim();
     const existing=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.STUDENTS);
@@ -729,10 +730,9 @@ function saveRecord(token,sheetName,data) {
     const eh=ev.length?ev[0].map(String):[];
     for(let i=1;i<ev.length;i++){
       const sameId=sid&&eh.indexOf('StudentID')>=0&&String(ev[i][eh.indexOf('StudentID')]).trim()===sid;
-      const sameMobile=mobile&&eh.indexOf('Mobile')>=0&&String(ev[i][eh.indexOf('Mobile')]).trim()===mobile;
       const sameBirth=birth&&eh.indexOf('BirthReg')>=0&&String(ev[i][eh.indexOf('BirthReg')]).trim()===birth;
       const sameNid=nid&&eh.indexOf('NID')>=0&&String(ev[i][eh.indexOf('NID')]).trim()===nid;
-      if(sameId||sameMobile||sameBirth||sameNid) return {ok:false,message:'এই Student-এর তথ্য আগে থেকেই Master Student তালিকায় আছে। Duplicate Student তৈরি করা যাবে না।'};
+      if(sameId||sameBirth||sameNid) return {ok:false,message:'এই Student-এর তথ্য আগে থেকেই Master Student তালিকায় আছে। Duplicate Student তৈরি করা যাবে না।'};
     }
   }
   sh.appendRow(row);
