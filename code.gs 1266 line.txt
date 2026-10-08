@@ -65,6 +65,11 @@ const HEADERS = {
 
 function doGet(e) {
   var p = (e && e.parameter) || {};
+  if (String(p.payment || '') === '1') {
+    return HtmlService.createHtmlOutput(buildPublicOnlinePaymentHtml_())
+      .setTitle(APP.nameEn + ' | Online Payment')
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  }
   if (String(p.online || '') === '1') {
     var code=String(p.code||'').trim().toUpperCase();
     var personId=String(p.id||'').trim();
@@ -1485,10 +1490,19 @@ function getMarksMerit(token,studentId,className,examName,currentTotal){
 
 /* ===== ONLINE PAYMENT — SAFE PENDING/APPROVAL WORKFLOW 2026-10-08 ===== */
 const ONLINE_PAYMENT_REQUEST_SHEET='ONLINE_PAYMENT_REQUESTS';
-const ONLINE_PAYMENT_REQUEST_HEADERS=['Serial','RequestID','StudentID','Name','Class','Month','Category','Amount','Method','Reference','PayerMobile','Note','Status','SubmittedAt','ApprovedBy','ApprovedAt','FailureReason','ReceiptID','CreatedAt','PaymentMode'];
+const ONLINE_PAYMENT_REQUEST_HEADERS=['Serial','RequestID','StudentID','Name','Class','Month','Category','Amount','Method','Reference','PayerMobile','PayerEmail','Note','Status','SubmittedAt','ApprovedBy','ApprovedAt','FailureReason','ReceiptID','CreatedAt','PaymentMode'];
 function ensureOnlinePaymentRequestSheet_(){
   const ss=SpreadsheetApp.getActiveSpreadsheet(); let sh=ss.getSheetByName(ONLINE_PAYMENT_REQUEST_SHEET);
-  if(!sh){sh=ss.insertSheet(ONLINE_PAYMENT_REQUEST_SHEET);sh.getRange(1,1,1,ONLINE_PAYMENT_REQUEST_HEADERS.length).setValues([ONLINE_PAYMENT_REQUEST_HEADERS]);}
+  if(!sh){
+    sh=ss.insertSheet(ONLINE_PAYMENT_REQUEST_SHEET);
+    sh.getRange(1,1,1,ONLINE_PAYMENT_REQUEST_HEADERS.length).setValues([ONLINE_PAYMENT_REQUEST_HEADERS]);
+  } else {
+    const last=Math.max(1,sh.getLastColumn());
+    const existing=sh.getRange(1,1,1,last).getValues()[0].map(String);
+    ONLINE_PAYMENT_REQUEST_HEADERS.forEach(function(h){
+      if(existing.indexOf(h)<0){sh.getRange(1,sh.getLastColumn()+1).setValue(h);existing.push(h);}
+    });
+  }
   return sh;
 }
 function getOnlinePaymentStudent(studentId){
@@ -1497,30 +1511,84 @@ function getOnlinePaymentStudent(studentId){
   if(!st)return {ok:false,message:'এই Student ID-এর শিক্ষার্থী পাওয়া যায়নি।'};
   const pays=listRows_(SHEETS.PAYMENTS,'',10000).filter(r=>String(r.StudentID||'').trim()===id);
   let paid=0;pays.forEach(r=>{const n=Number(String(r.Amount||'').replace(/[^0-9.-]/g,''));if(isFinite(n))paid+=n;});
-  return {ok:true,student:{StudentID:st.StudentID||id,NameBN:st.NameBN||'',NameEN:st.NameEN||'',Class:st.Class||'',Mobile:st.Mobile||'',WhatsApp:st.WhatsApp||''},paid:paid};
+  return {ok:true,student:{StudentID:st.StudentID||id,NameBN:st.NameBN||'',NameEN:st.NameEN||'',Class:st.Class||'',Mobile:st.Mobile||'',WhatsApp:st.WhatsApp||'',Email:st.Email||''},paid:paid};
+}
+function getOnlinePaymentNotifyTargets_(){
+  const out={admins:[]};
+  try{
+    const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ADMINS);
+    if(sh&&sh.getLastRow()>1){
+      const vals=sh.getDataRange().getValues(),h=vals[0].map(String);
+      const ix={};h.forEach(function(x,i){ix[x]=i;});
+      vals.slice(1).forEach(function(r){
+        const role=String(r[ix.Role]||'').toUpperCase().replace(/\\s+/g,'_');
+        const status=String(r[ix.Status]||'ACTIVE').toUpperCase();
+        if((role==='SUPER_ADMIN'||role==='SUPERADMIN')&&status==='ACTIVE'){
+          out.admins.push({name:String(r[ix.NameBN]||r[ix.NameEN]||'Super Admin'),mobile:String(r[ix.Mobile]||r[ix.WhatsApp]||''),email:String(r[ix.Email]||'')});
+        }
+      });
+    }
+  }catch(e){}
+  if(!out.admins.length) out.admins.push({name:'Super Admin',mobile:String(APP.hotline1||''),email:String(APP.email1||'')});
+  return out;
+}
+function sendOnlinePaymentEmail_(to,subject,body){
+  const email=String(to||'').trim();
+  if(!email||email.indexOf('@')<1)return {ok:false,message:'Email পাওয়া যায়নি।'};
+  try{MailApp.sendEmail(email,subject,body);return {ok:true};}catch(e){return {ok:false,message:String(e&&e.message?e.message:e)};}
+}
+function queueOnlinePaymentSms_(mobile,message){
+  const m=String(mobile||'').trim();if(!m)return;
+  try{
+    const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.SMS_QUEUE);
+    if(sh)append_(SHEETS.SMS_QUEUE,[nextSerial_(sh),'SMS-OP-'+Date.now()+'-'+Math.floor(Math.random()*1000),m,message,'QUEUED','','',now_()]);
+  }catch(e){}
+}
+function notifyOnlinePayment_(data,status,receiptId){
+  data=data||{};const targets=getOnlinePaymentNotifyTargets_();
+  const payerMobile=String(data.PayerMobile||data.Mobile||'').trim();
+  const payerEmail=String(data.PayerEmail||data.Email||'').trim();
+  const amount=Number(data.Amount||0).toLocaleString('bn-BD');
+  const studentId=String(data.StudentID||'').trim(),name=String(data.Name||'').trim();
+  const ref=String(data.Reference||'').trim();
+  const subject=status==='PAID'?'অনলাইন পেমেন্ট সফল — '+studentId:'অনলাইন পেমেন্ট অনুরোধ — '+studentId;
+  const statusText=status==='PAID'?'পেমেন্ট অনুমোদিত/সফল হয়েছে।':'পেমেন্ট অনুরোধ গ্রহণ হয়েছে এবং Super Admin অনুমোদনের অপেক্ষায় আছে।';
+  const body='জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা\\n\\n'+statusText+'\\nশিক্ষার্থী: '+name+'\\nStudent ID: '+studentId+'\\nপরিমাণ: '+amount+' টাকা\\nমাধ্যম: '+String(data.Method||'')+'\\nReference: '+ref+'\\nমাস: '+String(data.Month||'')+'\\nখাত: '+String(data.Category||'')+(receiptId?'\\nReceipt ID: '+receiptId:'')+'\\n\\nJannatul Baqi Digital Platform 2026';
+  if(payerEmail)sendOnlinePaymentEmail_(payerEmail,subject,body);
+  if(payerMobile)queueOnlinePaymentSms_(payerMobile,statusText+' Student ID: '+studentId+' | Amount: '+amount+' টাকা'+(receiptId?' | Receipt: '+receiptId:''));
+  targets.admins.forEach(function(a){
+    if(a.email)sendOnlinePaymentEmail_(a.email,'[Super Admin] '+subject,body+'\\n\\nপ্রদানকারী: '+payerMobile+' | '+payerEmail);
+    if(a.mobile)queueOnlinePaymentSms_(a.mobile,'[Super Admin] '+statusText+' Student ID: '+studentId+' | Amount: '+amount+' টাকা'+(receiptId?' | Receipt: '+receiptId:''));
+  });
 }
 function submitOnlinePayment(data,token){
   data=data||{};const id=String(data.StudentID||'').trim(),ref=String(data.Reference||'').trim(),amount=Number(data.Amount||0),method=String(data.Method||'').trim(),mode=String(data.PaymentMode||'PENDING').toUpperCase();
   if(!id||!isFinite(amount)||amount<=0||!method)return {ok:false,message:'Student ID, Amount ও পেমেন্ট মাধ্যম সঠিকভাবে দিন।'};
   if(method!=='হ্যান্ড ক্যাশ'&&!ref)return {ok:false,message:'Transaction / Reference ID দিন।'};
   const st=findBy_(SHEETS.STUDENTS,'StudentID',id);if(!st)return {ok:false,message:'Student ID সঠিক নয়।'};
-  if((mode==='QUICK'||method==='হ্যান্ড ক্যাশ')&&!token)return {ok:false,message:'সরাসরি পেমেন্টের জন্য লগইন সেশন প্রয়োজন।'};
-  if(mode==='QUICK'||method==='হ্যান্ড ক্যাশ'){
+  const payerMobile=String(data.PayerMobile||st.Mobile||st.WhatsApp||'').trim();
+  const payerEmail=String(data.PayerEmail||st.Email||'').trim();
+  if(payerMobile&&st.Mobile&&payerMobile!==String(st.Mobile).trim()&&!token)return {ok:false,message:'ভর্তি সময়ের মোবাইল নম্বরের সাথে মিল নেই।'};
+  if(payerEmail&&st.Email&&payerEmail.toLowerCase()!==String(st.Email).trim().toLowerCase()&&!token)return {ok:false,message:'ভর্তি সময়ের ইমেইলের সাথে মিল নেই।'};
+  data.PayerMobile=payerMobile;data.PayerEmail=payerEmail;data.Name=st.NameBN||st.NameEN||data.Name||'';
+  const sh=ensureOnlinePaymentRequestSheet_(),vals=sh.getDataRange().getValues(),hh=vals[0].map(String),ri=hh.indexOf('Reference'),si=hh.indexOf('Status');
+  if(ref){for(let i=1;i<vals.length;i++){if(String(vals[i][ri]||'').trim()===ref&&['PENDING','APPROVED'].includes(String(vals[i][si]||'').toUpperCase()))return {ok:false,message:'এই Transaction / Reference ID আগে ব্যবহার হয়েছে।'};}}
+  if(token && (mode==='QUICK'||method==='হ্যান্ড ক্যাশ')){
     try{
-      const pay=saveRecord(token,SHEETS.PAYMENTS,{StudentID:id,Name:st.NameBN||st.NameEN||data.Name||'',Month:String(data.Month||'').trim(),Category:String(data.Category||'').trim(),Amount:amount,Method:method,Reference:ref,Date:now_(),Note:String(data.Note||'').trim()});
+      const pay=saveRecord(token,SHEETS.PAYMENTS,{StudentID:id,Name:data.Name,Month:String(data.Month||'').trim(),Category:String(data.Category||'').trim(),Amount:amount,Method:method,Reference:ref,Date:now_(),Note:String(data.Note||'').trim()});
       if(!pay||!pay.ok)return {ok:false,message:(pay&&pay.message)||'PAYMENTS-এ সরাসরি সংরক্ষণ ব্যর্থ।'};
-      const receiptId='RCT-OP-'+Date.now(),receiptData={ReceiptID:receiptId,StudentID:id,Name:st.NameBN||st.NameEN||data.Name||'',Month:String(data.Month||'').trim(),Category:String(data.Category||'').trim(),Amount:amount,Method:method,Reference:ref,Date:now_(),PaymentID:pay.paymentId||''};
+      const receiptId='RCT-OP-'+Date.now(),receiptData={ReceiptID:receiptId,StudentID:id,Name:data.Name,Month:String(data.Month||'').trim(),Category:String(data.Category||'').trim(),Amount:amount,Method:method,Reference:ref,Date:now_(),PaymentID:pay.paymentId||''};
       const rsh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.RECEIPTS);append_(SHEETS.RECEIPTS,[nextSerial_(rsh),receiptId,id,'ONLINE_PAYMENT',amount,now_(),JSON.stringify(receiptData)]);
       log_(sessionUser_(token)||'','quick-pay','ONLINE_PAYMENT',id+' / '+amount+' / '+method+' / '+receiptId);
+      notifyOnlinePayment_(data,'PAID',receiptId);
       return {ok:true,status:'PAID',receiptId:receiptId,receipt:receiptData,message:method==='হ্যান্ড ক্যাশ'?'হ্যান্ড ক্যাশ পেমেন্ট সরাসরি গ্রহণ করা হয়েছে এবং রসিদ তৈরি হয়েছে।':'দ্রুত পেমেন্ট সরাসরি PAYMENTS-এ সংরক্ষণ হয়েছে এবং রসিদ তৈরি হয়েছে।'};
     }catch(e){return {ok:false,message:'সরাসরি পেমেন্টে সার্ভার ত্রুটি: '+(e&&e.message?e.message:e)};}
   }
-  const sh=ensureOnlinePaymentRequestSheet_(),vals=sh.getDataRange().getValues(),hh=vals[0].map(String),ri=hh.indexOf('Reference'),si=hh.indexOf('Status');
-  if(ref){for(let i=1;i<vals.length;i++){if(String(vals[i][ri]||'').trim()===ref&&['PENDING','APPROVED'].includes(String(vals[i][si]||'').toUpperCase()))return {ok:false,message:'এই Transaction / Reference ID আগে ব্যবহার হয়েছে।'};}}
   const req='OPR-'+Utilities.formatDate(new Date(),APP.timezone||'Asia/Dhaka','yyyyMMddHHmmss')+'-'+Math.floor(Math.random()*900+100),now=now_();
-  sh.appendRow([nextSerial_(sh),req,id,st.NameBN||st.NameEN||'',st.Class||'',String(data.Month||'').trim(),String(data.Category||'').trim(),amount,method,ref,String(data.PayerMobile||st.Mobile||'').trim(),String(data.Note||'').trim(),'PENDING',now,'','','','',now,mode]);
+  sh.appendRow([nextSerial_(sh),req,id,data.Name,st.Class||'',String(data.Month||'').trim(),String(data.Category||'').trim(),amount,method,ref,payerMobile,payerEmail,String(data.Note||'').trim(),'PENDING',now,'','','','',now,mode]);
+  notifyOnlinePayment_(data,'PENDING','');
   log_('ONLINE','submit','ONLINE_PAYMENT',req+' / '+id+' / '+amount+' / '+mode);
-  return {ok:true,requestId:req,status:'PENDING',message:'পেমেন্ট Pending-এ সংরক্ষণ হয়েছে — Super Admin অনুমোদনের অপেক্ষায়।'};
+  return {ok:true,requestId:req,status:'PENDING',message:'পেমেন্ট গ্রহণ হয়েছে। আপনার ভর্তি-সময়কার মোবাইল ও ইমেইলে তথ্য পাঠানো হয়েছে এবং Super Admin-কে জানানো হয়েছে। অনুমোদনের পর পেমেন্ট সম্পন্ন হবে।'};
 }
 function getPendingOnlinePayments(token){
   if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin এই তালিকা দেখতে পারবেন।'};
@@ -1541,7 +1609,7 @@ function approveOnlinePayment(token,requestId){
   append_(SHEETS.RECEIPTS,[nextSerial_(SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.RECEIPTS)),receiptId,row.StudentID,'ONLINE_PAYMENT',Number(row.Amount||0),now_(),JSON.stringify(receiptData)]);
   const user=sessionUser_(token)||'';const now=now_();
   sh.getRange(rowNo,h.indexOf('Status')+1).setValue('APPROVED');sh.getRange(rowNo,h.indexOf('ApprovedBy')+1).setValue(user);sh.getRange(rowNo,h.indexOf('ApprovedAt')+1).setValue(now);sh.getRange(rowNo,h.indexOf('ReceiptID')+1).setValue(receiptId);
-  const mobile=String(row.PayerMobile||student.Mobile||student.WhatsApp||'').trim();if(mobile){const msg='আপনার '+Number(row.Amount||0).toLocaleString('bn-BD')+' টাকার অনলাইন পেমেন্ট অনুমোদিত হয়েছে। Receipt: '+receiptId;append_(SHEETS.SMS_QUEUE,[nextSerial_(SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.SMS_QUEUE)),'SMS-'+Date.now(),mobile,msg,'QUEUED','', '',now]);}
+  notifyOnlinePayment_({StudentID:row.StudentID,Name:row.Name,Amount:Number(row.Amount||0),Method:row.Method,Reference:row.Reference,Month:row.Month,Category:row.Category,PayerMobile:row.PayerMobile,PayerEmail:row.PayerEmail},'PAID',receiptId);
   log_(user,'approve','ONLINE_PAYMENT',requestId+' / '+receiptId);
   return {ok:true,receiptId:receiptId,receipt:receiptData,message:'পেমেন্ট অনুমোদিত এবং রসিদ তৈরি হয়েছে।'};
 }
@@ -1555,7 +1623,18 @@ function rejectOnlinePayment(token,requestId,reason){
   const now=now_();sh.getRange(rowNo,h.indexOf('Status')+1).setValue('REJECTED');sh.getRange(rowNo,h.indexOf('ApprovedBy')+1).setValue(sessionUser_(token)||'');sh.getRange(rowNo,h.indexOf('ApprovedAt')+1).setValue(now);sh.getRange(rowNo,h.indexOf('FailureReason')+1).setValue(String(reason||'যাচাই হয়নি'));
   log_(sessionUser_(token)||'','reject','ONLINE_PAYMENT',requestId+' / '+String(reason||''));return {ok:true,message:'Payment rejected.'};
 }
-function getOnlinePaymentManagerData(token){
+function buildPublicOnlinePaymentHtml_(){
+  const esc=function(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');};
+  const months=['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+  const monthOpts=months.map(function(x){return '<option>'+x+'</option>';}).join('');
+  return '<!doctype html><html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>অনলাইন পেমেন্ট</title><style>'+
+  'body{margin:0;background:#f4f1e8;color:#171717;font-family:Arial,"Noto Sans Bengali",sans-serif}.card{width:min(850px,94vw);margin:4vh auto;background:#fff;border:4px solid #8b5e00;border-radius:18px;padding:22px;box-sizing:border-box;box-shadow:0 12px 35px #0003}.brand{text-align:center;font-weight:900;font-size:23px;border-bottom:2px solid #222;padding-bottom:12px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:16px}.grid label{font-weight:800}.grid input,.grid select,.grid textarea{width:100%;box-sizing:border-box;padding:11px;border:2px solid #555;border-radius:9px;margin-top:5px}.full{grid-column:1/-1}.info{margin-top:10px;padding:10px;border:2px solid #b8860b;border-radius:10px;background:#fffbe8}.btn{margin-top:15px;width:100%;padding:13px;border:2px solid #222;border-radius:12px;background:#111;color:#fff;font-weight:900;font-size:17px;cursor:pointer}.msg{margin-top:12px;padding:12px;border-radius:10px;font-weight:800;text-align:center}@media(max-width:650px){.grid{grid-template-columns:1fr}}'+
+  '</style></head><body><div class="card"><div class="brand">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা<br><span style="font-size:16px">🌐 অনলাইন পেমেন্ট</span></div>'+
+  '<div class="grid"><label>Student ID<input id="sid" autocomplete="off" onblur="lookup()"></label><label>শিক্ষার্থীর নাম<input id="name" readonly></label><label>শ্রেণি/জামাত<input id="cls" readonly></label><label>ভর্তি সময়ের মোবাইল<input id="mobile" readonly></label><label>ভর্তি সময়ের ইমেইল<input id="email" readonly></label><label>মাস<select id="month">'+monthOpts+'</select></label><label>Category<select id="cat"><option>মাসিক বেতন</option><option>ভর্তি ফি</option><option>পরীক্ষার ফি</option><option>অন্যান্য</option></select></label><label>Amount<input id="amount" type="number" min="1"></label><label>মাধ্যম<select id="method"><option>bKash</option><option>Nagad</option><option>mCash</option><option>Rocket</option><option>ব্যাংকিং</option></select></label><label>Transaction / Reference ID<input id="ref"></label><label class="full">Note<textarea id="note" rows="3"></textarea></label></div>'+
+  '<div id="info" class="info">Student ID দিলে ভর্তি সময়ের মোবাইল ও ইমেইল যাচাই করে স্বয়ংক্রিয়ভাবে দেখানো হবে।</div><button class="btn" onclick="submitPayment()">📤 পেমেন্ট অনুরোধ পাঠান</button><div id="msg" class="msg" style="display:none"></div>'+
+  '<p style="text-align:center;font-size:13px;color:#555">বর্তমানে Payment Gateway সংযুক্ত নয়। অনুরোধ সরাসরি ইমেইলে পাঠানো হবে। Gateway সংযুক্ত হলে একই পেমেন্ট ফর্ম থেকে Gateway ব্যবহার করা যাবে।</p></div>'+
+  '<script>function g(id){return document.getElementById(id)}function show(t,ok){var m=g("msg");m.style.display="block";m.style.background=ok?"#e8f5e9":"#ffebee";m.textContent=t}function lookup(){var id=(g("sid").value||"").trim();if(!id)return;g("info").textContent="⏳ তথ্য খোঁজা হচ্ছে...";google.script.run.withSuccessHandler(function(r){if(!r||!r.ok){show((r&&r.message)||"Student পাওয়া যায়নি।",false);return}g("name").value=r.student.NameBN||r.student.NameEN||"";g("cls").value=r.student.Class||"";g("mobile").value=r.student.Mobile||r.student.WhatsApp||"";g("email").value=r.student.Email||"";g("info").textContent="✅ ভর্তি সময়ের মোবাইল ও ইমেইল পাওয়া গেছে। এই ঠিকানাতেই পেমেন্টের তথ্য যাবে।"}).withFailureHandler(function(e){show("সার্ভার ত্রুটি: "+(e&&e.message||e),false)}).getOnlinePaymentStudent(id)}function submitPayment(){var d={StudentID:(g("sid").value||"").trim(),Name:g("name").value,Month:g("month").value,Category:g("cat").value,Amount:Number(g("amount").value),Method:g("method").value,Reference:(g("ref").value||"").trim(),PayerMobile:g("mobile").value,PayerEmail:g("email").value,Note:g("note").value,PaymentMode:"PENDING"};if(!d.StudentID||!d.Amount||d.Amount<=0){show("Student ID ও সঠিক Amount দিন।",false);return}if(!d.Reference){show("Transaction / Reference ID দিন।",false);return}show("⏳ পেমেন্ট অনুরোধ পাঠানো হচ্ছে...",true);google.script.run.withSuccessHandler(function(r){show((r&&r.message)||"অনুরোধ সম্পন্ন হয়েছে।",!!(r&&r.ok));if(r&&r.ok){g("amount").value="";g("ref").value="";g("note").value=""}}).withFailureHandler(function(e){show("সার্ভার ত্রুটি: "+(e&&e.message||e),false)}).submitOnlinePayment(d)}</script></body></html>';
+}function getOnlinePaymentManagerData(token){
   try{
     if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin এই পেমেন্ট ম্যানেজমেন্ট দেখতে পারবেন।'};
     const ss=SpreadsheetApp.getActiveSpreadsheet();
