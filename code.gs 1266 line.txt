@@ -17,7 +17,7 @@ const APP = {
   email1: 'hmsumon789@gmail.com',
   email2: 'jannatubakymrs@gmail.com',
   timezone: Session.getScriptTimeZone() || 'Asia/Dhaka',
-  otpMinutes: 5
+  otpMinutes: 10
 };
 
 const SHEETS = {
@@ -255,9 +255,11 @@ function requestOtp(username) {
   const row=findBy_(SHEETS.ADMINS,'Username',String(username||'').trim());
   if(!row) return {ok:false,message:'ইউজার নেম পাওয়া যায়নি।'};
   const otp=generateOtp_(), expires=new Date(Date.now()+APP.otpMinutes*60000);
-  append_(SHEETS.OTP_LOG,[null,now_(),username,'EMAIL',hash_(otp),expires,'RESENT']);
+  const otpHash=hash_(otp), token=Utilities.getUuid();
+  append_(SHEETS.OTP_LOG,[null,now_(),username,'EMAIL',otpHash,expires,'RESENT']);
   sendOtpEmail_(row.Email||APP.email1,otp,username);
-  return {ok:true,message:'নতুন OTP পাঠানো হয়েছে।'};
+  CacheService.getScriptCache().put('OTP:'+token,JSON.stringify({username:String(username||'').trim(),otpHash:otpHash,expires:expires.getTime()}),APP.otpMinutes*60);
+  return {ok:true,requiresOtp:true,token:String(token),message:'নতুন OTP পাঠানো হয়েছে।',emailMask:maskEmail_(row.Email||APP.email1)};
 }
 
 
