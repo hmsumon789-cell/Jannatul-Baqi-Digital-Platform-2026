@@ -1476,7 +1476,7 @@ function downloadCurrentForm(){
   window.openExamRoutine2026=function(){openWindow('jbExamRoutineWin2026');render()};
   window.examComing=window.examComing||function(n){if(String(n).indexOf('প্রশ্নপত্র')>-1){openWindow('jbQuestionPaperWin2026');return}if(String(n).indexOf('পরীক্ষার রুটিন')>-1){openWindow('jbExamRoutineWin2026');render();return}toast(n+' মডিউল পরবর্তী ধাপে যুক্ত হবে।')};
   var oldComing=window.examComing;
-  window.examComing=function(n){if(String(n).indexOf('পরীক্ষার রুটিন')>-1){openWindow('jbExamRoutineWin2026');render();return}return oldComing(n)};
+  window.examComing=function(n){var s=String(n||'');if(s.indexOf('পরীক্ষার্থী')>-1){if(typeof window.openModule==='function'){window.openModule('exam');}return}if(s.indexOf('পরীক্ষার রুটিন')>-1){openWindow('jbExamRoutineWin2026');render();return}return oldComing(n)};
 })();
 </script>
 <!-- ===== END EXAM ROUTINE MODULE 2026 ===== -->
