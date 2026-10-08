@@ -1401,7 +1401,80 @@ function downloadCurrentForm(){
     span.style.padding='3px';
     el.replaceWith(span);
   });
-  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title></head><body><h2>'+($('winTitle').textContent||'ফর্ম')+'</h2>'+body.innerHTML+'</body></html>';
+  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title></head><body><h2>'+($('winTitle').textContent||'ফর্ম')+'</h2>'+body.innerHTML+'<!-- ===== DOCUMENT CARD BUTTONS + MARKSHEET SIGNATURE POSITION — 2026-10-08 ===== -->
+<style id="jb-doc-buttons-signatures-final-2026-10-08">
+/* সব মার্কশিট/কার্ডের নিচের action button এক লাইনে ছোট */
+#jbDocBuilderWin .jb-doc-preview > .jb-doc-actions{
+  left:5mm!important;
+  right:5mm!important;
+  bottom:5mm!important;
+  gap:4px!important;
+  flex-wrap:nowrap!important;
+}
+#jbDocBuilderWin .jb-doc-preview > .jb-doc-actions button{
+  height:34px!important;
+  min-height:34px!important;
+  min-width:0!important;
+  padding:3px 8px!important;
+  font-size:11px!important;
+  line-height:1!important;
+  white-space:nowrap!important;
+  border-radius:999px!important;
+}
+#jbDocBuilderWin .jb-doc-preview > .jb-doc-actions .jb-icon-action-2026,
+#jbDocBuilderWin .jb-doc-preview > .jb-doc-actions .jb-marksheet-back-2026{
+  flex:0 0 32px!important;
+  width:32px!important;
+  min-width:32px!important;
+  height:32px!important;
+  min-height:32px!important;
+  font-size:17px!important;
+}
+#jbDocBuilderWin .jb-doc-preview > .jb-doc-actions .jb-pill-action-2026,
+#jbDocBuilderWin .jb-doc-preview > .jb-doc-actions .jb-online-service-save-2026{
+  flex:1 1 0!important;
+  height:34px!important;
+  min-height:34px!important;
+  padding:3px 7px!important;
+  font-size:10.5px!important;
+}
+
+/* মার্কশিটের শ্রেণি শিক্ষক + প্রধান শিক্ষিকা + মুহতামিম লাইন নিচ থেকে 1 ইঞ্চি */
+#jbDocBuilderWin .jb-doc-preview .jb-marksheet-signatures-2026{
+  position:absolute!important;
+  left:6mm!important;
+  right:6mm!important;
+  bottom:25.4mm!important;
+  z-index:18!important;
+  display:flex!important;
+  justify-content:space-between!important;
+  align-items:center!important;
+  margin:0!important;
+  font-size:8.5px!important;
+  line-height:1.2!important;
+  text-align:center!important;
+}
+#jbDocBuilderWin .jb-doc-preview .jb-marksheet-signatures-2026 span{
+  flex:1 1 0!important;
+}
+@media(max-width:900px){
+  #jbDocBuilderWin .jb-doc-preview > .jb-doc-actions{gap:3px!important}
+  #jbDocBuilderWin .jb-doc-preview > .jb-doc-actions button{font-size:9.5px!important;padding:3px 5px!important}
+  #jbDocBuilderWin .jb-doc-preview > .jb-doc-actions .jb-icon-action-2026,
+  #jbDocBuilderWin .jb-doc-preview > .jb-doc-actions .jb-marksheet-back-2026{
+    flex-basis:28px!important;width:28px!important;min-width:28px!important;height:28px!important;min-height:28px!important;font-size:15px!important;
+  }
+  #jbDocBuilderWin .jb-doc-preview > .jb-doc-actions .jb-pill-action-2026,
+  #jbDocBuilderWin .jb-doc-preview > .jb-doc-actions .jb-online-service-save-2026{
+    height:30px!important;min-height:30px!important;font-size:9px!important;padding:2px 4px!important;
+  }
+}
+@media print{
+  #jbDocBuilderWin .jb-doc-preview > .jb-doc-actions{display:none!important}
+}
+</style>
+<!-- ===== END DOCUMENT CARD BUTTONS + MARKSHEET SIGNATURE POSITION ===== -->
+</body></html>';
   var blob=new Blob([html],{type:'text/html;charset=utf-8'});
   var url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url;a.download=title+'.html';document.body.appendChild(a);a.click();a.remove();
@@ -9525,7 +9598,7 @@ var sidv=(document.getElementById('jbDocId')?.value||fv('StudentID')||'').trim()
 var p=document.createElement('div');p.className='jb-doc-preview a4';p.style.cssText='width:210mm;height:297mm;box-sizing:border-box;background:#fff;color:#111;border:4px solid #8b5e00;padding:6mm;position:relative;overflow:hidden;font-family:"Noto Sans Bengali","Noto Sans",Arial,sans-serif';
 var rows='';for(var i=0;i<12;i++){var x=data[i]||{};rows+='<tr><td style="width:70%;padding:3px 6px;border:1px solid #222;text-align:left;font-weight:800;height:20px">'+esc(x.subject||'')+'</td><td style="width:30%;padding:3px 6px;border:1px solid #222;text-align:center;font-weight:900;height:20px">'+(x.marks===''?'':esc(x.marks))+'</td></tr>'}
 var info='<div style="border:1.5px solid #222;padding:4px;margin-bottom:5px;font-size:9.5px"><div style="font-weight:900;text-align:center;margin-bottom:3px;font-size:11px">শিক্ষার্থীর তথ্য</div><table style="width:100%;border-collapse:collapse"><tbody><tr><td style="border:1px solid #555;padding:3px"><b>নাম:</b> '+esc(namebn)+'</td><td style="border:1px solid #555;padding:3px"><b>স্টুডেন্ট ID:</b> '+esc(sidv)+'</td><td style="border:1px solid #555;padding:3px"><b>রোল:</b> '+esc(roll)+'</td></tr><tr><td style="border:1px solid #555;padding:3px"><b>আরবি নাম:</b> '+esc(namear)+'</td><td style="border:1px solid #555;padding:3px"><b>ইংরেজি নাম:</b> '+esc(nameen)+'</td><td style="border:1px solid #555;padding:3px"><b>জন্ম তারিখ:</b> '+esc(dob)+'</td></tr><tr><td style="border:1px solid #555;padding:3px"><b>পিতার নাম:</b> '+esc(father)+'</td><td style="border:1px solid #555;padding:3px"><b>মাতার নাম:</b> '+esc(mother)+'</td><td style="border:1px solid #555;padding:3px"><b>মোবাইল:</b> '+esc(mobile)+'</td></tr><tr><td colspan="2" style="border:1px solid #555;padding:3px"><b>ঠিকানা:</b> '+esc(address)+'</td><td style="border:1px solid #555;padding:3px"><b>শ্রেণি/জামাত:</b> '+esc(c)+'</td></tr></tbody></table></div>';
-p.innerHTML='<div style="text-align:center;border-bottom:2px solid #222;padding-bottom:4px;margin-bottom:5px"><h2 style="margin:1px;font-size:18px">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</h2><p style="margin:1px;font-size:9.5px">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</p><h3 style="margin:2px;font-size:15px">নম্বর পত্র</h3><div style="font-size:9.5px;font-weight:800">পরীক্ষা: '+esc(exam)+' &nbsp; | &nbsp; শ্রেণি/জামাত: '+esc(c)+'</div></div>'+info+'<table style="width:100%;border-collapse:collapse;font-size:10.5px"><thead><tr><th style="width:70%;padding:3px;border:1px solid #111;background:#eee;text-align:left">বিষয়</th><th style="width:30%;padding:3px;border:1px solid #111;background:#eee">নম্বর</th></tr></thead><tbody>'+rows+'</tbody></table><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:5px;font-size:9.5px;text-align:center"><div style="border:1px solid #222;padding:3px"><b>মোট নম্বর</b><br><span style="font-size:13px;font-weight:900">'+total+'</span></div><div style="border:1px solid #222;padding:3px"><b>গড় নম্বর</b><br><span style="font-size:13px;font-weight:900">'+avg.toFixed(2)+'</span></div><div style="border:1px solid #222;padding:3px"><b>GPA</b><br><span style="font-size:13px;font-weight:900">'+gpa+'</span></div><div style="border:1px solid #222;padding:3px"><b>গ্রেড</b><br><span style="font-size:13px;font-weight:900">'+grade+'</span></div></div><div style="border:2px solid #222;margin-top:5px;padding:4px;text-align:center;font-size:10.5px"><b>সত্যিকারের মেধা স্থান:</b> <span style="font-size:14px;font-weight:900">'+esc(rankLabel)+'</span></div><div style="display:flex;justify-content:space-between;margin-top:9px;font-size:8.5px"><span>শ্রেণি শিক্ষক/শিক্ষিকা</span><span>প্রধান শিক্ষিকা</span><span>প্রিন্সিপাল/মুহতামিম</span></div>';
+p.innerHTML='<div style="text-align:center;border-bottom:2px solid #222;padding-bottom:4px;margin-bottom:5px"><h2 style="margin:1px;font-size:18px">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</h2><p style="margin:1px;font-size:9.5px">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</p><h3 style="margin:2px;font-size:15px">নম্বর পত্র</h3><div style="font-size:9.5px;font-weight:800">পরীক্ষা: '+esc(exam)+' &nbsp; | &nbsp; শ্রেণি/জামাত: '+esc(c)+'</div></div>'+info+'<table style="width:100%;border-collapse:collapse;font-size:10.5px"><thead><tr><th style="width:70%;padding:3px;border:1px solid #111;background:#eee;text-align:left">বিষয়</th><th style="width:30%;padding:3px;border:1px solid #111;background:#eee">নম্বর</th></tr></thead><tbody>'+rows+'</tbody></table><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:5px;font-size:9.5px;text-align:center"><div style="border:1px solid #222;padding:3px"><b>মোট নম্বর</b><br><span style="font-size:13px;font-weight:900">'+total+'</span></div><div style="border:1px solid #222;padding:3px"><b>গড় নম্বর</b><br><span style="font-size:13px;font-weight:900">'+avg.toFixed(2)+'</span></div><div style="border:1px solid #222;padding:3px"><b>GPA</b><br><span style="font-size:13px;font-weight:900">'+gpa+'</span></div><div style="border:1px solid #222;padding:3px"><b>গ্রেড</b><br><span style="font-size:13px;font-weight:900">'+grade+'</span></div></div><div style="border:2px solid #222;margin-top:5px;padding:4px;text-align:center;font-size:10.5px"><b>সত্যিকারের মেধা স্থান:</b> <span style="font-size:14px;font-weight:900">'+esc(rankLabel)+'</span></div><div class="jb-marksheet-signatures-2026"><span>শ্রেণি শিক্ষক/শিক্ষিকা</span><span>প্রধান শিক্ষিকা</span><span>প্রিন্সিপাল/মুহতামিম</span></div>';
 var wrap=document.getElementById('jbDocPreviewWrap');if(!wrap)return;wrap.innerHTML='';var bar=document.createElement('div');bar.className='jb-doc-actions';bar.innerHTML='<button class="secondary" onclick="jbEditPreview()">✏️ এডিট</button><button class="secondary" onclick="jbSaveDraft()">💾 সেভ + History</button><button class="secondary" onclick="jbShowHistory()">📚 History</button><button class="secondary" onclick="jbDownload()">⬇️ ডাউনলোড</button><button class="primary" onclick="jbPrint()">🖨️ প্রিন্ট</button>';p.appendChild(bar);wrap.appendChild(p)}
   function label(k){var m={StudentID:'ID',NameBN:'নাম',NameAR:'আরবি নাম',NameEN:'ইংরেজি নাম',FatherNameBN:'পিতা',FatherNameAR:'পিতা — আরবি',FatherNameEN:'পিতা — English',MotherNameBN:'মাতা',MotherNameAR:'মাতা — আরবি',MotherNameEN:'মাতা — English',DOB:'জন্ম তারিখ',Mobile:'মোবাইল',WhatsApp:'WhatsApp',Email:'ইমেইল',Address:'ঠিকানা',Division:'বিভাগ',District:'জেলা',Upazila:'উপজেলা',Union:'ইউনিয়ন',Post:'ডাকঘর',PostCode:'পোস্ট কোড',Ward:'ওয়ার্ড',Village:'গ্রাম',Class:'শ্রেণি/জামাত',Department:'বিভাগ/ডিপার্টমেন্ট',Branch:'শাখা',Roll:'রোল',BirthReg:'জন্ম নিবন্ধন',NID:'NID',Exam:'পরীক্ষা',ExamYear:'পরীক্ষা সাল',Photo:'ছবি'};return m[k]||k}
   function editPreview(){document.querySelectorAll('#jbDocPreviewWrap .jb-doc-preview [contenteditable]').forEach(function(x){x.style.outline='2px dashed #1976d2';x.focus()});toast('✏️ প্রিভিউ Edit mode চালু হয়েছে।')}
