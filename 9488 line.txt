@@ -864,6 +864,12 @@ body.gold #loginPage .main-qr-802268e{background:#fff!important;border-color:#11
 <style id="marksheet-signature-exact-2inch-2026-10-08">
 #jbDocBuilderWin .jb-doc-preview.a4 .jb-marksheet-signatures-2026{position:absolute!important;left:8mm!important;right:8mm!important;bottom:50.8mm!important;display:flex!important;justify-content:space-between!important;align-items:flex-end!important;margin:0!important;font-size:8.5px!important;line-height:1.2!important}
 </style>
+
+<style id="login-app-switch-safe-final-2026-10-08">
+/* OTP সফল হলে Login Page সম্পূর্ণ লুকিয়ে Dashboard-কে একমাত্র দৃশ্যমান রাখে */
+#loginPage.jb-login-hidden-2026{display:none!important;visibility:hidden!important;pointer-events:none!important;height:0!important;min-height:0!important;overflow:hidden!important}
+#app.jb-dashboard-visible-2026{display:block!important;visibility:visible!important}
+</style>
 </head>
 <body>
 <div id="welcomeScreen">
@@ -1112,8 +1118,7 @@ async function login(){  const u=$('username')?.value.trim()||'', p=$('password'
     if(!r.requiresOtp){
       token=r.token;currentUser=r.user||{};
       $('otpArea').classList.remove('show');
-      $('loginPage').style.display='none';
-      $('app').classList.add('show');
+      $('loginPage').classList.add('jb-login-hidden-2026');$('app').classList.add('show','jb-dashboard-visible-2026');
       await loadApp();
       return;
     }
@@ -1127,7 +1132,7 @@ async function login(){  const u=$('username')?.value.trim()||'', p=$('password'
     if(btn){btn.disabled=false;btn.textContent=btn.dataset.oldText||'লগইন';}
   }
 } 
-async function verifyOtp(){const code=[...document.querySelectorAll('.otp-box')].map(x=>x.value).join('');if(code.length!==6)return toast('৬ সংখ্যার OTP দিন।');const r=await call('verifyLoginOtp',otpToken,$('username').value.trim(),code);if(!r.ok)return toast(r.message);token=r.token;currentUser=r.user;$('loginPage').style.display='none';$('app').classList.add('show');await loadApp()}
+async function verifyOtp(){const code=[...document.querySelectorAll('.otp-box')].map(x=>x.value).join('');if(code.length!==6)return toast('৬ সংখ্যার OTP দিন।');const r=await call('verifyLoginOtp',otpToken,$('username').value.trim(),code);if(!r.ok)return toast(r.message);token=r.token;currentUser=r.user;$('loginPage').classList.add('jb-login-hidden-2026');$('app').classList.add('show','jb-dashboard-visible-2026');await loadApp()}
 async function resendOtp(){const r=await call('requestOtp',$('username').value.trim());if(r&&r.ok&&r.token){otpToken=r.token;$('otpArea').classList.add('show');$('otpMsg').textContent=(r.message||'নতুন OTP পাঠানো হয়েছে।')+' '+(r.emailMask||'');clearOtp();return}toast((r&&r.message)||'নতুন OTP পাঠানো যায়নি।')}
 function clearOtp(){document.querySelectorAll('.otp-box').forEach(x=>x.value='');$('otpBoxes').firstElementChild.focus()}
 async function resetOtp(){const r=await call('requestOtp',$('resetUser').value.trim());toast(r.message)}
@@ -1972,7 +1977,7 @@ function openApprovedLogin(){openWindow('approvedLoginWin');setApprovedLoginType
 function setApprovedLoginType(type){approvedLoginType=type==='madrasa'?'madrasa':'admin';var a=$('approvedAdminTab'),m=$('approvedMadrasaTab'),b=$('approvedLoginBtn'),msg=$('approvedLoginMsg');if(a)a.className=approvedLoginType==='admin'?'primary':'secondary';if(m)m.className=approvedLoginType==='madrasa'?'primary':'secondary';if(b)b.textContent=approvedLoginType==='admin'?'🔐 Admin Login':'🔐 Madrasa Login';if(msg)msg.textContent='';}
 function toggleApprovedPassword(){var x=$('approvedLoginPass');if(x)x.type=x.type==='password'?'text':'password'}
 function applyMadrasaBranding(){if(approvedLoginType!=='madrasa'||!currentUser)return;var name=currentUser.Name||currentUser.name||'মাদ্রাসা';var logo=currentUser.Photo||'';var bn=document.querySelector('#app .header-content .title-bn'),ar=document.querySelector('#app .header-content .title-ar'),en=document.querySelector('#app .header-content .title-en'),addr=document.querySelector('#app .header-address-line'),hot=document.querySelector('#app .header-hotline-email-line'),img=document.getElementById('headerLogo');if(bn)bn.textContent=name;if(ar)ar.textContent='';if(en)en.textContent='';if(addr&&currentUser.Address)addr.textContent='ঠিকানা: '+currentUser.Address;if(hot)hot.textContent='মোবাইল: '+(currentUser.Mobile||'')+' · ইমেইল: '+(currentUser.Email||'');if(img&&logo){img.src=logo;img.alt=name+' Logo';}}
-async function approvedLoginSubmit(){var u=$('approvedLoginUser').value.trim(),p=$('approvedLoginPass').value;if(!u||!p){$('approvedLoginMsg').textContent='Username ও Password দিন।';return;}var btn=$('approvedLoginBtn');btn.disabled=true;btn.textContent='⏳ লগইন হচ্ছে...';try{var fn=approvedLoginType==='madrasa'?'loginMadrasa':'loginNewAdmin';var r=await call(fn,u,p);if(!r||!r.ok){$('approvedLoginMsg').textContent=(r&&r.message)||'লগইন ব্যর্থ হয়েছে।';return;}token=r.token;currentUser=r.user||{};closeWindow('approvedLoginWin');$('loginPage').style.display='none';$('app').classList.add('show');await loadApp();applyMadrasaBranding();toast('✅ লগইন সফল হয়েছে।');}catch(e){$('approvedLoginMsg').textContent='সার্ভার ত্রুটি: '+(e&&e.message?e.message:e)}finally{btn.disabled=false;btn.textContent=approvedLoginType==='admin'?'🔐 Admin Login':'🔐 Madrasa Login'}}
+async function approvedLoginSubmit(){var u=$('approvedLoginUser').value.trim(),p=$('approvedLoginPass').value;if(!u||!p){$('approvedLoginMsg').textContent='Username ও Password দিন।';return;}var btn=$('approvedLoginBtn');btn.disabled=true;btn.textContent='⏳ লগইন হচ্ছে...';try{var fn=approvedLoginType==='madrasa'?'loginMadrasa':'loginNewAdmin';var r=await call(fn,u,p);if(!r||!r.ok){$('approvedLoginMsg').textContent=(r&&r.message)||'লগইন ব্যর্থ হয়েছে।';return;}token=r.token;currentUser=r.user||{};closeWindow('approvedLoginWin');$('loginPage').classList.add('jb-login-hidden-2026');$('app').classList.add('show','jb-dashboard-visible-2026');await loadApp();applyMadrasaBranding();toast('✅ লগইন সফল হয়েছে।');}catch(e){$('approvedLoginMsg').textContent='সার্ভার ত্রুটি: '+(e&&e.message?e.message:e)}finally{btn.disabled=false;btn.textContent=approvedLoginType==='admin'?'🔐 Admin Login':'🔐 Madrasa Login'}}
 </script>
 <script id="account-approval-manager-js">
 (function(){
