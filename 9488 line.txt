@@ -1407,7 +1407,26 @@ function downloadCurrentForm(){
     span.style.padding='3px';
     el.replaceWith(span);
   });
-  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title></head><body><h2>'+($('winTitle').textContent||'ফর্ম')+'</h2>'+body.innerHTML+'</body></html>';
+  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title></head><body><h2>'+($('winTitle').textContent||'ফর্ম')+'</h2>'+body.innerHTML+'<script id="jb-exam-dashboard-button-fix-2026-10-08">
+(function(){
+  function openExamDashboardFixed(){
+    var w=document.getElementById('examDashboardWin');
+    if(!w)return;
+    if(typeof window.openWindow==='function') window.openWindow('examDashboardWin');
+    else w.style.display='block';
+    if(typeof window.renderExamStats==='function') window.renderExamStats();
+  }
+  window.openExamDashboard=openExamDashboardFixed;
+  function bind(){
+    var b=document.getElementById('jbExamDashboardEntry2026');
+    if(b)b.onclick=openExamDashboardFixed;
+  }
+  bind();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);
+  setInterval(bind,1000);
+})();
+</script>
+</body></html>';
   var blob=new Blob([html],{type:'text/html;charset=utf-8'});
   var url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url;a.download=title+'.html';document.body.appendChild(a);a.click();a.remove();
