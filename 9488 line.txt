@@ -12304,7 +12304,7 @@ function jbQpClear(){['jbQpExam','jbQpClass','jbQpSubject','jbQpDate','jbQpMarks
   }
   function selected(){return rows().filter(function(x){var e=document.querySelector('[data-jb-sms-check="'+CSS.escape(String(x.source)+'|'+String(x.id))+'"]');return e&&e.checked})}
   window.jbSmsFilter2026=function(){renderRows()};
-  window.jbSmsToggleVisible2026=function(on){filtered().forEach(function(x){var e=document.querySelector('[data-jb-sms-check="'+CSS.escape(String(x.source)+'|'+String(x.id))+'"]');if(e)e.checked=on});updateCount()};
+  window.jbSmsToggleVisible2026=function(on){filtered().forEach(function(x){x.__selected=!!on;var e=document.querySelector('[data-jb-sms-check="'+CSS.escape(String(x.source)+'|'+String(x.id))+'"]');if(e)e.checked=!!on});updateCount()};
   window.jbSmsSelectAll2026=function(){rows().forEach(function(x){x.__selected=true});renderRows(true)};
   window.jbSmsClear2026=function(){rows().forEach(function(x){x.__selected=false});renderRows()};
   function keyOf(x){return String(x.source)+'|'+String(x.id)}
