@@ -11609,7 +11609,8 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     var b=document.createElement('button');b.id='jbLoginOnlineService2026';b.type='button';
     b.textContent='🌐 অনলাইন সেবা ঘরে বসেই গ্রহন করুন';
     b.onclick=function(){var u=location.href.split('#')[0].split('?')[0];window.open(u+'?online=1','_blank')};
-    lp.appendChild(b);
+    var loginActions=lp.querySelector('.actions');
+    if(loginActions)loginActions.insertAdjacentElement('afterend',b);else lp.appendChild(b);
   }
   function scan(){addOnlineButton();addLoginButton()}
   scan();
