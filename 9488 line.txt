@@ -852,29 +852,9 @@ body.gold #loginPage .main-qr-802268e{background:#fff!important;border-color:#11
  setTimeout(loadLoginMainQR802268e,1600);
 })();
 </script>
-<style id="exam-dashboard-2026-only">
-#examDashboardWin2026{width:min(1180px,96vw);height:min(88vh,820px);z-index:1000200}
-#examDashboardWin2026 .win-body{padding:14px;background:var(--bg)}
-.exam-db-head{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:12px}
-.exam-db-stat{border:3px solid var(--border);border-radius:14px;background:var(--panel);padding:12px;text-align:center}
-.exam-db-stat b{display:block;font-size:25px;font-weight:1000}
-.exam-db-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
-.exam-db-card{min-height:108px;border:3px solid var(--border);border-radius:16px;background:var(--panel);color:inherit;padding:12px;text-align:center;cursor:pointer;font-weight:900;box-shadow:var(--shadow)}
-.exam-db-card .ico{font-size:30px;display:block;margin-bottom:5px}
-.exam-db-card:hover{transform:translateY(-2px)}
-.exam-db-list{margin-top:14px;border:3px solid var(--border);border-radius:14px;background:var(--panel);padding:12px}
-.exam-db-list-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
-.exam-db-row{display:grid;grid-template-columns:1.4fr .8fr .8fr .8fr auto;gap:8px;align-items:center;border-top:1px solid #9996;padding:8px 0}
-.exam-db-empty{text-align:center;padding:18px;font-weight:800}
-.exam-form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
-.exam-form-grid label{font-weight:800}
-.exam-form-grid .full{grid-column:1/-1}
-.exam-form-grid input,.exam-form-grid select,.exam-form-grid textarea{width:100%;margin-top:4px}
-.exam-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px;flex-wrap:wrap}
-@media(max-width:850px){.exam-db-head{grid-template-columns:1fr 1fr}.exam-db-grid{grid-template-columns:1fr 1fr}.exam-db-row{grid-template-columns:1fr 1fr}.exam-form-grid{grid-template-columns:1fr 1fr}}
-@media(max-width:520px){.exam-db-grid,.exam-form-grid,.exam-db-head{grid-template-columns:1fr}.exam-db-row{grid-template-columns:1fr}}
-body.dark #examDashboardWin2026 .exam-db-stat,body.dark #examDashboardWin2026 .exam-db-card,body.dark #examDashboardWin2026 .exam-db-list{background:#000;border-color:#ff1f2f;color:#ffe95c}
-</style></head>
+
+<style id="exam-dashboard-2026-10-08">.exam-dashboard-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}.exam-dashboard-card{padding:14px;border:3px solid var(--border);border-radius:14px;background:var(--panel);color:var(--text);font-weight:900;text-align:center;min-height:92px}.exam-dashboard-card b{display:block;font-size:25px;margin-bottom:5px}.exam-dashboard-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}.exam-dashboard-actions button{min-height:58px;font-weight:900}.exam-form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.exam-form-grid label{display:flex;flex-direction:column;gap:4px;font-weight:800}.exam-form-grid .full{grid-column:1/-1}.exam-list{margin-top:12px}.exam-list table{width:100%;border-collapse:collapse}.exam-list th,.exam-list td{border:1px solid var(--border);padding:7px;text-align:center}.exam-empty{text-align:center;padding:18px;border:2px dashed var(--border);margin-top:10px}@media(max-width:900px){.exam-dashboard-grid{grid-template-columns:repeat(2,1fr)}.exam-dashboard-actions{grid-template-columns:1fr 1fr}.exam-form-grid{grid-template-columns:1fr}}@media(max-width:560px){.exam-dashboard-grid,.exam-dashboard-actions{grid-template-columns:1fr}}</style>
+</head>
 <body>
 <div id="welcomeScreen">
   <div id="welcomeOrbit">
@@ -998,11 +978,10 @@ body.dark #examDashboardWin2026 .exam-db-stat,body.dark #examDashboardWin2026 .e
           <option value="">সকল ফিচার তালিকা</option>
         </select>
         <button id="allListsButton2026" class="primary" type="button">📋 তালিকা</button>
-        <button id="examDashboardBtn2026" class="primary" type="button" onclick="openExamDashboard2026()">📝 পরীক্ষা ড্যাশবোর্ড</button>
       </div>
       <h2>প্রশাসনিক ড্যাশবোর্ড</h2>
       <div class="dashboard-title-right">
-        <button id="accountManagerBtn" class="primary" style="display:none" onclick="openAccountManager()">🔐 Account অনুমোদন</button>
+        <button id="accountManagerBtn" class="primary" style="display:none" onclick="openAccountManager()">🔐 Account অনুমোদন</button><button class="primary" type="button" onclick="openExamDashboard()">📝 পরীক্ষা ড্যাশবোর্ড</button>
         <select class="field dashboard-lang" id="appLang" onchange="setLang(this.value)">
           <option value="bn">বাংলা</option>
           <option value="ar">العربية</option>
@@ -1081,7 +1060,7 @@ body.dark #examDashboardWin2026 .exam-db-stat,body.dark #examDashboardWin2026 .e
 <div id="adminHelpWin" class="window"><div class="win-head"><b>প্রশাসনিক বিভাগ কর্তৃক অনুমোদিত অ্যাডমিন</b><button class="secondary" type="button" onclick="closeWindow('adminHelpWin')">✕</button></div><div class="win-body"><p>অনুমোদিত অ্যাডমিন নিজস্ব ইউজার নেম ও পাসওয়ার্ড দিয়ে প্রবেশ করবেন।</p><button class="primary" type="button" onclick="closeWindow('adminHelpWin');document.getElementById('username').focus()">লগইন করুন</button></div></div>
 <div id="approvedLoginWin" class="window approved-login-window"><div class="win-head"><b>🔐 অনুমোদিত Account Login</b><button class="secondary" type="button" onclick="closeWindow('approvedLoginWin')">✕</button></div><div class="win-body"><div class="approved-login-note">Super Admin কর্তৃক অনুমোদিত <b>নতুন Admin</b> অথবা <b>নতুন Madrasa</b> Account এখানে Username + Password দিয়ে OTP ছাড়া লগইন করবে।</div><div class="approved-login-tabs"><button id="approvedAdminTab" class="primary" type="button" onclick="setApprovedLoginType('admin')">👤 নতুন Admin</button><button id="approvedMadrasaTab" class="secondary" type="button" onclick="setApprovedLoginType('madrasa')">🏫 নতুন Madrasa</button></div><label>Username<input id="approvedLoginUser" class="field" autocomplete="username" placeholder="নিজস্ব Username"></label><label>Password<div class="pass-wrap"><input id="approvedLoginPass" class="field" type="password" autocomplete="current-password" placeholder="নিজস্ব Password"><button class="eye" type="button" onclick="toggleApprovedPassword()">👁</button></div></label><div class="approved-login-actions"><button class="primary" type="button" id="approvedLoginBtn" onclick="approvedLoginSubmit()">🔐 Admin Login</button><button class="secondary" type="button" onclick="closeWindow('approvedLoginWin')">বন্ধ করুন</button></div><div id="approvedLoginMsg" class="small"></div></div></div>
 <div id="resetWin" class="window"><div class="win-head"><b>Password Reset</b><button class="secondary" onclick="closeWindow('resetWin')">✕</button></div><div class="win-body"><p>ইউজার নেম দিন এবং OTP পুনরায় পাঠান। নতুন পাসওয়ার্ড পরিবর্তনের জন্য প্রশাসনিক অনুমোদন প্রয়োজন।</p><input id="resetUser" class="field" placeholder="Username"><button class="primary" onclick="resetOtp()">OTP পাঠান</button></div></div>
-<div id="sheetWin" class="window"><div class="win-head"><b>শিট ডাটা</b><button class="secondary" onclick="closeWindow('sheetWin')">✕</button></div><div class="win-body"><select id="sheetSelect" class="field" onchange="loadSheet()"></select><div id="sheetBody"></div></div></div>
+<div id="sheetWin" class="window"><div class="win-head"><b>শিট ডাটা</b><button class="secondary" onclick="closeWindow('sheetWin')">✕</button></div><div class="win-body"><select id="sheetSelect" class="field" onchange="loadSheet()"></select><div id="sheetBody"></div></div></div><div id="examDashboardWin" class="window" style="width:min(1150px,96vw)"><div class="win-head"><b>📝 পরীক্ষা ড্যাশবোর্ড</b><button class="secondary" onclick="closeWindow('examDashboardWin')">✕</button></div><div class="win-body"><div class="exam-dashboard-grid"><div class="exam-dashboard-card"><b id="examDashCount">0</b>পরীক্ষা</div><div class="exam-dashboard-card"><b id="examDashPublished">0</b>প্রকাশিত ফলাফল</div><div class="exam-dashboard-card"><b>১৪</b>শ্রেণি/জামাত</div><div class="exam-dashboard-card"><b id="examDashDraft">0</b>খসড়া পরীক্ষা</div></div><div class="exam-dashboard-actions"><button class="primary" onclick="openExamManager()">➕ পরীক্ষা তৈরি/ব্যবস্থাপনা</button><button class="secondary" onclick="toast('প্রশ্নপত্র মডিউল পরবর্তী ধাপে চালু হবে।')">📄 প্রশ্নপত্র</button><button class="secondary" onclick="toast('রুটিন মডিউল পরবর্তী ধাপে চালু হবে।')">📅 পরীক্ষার রুটিন</button><button class="secondary" onclick="toast('পরীক্ষার্থী মডিউল পরবর্তী ধাপে চালু হবে।')">👩‍🎓 পরীক্ষার্থী</button><button class="secondary" onclick="toast('নম্বর প্রদান মডিউল পরবর্তী ধাপে চালু হবে।')">✍️ নম্বর প্রদান</button><button class="secondary" onclick="toast('ফলাফল ও মেধাক্রম মডিউল পরবর্তী ধাপে চালু হবে।')">🏆 ফলাফল ও মেধাক্রম</button><button class="secondary" onclick="toast('অনলাইন/মোবাইল ফলাফল পরবর্তী ধাপে চালু হবে।')">📱 অনলাইন ফলাফল</button><button class="secondary" onclick="toast('Admit Card / Seat Plan পরবর্তী ধাপে চালু হবে।')">🎫 Admit Card / Seat Plan</button><button class="secondary" onclick="toast('মার্কশিট / রিপোর্ট পরবর্তী ধাপে চালু হবে।')">🖨️ মার্কশিট / রিপোর্ট</button></div><div id="examDashboardList"></div></div></div><div id="examManagerWin" class="window" style="width:min(1050px,96vw)"><div class="win-head"><b>➕ পরীক্ষা তৈরি / ব্যবস্থাপনা</b><button class="secondary" onclick="closeWindow('examManagerWin')">✕</button></div><div class="win-body"><div class="exam-form-grid"><label>পরীক্ষার নাম<input id="examNameNew" class="field" placeholder="যেমন: অর্ধবার্ষিক পরীক্ষা ২০২৬"></label><label>শিক্ষাবর্ষ<input id="examYearNew" class="field" value="২০২৬"></label><label>পরীক্ষার ধরন<select id="examTypeNew" class="field"><option>সাময়িক পরীক্ষা</option><option>অর্ধবার্ষিক পরীক্ষা</option><option>বার্ষিক পরীক্ষা</option><option>মডেল টেস্ট</option><option>বোর্ড/কেন্দ্রীয় পরীক্ষা</option></select></label><label>শুরু তারিখ<input id="examStartNew" class="field" type="date"></label><label>শেষ তারিখ<input id="examEndNew" class="field" type="date"></label><label>ফলাফল প্রকাশ<select id="examPublishNew" class="field"><option value="NO">প্রকাশ নয়</option><option value="YES">প্রকাশযোগ্য</option></select></label><label class="full">নোট / নির্দেশনা<textarea id="examNoteNew" class="field" rows="3"></textarea></label></div><div class="form-action-bar"><button class="primary" onclick="saveExamDraft()">💾 সংরক্ষণ</button><button class="secondary" onclick="clearExamDraftForm()">🧹 ক্লিয়ার</button><button class="secondary" onclick="closeWindow('examManagerWin')">বন্ধ করুন</button></div><div id="examManagerList" class="exam-list"></div></div></div>
 <div id="toast" class="toast"></div>
 
 <script>
@@ -1417,89 +1396,16 @@ function downloadCurrentForm(){
     span.style.padding='3px';
     el.replaceWith(span);
   });
-  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title></head><body><h2>'+($('winTitle').textContent||'ফর্ম')+'</h2>'+body.innerHTML+'<script id="exam-dashboard-2026-only-js">
-(function(){
-  const KEY='jannatulBaqiExamDrafts2026';
-  const CLASSES=['প্লে শ্রেনি','শিশু শ্রেনি','আউয়াল জামাত','ছানী জামাত','ছালেছ জামাত','রাবে জামাত','পঞ্চম জামাত','মিজান জামাত','নাহবেমীর জামাত','কুদুরী জামাত','শরহে বেকায়া জামাত','হেদায়া জামাত','মিশকাত জামাত','দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)'];
-  function esc(s){return String(s??'').replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]})}
-  function getExams(){try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){return[]}}
-  function setExams(a){localStorage.setItem(KEY,JSON.stringify(a||[]))}
-  window.openExamDashboard2026=function(){
-    let w=document.getElementById('examDashboardWin2026');
-    if(!w){
-      w=document.createElement('div');w.id='examDashboardWin2026';w.className='window';
-      w.innerHTML='<div class="win-head"><b>📝 পরীক্ষা ড্যাশবোর্ড</b><button class="secondary" type="button" onclick="closeWindow(\'examDashboardWin2026\')">✕</button></div><div class="win-body" id="examDashboardBody2026"></div>';
-      document.body.appendChild(w);
-    }
-    renderExamDashboard2026();
-    openWindow('examDashboardWin2026');
-    setTimeout(function(){if(typeof dragWindow==='function')dragWindow(w)},50);
-  };
-  window.renderExamDashboard2026=function(){
-    const a=getExams(), active=a.filter(x=>x.status!=='সম্পন্ন').length, published=a.filter(x=>x.published).length;
-    const b=document.getElementById('examDashboardBody2026');if(!b)return;
-    b.innerHTML='<div class="exam-db-head">'+
-      '<div class="exam-db-stat"><b>'+a.length+'</b>মোট পরীক্ষা</div>'+
-      '<div class="exam-db-stat"><b>'+active+'</b>চলমান/প্রস্তুত</div>'+
-      '<div class="exam-db-stat"><b>'+published+'</b>ফলাফল প্রকাশিত</div>'+
-      '<div class="exam-db-stat"><b>'+a.filter(x=>x.questionPaper).length+'</b>প্রশ্নপত্র প্রস্তুত</div>'+
-    '</div>'+
-    '<div class="exam-db-grid">'+
-      examCard('➕','নতুন পরীক্ষা','পরীক্ষা তৈরি/ব্যবস্থাপনা','examNew')+
-      examCard('📝','প্রশ্নপত্র','প্রশ্নপত্র তৈরি, সংরক্ষণ ও প্রিন্ট','questionPaper')+
-      examCard('📅','রুটিন','শ্রেণি/জামাতভিত্তিক পরীক্ষার রুটিন','routine')+
-      examCard('👨‍🎓','পরীক্ষার্থী','পরীক্ষায় অংশগ্রহণকারী তালিকা','candidates')+
-      examCard('✍️','নম্বর প্রদান','বিষয়ভিত্তিক নম্বর ইনপুট','marks')+
-      examCard('📊','ফলাফল তৈরি','মোট, গড়, গ্রেড ও GPA','result')+
-      examCard('🏆','মেধাক্রম','১ম, ২য়, ৩য়... স্বয়ংক্রিয় মেধাক্রম','merit')+
-      examCard('📢','ফলাফল প্রকাশ','প্রকাশ/অপ্রকাশ নিয়ন্ত্রণ','publish')+
-      examCard('📱','মোবাইল ফলাফল','অনলাইন ফলাফল দেখার ব্যবস্থা','onlineResult')+
-      examCard('🪪','Admit Card','পরীক্ষার প্রবেশপত্র','admit')+
-      examCard('🪑','Seat Plan','রোল অনুযায়ী আসন বিন্যাস','seat')+
-      examCard('📋','মার্কশিট','ফলাফল মার্কশিট ও A4 প্রিন্ট','marksheet')+
-    '</div>'+
-    '<div class="exam-db-list"><div class="exam-db-list-head"><b>📚 পরীক্ষার তালিকা</b><button class="primary" type="button" onclick="openExamSetup2026()">➕ নতুন পরীক্ষা</button></div>'+
-      (a.length?a.map(examRow).join(''):'<div class="exam-db-empty">এখনও কোনো পরীক্ষা তৈরি করা হয়নি। প্রথমে “নতুন পরীক্ষা” নির্বাচন করুন।</div>')+
-    '</div>';
-  };
-  function examCard(i,t,d,k){return '<button class="exam-db-card" type="button" onclick="examAction2026(\''+k+'\')"><span class="ico">'+i+'</span>'+esc(t)+'<small>'+esc(d)+'</small></button>'}
-  function examRow(x,i){return '<div class="exam-db-row"><b>'+esc(x.name)+'</b><span>'+esc(x.year)+'</span><span>'+esc(x.start||'—')+'</span><span>'+esc(x.status||'প্রস্তুতি')+'</span><span><button class="secondary" type="button" onclick="openExamSetup2026('+i+')">✏️</button></span></div>'}
-  window.openExamSetup2026=function(index){
-    const a=getExams(),x=a[index]||{name:'',year:new Date().getFullYear(),type:'বার্ষিক পরীক্ষা',start:'',end:'',className:CLASSES[0],status:'প্রস্তুতি',questionPaper:false,published:false,notes:''};
-    let w=document.getElementById('examSetupWin2026');
-    if(!w){w=document.createElement('div');w.id='examSetupWin2026';w.className='window';w.style.cssText='width:min(920px,96vw);height:min(82vh,720px);z-index:1000300;';w.innerHTML='<div class="win-head"><b>➕ পরীক্ষা তৈরি/ব্যবস্থাপনা</b><button class="secondary" type="button" onclick="closeWindow(\'examSetupWin2026\')">✕</button></div><div class="win-body" id="examSetupBody2026"></div>';document.body.appendChild(w)}
-    document.getElementById('examSetupBody2026').innerHTML='<div class="exam-form-grid">'+
-      '<label>পরীক্ষার নাম<input id="exName2026" class="field" value="'+esc(x.name)+'" placeholder="যেমন: বার্ষিক পরীক্ষা ২০২৬"></label>'+
-      '<label>শিক্ষাবর্ষ<input id="exYear2026" class="field" value="'+esc(x.year)+'" type="number"></label>'+
-      '<label>পরীক্ষার ধরন<select id="exType2026" class="field">'+['অর্ধবার্ষিক পরীক্ষা','বার্ষিক পরীক্ষা','মাসিক পরীক্ষা','নির্বাচনী পরীক্ষা','মডেল টেস্ট','অন্যান্য'].map(v=>'<option '+(v===x.type?'selected':'')+'>'+v+'</option>').join('')+'</select></label>'+
-      '<label>শুরু<input id="exStart2026" class="field" value="'+esc(x.start)+'" type="date"></label>'+
-      '<label>শেষ<input id="exEnd2026" class="field" value="'+esc(x.end)+'" type="date"></label>'+
-      '<label>প্রধান শ্রেণি/জামাত<select id="exClass2026" class="field">'+CLASSES.map(v=>'<option '+(v===x.className?'selected':'')+'>'+v+'</option>').join('')+'</select></label>'+
-      '<label>ফলাফল প্রকাশ<select id="exPub2026" class="field"><option value="0" '+(!x.published?'selected':'')+'>অপ্রকাশিত</option><option value="1" '+(x.published?'selected':'')+'>প্রকাশিত</option></select></label>'+
-      '<label>অবস্থা<select id="exStatus2026" class="field">'+['প্রস্তুতি','চলমান','সম্পন্ন'].map(v=>'<option '+(v===x.status?'selected':'')+'>'+v+'</option>').join('')+'</select></label>'+
-      '<label class="full">নোট<textarea id="exNotes2026" class="field" placeholder="পরীক্ষা সংক্রান্ত অতিরিক্ত তথ্য">'+esc(x.notes)+'</textarea></label>'+
-    '</div><div class="exam-actions"><button class="primary" type="button" onclick="saveExamSetup2026('+((index==null)?'-1':index)+')">💾 পরীক্ষা সংরক্ষণ</button><button class="secondary" type="button" onclick="closeWindow(\'examSetupWin2026\')">বাতিল</button></div>';
-    openWindow('examSetupWin2026');setTimeout(function(){if(typeof dragWindow==='function')dragWindow(w)},50);
-  };
-  window.saveExamSetup2026=function(index){
-    const a=getExams(),x={name:document.getElementById('exName2026').value.trim(),year:document.getElementById('exYear2026').value,type:document.getElementById('exType2026').value,start:document.getElementById('exStart2026').value,end:document.getElementById('exEnd2026').value,className:document.getElementById('exClass2026').value,published:document.getElementById('exPub2026').value==='1',status:document.getElementById('exStatus2026').value,notes:document.getElementById('exNotes2026').value.trim(),questionPaper:false};
-    if(!x.name)return toast('পরীক্ষার নাম দিন।');
-    if(index>=0)a[index]=Object.assign(a[index]||{},x);else a.push(x);
-    setExams(a);closeWindow('examSetupWin2026');renderExamDashboard2026();toast('পরীক্ষার তথ্য সংরক্ষণ হয়েছে।');
-  };
-  window.examAction2026=function(k){
-    if(k==='examNew'){openExamSetup2026();return}
-    const map={questionPaper:'প্রশ্নপত্র',routine:'রুটিন',candidates:'পরীক্ষার্থী',marks:'নম্বর প্রদান',result:'ফলাফল তৈরি',merit:'মেধাক্রম',publish:'ফলাফল প্রকাশ',onlineResult:'মোবাইল ফলাফল',admit:'Admit Card',seat:'Seat Plan',marksheet:'মার্কশিট'};
-    toast(map[k]+' অংশটি পরবর্তী ধাপে এই পরীক্ষা ড্যাশবোর্ডের মধ্যেই সক্রিয় করা হবে।');
-  };
-})();
-</script></body></html>';
+  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title></head><body><h2>'+($('winTitle').textContent||'ফর্ম')+'</h2>'+body.innerHTML+'</body></html>';
   var blob=new Blob([html],{type:'text/html;charset=utf-8'});
   var url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url;a.download=title+'.html';document.body.appendChild(a);a.click();a.remove();
   setTimeout(function(){URL.revokeObjectURL(url);},1000);
   toast('ফর্ম ডাউনলোড করা হয়েছে');
 }
+
+/* ===== EXAM DASHBOARD — ONLY EXAM WORK ===== */
+const EXAM_DRAFT_KEY='jb_exam_dashboard_drafts_2026';function examDrafts(){try{return JSON.parse(localStorage.getItem(EXAM_DRAFT_KEY)||'[]')}catch(e){return[]}}function setExamDrafts(a){localStorage.setItem(EXAM_DRAFT_KEY,JSON.stringify(a||[]))}function openExamDashboard(){renderExamDashboard();openWindow('examDashboardWin')}function openExamManager(){renderExamManager();openWindow('examManagerWin')}function renderExamDashboard(){const a=examDrafts();$('examDashCount').textContent=a.length;$('examDashPublished').textContent=a.filter(x=>x.publish==='YES').length;$('examDashDraft').textContent=a.filter(x=>x.publish!=='YES').length;const box=$('examDashboardList');box.innerHTML=a.length?a.slice().reverse().map(x=>'<div class="card" style="padding:9px;margin:6px 0"><b>'+escExam(x.name)+'</b> — '+escExam(x.type)+' — '+escExam(x.year)+' — '+escExam(x.start||'')+' → '+escExam(x.end||'')+'</div>').join(''):'<div class="exam-empty">এখনও কোনো পরীক্ষা তৈরি হয়নি।</div>'}function renderExamManager(){const a=examDrafts(),box=$('examManagerList');box.innerHTML=a.length?'<table><thead><tr><th>পরীক্ষা</th><th>শিক্ষাবর্ষ</th><th>ধরন</th><th>সময়</th><th>অবস্থা</th><th>অ্যাকশন</th></tr></thead><tbody>'+a.slice().reverse().map(x=>'<tr><td>'+escExam(x.name)+'</td><td>'+escExam(x.year)+'</td><td>'+escExam(x.type)+'</td><td>'+escExam(x.start||'')+' → '+escExam(x.end||'')+'</td><td>'+(x.publish==='YES'?'প্রকাশযোগ্য':'খসড়া')+'</td><td><button class="secondary" onclick="deleteExamDraft('+JSON.stringify(x.id)+')">🗑</button></td></tr>').join('')+'</tbody></table>':'<div class="exam-empty">কোনো পরীক্ষা নেই।</div>'}function escExam(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}function clearExamDraftForm(){['examNameNew','examStartNew','examEndNew','examNoteNew'].forEach(id=>{if($(id))$(id).value=''});if($('examYearNew'))$('examYearNew').value='২০২৬';if($('examTypeNew'))$('examTypeNew').selectedIndex=0;if($('examPublishNew'))$('examPublishNew').value='NO'}function saveExamDraft(){const name=$('examNameNew').value.trim(),year=$('examYearNew').value.trim(),type=$('examTypeNew').value,start=$('examStartNew').value,end=$('examEndNew').value,publish=$('examPublishNew').value,note=$('examNoteNew').value.trim();if(!name)return toast('পরীক্ষার নাম দিন।');if(start&&end&&end<start)return toast('শেষ তারিখ শুরুর তারিখের আগে হতে পারবে না।');const a=examDrafts();a.push({id:'EX-'+Date.now(),name,year,type,start,end,publish,note,createdAt:new Date().toISOString()});setExamDrafts(a);clearExamDraftForm();renderExamManager();renderExamDashboard();toast('পরীক্ষা সংরক্ষণ হয়েছে।')}function deleteExamDraft(id){setExamDrafts(examDrafts().filter(x=>x.id!==id));renderExamManager();renderExamDashboard();toast('পরীক্ষাটি মুছে ফেলা হয়েছে।')}
 function goHome(){window.scrollTo({top:0,behavior:'smooth'})}
 function setMode(m){document.body.classList.remove('dark','gold');if(m==='dark')document.body.classList.add('dark');if(m==='gold')document.body.classList.add('gold');localStorage.mode=m}
 function setLang(l){localStorage.lang=l;document.documentElement.dir=l==='ar'?'rtl':'ltr'}
