@@ -510,6 +510,13 @@ function searchAll(token,signal,query) {
       });
     }
   }
+  /* Exact ID matches always appear before partial matches, especially for auto-generated document drafts. */
+  const idFields=['StudentID','TeacherID','DonorID','MemberID','PersonID','DocumentID','CardID','AdmitID','CertificateID','ResultID','ReceiptID','ExamRegID','ID'];
+  matches.sort(function(a,b){
+    const exactA=idFields.some(function(k){return String(a[k]??'').trim().toLowerCase()===q;});
+    const exactB=idFields.some(function(k){return String(b[k]??'').trim().toLowerCase()===q;});
+    return exactA===exactB?0:(exactA?-1:1);
+  });
   matches=matches.slice(0,100);
   return {ok:true,signal,query,matches,count:matches.length};
 }
