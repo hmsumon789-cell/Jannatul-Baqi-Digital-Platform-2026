@@ -12692,3 +12692,44 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 })();
 </script>
 <!-- ===== END SEARCH ID PRESERVE + PERSON DOCUMENT HISTORY ACCESS ===== -->
+
+
+<!-- ===== FINAL UNIFIED ID SEARCH: KEEP ID WHEN SIGNAL CHANGES + ENTER TO SEARCH — 2026-10-09 ===== -->
+<script id="final-unified-id-search-2026-10-09">
+(function(){
+  function getSignal(where){return document.getElementById(where==='login'?'loginSignal':'appSignal');}
+  function getQuery(where){return document.getElementById(where==='login'?'loginSearch':'appSearch');}
+  window.syncSearchSignal=function(where){
+    var sig=getSignal(where),q=getQuery(where);
+    if(!q)return;
+    /* Keep the one entered ID unchanged when only the signal/type changes. */
+    var code=sig?String(sig.value||'').trim():'';
+    q.placeholder=code?code+' — একই ID দিয়ে Enter চাপুন':'সংকেত নির্বাচন করে একই ID লিখুন';
+  };
+  function bind(){
+    ['login','app'].forEach(function(where){
+      var sig=getSignal(where),q=getQuery(where);
+      if(sig&&!sig.dataset.unifiedIdSearchBound){
+        sig.dataset.unifiedIdSearchBound='1';
+        sig.addEventListener('change',function(){window.syncSearchSignal(where);});
+      }
+      if(q&&!q.dataset.unifiedIdSearchBound){
+        q.dataset.unifiedIdSearchBound='1';
+        q.dataset.oldPlaceholder=q.placeholder||'';
+        q.addEventListener('keydown',function(ev){
+          if(ev.key==='Enter'){
+            ev.preventDefault();
+            ev.stopPropagation();
+            if(typeof window.doSearch==='function')window.doSearch(where);
+          }
+        },true);
+      }
+      window.syncSearchSignal(where);
+    });
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);
+  else bind();
+  setTimeout(bind,300);
+  setTimeout(bind,1000);
+})();
+</script>
