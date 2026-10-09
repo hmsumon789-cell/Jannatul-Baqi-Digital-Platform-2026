@@ -956,3 +956,79 @@ function getDashboardPeriodStats(token, period) {
     rangeEnd:Utilities.formatDate(end,tz,'yyyy-MM-dd')
   };
 }
+
+
+// ===== FINANCE ENTRY API — FIX SAVE INCOME/EXPENSE 2026-10-09 =====
+function saveFinanceEntry(token, data) {
+  try {
+    auth_(token);
+    requireFeature_(token, 'finance');
+    data = data || {};
+    const type = String(data.Type || 'INCOME').trim().toUpperCase();
+    const category = String(data.Category || '').trim();
+    const amount = Number(data.Amount || 0);
+    const date = String(data.Date || Utilities.formatDate(new Date(), APP.timezone, 'yyyy-MM-dd'));
+    const method = String(data.Method || 'হ্যান্ড ক্যাশ').trim();
+    const note = String(data.Note || '').trim();
+    if (type !== 'INCOME' && type !== 'EXPENSE') return {ok:false, message:'আয়/ব্যয়ের ধরন সঠিক নয়।'};
+    if (!category) return {ok:false, message:'আয়ের/ব্যয়ের খাত নির্বাচন করুন।'};
+    if (!isFinite(amount) || amount <= 0) return {ok:false, message:'সঠিক পরিমাণ দিন।'};
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return {ok:false, message:'তারিখ সঠিক নয়।'};
+
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheetName = type === 'INCOME' ? SHEETS.PAYMENTS : SHEETS.EXPENSES;
+    const headers = HEADERS[sheetName];
+    const sh = ss.getSheetByName(sheetName) || ensureSheet_(ss, sheetName, headers);
+    const record = {};
+    if (type === 'INCOME') {
+      record.PaymentID = 'INC-' + Date.now();
+      record.StudentID = '';
+      record.Name = '';
+      record.Month = '';
+      record.Category = category;
+      record.Amount = amount;
+      record.Method = method;
+      record.Reference = '';
+      record.Date = date;
+      record.Note = note;
+    } else {
+      record.ExpenseID = 'EXP-' + Date.now();
+      record.Category = category;
+      record.Amount = amount;
+      record.Method = method;
+      record.Date = date;
+      record.Note = note;
+    }
+    const row = headers.map(h => record[h] == null ? '' : record[h]);
+    row[0] = nextSerial_(sh);
+    if (headers.includes('CreatedAt')) row[headers.indexOf('CreatedAt')] = now_();
+    sh.appendRow(row);
+    SpreadsheetApp.flush();
+    log_(sessionUser_(token), 'create', sheetName, type + ' | ' + category + ' | ' + amount);
+    return {ok:true, message:type === 'INCOME' ? 'আয় সফলভাবে সংরক্ষণ হয়েছে।' : 'ব্যয় সফলভাবে সংরক্ষণ হয়েছে.'};
+  } catch (e) {
+    return {ok:false, message:'আয়/ব্যয় সংরক্ষণে সার্ভার ত্রুটি: ' + String(e && e.message ? e.message : e)};
+  }
+}
+
+function getFinanceRecords(token) {
+  try {
+    auth_(token);
+    requireFeature_(token, 'finance');
+    const income = listRows_(SHEETS.PAYMENTS, token, 5000).map(function(r) {
+      r.Type = 'INCOME';
+      return r;
+    });
+    const expense = listRows_(SHEETS.EXPENSES, token, 5000).map(function(r) {
+      r.Type = 'EXPENSE';
+      return r;
+    });
+    const rows = income.concat(expense).sort(function(a,b) {
+      return String(b.Date || '').localeCompare(String(a.Date || ''));
+    });
+    return {ok:true, rows:rows};
+  } catch (e) {
+    return {ok:false, message:'আয়/ব্যয়ের তালিকা লোডে সার্ভার ত্রুটি: ' + String(e && e.message ? e.message : e), rows:[]};
+  }
+}
+// ===== END FINANCE ENTRY API =====
