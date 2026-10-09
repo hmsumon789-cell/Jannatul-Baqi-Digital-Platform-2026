@@ -12870,12 +12870,40 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 (function(){
   function e(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
   function role(){var u=window.currentUser||{};return String(u.Role||u.role||'').toUpperCase().replace(/\s+/g,'_')}
-  window.openAccountReview=function(){
-    var r=role();
-    if(r==='SUPER_ADMIN'||r==='SUPERADMIN'){if(typeof toast==='function')toast('প্রাথমিক যাচাই অন্য Admin করবেন; চূড়ান্ত অনুমোদন আপনি দেবেন।');return}
-    if(r!=='ADMIN'&&r!==''){if(typeof toast==='function')toast('প্রাথমিক যাচাইয়ের জন্য Admin অ্যাকাউন্ট প্রয়োজন।');return}
+  window.openAccountReview=async function(){
+    var r=role(),u=window.currentUser||{};
+    if(r==='SUPER_ADMIN'||r==='SUPERADMIN'){if(typeof toast==='function')toast('প্রাথমিক যাচাই অন্য Admin অথবা নতুন Account নিজে করবেন; চূড়ান্ত অনুমোদন আপনি দেবেন।');return}
+    if(r!=='ADMIN'&&r!==''&&u.accountType!=='madrasa'){if(typeof toast==='function')toast('প্রাথমিক যাচাইয়ের জন্য Admin বা নতুন Madrasa Account প্রয়োজন।');return}
     if(typeof openWindow==='function')openWindow('accountReviewWin');else document.getElementById('accountReviewWin').classList.add('show');
-    window.refreshAccountReview();
+    var body=document.getElementById('accountReviewBody');
+    if(body)body.innerHTML='<p>⏳ নিজের Account অবস্থা যাচাই হচ্ছে...</p>';
+    try{
+      var own=await call('getOwnAccountReviewStatus',token);
+      if(!own||!own.ok){if(body)body.innerHTML='<p>'+e((own&&own.message)||'Account অবস্থা পাওয়া যায়নি।')+'</p>';return}
+      if(own.status!=='ACTIVE'){window.renderOwnAccountReview(own);return}
+      await window.refreshAccountReview();
+    }catch(err){if(body)body.innerHTML='<p>সার্ভার ত্রুটি: '+e(err&&err.message||err)+'</p>'}
+  };
+  window.renderOwnAccountReview=function(x){
+    var body=document.getElementById('accountReviewBody');if(!body)return;
+    var sent=String(x.reviewStatus||'').toUpperCase()==='SUBMITTED_TO_SUPER_ADMIN';
+    body.innerHTML='<div class="account-manager-note"><b>নিজের Account তথ্য যাচাই</b><br>নাম, Username, মোবাইল ও ঠিকানা মিলিয়ে দেখুন। সঠিক হলে আবেদন Super Admin-এর কাছে পাঠান। চূড়ান্ত অনুমোদন শুধু Super Admin দেবেন।</div>'+
+      '<div class="account-card pending" style="margin:10px 0;padding:14px"><div class="account-card-head"><b>'+e(x.name||x.username||'Account')+'</b><span>'+e(x.type==='madrasa'?'নতুন মাদ্রাসা':'নতুন Admin')+'</span></div>'+
+      '<div class="account-meta"><b>ID:</b> '+e(x.id||'')+'<br><b>Username:</b> '+e(x.username||'')+'<br><b>মোবাইল:</b> '+e(x.mobile||'')+'<br><b>ঠিকানা:</b> '+e(x.address||'')+'<br><b>অবস্থা:</b> '+e(x.status||'PENDING')+'</div>'+
+      (sent?'<div class="account-card">✅ আবেদন Super Admin-এর কাছে পাঠানো হয়েছে। চূড়ান্ত অনুমোদনের অপেক্ষায় থাকুন।</div>':
+      '<label style="display:block;margin:8px 0">নোট (ঐচ্ছিক)<textarea class="field" id="ownAccountReviewNote" rows="2" style="width:100%" placeholder="যাচাই সংক্রান্ত মন্তব্য"></textarea></label>'+
+      '<label style="display:flex;gap:8px;align-items:flex-start;margin:10px 0"><input id="ownAccountReviewConfirm" type="checkbox" style="margin-top:4px"><span>আমি আমার দেওয়া নাম, পরিচয়, মোবাইল ও ঠিকানা যাচাই করেছি; চূড়ান্ত অনুমোদনের জন্য পাঠাতে সম্মত।</span></label>'+
+      '<button class="primary" type="button" onclick="submitOwnAccountReviewUi()">✓ যাচাই করে Super Admin-এর কাছে পাঠান</button>')+'</div>';
+  };
+  window.submitOwnAccountReviewUi=async function(){
+    var confirmBox=document.getElementById('ownAccountReviewConfirm');
+    if(!confirmBox||!confirmBox.checked){if(typeof toast==='function')toast('আগে নিজের তথ্য যাচাইয়ের সম্মতি দিন।');return}
+    var note=document.getElementById('ownAccountReviewNote');
+    try{
+      var r=await call('submitOwnAccountForApproval',token,note?note.value:'');
+      if(typeof toast==='function')toast((r&&r.message)||'আবেদন পাঠানো যায়নি।');
+      if(r&&r.ok){var own=await call('getOwnAccountReviewStatus',token);if(own&&own.ok)window.renderOwnAccountReview(own)}
+    }catch(err){if(typeof toast==='function')toast('আবেদন পাঠাতে ত্রুটি: '+(err&&err.message||err))}
   };
   window.refreshAccountReview=async function(){
     var body=document.getElementById('accountReviewBody');if(!body)return;
