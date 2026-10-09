@@ -998,6 +998,7 @@ body.gold #loginPage .main-qr-802268e{background:#fff!important;border-color:#11
       <h2>প্রশাসনিক ড্যাশবোর্ড</h2>
       <div class="dashboard-title-right">
         <button id="accountManagerBtn" class="primary" style="display:none" onclick="openAccountManager()">🔐 Account অনুমোদন</button>
+        <button id="accountReviewBtn" class="secondary" type="button" onclick="openAccountReview()">🕵️ প্রাথমিক যাচাই</button>
         <select class="field dashboard-lang" id="appLang" onchange="setLang(this.value)">
           <option value="bn">বাংলা</option>
           <option value="ar">العربية</option>
@@ -1070,6 +1071,7 @@ body.gold #loginPage .main-qr-802268e{background:#fff!important;border-color:#11
 
 <div id="onlinePaymentManagerWin" class="window" style="width:min(1400px,97vw)"><div class="win-head"><b>💳 Online Payment — পেমেন্ট ম্যানেজমেন্ট</b><button class="secondary" type="button" onclick="closeWindow('onlinePaymentManagerWin')">✕</button></div><div class="win-body" id="onlinePaymentManagerBody"></div></div>
 <div id="accountManagerWin" class="window" style="width:min(1100px,96vw)"><div class="win-head"><b>🔐 Super Admin — Account Approval & Permission</b><span><button class="secondary" onclick="refreshAccountManager()">↻</button><button class="secondary" onclick="closeWindow('accountManagerWin')">✕</button></span></div><div class="win-body"></div></div>
+<div id="accountReviewWin" class="window" style="width:min(1000px,96vw)"><div class="win-head"><b>🕵️ Admin — প্রাথমিক যাচাই ও Super Admin-এর কাছে প্রেরণ</b><span><button class="secondary" type="button" onclick="refreshAccountReview()">↻</button><button class="secondary" type="button" onclick="closeWindow('accountReviewWin')">✕</button></span></div><div class="win-body" id="accountReviewBody"></div></div>
 <div id="formWin" class="window"><div class="win-head"><b id="winTitle">ফর্ম</b><div class="win-actions"><button class="secondary" type="button" onclick="minimizeWin()" title="Minimize">—</button><button class="secondary" type="button" onclick="clearFormWindow()" title="Clear">🧹</button><button class="secondary" type="button" onclick="closeWindow('formWin')" title="Close">✕</button></div></div><div class="win-body" id="winBody"></div></div>
 <div id="searchWin" class="window"><div class="win-head"><b>সার্চ প্রোফাইল</b><button class="secondary" onclick="closeWindow('searchWin')">✕</button></div><div class="win-body" id="searchBody"></div></div>
 <div id="quickWin" class="window"><div class="win-head"><b>দ্রুত সেবা / হেল্প</b><button class="secondary" onclick="closeWindow('quickWin')">✕</button></div><div class="win-body"><div class="form-grid"><label>নাম<input id="qName" class="field"></label><label>মোবাইল<input id="qMobile" class="field" placeholder="01XXXXXXXXX" oninput="syncQuickContact()"></label><label>ইমেইল<input id="qEmail" class="field" placeholder="আপনার ইমেইল (রিপ্লাই পাওয়ার জন্য)"></label><label class="full">মেসেজ<textarea id="qMsg" class="field" rows="7" placeholder="আপনার মেসেজ লিখুন..."></textarea></label></div><div class="quick-contact-actions"><button class="primary" onclick="sendQuick()">✉ সুপার অ্যাডমিনকে Send</button><button class="secondary" id="quickWaBtn" onclick="openQuickWhatsApp()">🟢 WhatsApp</button><button class="secondary" id="quickCallBtn" onclick="callQuickMobile()">📞 মোবাইলে কল</button></div><div class="quick-help-note">ইমেইল দিলে সুপার অ্যাডমিন সরাসরি Reply করতে পারবেন। WhatsApp/কল আপনার দেওয়া মোবাইল নম্বরে যাবে।</div></div></div>
@@ -12862,7 +12864,51 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     document.getElementById('jbQpPreview').innerHTML='<div class="jb-em-note"><h2 style="text-align:center">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</h2><h3 style="text-align:center">প্রশ্নপত্র</h3><p>পরীক্ষা: '+E(exam)+' | শ্রেণি: '+E(cl)+' | বিষয়: '+E(sub)+'</p><p>তারিখ: '+E(date)+' | পূর্ণমান: '+E(marks)+' | সময়: '+E(time)+'</p><hr>'+lines.map(function(x,i){return '<p><b>'+(i+1)+'.</b> '+E(x)+'</p>'}).join('')+'</div>';
   };
   window.jbQpClear=function(){['jbQpExam','jbQpClass','jbQpSubject','jbQpDate','jbQpMarks','jbQpTime','jbQpQuestions'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='' });document.getElementById('jbQpPreview').innerHTML='প্রশ্নপত্রের পূর্বরূপ এখানে দেখা যাবে'};
-  window.jbQpPrint=function(){window.jbQpPreview();var x=document.getElementById('jbQpPreview');if(!x||!x.innerHTML)return;var w=window.open('','_blank');if(!w){msg('প্রিন্ট উইন্ডো খুলতে ব্রাউজার popup অনুমতি দিন।');return}w.document.write('<!doctype html><html lang="bn"><meta charset="utf-8"><title>প্রশ্নপত্র</title><style>body{font-family:Arial,sans-serif;padding:18mm}.jb-em-note{border:1px solid #333;padding:12mm}p{line-height:1.7}</style><body>'+x.innerHTML+'</body></html>');w.document.close();setTimeout(function(){w.print()},250)};
+  window.jbQpPrint=function(){window.jbQpPreview();var x=document.getElementById('jbQpPreview');if(!x||!x.innerHTML)return;var w=window.open('','_blank');if(!w){msg('প্রিন্ট উইন্ডো খুলতে ব্রাউজার popup অনুমতি দিন।');return}w.document.write('<!doctype html><html lang="bn"><meta charset="utf-8"><title>প্রশ্নপত্র</title><style>body{font-family:Arial,sans-serif;padding:18mm}.jb-em-note{border:1px solid #333;padding:12mm}p{line-height:1.7}</style><body>'+x.innerHTML+'
+<!-- ===== TWO-STAGE ACCOUNT REVIEW UI — 2026-10-09 ===== -->
+<script id="two-stage-account-review-ui-2026-10-09">
+(function(){
+  function e(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+  function role(){var u=window.currentUser||{};return String(u.Role||u.role||'').toUpperCase().replace(/\\s+/g,'_')}
+  window.openAccountReview=function(){
+    var r=role();
+    if(r==='SUPER_ADMIN'||r==='SUPERADMIN'){if(typeof toast==='function')toast('প্রাথমিক যাচাই অন্য Admin করবেন; চূড়ান্ত অনুমোদন আপনি দেবেন।');return}
+    if(r!=='ADMIN'&&r!==''){if(typeof toast==='function')toast('প্রাথমিক যাচাইয়ের জন্য Admin অ্যাকাউন্ট প্রয়োজন।');return}
+    if(typeof openWindow==='function')openWindow('accountReviewWin');else document.getElementById('accountReviewWin').classList.add('show');
+    window.refreshAccountReview();
+  };
+  window.refreshAccountReview=async function(){
+    var body=document.getElementById('accountReviewBody');if(!body)return;
+    body.innerHTML='<p>⏳ যাচাইয়ের তালিকা লোড হচ্ছে...</p>';
+    try{
+      var r=await call('getAccountReviewQueue',token);
+      if(!r||!r.ok){body.innerHTML='<p>'+e((r&&r.message)||'তালিকা পাওয়া যায়নি।')+'</p>';return}
+      var rows=r.rows||[];
+      body.innerHTML='<div class="account-manager-note">নাম, ঠিকানা, মোবাইল ও নিবন্ধনের তথ্য যাচাই করুন। পাঠানোর পর অ্যাকাউন্ট সক্রিয় হবে না; চূড়ান্ত অনুমোদন শুধু Super Admin দেবেন।</div>'+
+        (rows.length?rows.map(function(x,i){
+          var type=x._type==='admin'?'admin':'madrasa',id=type==='admin'?x.AdminID:x.MadrasaID;
+          var name=type==='admin'?(x.NameBN||x.Name||'Admin'):(x.Name||x.NameBN||'Madrasa');
+          return '<div class="account-card pending" style="margin:10px 0;padding:14px">'+
+            '<div class="account-card-head"><b>'+e(name)+'</b><span>'+e(type==='admin'?'নতুন Admin':'নতুন মাদ্রাসা')+'</span></div>'+
+            '<div class="account-meta"><b>ID:</b> '+e(id)+' &nbsp; <b>Username:</b> '+e(x.Username||'')+'<br><b>মোবাইল:</b> '+e(x.Mobile||'')+'<br><b>ঠিকানা:</b> '+e(x.Address||'')+'<br><b>অবস্থা:</b> '+e(x.Status||'PENDING')+'</div>'+
+            '<label style="display:block;margin:8px 0">যাচাই নোট (ঐচ্ছিক)<textarea class="field" id="accountReviewNote'+i+'" rows="2" style="width:100%" placeholder="তথ্য যাচাইয়ের সংক্ষিপ্ত মন্তব্য"></textarea></label>'+
+            '<button class="primary" type="button" onclick="submitAccountReviewUi('+JSON.stringify(type)+','+JSON.stringify(String(id||''))+','+i+')">✓ যাচাই করে Super Admin-এর কাছে পাঠান</button></div>';
+        }).join(''):'<div class="account-card">প্রাথমিক যাচাইয়ের জন্য নতুন কোনো Account নেই।');
+    }catch(err){body.innerHTML='<p>সার্ভার ত্রুটি: '+e(err&&err.message||err)+'</p>'}
+  };
+  window.submitAccountReviewUi=async function(type,id,index){
+    var note=document.getElementById('accountReviewNote'+index);
+    try{
+      var r=await call('submitAccountReview',token,type,id,note?note.value:'');
+      if(typeof toast==='function')toast((r&&r.message)||'যাচাই পাঠানো যায়নি।');
+      if(r&&r.ok)await window.refreshAccountReview();
+    }catch(err){if(typeof toast==='function')toast('যাচাই পাঠাতে ত্রুটি: '+(err&&err.message||err))}
+  };
+})();
+</script>
+<!-- ===== END TWO-STAGE ACCOUNT REVIEW UI ===== -->
+
+</body></html>');w.document.close();setTimeout(function(){w.print()},250)};
   window.jbEClose=window.jbEClose||function(id){var x=document.getElementById(id);if(x){x.style.display='none';x.classList.remove('show')}};
 })();
 </script>
