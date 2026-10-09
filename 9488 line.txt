@@ -2069,7 +2069,7 @@ window.renderAccountList=function(type){
     var card=document.createElement('div');card.className='account-card '+(String(status).toUpperCase()==='PENDING'?'pending':'');card.dataset.type=x._type;card.dataset.id=String(id||'');
     var head=document.createElement('div');head.className='account-card-head';head.innerHTML='<span>'+escA(name)+'</span><span>Status: <b>'+escA(status)+'</b></span>';card.appendChild(head);
     var meta=document.createElement('div');meta.className='account-meta';
-    [['ID',id],['Username',x.Username||''],['Password',x.Password||''],['Mobile',x.Mobile||''],['Type',_typeLabel(x._type)],['Approved By',x.ApprovedBy||'']].forEach(function(a){var q=document.createElement('div');q.innerHTML=escA(a[0])+': <b>'+escA(a[1])+'</b>';meta.appendChild(q)});card.appendChild(meta);
+    [['ID',id],['Username',x.Username||''],['Password',x.Password||''],['Mobile',x.Mobile||''],['Type',_typeLabel(x._type)],['প্রাথমিক যাচাই',x.ReviewStatus||'যাচাই বাকি'],['যাচাইকারী',x.ReviewedBy||''],['যাচাই নোট',x.ReviewNote||''],['Approved By',x.ApprovedBy||'']].forEach(function(a){var q=document.createElement('div');q.innerHTML=escA(a[0])+': <b>'+escA(a[1])+'</b>';meta.appendChild(q)});card.appendChild(meta);
     if(x._type==='studentAdmission'){
       var sm=document.createElement('div');sm.className='account-meta';
       [['Student ID',x.StudentID||''],['Class',x.Class||''],['Branch',x.Branch||''],['Source',x.FormData||''],['Status',x.Status||'PENDING']].forEach(function(a){var q=document.createElement('div');q.innerHTML=escA(a[0])+': <b>'+escA(a[1])+'</b>';sm.appendChild(q)});card.appendChild(sm);
@@ -9113,7 +9113,7 @@ body.jb-custom-account .header-content .header-identity-contact{color:#fff!impor
 </style>
 <script id="jb-new-account-approval-gate-2026-10-05">
 (function(){
-  function roleOf(u){return String((u||{}).Role||(u||{}).role||'').toUpperCase().replace(/\\s+/g,'_')}
+  function roleOf(u){return String((u||{}).Role||(u||{}).role||'').toUpperCase().replace(/\s+/g,'_')}
   function isSuper(u){var r=roleOf(u);return r==='SUPER_ADMIN'||r==='SUPERADMIN'}
   function isCustom(u){var t=String((u||{}).accountType||(u||{}).AccountType||'').toLowerCase();return t==='madrasa'||(t==='admin'&&!isSuper(u))}
   function isPending(u){return isCustom(u)&&String((u||{}).Status||(u||{}).status||'PENDING').toUpperCase()!=='ACTIVE'}
@@ -12869,7 +12869,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 <script id="two-stage-account-review-ui-2026-10-09">
 (function(){
   function e(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
-  function role(){var u=window.currentUser||{};return String(u.Role||u.role||'').toUpperCase().replace(/\\s+/g,'_')}
+  function role(){var u=window.currentUser||{};return String(u.Role||u.role||'').toUpperCase().replace(/\s+/g,'_')}
   window.openAccountReview=function(){
     var r=role();
     if(r==='SUPER_ADMIN'||r==='SUPERADMIN'){if(typeof toast==='function')toast('প্রাথমিক যাচাই অন্য Admin করবেন; চূড়ান্ত অনুমোদন আপনি দেবেন।');return}
