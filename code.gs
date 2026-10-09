@@ -1047,11 +1047,11 @@ function saveFinanceEntry(token, data) {
     const method = String(data.Method || 'হ্যান্ড ক্যাশ').trim();
     const month = String(data.Month || '').trim();
     const note = String(data.Note || '').trim();
-    const monthlyCategories = ['বিদ্যুৎ বিল','পানির বিল','বাড়ী ভাড়া','শিক্ষক/শিক্ষিকা/স্টাফ/কর্মচারী'];
+    const monthlyCategories = ['বিদ্যুৎ বিল','পানির বিল','বাড়ী ভাড়া','শিক্ষক/শিক্ষিকা বেতন','শিক্ষক/শিক্ষিকা/স্টাফ/কর্মচারী'];
     if (type !== 'INCOME' && type !== 'EXPENSE') return {ok:false,message:'আয়/ব্যয়ের ধরন সঠিক নয়।'};
     if (!category) return {ok:false,message:'আয়ের/ব্যয়ের খাত নির্বাচন করুন।'};
     if (!isFinite(amount) || amount <= 0) return {ok:false,message:'সঠিক পরিমাণ দিন।'};
-    if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(date)) return {ok:false,message:'তারিখ সঠিক নয়।'};
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return {ok:false,message:'তারিখ সঠিক নয়।'};
     if (monthlyCategories.indexOf(category)>=0 && !month) return {ok:false,message:'এই খাতের জন্য ১২ মাসের মধ্যে মাস নির্বাচন করুন।'};
 
     const ss = SpreadsheetApp.getActiveSpreadsheet();
