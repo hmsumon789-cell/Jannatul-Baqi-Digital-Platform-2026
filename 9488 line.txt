@@ -12636,3 +12636,59 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 })();
 </script>
 <!-- ===== END UNIVERSAL ID SEARCH ENTER BINDING ===== -->
+
+
+<!-- ===== SEARCH ID PRESERVE + PERSON DOCUMENT HISTORY ACCESS — 2026-10-09 ===== -->
+<script id="search-id-preserve-person-documents-2026-10-09">
+(function(){
+  /* সংকেত পাল্টালেও আগে লেখা ID একই থাকবে। */
+  window.syncSearchSignal=function(where){
+    var sigEl=document.getElementById(where==='login'?'loginSignal':'appSignal');
+    var input=document.getElementById(where==='login'?'loginSearch':'appSearch');
+    if(!input)return;
+    var sig=String(sigEl&&sigEl.value||'').trim();
+    var saved=String(input.value||'');
+    input.placeholder=sig?(sig+' — একই ID দিয়ে সার্চ করুন'):'সংকেত নির্বাচন করে ID / মোবাইল / ইমেইল লিখুন';
+    input.value=saved;
+    if(saved)input.setSelectionRange(saved.length,saved.length);
+    input.focus();
+  };
+
+  window.openPersonDocumentsFromSearch2026=function(signal,personId){
+    var id=String(personId||'').trim();
+    if(!id){if(typeof toast==='function')toast('সার্চ ID পাওয়া যায়নি।');return;}
+    var hasToken=false;
+    try{hasToken=!!(window.token||(typeof token!=='undefined'&&token));}catch(e){}
+    if(!hasToken){if(typeof toast==='function')toast('নথি/কার্ড প্রিন্ট ও ডাউনলোড করতে আগে লগইন করুন।');return;}
+    if(typeof window.jbOpenDocumentType2026!=='function'){
+      if(typeof toast==='function')toast('নথি তৈরির উইন্ডো প্রস্তুত হয়নি।');
+      return;
+    }
+    window.jbOpenDocumentType2026('marks');
+    setTimeout(function(){
+      var field=document.getElementById('jbDocId');
+      if(field)field.value=id;
+      if(typeof window.jbShowAllHistory==='function'){
+        Promise.resolve(window.jbShowAllHistory()).catch(function(e){
+          if(typeof toast==='function')toast('নথির তালিকা খোলা যায়নি: '+(e&&e.message?e.message:e));
+        });
+      }else if(typeof toast==='function')toast('নথির তালিকা ফিচার পাওয়া যায়নি।');
+    },180);
+  };
+
+  var previousRender=window.renderSearchProfilesA4Pad;
+  if(typeof previousRender==='function'){
+    window.renderSearchProfilesA4Pad=function(rows,signal,q){
+      previousRender.apply(this,arguments);
+      var actions=document.querySelector('#searchProfilePrint .sp-bottom-actions');
+      if(!actions||actions.querySelector('[data-person-documents-2026]'))return;
+      var btn=document.createElement('button');
+      btn.type='button';btn.className='secondary';btn.setAttribute('data-person-documents-2026','1');
+      btn.textContent='📄 নথি / কার্ড দেখুন';
+      btn.addEventListener('click',function(){window.openPersonDocumentsFromSearch2026(signal,q);});
+      actions.insertBefore(btn,actions.firstChild);
+    };
+  }
+})();
+</script>
+<!-- ===== END SEARCH ID PRESERVE + PERSON DOCUMENT HISTORY ACCESS ===== -->
