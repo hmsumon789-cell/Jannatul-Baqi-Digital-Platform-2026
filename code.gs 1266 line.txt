@@ -279,7 +279,6 @@ function registerNewAdmin(data){
 
 function registerMadrasa(data){
   setupSystem();
-  ensureAccountReviewColumns_();
   data=data||{};
   const name=String(data.name||'').trim(), year=String(data.foundedYear||'').trim(), username=String(data.username||'').trim(), password=String(data.password||''), address=String(data.address||'').trim(), email=String(data.email||'').trim(), mobile=String(data.mobile||'').trim(), photo=String(data.photo||'');
   if(!name||!year||!username||!password||!address||!email||!mobile||!photo) return {ok:false,message:'সকল তথ্য পূরণ করা বাধ্যতামূলক।'};
@@ -290,7 +289,11 @@ function registerMadrasa(data){
   const hdr2=sh.getRange(1,1,1,Math.max(sh.getLastColumn(),1)).getValues()[0];
   if(hdr2.indexOf('Photo')<0) sh.getRange(1,hdr2.length+1).setValue('Photo');
   const deps=Array.isArray(data.departments)?data.departments.filter(Boolean).join(', '):String(data.departments||'');
-  const row=[n,id,'',name,year,'','',address,mobile,0,0,'','PENDING',now_(),username,password,hash_(password),deps,String(data.otherDepartment||''),String(data.ownership||''),'','', '',email,photo];
+  /* Add review columns only after the legacy Email/Photo columns exist; write by header name to avoid column shifts. */
+  ensureAccountReviewColumns_();
+  const rowData={Serial:n,MadrasaID:id,GenderType:'',Name:name,FoundedYear:year,Founder:'',Muhtamim:'',Address:address,Mobile:mobile,StaffCount:0,StudentCount:0,Level:'',Status:'PENDING',CreatedAt:now_(),Username:username,Password:password,PasswordHash:hash_(password),ActiveDepartments:deps,OtherDepartment:String(data.otherDepartment||''),Ownership:String(data.ownership||''),ApprovedBy:'',ApprovedAt:'',Permissions:'',Email:email,Photo:photo,ReviewStatus:'',ReviewedBy:'',ReviewedAt:'',ReviewNote:''};
+  const finalHeaders=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(function(x){return String(x||'').trim()});
+  const row=finalHeaders.map(function(k){return rowData[k]!==undefined?rowData[k]:''});
   sh.getRange(sh.getLastRow()+1,1,1,row.length).setValues([row]);
   log_('PUBLIC','register','MADRASA',id);
   return {ok:true,madrasaId:id,message:'নতুন মাদ্রাসা নিবন্ধন হয়েছে। প্রশাসন/সুপার অ্যাডমিন অনুমোদনের পর Username + Password দিয়ে OTP ছাড়া লগইন করতে পারবেন।'};
