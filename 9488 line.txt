@@ -9671,6 +9671,12 @@ body.dark #loginPage .loginDateTime{color:#ffe95c!important;background:#000!impo
 <!-- ===== CENTRAL DOCUMENT BUILDER — SAFE PHASE 1 — 2026-10-06 ===== -->
 <style id="central-document-builder-colorful-preview-2026-10-09">
 #jbDocBuilderWin .jb-doc-preview{background:#fff!important;color:#172033!important;border:8px solid #1769aa!important;box-shadow:inset 0 0 0 4px #f5bd35,inset 0 0 0 8px #17865b!important;padding:7mm!important}
+#jbDocBuilderWin .jb-doc-preview.a4>div:first-child{background:linear-gradient(120deg,#0d477a,#1976d2,#12815b)!important;color:#fff!important;padding:7px!important;border-radius:7px!important;border-bottom:0!important}
+#jbDocBuilderWin .jb-doc-preview.a4>div:first-child h2,#jbDocBuilderWin .jb-doc-preview.a4>div:first-child h3,#jbDocBuilderWin .jb-doc-preview.a4>div:first-child p{color:#fff!important}
+#jbDocBuilderWin .jb-doc-preview.a4 table thead th{background:#1769aa!important;color:#fff!important;border-color:#0d477a!important}
+#jbDocBuilderWin .jb-doc-preview.a4 table tbody td{border-color:#9dbbd2!important}
+#jbDocBuilderWin .jb-doc-preview.a4 table tbody tr:nth-child(even) td{background:#edf7ff!important}
+#jbDocBuilderWin .jb-doc-preview.a4 .jb-marksheet-signatures-2026{display:flex!important;justify-content:space-between!important;gap:8px!important;margin-top:18mm!important;color:#172033!important;font-weight:900!important}
 #jbDocBuilderWin .jb-generic-frame-2026{min-height:100%;border:2px solid #e0aa28;padding:4mm;box-sizing:border-box;background:linear-gradient(135deg,#fff 0%,#f4f9ff 55%,#fffdf3 100%)}
 #jbDocBuilderWin .jb-generic-head-2026{display:grid;grid-template-columns:16mm minmax(0,1fr) 16mm;gap:3mm;align-items:center;text-align:center;padding:3mm;background:linear-gradient(120deg,#0d477a,#1976d2,#12815b);color:#fff;border-radius:8px}
 #jbDocBuilderWin .jb-generic-mark-2026{width:13mm;height:13mm;display:grid;place-items:center;border:2px solid #ffd75e;border-radius:50%;color:#ffdf65;font-size:20px;margin:auto}
