@@ -9720,7 +9720,7 @@ body.dark #jbDocBuilderWin{background:#000;color:#ffe95c;border-color:#ff1f2f}bo
   var wrap=E('jbDocPreviewWrap');wrap.innerHTML='';var bar=document.createElement('div');bar.className='jb-doc-actions';bar.innerHTML='<button class="secondary" onclick="jbEditPreview()">✏️ এডিট</button><button class="secondary" onclick="jbSaveDraft()">💾 সেভ + History</button><button class="secondary" onclick="jbShowHistory()">🔎 ID দিয়ে খুঁজুন</button><button class="secondary" onclick="jbDownload()">⬇️ ডাউনলোড</button><button class="primary" onclick="jbPrint()">🖨️ প্রিন্ট</button>';p.appendChild(bar);wrap.appendChild(p);
 }
 async function createPreview(){
-var box=document.getElementById('jbMarksGrid2026');if(!box)return createGenericPreview();var data=[];
+var box=document.getElementById('jbMarksGrid2026');if((currentDoc.key!=='marks'&&currentDoc.key!=='result')||!box)return createGenericPreview();var data=[];
 box.querySelectorAll('.jb-ms-item').forEach(function(it,n){var s=it.querySelector('.jb-ms-subject')?.value||'',m=it.querySelector('.jb-ms-mark')?.value||'',ok=it.querySelector('.jb-ms-subject-toggle')?.checked;if(ok&&s)data.push({no:n+1,subject:s,marks:m});});
 var c=box.querySelector('#jbMsClass2026')?.value||'',ci=document.querySelector('#jbDocFields input[data-key="Class"]');if(ci)ci.value=c;
 var sd=document.querySelector('#jbDocFields input[data-key="SubjectData"]');if(sd)sd.value=JSON.stringify(data);
@@ -9883,14 +9883,27 @@ var wrap=document.getElementById('jbDocPreviewWrap');if(!wrap)return;wrap.innerH
   function H(){return document.getElementById('jbDocBuilderTitle')?.textContent||''}
   function key(){
     var t=H();
-    return t.indexOf('মার্কশিট')>=0?'marks':
-      t.indexOf('ফলাফল')>=0?'result':
-      t.indexOf('আইডি কার্ড')>=0?'id_cards':
-      t.indexOf('অ্যাডমিট কার্ড')>=0?'admit_cards':
-      t.indexOf('সার্টিফিকেট')>=0?'certificates':
-      t.indexOf('মানি রিসিট')>=0?'receipts':'marks';
+    if(t.indexOf('ফলাফল')>=0)return 'result';
+    if(t.indexOf('নির্বাহী পরিষদ সদস্য আইডি কার্ড')>=0)return 'executive_id';
+    if(t.indexOf('শিক্ষক/শিক্ষিকা আইডি কার্ড')>=0)return 'teacher_id';
+    if(t.indexOf('নিয়োগ আবেদন')>=0)return 'teacher_recruitment_form';
+    if(t.indexOf('নিয়োগ পত্র')>=0)return 'teacher_appointment';
+    if(t.indexOf('ভর্তি আবেদন ফর্ম')>=0)return 'admission_form';
+    if(t.indexOf('ছুটির আবেদন ফর্ম')>=0)return 'leave_form';
+    if(t.indexOf('পরীক্ষার রুটিন')>=0)return 'exam_routine';
+    if(t.indexOf('টিসি / ছাড়পত্র')>=0)return 'tc';
+    if(t.indexOf('প্রত্যয়ন পত্র')>=0)return 'attestation';
+    if(t.indexOf('আজীবন সদস্য ফর্ম')>=0)return 'lifetime_member_form';
+    if(t.indexOf('আজীবন সদস্য সনদ')>=0)return 'lifetime_member_certificate';
+    if(t.indexOf('নির্বাহী পরিষদ ফর্ম')>=0)return 'executive_form';
+    if(t.indexOf('আইডি কার্ড')>=0)return 'id_cards';
+    if(t.indexOf('অ্যাডমিট কার্ড')>=0)return 'admit_cards';
+    if(t.indexOf('সার্টিফিকেট')>=0)return 'certificates';
+    if(t.indexOf('মানি রিসিট')>=0)return 'receipts';
+    if(t.indexOf('মার্কশিট')>=0)return 'marks';
+    return 'marks';
   }
-  function rid(x){return x.ResultID||x.CardID||x.AdmitID||x.CertificateID||x.ReceiptID||''}
+  function rid(x){return x.ResultID||x.CardID||x.AdmitID||x.CertificateID||x.ReceiptID||x.DocumentID||''}
   function dt(x){return x.IssueDate||x.Date||x.CreatedAt||''}
   function fill(data){
     Object.keys(data||{}).forEach(function(k){
@@ -9952,7 +9965,7 @@ var wrap=document.getElementById('jbDocPreviewWrap');if(!wrap)return;wrap.innerH
 (function(){
   function rid(x){return x.ResultID||x.CardID||x.AdmitID||x.CertificateID||x.ReceiptID||''}
   function dt(x){return x.IssueDate||x.Date||x.CreatedAt||''}
-  function title(k){return k==='marks'?'মার্কশিট':k==='result'?'ফলাফল / মার্কশিট':k==='id_cards'?'আইডি কার্ড':k==='admit_cards'?'অ্যাডমিট কার্ড':k==='certificates'?'সার্টিফিকেট':k==='receipts'?'মানি রিসিট':k}
+  function title(k){var m={marks:'মার্কশিট',result:'ফলাফল / মার্কশিট',id_cards:'আইডি কার্ড',admit_cards:'অ্যাডমিট কার্ড',certificates:'সার্টিফিকেট',receipts:'মানি রিসিট',teacher_id:'শিক্ষক/শিক্ষিকা আইডি কার্ড',admission_form:'ভর্তি আবেদন ফর্ম',leave_form:'ছুটির আবেদন ফর্ম',exam_routine:'পরীক্ষার রুটিন',tc:'টিসি / ছাড়পত্র',attestation:'প্রত্যয়ন পত্র',lifetime_member_form:'আজীবন সদস্য ফর্ম',lifetime_member_certificate:'আজীবন সদস্য সনদ',teacher_recruitment_form:'শিক্ষক/শিক্ষিকা নিয়োগ আবেদন',teacher_appointment:'শিক্ষক/শিক্ষিকা নিয়োগ পত্র',executive_form:'নির্বাহী পরিষদ ফর্ম',executive_id:'নির্বাহী পরিষদ সদস্য আইডি কার্ড'};return m[k]||k}
   window.jbShowAllHistory=async function(){
     var sid=(document.getElementById('jbDocId')?.value||'').trim();
     if(!sid)return toast('প্রথমে Student ID দিন।');
