@@ -12733,3 +12733,141 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   setTimeout(bind,1000);
 })();
 </script>
+
+
+<!-- ===== EXAM DASHBOARD SERVER-BACKED FUNCTIONAL FIX — 2026-10-09 ===== -->
+<script id="jb-exam-dashboard-server-backed-2026">
+(function(){
+  function V(id){return String((document.getElementById(id)||{}).value||'').trim()}
+  function E(v){return String(v==null?'':v).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function show(id){var x=document.getElementById(id);if(x){x.style.display='block';x.classList.add('show')}}
+  function msg(t){if(typeof toast==='function')toast(t);else alert(t)}
+  function ensureToken(){if(!token){msg('এই ফিচার ব্যবহারের আগে অনুমোদিত অ্যাডমিন হিসেবে লগইন করুন।');return false}return true}
+  async function data(ex,cl){if(!ensureToken())return null;return await call('getExamDashboardData',token,ex||'',cl||'')}
+  function getSubjectArray(row){try{var p=JSON.parse(String(row&&row.SubjectData||'[]'));if(Array.isArray(p))return p;if(p&&typeof p==='object')return Object.keys(p).map(function(k){return {subject:k,marks:p[k]}})}catch(e){}return []}
+  window.openExamDashboard=async function(){
+    show('examDashboardWin');
+    if(!ensureToken())return;
+    try{var r=await data('','');if(!r||!r.ok)throw new Error(r&&r.message||'ড্যাশবোর্ড লোড হয়নি');
+      var a=document.getElementById('examStatTotal'),b=document.getElementById('examStatPublished'),c=document.getElementById('examStatDraft');
+      if(a)a.textContent=String((r.counts&&r.counts.registered)||0);
+      if(b)b.textContent=String((r.counts&&r.counts.published)||0);
+      if(c)c.textContent=String(Math.max(0,((r.counts&&r.counts.results)||0)-((r.counts&&r.counts.published)||0)));
+    }catch(e){msg('পরীক্ষা ড্যাশবোর্ড লোড হয়নি: '+E(e.message||e))}
+  };
+  window.jbEcRender=async function(){
+    var el=document.getElementById('jbEcList');if(!el||!token)return;
+    el.innerHTML='<p>⏳ পরীক্ষার্থী তালিকা লোড হচ্ছে...</p>';
+    try{
+      var r=await data(V('jbEcExam'),V('jbEcClass'));if(!r||!r.ok)throw new Error(r&&r.message||'তালিকা পাওয়া যায়নি');
+      var rows=r.students||[];
+      el.innerHTML='<p>মোট সক্রিয় শিক্ষার্থী: <b>'+rows.length+'</b> | নিবন্ধিত: <b>'+rows.filter(function(x){return x.registered}).length+'</b></p><div style="overflow:auto"><table class="jb-et"><tr><th>নিবন্ধন</th><th>ID</th><th>নাম</th><th>শ্রেণি</th><th>মোবাইল</th><th>অবস্থা</th></tr>'+
+        rows.map(function(x){var s=x.student||{};return '<tr><td>'+(x.registered?'✅':'—')+'</td><td>'+E(s.StudentID)+'</td><td>'+E(s.NameBN)+'</td><td>'+E(s.Class)+'</td><td>'+E(s.Mobile)+'</td><td>'+(x.registered?'নিবন্ধিত':'নিবন্ধিত নয়')+'</td></tr>'}).join('')+'</table></div>';
+    }catch(e){el.innerHTML='<p>❌ '+E(e.message||e)+'</p>'}
+  };
+  window.jbEcSave=async function(){
+    if(!ensureToken())return;
+    var id=V('jbEcId'),ex=V('jbEcExam'),cl=V('jbEcClass');
+    if(!id||!ex||!cl){msg('পরীক্ষা, শ্রেণি ও শিক্ষার্থীর Master ID আবশ্যক।');return}
+    try{var r=await call('saveExamDashboardCandidate',token,id,ex,cl);if(!r||!r.ok){msg((r&&r.message)||'নিবন্ধন ব্যর্থ');return}
+      msg((r.duplicate?'এই পরীক্ষার্থী আগে থেকেই নিবন্ধিত। ':'পরীক্ষার্থী নিবন্ধিত হয়েছে। ')+((r.admit&&r.admit.ok)?'অ্যাডমিট কার্ডও প্রস্তুত।':(r.admit&&r.admit.message?'অ্যাডমিট কার্ড: '+r.admit.message:'')));
+      await window.jbEcRender();window.jbEcClear();
+    }catch(e){msg('নিবন্ধন ব্যর্থ: '+E(e.message||e))}
+  };
+  window.jbMkLoad=async function(){
+    var ex=V('jbMkExam'),cl=V('jbMkClass'),sub=V('jbMkSubject');if(!ex||!cl||!sub){msg('পরীক্ষা, শ্রেণি ও বিষয় দিন।');return}
+    try{var r=await data(ex,cl);if(!r||!r.ok)throw new Error(r&&r.message||'তালিকা পাওয়া যায়নি');
+      var results=r.results||[],students=(r.students||[]).filter(function(x){return x.registered});
+      var rows=students.map(function(x){var s=x.student||{},rec=results.find(function(z){return String(z.StudentID)===String(s.StudentID)&&String(z.Exam)===ex&&String(z.Class)===cl});var found=getSubjectArray(rec).find(function(z){return String(z.subject||z.Subject||z.name||'')===sub});return {studentId:s.StudentID,name:s.NameBN||'',mark:found?(found.marks!=null?found.marks:found.mark):''}});
+      window._jbMkRows=rows;
+      document.getElementById('jbMkTable').innerHTML=rows.length?'<div style="overflow:auto"><table class="jb-et"><tr><th>ID</th><th>নাম</th><th>নম্বর (০–১০০)</th></tr>'+rows.map(function(x,i){return '<tr><td>'+E(x.studentId)+'</td><td>'+E(x.name)+'</td><td><input type="number" min="0" max="100" data-jbmk="'+i+'" value="'+E(x.mark)+'"></td></tr>'}).join('')+'</table></div>':'<p>এই পরীক্ষা/শ্রেণিতে কোনো নিবন্ধিত পরীক্ষার্থী নেই।';
+    }catch(e){msg('পরীক্ষার্থী লোড হয়নি: '+E(e.message||e))}
+  };
+  window.jbMkSave=async function(){
+    if(!ensureToken())return;
+    var rows=window._jbMkRows||[],ex=V('jbMkExam'),cl=V('jbMkClass'),sub=V('jbMkSubject);');
+  };
+  window.jbMkSave=async function(){
+    if(!ensureToken())return;
+    var rows=window._jbMkRows||[],ex=V('jbMkExam'),cl=V('jbMkClass'),sub=V('jbMkSubject');
+    if(!rows.length||!ex||!cl||!sub){msg('আগে পরীক্ষার্থী লোড করুন।');return}
+    var inputs=document.querySelectorAll('[data-jbmk]'),marks=[];
+    for(var i=0;i<rows.length;i++){var raw=String(inputs[i]&&inputs[i].value||'').trim();if(raw==='')continue;var n=Number(raw);if(!Number.isFinite(n)||n<0||n>100){msg('প্রতিটি নম্বর ০ থেকে ১০০-এর মধ্যে দিন।');return}marks.push({studentId:rows[i].studentId,name:rows[i].name,mark:n})}
+    if(!marks.length){msg('কমপক্ষে একজনের নম্বর লিখুন।');return}
+    try{var r=await call('saveExamDashboardMarks',token,ex,cl,sub,marks);msg(r&&r.ok?r.message:((r&&r.message)||'নম্বর সংরক্ষণ ব্যর্থ'));}catch(e){msg('নম্বর সংরক্ষণ ব্যর্থ: '+E(e.message||e))}
+  };
+  window.jbRsBuild=async function(){
+    var ex=V('jbRsExam'),cl=V('jbRsClass');if(!ex||!cl){msg('পরীক্ষা ও শ্রেণি দিন।');return}
+    try{var r=await data(ex,cl);if(!r||!r.ok)throw new Error(r&&r.message||'ফলাফল পাওয়া যায়নি');
+      var registered=(r.students||[]).filter(function(x){return x.registered}),results=r.results||[];
+      var out=registered.map(function(x){var s=x.student||{},rec=results.find(function(z){return String(z.StudentID)===String(s.StudentID)&&String(z.Exam)===ex&&String(z.Class)===cl});if(!rec)return null;return {id:s.StudentID,name:s.NameBN||rec.Name||'',total:Number(rec.Total||0),gpa:rec.GPA||'',grade:rec.Grade||'',subjects:getSubjectArray(rec),published:/^(YES|TRUE|PUBLISHED|প্রকাশিত)$/i.test(String(rec.Published||''))}}).filter(Boolean).sort(function(a,b){return b.total-a.total});
+      var rank=0,last=null;out.forEach(function(x,i){if(last===null||x.total!==last)rank=i+1;last=x.total;x.rank=rank});
+      window._jbServerExamResults={exam:ex,className:cl,rows:out};
+      document.getElementById('jbRsTable').innerHTML=out.length?'<div style="overflow:auto"><table class="jb-et"><tr><th>মেধা</th><th>ID</th><th>নাম</th><th>মোট</th><th>GPA</th><th>Grade</th><th>প্রকাশ</th></tr>'+out.map(function(x){return '<tr><td>'+x.rank+'</td><td>'+E(x.id)+'</td><td>'+E(x.name)+'</td><td>'+x.total+'</td><td>'+E(x.gpa)+'</td><td>'+E(x.grade)+'</td><td>'+(x.published?'প্রকাশিত':'ড্রাফট')+'</td></tr>'}).join('')+'</table></div>':'<p>এই পরীক্ষা/শ্রেণির সংরক্ষিত নম্বর পাওয়া যায়নি।';
+    }catch(e){msg('ফলাফল তৈরি হয়নি: '+E(e.message||e))}
+  };
+  window.jbRsPublish=async function(){
+    if(!ensureToken())return;var ex=V('jbRsExam'),cl=V('jbRsClass');if(!ex||!cl){msg('পরীক্ষা ও শ্রেণি দিন।');return}
+    try{var r=await call('publishExamDashboardResults',token,ex,cl);msg(r&&r.ok?r.message:((r&&r.message)||'ফলাফল প্রকাশ ব্যর্থ'));await window.jbRsBuild();await window.openExamDashboard()}catch(e){msg('ফলাফল প্রকাশ ব্যর্থ: '+E(e.message||e))}
+  };
+  window.jbOnSearch=async function(){
+    var id=V('jbOnId');if(!id){msg('শিক্ষার্থীর ID দিন।');return}
+    var box=document.getElementById('jbOnView');box.innerHTML='⏳ খোঁজা হচ্ছে...';
+    try{var r=await call('getPublicExamResult',id);if(!r||!r.ok){box.textContent=(r&&r.message)||'ফলাফল পাওয়া যায়নি';return}
+      box.innerHTML=(r.results||[]).map(function(x){return '<div class="jb-em-note"><h3>'+E(x.exam)+'</h3><b>'+E(r.student.nameBN)+'</b><br>ID: '+E(r.student.studentId)+' | শ্রেণি: '+E(r.student.className)+'<table class="jb-et"><tr><th>বিষয়</th><th>নম্বর</th></tr>'+ (x.subjects||[]).map(function(y){return '<tr><td>'+E(y.subject||y.name||'')+'</td><td>'+E(y.marks!=null?y.marks:y.mark)+'</td></tr>'}).join('')+'</table><p>মোট: '+E(x.total)+' | GPA: '+E(x.gpa)+' | Grade: '+E(x.grade)+'</p></div>'}).join('');
+    }catch(e){box.textContent='সার্ভার ত্রুটি: '+String(e.message||e)}
+  };
+  window.jbAdBuild=async function(){
+    var ex=V('jbAdExam'),room=V('jbAdRoom'),n=Number(V('jbAdStart')||1);if(!ex){msg('পরীক্ষার নাম দিন।');return}
+    try{var r=await data(ex,'');if(!r||!r.ok)throw new Error(r&&r.message||'তালিকা পাওয়া যায়নি');var rows=(r.students||[]).filter(function(x){return x.registered});
+      document.getElementById('jbAdView').innerHTML=rows.length?'<div style="overflow:auto"><table class="jb-et"><tr><th>সিট</th><th>ID</th><th>নাম</th><th>শ্রেণি</th><th>কক্ষ</th></tr>'+rows.map(function(x,i){var s=x.student||{};return '<tr><td>'+(n+i)+'</td><td>'+E(s.StudentID)+'</td><td>'+E(s.NameBN)+'</td><td>'+E(s.Class)+'</td><td>'+E(room)+'</td></tr>'}).join('')+'</table></div>':'<p>এই পরীক্ষায় নিবন্ধিত পরীক্ষার্থী নেই।';
+    }catch(e){msg('Admit Card/Seat Plan তৈরি হয়নি: '+E(e.message||e))}
+  };
+  window.jbRpBuild=async function(){
+    var id=V('jbRpId'),ex=V('jbRpExam');if(!id||!ex){msg('শিক্ষার্থী ID ও পরীক্ষার নাম দিন।');return}
+    try{var r=await data(ex,'');if(!r||!r.ok)throw new Error(r&&r.message||'তথ্য পাওয়া যায়নি');
+      var rec=(r.results||[]).find(function(x){return String(x.StudentID)===id&&String(x.Exam)===ex});
+      if(!rec){msg('এই শিক্ষার্থীর মার্কশিটের নম্বর পাওয়া যায়নি।');return}
+      var s=(r.students||[]).map(function(x){return x.student||{}}).find(function(x){return String(x.StudentID)===id})||{};
+      var subs=getSubjectArray(rec);
+      document.getElementById('jbRpView').innerHTML='<div class="jb-em-note"><h2 style="text-align:center">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</h2><h3 style="text-align:center">মার্কশিট — '+E(ex)+'</h3>শিক্ষার্থী: '+E(s.NameBN||rec.Name)+'<br>ID: '+E(id)+'<br>শ্রেণি/জামাত: '+E(rec.Class||s.Class)+'<table class="jb-et"><tr><th>বিষয়</th><th>নম্বর</th></tr>'+subs.map(function(x){return '<tr><td>'+E(x.subject||x.Subject||x.name||'')+'</td><td>'+E(x.marks!=null?x.marks:x.mark)+'</td></tr>'}).join('')+'</table><hr>মোট: <b>'+E(rec.Total)+'</b> | GPA: <b>'+E(rec.GPA)+'</b> | Grade: <b>'+E(rec.Grade)+'</b></div>';
+    }catch(e){msg('মার্কশিট তৈরি হয়নি: '+E(e.message||e))}
+  };
+  window.examComing=function(name){
+    name=String(name||'');
+    if(name.indexOf('পরীক্ষার্থী')>=0){show('jbExamCandidateWin2026');window.jbEcRender();return}
+    if(name.indexOf('নম্বর প্রদান')>=0){show('jbExamMarksWin2026');return}
+    if(name.indexOf('ফলাফল ও মেধাক্রম')>=0){show('jbExamResultWin2026');return}
+    if(name.indexOf('অনলাইন ফলাফল')>=0){show('jbExamOnlineWin2026');return}
+    if(name.indexOf('Admit Card')>=0||name.indexOf('Seat Plan')>=0){show('jbExamAdmitWin2026');return}
+    if(name.indexOf('মার্কশিট')>=0||name.indexOf('রিপোর্ট')>=0){show('jbExamReportWin2026');return}
+    if(name.indexOf('প্রশ্নপত্র')>=0){show('jbQuestionPaperWin2026');return}
+    if(name.indexOf('পরীক্ষার রুটিন')>=0){show('jbExamRoutineWin2026');if(typeof window.jbRtPreview==='function')window.jbRtPreview();return}
+    msg('এই ফিচারের উইন্ডো পাওয়া যায়নি।');
+  };
+  window.openExamManager=function(){show('examManagerWin');window.renderExamDrafts2026()};
+  window.renderExamDrafts2026=function(){
+    var el=document.getElementById('examList');if(!el)return;var a=[];try{a=JSON.parse(localStorage.getItem('jb_exam_dashboard_drafts_2026')||'[]')}catch(e){}
+    el.innerHTML=a.length?'<table class="jb-et"><tr><th>পরীক্ষা</th><th>বছর</th><th>ধরন</th><th>অবস্থা</th><th>তারিখ</th><th>কাজ</th></tr>'+a.map(function(x,i){return '<tr><td>'+E(x.name)+'</td><td>'+E(x.year)+'</td><td>'+E(x.type)+'</td><td>'+E(x.status)+'</td><td>'+E(x.start)+' — '+E(x.end)+'</td><td><button onclick="editExamDraft2026('+i+')">✏️</button><button onclick="deleteExamDraft2026('+i+')">🗑️</button></td></tr>'}).join('')+'</table>':'<p>এখনো কোনো পরীক্ষা তৈরি হয়নি।';
+  };
+  window.saveExamDraft=function(){
+    var name=V('examName'),year=V('examYear'),type=V('examType'),status=V('examStatus');if(!name||!year){msg('পরীক্ষার নাম ও শিক্ষাবর্ষ দিন।');return}
+    var a=[];try{a=JSON.parse(localStorage.getItem('jb_exam_dashboard_drafts_2026')||'[]')}catch(e){}
+    var id=V('examName')+'|'+year,old=a.findIndex(function(x){return x.key===id});var item={key:id,name:name,year:year,type:type,status:status,start:V('examStart'),end:V('examEnd'),note:V('examNote')};
+    if(old>=0)a[old]=item;else a.push(item);localStorage.setItem('jb_exam_dashboard_drafts_2026',JSON.stringify(a));window.renderExamDrafts2026();msg('পরীক্ষার তথ্য সংরক্ষণ হয়েছে।');
+  };
+  window.editExamDraft2026=function(i){var a=[];try{a=JSON.parse(localStorage.getItem('jb_exam_dashboard_drafts_2026')||'[]')}catch(e){}var x=a[i];if(!x)return;['examName','examYear','examType','examStatus','examStart','examEnd','examNote'].forEach(function(id,j){var e=document.getElementById(id);if(e)e.value=[x.name,x.year,x.type,x.status,x.start,x.end,x.note][j]||''})};
+  window.deleteExamDraft2026=function(i){var a=[];try{a=JSON.parse(localStorage.getItem('jb_exam_dashboard_drafts_2026')||'[]')}catch(e){}a.splice(i,1);localStorage.setItem('jb_exam_dashboard_drafts_2026',JSON.stringify(a));window.renderExamDrafts2026()};
+  window.clearExamForm=function(){['examName','examYear','examType','examStatus','examStart','examEnd','examNote'].forEach(function(id){var e=document.getElementById(id);if(e)e.value=id==='examYear'?'2026':''})};
+  window.jbQpPreview=function(){
+    var exam=V('jbQpExam'),cl=V('jbQpClass'),sub=V('jbQpSubject'),date=V('jbQpDate'),marks=V('jbQpMarks'),time=V('jbQpTime'),questions=V('jbQpQuestions');
+    if(!exam||!cl||!sub||!questions){msg('পরীক্ষা, শ্রেণি, বিষয় ও প্রশ্ন লিখুন।');return}
+    var lines=questions.split(/\r?\n/).map(function(x){return x.trim()}).filter(Boolean);
+    document.getElementById('jbQpPreview').innerHTML='<div class="jb-em-note"><h2 style="text-align:center">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</h2><h3 style="text-align:center">প্রশ্নপত্র</h3><p>পরীক্ষা: '+E(exam)+' | শ্রেণি: '+E(cl)+' | বিষয়: '+E(sub)+'</p><p>তারিখ: '+E(date)+' | পূর্ণমান: '+E(marks)+' | সময়: '+E(time)+'</p><hr>'+lines.map(function(x,i){return '<p><b>'+(i+1)+'.</b> '+E(x)+'</p>'}).join('')+'</div>';
+  };
+  window.jbQpClear=function(){['jbQpExam','jbQpClass','jbQpSubject','jbQpDate','jbQpMarks','jbQpTime','jbQpQuestions'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='' });document.getElementById('jbQpPreview').innerHTML='প্রশ্নপত্রের পূর্বরূপ এখানে দেখা যাবে'};
+  window.jbQpPrint=function(){window.jbQpPreview();var x=document.getElementById('jbQpPreview');if(!x||!x.innerHTML)return;var w=window.open('','_blank');if(!w){msg('প্রিন্ট উইন্ডো খুলতে ব্রাউজার popup অনুমতি দিন।');return}w.document.write('<!doctype html><html lang="bn"><meta charset="utf-8"><title>প্রশ্নপত্র</title><style>body{font-family:Arial,sans-serif;padding:18mm}.jb-em-note{border:1px solid #333;padding:12mm}p{line-height:1.7}</style><body>'+x.innerHTML+'</body></html>');w.document.close();setTimeout(function(){w.print()},250)};
+  window.jbEClose=window.jbEClose||function(id){var x=document.getElementById(id);if(x){x.style.display='none';x.classList.remove('show')}};
+})();
+</script>
+<!-- ===== END EXAM DASHBOARD SERVER-BACKED FUNCTIONAL FIX ===== -->
