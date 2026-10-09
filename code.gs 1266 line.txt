@@ -328,7 +328,7 @@ function getModulesForSession_(token){
   // complete feature list even if the ADMIN row has incomplete Permissions.
   if(s.accountType !== 'madrasa'){
     const a = findBy_(SHEETS.ADMINS,'Username',s.username)||{};
-    const role = String(a.Role||'').toUpperCase().replace(/\\s+/g,'_');
+    const role = String(a.Role||'').toUpperCase().replace(/\s+/g,'_');
     if(role==='SUPER_ADMIN' || role==='SUPERADMIN') return getModules_();
   }
   const all = getModules_();
@@ -393,17 +393,17 @@ function getAccountReviewQueue(token){
     const session=auth_(token);
     if(session.accountType==='madrasa')return {ok:false,message:'প্রাথমিক যাচাইয়ের জন্য Admin অ্যাকাউন্ট প্রয়োজন।'};
     const actor=findBy_(SHEETS.ADMINS,'Username',session.username)||{};
-    const role=String(actor.Role||'').toUpperCase().replace(/\\s+/g,'_');
+    const role=String(actor.Role||'').toUpperCase().replace(/\s+/g,'_');
     if(role==='SUPER_ADMIN'||role==='SUPERADMIN')return {ok:false,message:'প্রাথমিক যাচাই অন্য Admin করবেন; চূড়ান্ত অনুমোদন Super Admin দেবেন।'};
     if(String(actor.Status||'PENDING').toUpperCase()!=='ACTIVE')return {ok:false,message:'আপনার Admin অ্যাকাউন্ট এখনো সক্রিয় নয়।'};
     ensureAccountReviewColumns_();
     const admins=listRows_(SHEETS.ADMINS,token,1000).filter(function(x){
-      return String(x.Status||'PENDING').toUpperCase()!=='ACTIVE' &&
+      return ['PENDING','REVIEW_PENDING'].includes(String(x.Status||'PENDING').toUpperCase()) &&
         String(x.ReviewStatus||'').toUpperCase()!=='SUBMITTED_TO_SUPER_ADMIN' &&
         String(x.AdminID||'')!==String(actor.AdminID||'');
     }).map(function(x){return Object.assign({_type:'admin'},x)});
     const madrasas=listRows_(SHEETS.MADRASAS,token,1000).filter(function(x){
-      return String(x.Status||'PENDING').toUpperCase()!=='ACTIVE' &&
+      return ['PENDING','REVIEW_PENDING'].includes(String(x.Status||'PENDING').toUpperCase()) &&
         String(x.ReviewStatus||'').toUpperCase()!=='SUBMITTED_TO_SUPER_ADMIN';
     }).map(function(x){return Object.assign({_type:'madrasa'},x)});
     return {ok:true,rows:admins.concat(madrasas)};
@@ -414,7 +414,7 @@ function submitAccountReview(token,type,id,note){
     const session=auth_(token);
     if(session.accountType==='madrasa')return {ok:false,message:'প্রাথমিক যাচাইয়ের জন্য Admin অ্যাকাউন্ট প্রয়োজন।'};
     const actor=findBy_(SHEETS.ADMINS,'Username',session.username)||{};
-    const role=String(actor.Role||'').toUpperCase().replace(/\\s+/g,'_');
+    const role=String(actor.Role||'').toUpperCase().replace(/\s+/g,'_');
     if(role==='SUPER_ADMIN'||role==='SUPERADMIN')return {ok:false,message:'চূড়ান্ত অনুমোদন Super Admin দেবেন; প্রাথমিক যাচাই অন্য Admin করবেন।'};
     if(String(actor.Status||'PENDING').toUpperCase()!=='ACTIVE')return {ok:false,message:'আপনার Admin অ্যাকাউন্ট সক্রিয় নয়।'};
     type=String(type||'').toLowerCase();id=String(id||'').trim();
@@ -1916,7 +1916,7 @@ function getOnlinePaymentNotifyTargets_(){
       const vals=sh.getDataRange().getValues(),h=vals[0].map(String);
       const ix={};h.forEach(function(x,i){ix[x]=i;});
       vals.slice(1).forEach(function(r){
-        const role=String(r[ix.Role]||'').toUpperCase().replace(/\\s+/g,'_');
+        const role=String(r[ix.Role]||'').toUpperCase().replace(/\s+/g,'_');
         const status=String(r[ix.Status]||'ACTIVE').toUpperCase();
         if((role==='SUPER_ADMIN'||role==='SUPERADMIN')&&status==='ACTIVE'){
           out.admins.push({name:String(r[ix.NameBN]||r[ix.NameEN]||'Super Admin'),mobile:normalizeBdMobile_(r[ix.Mobile]||r[ix.WhatsApp]||''),email:String(r[ix.Email]||'')});
