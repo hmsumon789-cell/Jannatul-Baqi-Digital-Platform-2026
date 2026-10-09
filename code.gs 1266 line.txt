@@ -1784,6 +1784,25 @@ function saveFinanceEntry(token,data){
   return {ok:true,message:(type==='INCOME'?'আয়ের':'ব্যয়ের')+' হিসাব সংরক্ষণ হয়েছে এবং রসিদ তৈরি হয়েছে।',id:transactionId,transactionId:transactionId,receiptId:receiptId,receipt:receipt};
 }
 
+
+function getFinanceRecords(token){
+  if(!isSuperAdmin_(token)) return {ok:false,message:'শুধু Super Admin আয়-ব্যয়ের তালিকা দেখতে পারবেন।'};
+  var ss=SpreadsheetApp.getActiveSpreadsheet(),out=[];
+  [SHEETS.INCOME,SHEETS.EXPENSES].forEach(function(n){
+    var sh=ss.getSheetByName(n);
+    if(!sh||sh.getLastRow()<=1) return;
+    var values=sh.getDataRange().getValues();
+    var headers=values[0].map(String);
+    values.slice(1).forEach(function(row){
+      var item=objectFrom_(headers,row);
+      item.Type=n===SHEETS.INCOME?'আয়':'ব্যয়';
+      out.push(item);
+    });
+  });
+  out.sort(function(a,b){return String(b.CreatedAt||'').localeCompare(String(a.CreatedAt||''));});
+  return {ok:true,rows:out.slice(0,1000)};
+}
+
 function searchFinanceReceipt(token,receiptId){
   if(!isSuperAdmin_(token)) return {ok:false,message:'শুধু Super Admin রসিদ খুঁজতে পারবেন।'};
   receiptId=String(receiptId||'').trim();
