@@ -11334,7 +11334,11 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       '.jb-doc-preview.a4{width:194mm!important;min-height:281mm!important;height:281mm!important;padding:12mm!important;border:4px solid #8b5e00!important;box-shadow:inset 0 0 0 3px #1976d2,inset 0 0 0 7px #2e7d32!important}'+
       '.jb-doc-preview.half{width:194mm!important;min-height:135mm!important;height:135mm!important;padding:10mm!important;border:4px solid #8b5e00!important}'+
       '.jb-doc-preview.idcard{width:86mm!important;min-height:54mm!important;height:54mm!important;padding:10px!important;border:4px solid #8b5e00!important}'+
-      '.jb-doc-actions,.jb-marksheet-back-2026{display:none!important}.jb-verification-qr{break-inside:avoid!important;page-break-inside:avoid!important}'+
+      '.jb-doc-actions,.jb-marksheet-back-2026{display:none!important}'+
+      '.jb-verification-qr{float:right!important;display:block!important;clear:none!important;width:25mm!important;max-width:25mm!important;margin:2mm 0 2mm 3mm!important;padding:0!important;break-inside:avoid!important;page-break-inside:avoid!important;box-sizing:border-box!important}'+
+      '.jb-verification-qr>div{float:right!important;width:25mm!important;max-width:25mm!important;margin:0!important;padding:1.5mm!important;box-sizing:border-box!important;text-align:center!important;font-size:7px!important;line-height:1.15!important}'+
+      '.jb-verification-qr .jb-qr-box{width:18mm!important;height:18mm!important;max-width:18mm!important;max-height:18mm!important;margin:0 auto!important;overflow:hidden!important}'+
+      '.jb-verification-qr .jb-qr-box canvas,.jb-verification-qr .jb-qr-box img{display:block!important;width:18mm!important;height:18mm!important;max-width:18mm!important;max-height:18mm!important;object-fit:contain!important;margin:0 auto!important}'+
       '.jb-doc-preview.a4 .jb-marksheet-signatures-2026{position:absolute!important;left:8mm!important;right:8mm!important;bottom:50.8mm!important;display:flex!important;justify-content:space-between!important;align-items:flex-end!important;margin:0!important;font-size:8.5px!important;line-height:1.2!important}'+
       '</style></head><body>'+node.outerHTML+'</body></html>');
     w.document.close();
