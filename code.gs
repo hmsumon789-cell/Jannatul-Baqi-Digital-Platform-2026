@@ -1123,3 +1123,20 @@ function searchFinanceReceipt(token, receiptId) {
   } catch(e) { return {ok:false,message:'রিসিট খুঁজতে ত্রুটি: '+String(e&&e.message?e.message:e)}; }
 }
 // ===== END FINANCE RECEIPT + MONTHLY BILL FIX =====
+
+
+// Finance listing should work for users who have Finance permission without requiring separate Payment permission.
+function getFinanceRecords(token) {
+  try {
+    auth_(token); requireFeature_(token,'finance');
+    function readObjects(sheetName) {
+      const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
+      if(!sh||sh.getLastRow()<2)return [];
+      const vals=sh.getDataRange().getValues(), heads=vals[0].map(String);
+      return vals.slice(1).map(function(row){const o={};heads.forEach(function(h,i){o[h]=row[i] instanceof Date?Utilities.formatDate(row[i],APP.timezone,'yyyy-MM-dd'):row[i];});return o;});
+    }
+    const income=readObjects(SHEETS.PAYMENTS).map(function(r){r.Type='INCOME';return r;});
+    const expense=readObjects(SHEETS.EXPENSES).map(function(r){r.Type='EXPENSE';return r;});
+    return {ok:true,rows:income.concat(expense).sort(function(a,b){return String(b.Date||'').localeCompare(String(a.Date||''));})};
+  } catch(e) { return {ok:false,message:'আয়/ব্যয়ের তালিকা লোডে সার্ভার ত্রুটি: '+String(e&&e.message?e.message:e),rows:[]}; }
+}
