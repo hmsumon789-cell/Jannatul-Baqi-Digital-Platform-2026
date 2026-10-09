@@ -1400,7 +1400,184 @@ async function searchOnlinePaymentReceipt(){
 function printOnlineReceipt(){
   const b=$('onlineReceiptBody');if(!b)return;
   const w=window.open('','_blank','width=850,height=750');if(!w)return;
-  w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>মানি রসিদ</title><style>@page{size:A4 portrait;margin:14mm}body{font-family:Arial,"Noto Sans Bengali",sans-serif;padding:0;color:#111}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:9px;text-align:left}h2,h3{text-align:center}</style></head><body>'+b.outerHTML+'</body></html>');
+  w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>মানি রসিদ</title><style>@page{size:A4 portrait;margin:14mm}body{font-family:Arial,"Noto Sans Bengali",sans-serif;padding:0;color:#111}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:9px;text-align:left}h2,h3{text-align:center}</style></head><body>'+b.outerHTML+'
+<!-- ===== ADMISSION PANEL SELECTOR + STUDENT FEE/PAYMENT WORKFLOW 2026-10-10 ===== -->
+<style id="admission-panel-2026-10-10">
+.adm-choice-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:14px 0}
+.adm-choice-card{border:2px solid var(--border);background:var(--panel);padding:16px;border-radius:12px;text-align:center}
+.adm-choice-card button{width:100%;min-height:54px;font-weight:900;white-space:normal}
+.adm-required{color:#c62828;font-weight:900}
+.adm-fee-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0;padding:12px;border:2px solid var(--border);border-radius:12px;background:var(--panel)}
+.adm-fee-actions button{min-height:48px;font-weight:900;white-space:normal}
+.adm-state{font-size:13px;font-weight:800;margin-top:6px}
+.adm-dialog-backdrop{position:fixed;inset:0;z-index:2147483000;background:rgba(0,0,0,.68);display:flex;align-items:center;justify-content:center;padding:14px}
+.adm-dialog{width:min(620px,96vw);max-height:90vh;overflow:auto;background:var(--panel,#fff);color:var(--text,#111);border:3px solid var(--border,#8b6508);border-radius:14px;padding:18px;box-shadow:0 12px 45px #0007}
+.adm-dialog h3{margin:0 0 12px}.adm-dialog .form-grid{margin:10px 0}.adm-dialog-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:14px}
+@media(max-width:700px){.adm-choice-grid,.adm-fee-actions{grid-template-columns:1fr}}
+</style>
+<script id="admission-panel-2026-10-10-js">
+(function(){
+  var originalOpenModule=window.openModule;
+  var originalSaveCurrentForm=window.saveCurrentForm;
+  var appType='', feeConfirmed=false, typeConfirmed=false, paymentRequested=false, savedAdmission=null;
+  var fees={MonthlySalary:'',ResidentialFee:'',MonthlyFoodFee:'',SessionFee:''};
+  function E(id){return document.getElementById(id)}
+  function V(id){return String((E(id)||{}).value||'').trim()}
+  function safeToast(t){if(typeof toast==='function')toast(t);else alert(t)}
+  function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+  function totalFees(){return ['MonthlySalary','ResidentialFee','MonthlyFoodFee','SessionFee'].reduce(function(n,k){return n+(Number(fees[k])||0)},0)}
+  function openPicker(){
+    appType='';feeConfirmed=false;typeConfirmed=false;paymentRequested=false;savedAdmission=null;
+    E('winTitle').textContent='ভর্তি প্যানেল — আবেদন ফর্ম নির্বাচন';
+    E('winBody').innerHTML='<p><b>যে আবেদন ফর্মটি পূরণ করতে চান সেটি নির্বাচন করুন:</b></p>'+
+      '<div class="adm-choice-grid">'+
+      '<div class="adm-choice-card"><h3>🎓 ছাত্র/ছাত্রী ভর্তি</h3><p>ভর্তি তথ্য, নির্ধারিত ফি, ভর্তির ধরন ও পেমেন্ট</p><button type="button" class="primary" onclick="openAdmissionForm2026(\'student\')">ছাত্র/ছাত্রী ভর্তি ফর্ম</button></div>'+
+      '<div class="adm-choice-card"><h3>👩‍🏫 চাকরির আবেদন</h3><p>শিক্ষক/শিক্ষিকা পদে আবেদন</p><button type="button" class="primary" onclick="openAdmissionForm2026(\'teacher\')">শিক্ষক/শিক্ষিকা আবেদন ফর্ম</button></div>'+
+      '<div class="adm-choice-card"><h3>🤝 সদস্য আবেদন</h3><p>মাদ্রাসার সদস্য হওয়ার আবেদন</p><button type="button" class="primary" onclick="openAdmissionForm2026(\'member\')">সদস্য আবেদন ফর্ম</button></div>'+
+      '</div><p class="adm-required">* ছাত্র/ছাত্রী ভর্তি ফর্মে ফি নির্ধারণ, ভর্তির ধরন নির্বাচন এবং পেমেন্ট অনুরোধ—তিনটি ধাপই আবশ্যক।</p>';
+    E('formWin').classList.remove('minimized');E('formWin').style.height='';openWindow('formWin');
+  }
+  window.openModule=function(key){if(key==='admission'){openPicker();return}return originalOpenModule.apply(this,arguments)};
+  window.openAdmissionForm2026=function(type){
+    appType=type;feeConfirmed=false;typeConfirmed=false;paymentRequested=false;savedAdmission=null;fees={MonthlySalary:'',ResidentialFee:'',MonthlyFoodFee:'',SessionFee:''};
+    if(type==='student'){
+      originalOpenModule('admission');
+      E('winTitle').textContent='ছাত্র/ছাত্রী ভর্তি আবেদন ফর্ম';
+      var body=E('winBody');
+      var save=[].slice.call(body.querySelectorAll('button')).find(function(b){return (b.getAttribute('onclick')||'').indexOf("saveModule('admission')")>=0});
+      var panel='<section id="admissionMandatoryPanel2026"><h3>ভর্তি ফি ও পেমেন্ট <span class="adm-required">*</span></h3>'+
+        '<div class="adm-fee-actions">'+
+        '<div><button type="button" class="primary" onclick="openAdmissionDialog2026(\'fees\')">💰 মাসিক ধার্যকৃত ফি</button><div id="admFeeState2026" class="adm-state">এখনো ফি নির্ধারণ হয়নি</div></div>'+
+        '<div><button type="button" class="primary" onclick="openAdmissionDialog2026(\'type\')">📋 ভর্তির ধরন</button><div id="admTypeState2026" class="adm-state">এখনো ধরন নির্বাচন হয়নি</div></div>'+
+        '<div><button type="button" class="primary" onclick="openAdmissionDialog2026(\'payment\')">💳 প্রদান করুন</button><div id="admPaymentState2026" class="adm-state">পেমেন্ট অনুরোধ বাকি</div></div>'+
+        '</div><div id="admFeeSummary2026" class="card" style="padding:10px;margin:8px 0">মাসিক বেতন, আবাসিক ফি, মাসিক খোরাকী ও সেশন ফি নির্ধারণ করুন।</div>'+
+        '<p class="adm-required">এই তিনটি ধাপ সম্পন্ন না হলে ভর্তি আবেদন সংরক্ষণ করা যাবে না। পেমেন্ট অনুরোধ গ্রহণ হলে তা Super Admin অনুমোদনের অপেক্ষায় থাকবে।</p></section>';
+      if(save){save.insertAdjacentHTML('beforebegin',panel);save.outerHTML='<button class="primary" type="button" onclick="saveAdmissionApplication2026()">💾 ভর্তি আবেদন সংরক্ষণ</button>'}
+      else {var fg=body.querySelector('.form-grid');if(fg)fg.insertAdjacentHTML('afterend',panel)}
+      var action=body.querySelector('.form-action-bar button');if(action)action.textContent='💾 ভর্তি আবেদন সংরক্ষণ';
+      setTimeout(function(){if(typeof bindAll==='function')bindAll()},40);
+      return;
+    }
+    var teacher=type==='teacher';
+    E('winTitle').textContent=teacher?'শিক্ষক/শিক্ষিকা চাকরির আবেদন ফর্ম':'সদস্য আবেদন ফর্ম';
+    E('winBody').innerHTML='<div class="form-language-fixed"><span>বাংলা</span><span>العربية</span><span>English</span></div>'+
+      '<div class="form-grid">'+
+      '<label>বাংলা নাম / Name <span class="adm-required">*</span><input id="admGenericName2026" class="field" required></label>'+
+      '<label>English Name<input id="admGenericNameEn2026" class="field"></label>'+
+      '<label>পিতার/স্বামীর নাম<input id="admGenericParent2026" class="field"></label>'+
+      '<label>জন্ম তারিখ<input id="admGenericDob2026" class="field" type="date"></label>'+
+      '<label>মোবাইল <span class="adm-required">*</span><input id="admGenericMobile2026" class="field" required></label>'+
+      '<label>ইমেইল<input id="admGenericEmail2026" class="field" type="email"></label>'+
+      (teacher?'<label>আবেদিত পদ <span class="adm-required">*</span><select id="admGenericPosition2026" class="field" required><option value="">পদ নির্বাচন করুন</option><option>শিক্ষক</option><option>শিক্ষিকা</option><option>সহকারী শিক্ষক/শিক্ষিকা</option><option>হিফজ/নুরানী শিক্ষক/শিক্ষিকা</option><option>অফিস সহকারী</option><option>অন্যান্য</option></select></label><label>শিক্ষাগত যোগ্যতা<input id="admGenericEducation2026" class="field"></label>':'<label>সদস্যের ধরন <span class="adm-required">*</span><select id="admGenericPosition2026" class="field" required><option value="">ধরন নির্বাচন করুন</option><option>সাধারণ সদস্য</option><option>আজীবন সদস্য</option><option>দাতা সদস্য</option><option>সম্মানিত সদস্য</option></select></label><label>পেশা<input id="admGenericEducation2026" class="field"></label>')+
+      '<label class="full">ঠিকানা <span class="adm-required">*</span><textarea id="admGenericAddress2026" class="field" required></textarea></label>'+
+      '<label class="full">অভিজ্ঞতা / আবেদনের বিবরণ<textarea id="admGenericDetails2026" class="field" rows="4"></textarea></label></div>'+
+      '<div class="form-action-bar"><button type="button" class="primary" onclick="saveGeneralAdmissionApplication2026()">💾 আবেদন সংরক্ষণ</button><button type="button" class="secondary" onclick="openAdmissionPanel2026()">↩ ফর্ম নির্বাচন</button><button type="button" class="secondary" onclick="printCurrentForm()">🖨️ প্রিন্ট</button></div>';
+    E('formWin').classList.remove('minimized');E('formWin').style.height='';openWindow('formWin');
+  };
+  window.openAdmissionPanel2026=openPicker;
+  function dialogHtml(title,inner){return '<div class="adm-dialog-backdrop" id="admissionDialog2026"><div class="adm-dialog" role="dialog" aria-modal="true"><h3>'+title+'</h3>'+inner+'</div></div>'}
+  window.openAdmissionDialog2026=function(kind){
+    var html='';
+    if(kind==='fees'){
+      html=dialogHtml('মাসিক ধার্যকৃত ফি', '<p>প্রতিটি খাতে টাকা লিখুন। কোনো ফি না থাকলে 0 লিখুন।</p><div class="form-grid">'+
+        '<label>মাসিক বেতন (টাকা)<input id="admFeeSalaryInput2026" class="field" type="number" min="0" required value="'+esc(fees.MonthlySalary)+'"></label>'+
+        '<label>আবাসিক ফি (টাকা)<input id="admFeeResidenceInput2026" class="field" type="number" min="0" required value="'+esc(fees.ResidentialFee)+'"></label>'+
+        '<label>মাসিক খোরাকী (টাকা)<input id="admFeeFoodInput2026" class="field" type="number" min="0" required value="'+esc(fees.MonthlyFoodFee)+'"></label>'+
+        '<label>সেশন ফি (টাকা)<input id="admFeeSessionInput2026" class="field" type="number" min="0" required value="'+esc(fees.SessionFee)+'"></label></div>'+
+        '<div class="adm-dialog-actions"><button class="secondary" type="button" onclick="closeAdmissionDialog2026()">বাতিল</button><button class="primary" type="button" onclick="confirmAdmissionFees2026()">ফি নিশ্চিত করুন</button></div>');
+    }else if(kind==='type'){
+      var opts=[['FULL','ফুল বেতনে পড়ার সুযোগ'],['HALF','হাফ বেতনে পড়ার সুযোগ'],['PARTIAL','আংশিক বেতনে পড়ার সুযোগ'],['FREE_SCHOLARSHIP','ফ্রি স্কলারশিপে পড়ার সুযোগ']];
+      html=dialogHtml('ভর্তির ধরন নির্বাচন করুন', '<p class="adm-required">একটি ধরন নির্বাচন বাধ্যতামূলক।</p><div>'+opts.map(function(o){return '<label style="display:block;padding:10px;border:1px solid var(--border);margin:7px 0;border-radius:8px"><input type="radio" name="admAdmissionTypeInput2026" value="'+o[0]+'" '+(V('admAdmissionType2026')===o[0]?'checked':'')+'> '+o[1]+'</label>'}).join('')+'</div><div class="adm-dialog-actions"><button class="secondary" type="button" onclick="closeAdmissionDialog2026()">বাতিল</button><button class="primary" type="button" onclick="confirmAdmissionType2026()">নির্বাচন নিশ্চিত করুন</button></div>');
+    }else{
+      if(!feeConfirmed||!typeConfirmed){safeToast('আগে মাসিক ধার্যকৃত ফি ও ভর্তির ধরন নির্ধারণ করুন।');return}
+      html=dialogHtml('পেমেন্ট উইন্ডো', '<p>শিক্ষার্থী: <b>'+esc(V('adNameBN')||'নাম দেওয়া হয়নি')+'</b></p><p>নির্ধারিত মোট: <b>'+totalFees().toLocaleString('bn-BD')+' টাকা</b></p>'+
+        '<div class="form-grid"><label>পেমেন্টের মাধ্যম<select id="admPayMethod2026" class="field"><option>bKash</option><option>Nagad</option><option>mCash</option><option>Rocket</option><option>ব্যাংকিং</option><option>হ্যান্ড ক্যাশ</option></select></label>'+
+        '<label>Transaction / Reference ID<input id="admPayRef2026" class="field"></label><label>প্রদানকারীর মোবাইল<input id="admPayMobile2026" class="field" value="'+esc(V('adMobile'))+'"></label><label>প্রদানকারীর ইমেইল<input id="admPayEmail2026" class="field" type="email" value="'+esc(V('adEmail'))+'"></label>'+
+        '<label class="full">পেমেন্ট নোট<textarea id="admPayNote2026" class="field"></textarea></label></div>'+
+        '<p>অনুরোধটি গ্রহণ হলে পেমেন্ট Pending থাকবে; Super Admin অনুমোদনের পর সম্পন্ন হবে।</p>'+
+        '<div class="adm-dialog-actions"><button class="secondary" type="button" onclick="closeAdmissionDialog2026()">বাতিল</button><button class="primary" type="button" onclick="submitAdmissionPayment2026()">📤 পেমেন্ট অনুরোধ পাঠান</button></div>');
+    }
+    document.body.insertAdjacentHTML('beforeend',html);
+  };
+  window.closeAdmissionDialog2026=function(){var d=E('admissionDialog2026');if(d)d.remove()};
+  window.confirmAdmissionFees2026=function(){
+    var ids=['admFeeSalaryInput2026','admFeeResidenceInput2026','admFeeFoodInput2026','admFeeSessionInput2026'];
+    if(ids.some(function(id){return !E(id)||E(id).value===''||!isFinite(Number(E(id).value))||Number(E(id).value)<0})){safeToast('চারটি ফি খাতেই পরিমাণ লিখুন; না থাকলে 0 দিন।');return}
+    fees={MonthlySalary:Number(E(ids[0]).value),ResidentialFee:Number(E(ids[1]).value),MonthlyFoodFee:Number(E(ids[2]).value),SessionFee:Number(E(ids[3]).value)};
+    feeConfirmed=true;E('admFeeState2026').textContent='✓ ফি নির্ধারিত';E('admFeeSummary2026').textContent='মাসিক বেতন: '+fees.MonthlySalary+' টাকা | আবাসিক ফি: '+fees.ResidentialFee+' টাকা | মাসিক খোরাকী: '+fees.MonthlyFoodFee+' টাকা | সেশন ফি: '+fees.SessionFee+' টাকা | মোট: '+totalFees()+' টাকা';window.closeAdmissionDialog2026();safeToast('মাসিক ধার্যকৃত ফি সংরক্ষণ হয়েছে।');
+  };
+  window.confirmAdmissionType2026=function(){
+    var x=document.querySelector('input[name="admAdmissionTypeInput2026"]:checked');if(!x){safeToast('ভর্তির ধরন থেকে একটি নির্বাচন করুন।');return}
+    if(!E('admAdmissionType2026')){var h=document.createElement('input');h.type='hidden';h.id='admAdmissionType2026';E('winBody').appendChild(h)}
+    E('admAdmissionType2026').value=x.value;typeConfirmed=true;
+    var label=({FULL:'ফুল বেতনে পড়ার সুযোগ',HALF:'হাফ বেতনে পড়ার সুযোগ',PARTIAL:'আংশিক বেতনে পড়ার সুযোগ',FREE_SCHOLARSHIP:'ফ্রি স্কলারশিপে পড়ার সুযোগ'})[x.value]||x.value;
+    E('admTypeState2026').textContent='✓ '+label;window.closeAdmissionDialog2026();safeToast('ভর্তির ধরন সংরক্ষণ হয়েছে।');
+  };
+  function studentFormData(){
+    var d={
+      StudentID:V('adStudentID'),FormID:V('adStudentID')||('ADM-'+Date.now()),DOB:V('adDob'),RecordDate:V('adRecordDate'),
+      NameBN:V('adNameBN'),NameAR:V('adNameAR'),NameEN:V('adNameEN'),
+      FatherBN:V('adFatherBN'),FatherNameBN:V('adFatherBN'),FatherAR:V('adFatherAR'),FatherNameAR:V('adFatherAR'),FatherEN:V('adFatherEN'),FatherNameEN:V('adFatherEN'),
+      MotherBN:V('adMotherBN'),MotherNameBN:V('adMotherBN'),MotherAR:V('adMotherAR'),MotherNameAR:V('adMotherAR'),MotherEN:V('adMotherEN'),MotherNameEN:V('adMotherEN'),
+      Mobile:V('adMobile'),MobileID:V('adMobile'),WhatsApp:V('adWa'),Email:V('adEmail'),EmailID:V('adEmail'),
+      Division:typeof getLocationValue==='function'?getLocationValue('adDivision'):'',District:typeof getLocationValue==='function'?getLocationValue('adDistrict'):'',
+      Upazila:typeof getLocationValue==='function'?getLocationValue('adUpazila'):'',Union:typeof getLocationValue==='function'?getLocationValue('adUnion'):'',
+      Post:typeof getLocationValue==='function'?getLocationValue('adPost'):'',Ward:typeof getLocationValue==='function'?getLocationValue('adWard'):'',
+      Village:typeof getLocationValue==='function'?getLocationValue('adVillage'):'',Class:V('adClass'),Department:V('adDept'),Branch:V('adBranch'),
+      Address:V('adAddress'),BirthReg:V('adBirth'),NID:V('adNid'),Photo:'',MonthlySalary:fees.MonthlySalary,ResidentialFee:fees.ResidentialFee,
+      MonthlyFoodFee:fees.MonthlyFoodFee,SessionFee:fees.SessionFee,AdmissionType:V('admAdmissionType2026'),
+      FeeTotal:totalFees(),FeeConfirmed:feeConfirmed?'YES':'NO',AdmissionTypeConfirmed:typeConfirmed?'YES':'NO'
+    };
+    return d;
+  }
+  async function saveAdmissionRecord(){
+    if(savedAdmission)return savedAdmission;
+    if(!feeConfirmed||!typeConfirmed){safeToast('আগে ফি নির্ধারণ ও ভর্তির ধরন নির্বাচন সম্পন্ন করুন।');return null}
+    var d=studentFormData();if(!d.NameBN){safeToast('ছাত্র/ছাত্রীর বাংলা নাম লিখুন।');return null}if(!d.Class){safeToast('শ্রেণি/জামাত নির্বাচন করুন।');return null}
+    try{d.Photo=typeof fileData==='function'?await fileData('adPhoto'):''}catch(e){}
+    var record={AdmissionID:d.FormID,StudentID:d.StudentID,Session:String(new Date().getFullYear()),Class:d.Class,Branch:d.Branch,Status:'PENDING',FormData:JSON.stringify(d)};
+    var r=await call('saveRecord',token,'ADMISSIONS',record);
+    if(!r||!r.ok){safeToast((r&&r.message)||'ভর্তি আবেদন সংরক্ষণ হয়নি।');return null}
+    var sid=(r.studentWorkflow&&r.studentWorkflow.studentId)||(r.row&&r.row.StudentID)||d.StudentID;
+    savedAdmission={admissionId:(r.row&&r.row.AdmissionID)||d.FormID,studentId:sid,data:d};
+    return savedAdmission;
+  }
+  window.submitAdmissionPayment2026=async function(){
+    var method=V('admPayMethod2026'),ref=V('admPayRef2026');
+    if(method!=='হ্যান্ড ক্যাশ'&&!ref){safeToast('Transaction / Reference ID লিখুন।');return}
+    if(totalFees()<=0){safeToast('পেমেন্টের জন্য মোট ফি 0-এর বেশি হতে হবে।');return}
+    try{
+      var saved=await saveAdmissionRecord();if(!saved||!saved.studentId){safeToast('আবেদন থেকে Student ID পাওয়া যায়নি। তথ্য যাচাই করুন।');return}
+      var month=new Date().toLocaleDateString('bn-BD',{month:'long',timeZone:'Asia/Dhaka'});
+      var d={StudentID:saved.studentId,Name:saved.data.NameBN,Month:month,Category:'ভর্তি ফি',Amount:totalFees(),Method:method,Reference:ref||('HAND-CASH-'+Date.now()),PayerMobile:V('admPayMobile2026'),PayerEmail:V('admPayEmail2026'),Note:'ভর্তির ধরন: '+saved.data.AdmissionType+'; মাসিক বেতন '+fees.MonthlySalary+'; আবাসিক '+fees.ResidentialFee+'; খোরাকী '+fees.MonthlyFoodFee+'; সেশন '+fees.SessionFee+'; '+V('admPayNote2026'),PaymentMode:'PENDING'};
+      var r=await call('submitOnlinePayment',d,token);
+      if(!r||!r.ok){safeToast((r&&r.message)||'পেমেন্ট অনুরোধ পাঠানো যায়নি। আবেদন সংরক্ষিত হয়েছে; পেমেন্ট আবার চেষ্টা করুন।');return}
+      paymentRequested=true;E('admPaymentState2026').textContent='✓ পেমেন্ট অনুরোধ গ্রহণ হয়েছে (Pending)';
+      window.closeAdmissionDialog2026();safeToast((r.message||'পেমেন্ট অনুরোধ গ্রহণ হয়েছে।')+' Student ID: '+saved.studentId);
+    }catch(e){safeToast('পেমেন্ট প্রক্রিয়ায় ত্রুটি: '+(e&&e.message||e))}
+  };
+  window.saveAdmissionApplication2026=async function(){
+    if(!feeConfirmed||!typeConfirmed||!paymentRequested){safeToast('তিনটি ধাপ সম্পন্ন করুন: মাসিক ধার্যকৃত ফি → ভর্তির ধরন → প্রদান করুন।');return}
+    var s=await saveAdmissionRecord();if(!s)return;
+    safeToast('ভর্তি আবেদন সংরক্ষিত হয়েছে। Student ID: '+s.studentId+' | Admission ID: '+s.admissionId);
+  };
+  window.saveGeneralAdmissionApplication2026=async function(){
+    var name=V('admGenericName2026'),mobile=V('admGenericMobile2026'),address=V('admGenericAddress2026'),position=V('admGenericPosition2026');
+    if(!name||!mobile||!address||!position){safeToast('নাম, মোবাইল, ঠিকানা এবং আবেদন/সদস্যের ধরন পূরণ করুন।');return}
+    var teacher=appType==='teacher',d={Name:name,NameEN:V('admGenericNameEn2026'),ParentName:V('admGenericParent2026'),DOB:V('admGenericDob2026'),Mobile:mobile,Email:V('admGenericEmail2026'),Position:position,EducationOrProfession:V('admGenericEducation2026'),Address:address,Details:V('admGenericDetails2026'),ApplicationType:teacher?'TEACHER_RECRUITMENT':'MEMBERSHIP',SubmittedAt:new Date().toISOString()};
+    var row={ServiceID:(teacher?'TR-':'MEM-')+Date.now(),ServiceCode:teacher?'TR':'MEM',DocKey:teacher?'teacher_recruitment_form':'lifetime_member_form',PersonID:'',Name:name,Title:teacher?'শিক্ষক/শিক্ষিকা চাকরির আবেদন':'সদস্য আবেদন',IssueDate:new Date().toISOString().slice(0,10),PdfFileId:'',PdfUrl:'',Data:JSON.stringify(d),HTML:'',Status:'PENDING'};
+    try{var r=await call('saveRecord',token,'ONLINE_SERVICES',row);if(!r||!r.ok)throw new Error(r&&r.message||'সংরক্ষণ ব্যর্থ');safeToast((teacher?'চাকরির':'সদস্য')+' আবেদন সংরক্ষণ হয়েছে। আবেদন ID: '+row.ServiceID)}catch(e){safeToast('আবেদন সংরক্ষণ হয়নি: '+(e&&e.message||e))}
+  };
+  window.saveCurrentForm=function(){
+    if(appType==='student')return window.saveAdmissionApplication2026();
+    if(appType==='teacher'||appType==='member')return window.saveGeneralAdmissionApplication2026();
+    return originalSaveCurrentForm.apply(this,arguments);
+  };
+})();
+</script>
+<!-- ===== END ADMISSION PANEL SELECTOR + STUDENT FEE/PAYMENT WORKFLOW ===== -->
+
+</body></html>');
   w.document.close();w.focus();setTimeout(function(){w.print()},250);
 }
 function downloadOnlineReceipt(){
