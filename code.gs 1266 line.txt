@@ -2170,7 +2170,7 @@ function saveExamDashboardCandidate(token, studentId, exam, className) {
   let admit=null;
   try{admit=createAdmitCardFromCandidate(token,studentId,exam);}
   catch(e){admit={ok:false,message:String(e&&e.message||e)};}
-  return {ok:true,duplicate:!!reg.duplicate,examRegId:reg.examRegId||'',admit:admit,message:reg.message||'পরীক্ষার্থী যুক্ত হয়েছে۔'};
+  return {ok:true,duplicate:!!reg.duplicate,examRegId:reg.examRegId||'',admit:admit,message:reg.message||'পরীক্ষার্থী যুক্ত হয়েছে।'};
 }
 function saveExamDashboardMarks(token, exam, className, subject, marks) {
   auth_(token); requireFeature_(token,'result');
