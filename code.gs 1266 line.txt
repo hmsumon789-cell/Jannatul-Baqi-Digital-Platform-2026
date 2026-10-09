@@ -1826,3 +1826,30 @@ function searchFinanceReceipt(token,receiptId){
   return {ok:false,message:'এই আইডির কোনো রসিদ পাওয়া যায়নি।'};
 }
 /* ===== END FINANCE MONTH + RECEIPT SUPPORT ===== */
+
+
+/* ===== ONLINE PAYMENT RECEIPT SEARCH — AUTHENTICATED / ONLINE ONLY ===== */
+function searchOnlinePaymentReceipt(token,receiptId){
+  try{
+    auth_(token);
+    receiptId=String(receiptId||'').trim();
+    if(!receiptId)return {ok:false,message:'রসিদ আইডি লিখুন।'};
+    var ss=SpreadsheetApp.getActiveSpreadsheet();
+    var sh=ss.getSheetByName(SHEETS.RECEIPTS);
+    if(!sh||sh.getLastRow()<2)return {ok:false,message:'এই আইডির কোনো অনলাইন পেমেন্ট রসিদ পাওয়া যায়নি।'};
+    var values=sh.getDataRange().getValues(),headers=values[0].map(String);
+    var idCol=headers.indexOf('ReceiptID'),typeCol=headers.indexOf('Type'),dataCol=headers.indexOf('Data');
+    if(idCol<0||dataCol<0)return {ok:false,message:'রসিদ ডাটার কলাম পাওয়া যায়নি।'};
+    for(var i=values.length-1;i>=1;i--){
+      if(String(values[i][idCol]||'').trim().toUpperCase()!==receiptId.toUpperCase())continue;
+      var rowType=typeCol>=0?String(values[i][typeCol]||'').trim().toUpperCase():'';
+      if(rowType!=='ONLINE_PAYMENT')return {ok:false,message:'এই আইডিটি অনলাইন পেমেন্ট রসিদ নয়।'};
+      var receipt={};
+      try{receipt=JSON.parse(String(values[i][dataCol]||'{}'));}catch(e){}
+      if(!receipt.ReceiptID)receipt={ReceiptID:values[i][idCol],Type:rowType,StudentID:values[i][headers.indexOf('RefID')]||'',Amount:values[i][headers.indexOf('Amount')]||'',Date:values[i][headers.indexOf('Date')]||''};
+      return {ok:true,receipt:receipt,receiptId:receiptId,message:'অনলাইন পেমেন্ট রসিদ পাওয়া গেছে।'};
+    }
+    return {ok:false,message:'এই আইডির কোনো অনলাইন পেমেন্ট রসিদ পাওয়া যায়নি।'};
+  }catch(e){return {ok:false,message:'রসিদ সার্চে ত্রুটি: '+(e&&e.message?e.message:e)};}
+}
+/* ===== END ONLINE PAYMENT RECEIPT SEARCH ===== */
