@@ -956,3 +956,187 @@ function getDashboardPeriodStats(token, period) {
     rangeEnd:Utilities.formatDate(end,tz,'yyyy-MM-dd')
   };
 }
+
+
+// ===== FINANCE ENTRY API — FIX SAVE INCOME/EXPENSE 2026-10-09 =====
+function saveFinanceEntry(token, data) {
+  try {
+    auth_(token);
+    requireFeature_(token, 'finance');
+    data = data || {};
+    const type = String(data.Type || 'INCOME').trim().toUpperCase();
+    const category = String(data.Category || '').trim();
+    const amount = Number(data.Amount || 0);
+    const date = String(data.Date || Utilities.formatDate(new Date(), APP.timezone, 'yyyy-MM-dd'));
+    const method = String(data.Method || 'হ্যান্ড ক্যাশ').trim();
+    const note = String(data.Note || '').trim();
+    if (type !== 'INCOME' && type !== 'EXPENSE') return {ok:false, message:'আয়/ব্যয়ের ধরন সঠিক নয়।'};
+    if (!category) return {ok:false, message:'আয়ের/ব্যয়ের খাত নির্বাচন করুন।'};
+    if (!isFinite(amount) || amount <= 0) return {ok:false, message:'সঠিক পরিমাণ দিন।'};
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return {ok:false, message:'তারিখ সঠিক নয়।'};
+
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheetName = type === 'INCOME' ? SHEETS.PAYMENTS : SHEETS.EXPENSES;
+    const headers = HEADERS[sheetName];
+    const sh = ss.getSheetByName(sheetName) || ensureSheet_(ss, sheetName, headers);
+    const record = {};
+    if (type === 'INCOME') {
+      record.PaymentID = 'INC-' + Date.now();
+      record.StudentID = '';
+      record.Name = '';
+      record.Month = '';
+      record.Category = category;
+      record.Amount = amount;
+      record.Method = method;
+      record.Reference = '';
+      record.Date = date;
+      record.Note = note;
+    } else {
+      record.ExpenseID = 'EXP-' + Date.now();
+      record.Category = category;
+      record.Amount = amount;
+      record.Method = method;
+      record.Date = date;
+      record.Note = note;
+    }
+    const row = headers.map(h => record[h] == null ? '' : record[h]);
+    row[0] = nextSerial_(sh);
+    if (headers.includes('CreatedAt')) row[headers.indexOf('CreatedAt')] = now_();
+    sh.appendRow(row);
+    SpreadsheetApp.flush();
+    log_(sessionUser_(token), 'create', sheetName, type + ' | ' + category + ' | ' + amount);
+    return {ok:true, message:type === 'INCOME' ? 'আয় সফলভাবে সংরক্ষণ হয়েছে।' : 'ব্যয় সফলভাবে সংরক্ষণ হয়েছে.'};
+  } catch (e) {
+    return {ok:false, message:'আয়/ব্যয় সংরক্ষণে সার্ভার ত্রুটি: ' + String(e && e.message ? e.message : e)};
+  }
+}
+
+function getFinanceRecords(token) {
+  try {
+    auth_(token);
+    requireFeature_(token, 'finance');
+    const income = listRows_(SHEETS.PAYMENTS, token, 5000).map(function(r) {
+      r.Type = 'INCOME';
+      return r;
+    });
+    const expense = listRows_(SHEETS.EXPENSES, token, 5000).map(function(r) {
+      r.Type = 'EXPENSE';
+      return r;
+    });
+    const rows = income.concat(expense).sort(function(a,b) {
+      return String(b.Date || '').localeCompare(String(a.Date || ''));
+    });
+    return {ok:true, rows:rows};
+  } catch (e) {
+    return {ok:false, message:'আয়/ব্যয়ের তালিকা লোডে সার্ভার ত্রুটি: ' + String(e && e.message ? e.message : e), rows:[]};
+  }
+}
+// ===== END FINANCE ENTRY API =====
+
+
+// ===== FINANCE RECEIPT + MONTHLY BILL FIX 2026-10-09 =====
+function saveFinanceEntry(token, data) {
+  try {
+    auth_(token);
+    requireFeature_(token, 'finance');
+    data = data || {};
+    const type = String(data.Type || 'INCOME').trim().toUpperCase();
+    const category = String(data.Category || '').trim();
+    const amount = Number(data.Amount || 0);
+    const date = String(data.Date || Utilities.formatDate(new Date(), APP.timezone, 'yyyy-MM-dd'));
+    const method = String(data.Method || 'হ্যান্ড ক্যাশ').trim();
+    const month = String(data.Month || '').trim();
+    const note = String(data.Note || '').trim();
+    const monthlyCategories = ['বিদ্যুৎ বিল','পানির বিল','বাড়ী ভাড়া','শিক্ষক/শিক্ষিকা বেতন','শিক্ষক/শিক্ষিকা/স্টাফ/কর্মচারী'];
+    if (type !== 'INCOME' && type !== 'EXPENSE') return {ok:false,message:'আয়/ব্যয়ের ধরন সঠিক নয়।'};
+    if (!category) return {ok:false,message:'আয়ের/ব্যয়ের খাত নির্বাচন করুন।'};
+    if (!isFinite(amount) || amount <= 0) return {ok:false,message:'সঠিক পরিমাণ দিন।'};
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return {ok:false,message:'তারিখ সঠিক নয়।'};
+    if (monthlyCategories.indexOf(category)>=0 && !month) return {ok:false,message:'এই খাতের জন্য ১২ মাসের মধ্যে মাস নির্বাচন করুন।'};
+
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheetName = type === 'INCOME' ? SHEETS.PAYMENTS : SHEETS.EXPENSES;
+    const headers = HEADERS[sheetName];
+    const sh = ss.getSheetByName(sheetName) || ensureSheet_(ss, sheetName, headers);
+    const record = {};
+    const transactionId = (type === 'INCOME' ? 'INC-' : 'EXP-') + Utilities.getUuid().slice(0,8).toUpperCase();
+    if (type === 'INCOME') {
+      record.PaymentID = transactionId; record.StudentID = ''; record.Name = '';
+      record.Month = month; record.Category = category; record.Amount = amount;
+      record.Method = method; record.Reference = ''; record.Date = date;
+      record.Note = (month ? 'মাস: '+month+' | ' : '') + note;
+    } else {
+      record.ExpenseID = transactionId; record.Category = category; record.Amount = amount;
+      record.Method = method; record.Date = date;
+      record.Note = (month ? 'মাস: '+month+' | ' : '') + note;
+    }
+    const row = headers.map(h => record[h] == null ? '' : record[h]);
+    row[0] = nextSerial_(sh);
+    if (headers.includes('CreatedAt')) row[headers.indexOf('CreatedAt')] = now_();
+    sh.appendRow(row);
+
+    const receiptId = 'RC-' + Utilities.getUuid().replace(/-/g,'').slice(0,10).toUpperCase();
+    const receiptData = {
+      ReceiptID:receiptId, TransactionID:transactionId, Type:type, Category:category,
+      Month:month, Amount:amount, Method:method, Date:date, Note:note,
+      Name:String(data.Name||''), Mobile:String(data.Mobile||''),
+      Institution:APP.nameBn, Address:APP.address, Hotline:APP.hotline1,
+      CreatedAt:now_()
+    };
+    const rsh = ss.getSheetByName(SHEETS.RECEIPTS) || ensureSheet_(ss,SHEETS.RECEIPTS,HEADERS[SHEETS.RECEIPTS]);
+    rsh.appendRow([nextSerial_(rsh),receiptId,transactionId,type,amount,date,JSON.stringify(receiptData)]);
+    SpreadsheetApp.flush();
+    log_(sessionUser_(token),'finance_receipt',sheetName,receiptId+' | '+category+' | '+amount);
+    return {ok:true,message:type==='INCOME'?'আয় সংরক্ষণ ও রিসিট তৈরি হয়েছে।':'ব্যয় সংরক্ষণ ও রিসিট তৈরি হয়েছে.',receipt:receiptData,receiptId:receiptId,transactionId:transactionId};
+  } catch(e) {
+    return {ok:false,message:'আয়/ব্যয় সংরক্ষণে সার্ভার ত্রুটি: '+String(e&&e.message?e.message:e)};
+  }
+}
+
+function getFinanceRecords(token) {
+  try {
+    auth_(token); requireFeature_(token,'finance');
+    const income=listRows_(SHEETS.PAYMENTS,token,5000).map(function(r){r.Type='INCOME';return r;});
+    const expense=listRows_(SHEETS.EXPENSES,token,5000).map(function(r){r.Type='EXPENSE';return r;});
+    const rows=income.concat(expense).sort(function(a,b){return String(b.Date||'').localeCompare(String(a.Date||''));});
+    return {ok:true,rows:rows};
+  } catch(e) {
+    return {ok:false,message:'আয়/ব্যয়ের তালিকা লোডে সার্ভার ত্রুটি: '+String(e&&e.message?e.message:e),rows:[]};
+  }
+}
+
+function searchFinanceReceipt(token, receiptId) {
+  try {
+    auth_(token); requireFeature_(token,'finance');
+    receiptId=String(receiptId||'').trim().toUpperCase();
+    if(!receiptId)return {ok:false,message:'রিসিট ID লিখুন।'};
+    const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.RECEIPTS);
+    if(!sh||sh.getLastRow()<2)return {ok:false,message:'কোনো রিসিট পাওয়া যায়নি।'};
+    const vals=sh.getDataRange().getValues(), h=vals[0].map(String), idc=h.indexOf('ReceiptID'), dc=h.indexOf('Data');
+    for(let i=vals.length-1;i>=1;i--){
+      if(String(vals[i][idc]||'').trim().toUpperCase()===receiptId){
+        let data={};try{data=JSON.parse(String(vals[i][dc]||'{}'));}catch(e){}
+        return {ok:true,receipt:data,receiptId:receiptId};
+      }
+    }
+    return {ok:false,message:'এই ID-তে কোনো রিসিট পাওয়া যায়নি।'};
+  } catch(e) { return {ok:false,message:'রিসিট খুঁজতে ত্রুটি: '+String(e&&e.message?e.message:e)}; }
+}
+// ===== END FINANCE RECEIPT + MONTHLY BILL FIX =====
+
+
+// Finance listing should work for users who have Finance permission without requiring separate Payment permission.
+function getFinanceRecords(token) {
+  try {
+    auth_(token); requireFeature_(token,'finance');
+    function readObjects(sheetName) {
+      const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
+      if(!sh||sh.getLastRow()<2)return [];
+      const vals=sh.getDataRange().getValues(), heads=vals[0].map(String);
+      return vals.slice(1).map(function(row){const o={};heads.forEach(function(h,i){o[h]=row[i] instanceof Date?Utilities.formatDate(row[i],APP.timezone,'yyyy-MM-dd'):row[i];});return o;});
+    }
+    const income=readObjects(SHEETS.PAYMENTS).map(function(r){r.Type='INCOME';return r;});
+    const expense=readObjects(SHEETS.EXPENSES).map(function(r){r.Type='EXPENSE';return r;});
+    return {ok:true,rows:income.concat(expense).sort(function(a,b){return String(b.Date||'').localeCompare(String(a.Date||''));})};
+  } catch(e) { return {ok:false,message:'আয়/ব্যয়ের তালিকা লোডে সার্ভার ত্রুটি: '+String(e&&e.message?e.message:e),rows:[]}; }
+}
