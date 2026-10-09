@@ -12867,3 +12867,30 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 })();
 </script>
 <!-- ===== END EXAM DASHBOARD SERVER-BACKED FUNCTIONAL FIX ===== -->
+
+
+<!-- ===== EXAM MANAGER DATABASE PERSISTENCE — 2026-10-09 ===== -->
+<script id="jb-exam-manager-database-2026">
+(function(){
+ function V(id){return String((document.getElementById(id)||{}).value||'').trim()}
+ function E(v){return String(v==null?'':v).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+ function note(t){if(typeof toast==='function')toast(t);else alert(t)}
+ async function load(){if(!token){note('পরীক্ষা ব্যবস্থাপনার আগে লগইন করুন।');return []}try{var r=await call('getExamDashboardItems',token,'EXAMS');if(!r||!r.ok)throw new Error(r&&r.message||'তালিকা পাওয়া যায়নি');window._jbExamItems=r.items||[];return window._jbExamItems}catch(e){note('পরীক্ষার তালিকা লোড হয়নি: '+(e.message||e));return []}}
+ window.renderExamDrafts2026=async function(){
+   var el=document.getElementById('examList');if(!el)return;el.innerHTML='<p>⏳ পরীক্ষা লোড হচ্ছে...</p>';var a=await load();
+   el.innerHTML=a.length?'<table class="jb-et"><tr><th>পরীক্ষা</th><th>বছর</th><th>ধরন</th><th>অবস্থা</th><th>তারিখ</th><th>কাজ</th></tr>'+a.map(function(x,i){return '<tr><td>'+E(x.name)+'</td><td>'+E(x.year)+'</td><td>'+E(x.type)+'</td><td>'+E(x.status)+'</td><td>'+E(x.start)+' — '+E(x.end)+'</td><td><button onclick="editExamDraft2026('+i+')">✏️</button> <button onclick="deleteExamDraft2026('+i+')">🗑️</button></td></tr>'}).join('')+'</table>':'<p>এখনো কোনো পরীক্ষা তৈরি হয়নি।';
+ };
+ window.openExamManager=function(){var w=document.getElementById('examManagerWin');if(w){w.style.display='block';w.classList.add('show')}window.renderExamDrafts2026()};
+ window.saveExamDraft=async function(){
+   if(!token){note('পরীক্ষার তথ্য সংরক্ষণ করতে লগইন করুন।');return}
+   var name=V('examName'),year=V('examYear'),type=V('examType'),status=V('examStatus');
+   if(!name||!year){note('পরীক্ষার নাম ও শিক্ষাবর্ষ দিন।');return}
+   var a=await load(),key=name+'|'+year,item={key:key,name:name,year:year,type:type,status:status,start:V('examStart'),end:V('examEnd'),note:V('examNote')};
+   var i=a.findIndex(function(x){return x.key===key});if(i>=0)a[i]=item;else a.push(item);
+   try{var r=await call('saveExamDashboardItems',token,'EXAMS',a);if(!r||!r.ok)throw new Error(r&&r.message||'সংরক্ষণ ব্যর্থ');window._jbExamItems=a;await window.renderExamDrafts2026();note(r.message||'পরীক্ষার তথ্য সংরক্ষণ হয়েছে।')}catch(e){note('পরীক্ষার তথ্য সংরক্ষণ ব্যর্থ: '+(e.message||e))}
+ };
+ window.editExamDraft2026=function(i){var x=(window._jbExamItems||[])[i];if(!x)return;['examName','examYear','examType','examStatus','examStart','examEnd','examNote'].forEach(function(id,j){var e=document.getElementById(id);if(e)e.value=[x.name,x.year,x.type,x.status,x.start,x.end,x.note][j]||''})};
+ window.deleteExamDraft2026=async function(i){if(!token)return;var a=await load();a.splice(i,1);try{var r=await call('saveExamDashboardItems',token,'EXAMS',a);if(!r||!r.ok)throw new Error(r&&r.message||'মুছতে ব্যর্থ');window._jbExamItems=a;await window.renderExamDrafts2026();note('পরীক্ষার তথ্য মুছে ফেলা হয়েছে।')}catch(e){note('পরীক্ষার তথ্য মুছতে ব্যর্থ: '+(e.message||e))}};
+})();
+</script>
+<!-- ===== END EXAM MANAGER DATABASE PERSISTENCE ===== -->
