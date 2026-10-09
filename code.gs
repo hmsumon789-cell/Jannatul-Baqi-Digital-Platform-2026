@@ -23,7 +23,7 @@ const APP = {
 const SHEETS = {
   ADMINS:'ADMINS', STUDENTS:'STUDENTS', TEACHERS:'TEACHERS', DONORS:'DONORS',
   ADMISSIONS:'ADMISSIONS', EXAM_REG:'EXAM_REG', PAYMENTS:'PAYMENTS',
-  EXPENSES:'EXPENSES', RESULTS:'RESULTS', NOTICES:'NOTICES', ATTENDANCE:'ATTENDANCE',
+  EXPENSES:'EXPENSES', INCOME:'INCOME', RESULTS:'RESULTS', NOTICES:'NOTICES', ATTENDANCE:'ATTENDANCE',
   MEDIA:'MEDIA', FILES:'FILES', SMS_QUEUE:'SMS_QUEUE', CONTACTS:'CONTACTS',
   CONFIG:'CONFIG', AUDIT:'AUDIT', OTP_LOG:'OTP_LOG', EXECUTIVES:'EXECUTIVES',
   ADVISERS:'ADVISERS', FOUNDERS:'FOUNDERS', LOCATION_MASTER:'LOCATION_MASTER',
@@ -40,6 +40,7 @@ const HEADERS = {
   EXAM_REG:['Serial','ExamRegID','StudentID','Exam','Class','Branch','Status','FormData','CreatedAt'],
   PAYMENTS:['Serial','PaymentID','StudentID','Name','Month','Category','Amount','Method','Reference','Date','Note','CreatedAt'],
   EXPENSES:['Serial','ExpenseID','Category','Amount','Method','Date','Note','CreatedAt'],
+  INCOME:['Serial','IncomeID','Category','Amount','Method','Date','Note','CreatedAt'],
   RESULTS:['Serial','ResultID','StudentID','Name','Class','Exam','SubjectData','Total','GPA','Grade','Published','Date','CreatedAt'],
   NOTICES:['Serial','NoticeID','TitleBN','TitleAR','TitleEN','BodyBN','BodyAR','BodyEN','Date','Status','CreatedAt'],
   ATTENDANCE:['Serial','AttendanceID','StudentID','Date','Status','Class','Branch','Note','CreatedAt'],
@@ -956,3 +957,72 @@ function getDashboardPeriodStats(token, period) {
     rangeEnd:Utilities.formatDate(end,tz,'yyyy-MM-dd')
   };
 }
+
+
+/* ===== FINANCE SAVE API + RECEIPT SEARCH — FIX MISSING SERVER ENDPOINT — 2026-10-09 ===== */
+function saveFinanceEntry(token,data){
+  auth_(token);
+  requireFeature_(token,'finance');
+  data=data||{};
+  var rawType=String(data.Type||data.type||'INCOME').trim().toUpperCase();
+  var type=(rawType==='EXPENSE'||rawType==='ব্যয়'||rawType==='ব্যয়')?'EXPENSE':'INCOME';
+  var category=String(data.Category||data.category||'').trim();
+  var amount=Number(data.Amount!=null?data.Amount:data.amount);
+  var month=String(data.Month||data.month||'').trim();
+  if(!category||!isFinite(amount)||amount<=0)return {ok:false,message:'আয়ের/ব্যয়ের খাত ও সঠিক পরিমাণ দিন।'};
+  var monthly=['বিদ্যুৎ বিল','পানির বিল','বাড়ী ভাড়া','বাড়ি ভাড়া','শিক্ষক/শিক্ষিকা বেতন','শিক্ষক/শিক্ষিকা/স্টাফ/কর্মচারী'];
+  if(monthly.indexOf(category)>=0&&!month)return {ok:false,message:'এই খাতের জন্য মাস নির্বাচন করুন।'};
+  var sheetName=type==='INCOME'?SHEETS.INCOME:SHEETS.EXPENSES;
+  var sh=ensureSheet_(SpreadsheetApp.getActiveSpreadsheet(),sheetName,HEADERS[sheetName]);
+  var id=(type==='INCOME'?'INC-':'EXP-')+Date.now();
+  var method=String(data.Method||data.method||'ক্যাশ');
+  var date=String(data.Date||data.date||now_());
+  var note=String(data.Note||data.note||'');
+  if(month)note=(note?note+' | ':'')+'মাস: '+month;
+  append_(sheetName,[nextSerial_(sh),id,category,amount,method,date,note,now_()]);
+  var receiptId='RC-'+Date.now()+'-'+Math.floor(Math.random()*1000);
+  var receipt={ReceiptID:receiptId,RefID:id,Type:type,Category:category,Amount:amount,Method:method,Month:month,Date:date,Note:note,Institution:APP.nameBn,Address:APP.address,Hotline:APP.hotline1,CreatedAt:now_()};
+  var rs=ensureSheet_(SpreadsheetApp.getActiveSpreadsheet(),SHEETS.RECEIPTS,HEADERS[SHEETS.RECEIPTS]);
+  append_(SHEETS.RECEIPTS,[nextSerial_(rs),receiptId,id,type,amount,date,JSON.stringify(receipt)]);
+  log_(sessionUser_(token)||'','finance-'+type.toLowerCase(),sheetName,id+' / '+amount+' / '+receiptId);
+  return {ok:true,message:(type==='INCOME'?'আয়':'ব্যয়')+' সংরক্ষণ হয়েছে। রসিদ আইডি: '+receiptId,id:id,transactionId:id,receiptId:receiptId,receipt:receipt};
+}
+function getFinanceRecords(token){
+  auth_(token);
+  requireFeature_(token,'finance');
+  var ss=SpreadsheetApp.getActiveSpreadsheet(),out=[];
+  [SHEETS.INCOME,SHEETS.EXPENSES].forEach(function(n){
+    var sh=ss.getSheetByName(n);
+    if(!sh||sh.getLastRow()<2)return;
+    var values=sh.getDataRange().getValues(),headers=values[0].map(String);
+    values.slice(1).forEach(function(row){
+      var item=objectFrom_(headers,row);
+      item.Type=n===SHEETS.INCOME?'আয়':'ব্যয়';
+      out.push(item);
+    });
+  });
+  out.sort(function(a,b){return String(b.CreatedAt||'').localeCompare(String(a.CreatedAt||''));});
+  return {ok:true,rows:out.slice(0,1000)};
+}
+function searchFinanceReceipt(token,receiptId){
+  auth_(token);
+  requireFeature_(token,'finance');
+  var id=String(receiptId||'').trim();
+  if(!id)return {ok:false,message:'রসিদ আইডি লিখুন।'};
+  var sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.RECEIPTS);
+  if(!sh||sh.getLastRow()<2)return {ok:false,message:'রসিদের তালিকা খালি।'};
+  var values=sh.getDataRange().getValues(),headers=values[0].map(String),idCol=headers.indexOf('ReceiptID'),dataCol=headers.indexOf('Data');
+  for(var i=1;i<values.length;i++){
+    if(idCol>=0&&String(values[i][idCol]||'').trim().toUpperCase()===id.toUpperCase()){
+      var payload={};
+      if(dataCol>=0&&values[i][dataCol]){try{payload=JSON.parse(String(values[i][dataCol]));}catch(e){}}
+      if(!payload.ReceiptID)payload.ReceiptID=id;
+      if(!payload.RefID&&headers.indexOf('RefID')>=0)payload.RefID=values[i][headers.indexOf('RefID')];
+      if(payload.Amount==null&&headers.indexOf('Amount')>=0)payload.Amount=values[i][headers.indexOf('Amount')];
+      if(!payload.Date&&headers.indexOf('Date')>=0)payload.Date=values[i][headers.indexOf('Date')];
+      return {ok:true,receipt:payload};
+    }
+  }
+  return {ok:false,message:'এই আইডিতে কোনো রসিদ পাওয়া যায়নি।'};
+}
+/* ===== END FINANCE SAVE API FIX ===== */
