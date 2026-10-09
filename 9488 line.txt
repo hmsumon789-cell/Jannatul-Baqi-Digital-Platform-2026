@@ -12417,16 +12417,26 @@ function jbQpClear(){['jbQpExam','jbQpClass','jbQpSubject','jbQpDate','jbQpMarks
     if(!h){
       h=document.createElement('div');
       h.className='jb-institution-header-2026';
+      h.innerHTML=
+        '<div class="jb-inst-side-2026"><img class="jb-receipt-logo-2026" alt="মাদ্রাসার লোগো"></div>'+
+        '<div class="jb-inst-center-2026">'+
+          '<div class="jb-inst-name-2026" data-jb-keep-institution="1"></div>'+
+          '<div class="jb-inst-address-2026" data-jb-keep-institution="1"></div>'+
+          '<div class="jb-institution-contact-2026"><span class="jb-hotline-2026"></span></div>'+
+        '</div>'+
+        '<div class="jb-inst-side-2026"><img class="jb-receipt-mainqr-2026" alt="মূল পেজের QR কোড"></div>';
       p.insertBefore(h,p.firstChild);
     }
-    h.innerHTML=
-      '<div class="jb-inst-side-2026"><img alt="মাদ্রাসার লোগো" src="'+esc(logo)+'"></div>'+
-      '<div class="jb-inst-center-2026">'+
-        '<div class="jb-inst-name-2026" data-jb-keep-institution="1">'+esc(name)+'</div>'+
-        '<div class="jb-inst-address-2026" data-jb-keep-institution="1">'+esc(address)+'</div>'+
-        '<div class="jb-institution-contact-2026"><span class="jb-hotline-2026">'+esc(hotline)+'</span></div>'+
-      '</div>'+
-      '<div class="jb-inst-side-2026"><img alt="মূল পেজের QR কোড" src="'+esc(qr)+'"></div>';
+    var nameNode=h.querySelector('.jb-inst-name-2026');
+    var addressNode=h.querySelector('.jb-inst-address-2026');
+    var hotlineNode=h.querySelector('.jb-hotline-2026');
+    var logoNode=h.querySelector('.jb-receipt-logo-2026');
+    var qrNode=h.querySelector('.jb-receipt-mainqr-2026');
+    if(nameNode&&nameNode.textContent!==name)nameNode.textContent=name;
+    if(addressNode&&addressNode.textContent!==address)addressNode.textContent=address;
+    if(hotlineNode&&hotlineNode.textContent!==hotline)hotlineNode.textContent=hotline;
+    if(logoNode&&logo&&logoNode.src!==logo)logoNode.src=logo;
+    if(qrNode&&qr&&qrNode.src!==qr)qrNode.src=qr;
   }
   function scan(){
     if(docKey()!=='receipts')return;
