@@ -751,7 +751,17 @@ function ensureAutoPersonDocuments_(personSheet, person, personId) {
   const heads = (vals[0] || []).map(String);
   const ix = key => heads.indexOf(key);
   const safeId = id.replace(/[^A-Za-z0-9_-]/g,'_').slice(0,80) || 'PERSON';
-  const fields = Object.assign({}, person, {
+  const fields = {};
+  ['StudentID','TeacherID','DonorID','MemberID','PersonID','NameBN','NameAR','NameEN',
+   'FatherBN','FatherAR','FatherEN','MotherBN','MotherAR','MotherEN','DOB','Gender',
+   'Class','Department','Branch','Residence','Mobile','WhatsApp','Email','Address',
+   'Division','District','Upazila','Union','Post','PostOffice','PostCode','Ward','Village',
+   'Roll','BirthReg','NID','Role','Designation','Photo','PhotoURL'].forEach(function(k) {
+     if(person[k]!==undefined && person[k]!==null && String(person[k]).trim()!=='') fields[k]=person[k];
+   });
+  const photo=String(fields.Photo||fields.PhotoURL||'');
+  if(/^data:image\//i.test(photo) || photo.length>40000) { fields.Photo=''; if(fields.PhotoURL && String(fields.PhotoURL).length>40000) fields.PhotoURL=''; }
+  Object.assign(fields, {
     StudentID:id, PersonID:id, PersonType:personSheet,
     NameBN:person.NameBN || person.Name || '',
     NameAR:person.NameAR || '',
@@ -1293,8 +1303,15 @@ function getStudentDocumentData(token, studentId) {
   }
   if (!student && !admission && !otherPerson) return {ok:true,found:false,studentId:id,data:{StudentID:id}};
   if(otherPerson) {
-    const otherData=Object.assign({},otherPerson,{StudentID:id,PersonID:id,PersonType:personType});
-    if(!otherData.Mobile) otherData.Mobile=otherData.Phone||APP.hotline1;
+    const otherData={};
+    ['TeacherID','DonorID','MemberID','NameBN','NameAR','NameEN','FatherBN','FatherAR','FatherEN',
+     'MotherBN','MotherAR','MotherEN','DOB','Gender','Class','Department','Branch','Residence',
+     'Mobile','WhatsApp','Email','Address','Division','District','Upazila','Union','Post','PostOffice',
+     'PostCode','Ward','Village','Roll','BirthReg','NID','Role','Designation','Photo','PhotoURL'].forEach(function(k){
+       if(otherPerson[k]!==undefined && otherPerson[k]!==null) otherData[k]=otherPerson[k];
+     });
+    otherData.StudentID=id; otherData.PersonID=id; otherData.PersonType=personType;
+    if(!otherData.Mobile) otherData.Mobile=APP.hotline1;
     if(!otherData.WhatsApp) otherData.WhatsApp=otherData.Mobile;
     return {ok:true,found:true,source:personType.toUpperCase(),studentFound:false,admissionFound:false,studentId:id,data:otherData};
   }
@@ -2011,11 +2028,18 @@ function getAllDocumentBuilderHistory(token, personId) {
   auth_(token);
   const id=String(personId||'').trim(), out=[];
   const sources=[
-    ['marks',SHEETS.RESULTS,'ResultID'],['result',SHEETS.RESULTS,'ResultID'],
     ['id_cards',SHEETS.ID_CARDS,'CardID'],['admit_cards',SHEETS.ADMIT_CARDS,'AdmitID'],
     ['certificates',SHEETS.CERTIFICATES,'CertificateID'],['receipts',SHEETS.RECEIPTS,'ReceiptID']
   ];
   const seen={};
+  listRows_(SHEETS.RESULTS,token,5000).forEach(function(row) {
+    if(id && String(row.StudentID||'').trim()!==id) return;
+    const rid=String(row.ResultID||''); if(!rid) return;
+    let payload={};try{payload=JSON.parse(row.Data||'{}')}catch(e){}
+    const k=String(payload.docKey||'marks')==='result'?'result':'marks';
+    const unique=k+'|'+rid; if(seen[unique]) return; seen[unique]=true;
+    out.push(Object.assign({},row,{_docKey:k}));
+  });
   sources.forEach(function(spec) {
     listRows_(spec[1],token,5000).forEach(function(row) {
       if(id && String(row.StudentID||row.RefID||'').trim()!==id) return;
