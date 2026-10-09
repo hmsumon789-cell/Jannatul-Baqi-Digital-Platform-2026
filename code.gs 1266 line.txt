@@ -479,48 +479,82 @@ function getStats(token) {
 function searchAll(token,signal,query) {
   signal=String(signal||'').trim().toLowerCase();
   query=String(query||'').trim();
-  if(!query) return {ok:false,message:'সার্চ আইডি দিন।'};
-  const map={
-    std:SHEETS.STUDENTS,thr:SHEETS.TEACHERS,olp:SHEETS.PAYMENTS,mrs:SHEETS.RESULTS,rjt:SHEETS.RESULTS,
-    adm:SHEETS.ADMINS,npn:SHEETS.EXAM_REG,npt:SHEETS.STUDENTS,nmt:SHEETS.STUDENTS,ofd:SHEETS.RESULTS,
-    cft:SHEETS.CERTIFICATES,idc:SHEETS.ID_CARDS,adc:SHEETS.ADMIT_CARDS,rct:SHEETS.RECEIPTS,tcp:SHEETS.STUDENTS,sjs:SHEETS.STUDENTS,
-    ti:SHEETS.ONLINE_SERVICES,af:SHEETS.ONLINE_SERVICES,lf:SHEETS.ONLINE_SERVICES,er:SHEETS.ONLINE_SERVICES,
-    tc:SHEETS.ONLINE_SERVICES,ap:SHEETS.ONLINE_SERVICES,lm:SHEETS.ONLINE_SERVICES,lc:SHEETS.ONLINE_SERVICES,
-    tr:SHEETS.ONLINE_SERVICES,ta:SHEETS.ONLINE_SERVICES,ef:SHEETS.ONLINE_SERVICES,ei:SHEETS.ONLINE_SERVICES
+  if(!query) return {ok:false,message:'সার্চ ID দিন।'};
+  const rules={
+    std:{sheet:SHEETS.STUDENTS,keys:['StudentID','MobileID','Mobile','WhatsApp','EmailID','Email','NameBN','NameAR','NameEN'],ids:['StudentID']},
+    thr:{sheet:SHEETS.TEACHERS,keys:['TeacherID','Mobile','Phone','WhatsApp','Email','NameBN','NameAR','NameEN','Name'],ids:['TeacherID']},
+    olp:{sheet:SHEETS.PAYMENTS,keys:['PaymentID','StudentID','Name','Mobile','Reference','TransactionID'],ids:['PaymentID','StudentID','Reference','TransactionID']},
+    mrs:{sheet:SHEETS.RESULTS,keys:['ResultID','StudentID','Name','Class','Exam'],ids:['ResultID','StudentID'],docs:['marks','result']},
+    rjt:{sheet:SHEETS.RESULTS,keys:['ResultID','StudentID','Name','Class','Exam'],ids:['ResultID','StudentID'],docs:['marks','result']},
+    adm:{sheet:SHEETS.ADMINS,keys:['AdminID','Username','Name','Mobile','Email'],ids:['AdminID','Username']},
+    npn:{sheet:SHEETS.EXAM_REG,keys:['ExamRegID','StudentID','Exam','Class','Branch'],ids:['ExamRegID','StudentID']},
+    npt:{sheet:SHEETS.MADRASAS,keys:['MadrasaID','Name','NameBN','NameEN','Mobile','Email','Username'],ids:['MadrasaID','Username']},
+    nmt:{sheet:SHEETS.MADRASAS,keys:['MadrasaID','Name','NameBN','NameEN','Mobile','Email','Username'],ids:['MadrasaID','Username']},
+    ofd:{sheet:SHEETS.RESULTS,keys:['ResultID','StudentID','Name','Class','Exam'],ids:['ResultID','StudentID'],docs:['marks','result']},
+    cft:{sheet:SHEETS.CERTIFICATES,keys:['CertificateID','StudentID','RefID','Type','Name','Mobile'],ids:['CertificateID','StudentID','RefID'],docs:['certificates']},
+    idc:{sheet:SHEETS.ID_CARDS,keys:['CardID','StudentID','TeacherID','DonorID','MemberID','PersonID','Name','Mobile'],ids:['CardID','StudentID','TeacherID','DonorID','MemberID','PersonID'],docs:['id_cards']},
+    adc:{sheet:SHEETS.ADMIT_CARDS,keys:['AdmitID','StudentID','Exam','Name','Mobile'],ids:['AdmitID','StudentID'],docs:['admit_cards']},
+    rct:{sheet:SHEETS.RECEIPTS,keys:['ReceiptID','RefID','StudentID','Name','Mobile','Type','Amount'],ids:['ReceiptID','RefID','StudentID']},
+    tcp:{sheet:SHEETS.STUDENTS,keys:['StudentID','NameBN','NameEN','Mobile','Email'],ids:['StudentID'],docs:['tc','transfer_certificate','certificates']},
+    sjs:{sheet:SHEETS.STUDENTS,keys:['StudentID','Class','NameBN','NameEN'],ids:['StudentID']},
+    ti:{sheet:SHEETS.TEACHERS,keys:['TeacherID','NameBN','NameEN','Mobile','Email'],ids:['TeacherID'],docs:['teacher_id']},
+    af:{sheet:SHEETS.ONLINE_SERVICES,keys:['ServiceID','PersonID','StudentID','Mobile','Email','Code','ServiceType','Name'],ids:['ServiceID','PersonID','StudentID','Code']},
+    lf:{sheet:SHEETS.ONLINE_SERVICES,keys:['ServiceID','PersonID','StudentID','Mobile','Email','Code','ServiceType','Name'],ids:['ServiceID','PersonID','StudentID','Code']},
+    er:{sheet:SHEETS.ONLINE_SERVICES,keys:['ServiceID','PersonID','StudentID','Mobile','Email','Code','ServiceType','Name'],ids:['ServiceID','PersonID','StudentID','Code']},
+    tc:{sheet:SHEETS.ONLINE_SERVICES,keys:['ServiceID','PersonID','StudentID','Mobile','Email','Code','ServiceType','Name'],ids:['ServiceID','PersonID','StudentID','Code'],docs:['tc','transfer_certificate']},
+    ap:{sheet:SHEETS.ONLINE_SERVICES,keys:['ServiceID','PersonID','StudentID','Mobile','Email','Code','ServiceType','Name'],ids:['ServiceID','PersonID','StudentID','Code']},
+    lm:{sheet:SHEETS.ONLINE_SERVICES,keys:['ServiceID','PersonID','StudentID','Mobile','Email','Code','ServiceType','Name'],ids:['ServiceID','PersonID','StudentID','Code']},
+    lc:{sheet:SHEETS.ONLINE_SERVICES,keys:['ServiceID','PersonID','StudentID','Mobile','Email','Code','ServiceType','Name'],ids:['ServiceID','PersonID','StudentID','Code']},
+    tr:{sheet:SHEETS.ONLINE_SERVICES,keys:['ServiceID','PersonID','TeacherID','Mobile','Email','Code','ServiceType','Name'],ids:['ServiceID','PersonID','TeacherID','Code']},
+    ta:{sheet:SHEETS.ONLINE_SERVICES,keys:['ServiceID','PersonID','TeacherID','Mobile','Email','Code','ServiceType','Name'],ids:['ServiceID','PersonID','TeacherID','Code']},
+    ef:{sheet:SHEETS.ONLINE_SERVICES,keys:['ServiceID','PersonID','MemberID','Mobile','Email','Code','ServiceType','Name'],ids:['ServiceID','PersonID','MemberID','Code']},
+    ei:{sheet:SHEETS.EXECUTIVES,keys:['MemberID','NameBN','NameEN','Mobile','Email'],ids:['MemberID'],docs:['executive_id']}
   };
-  const sheet=map[signal];
-  if(!sheet) return {ok:false,message:'সংকেত সঠিক নয়।'};
-  const rows=listRows_(sheet,token,5000);
+  const rule=rules[signal];
+  if(!rule) return {ok:false,message:'সংকেত সঠিক নয়।'};
   const q=query.toLowerCase();
-  let matches=rows.filter(r=>Object.keys(r).some(k=>String(r[k]??'').toLowerCase().includes(q))).slice(0,100);
-  const signalKeys={mrs:['marks','result'],rjt:['marks','result'],ofd:['marks','result'],cft:['certificates'],idc:['id_cards'],adc:['admit_cards'],thr:['teacher_id'],ti:['teacher_id'],ei:['executive_id'],tcp:['marks','id_cards','admit_cards','certificates']};
-  const wanted=signalKeys[signal]||[];
-  if(wanted.length) {
+  const matches=[];
+  const seen={};
+  function add(row,kind){
+    row=row||{};
+    const fields=kind==='document'?['DocumentID','CardID','AdmitID','CertificateID','ResultID','ReceiptID','ServiceID']:
+      (rule.ids||[]).concat(['DocumentID','CardID','AdmitID','CertificateID','ResultID','ReceiptID','ExamRegID','StudentID','TeacherID','DonorID','MemberID','PersonID','MadrasaID','AdminID']);
+    const exact=fields.some(function(k){return String(row[k]??'').trim().toLowerCase()===q;});
+    const allowed=(rule.keys||[]).some(function(k){return String(row[k]??'').trim().toLowerCase()===q;}) ||
+      ['Mobile','Phone','WhatsApp','Email','EmailID','Name','NameBN','NameEN'].some(function(k){return String(row[k]??'').trim().toLowerCase()===q;});
+    const partialContact=['Mobile','Phone','WhatsApp','Email','EmailID'].some(function(k){return String(row[k]??'').trim().toLowerCase().includes(q);});
+    if(!exact&&!allowed&&!partialContact) return;
+    let key='';
+    if(kind==='document'){
+      key='doc|'+String(row.DocumentID||'')+'|'+String(row.DocKey||'')+'|'+String(row.StudentID||row.PersonID||row.TeacherID||row.MemberID||'')+'|'+String(row.Exam||row.IssueDate||'');
+    }else{
+      const primary=(rule.ids||[]).map(function(k){return String(row[k]??'').trim();}).find(Boolean)||'';
+      key=signal+'|'+primary+'|'+String(row.Exam||row.Month||row.Type||'')+'|'+String(row.Date||row.IssueDate||'');
+    }
+    if(!key||key===signal+'|||') key=signal+'|'+JSON.stringify(row);
+    if(seen[key]) return;
+    seen[key]=true;
+    matches.push(Object.assign({},row,{_searchExact:exact?1:0}));
+  }
+  listRows_(rule.sheet,token,5000).forEach(function(row){add(row,'sheet');});
+  if(rule.docs&&rule.docs.length){
     const gh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName('DOCUMENT_BUILDER_HISTORY');
-    if(gh && gh.getLastRow()>1) {
-      const gv=gh.getDataRange().getValues(), heads=gv[0].map(String);
-      gv.slice(1).forEach(function(row) {
-        const item=objectFrom_(heads,row);
-        if(!wanted.includes(String(item.DocKey||''))) return;
+    if(gh&&gh.getLastRow()>1){
+      const gv=gh.getDataRange().getValues(),heads=gv[0].map(String);
+      gv.slice(1).forEach(function(raw){
+        const item=objectFrom_(heads,raw);
+        if(!rule.docs.includes(String(item.DocKey||''))) return;
         let payload={};try{payload=JSON.parse(item.Data||'{}')}catch(e){}
-        if(!payload.autoGenerated) return;
-        const flat=Object.assign({},payload.fields||{},item,{AutoGenerated:'YES'});
-        if(!Object.keys(flat).some(k=>String(flat[k]??'').toLowerCase().includes(q))) return;
-        if(!matches.some(x=>String(x.DocumentID||'')===String(item.DocumentID||''))) matches.push(flat);
+        const fields=payload.fields||{};
+        const merged=Object.assign({},fields,item,{DocumentID:item.DocumentID,DocKey:item.DocKey,AutoGenerated:payload.autoGenerated?'YES':''});
+        add(merged,'document');
       });
     }
   }
-  /* Exact ID matches always appear before partial matches, especially for auto-generated document drafts. */
-  const idFields=['StudentID','TeacherID','DonorID','MemberID','PersonID','DocumentID','CardID','AdmitID','CertificateID','ResultID','ReceiptID','ExamRegID','ID'];
-  matches.sort(function(a,b){
-    const exactA=idFields.some(function(k){return String(a[k]??'').trim().toLowerCase()===q;});
-    const exactB=idFields.some(function(k){return String(b[k]??'').trim().toLowerCase()===q;});
-    return exactA===exactB?0:(exactA?-1:1);
-  });
-  matches=matches.slice(0,100);
-  return {ok:true,signal,query,matches,count:matches.length};
+  matches.sort(function(a,b){return Number(b._searchExact||0)-Number(a._searchExact||0);});
+  matches.forEach(function(x){delete x._searchExact;});
+  return {ok:true,signal:signal,query:query,matches:matches.slice(0,100),count:Math.min(matches.length,100)};
 }
-
 
 function listSignalRecords(token,signal,className) {
   auth_(token);
