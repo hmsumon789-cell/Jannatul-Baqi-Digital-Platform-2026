@@ -807,6 +807,19 @@ function saveRecord(token,sheetName,data) {
   if(headers.includes('StudentID') && !data.StudentID && sheetName==='STUDENTS') {
     const s=nextSerial_(sh); row[1]=String(s).padStart(3,'0'); row[2]='F-'+String(s).padStart(4,'0'); row[3]=data.Mobile||''; row[4]=data.Email||'';
   }
+  /* Missing person IDs are generated server-side so auto-document drafts always have a stable lookup ID. */
+  const personIdSpecs={
+    TEACHERS:{field:'TeacherID',prefix:'T-'},DONORS:{field:'DonorID',prefix:'DNR-'},
+    EXECUTIVES:{field:'MemberID',prefix:'EX-'},ADVISERS:{field:'MemberID',prefix:'ADV-'},
+    FOUNDERS:{field:'MemberID',prefix:'FND-'}
+  };
+  const personIdSpec=personIdSpecs[sheetName];
+  if(personIdSpec){
+    const personIdIndex=headers.indexOf(personIdSpec.field);
+    if(personIdIndex>=0&&!String(row[personIdIndex]||'').trim()){
+      row[personIdIndex]=personIdSpec.prefix+String(row[0]||1).padStart(4,'0');
+    }
+  }
   if(sheetName==='STUDENTS'){
     ensureStudentWorkflowColumns_();
     const info=studentSourceInfo_(token);
