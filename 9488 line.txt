@@ -13017,10 +13017,10 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       var save=[].slice.call(body.querySelectorAll('button')).find(function(b){return (b.getAttribute('onclick')||'').indexOf("saveModule('admission')")>=0});
       var panel='<section id="admissionMandatoryPanel2026"><h3>ভর্তি ফি ও পেমেন্ট <span class="adm-required">*</span></h3>'+
         '<div class="adm-fee-actions">'+
-        '<div><button type="button" class="primary" onclick="openAdmissionDialog2026(\'fees\')">💰 মাসিক ধার্যকৃত ফি</button><div id="admFeeState2026" class="adm-state">এখনো ফি নির্ধারণ হয়নি</div></div>'+
-        '<div><button type="button" class="primary" onclick="openAdmissionDialog2026(\'admissionPaid\')">💵 ভর্তি ফি প্রদান করুন</button><div id="admAdmissionPaidState2026" class="adm-state">ভর্তিকালীন অর্থ/বকেয়া দিন</div></div>'+
-        '<div><button type="button" class="primary" onclick="openAdmissionDialog2026(\'type\')">📋 ভর্তির ধরন</button><div id="admTypeState2026" class="adm-state">এখনো ধরন নির্বাচন হয়নি</div></div>'+
-        '<div><button type="button" class="primary" onclick="openAdmissionDialog2026(\'payment\')">💳 প্রদান করুন</button><div id="admPaymentState2026" class="adm-state">পেমেন্ট অনুরোধ বাকি</div></div>'+
+        '<div><button type="button" class="primary" onclick="openAdmissionDialog2026(\\'type\\')">📋 ১. ভর্তির ধরন</button><div id="admTypeState2026" class="adm-state">এখনো ধরন নির্বাচন হয়নি</div></div>'+
+        '<div><button type="button" class="primary" onclick="openAdmissionDialog2026(\\'fees\\')">💰 ২. মাসিক ধার্যকৃত বেতন/অন্যান্য ফি</button><div id="admFeeState2026" class="adm-state">এখনো ফি নির্ধারণ হয়নি</div></div>'+
+        '<div><button type="button" class="primary" onclick="openAdmissionDialog2026(\\'admissionPaid\\')">💵 ৩. ভর্তি ফি প্রদান করুন</button><div id="admAdmissionPaidState2026" class="adm-state">ভর্তিকালীন অর্থ/বকেয়া দিন</div></div>'+
+        '<div><button type="button" class="primary" onclick="openAdmissionDialog2026(\\'payment\\')">💳 ৪. প্রদান করুন</button><div id="admPaymentState2026" class="adm-state">পেমেন্ট অনুরোধ বাকি</div></div>'+
         '</div><div id="admFeeSummary2026" class="card" style="padding:10px;margin:8px 0">মাসিক বেতন, আবাসিক ফি, মাসিক খোরাকী ও সেশন ফি নির্ধারণ করুন।</div>'+
         '<p class="adm-required">চারটি ধাপ সম্পন্ন না হলে ভর্তি আবেদন সংরক্ষণ করা যাবে না। পেমেন্ট অনুরোধ গ্রহণ হলে তা Super Admin অনুমোদনের অপেক্ষায় থাকবে।</p></section>';
       if(save){save.insertAdjacentHTML('beforebegin',panel);save.outerHTML='<button class="primary" type="button" onclick="saveAdmissionApplication2026()">💾 ভর্তি আবেদন সংরক্ষণ</button>'}
@@ -13119,8 +13119,18 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     var d=studentFormData();if(!d.NameBN){safeToast('ছাত্র/ছাত্রীর বাংলা নাম লিখুন।');return null}if(!d.Class){safeToast('শ্রেণি/জামাত নির্বাচন করুন।');return null}
     try{d.Photo=typeof fileData==='function'?await fileData('adPhoto'):''}catch(e){}
     var record={AdmissionID:d.FormID,StudentID:d.StudentID,Session:String(new Date().getFullYear()),Class:d.Class,Branch:d.Branch,Status:'PENDING',FormData:JSON.stringify(d)};
-    var r=await call('saveRecord',token,'ADMISSIONS',record);
-    if(!r||!r.ok){safeToast((r&&r.message)||'ভর্তি আবেদন সংরক্ষণ হয়নি।');return null}
+    var r;
+    try {
+      r=await call('saveRecord',token,'ADMISSIONS',record);
+    } catch(err) {
+      safeToast('ভর্তি আবেদন সংরক্ষণ ব্যর্থ হয়েছে। কারণ: '+(err&&err.message?err.message:String(err))+'। ধৈর্যধরে আবার চেষ্টা করুন।');
+      return null;
+    }
+    if(!r||!r.ok){
+      var reason=(r&&r.message)?r.message:'সার্ভার থেকে সফলতার নিশ্চিত উত্তর পাওয়া যায়নি।';
+      safeToast('ভর্তি আবেদন সংরক্ষণ ব্যর্থ হয়েছে। কারণ: '+reason+'। ধৈর্যধরে আবার চেষ্টা করুন।');
+      return null;
+    }
     var sid=(r.studentWorkflow&&r.studentWorkflow.studentId)||(r.row&&r.row.StudentID)||d.StudentID;
     savedAdmission={admissionId:(r.row&&r.row.AdmissionID)||d.FormID,studentId:sid,data:d};
     return savedAdmission;
@@ -13141,8 +13151,15 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   };
   window.saveAdmissionApplication2026=async function(){
     if(!feeConfirmed||!typeConfirmed||!admissionPaidConfirmed||!paymentRequested){safeToast('চারটি ধাপ সম্পন্ন করুন: মাসিক ধার্যকৃত ফি → ভর্তি ফি প্রদান করুন (প্রদত্ত/বকেয়া) → ভর্তির ধরন → প্রদান করুন।');return}
-    var s=await saveAdmissionRecord();if(!s)return;
-    safeToast('ভর্তি আবেদন সংরক্ষিত হয়েছে। Student ID: '+s.studentId+' | Admission ID: '+s.admissionId);
+    var s;
+    try {
+      s=await saveAdmissionRecord();
+    } catch(err) {
+      safeToast('ভর্তি আবেদন সংরক্ষণ ব্যর্থ হয়েছে। কারণ: '+(err&&err.message?err.message:String(err))+'। ধৈর্যধরে আবার চেষ্টা করুন।');
+      return;
+    }
+    if(!s)return;
+    safeToast('আলহামদুলিল্লাহ ভর্তি কার্যক্রম সফল হয়েছে। Student ID: '+s.studentId+' | Admission ID: '+s.admissionId);
   };
   window.saveGeneralAdmissionApplication2026=async function(){
     var name=V('admGenericName2026'),mobile=V('admGenericMobile2026'),address=V('admGenericAddress2026'),position=V('admGenericPosition2026');
