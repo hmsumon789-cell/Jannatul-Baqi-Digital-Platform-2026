@@ -9969,7 +9969,7 @@ var wrap=document.getElementById('jbDocPreviewWrap');if(!wrap)return;wrap.innerH
 </script>
 <script id="central-document-builder-all-history-2026-10-06">
 (function(){
-  function rid(x){return x.ResultID||x.CardID||x.AdmitID||x.CertificateID||x.ReceiptID||''}
+  function rid(x){return x.ResultID||x.CardID||x.AdmitID||x.CertificateID||x.ReceiptID||x.DocumentID||''}
   function dt(x){return x.IssueDate||x.Date||x.CreatedAt||''}
   function title(k){var m={marks:'মার্কশিট',result:'ফলাফল / মার্কশিট',id_cards:'আইডি কার্ড',admit_cards:'অ্যাডমিট কার্ড',certificates:'সার্টিফিকেট',receipts:'মানি রিসিট',teacher_id:'শিক্ষক/শিক্ষিকা আইডি কার্ড',admission_form:'ভর্তি আবেদন ফর্ম',leave_form:'ছুটির আবেদন ফর্ম',exam_routine:'পরীক্ষার রুটিন',tc:'টিসি / ছাড়পত্র',attestation:'প্রত্যয়ন পত্র',lifetime_member_form:'আজীবন সদস্য ফর্ম',lifetime_member_certificate:'আজীবন সদস্য সনদ',teacher_recruitment_form:'শিক্ষক/শিক্ষিকা নিয়োগ আবেদন',teacher_appointment:'শিক্ষক/শিক্ষিকা নিয়োগ পত্র',executive_form:'নির্বাহী পরিষদ ফর্ম',executive_id:'নির্বাহী পরিষদ সদস্য আইডি কার্ড'};return m[k]||k}
   window.jbShowAllHistory=async function(){
@@ -9998,10 +9998,13 @@ var wrap=document.getElementById('jbDocPreviewWrap');if(!wrap)return;wrap.innerH
       if(window.jbOpenDocumentType2026)window.jbOpenDocumentType2026(k);
       var r=await call('getDocumentBuilderRecord',token,k,id);
       if(!r||!r.ok)throw new Error((r&&r.message)||'Document পাওয়া যায়নি।');
-      var data=r.data||{};Object.keys(data).forEach(function(n){
+      var data=r.data||{};
+      var personId=String(data.StudentID||data.PersonID||r.row?.StudentID||r.row?.RefID||'').trim();
+      var idInput=document.getElementById('jbDocId');if(idInput)idInput.value=personId;
+      if(personId && typeof window.jbFindStudent==='function') { try{await window.jbFindStudent();}catch(ignore){} }
+      Object.keys(data).forEach(function(n){
         var e=document.querySelector('#jbDocFields [data-key="'+CSS.escape(n)+'"]');if(e)e.value=data[n]==null?'':data[n];
       });
-      var e=document.getElementById('jbDocId');if(e)e.value=data.StudentID||r.row?.StudentID||r.row?.RefID||'';
       jbCreatePreview();
       if(doPrint)setTimeout(function(){jbPrint()},180);
     }catch(e){toast('Document খোলা যায়নি: '+(e&&e.message?e.message:e))}
@@ -12602,3 +12605,31 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 </script>
 <!-- ===== END FINANCE FORM RESTORE ===== -->
 
+
+<!-- ===== UNIVERSAL ID SEARCH ENTER BINDING — 2026-10-09 ===== -->
+<script id="universal-id-search-enter-binding-2026-10-09">
+(function(){
+  function bindOne(id,where){
+    var el=document.getElementById(id);
+    if(!el || el.dataset.universalEnterBound==='1') return;
+    el.dataset.universalEnterBound='1';
+    el.addEventListener('keydown',function(ev){
+      if(ev.key==='Enter'){
+        ev.preventDefault();
+        if(typeof window.doSearch==='function') window.doSearch(where);
+      }
+    });
+  }
+  function bind(){
+    bindOne('loginSearch','login'); bindOne('appSearch','app');
+    bindOne('loginSignal','login'); bindOne('appSignal','app');
+    var l=document.getElementById('loginSearch'), a=document.getElementById('appSearch');
+    if(l)l.placeholder='একই ID লিখুন—সংকেত বদলে Enter চাপুন';
+    if(a)a.placeholder='একই ID লিখুন—সংকেত বদলে Enter চাপুন';
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);
+  else bind();
+  setTimeout(bind,300);setTimeout(bind,1000);
+})();
+</script>
+<!-- ===== END UNIVERSAL ID SEARCH ENTER BINDING ===== -->
