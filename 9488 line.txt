@@ -1389,7 +1389,7 @@ async function searchOnlinePaymentReceipt(){
   if(!id){if(msg)msg.textContent='❌ রসিদ আইডি লিখুন।';return;}
   if(msg)msg.textContent='⏳ রসিদ খোঁজা হচ্ছে...';
   try{
-    const r=await call('searchFinanceReceipt',token,id);
+    const r=await call('searchOnlinePaymentReceipt',token,id);
     if(!r||!r.ok){if(msg)msg.textContent='❌ '+((r&&r.message)||'এই আইডির রসিদ পাওয়া যায়নি।');return;}
     if(msg)msg.textContent='✅ রসিদ পাওয়া গেছে: '+(r.receipt.ReceiptID||id);
     showOnlinePaymentReceipt(r.receipt);
