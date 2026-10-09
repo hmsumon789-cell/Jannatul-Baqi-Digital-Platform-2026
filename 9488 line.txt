@@ -9987,6 +9987,7 @@ var wrap=document.getElementById('jbDocPreviewWrap');if(!wrap)return;wrap.innerH
             '<b style="min-width:145px">'+esc(title(k))+'</b><span style="min-width:210px">'+esc(String(id))+'</span>'+
             '<span style="margin-right:auto">'+esc(String(dt(x)))+'</span>'+
             '<button class="secondary" onclick="jbAllHistoryOpen('+JSON.stringify(String(k))+','+JSON.stringify(String(id))+')">👁 দেখুন</button>'+
+            '<button class="secondary" onclick="jbAllHistoryDownload('+JSON.stringify(String(k))+','+JSON.stringify(String(id))+')">⬇️ Download</button>'+
             '<button class="primary" onclick="jbAllHistoryPrint('+JSON.stringify(String(k))+','+JSON.stringify(String(id))+')">🖨️ Print</button>'+
           '</div>';
         }).join(''):'কোনো সংরক্ষিত Document/Card নেই।');
@@ -10005,12 +10006,14 @@ var wrap=document.getElementById('jbDocPreviewWrap');if(!wrap)return;wrap.innerH
       Object.keys(data).forEach(function(n){
         var e=document.querySelector('#jbDocFields [data-key="'+CSS.escape(n)+'"]');if(e)e.value=data[n]==null?'':data[n];
       });
-      jbCreatePreview();
-      if(doPrint)setTimeout(function(){jbPrint()},180);
+      await Promise.resolve(jbCreatePreview());
+      if(doPrint==='print')setTimeout(function(){jbPrint()},180);
+      else if(doPrint==='download')setTimeout(function(){jbDownload()},180);
     }catch(e){toast('Document খোলা যায়নি: '+(e&&e.message?e.message:e))}
   }
   window.jbAllHistoryOpen=function(k,id){return openOne(k,id,false)};
-  window.jbAllHistoryPrint=function(k,id){return openOne(k,id,true)};
+  window.jbAllHistoryPrint=function(k,id){return openOne(k,id,'print')};
+  window.jbAllHistoryDownload=function(k,id){return openOne(k,id,'download')};
 })();
 </script>
 <!-- ===== END HISTORY ACTIONS FINAL ===== -->
