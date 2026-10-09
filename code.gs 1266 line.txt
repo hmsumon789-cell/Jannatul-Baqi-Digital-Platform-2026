@@ -2167,8 +2167,10 @@ function getExamDashboardData(token, exam, className) {
 function saveExamDashboardCandidate(token, studentId, exam, className) {
   const reg=registerExamCandidate(token,studentId,exam,className,'');
   if(!reg||!reg.ok)return reg;
-  const admit=createAdmitCardFromCandidate(token,studentId,exam);
-  return {ok:true,duplicate:!!reg.duplicate,examRegId:reg.examRegId||'',admit:admit,message:reg.message||'পরীক্ষার্থী যুক্ত হয়েছে।'};
+  let admit=null;
+  try{admit=createAdmitCardFromCandidate(token,studentId,exam);}
+  catch(e){admit={ok:false,message:String(e&&e.message||e)};}
+  return {ok:true,duplicate:!!reg.duplicate,examRegId:reg.examRegId||'',admit:admit,message:reg.message||'পরীক্ষার্থী যুক্ত হয়েছে۔'};
 }
 function saveExamDashboardMarks(token, exam, className, subject, marks) {
   auth_(token); requireFeature_(token,'result');
