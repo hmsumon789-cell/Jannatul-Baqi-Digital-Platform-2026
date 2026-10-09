@@ -2084,9 +2084,32 @@ function searchOnlinePaymentReceipt(token,receiptId){
 
 
 /* ===== UNIVERSAL DOCUMENT HISTORY — 2026-10-09 ===== */
+function ensureAutoDocumentsForPersonId_(token, personId) {
+  const id=String(personId||'').trim();
+  if(!id) return {ok:true,created:0};
+  const specs=[
+    ['STUDENTS','StudentID'],['TEACHERS','TeacherID'],['DONORS','DonorID'],
+    ['EXECUTIVES','MemberID'],['ADVISERS','MemberID'],['FOUNDERS','MemberID']
+  ];
+  let created=0, matched=0;
+  specs.forEach(function(spec){
+    try {
+      const rows=listRows_(spec[0],token,10000);
+      const person=rows.find(function(r){return String(r[spec[1]]||'').trim()===id;});
+      if(!person) return;
+      matched++;
+      const result=ensureAutoPersonDocuments_(spec[0],person,id);
+      if(result&&result.ok) created+=Number(result.created||0);
+    } catch(e) {}
+  });
+  return {ok:true,matched:matched,created:created};
+}
+
 function getAllDocumentBuilderHistory(token, personId) {
   auth_(token);
   const id=String(personId||'').trim(), out=[];
+  /* If a legacy/alternate save path skipped draft creation, prepare missing drafts now. */
+  if(id) ensureAutoDocumentsForPersonId_(token,id);
   const sources=[
     ['id_cards',SHEETS.ID_CARDS,'CardID'],['admit_cards',SHEETS.ADMIT_CARDS,'AdmitID'],
     ['certificates',SHEETS.CERTIFICATES,'CertificateID'],['receipts',SHEETS.RECEIPTS,'ReceiptID']
