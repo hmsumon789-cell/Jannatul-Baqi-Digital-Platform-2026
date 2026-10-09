@@ -1363,7 +1363,7 @@ function showOnlinePaymentReceipt(x){
   window.__jbOnlineReceipt2026=x;
   let w=$('onlinePaymentReceiptWin');
   if(!w){w=document.createElement('div');w.id='onlinePaymentReceiptWin';w.className='window';w.style.width='min(900px,96vw)';document.body.appendChild(w);}
-  const e=function(v){return esc(v==null?'':v)};
+  const e=function(v){return String(v==null?'':v).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]})};
   const fields=[
     ['রসিদ আইডি',x.ReceiptID],['লেনদেন আইডি',x.TransactionID||x.PaymentID||x.RequestID||''],
     ['শিক্ষার্থী আইডি',x.StudentID],['নাম',x.Name],['শ্রেণি/জামাত',x.Class],
