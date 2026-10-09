@@ -1220,6 +1220,15 @@ function getStudentDocumentData(token, studentId) {
 }
 
 /* ===== CENTRAL DOCUMENT BUILDER — SAVE + HISTORY — 2026-10-06 ===== */
+
+function documentBuilderGenericSheet_() {
+  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  let sh=ss.getSheetByName('DOCUMENT_BUILDER_HISTORY');
+  if(!sh) sh=ss.insertSheet('DOCUMENT_BUILDER_HISTORY');
+  if(sh.getLastRow()===0) sh.appendRow(['DocumentID','DocKey','StudentID','IssueDate','Data']);
+  return sh;
+}
+
 function saveDocumentBuilderRecord(token, docKey, studentId, data, html) {
   auth_(token);
   const key=String(docKey||'').trim();
@@ -1244,7 +1253,12 @@ function saveDocumentBuilderRecord(token, docKey, studentId, data, html) {
   } else if(key==='receipts') {
     sheetName=SHEETS.RECEIPTS;
     row={ReceiptID:data.ReceiptNo||('RCT-'+stamp+'-'+sid),RefID:sid,Type:data.Category||'মানি রিসিট',Amount:data.Amount||'',Date:data.Date||now,Data:payload};
-  } else return {ok:false,message:'এই Document type-এর Save এখনো সংযুক্ত হয়নি।'};
+  } else {
+    const sh=documentBuilderGenericSheet_();
+    const docId='DOC-'+key+'-'+stamp+'-'+sid;
+    sh.appendRow([docId,key,sid,data.IssueDate||data.Date||now,payload]);
+    return {ok:true,sheet:sh.getName(),record:{DocumentID:docId,DocKey:key,StudentID:sid,IssueDate:data.IssueDate||data.Date||now},documentId:docId,message:'Document + Preview History-তে সংরক্ষণ হয়েছে।'};
+  }
   const saved=saveRecord(token,sheetName,row);
   return {ok:true,sheet:sheetName,record:saved.row,documentId:row.ResultID||row.CardID||row.AdmitID||row.CertificateID||row.ReceiptID,message:'Document History-তে সংরক্ষণ হয়েছে।'};
 }
@@ -1377,7 +1391,14 @@ function getDocumentBuilderHistory(token, studentId, docKey) {
   else if(key==='admit_cards') sheet=SHEETS.ADMIT_CARDS;
   else if(key==='certificates') sheet=SHEETS.CERTIFICATES;
   else if(key==='receipts') sheet=SHEETS.RECEIPTS;
-  else return {ok:false,message:'Document type সঠিক নয়।'};
+  else {
+    const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName('DOCUMENT_BUILDER_HISTORY');
+    if(!sh||sh.getLastRow()<2) return {ok:true,sheet:'DOCUMENT_BUILDER_HISTORY',rows:[],count:0};
+    const vals=sh.getDataRange().getValues(), heads=vals[0]||[];
+    rows=vals.slice(1).map(r=>objectFrom_(heads,r)).filter(r=>String(r.DocKey||'')===key&&(!sid||String(r.StudentID||'').trim()===sid));
+    rows=rows.map(r=>{let p={};try{p=JSON.parse(r.Data||'{}')}catch(e){};return Object.assign({},r,{Data:p,DocumentID:r.DocumentID,IssueDate:r.IssueDate})});
+    return {ok:true,sheet:'DOCUMENT_BUILDER_HISTORY',rows:rows.reverse(),count:rows.length};
+  }
   rows=listRows_(sheet,token,5000).filter(r=>!sid||String(r.StudentID||r.RefID||'').trim()===sid);
   return {ok:true,sheet,rows:rows.slice().reverse(),count:rows.length};
 }
@@ -1479,7 +1500,15 @@ function getDocumentBuilderRecord(token, docKey, recordId) {
   else if(key==='admit_cards'){sheet=SHEETS.ADMIT_CARDS;idField='AdmitID';}
   else if(key==='certificates'){sheet=SHEETS.CERTIFICATES;idField='CertificateID';}
   else if(key==='receipts'){sheet=SHEETS.RECEIPTS;idField='ReceiptID';}
-  else return {ok:false,message:'Document type সঠিক নয়।'};
+  else {
+    const gsh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName('DOCUMENT_BUILDER_HISTORY');
+    if(!gsh||gsh.getLastRow()<2) return {ok:false,message:'History record পাওয়া যায়নি।'};
+    const gv=gsh.getDataRange().getValues(), gh=gv[0]||[], gi=gh.indexOf('DocumentID');
+    let gr=null;for(let i=1;i<gv.length;i++){if(gi>=0&&String(gv[i][gi]).trim()===rid){gr=objectFrom_(gh,gv[i]);break;}}
+    if(!gr) return {ok:false,message:'History record পাওয়া যায়নি।'};
+    let gp={};try{gp=JSON.parse(gr.Data||'{}')}catch(e){}
+    return {ok:true,docKey:key,recordId:rid,row:gr,data:gp.fields||{},html:gp.html||''};
+  }
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheet);
   if(!sh||sh.getLastRow()<2) return {ok:false,message:'History record পাওয়া যায়নি।'};
   const vals=sh.getDataRange().getValues(), h=vals[0], idx=h.indexOf(idField);
