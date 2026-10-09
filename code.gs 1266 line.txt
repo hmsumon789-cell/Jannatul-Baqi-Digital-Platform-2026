@@ -2231,3 +2231,28 @@ function getPublicExamResult(query) {
     return {exam:x.Exam,total:x.Total,gpa:x.GPA,grade:x.Grade,subjects:subjects};
   })};
 }
+
+
+/* ===== EXAM DASHBOARD CONFIG PERSISTENCE — 2026-10-09 ===== */
+function getExamDashboardItems(token, kind) {
+  auth_(token); requireFeature_(token,'exam');
+  const k='EXAMDASH:'+String(kind||'EXAMS').toUpperCase();
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.CONFIG);
+  if(!sh||sh.getLastRow()<2)return {ok:true,items:[]};
+  const vals=sh.getDataRange().getValues(),h=vals[0].map(String),ki=h.indexOf('Key'),vi=h.indexOf('Value');
+  for(let i=1;i<vals.length;i++)if(String(vals[i][ki]||'')===k){try{return {ok:true,items:JSON.parse(String(vals[i][vi]||'[]'))||[]};}catch(e){return {ok:true,items:[]};}}
+  return {ok:true,items:[]};
+}
+function saveExamDashboardItems(token, kind, items) {
+  auth_(token); requireFeature_(token,'exam');
+  if(!Array.isArray(items))return {ok:false,message:'সঠিক তালিকা পাওয়া যায়নি।'};
+  const k='EXAMDASH:'+String(kind||'EXAMS').toUpperCase(),sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.CONFIG);
+  if(!sh)throw new Error('CONFIG শীট পাওয়া যায়নি।');
+  const vals=sh.getDataRange().getValues(),h=vals[0].map(String),ki=h.indexOf('Key'),vi=h.indexOf('Value'),ui=h.indexOf('UpdatedAt');
+  let row=-1;for(let i=1;i<vals.length;i++)if(String(vals[i][ki]||'')===k){row=i+1;break;}
+  const value=JSON.stringify(items);
+  if(row>0){sh.getRange(row,vi+1).setValue(value);if(ui>=0)sh.getRange(row,ui+1).setValue(now_());}
+  else {const a=new Array(h.length).fill('');a[ki]=k;a[vi]=value;if(ui>=0)a[ui]=now_();sh.appendRow(a);}
+  SpreadsheetApp.flush();
+  return {ok:true,items:items,message:'পরীক্ষার তালিকা ডাটাবেজে সংরক্ষণ হয়েছে।'};
+}
