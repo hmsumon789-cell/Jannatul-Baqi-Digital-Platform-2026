@@ -1237,7 +1237,7 @@ if(k==='gallery')return `<div class="media-upload-note"><b>ফটো:</b> সর
 if(k==='help')return `<button class="primary" onclick="openWindow('quickWin')">দ্রুত সেবা / হেল্প</button>`;
 if(k==='institution')return `<h3>প্রতিষ্ঠানের সংক্ষিপ্ত ইতিহাস</h3><p>সালাতুল এস্তেখারার মাধ্যমে মহান আল্লাহ তায়ালার উপর পূর্ণ আস্থা রেখে খালেছ নিয়তে মানব জাতিকে অন্ধকার থেকে আলোর পথে আনার জন্য এবং সহি দ্বিনি ইলম শিক্ষা দেয়ার উদ্দেশ্যে 10-10-2005 ইংরেজী সনে প্রতিষ্ঠিত হয়।</p><p><b>প্রতিষ্ঠাতা-প্রিন্সিপাল/মুহতামিম:</b> জনাব হাফেজ হযরত মাওলানা মু. আতিকুর রহমান (ফরিদপুরী), ২০০৫ হতে ২০২৬ চলমান।</p>`;
 if(k==='finance')return window.financeFormHtml2026();
- if(['payment','fees'].includes(k))return `<div class="payment-online-head"><b>🌐 অনলাইন পেমেন্ট</b><span>ডিজিটাল প্লাটফর্ম / সার্ভারে পেমেন্ট কার্যক্রম চলমান</span></div><div class="form-grid"><label>Student ID<input id="pStudent" class="field" onblur="lookupOnlinePaymentStudent()"></label><label>নাম<input id="pName" class="field" readonly></label><label>শ্রেণি/জামাত<input id="pClass" class="field" readonly></label><label>মোবাইল<input id="pMobile" class="field" readonly></label><label>মাস<select id="pMonth" class="field"><option>জানুয়ারি</option><option>ফেব্রুয়ারি</option><option>মার্চ</option><option>এপ্রিল</option><option>মে</option><option>জুন</option><option>জুলাই</option><option>আগস্ট</option><option>সেপ্টেম্বর</option><option>অক্টোবর</option><option>নভেম্বর</option><option>ডিসেম্বর</option></select></label><label>Category<select id="pCat" class="field"><option>মাসিক বেতন</option><option>ভর্তি ফি</option><option>পরীক্ষার ফি</option><option>অন্যান্য</option></select></label><label>Amount<input id="pAmount" class="field" type="number" min="1"></label><label>পেমেন্টের ধরন<select id="pMode" class="field" onchange="updatePaymentModeUI()"><option value="QUICK">দ্রুত পেমেন্ট</option><option value="PENDING">Pending + অনুমোদন</option></select></label><label>মাধ্যম<select id="pMethod" class="field" onchange="updatePaymentMethodLogo()"><option>bKash</option><option>Nagad</option><option>mCash</option><option>Rocket</option><option>ব্যাংকিং</option><option>হ্যান্ড ক্যাশ</option></select></label><label>Transaction / Reference ID<input id="pReference" class="field"></label><label>প্রদানকারীর মোবাইল<input id="pPayerMobile" class="field"></label><label class="full">Note<textarea id="pNote" class="field"></textarea></label></div><div id="paymentMethodLogo" class="payment-method-box"><div class="payment-method-logo payment-logo-bk">bK</div><div class="payment-method-name">bKash</div></div><div id="paymentFeedback" class="payment-feedback">মাধ্যম নির্বাচন করলে সংশ্লিষ্ট পেমেন্ট মাধ্যমের পরিচিতি দেখাবে।</div><div id="onlinePaymentStudentInfo" class="card" style="padding:9px;margin:8px 0;display:none"></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="primary" type="button" onclick="savePayment()">📤 পেমেন্ট দিন</button><button class="secondary" type="button" onclick="openPendingPayments()">📋 Pending পেমেন্ট / লেনদেন</button></div>`;
+ if(['payment','fees'].includes(k))return `<div class="payment-online-head"><b>🌐 অনলাইন পেমেন্ট</b><span>ডিজিটাল প্লাটফর্ম / সার্ভারে পেমেন্ট কার্যক্রম চলমান</span></div><div class="form-grid"><label>Student ID<input id="pStudent" class="field" onblur="lookupOnlinePaymentStudent()"></label><label>নাম<input id="pName" class="field" readonly></label><label>শ্রেণি/জামাত<input id="pClass" class="field" readonly></label><label>মোবাইল<input id="pMobile" class="field" readonly></label><label>মাস<select id="pMonth" class="field"><option>জানুয়ারি</option><option>ফেব্রুয়ারি</option><option>মার্চ</option><option>এপ্রিল</option><option>মে</option><option>জুন</option><option>জুলাই</option><option>আগস্ট</option><option>সেপ্টেম্বর</option><option>অক্টোবর</option><option>নভেম্বর</option><option>ডিসেম্বর</option></select></label><label>Category<select id="pCat" class="field"><option>মাসিক বেতন</option><option>ভর্তি ফি</option><option>পরীক্ষার ফি</option><option>অন্যান্য</option></select></label><label>Amount<input id="pAmount" class="field" type="number" min="1"></label><label>পেমেন্টের ধরন<select id="pMode" class="field" onchange="updatePaymentModeUI()"><option value="QUICK">দ্রুত পেমেন্ট</option><option value="PENDING">Pending + অনুমোদন</option></select></label><label>মাধ্যম<select id="pMethod" class="field" onchange="updatePaymentMethodLogo()"><option>bKash</option><option>Nagad</option><option>mCash</option><option>Rocket</option><option>ব্যাংকিং</option><option>হ্যান্ড ক্যাশ</option></select></label><label>Transaction / Reference ID<input id="pReference" class="field"></label><label>প্রদানকারীর মোবাইল<input id="pPayerMobile" class="field"></label><label class="full">Note<textarea id="pNote" class="field"></textarea></label></div><div id="paymentMethodLogo" class="payment-method-box"><div class="payment-method-logo payment-logo-bk">bK</div><div class="payment-method-name">bKash</div></div><div id="paymentFeedback" class="payment-feedback">মাধ্যম নির্বাচন করলে সংশ্লিষ্ট পেমেন্ট মাধ্যমের পরিচিতি দেখাবে।</div><div id="onlinePaymentStudentInfo" class="card" style="padding:9px;margin:8px 0;display:none"></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="primary" type="button" onclick="savePayment()">📤 পেমেন্ট দিন</button><button class="secondary" type="button" onclick="openPendingPayments()">📋 Pending পেমেন্ট / লেনদেন</button></div><div class="card" style="margin-top:12px;padding:12px"><b>🧾 আগের মানি রসিদ খুঁজুন</b><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><input id="onlinePaymentReceiptSearchId" class="field" style="flex:1;min-width:220px" placeholder="রসিদ আইডি লিখুন (RCT-OP-...)"><button class="secondary" type="button" onclick="searchOnlinePaymentReceipt()">🔎 সার্চ</button></div><div id="onlinePaymentReceiptSearchMessage" class="small" style="margin-top:6px"></div></div>`;
 if(k==='admission')return `<div class="student-meta-row-2026"><label>আইডি লিখুন<input id="adStudentID" class="field"></label><label>জন্ম তারিখ লিখুন<input id="adDob" class="field" type="date"></label><label>তারিখ লিখুন<input id="adRecordDate" class="field" type="date"></label></div><div class="form-grid">
 <label>বাংলা নাম / Student Name<input id="adNameBN" class="field"></label>
 <label>العربية الاسم<input id="adNameAR" class="field" dir="rtl"></label>
@@ -1303,8 +1303,18 @@ async function savePayment(){
   const d={StudentID:$('pStudent').value.trim(),Name:$('pName').value.trim(),Month:$('pMonth').value.trim(),Category:$('pCat').value,Amount:Number($('pAmount').value),Method:method,PaymentMode:(method==='হ্যান্ড ক্যাশ'?'QUICK':mode),Reference:ref,PayerMobile:$('pPayerMobile').value.trim(),Note:$('pNote').value.trim()};
   if(!d.StudentID||!d.Amount||d.Amount<=0||!d.Method){toast('Student ID, Amount ও পেমেন্ট মাধ্যম দিন।');return;}
   if(method!=='হ্যান্ড ক্যাশ'&&!ref){toast('Transaction/Reference ID দিন।');return;}
-  const r=await call('submitOnlinePayment',d,token); toast(r.message||'পেমেন্ট প্রক্রিয়া সম্পন্ন হয়েছে।');
-  if(r.ok){$('pReference').value='';$('pPayerMobile').value='';$('pAmount').value='';$('pNote').value='';if(method==='হ্যান্ড ক্যাশ')updatePaymentMethodLogo();}
+  try{
+    const r=await call('submitOnlinePayment',d,token);
+    toast(r.message||'পেমেন্ট প্রক্রিয়া সম্পন্ন হয়েছে।');
+    if(!r||!r.ok)return;
+    if(r.status==='PAID'&&r.receipt)showOnlinePaymentReceipt(r.receipt);
+    else if(r.status==='PENDING') {
+      const m=$('onlinePaymentReceiptSearchMessage');
+      if(m)m.textContent='অনুরোধ জমা হয়েছে। অনুমোদন হলে রসিদ তৈরি হয়ে দেখাবে। Request ID: '+(r.requestId||'');
+    }
+    $('pReference').value='';$('pPayerMobile').value='';$('pAmount').value='';$('pNote').value='';
+    if(method==='হ্যান্ড ক্যাশ')updatePaymentMethodLogo();
+  }catch(e){toast('পেমেন্টে ত্রুটি: '+(e&&e.message?e.message:e));}
 }
 async function openPendingPayments(){
   if(!superUser())return toast('শুধু Super Admin Pending পেমেন্ট অনুমোদন করতে পারবেন।');
@@ -1338,8 +1348,8 @@ async function loadOnlinePaymentManager(tab){
 async function approveOnlinePayment(id){
   const r=await call('approveOnlinePayment',token,id);
   toast(r.ok?'পেমেন্ট অনুমোদিত হয়েছে। Receipt ID: '+(r.receiptId||''):(r.message||'অনুমোদন ব্যর্থ।'));
+  await loadOnlinePaymentManager('inbox');
   if(r.ok&&r.receipt)showOnlinePaymentReceipt(r.receipt);
-  openPendingPayments();
 }
 async function rejectOnlinePayment(id){
   const reason=prompt('Reject করার কারণ লিখুন:','Transaction যাচাই হয়নি');
@@ -1349,13 +1359,55 @@ async function rejectOnlinePayment(id){
   openPendingPayments();
 }
 function showOnlinePaymentReceipt(x){
+  if(!x)return;
+  window.__jbOnlineReceipt2026=x;
   let w=$('onlinePaymentReceiptWin');
-  if(!w){w=document.createElement('div');w.id='onlinePaymentReceiptWin';w.className='window';document.body.appendChild(w);}
-  w.innerHTML='<div class="win-head"><b>🧾 Online Payment Receipt</b><button class="secondary" onclick="closeWindow(\'onlinePaymentReceiptWin\')">✕</button></div><div class="win-body" id="onlineReceiptBody"><div style="text-align:center"><h2>জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</h2><h3>অনলাইন পেমেন্ট রসিদ</h3></div><table class="data-table">'+[['Receipt ID',x.ReceiptID],['Student ID',x.StudentID],['নাম',x.Name],['মাস',x.Month],['Category',x.Category],['Amount',Number(x.Amount||0).toLocaleString('bn-BD')+' টাকা'],['Method',x.Method],['Reference',x.Reference],['Date',x.Date]].map(a=>'<tr><th>'+esc(a[0])+'</th><td>'+esc(a[1]||'')+'</td></tr>').join('')+'</table><div style="text-align:center;margin-top:15px"><button class="primary" onclick="printOnlineReceipt()">🖨️ প্রিন্ট</button></div></div>';
+  if(!w){w=document.createElement('div');w.id='onlinePaymentReceiptWin';w.className='window';w.style.width='min(900px,96vw)';document.body.appendChild(w);}
+  const e=function(v){return esc(v==null?'':v)};
+  const fields=[
+    ['রসিদ আইডি',x.ReceiptID],['লেনদেন আইডি',x.TransactionID||x.PaymentID||x.RequestID||''],
+    ['শিক্ষার্থী আইডি',x.StudentID],['নাম',x.Name],['শ্রেণি/জামাত',x.Class],
+    ['মাস',x.Month],['খাত',x.Category],['পরিমাণ',Number(x.Amount||0).toLocaleString('bn-BD')+' টাকা'],
+    ['পেমেন্ট মাধ্যম',x.Method],['Transaction / Reference ID',x.Reference],
+    ['প্রদানকারীর মোবাইল',x.Mobile||x.PayerMobile],['তারিখ',x.Date],['বিবরণ',x.Note]
+  ];
+  const institution=e(x.Institution||'জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা');
+  const address=e(x.Address||'উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০');
+  const hotline=e(x.Hotline||'01823316630');
+  w.innerHTML='<div class="win-head"><b>🧾 অনলাইন পেমেন্ট মানি রসিদ</b><button class="secondary" type="button" onclick="closeWindow(\'onlinePaymentReceiptWin\')">✕</button></div>'+
+    '<div class="win-body"><div id="onlineReceiptBody" style="background:#fff;color:#111;border:2px solid #222;padding:20px;max-width:760px;margin:0 auto;font-family:Arial,\'Noto Sans Bengali\',sans-serif">'+
+    '<div style="text-align:center;border-bottom:2px solid #222;padding-bottom:10px;margin-bottom:14px"><h2 style="margin:0 0 5px">'+institution+'</h2><div>'+address+'</div><div>হটলাইন: '+hotline+'</div><h3 style="margin:10px 0 0">মানি রসিদ — অনলাইন পেমেন্ট</h3></div>'+
+    '<table style="width:100%;border-collapse:collapse">'+fields.map(function(a){return '<tr><th style="border:1px solid #333;padding:9px;text-align:left;width:38%;background:#f3f3f3">'+e(a[0])+'</th><td style="border:1px solid #333;padding:9px">'+e(a[1]||'—')+'</td></tr>'}).join('')+'</table>'+
+    '<div style="display:flex;justify-content:space-between;gap:20px;margin-top:36px"><span>গ্রহণকারীর স্বাক্ষর: __________________</span><span>প্রদানকারীর স্বাক্ষর: __________________</span></div>'+
+    '<div style="text-align:center;font-size:11px;margin-top:18px">Jannatul Baqi Digital Platform 2026</div></div>'+
+    '<div id="onlineReceiptActions" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px"><button class="primary" type="button" onclick="printOnlineReceipt()">🖨️ প্রিন্ট</button><button class="secondary" type="button" onclick="downloadOnlineReceipt()">💾 রসিদ সংরক্ষণ</button><button class="secondary" type="button" onclick="closeWindow(\'onlinePaymentReceiptWin\')">বন্ধ করুন</button></div></div>';
   openWindow('onlinePaymentReceiptWin');
 }
-function printOnlineReceipt(){const b=$('onlineReceiptBody');if(!b)return;const w=window.open('','_blank','width=800,height=700');w.document.write('<html><head><title>Payment Receipt</title><style>body{font-family:Arial;padding:30px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:9px;text-align:left}</style></head><body>'+b.innerHTML+'</body></html>');w.document.close();w.focus();w.print();}
-
+async function searchOnlinePaymentReceipt(){
+  const input=$('onlinePaymentReceiptSearchId'),msg=$('onlinePaymentReceiptSearchMessage');
+  const id=String(input&&input.value||'').trim();
+  if(!id){if(msg)msg.textContent='❌ রসিদ আইডি লিখুন।';return;}
+  if(msg)msg.textContent='⏳ রসিদ খোঁজা হচ্ছে...';
+  try{
+    const r=await call('searchFinanceReceipt',token,id);
+    if(!r||!r.ok){if(msg)msg.textContent='❌ '+((r&&r.message)||'এই আইডির রসিদ পাওয়া যায়নি।');return;}
+    if(msg)msg.textContent='✅ রসিদ পাওয়া গেছে: '+(r.receipt.ReceiptID||id);
+    showOnlinePaymentReceipt(r.receipt);
+  }catch(e){if(msg)msg.textContent='❌ সার্চে ত্রুটি: '+(e&&e.message?e.message:e);}
+}
+function printOnlineReceipt(){
+  const b=$('onlineReceiptBody');if(!b)return;
+  const w=window.open('','_blank','width=850,height=750');if(!w)return;
+  w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>মানি রসিদ</title><style>@page{size:A4 portrait;margin:14mm}body{font-family:Arial,"Noto Sans Bengali",sans-serif;padding:0;color:#111}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:9px;text-align:left}h2,h3{text-align:center}</style></head><body>'+b.outerHTML+'</body></html>');
+  w.document.close();w.focus();setTimeout(function(){w.print()},250);
+}
+function downloadOnlineReceipt(){
+  const b=$('onlineReceiptBody'),x=window.__jbOnlineReceipt2026||{};if(!b)return;
+  const html='<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>মানি রসিদ '+String(x.ReceiptID||'')+'</title><style>body{font-family:Arial,"Noto Sans Bengali",sans-serif;padding:18px;color:#111}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:9px;text-align:left}h2,h3{text-align:center}</style></head><body>'+b.outerHTML+'</body></html>';
+  const u=URL.createObjectURL(new Blob([html],{type:'text/html;charset=utf-8'})),a=document.createElement('a');
+  a.href=u;a.download='Money_Receipt_'+String(x.ReceiptID||'receipt').replace(/[^a-zA-Z0-9_-]/g,'_')+'.html';
+  document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},1000);
+}
 async function saveResult(k){const d={StudentID:$('rStudent').value,Name:$('rName').value,Class:$('rClass').value,Exam:$('rExam').value,SubjectData:$('rSubjects').value,Published:'NO',Date:new Date().toISOString()};const r=await call('saveRecord',token,'RESULTS',d);toast(r.ok?'Saved':'Failed')}
 async function uploadMedia(){
   const input=$('mediaFiles');
