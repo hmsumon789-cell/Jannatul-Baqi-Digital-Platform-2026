@@ -490,6 +490,7 @@ function getAccountControlData(token){
 function approveAccount(token,type,id,status,permissions){
   try{
     const s=auth_(token);
+    ensureAccountReviewColumns_();
     const actor=String(s.username||'');
     const a=findBy_(SHEETS.ADMINS,'Username',actor)||{};
     const role=String(a.Role||'').toUpperCase().replace(/\s+/g,'_');
