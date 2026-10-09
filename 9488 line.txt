@@ -9772,7 +9772,7 @@ var wrap=document.getElementById('jbDocPreviewWrap');if(!wrap)return;wrap.innerH
       '.jb-institution-header-2026 .jb-inst-side-2026 img{display:block!important;width:15mm!important;height:15mm!important;max-width:15mm!important;max-height:15mm!important;object-fit:contain!important;margin:0!important;flex:none!important}'+
       '.jb-institution-header-2026 .jb-inst-center-2026{min-width:0!important;align-self:start!important;text-align:center!important}'+
       '@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}.jb-doc-actions,.jb-marksheet-back-2026{display:none!important;visibility:hidden!important}.jb-institution-header-2026{grid-template-columns:18mm minmax(0,1fr) 18mm!important}.jb-institution-header-2026 .jb-inst-side-2026:last-child{justify-content:flex-end!important}.jb-institution-header-2026 .jb-inst-side-2026:last-child img{margin-left:auto!important;margin-right:0!important}}'+
-      '</style></head><body>'+p.outerHTML+'</body></html>');
+      '</style></head><body>'+printNode.outerHTML+'</body></html>');
     w.document.close();
     setTimeout(function(){try{w.focus();w.print()}catch(e){}},500);
   }
@@ -11317,6 +11317,13 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     if(!w)return toast('Print window খোলা যায়নি। Browser popup অনুমতি দিন।');
     var title=String((window.currentDoc&&window.currentDoc.title)||document.getElementById('jbDocBuilderTitle')?.textContent||'Document')
       .replace(/[<>&"]/g,'');
+    // Print clone only: prevent repeated institution headers / QR blocks from legacy preview hooks.
+    var printNode=p.cloneNode(true);
+    ['.jb-institution-header-2026','.jb-generic-head-2026','.jb-verification-qr'].forEach(function(sel){
+      var nodes=printNode.querySelectorAll(sel);
+      for(var i=1;i<nodes.length;i++)nodes[i].remove();
+    });
+    printNode.querySelectorAll('.task5-print-logo,.task6-print-logo,.task7-print-logo,.task5-print-head').forEach(function(x){x.remove();});
     w.document.open();
     w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>'+title+'</title><style>'+
       '@page{size:A4 portrait;margin:8mm}'+
