@@ -12785,10 +12785,6 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   };
   window.jbMkSave=async function(){
     if(!ensureToken())return;
-    var rows=window._jbMkRows||[],ex=V('jbMkExam'),cl=V('jbMkClass'),sub=V('jbMkSubject);');
-  };
-  window.jbMkSave=async function(){
-    if(!ensureToken())return;
     var rows=window._jbMkRows||[],ex=V('jbMkExam'),cl=V('jbMkClass'),sub=V('jbMkSubject');
     if(!rows.length||!ex||!cl||!sub){msg('আগে পরীক্ষার্থী লোড করুন।');return}
     var inputs=document.querySelectorAll('[data-jbmk]'),marks=[];
