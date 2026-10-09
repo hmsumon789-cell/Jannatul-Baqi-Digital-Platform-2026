@@ -1766,3 +1766,63 @@ function getFinanceRecords(token){
 /* ===== END INCOME + EXPENSE LEDGER ===== */
 
 /* ===== END ONLINE PAYMENT ===== */
+
+/* ===== FINANCE MONTH + RECEIPT SUPPORT — 2026-10-09 ===== */
+function saveFinanceEntry(token,data){
+  if(!isSuperAdmin_(token)) return {ok:false,message:'শুধু Super Admin আয়-ব্যয়ের হিসাব সংরক্ষণ করতে পারবেন।'};
+  data=data||{};
+  var type=String(data.Type||'INCOME').toUpperCase();
+  var amount=Number(data.Amount||0);
+  var category=String(data.Category||'').trim();
+  var method=String(data.Method||'হ্যান্ড ক্যাশ').trim();
+  var date=String(data.Date||now_()).trim();
+  var month=String(data.Month||'').trim();
+  var note=String(data.Note||'').trim();
+  if(type!=='INCOME'&&type!=='EXPENSE') return {ok:false,message:'ধরন সঠিক নয়।'};
+  if(!category||!isFinite(amount)||amount<=0) return {ok:false,message:'খাত ও সঠিক পরিমাণ দিন।'};
+  var monthlyCategories=['বিদ্যুৎ বিল','পানির বিল','বাড়ী ভাড়া','বাড়ি ভাড়া','শিক্ষক/শিক্ষিকা বেতন','শিক্ষক/শিক্ষিকা/স্টাফ/কর্মচারী'];
+  var needsMonth=monthlyCategories.some(function(c){return category.indexOf(c)!==-1;});
+  if(needsMonth&&!month) return {ok:false,message:'এই খাতের জন্য মাস নির্বাচন করুন।'};
+  if(month) note=(note?note+' | ':'')+'মাস: '+month;
+  var ss=SpreadsheetApp.getActiveSpreadsheet();
+  var sheetName=type==='INCOME'?SHEETS.INCOME:SHEETS.EXPENSES;
+  var sh=ensureSheet_(ss,sheetName,HEADERS[sheetName]);
+  var transactionId=(type==='INCOME'?'INC-':'EXP-')+Utilities.getUuid().slice(0,8).toUpperCase();
+  var createdAt=now_();
+  append_(sheetName,[nextSerial_(sh),transactionId,category,amount,method,date,note,createdAt]);
+  var receiptId='RC-'+Utilities.getUuid().replace(/-/g,'').slice(0,10).toUpperCase();
+  var receipt={
+    ReceiptID:receiptId,TransactionID:transactionId,Type:type,
+    Category:category,Month:month,Amount:amount,Method:method,Date:date,
+    Note:String(data.Note||'').trim(),Name:String(data.Name||data.PersonName||'').trim(),
+    Mobile:String(data.Mobile||'').trim(),Institution:APP.nameBn,
+    Address:APP.address,Hotline:APP.hotline1,CreatedAt:createdAt
+  };
+  var receiptSheet=ensureSheet_(ss,SHEETS.RECEIPTS,HEADERS[SHEETS.RECEIPTS]);
+  append_(SHEETS.RECEIPTS,[nextSerial_(receiptSheet),receiptId,transactionId,type,amount,date,JSON.stringify(receipt)]);
+  log_(sessionUser_(token)||'','finance-'+type.toLowerCase(),sheetName,transactionId+' / '+amount+' / '+receiptId);
+  return {ok:true,message:(type==='INCOME'?'আয়ের':'ব্যয়ের')+' হিসাব সংরক্ষণ হয়েছে এবং রসিদ তৈরি হয়েছে।',id:transactionId,transactionId:transactionId,receiptId:receiptId,receipt:receipt};
+}
+
+function searchFinanceReceipt(token,receiptId){
+  if(!isSuperAdmin_(token)) return {ok:false,message:'শুধু Super Admin রসিদ খুঁজতে পারবেন।'};
+  receiptId=String(receiptId||'').trim();
+  if(!receiptId) return {ok:false,message:'রসিদ আইডি লিখুন।'};
+  var ss=SpreadsheetApp.getActiveSpreadsheet();
+  var sh=ensureSheet_(ss,SHEETS.RECEIPTS,HEADERS[SHEETS.RECEIPTS]);
+  if(sh.getLastRow()<2) return {ok:false,message:'এই আইডির কোনো রসিদ পাওয়া যায়নি।'};
+  var values=sh.getDataRange().getValues();
+  var headers=values[0].map(String);
+  var idCol=headers.indexOf('ReceiptID');
+  var dataCol=headers.indexOf('Data');
+  for(var i=values.length-1;i>=1;i--){
+    if(String(values[i][idCol]||'').trim().toUpperCase()===receiptId.toUpperCase()){
+      var receipt={};
+      try{receipt=JSON.parse(String(values[i][dataCol]||'{}'));}catch(e){}
+      if(!receipt.ReceiptID) receipt={ReceiptID:values[i][idCol],TransactionID:values[i][headers.indexOf('RefID')],Type:values[i][headers.indexOf('Type')],Amount:values[i][headers.indexOf('Amount')],Date:values[i][headers.indexOf('Date')]};
+      return {ok:true,receipt:receipt,receiptId:receiptId,message:'রসিদ পাওয়া গেছে।'};
+    }
+  }
+  return {ok:false,message:'এই আইডির কোনো রসিদ পাওয়া যায়নি।'};
+}
+/* ===== END FINANCE MONTH + RECEIPT SUPPORT ===== */
