@@ -12366,3 +12366,85 @@ function jbQpClear(){['jbQpExam','jbQpClass','jbQpSubject','jbQpDate','jbQpMarks
 })();
 </script>
 <!-- ===== END SMS PORTAL UI ===== -->
+
+<!-- ===== RECEIPT PRINT VIEW: DASHBOARD CONTACT + LOGO + MAIN QR — 2026-10-09 ===== -->
+<style id="jb-receipt-dashboard-header-2026-10-09">
+  #jbDocBuilderWin .jb-doc-preview.jb-receipt-contact-header-2026 .jb-institution-header-2026{
+    display:grid!important;grid-template-columns:15mm minmax(0,1fr) 15mm!important;
+    align-items:center!important;gap:2mm!important;margin:0 0 5mm!important;
+    padding:0 0 3mm!important;border-bottom:1px solid #555!important;
+  }
+  #jbDocBuilderWin .jb-doc-preview.jb-receipt-contact-header-2026 .jb-institution-header-2026 .jb-inst-side-2026 img{
+    display:block!important;width:13mm!important;height:13mm!important;max-width:13mm!important;max-height:13mm!important;object-fit:contain!important;
+  }
+  #jbDocBuilderWin .jb-doc-preview.jb-receipt-contact-header-2026 .jb-inst-name-2026{font-size:12px!important;line-height:1.3!important;font-weight:900!important}
+  #jbDocBuilderWin .jb-doc-preview.jb-receipt-contact-header-2026 .jb-inst-address-2026{font-size:8px!important;line-height:1.3!important;font-weight:700!important}
+  #jbDocBuilderWin .jb-doc-preview.jb-receipt-contact-header-2026 .jb-institution-contact-2026{font-size:8px!important;line-height:1.3!important;white-space:normal!important}
+  #jbDocBuilderWin .jb-doc-preview.jb-receipt-contact-header-2026 .jb-institution-contact-2026 span{display:inline-block!important;margin:0 2px!important}
+  @media print{
+    #jbDocBuilderWin .jb-doc-preview.jb-receipt-contact-header-2026 .jb-institution-header-2026{break-inside:avoid!important;page-break-inside:avoid!important}
+  }
+</style>
+<script id="jb-receipt-dashboard-contact-header-2026-10-09">
+(function(){
+  function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+  function docKey(){
+    try{if(typeof window.jbDocCurrentKey==='function')return String(window.jbDocCurrentKey()||'')}
+    catch(e){}
+    var t=(document.getElementById('jbDocBuilderTitle')||{}).textContent||'';
+    return t.indexOf('মানি রিসিট')>=0?'receipts':'';
+  }
+  function txt(selector,fallback){
+    var e=document.querySelector(selector);
+    return e?String(e.textContent||'').trim():fallback;
+  }
+  function imgSrc(selectors){
+    for(var i=0;i<selectors.length;i++){
+      var e=document.querySelector(selectors[i]);
+      if(e&&e.src)return e.src;
+    }
+    return '';
+  }
+  function ensureReceiptHeader(p){
+    if(!p||docKey()!=='receipts')return;
+    p.classList.add('jb-receipt-contact-header-2026');
+    var name=txt('#contactFooter .contact-name','জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা');
+    var address=txt('#contactFooter .contact-address','উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০');
+    var hotline=txt('#contactFooter .contact-info span:first-child','হটলাইন: 01823316630');
+    var logo=imgSrc(['#contactFooter #contactLoginLogo2026','#loginLogo','#headerLogo']);
+    var qr=imgSrc(['#contactFooter #contactMainQR2026']);
+    var h=p.querySelector('.jb-institution-header-2026');
+    if(!h){
+      h=document.createElement('div');
+      h.className='jb-institution-header-2026';
+      p.insertBefore(h,p.firstChild);
+    }
+    h.innerHTML=
+      '<div class="jb-inst-side-2026"><img alt="মাদ্রাসার লোগো" src="'+esc(logo)+'"></div>'+
+      '<div class="jb-inst-center-2026">'+
+        '<div class="jb-inst-name-2026" data-jb-keep-institution="1">'+esc(name)+'</div>'+
+        '<div class="jb-inst-address-2026" data-jb-keep-institution="1">'+esc(address)+'</div>'+
+        '<div class="jb-institution-contact-2026"><span class="jb-hotline-2026">'+esc(hotline)+'</span></div>'+
+      '</div>'+
+      '<div class="jb-inst-side-2026"><img alt="মূল পেজের QR কোড" src="'+esc(qr)+'"></div>';
+  }
+  function scan(){
+    if(docKey()!=='receipts')return;
+    document.querySelectorAll('#jbDocPreviewWrap .jb-doc-preview').forEach(ensureReceiptHeader);
+  }
+  var oldCreate=window.jbCreatePreview;
+  if(typeof oldCreate==='function'&&!oldCreate.__jbReceiptDashboardHeader2026){
+    function wrapped(){
+      var r=oldCreate.apply(this,arguments);
+      setTimeout(scan,20);setTimeout(scan,180);
+      return r;
+    }
+    wrapped.__jbReceiptDashboardHeader2026=true;
+    window.jbCreatePreview=wrapped;
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
+  if(document.body)new MutationObserver(function(){scan()}).observe(document.body,{childList:true,subtree:true});
+})();
+</script>
+<!-- ===== END RECEIPT PRINT VIEW DASHBOARD HEADER ===== -->
+
