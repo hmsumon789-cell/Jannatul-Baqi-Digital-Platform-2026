@@ -1236,7 +1236,8 @@ if(k==='madrasa')return `<div class="form-grid"><label>Username<input id="mUser"
 if(k==='gallery')return `<div class="media-upload-note"><b>ফটো:</b> সর্বোচ্চ 20 MB, 100টি। <b>ভিডিও:</b> সর্বোচ্চ 50 MB, 20টি। <b>অডিও:</b> সর্বোচ্চ 50 MB, 50টি।</div><input id="mediaFiles" class="field" type="file" multiple accept="image/*,video/*,audio/*"><button class="primary" onclick="uploadMedia()">⬆ আপলোড</button><div id="mediaList"></div>`;
 if(k==='help')return `<button class="primary" onclick="openWindow('quickWin')">দ্রুত সেবা / হেল্প</button>`;
 if(k==='institution')return `<h3>প্রতিষ্ঠানের সংক্ষিপ্ত ইতিহাস</h3><p>সালাতুল এস্তেখারার মাধ্যমে মহান আল্লাহ তায়ালার উপর পূর্ণ আস্থা রেখে খালেছ নিয়তে মানব জাতিকে অন্ধকার থেকে আলোর পথে আনার জন্য এবং সহি দ্বিনি ইলম শিক্ষা দেয়ার উদ্দেশ্যে 10-10-2005 ইংরেজী সনে প্রতিষ্ঠিত হয়।</p><p><b>প্রতিষ্ঠাতা-প্রিন্সিপাল/মুহতামিম:</b> জনাব হাফেজ হযরত মাওলানা মু. আতিকুর রহমান (ফরিদপুরী), ২০০৫ হতে ২০২৬ চলমান।</p>`;
-if(['payment','fees','finance'].includes(k))return `<div class="payment-online-head"><b>🌐 অনলাইন পেমেন্ট</b><span>ডিজিটাল প্লাটফর্ম / সার্ভারে পেমেন্ট কার্যক্রম চলমান</span></div><div class="form-grid"><label>Student ID<input id="pStudent" class="field" onblur="lookupOnlinePaymentStudent()"></label><label>নাম<input id="pName" class="field" readonly></label><label>শ্রেণি/জামাত<input id="pClass" class="field" readonly></label><label>মোবাইল<input id="pMobile" class="field" readonly></label><label>মাস<select id="pMonth" class="field"><option>জানুয়ারি</option><option>ফেব্রুয়ারি</option><option>মার্চ</option><option>এপ্রিল</option><option>মে</option><option>জুন</option><option>জুলাই</option><option>আগস্ট</option><option>সেপ্টেম্বর</option><option>অক্টোবর</option><option>নভেম্বর</option><option>ডিসেম্বর</option></select></label><label>Category<select id="pCat" class="field"><option>মাসিক বেতন</option><option>ভর্তি ফি</option><option>পরীক্ষার ফি</option><option>অন্যান্য</option></select></label><label>Amount<input id="pAmount" class="field" type="number" min="1"></label><label>পেমেন্টের ধরন<select id="pMode" class="field" onchange="updatePaymentModeUI()"><option value="QUICK">দ্রুত পেমেন্ট</option><option value="PENDING">Pending + অনুমোদন</option></select></label><label>মাধ্যম<select id="pMethod" class="field" onchange="updatePaymentMethodLogo()"><option>bKash</option><option>Nagad</option><option>mCash</option><option>Rocket</option><option>ব্যাংকিং</option><option>হ্যান্ড ক্যাশ</option></select></label><label>Transaction / Reference ID<input id="pReference" class="field"></label><label>প্রদানকারীর মোবাইল<input id="pPayerMobile" class="field"></label><label class="full">Note<textarea id="pNote" class="field"></textarea></label></div><div id="paymentMethodLogo" class="payment-method-box"><div class="payment-method-logo payment-logo-bk">bK</div><div class="payment-method-name">bKash</div></div><div id="paymentFeedback" class="payment-feedback">মাধ্যম নির্বাচন করলে সংশ্লিষ্ট পেমেন্ট মাধ্যমের পরিচিতি দেখাবে।</div><div id="onlinePaymentStudentInfo" class="card" style="padding:9px;margin:8px 0;display:none"></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="primary" type="button" onclick="savePayment()">📤 পেমেন্ট দিন</button><button class="secondary" type="button" onclick="openPendingPayments()">📋 Pending পেমেন্ট / লেনদেন</button></div>`;
+if(k==='finance')return window.financeFormHtml2026();
+ if(['payment','fees'].includes(k))return `<div class="payment-online-head"><b>🌐 অনলাইন পেমেন্ট</b><span>ডিজিটাল প্লাটফর্ম / সার্ভারে পেমেন্ট কার্যক্রম চলমান</span></div><div class="form-grid"><label>Student ID<input id="pStudent" class="field" onblur="lookupOnlinePaymentStudent()"></label><label>নাম<input id="pName" class="field" readonly></label><label>শ্রেণি/জামাত<input id="pClass" class="field" readonly></label><label>মোবাইল<input id="pMobile" class="field" readonly></label><label>মাস<select id="pMonth" class="field"><option>জানুয়ারি</option><option>ফেব্রুয়ারি</option><option>মার্চ</option><option>এপ্রিল</option><option>মে</option><option>জুন</option><option>জুলাই</option><option>আগস্ট</option><option>সেপ্টেম্বর</option><option>অক্টোবর</option><option>নভেম্বর</option><option>ডিসেম্বর</option></select></label><label>Category<select id="pCat" class="field"><option>মাসিক বেতন</option><option>ভর্তি ফি</option><option>পরীক্ষার ফি</option><option>অন্যান্য</option></select></label><label>Amount<input id="pAmount" class="field" type="number" min="1"></label><label>পেমেন্টের ধরন<select id="pMode" class="field" onchange="updatePaymentModeUI()"><option value="QUICK">দ্রুত পেমেন্ট</option><option value="PENDING">Pending + অনুমোদন</option></select></label><label>মাধ্যম<select id="pMethod" class="field" onchange="updatePaymentMethodLogo()"><option>bKash</option><option>Nagad</option><option>mCash</option><option>Rocket</option><option>ব্যাংকিং</option><option>হ্যান্ড ক্যাশ</option></select></label><label>Transaction / Reference ID<input id="pReference" class="field"></label><label>প্রদানকারীর মোবাইল<input id="pPayerMobile" class="field"></label><label class="full">Note<textarea id="pNote" class="field"></textarea></label></div><div id="paymentMethodLogo" class="payment-method-box"><div class="payment-method-logo payment-logo-bk">bK</div><div class="payment-method-name">bKash</div></div><div id="paymentFeedback" class="payment-feedback">মাধ্যম নির্বাচন করলে সংশ্লিষ্ট পেমেন্ট মাধ্যমের পরিচিতি দেখাবে।</div><div id="onlinePaymentStudentInfo" class="card" style="padding:9px;margin:8px 0;display:none"></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="primary" type="button" onclick="savePayment()">📤 পেমেন্ট দিন</button><button class="secondary" type="button" onclick="openPendingPayments()">📋 Pending পেমেন্ট / লেনদেন</button></div>`;
 if(k==='admission')return `<div class="student-meta-row-2026"><label>আইডি লিখুন<input id="adStudentID" class="field"></label><label>জন্ম তারিখ লিখুন<input id="adDob" class="field" type="date"></label><label>তারিখ লিখুন<input id="adRecordDate" class="field" type="date"></label></div><div class="form-grid">
 <label>বাংলা নাম / Student Name<input id="adNameBN" class="field"></label>
 <label>العربية الاسم<input id="adNameAR" class="field" dir="rtl"></label>
@@ -12458,4 +12459,123 @@ function jbQpClear(){['jbQpExam','jbQpClass','jbQpSubject','jbQpDate','jbQpMarks
 })();
 </script>
 <!-- ===== END RECEIPT PRINT VIEW DASHBOARD HEADER ===== -->
+
+<!-- ===== FINANCE FORM RESTORE: KEEP INCOME/EXPENSE SEPARATE FROM ONLINE PAYMENT — 2026-10-09 ===== -->
+<style id="jb-finance-form-restore-2026">
+#winBody .jb-finance-wrap{display:grid;gap:12px}
+#winBody .jb-finance-title{font-size:22px;font-weight:900;text-align:center;padding:8px;border:2px solid var(--border);border-radius:12px}
+#winBody .jb-finance-type{display:flex;gap:8px;flex-wrap:wrap}
+#winBody .jb-finance-type button{flex:1;min-width:130px;min-height:46px;font-weight:900}
+#winBody .jb-finance-type button.active{outline:3px solid var(--border)}
+#winBody .jb-finance-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+#winBody .jb-finance-actions button{min-height:42px;font-weight:900}
+#winBody .jb-finance-table-wrap{overflow:auto}
+#winBody .jb-finance-table{width:100%;border-collapse:collapse}
+#winBody .jb-finance-table th,#winBody .jb-finance-table td{border:1px solid var(--border);padding:7px;text-align:left}
+#winBody .jb-finance-table th{font-weight:900}
+#winBody .jb-finance-receipt{border:2px solid var(--border);padding:14px;border-radius:10px;background:var(--panel)}
+@media(max-width:700px){#winBody .jb-finance-grid{grid-template-columns:1fr!important}}
+</style>
+<script id="jb-finance-form-restore-js-2026">
+(function(){
+  var type='INCOME';
+  function el(id){return document.getElementById(id)}
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function selectedCategories(){
+    return type==='INCOME'
+      ? ['ভর্তি ফি','মাসিক বেতন','পরীক্ষার ফি','দান-অনুদান','সরকারী বরাদ্দ','যাকাত ফান্ড','বাড়ী ভাড়া','গোরাবা ফান্ড','অন্যান্য আয়']
+      : ['বিদ্যুৎ বিল','পানির বিল','বাড়ী ভাড়া','শিক্ষক/শিক্ষিকা বেতন','শিক্ষক/শিক্ষিকা/স্টাফ/কর্মচারী','খাদ্য ব্যয়','চিকিৎসা ব্যয়','যাতায়াত ব্যয়','অন্যান্য ব্যয়'];
+  }
+  window.financeFormHtml2026=function(){
+    return '<div class="jb-finance-wrap">'+
+      '<div class="jb-finance-title">📒 আয় + ব্যয় হিসাব ও রিসিট</div>'+
+      '<div class="jb-finance-type"><button type="button" id="jbFinanceIncomeTab2026" class="primary active" onclick="jbFinanceSetType2026(\'INCOME\')">➕ আয় এন্ট্রি</button><button type="button" id="jbFinanceExpenseTab2026" class="secondary" onclick="jbFinanceSetType2026(\'EXPENSE\')">➖ ব্যয় এন্ট্রি</button></div>'+
+      '<div class="form-grid jb-finance-grid">'+
+      '<label>হিসাবের খাত<select id="jbFinanceCategory2026" class="field" onchange="jbFinanceMonthVisibility2026()"></select></label>'+
+      '<label id="jbFinanceMonthWrap2026" style="display:none">মাস নির্বাচন<select id="jbFinanceMonth2026" class="field"><option value="">মাস নির্বাচন করুন</option>'+['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'].map(function(m){return '<option>'+m+'</option>'}).join('')+'</select></label>'+
+      '<label>পরিমাণ (টাকা)<input id="jbFinanceAmount2026" class="field" type="number" min="1" step="0.01" placeholder="টাকার পরিমাণ লিখুন"></label>'+
+      '<label>তারিখ<input id="jbFinanceDate2026" class="field" type="date"></label>'+
+      '<label>গ্রহণকারী / প্রদানকারীর নাম<input id="jbFinanceName2026" class="field" placeholder="নাম (ঐচ্ছিক)"></label>'+
+      '<label>মোবাইল<input id="jbFinanceMobile2026" class="field" placeholder="মোবাইল (ঐচ্ছিক)"></label>'+
+      '<label>লেনদেনের মাধ্যম<select id="jbFinanceMethod2026" class="field"><option>হ্যান্ড ক্যাশ</option><option>ব্যাংক</option><option>bKash</option><option>Nagad</option><option>Rocket</option><option>অন্যান্য</option></select></label>'+
+      '<label class="full">বিবরণ / নোট<textarea id="jbFinanceNote2026" class="field" rows="2" placeholder="প্রয়োজনীয় বিবরণ"></textarea></label></div>'+
+      '<div class="jb-finance-actions"><button type="button" class="primary" onclick="jbFinanceSave2026()">💾 আয়/ব্যয় সংরক্ষণ + রিসিট</button><button type="button" class="secondary" onclick="jbFinanceLoad2026()">🔄 হিসাবের তালিকা</button></div>'+
+      '<div id="jbFinanceFeedback2026" class="card" style="padding:10px;font-weight:900">আয় বা ব্যয় নির্বাচন করে তথ্য পূরণ করুন।</div>'+
+      '<div id="jbFinanceReceipt2026"></div>'+
+      '<div class="jb-finance-title" style="font-size:18px">🔎 রিসিট আইডি দিয়ে খুঁজুন</div>'+
+      '<div class="form-grid"><label>রিসিট আইডি<input id="jbFinanceReceiptSearchId2026" class="field" placeholder="যেমন RC-XXXXXXXXXX"></label><div style="display:flex;align-items:end"><button type="button" class="secondary" onclick="jbFinanceSearchReceipt2026()">🔎 রিসিট খুঁজুন</button></div></div>'+
+      '<div id="jbFinanceRecords2026" class="jb-finance-table-wrap">হিসাবের তালিকা লোড হচ্ছে...</div></div>';
+  };
+  window.jbFinanceSetType2026=function(v){
+    type=v==='EXPENSE'?'EXPENSE':'INCOME';
+    var a=el('jbFinanceIncomeTab2026'),b=el('jbFinanceExpenseTab2026');
+    if(a)a.className=type==='INCOME'?'primary active':'secondary';
+    if(b)b.className=type==='EXPENSE'?'primary active':'secondary';
+    var c=el('jbFinanceCategory2026');
+    if(c)c.innerHTML=selectedCategories().map(function(x){return '<option>'+esc(x)+'</option>'}).join('');
+    window.jbFinanceMonthVisibility2026();
+  };
+  window.jbFinanceMonthVisibility2026=function(){
+    var c=el('jbFinanceCategory2026'),w=el('jbFinanceMonthWrap2026');
+    if(!c||!w)return;
+    var v=c.value||'';
+    w.style.display=/বিদ্যুৎ বিল|পানির বিল|বাড়ী ভাড়া|বাড়ি ভাড়া|শিক্ষক\/শিক্ষিকা/.test(v)?'block':'none';
+  };
+  function renderReceipt(r){
+    if(!r)return '';
+    var kind=String(r.Type||'').toUpperCase()==='EXPENSE'?'ব্যয়ের রিসিট':'আয়ের রিসিট';
+    return '<div class="jb-finance-receipt" id="jbFinanceReceiptPrint2026"><div style="text-align:center;font-weight:900;font-size:20px">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div><div style="text-align:center;font-weight:800">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div><div style="text-align:center;font-weight:900">হটলাইন: 01823316630</div><hr><h3 style="text-align:center">'+kind+'</h3><p><b>রিসিট আইডি:</b> '+esc(r.ReceiptID||'')+'</p><p><b>লেনদেন আইডি:</b> '+esc(r.TransactionID||'')+'</p><p><b>খাত:</b> '+esc(r.Category||'')+'</p><p><b>মাস:</b> '+esc(r.Month||'—')+'</p><p><b>নাম:</b> '+esc(r.Name||'—')+'</p><p><b>মোবাইল:</b> '+esc(r.Mobile||'—')+'</p><p><b>পরিমাণ:</b> '+Number(r.Amount||0).toLocaleString('bn-BD')+' টাকা</p><p><b>মাধ্যম:</b> '+esc(r.Method||'')+'</p><p><b>তারিখ:</b> '+esc(r.Date||'')+'</p><p><b>বিবরণ:</b> '+esc(r.Note||'—')+'</p><div style="text-align:right;margin-top:24px">অনুমোদিত স্বাক্ষর: __________________</div></div><div class="jb-finance-actions"><button type="button" class="primary" onclick="jbFinancePrintReceipt2026()">🖨️ রিসিট প্রিন্ট</button><button type="button" class="secondary" onclick="jbFinanceDownloadReceipt2026()">⬇️ রিসিট ডাউনলোড</button></div>';
+  }
+  window.jbFinanceSave2026=async function(){
+    var category=(el('jbFinanceCategory2026')||{}).value||'',amount=Number((el('jbFinanceAmount2026')||{}).value||0),month=(el('jbFinanceMonth2026')||{}).value||'';
+    if(!category||amount<=0){if(el('jbFinanceFeedback2026'))el('jbFinanceFeedback2026').textContent='❌ হিসাবের খাত ও সঠিক পরিমাণ দিন।';return}
+    if(el('jbFinanceMonthWrap2026').style.display!=='none'&&!month){el('jbFinanceFeedback2026').textContent='❌ এই খাতের জন্য মাস নির্বাচন করুন।';return}
+    var data={Type:type,Category:category,Amount:amount,Month:month,Date:(el('jbFinanceDate2026')||{}).value||new Date().toISOString().slice(0,10),Name:(el('jbFinanceName2026')||{}).value||'',Mobile:(el('jbFinanceMobile2026')||{}).value||'',Method:(el('jbFinanceMethod2026')||{}).value||'হ্যান্ড ক্যাশ',Note:(el('jbFinanceNote2026')||{}).value||''};
+    var fb=el('jbFinanceFeedback2026');if(fb)fb.textContent='⏳ হিসাব সংরক্ষণ হচ্ছে...';
+    try{
+      var r=await call('saveFinanceEntry',token,data);
+      if(!r||!r.ok){if(fb)fb.textContent='❌ '+((r&&r.message)||'হিসাব সংরক্ষণ করা যায়নি।');return}
+      if(fb)fb.textContent='✅ '+(r.message||'হিসাব সংরক্ষণ হয়েছে।');
+      var box=el('jbFinanceReceipt2026');if(box)box.innerHTML=renderReceipt(r.receipt||{ReceiptID:r.receiptId,TransactionID:r.transactionId,Type:type,Category:category,Month:month,Amount:amount,Method:data.Method,Date:data.Date,Name:data.Name,Mobile:data.Mobile,Note:data.Note});
+      ['jbFinanceAmount2026','jbFinanceName2026','jbFinanceMobile2026','jbFinanceNote2026'].forEach(function(id){if(el(id))el(id).value=''});
+      await window.jbFinanceLoad2026();
+    }catch(e){if(fb)fb.textContent='❌ আয়/ব্যয় সংরক্ষণে ত্রুটি: '+(e&&e.message?e.message:e)}
+  };
+  window.jbFinanceLoad2026=async function(){
+    var b=el('jbFinanceRecords2026');if(!b)return;
+    b.innerHTML='⏳ হিসাবের তালিকা লোড হচ্ছে...';
+    try{
+      var r=await call('getFinanceRecords',token);
+      if(!r||!r.ok){b.textContent=(r&&r.message)||'তালিকা পাওয়া যায়নি।';return}
+      var rows=r.rows||[];
+      b.innerHTML='<table class="jb-finance-table"><thead><tr><th>ধরন</th><th>আইডি</th><th>খাত</th><th>পরিমাণ</th><th>তারিখ</th><th>মাস/বিবরণ</th></tr></thead><tbody>'+rows.map(function(x){return '<tr><td>'+esc(x.Type||'')+'</td><td>'+esc(x.TransactionID||x.ID||'')+'</td><td>'+esc(x.Category||'')+'</td><td>'+Number(x.Amount||0).toLocaleString('bn-BD')+' টাকা</td><td>'+esc(x.Date||'')+'</td><td>'+esc(x.Note||'')+'</td></tr>'}).join('')+'</tbody></table>'+(rows.length?'':'<div style="padding:10px;text-align:center">কোনো হিসাব পাওয়া যায়নি।</div>');
+    }catch(e){b.textContent='তালিকা লোডে ত্রুটি: '+(e&&e.message?e.message:e)}
+  };
+  window.jbFinanceSearchReceipt2026=async function(){
+    var id=((el('jbFinanceReceiptSearchId2026')||{}).value||'').trim(),b=el('jbFinanceReceipt2026');
+    if(!id){if(el('jbFinanceFeedback2026'))el('jbFinanceFeedback2026').textContent='রিসিট আইডি লিখুন।';return}
+    try{var r=await call('searchFinanceReceipt',token,id);if(!r||!r.ok){if(el('jbFinanceFeedback2026'))el('jbFinanceFeedback2026').textContent='❌ '+((r&&r.message)||'রিসিট পাওয়া যায়নি।');return}if(b)b.innerHTML=renderReceipt(r.receipt)}catch(e){if(el('jbFinanceFeedback2026'))el('jbFinanceFeedback2026').textContent='রিসিট খুঁজতে ত্রুটি: '+(e&&e.message?e.message:e)}
+  };
+  window.jbFinancePrintReceipt2026=function(){
+    var x=el('jbFinanceReceiptPrint2026');if(!x)return;
+    var w=window.open('','_blank','width=850,height=750');if(!w)return;
+    w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>আয়-ব্যয় রিসিট</title><style>@page{size:A4 portrait;margin:14mm}body{font-family:Arial,sans-serif;color:#111}.jb-finance-receipt{border:1px solid #333;padding:16px}.jb-finance-receipt p{padding:4px;border-bottom:1px solid #ddd}.jb-finance-actions{display:none}</style></head><body>'+x.outerHTML+'</body></html>');w.document.close();w.focus();setTimeout(function(){w.print()},350);
+  };
+  window.jbFinanceDownloadReceipt2026=function(){
+    var x=el('jbFinanceReceiptPrint2026');if(!x)return;
+    var blob=new Blob(['<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>আয়-ব্যয় রিসিট</title></head><body>'+x.outerHTML+'</body></html>'],{type:'text/html;charset=utf-8'});
+    var u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='Finance_Receipt.html';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},1000);
+  };
+  function init(){
+    if(el('jbFinanceCategory2026')){window.jbFinanceSetType2026('INCOME');var d=el('jbFinanceDate2026');if(d&&!d.value)d.value=new Date().toISOString().slice(0,10);window.jbFinanceLoad2026();}
+  }
+  document.addEventListener('click',function(e){var b=e.target&&e.target.closest&&e.target.closest('.module');if(b&&String(b.textContent||'').replace(/\s/g,'').indexOf('আয়+ব্যয়')>=0)setTimeout(init,80)},true);
+  var oldOpen=window.openModule;
+  if(typeof oldOpen==='function'&&!oldOpen.__jbFinanceRestore2026){
+    var wrapped=function(k){var r=oldOpen.apply(this,arguments);if(k==='finance')setTimeout(init,80);return r};
+    wrapped.__jbFinanceRestore2026=true;window.openModule=wrapped;
+  }
+})();
+</script>
+<!-- ===== END FINANCE FORM RESTORE ===== -->
 
