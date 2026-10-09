@@ -391,6 +391,42 @@ function ensureAccountReviewColumns_(){
     });
   });
 }
+function getOwnAccountReviewStatus(token){
+  try{
+    const session=auth_(token);
+    const type=session.accountType==='madrasa'?'madrasa':'admin';
+    const sheetName=type==='madrasa'?SHEETS.MADRASAS:SHEETS.ADMINS;
+    const row=findBy_(sheetName,'Username',session.username)||{};
+    if(!row.Username)return {ok:false,message:'নিজের Account তথ্য পাওয়া যায়নি।'};
+    ensureAccountReviewColumns_();
+    return {ok:true,type:type,id:type==='madrasa'?row.MadrasaID:row.AdminID,name:row.Name||row.NameBN||'',status:String(row.Status||'PENDING').toUpperCase(),reviewStatus:String(row.ReviewStatus||''),reviewNote:String(row.ReviewNote||''),mobile:row.Mobile||'',address:row.Address||'',username:row.Username};
+  }catch(e){return {ok:false,message:'নিজের Account অবস্থা পাওয়া যায়নি: '+String(e&&e.message||e)};}
+}
+function submitOwnAccountForApproval(token,note){
+  try{
+    const session=auth_(token);
+    const type=session.accountType==='madrasa'?'madrasa':'admin';
+    const sheetName=type==='madrasa'?SHEETS.MADRASAS:SHEETS.ADMINS;
+    const key=type==='madrasa'?'MadrasaID':'AdminID';
+    ensureAccountReviewColumns_();
+    const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
+    const vals=sh.getDataRange().getValues(),heads=vals[0].map(function(x){return String(x||'').trim()});
+    const usernameCol=heads.indexOf('Username'),statusCol=heads.indexOf('Status'),reviewCol=heads.indexOf('ReviewStatus');
+    let rowNo=-1,row=null;
+    for(let i=1;i<vals.length;i++){if(usernameCol>=0&&String(vals[i][usernameCol]||'').trim()===String(session.username||'').trim()){rowNo=i+1;row=vals[i];break;}}
+    if(rowNo<2)return {ok:false,message:'নিজের Account পাওয়া যায়নি।'};
+    if(String(row[statusCol]||'PENDING').toUpperCase()==='ACTIVE')return {ok:false,message:'আপনার Account ইতিমধ্যে চূড়ান্তভাবে অনুমোদিত।'};
+    if(String(row[reviewCol]||'').toUpperCase()==='SUBMITTED_TO_SUPER_ADMIN')return {ok:false,message:'আপনার আবেদন ইতিমধ্যে Super Admin-এর কাছে পাঠানো হয়েছে।'};
+    const by=heads.indexOf('ReviewedBy'),at=heads.indexOf('ReviewedAt'),nc=heads.indexOf('ReviewNote');
+    if(reviewCol>=0)sh.getRange(rowNo,reviewCol+1).setValue('SUBMITTED_TO_SUPER_ADMIN');
+    if(by>=0)sh.getRange(rowNo,by+1).setValue(String(session.username||''));
+    if(at>=0)sh.getRange(rowNo,at+1).setValue(now_());
+    if(nc>=0)sh.getRange(rowNo,nc+1).setValue(String(note||'').trim().slice(0,1000));
+    SpreadsheetApp.flush();
+    log_(session.username,'submit-own-account-for-approval',type,String(row[heads.indexOf(key)]||''));
+    return {ok:true,message:'আপনার তথ্য যাচাই করে চূড়ান্ত অনুমোদনের জন্য Super Admin-এর কাছে পাঠানো হয়েছে। অনুমোদন না হওয়া পর্যন্ত পূর্ণ সিস্টেম ব্যবহার করা যাবে না.'};
+  }catch(e){return {ok:false,message:'আবেদন পাঠাতে ত্রুটি: '+String(e&&e.message||e)};}
+}
 function getAccountReviewQueue(token){
   try{
     const session=auth_(token);
