@@ -624,15 +624,17 @@ function syncAdmissionToStudent_(token,data) {
     if(h.indexOf('SourceAccount')>=0) sh.getRange(existing,h.indexOf('SourceAccount')+1).setValue(info.sourceAccount);
     SpreadsheetApp.flush();
     const existingId=String(sh.getRange(existing,idCol+1).getValue());
-    ensureAutoPersonDocuments_('STUDENTS',src,existingId);
-    return {ok:true,studentId:existingId,created:false,status:info.status};
+    let autoDocuments=null;
+    try{autoDocuments=ensureAutoPersonDocuments_('STUDENTS',src,existingId)}catch(e){autoDocuments={ok:false,message:String(e&&e.message||e)}}
+    return {ok:true,studentId:existingId,created:false,status:info.status,autoDocuments:autoDocuments};
   }
   const serial=nextSerial_(sh), sid=src.StudentID||String(serial).padStart(3,'0');
   const row=h.map(function(k){return k==='Serial'?serial:k==='StudentID'?sid:k==='CreatedAt'?now_():k==='ApprovalStatus'?info.status:k==='SourceType'?info.sourceType:k==='SourceAccount'?info.sourceAccount:k==='ApprovedBy'?(info.status==='ACTIVE'?info.sourceAccount:''):k==='ApprovedAt'?(info.status==='ACTIVE'?now_():''):(src[k]??'');});
   sh.appendRow(row);
   SpreadsheetApp.flush();
-  ensureAutoPersonDocuments_('STUDENTS',src,String(sid));
-  return {ok:true,studentId:String(sid),created:true,status:info.status};
+  let autoDocuments=null;
+  try{autoDocuments=ensureAutoPersonDocuments_('STUDENTS',src,String(sid))}catch(e){autoDocuments={ok:false,message:String(e&&e.message||e)}}
+  return {ok:true,studentId:String(sid),created:true,status:info.status,autoDocuments:autoDocuments};
 }
 function getStudentMasterList(token,status) {
   const session=auth_(token); ensureStudentWorkflowColumns_();
@@ -831,12 +833,16 @@ function saveRecord(token,sheetName,data) {
   let workflow=null;
   if(sheetName==='ADMISSIONS') workflow=syncAdmissionToStudent_(token,data);
   const savedPerson=objectFrom_(headers,row);
+  let autoDocuments=null;
   if(['STUDENTS','TEACHERS','DONORS','EXECUTIVES','ADVISERS','FOUNDERS'].includes(sheetName)) {
     const idField={STUDENTS:'StudentID',TEACHERS:'TeacherID',DONORS:'DonorID',EXECUTIVES:'MemberID',ADVISERS:'MemberID',FOUNDERS:'MemberID'}[sheetName];
-    if(idField) ensureAutoPersonDocuments_(sheetName,savedPerson,savedPerson[idField]);
+    if(idField) {
+      try{autoDocuments=ensureAutoPersonDocuments_(sheetName,savedPerson,savedPerson[idField])}
+      catch(e){autoDocuments={ok:false,message:String(e&&e.message||e)}}
+    }
   }
   log_(sessionUser_(token),'create',sheetName,JSON.stringify(data).slice(0,1000));
-  return {ok:true,row:savedPerson,studentWorkflow:workflow};
+  return {ok:true,row:savedPerson,studentWorkflow:workflow,autoDocuments:autoDocuments};
 }
 
 function updateRecord(token,sheetName,serial,data) {
