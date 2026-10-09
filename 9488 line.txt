@@ -12453,6 +12453,7 @@ function jbQpClear(){['jbQpExam','jbQpClass','jbQpSubject','jbQpDate','jbQpMarks
     window.jbCreatePreview=wrapped;
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
+  [250,700,1400,2600].forEach(function(ms){setTimeout(scan,ms)});
   if(document.body)new MutationObserver(function(){scan()}).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
