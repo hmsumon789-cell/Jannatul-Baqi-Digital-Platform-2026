@@ -13027,7 +13027,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
         '<div><button type="button" class="primary" onclick="openAdmissionDialog2026(\'payment\')">💳 পেমেন্ট পেজ খুলুন</button><div id="admPaymentState2026" class="adm-state">পেমেন্টের আগে ফর্ম প্রিভিউ করুন</div></div>'+
         '</div><div id="admFeeSummary2026" class="card" style="padding:10px;margin:8px 0">ভর্তি ফি, নিবন্ধন ফি, মাসিক বেতন, আবাসিক ফি, মাসিক খোরাকী ও সেশন ফি নির্বাচন করুন।</div>'+
         '<p class="adm-required">ফর্মের প্রিভিউ দেখে সম্পাদনা করুন; পেমেন্টের অবস্থা নিশ্চিত না হওয়া পর্যন্ত রসিদকে Paid দেখানো হবে না।</p></section>';
-      if(save){save.insertAdjacentHTML('beforebegin',panel);save.outerHTML='<button class="primary" type="button" onclick="saveAdmissionApplication2026()">💾 ভর্তি আবেদন সংরক্ষণ</button>'}
+      if(save){save.insertAdjacentHTML('beforebegin',panel);save.outerHTML='<button class="primary" type="button" onclick="previewAdmissionApplication2026()">📋 ফর্ম প্রিভিউ / পরবর্তী ধাপ</button>'}
       else {var fg=body.querySelector('.form-grid');if(fg)fg.insertAdjacentHTML('afterend',panel)}
       var action=body.querySelector('.form-action-bar button');if(action)action.textContent='💾 ভর্তি আবেদন সংরক্ষণ';
       setTimeout(function(){if(typeof bindAll==='function')bindAll()},40);
@@ -13073,7 +13073,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       html=dialogHtml('বেতন/ছাড়ের ধরন নির্বাচন করুন', '<p class="adm-required">একটি ধরন নির্বাচন বাধ্যতামূলক।</p><div>'+opts.map(function(o){return '<label style="display:block;padding:10px;border:1px solid var(--border);margin:7px 0;border-radius:8px"><input type="radio" name="admAdmissionTypeInput2026" value="'+o[0]+'" '+(V('admAdmissionType2026')===o[0]?'checked':'')+'> '+o[1]+'</label>'}).join('')+'</div><div class="adm-dialog-actions"><button class="secondary" type="button" onclick="closeAdmissionDialog2026()">বাতিল</button><button class="primary" type="button" onclick="confirmAdmissionType2026()">নির্বাচন নিশ্চিত করুন</button></div>');
     }else{
       if(!feeConfirmed||!typeConfirmed){safeToast('আগে মাসিক ধার্যকৃত ফি ও ভর্তির ধরন নির্ধারণ করুন।');return}
-      html=dialogHtml('পেমেন্ট উইন্ডো', '<p>শিক্ষার্থী: <b>'+esc(V('adNameBN')||'নাম দেওয়া হয়নি')+'</b></p><p>প্রদেয় ভর্তি ফি: <b>'+Number(fees.AdmissionFee||0).toLocaleString('bn-BD')+' টাকা</b></p>'+
+      html=dialogHtml('পেমেন্ট উইন্ডো', '<p>শিক্ষার্থী: <b>'+esc(V('adNameBN')||'নাম দেওয়া হয়নি')+'</b></p><label>এক বা একাধিক পেমেন্ট খাত নির্বাচন করুন<select id="admPayCategories2026" class="field" multiple size="5" onchange="updateAdmissionPaymentTotal2026()"><option value="AdmissionFee">ভর্তি ফি — '+Number(fees.AdmissionFee||0).toLocaleString('bn-BD')+' টাকা</option><option value="RegistrationFee">নিবন্ধন ফি — '+Number(fees.RegistrationFee||0).toLocaleString('bn-BD')+' টাকা</option><option value="MonthlySalary">মাসিক বেতন — '+Number(fees.MonthlySalary||0).toLocaleString('bn-BD')+' টাকা</option><option value="ResidentialFee">আবাসিক ফি — '+Number(fees.ResidentialFee||0).toLocaleString('bn-BD')+' টাকা</option><option value="MonthlyFoodFee">মাসিক খোরাকী — '+Number(fees.MonthlyFoodFee||0).toLocaleString('bn-BD')+' টাকা</option><option value="SessionFee">সেশন ফি — '+Number(fees.SessionFee||0).toLocaleString('bn-BD')+' টাকা</option></select><small>একাধিক খাত বাছতে Ctrl চেপে নির্বাচন করুন।</small></label><p id="admPayTotal2026"><b>মোট নির্বাচিত: 0 টাকা</b></p>'+
         '<div class="form-grid"><label>পেমেন্টের মাধ্যম<select id="admPayMethod2026" class="field"><option>bKash</option><option>Nagad</option><option>mCash</option><option>Rocket</option><option>ব্যাংকিং</option><option>হ্যান্ড ক্যাশ</option></select></label>'+
         '<label>Transaction / Reference ID<input id="admPayRef2026" class="field"></label><label>প্রদানকারীর মোবাইল<input id="admPayMobile2026" class="field" value="'+esc(V('adMobile'))+'"></label><label>প্রদানকারীর ইমেইল<input id="admPayEmail2026" class="field" type="email" value="'+esc(V('adEmail'))+'"></label>'+
         '<label class="full">পেমেন্ট নোট<textarea id="admPayNote2026" class="field"></textarea></label></div>'+
@@ -13132,14 +13132,15 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     savedAdmission={admissionId:(r.row&&r.row.AdmissionID)||d.FormID,studentId:sid,data:d};
     return savedAdmission;
   }
+  window.updateAdmissionPaymentTotal2026=function(){var el=E('admPayCategories2026'),keys=el?Array.from(el.selectedOptions).map(function(o){return o.value}):[],n=keys.reduce(function(sum,k){return sum+(Number(fees[k])||0)},0);if(E('admPayTotal2026'))E('admPayTotal2026').innerHTML='<b>মোট নির্বাচিত: '+n.toLocaleString('bn-BD')+' টাকা</b>';};
   window.submitAdmissionPayment2026=async function(){
     var method=V('admPayMethod2026'),ref=V('admPayRef2026');
     if(method!=='হ্যান্ড ক্যাশ'&&!ref){safeToast('Transaction / Reference ID লিখুন।');return}
-    if(Number(fees.AdmissionFee||0)<=0){safeToast('অনলাইন পেমেন্টের জন্য ভর্তি ফি 0-এর বেশি নির্ধারণ করুন।');return}
+    var feeLabels={AdmissionFee:'ভর্তি ফি',RegistrationFee:'নিবন্ধন ফি',MonthlySalary:'মাসিক বেতন',ResidentialFee:'আবাসিক ফি',MonthlyFoodFee:'মাসিক খোরাকী',SessionFee:'সেশন ফি'};var selectedFees=E('admPayCategories2026')?Array.from(E('admPayCategories2026').selectedOptions).map(function(o){return {key:o.value,label:feeLabels[o.value]||o.text,amount:Number(fees[o.value])||0}}).filter(function(x){return x.amount>0}):[];var selectedTotal=selectedFees.reduce(function(n,x){return n+x.amount},0);if(!selectedFees.length||selectedTotal<=0){safeToast('পেমেন্টের জন্য এক বা একাধিক ফি খাত নির্বাচন করুন।');return}
     try{
       paymentChoice='ONLINE';var saved=await saveAdmissionRecord();if(!saved||!saved.studentId){safeToast('আবেদন থেকে Student ID পাওয়া যায়নি। তথ্য যাচাই করুন।');return}
       var month=new Date().toLocaleDateString('bn-BD',{month:'long',timeZone:'Asia/Dhaka'});
-      var d={StudentID:saved.studentId,Name:saved.data.NameBN,Month:month,Category:'ভর্তি ফি',Amount:Number(fees.AdmissionFee||0),Method:method,Reference:ref||('HAND-CASH-'+Date.now()),PayerMobile:V('admPayMobile2026'),PayerEmail:V('admPayEmail2026'),Note:'ভর্তির ধরন: '+saved.data.AdmissionEntryType+'; শিক্ষার্থীর ধরন: '+saved.data.StudentCategory+'; বেতন/ছাড়: '+saved.data.AdmissionType+'; মাসিক বেতন '+fees.MonthlySalary+'; আবাসিক '+fees.ResidentialFee+'; খোরাকী '+fees.MonthlyFoodFee+'; সেশন '+fees.SessionFee+'; '+V('admPayNote2026'),PaymentMode:'PENDING'};
+      var d={StudentID:saved.studentId,Name:saved.data.NameBN,Month:month,Category:selectedFees.map(function(x){return x.label}).join(' + '),Amount:selectedTotal,Method:method,Reference:ref||('HAND-CASH-'+Date.now()),PayerMobile:V('admPayMobile2026'),PayerEmail:V('admPayEmail2026'),Note:'ভর্তির ধরন: '+saved.data.AdmissionEntryType+'; শিক্ষার্থীর ধরন: '+saved.data.StudentCategory+'; বেতন/ছাড়: '+saved.data.AdmissionType+'; মাসিক বেতন '+fees.MonthlySalary+'; আবাসিক '+fees.ResidentialFee+'; খোরাকী '+fees.MonthlyFoodFee+'; সেশন '+fees.SessionFee+'; '+V('admPayNote2026'),PaymentMode:'PENDING'};
       var r=await call('submitOnlinePayment',d,token);
       if(!r||!r.ok){safeToast((r&&r.message)||'পেমেন্ট অনুরোধ পাঠানো যায়নি। আবেদন সংরক্ষিত হয়েছে; পেমেন্ট আবার চেষ্টা করুন।');return}
       paymentRequested=true;paymentChoice='ONLINE';E('admPaymentState2026').textContent='✓ অনলাইন পেমেন্ট অনুরোধ গ্রহণ হয়েছে (Pending)';
@@ -13153,6 +13154,16 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     paymentRequested=true;E('admPaymentState2026').textContent='✓ পরে পরিশোধের জন্য নির্বাচন করা হয়েছে';
     window.closeAdmissionDialog2026();safeToast('আবেদন সংরক্ষিত হয়েছে। ফি পরে পরিশোধের জন্য চিহ্নিত; প্রশাসনের অনুমোদন অপেক্ষমাণ।');
   };
+  window.previewAdmissionApplication2026=function(){
+    var d=studentFormData(),fields=[['শিক্ষার্থীর নাম',d.NameBN],['পিতার নাম',d.FatherBN],['জন্ম তারিখ',d.DOB],['ঠিকানা',d.Address],['শ্রেণি/জামাত',d.Class],['মোবাইল',d.Mobile],['ভর্তির ধরন',d.AdmissionEntryType],['শিক্ষার্থীর ধরন',d.StudentCategory],['নির্ধারিত মোট ফি',totalFees()+' টাকা'],['বেতন/ছাড়',d.AdmissionType||'নির্বাচন হয়নি']];
+    var required=['শিক্ষার্থীর নাম','পিতার নাম','জন্ম তারিখ','ঠিকানা','শ্রেণি/জামাত','মোবাইল'];
+    var missing=fields.filter(function(x){return required.includes(x[0])&&!String(x[1]||'').trim()});
+    var html='<div class="adm-dialog-backdrop" id="admissionPreview2026"><div class="adm-dialog" style="max-width:850px;max-height:85vh;overflow:auto"><h3>ভর্তি ফর্ম — সম্পূর্ণ তথ্য যাচাই</h3><p>'+(missing.length?'<b style="color:#b00020">অসম্পূর্ণ তথ্য: '+missing.map(function(x){return esc(x[0])}).join(', ')+'</b>':'<b>প্রয়োজনীয় তথ্য পূরণ হয়েছে।</b>')+'</p><table style="width:100%;border-collapse:collapse"><tbody>'+fields.map(function(x){return '<tr><th style="text-align:left;border:1px solid #aaa;padding:7px">'+esc(x[0])+'</th><td style="border:1px solid #aaa;padding:7px">'+esc(x[1]||'— পূরণ করা হয়নি —')+'</td></tr>'}).join('')+'</tbody></table><p>তথ্য ঠিক থাকলে পেমেন্ট ধাপে যান। পরিবর্তন করতে Edit নির্বাচন করুন।</p><div class="adm-dialog-actions"><button type="button" class="secondary" onclick="closeAdmissionPreview2026()">✏️ Edit / সম্পাদনা</button><button type="button" class="secondary" onclick="cancelAdmissionPreview2026()">✖ বাতিল</button><button type="button" class="primary" '+(missing.length?'disabled':'')+' onclick="continueAdmissionToPayment2026()">💳 পেমেন্ট করুন</button></div></div></div>';
+    document.body.insertAdjacentHTML('beforeend',html);
+  };
+  window.closeAdmissionPreview2026=function(){var x=E('admissionPreview2026');if(x)x.remove()};
+  window.cancelAdmissionPreview2026=function(){window.closeAdmissionPreview2026();if(typeof window.openAdmissionPanel2026==='function')window.openAdmissionPanel2026();};
+  window.continueAdmissionToPayment2026=function(){window.closeAdmissionPreview2026();window.openAdmissionDialog2026('payment');};
   window.saveAdmissionApplication2026=async function(){
     if(!feeConfirmed||!typeConfirmed||!admissionPaidConfirmed){safeToast('আগে ভর্তি/মাসিক ফি, প্রদত্ত অর্থ/বকেয়া এবং বেতন/ছাড়ের ধরন নির্ধারণ করুন।');return}
     if(!V('admEntryType2026')||!V('admStudentCategory2026')){safeToast('ভর্তির ধরন এবং শিক্ষার্থীর ধরন নির্বাচন করুন।');return}
