@@ -13170,7 +13170,8 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     var record={AdmissionID:d.FormID,StudentID:d.StudentID,Session:String(new Date().getFullYear()),Class:d.Class,Branch:d.Branch,Status:'PENDING',FormData:JSON.stringify(d)};
     var r=await call('saveAdmissionDraft2026',token,record,'FINALIZE');
     if(!r||!r.ok){safeToast((r&&r.message)||'ভর্তি আবেদন সংরক্ষণ হয়নি।');return null}
-    var sid=(r.studentWorkflow&&r.studentWorkflow.studentId)||(r.row&&r.row.StudentID)||d.StudentID;
+    var sid=String((r.studentWorkflow&&r.studentWorkflow.studentId)||(r.row&&r.row.StudentID)||d.StudentID||'').trim();
+    if(!sid||(r.studentWorkflow&&r.studentWorkflow.skipped)){safeToast('আবেদন রেকর্ড হয়েছে, কিন্তু শিক্ষার্থী আইডি তৈরি হয়নি। ভর্তি সম্পন্ন হয়নি। '+((r.studentWorkflow&&r.studentWorkflow.message)||'Super Admin/প্রশাসকের সহায়তা নিন।'));return null}
     savedAdmission={admissionId:(r.row&&r.row.AdmissionID)||d.FormID,studentId:sid,data:d};
     return savedAdmission;
   }
