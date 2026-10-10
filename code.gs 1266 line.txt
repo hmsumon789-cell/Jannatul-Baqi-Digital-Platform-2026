@@ -2266,29 +2266,55 @@ function searchFinanceReceipt(token,receiptId){
 /* ===== END FINANCE MONTH + RECEIPT SUPPORT ===== */
 
 
-/* ===== ONLINE PAYMENT RECEIPT SEARCH — AUTHENTICATED / ONLINE ONLY ===== */
-function searchOnlinePaymentReceipt(token,receiptId){
+/* ===== ONLINE PAYMENT RECEIPT SEARCH — SAFE LOOKUP / 2026-10-10 ===== */
+function searchOnlinePaymentReceipt(token, receiptId){
   try{
     auth_(token);
-    receiptId=String(receiptId||'').trim();
-    if(!receiptId)return {ok:false,message:'রসিদ আইডি লিখুন।'};
+    var query=String(receiptId||'').trim();
+    if(!query)return {ok:false,message:'রসিদ আইডি অথবা শিক্ষার্থী আইডি লিখুন।'};
     var ss=SpreadsheetApp.getActiveSpreadsheet();
     var sh=ss.getSheetByName(SHEETS.RECEIPTS);
-    if(!sh||sh.getLastRow()<2)return {ok:false,message:'এই আইডির কোনো অনলাইন পেমেন্ট রসিদ পাওয়া যায়নি।'};
-    var values=sh.getDataRange().getValues(),headers=values[0].map(String);
-    var idCol=headers.indexOf('ReceiptID'),typeCol=headers.indexOf('Type'),dataCol=headers.indexOf('Data');
-    if(idCol<0||dataCol<0)return {ok:false,message:'রসিদ ডাটার কলাম পাওয়া যায়নি।'};
-    for(var i=values.length-1;i>=1;i--){
-      if(String(values[i][idCol]||'').trim().toUpperCase()!==receiptId.toUpperCase())continue;
-      var rowType=typeCol>=0?String(values[i][typeCol]||'').trim().toUpperCase():'';
-      if(rowType!=='ONLINE_PAYMENT')return {ok:false,message:'এই আইডিটি অনলাইন পেমেন্ট রসিদ নয়।'};
-      var receipt={};
-      try{receipt=JSON.parse(String(values[i][dataCol]||'{}'));}catch(e){}
-      if(!receipt.ReceiptID)receipt={ReceiptID:values[i][idCol],Type:rowType,StudentID:values[i][headers.indexOf('RefID')]||'',Amount:values[i][headers.indexOf('Amount')]||'',Date:values[i][headers.indexOf('Date')]||''};
-      return {ok:true,receipt:receipt,receiptId:receiptId,message:'অনলাইন পেমেন্ট রসিদ পাওয়া গেছে।'};
+    if(sh&&sh.getLastRow()>1){
+      var values=sh.getDataRange().getValues(),headers=values[0].map(String);
+      var idCol=headers.indexOf('ReceiptID'),refCol=headers.indexOf('RefID'),typeCol=headers.indexOf('Type');
+      var amountCol=headers.indexOf('Amount'),dateCol=headers.indexOf('Date'),dataCol=headers.indexOf('Data');
+      if(idCol<0)return {ok:false,message:'রসিদ শিটে ReceiptID কলাম পাওয়া যায়নি।'};
+      for(var i=values.length-1;i>=1;i--){
+        var rid=String(values[i][idCol]||'').trim();
+        var rowType=typeCol>=0?String(values[i][typeCol]||'').trim().toUpperCase():'';
+        if(rowType&&rowType!=='ONLINE_PAYMENT')continue;
+        var receipt={};
+        if(dataCol>=0){try{receipt=JSON.parse(String(values[i][dataCol]||'{}'))||{};}catch(parseError){receipt={};}}
+        var studentId=String(receipt.StudentID||(refCol>=0?values[i][refCol]:'')||'').trim();
+        var matchReceipt=rid.toUpperCase()===query.toUpperCase();
+        var matchStudent=studentId.toUpperCase()===query.toUpperCase();
+        if(!matchReceipt&&!matchStudent)continue;
+        if(!receipt.ReceiptID)receipt.ReceiptID=rid;
+        if(!receipt.StudentID)receipt.StudentID=studentId;
+        if(!receipt.Type)receipt.Type=rowType||'ONLINE_PAYMENT';
+        if(receipt.Amount==null&&amountCol>=0)receipt.Amount=values[i][amountCol];
+        if(!receipt.Date&&dateCol>=0)receipt.Date=values[i][dateCol];
+        if(!receipt.Name)receipt.Name='';
+        return {ok:true,receipt:receipt,receiptId:rid,message:matchReceipt?'রসিদ পাওয়া গেছে।':'এই শিক্ষার্থীর সর্বশেষ মানি রসিদ পাওয়া গেছে।'};
+      }
     }
-    return {ok:false,message:'এই আইডির কোনো অনলাইন পেমেন্ট রসিদ পাওয়া যায়নি।'};
-  }catch(e){return {ok:false,message:'রসিদ সার্চে ত্রুটি: '+(e&&e.message?e.message:e)};}
+    // If the receipt sheet's Data cell is missing, use the approved request record as a safe fallback.
+    var reqSh=ss.getSheetByName(ONLINE_PAYMENT_REQUEST_SHEET);
+    if(reqSh&&reqSh.getLastRow()>1){
+      var rv=reqSh.getDataRange().getValues(),rh=rv[0].map(String);
+      var ri=rh.indexOf('ReceiptID'),si=rh.indexOf('StudentID'),st=rh.indexOf('Status');
+      for(var j=rv.length-1;j>=1;j--){
+        var requestReceipt=ri>=0?String(rv[j][ri]||'').trim():'';
+        var requestStudent=si>=0?String(rv[j][si]||'').trim():'';
+        if(requestReceipt.toUpperCase()!==query.toUpperCase()&&requestStudent.toUpperCase()!==query.toUpperCase())continue;
+        if(st>=0&&String(rv[j][st]||'').toUpperCase()!=='APPROVED')continue;
+        return {ok:false,message:'পেমেন্ট রেকর্ড পাওয়া গেছে, কিন্তু রসিদের পূর্ণ তথ্য RECEIPTS শিটে নেই। প্রশাসককে রসিদ সংরক্ষণ যাচাই করতে বলুন।'};
+      }
+    }
+    return {ok:false,message:'এই আইডিতে কোনো সংরক্ষিত মানি রসিদ পাওয়া যায়নি। Receipt ID অথবা Student ID যাচাই করুন।'};
+  }catch(e){
+    return {ok:false,message:'রসিদ খুঁজতে সমস্যা হয়েছে: '+(e&&e.message?e.message:e)};
+  }
 }
 /* ===== END ONLINE PAYMENT RECEIPT SEARCH ===== */
 
