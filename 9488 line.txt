@@ -13031,6 +13031,73 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   window.jbEClose=window.jbEClose||function(id){var x=document.getElementById(id);if(x){x.style.display='none';x.classList.remove('show')}};
 })();
 </script>
+
+<!-- ===== QUESTION PAPER BUILDER + ONLINE QUESTION BANK — 2026-10-10 ===== -->
+<style id="jb-question-paper-online-style-20261010">
+#jbQuestionPaperWin2026 .windowBody{max-height:82vh;overflow:auto}
+#jbQuestionPaperWin2026 .jb-qp-online-tools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0;padding:10px;border:1px solid var(--border,#bbb);border-radius:10px}
+#jbQuestionPaperWin2026 .jb-qp-online-tools input,#jbQuestionPaperWin2026 .jb-qp-online-tools select{width:100%;box-sizing:border-box}
+#jbQuestionPaperWin2026 .jb-qp-online-tools .wide{grid-column:1/-1}
+#jbQuestionPaperWin2026 .jb-qp-bank-list{max-height:210px;overflow:auto;border:1px solid var(--border,#bbb);border-radius:8px;padding:8px}
+#jbQuestionPaperWin2026 .jb-qp-bank-row{display:flex;gap:8px;align-items:flex-start;padding:6px;border-bottom:1px solid #ddd}
+#jbQuestionPaperWin2026 .jb-qp-bank-row label{flex:1}
+#jbQuestionPaperWin2026 .jb-qp-id{font-weight:800;color:var(--accent,#176b43)}
+@media(max-width:650px){#jbQuestionPaperWin2026 .jb-qp-online-tools{grid-template-columns:1fr}#jbQuestionPaperWin2026 .jb-qp-online-tools .wide{grid-column:auto}}
+</style>
+<script id="jbQpOnlineSave20261010">
+(function(){
+  function el(id){return document.getElementById(id)}
+  function val(id){return String((el(id)||{}).value||'').trim()}
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function say(t){if(typeof toast==='function')toast(t);else alert(t)}
+  function ready(){if(!window.token){say('প্রশ্নপত্র সংরক্ষণ/খোঁজার আগে অনুমোদিত অ্যাডমিন হিসেবে লগইন করুন।');return false}return true}
+  function ensureTools(){
+    var win=el('jbQuestionPaperWin2026'),body=win&&win.querySelector('.windowBody');if(!body||el('jbQpOnlineTools20261010'))return;
+    var tools=document.createElement('div');tools.id='jbQpOnlineTools20261010';tools.className='jb-qp-online-tools';
+    tools.innerHTML='<label>প্রশ্নপত্র আইডি <input id="jbQpPaperId" placeholder="সংরক্ষণের পর আইডি আসবে"></label><label>আইডি দিয়ে খুঁজুন <div style="display:flex;gap:5px"><input id="jbQpLookupId" placeholder="QP-20261010-0001"><button type="button" onclick="jbQpFindOnline2026()">খুঁজুন</button></div></label><label>প্রশ্নপত্রের নির্দেশনা <input id="jbQpInstructions" placeholder="যেমন: সব প্রশ্নের উত্তর দাও"></label><label>ব্যাংকে যোগের জন্য প্রতি প্রশ্নের নম্বর <input id="jbQpQuestionMarks" type="number" min="0" value="5"></label><div class="wide" style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" onclick="jbQpSaveOnline2026()">💾 অনলাইনে সংরক্ষণ</button><button type="button" onclick="jbQpLoadBank2026()">📚 প্রশ্নব্যাংক দেখুন</button><button type="button" onclick="jbQpAddBank2026()">➕ নির্বাচিত প্রশ্ন যোগ</button><button type="button" onclick="jbQpSaveBank2026()">📥 লেখা প্রশ্ন ব্যাংকে রাখুন</button></div><div class="wide"><input id="jbQpBankSearch" placeholder="প্রশ্নব্যাংকে প্রশ্ন/ট্যাগ দিয়ে খুঁজুন" oninput="jbQpLoadBank2026()"></div><div class="wide jb-qp-bank-list" id="jbQpBankList20261010">প্রশ্নব্যাংক দেখতে “প্রশ্নব্যাংক দেখুন” চাপুন।</div><div class="wide" id="jbQpSaveStatus20261010" aria-live="polite"></div>';
+    var preview=el('jbQpPreview');body.insertBefore(tools,preview||null);
+  }
+  window.jbQpSaveOnline2026=async function(){
+    if(!ready())return;
+    var p={PaperID:val('jbQpPaperId'),Exam:val('jbQpExam'),Class:val('jbQpClass'),Subject:val('jbQpSubject'),ExamDate:val('jbQpDate'),FullMarks:val('jbQpMarks'),Duration:val('jbQpTime'),Instructions:val('jbQpInstructions'),QuestionText:val('jbQpQuestions'),Status:'DRAFT'};
+    if(!p.Exam||!p.Class||!p.Subject||!p.QuestionText){say('পরীক্ষা, শ্রেণি, বিষয় ও প্রশ্ন লিখে তারপর সংরক্ষণ করুন।');return}
+    try{var r=await call('saveQuestionPaper2026',token,p);if(!r||!r.ok){say((r&&r.message)||'প্রশ্নপত্র সংরক্ষণ হয়নি।');return}
+      el('jbQpPaperId').value=r.paperId||p.PaperID;el('jbQpLookupId').value=r.paperId||p.PaperID;
+      el('jbQpSaveStatus20261010').innerHTML='<div class="jb-qp-id">✅ '+esc(r.message)+' আইডি: '+esc(r.paperId)+'</div>';say(r.message+' আইডি: '+r.paperId);
+    }catch(e){say('অনলাইনে সংরক্ষণে সার্ভার ত্রুটি: '+esc(e&&e.message||e))}
+  };
+  window.jbQpFindOnline2026=async function(){
+    if(!ready())return;var id=val('jbQpLookupId')||val('jbQpPaperId');if(!id){say('প্রশ্নপত্রের আইডি লিখুন।');return}
+    try{var r=await call('getQuestionPaper2026',token,id);if(!r||!r.ok){say((r&&r.message)||'প্রশ্নপত্র পাওয়া যায়নি।');return}
+      var p=r.paper||{};[['jbQpPaperId','PaperID'],['jbQpExam','Exam'],['jbQpClass','Class'],['jbQpSubject','Subject'],['jbQpDate','ExamDate'],['jbQpMarks','FullMarks'],['jbQpTime','Duration'],['jbQpInstructions','Instructions'],['jbQpQuestions','QuestionText']].forEach(function(a){if(el(a[0]))el(a[0]).value=p[a[1]]||''});
+      el('jbQpSaveStatus20261010').innerHTML='<div class="jb-qp-id">প্রশ্নপত্র পাওয়া গেছে: '+esc(p.PaperID)+'</div>';if(typeof window.jbQpPreview==='function')window.jbQpPreview();say('সংরক্ষিত প্রশ্নপত্র লোড হয়েছে।');
+    }catch(e){say('প্রশ্নপত্র খোঁজায় সার্ভার ত্রুটি: '+esc(e&&e.message||e))}
+  };
+  window.jbQpLoadBank2026=async function(){
+    if(!ready())return;
+    try{var r=await call('listQuestionBank2026',token,{Class:val('jbQpClass'),Subject:val('jbQpSubject'),Search:val('jbQpBankSearch')});if(!r||!r.ok)throw new Error(r&&r.message||'প্রশ্নব্যাংক পাওয়া যায়নি');
+      var box=el('jbQpBankList20261010'),rows=r.rows||[];box.innerHTML=rows.length?rows.map(function(q){return '<div class="jb-qp-bank-row"><input type="checkbox" data-qid="'+esc(q.QuestionID)+'" data-qtext="'+esc(q.QuestionText)+'" data-qmarks="'+esc(q.Marks)+'"><label><b>'+esc(q.Subject)+'</b> · '+esc(q.QuestionType)+' · '+esc(q.Marks)+' নম্বর<br>'+esc(q.QuestionText)+'<br><small>'+esc(q.QuestionID)+'</small></label></div>'}).join(''):'কোনো প্রশ্ন পাওয়া যায়নি। শ্রেণি/বিষয় মিলিয়ে নতুন প্রশ্ন ব্যাংকে যোগ করুন।';
+    }catch(e){el('jbQpBankList20261010').textContent='প্রশ্নব্যাংক লোড হয়নি: '+(e&&e.message||e)}
+  };
+  window.jbQpAddBank2026=function(){
+    var box=el('jbQpBankList20261010'),picked=box?Array.from(box.querySelectorAll('input[data-qid]:checked')):[];if(!picked.length){say('প্রশ্নব্যাংক থেকে অন্তত একটি প্রশ্ন নির্বাচন করুন।');return}
+    var ta=el('jbQpQuestions'),old=String(ta.value||'').trim(),add=picked.map(function(x){return x.dataset.qtext+' ('+x.dataset.qmarks+' নম্বর)'}).join('\n');
+    ta.value=old?(old+'\n'+add):add;say(picked.length+'টি প্রশ্ন যোগ হয়েছে।');
+  };
+  window.jbQpSaveBank2026=async function(){
+    if(!ready())return;var qs=val('jbQpQuestions').split(/\r?\n/).map(function(x){return x.trim()}).filter(Boolean);
+    if(!val('jbQpClass')||!val('jbQpSubject')||!qs.length){say('শ্রেণি, বিষয় ও অন্তত একটি প্রশ্ন লিখুন।');return}
+    var marks=Number(val('jbQpQuestionMarks'))||0,ok=0,fail=0;
+    for(var i=0;i<qs.length;i++){try{var r=await call('saveQuestionBank2026',token,{Class:val('jbQpClass'),Subject:val('jbQpSubject'),QuestionType:'সাধারণ',QuestionText:qs[i],Marks:marks});if(r&&r.ok)ok++;else fail++}catch(e){fail++}}
+    say(ok+'টি প্রশ্ন ব্যাংকে সংরক্ষণ হয়েছে'+(fail?'। '+fail+'টি ব্যর্থ হয়েছে।':'।'));await window.jbQpLoadBank2026();
+  };
+  var oldClear=window.jbQpClear;window.jbQpClear=function(){if(oldClear)oldClear();['jbQpPaperId','jbQpLookupId','jbQpInstructions','jbQpBankSearch'].forEach(function(id){if(el(id))el(id).value=''});if(el('jbQpSaveStatus20261010'))el('jbQpSaveStatus20261010').textContent='';if(el('jbQpBankList20261010'))el('jbQpBankList20261010').textContent='প্রশ্নব্যাংক দেখতে “প্রশ্নব্যাংক দেখুন” চাপুন।'};
+  function init(){ensureTools();var c=el('jbQpClass');if(c&&!c.dataset.qpBankBound){c.dataset.qpBankBound='1';c.addEventListener('change',function(){if(el('jbQpBankList20261010'))window.jbQpLoadBank2026()})}}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+  setTimeout(init,500);setTimeout(init,1500);
+})();
+</script>
+
 <!-- ===== TWO-STAGE ACCOUNT REVIEW UI — 2026-10-09 ===== -->
 <script id="two-stage-account-review-ui-2026-10-09">
 (function(){
