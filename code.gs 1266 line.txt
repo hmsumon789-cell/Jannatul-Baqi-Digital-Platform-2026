@@ -2056,9 +2056,9 @@ function submitOnlinePayment(data,token){
   const sh=ensureOnlinePaymentRequestSheet_(),vals=sh.getDataRange().getValues(),hh=vals[0].map(String),ri=hh.indexOf('Reference'),si=hh.indexOf('Status');
   if(ref){for(let i=1;i<vals.length;i++){if(String(vals[i][ri]||'').trim()===ref&&['PENDING','APPROVED'].includes(String(vals[i][si]||'').toUpperCase()))return {ok:false,message:'এই Transaction / Reference ID আগে ব্যবহার হয়েছে।'};}}
   if(mode==='QUICK'){
-    if(!token)return {ok:false,message:'দ্রুত পেমেন্টের জন্য Super Admin লগইন প্রয়োজন।'};
-    if(!isSuperAdmin_(token))return {ok:false,message:'দ্রুত পেমেন্ট শুধু Super Admin সরাসরি গ্রহণ করতে পারবেন।'};
+    if(!token)return {ok:false,message:'হ্যান্ড ক্যাশ সরাসরি গ্রহণের জন্য অনুমোদিত অ্যাকাউন্টে লগইন করুন।'};
     try{
+      requireFeature_(token,'payment');
       const pay=saveRecord(token,SHEETS.PAYMENTS,{StudentID:id,Name:data.Name,Month:String(data.Month||'').trim(),Category:String(data.Category||'').trim(),Amount:amount,Method:method,Reference:ref,Date:now_(),Note:String(data.Note||'').trim()});
       if(!pay||!pay.ok)return {ok:false,message:(pay&&pay.message)||'PAYMENTS-এ সরাসরি সংরক্ষণ ব্যর্থ।'};
       const receiptId='RCT-OP-'+Date.now(),receiptData={ReceiptID:receiptId,TransactionID:pay.paymentId||'',PaymentID:pay.paymentId||'',Type:'ONLINE_PAYMENT',StudentID:id,Name:data.Name,Class:st.Class||'',Month:String(data.Month||'').trim(),Category:String(data.Category||'').trim(),Amount:amount,Method:method,Reference:ref,Mobile:payerMobile||st.Mobile||st.WhatsApp||'',PayerMobile:payerMobile,Note:String(data.Note||'').trim(),Date:now_(),Institution:APP.nameBn||'জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা',Address:APP.address||'',Hotline:APP.hotline1||'01823316630',CreatedAt:now_()};
@@ -2066,7 +2066,7 @@ function submitOnlinePayment(data,token){
       log_(sessionUser_(token)||'','quick-pay','ONLINE_PAYMENT',id+' / '+amount+' / '+method+' / '+receiptId);
       notifyOnlinePayment_(data,'PAID',receiptId);
       return {ok:true,status:'PAID',receiptId:receiptId,receipt:receiptData,message:method==='হ্যান্ড ক্যাশ'?'হ্যান্ড ক্যাশ পেমেন্ট সরাসরি গ্রহণ করা হয়েছে এবং রসিদ তৈরি হয়েছে।':'দ্রুত পেমেন্ট সরাসরি PAYMENTS-এ সংরক্ষণ হয়েছে এবং রসিদ তৈরি হয়েছে।'};
-    }catch(e){return {ok:false,message:'সরাসরি পেমেন্টে সার্ভার ত্রুটি: '+(e&&e.message?e.message:e)};}
+    }catch(e){return {ok:false,message:'হ্যান্ড ক্যাশ গ্রহণ/রসিদ তৈরিতে ত্রুটি: '+(e&&e.message?e.message:e)};}
   }
   const req='OPR-'+Utilities.formatDate(new Date(),APP.timezone||'Asia/Dhaka','yyyyMMddHHmmss')+'-'+Math.floor(Math.random()*900+100),now=now_();
   const paymentReq={Serial:nextSerial_(sh),RequestID:req,StudentID:id,Name:data.Name,Class:st.Class||'',Month:String(data.Month||'').trim(),Category:String(data.Category||'').trim(),Amount:amount,Method:method,Reference:ref,PayerMobile:payerMobile,PayerEmail:payerEmail,Note:String(data.Note||'').trim(),Status:'PENDING',SubmittedAt:now,ApprovedBy:'',ApprovedAt:'',FailureReason:'',ReceiptID:'',CreatedAt:now,PaymentMode:mode};
