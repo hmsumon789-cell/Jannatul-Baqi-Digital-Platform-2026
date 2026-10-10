@@ -12989,13 +12989,13 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   var originalOpenModule=window.openModule;
   var originalSaveCurrentForm=window.saveCurrentForm;
   var appType='', feeConfirmed=false, typeConfirmed=false, paymentRequested=false, paymentChoice='', savedAdmission=null;
-  var fees={AdmissionFee:'',MonthlySalary:'',ResidentialFee:'',MonthlyFoodFee:'',SessionFee:''};
+  var fees={AdmissionFee:'',RegistrationFee:'',MonthlySalary:'',ResidentialFee:'',MonthlyFoodFee:'',SessionFee:''};
   var admissionPaid='', admissionDue='', admissionPaidConfirmed=false;
   function E(id){return document.getElementById(id)}
   function V(id){return String((E(id)||{}).value||'').trim()}
   function safeToast(t){if(typeof toast==='function')toast(t);else alert(t)}
   function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
-  function totalFees(){return ['AdmissionFee','MonthlySalary','ResidentialFee','MonthlyFoodFee','SessionFee'].reduce(function(n,k){return n+(Number(fees[k])||0)},0)}
+  function totalFees(){return ['AdmissionFee','RegistrationFee','MonthlySalary','ResidentialFee','MonthlyFoodFee','SessionFee'].reduce(function(n,k){return n+(Number(fees[k])||0)},0)}
   function openPicker(){
     appType='';feeConfirmed=false;typeConfirmed=false;paymentRequested=false;savedAdmission=null;admissionPaid='';admissionDue='';admissionPaidConfirmed=false;
     E('winTitle').textContent='ভর্তি প্যানেল — আবেদন ফর্ম নির্বাচন';
@@ -13011,7 +13011,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   }
   window.openModule=function(key){if(key==='admission'){openPicker();return}return originalOpenModule.apply(this,arguments)};
   window.openAdmissionForm2026=function(type){
-    appType=type;feeConfirmed=false;typeConfirmed=false;paymentRequested=false;paymentChoice='';savedAdmission=null;admissionPaid='';admissionDue='';admissionPaidConfirmed=false;fees={AdmissionFee:'',MonthlySalary:'',ResidentialFee:'',MonthlyFoodFee:'',SessionFee:''};
+    appType=type;feeConfirmed=false;typeConfirmed=false;paymentRequested=false;paymentChoice='';savedAdmission=null;admissionPaid='';admissionDue='';admissionPaidConfirmed=false;fees={AdmissionFee:'',RegistrationFee:'',MonthlySalary:'',ResidentialFee:'',MonthlyFoodFee:'',SessionFee:''};
     if(type==='student'){
       originalOpenModule('admission');
       E('winTitle').textContent='ছাত্র/ছাত্রী ভর্তি আবেদন ফর্ম';
@@ -13115,7 +13115,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       Upazila:typeof getLocationValue==='function'?getLocationValue('adUpazila'):'',Union:typeof getLocationValue==='function'?getLocationValue('adUnion'):'',
       Post:typeof getLocationValue==='function'?getLocationValue('adPost'):'',Ward:typeof getLocationValue==='function'?getLocationValue('adWard'):'',
       Village:typeof getLocationValue==='function'?getLocationValue('adVillage'):'',Class:V('adClass'),Department:V('adDept'),Branch:V('adBranch'),
-      Address:V('adAddress'),BirthReg:V('adBirth'),NID:V('adNid'),Photo:'',AdmissionEntryType:V('admEntryType2026'),StudentCategory:V('admStudentCategory2026'),AdmissionFee:fees.AdmissionFee,MonthlySalary:fees.MonthlySalary,ResidentialFee:fees.ResidentialFee,
+      Address:V('adAddress'),BirthReg:V('adBirth'),NID:V('adNid'),Photo:'',AdmissionEntryType:V('admEntryType2026'),StudentCategory:V('admStudentCategory2026'),AdmissionFee:fees.AdmissionFee,RegistrationFee:fees.RegistrationFee,MonthlySalary:fees.MonthlySalary,ResidentialFee:fees.ResidentialFee,
       MonthlyFoodFee:fees.MonthlyFoodFee,SessionFee:fees.SessionFee,AdmissionPaid:admissionPaid,AdmissionDue:admissionDue,AdmissionPaidConfirmed:admissionPaidConfirmed?'YES':'NO',AdmissionType:V('admAdmissionType2026'),
       FeeTotal:totalFees(),FeeConfirmed:feeConfirmed?'YES':'NO',AdmissionTypeConfirmed:typeConfirmed?'YES':'NO',PaymentPlan:paymentChoice||'NOT_SELECTED'
     };
