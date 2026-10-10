@@ -13599,3 +13599,61 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 <!-- ===== END PRINT REPAIR 2026-10-10 ===== -->
 
 <style id="jb-hide-legacy-admission-header-20261010">#formWin #winBody .admission-form-header-only{display:none!important;visibility:hidden!important;height:0!important;min-height:0!important;max-height:0!important;margin:0!important;padding:0!important;border:0!important;overflow:hidden!important}</style>
+
+<!-- JB QUESTION PAPER WINDOW CONTROLS: FULLSCREEN / MINIMIZE / CLOSE / DRAG-TO-TASKBAR -->
+<style id="jb-question-paper-window-controls-20261011">
+#jbQuestionPaperWin2026{box-sizing:border-box}
+#jbQuestionPaperWin2026.jb-qp-fullscreen-2026{position:fixed!important;inset:0!important;left:0!important;top:0!important;width:100vw!important;height:100vh!important;max-width:none!important;max-height:none!important;transform:none!important;border-radius:0!important;z-index:1000000!important;overflow:hidden!important}
+#jbQuestionPaperWin2026.jb-qp-fullscreen-2026 .windowBody{height:calc(100vh - 48px)!important;max-height:calc(100vh - 48px)!important;overflow:auto!important}
+#jbQuestionPaperWin2026 .jb-qp-window-tools-20261011{display:flex;align-items:center;gap:5px;margin-left:auto;flex-shrink:0}
+#jbQuestionPaperWin2026 .jb-qp-window-tools-20261011 button{min-width:32px;height:30px;padding:2px 8px;border:1px solid currentColor;border-radius:6px;font-weight:800;cursor:pointer}
+#jbQuestionPaperWin2026 .windowHead{display:flex;align-items:center;gap:8px;position:sticky;top:0;z-index:5;cursor:move;user-select:none}
+#jbQpTaskbar20261011{position:fixed;left:8px;right:8px;bottom:5px;min-height:38px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;z-index:2147483000;pointer-events:none}
+#jbQpTaskbar20261011 button{pointer-events:auto;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:7px 12px;border:2px solid var(--border,#333);border-radius:8px;background:var(--panel,#fff);color:var(--text,#111);font-weight:800;cursor:pointer;box-shadow:0 2px 10px #0003}
+#jbQuestionPaperWin2026.jb-qp-minimized-20261011{display:none!important}
+</style>
+<script id="jb-question-paper-window-controls-js-20261011">
+(function(){
+  function init(){
+    var w=document.getElementById('jbQuestionPaperWin2026');
+    if(!w||w.dataset.jbQpWindowControls20261011)return;
+    var head=w.querySelector(':scope > .windowHead')||w.querySelector('.windowHead');
+    if(!head)return;
+    w.dataset.jbQpWindowControls20261011='1';
+    var tools=document.createElement('span');tools.className='jb-qp-window-tools-20261011';
+    function button(label,title,fn){var b=document.createElement('button');b.type='button';b.textContent=label;b.title=title;b.setAttribute('aria-label',title);b.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();fn()});tools.appendChild(b);return b}
+    var taskbar=document.getElementById('jbQpTaskbar20261011');
+    if(!taskbar){taskbar=document.createElement('div');taskbar.id='jbQpTaskbar20261011';document.body.appendChild(taskbar)}
+    function clearTaskItem(){var id=w.dataset.jbQpTaskItem20261011;if(id){var b=document.getElementById(id);if(b)b.remove();delete w.dataset.jbQpTaskItem20261011}}
+    function restore(){clearTaskItem();w.classList.remove('jb-qp-minimized-20261011');w.style.display='block';w.classList.add('show');w.style.zIndex='1000000'}
+    function minimize(){w.classList.remove('jb-qp-fullscreen-2026');w.classList.add('jb-qp-minimized-20261011');clearTaskItem();var b=document.createElement('button');b.type='button';b.id='jbQpRestore20261011';b.textContent='▣ 📄 প্রশ্নপত্র তৈরি';b.title='প্রশ্নপত্র উইন্ডো ফিরিয়ে আনুন';b.onclick=restore;taskbar.appendChild(b);w.dataset.jbQpTaskItem20261011=b.id}
+    function close(){clearTaskItem();w.classList.remove('show','jb-qp-fullscreen-2026','jb-qp-minimized-20261011');w.style.display='none'}
+    function fullscreen(){w.classList.remove('jb-qp-minimized-20261011');clearTaskItem();if(w.classList.contains('jb-qp-fullscreen-2026')){w.classList.remove('jb-qp-fullscreen-2026')}else{w.classList.add('jb-qp-fullscreen-2026')}w.style.display='block';w.classList.add('show')}
+    button('—','মিনিমাইজ করে taskbar-এ রাখুন',minimize);
+    button('⛶','ফুল স্ক্রিন / স্বাভাবিক আকার',fullscreen);
+    button('✕','উইন্ডো বন্ধ করুন',close);
+    head.appendChild(tools);
+    var drag=null;
+    head.addEventListener('pointerdown',function(e){
+      if(e.button!==0||e.target.closest('button,input,select,textarea,a,.jb-qp-window-tools-20261011')||w.classList.contains('jb-qp-fullscreen-2026'))return;
+      var r=w.getBoundingClientRect();drag={x:e.clientX,y:e.clientY,left:r.left,top:r.top,moved:false};
+      try{head.setPointerCapture(e.pointerId)}catch(_){}
+      e.preventDefault();
+    });
+    head.addEventListener('pointermove',function(e){
+      if(!drag)return;
+      if(Math.abs(e.clientX-drag.x)>3||Math.abs(e.clientY-drag.y)>3)drag.moved=true;
+      if(!drag.moved)return;
+      var maxLeft=Math.max(0,window.innerWidth-w.offsetWidth);
+      var maxTop=Math.max(0,window.innerHeight-42);
+      w.style.left=Math.max(0,Math.min(maxLeft,drag.left+e.clientX-drag.x))+'px';
+      w.style.top=Math.max(0,Math.min(maxTop,drag.top+e.clientY-drag.y))+'px';
+      w.style.transform='none';
+    });
+    function endDrag(e){if(!drag)return;var moved=drag.moved;drag=null;if(moved&&e.clientY>=window.innerHeight-28)minimize()}
+    head.addEventListener('pointerup',endDrag);head.addEventListener('pointercancel',function(){drag=null});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+  setTimeout(init,250);setTimeout(init,1000);
+})();
+</script>
