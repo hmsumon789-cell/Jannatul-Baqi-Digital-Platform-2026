@@ -800,6 +800,41 @@ function syncAdmissionToStudent_(token,data) {
   try{autoDocuments=ensureAutoPersonDocuments_('STUDENTS',src,String(sid))}catch(e){autoDocuments={ok:false,message:String(e&&e.message||e)}}
   return {ok:true,studentId:String(sid),created:true,status:info.status,autoDocuments:autoDocuments};
 }
+
+function saveAdmissionDraft2026(token,data,action) {
+  auth_(token);
+  requireFeature_(token,'admission');
+  data=data||{};
+  action=String(action||'SAVE').toUpperCase();
+  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  const sh=ss.getSheetByName(SHEETS.ADMISSIONS)||ensureSheet_(ss,SHEETS.ADMISSIONS,HEADERS.ADMISSIONS);
+  const admissionId=String(data.AdmissionID||data.FormID||'').trim();
+  if(!admissionId)return {ok:false,message:'আবেদন ID তৈরি হয়নি।'};
+  const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
+  const values=sh.getDataRange().getValues();
+  const idCol=headers.indexOf('AdmissionID'),statusCol=headers.indexOf('Status');
+  let rowNum=-1;
+  for(let i=1;i<values.length;i++)if(idCol>=0&&String(values[i][idCol]||'').trim()===admissionId){rowNum=i+1;break;}
+  if(action==='CANCEL'){
+    if(rowNum<2)return {ok:true,cancelled:true,message:'আবেদন বাতিল করা হয়েছে।'};
+    if(statusCol>=0)sh.getRange(rowNum,statusCol+1).setValue('CANCELLED');
+    SpreadsheetApp.flush();
+    return {ok:true,cancelled:true,admissionId:admissionId,message:'আবেদন বাতিল করা হয়েছে।'};
+  }
+  const finalizing=action==='FINALIZE';
+  data.Status=finalizing?'PENDING':'INCOMPLETE';
+  data.AdmissionID=admissionId;
+  const row=headers.map(function(h){return h==='Serial'?(rowNum>1?values[rowNum-1][0]:nextSerial_(sh)):h==='CreatedAt'?(rowNum>1?values[rowNum-1][headers.indexOf('CreatedAt')]:now_()):(data[h]!==undefined?data[h]:'');});
+  if(rowNum>1)sh.getRange(rowNum,1,1,headers.length).setValues([row]);else{sh.appendRow(row);rowNum=sh.getLastRow();}
+  SpreadsheetApp.flush();
+  if(!finalizing)return {ok:true,draft:true,admissionId:admissionId,status:'INCOMPLETE',message:'অসম্পূর্ণ আবেদন খসড়া হিসেবে সংরক্ষিত হয়েছে; পরে সম্পাদনা বা বাতিল করা যাবে।'};
+  const workflow=syncAdmissionToStudent_(token,data);
+  const sid=String((workflow&&workflow.studentId)||data.StudentID||'').trim();
+  if(sid&&headers.indexOf('StudentID')>=0)sh.getRange(rowNum,headers.indexOf('StudentID')+1).setValue(sid);
+  SpreadsheetApp.flush();
+  return {ok:true,row:{AdmissionID:admissionId,StudentID:sid},studentWorkflow:workflow,status:'PENDING',message:'ভর্তি আবেদন সংরক্ষিত হয়েছে; প্রশাসনিক অনুমোদন ও পেমেন্ট যাচাই প্রযোজ্য।'};
+}
+
 function getStudentMasterList(token,status) {
   const session=auth_(token); ensureStudentWorkflowColumns_();
   let rows=listRows_(SHEETS.STUDENTS,token,10000);
