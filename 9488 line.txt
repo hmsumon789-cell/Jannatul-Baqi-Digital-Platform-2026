@@ -870,6 +870,120 @@ body.gold #loginPage .main-qr-802268e{background:#fff!important;border-color:#11
 #loginPage.jb-login-hidden-2026{display:none!important;visibility:hidden!important;pointer-events:none!important;height:0!important;min-height:0!important;overflow:hidden!important}
 #app.jb-dashboard-visible-2026{display:block!important;visibility:visible!important}
 </style>
+
+<!-- ===== ADMISSION FORM VISUAL DESIGN ONLY: GREEN & GOLD 2026-10-10 ===== -->
+<style id="admission-green-gold-design-2026-10-10">
+:root{
+ --adm-green:#176b45;--adm-green-dark:#104b32;--adm-green-soft:#edf8f0;
+ --adm-gold:#c79a28;--adm-gold-soft:#fff7df;--adm-ink:#183327;
+}
+#formWin:has(#admissionMandatoryPanel2026) .win-head,
+#formWin:has(#admGenericName2026) .win-head{
+ background:linear-gradient(110deg,var(--adm-green-dark),var(--adm-green));
+ color:#fff8df;border-bottom:4px solid var(--adm-gold);
+}
+#formWin:has(#admissionMandatoryPanel2026),
+#formWin:has(#admGenericName2026){
+ border:3px solid var(--adm-gold);border-radius:18px;
+ box-shadow:0 22px 65px rgba(16,75,50,.25);
+}
+#formWin:has(#admissionMandatoryPanel2026) .win-body,
+#formWin:has(#admGenericName2026) .win-body{
+ background:linear-gradient(180deg,#f5fbf6 0%,#fff 65%,#fffaf0 100%);
+ color:var(--adm-ink);padding:clamp(12px,2vw,24px);
+}
+#formWin:has(#admissionMandatoryPanel2026) .form-grid,
+#formWin:has(#admGenericName2026) .form-grid{gap:13px;margin:12px 0}
+#formWin:has(#admissionMandatoryPanel2026) .form-grid label,
+#formWin:has(#admGenericName2026) .form-grid label{
+ display:flex;flex-direction:column;gap:7px;font-weight:800;color:#244a36;
+}
+#formWin:has(#admissionMandatoryPanel2026) .field,
+#formWin:has(#admGenericName2026) .field{
+ width:100%;min-height:43px;padding:10px 12px;border:1.5px solid #b8d3c1;
+ border-radius:10px;background:#fff;color:#173c2a;outline:none;
+ transition:border-color .15s,box-shadow .15s;
+}
+#formWin:has(#admissionMandatoryPanel2026) .field:focus,
+#formWin:has(#admGenericName2026) .field:focus{
+ border-color:var(--adm-green);box-shadow:0 0 0 3px rgba(23,107,69,.13);
+}
+#formWin:has(#admissionMandatoryPanel2026) #admissionMandatoryPanel2026{
+ margin:18px 0 8px;padding:clamp(12px,2vw,20px);
+ border:1.5px solid #d9bf70;border-top:5px solid var(--adm-green);
+ border-radius:16px;background:linear-gradient(135deg,#fff 0%,#f4fbf5 68%,#fff8e6 100%);
+ box-shadow:0 8px 22px rgba(16,75,50,.08);
+}
+#formWin:has(#admissionMandatoryPanel2026) #admissionMandatoryPanel2026>h3{
+ color:var(--adm-green-dark);text-align:left;margin:0 0 14px;padding-bottom:10px;
+ border-bottom:1px solid #e5d49b;font-size:clamp(17px,2vw,22px);
+}
+#formWin:has(#admissionMandatoryPanel2026) .adm-fee-actions{
+ grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;
+ padding:14px;border:1px solid #d8c27b;border-radius:14px;
+ background:linear-gradient(135deg,#f4fbf5,#fff9e7);
+}
+#formWin:has(#admissionMandatoryPanel2026) .adm-fee-actions>div{
+ min-width:0;padding:10px;border:1px solid #e3d8b4;border-radius:11px;background:#fff;
+}
+#formWin:has(#admissionMandatoryPanel2026) .adm-state{
+ color:#456b54;line-height:1.5;overflow-wrap:anywhere;
+}
+#formWin:has(#admissionMandatoryPanel2026) .adm-fee-actions button,
+#formWin:has(#admGenericName2026) .form-action-bar button{
+ width:100%;min-height:46px;border-radius:10px;
+}
+#formWin:has(#admissionMandatoryPanel2026) .primary,
+#formWin:has(#admGenericName2026) .primary,
+#formWin .adm-dialog .primary{
+ background:linear-gradient(135deg,#176b45,#104b32);color:#fff8df;
+ border:1px solid #c79a28;box-shadow:0 3px 0 #d9bc66;font-weight:900;
+}
+#formWin:has(#admissionMandatoryPanel2026) .secondary,
+#formWin:has(#admGenericName2026) .secondary,
+#formWin .adm-dialog .secondary{
+ border:1px solid #b89a42;background:#fffaf0;color:#31513d;font-weight:800;
+}
+#formWin:has(#admissionMandatoryPanel2026) #admFeeSummary2026{
+ border:1px solid #d9bf70;border-left:5px solid var(--adm-green);
+ border-radius:12px;background:#fffdf5;color:#254832;line-height:1.7;
+}
+#formWin:has(#admissionMandatoryPanel2026) .adm-required,
+#formWin:has(#admGenericName2026) .adm-required{color:#a62f2f}
+#formWin:has(#admGenericName2026) .form-grid .full{grid-column:1/-1}
+#formWin:has(#admGenericName2026) .form-action-bar{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;
+ margin-top:18px;padding:14px;border:1px solid #d9bf70;border-radius:13px;
+ background:linear-gradient(110deg,#edf8f0,#fff8e5);
+}
+#formWin .adm-dialog{
+ border:2px solid var(--adm-gold);border-top:6px solid var(--adm-green);
+ border-radius:17px;background:#fffef9;color:#183327;
+ box-shadow:0 24px 70px rgba(0,0,0,.35);
+}
+#formWin .adm-dialog h3{color:var(--adm-green-dark);padding-bottom:10px;border-bottom:1px solid #e7d9ad}
+#formWin .adm-dialog .field{background:#fff;color:#183327;border:1.5px solid #bfd5c4}
+#formWin .adm-dialog details{background:#f7fbf5;border-color:#c8d9c9!important}
+#formWin .adm-dialog summary{color:var(--adm-green-dark)}
+#formWin:has(#admissionMandatoryPanel2026) .form-action-bar{
+ display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;padding:12px;
+ border:1px solid #d9bf70;border-radius:12px;background:#fffaf0;
+}
+@media(max-width:760px){
+ #formWin:has(#admissionMandatoryPanel2026) .adm-fee-actions{grid-template-columns:1fr}
+ #formWin:has(#admGenericName2026) .form-action-bar{grid-template-columns:1fr}
+ #formWin:has(#admissionMandatoryPanel2026) .form-grid,
+ #formWin:has(#admGenericName2026) .form-grid{grid-template-columns:1fr}
+ #formWin:has(#admissionMandatoryPanel2026) .form-grid .full,
+ #formWin:has(#admGenericName2026) .form-grid .full{grid-column:1}
+}
+@media(prefers-reduced-motion:reduce){
+ #formWin:has(#admissionMandatoryPanel2026) .field,
+ #formWin:has(#admGenericName2026) .field{transition:none}
+}
+</style>
+<!-- ===== END ADMISSION FORM VISUAL DESIGN ONLY ===== -->
+
 </head>
 <body>
 <div id="welcomeScreen">
