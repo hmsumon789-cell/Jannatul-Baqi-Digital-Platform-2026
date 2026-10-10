@@ -13004,7 +13004,9 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       '<div class="adm-choice-card"><h3>🎓 ছাত্র/ছাত্রী ভর্তি</h3><p>ভর্তি তথ্য, নির্ধারিত ফি, ভর্তির ধরন ও পেমেন্ট</p><button type="button" class="primary" onclick="openAdmissionForm2026(\'student\')">ছাত্র/ছাত্রী ভর্তি ফর্ম</button></div>'+
       '<div class="adm-choice-card"><h3>👩‍🏫 চাকরির আবেদন</h3><p>শিক্ষক/শিক্ষিকা পদে আবেদন</p><button type="button" class="primary" onclick="openAdmissionForm2026(\'teacher\')">শিক্ষক/শিক্ষিকা আবেদন ফর্ম</button></div>'+
       '<div class="adm-choice-card"><h3>🤝 সদস্য আবেদন</h3><p>মাদ্রাসার সদস্য হওয়ার আবেদন</p><button type="button" class="primary" onclick="openAdmissionForm2026(\'member\')">সদস্য আবেদন ফর্ম</button></div>'+
-      '</div><p class="adm-required">* ছাত্র/ছাত্রী ভর্তি ফর্মে প্রয়োজনীয় তথ্য, ভর্তি/মাসিক ফি, শিক্ষার্থীর ধরন এবং অনলাইন অথবা পরে পরিশোধের বিকল্প থাকবে।</p>';
+      '<div class="adm-choice-card"><h3>📝 পরীক্ষার্থী নিবন্ধন</h3><p>পরীক্ষার জন্য শিক্ষার্থী নিবন্ধন</p><button type="button" class="primary" onclick="openExamDashboard2026()">পরীক্ষার্থী নিবন্ধন ফর্ম</button></div>'+
+      '<div class="adm-choice-card"><h3>📋 ছাত্র/ছাত্রী তালিকা</h3><p>নিবন্ধিত শিক্ষার্থীদের তালিকা দেখুন</p><button type="button" class="primary" onclick="openStudentAdmissionList2026()">ছাত্র/ছাত্রী তালিকা</button></div>'+
+      '</div><p class="adm-required">* ভর্তি, পরীক্ষার্থী নিবন্ধন, চাকরির আবেদন ও ছাত্র/ছাত্রী তালিকা এখান থেকে নির্বাচন করুন।</p>';
     E('formWin').classList.remove('minimized');E('formWin').style.height='';openWindow('formWin');
   }
   window.openModule=function(key){if(key==='admission'){openPicker();return}return originalOpenModule.apply(this,arguments)};
@@ -13049,6 +13051,8 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     E('formWin').classList.remove('minimized');E('formWin').style.height='';openWindow('formWin');
   };
   window.openAdmissionPanel2026=openPicker;
+  window.openExamDashboard2026=function(){if(typeof window.openExamDashboard==='function')window.openExamDashboard();else safeToast('পরীক্ষা ড্যাশবোর্ড ফাংশন পাওয়া যায়নি।');};
+  window.openStudentAdmissionList2026=function(){if(typeof window.showList==='function'){window.showList('students');return;}if(typeof window.openListSelector==='function'){window.openListSelector();var x=E('moduleListSelector');if(x){x.value='students';if(typeof window.openSelectedModuleList==='function')window.openSelectedModuleList();return;}}safeToast('ছাত্র/ছাত্রী তালিকা ফাংশন পাওয়া যায়নি।');};
   function dialogHtml(title,inner){return '<div class="adm-dialog-backdrop" id="admissionDialog2026"><div class="adm-dialog" role="dialog" aria-modal="true"><h3>'+title+'</h3>'+inner+'</div></div>'}
   window.openAdmissionDialog2026=function(kind){
     var html='';
