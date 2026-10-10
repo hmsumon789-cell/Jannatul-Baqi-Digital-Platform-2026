@@ -2102,6 +2102,33 @@ function rejectOnlinePayment(token,requestId,reason){
   const now=now_();sh.getRange(rowNo,h.indexOf('Status')+1).setValue('REJECTED');sh.getRange(rowNo,h.indexOf('ApprovedBy')+1).setValue(sessionUser_(token)||'');sh.getRange(rowNo,h.indexOf('ApprovedAt')+1).setValue(now);sh.getRange(rowNo,h.indexOf('FailureReason')+1).setValue(String(reason||'যাচাই হয়নি'));
   log_(sessionUser_(token)||'','reject','ONLINE_PAYMENT',requestId+' / '+String(reason||''));return {ok:true,message:'Payment rejected.'};
 }
+
+function getAdmissionPaymentStatus2026(token,requestId) {
+  auth_(token);
+  requireFeature_(token,'admission');
+  requestId=String(requestId||'').trim();
+  if(!requestId)return {ok:false,message:'পেমেন্ট অনুরোধ ID পাওয়া যায়নি।'};
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(ONLINE_PAYMENT_REQUEST_SHEET);
+  if(!sh)return {ok:false,message:'পেমেন্ট অনুরোধের তালিকা পাওয়া যায়নি।'};
+  const values=sh.getDataRange().getValues(),headers=values[0].map(String),idCol=headers.indexOf('RequestID');
+  let req=null;
+  for(let i=1;i<values.length;i++)if(idCol>=0&&String(values[i][idCol]||'').trim()===requestId){req=objectFrom_(headers,values[i]);break;}
+  if(!req)return {ok:false,message:'এই পেমেন্ট অনুরোধ পাওয়া যায়নি।'};
+  const status=String(req.Status||'PENDING').toUpperCase();
+  if(status==='REJECTED')return {ok:true,status:status,message:'পেমেন্ট অনুরোধ প্রত্যাখ্যাত হয়েছে: '+String(req.FailureReason||'অনুগ্রহ করে প্রশাসনের সঙ্গে যোগাযোগ করুন।')};
+  if(status!=='APPROVED')return {ok:true,status:'PENDING',requestId:requestId,message:'পেমেন্ট অনুরোধ গৃহীত হয়েছে, Super Admin যাচাই/অনুমোদন এখনও বাকি।'};
+  const receiptId=String(req.ReceiptID||'').trim();
+  const receiptSheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.RECEIPTS);
+  if(receiptId&&receiptSheet){
+    const rv=receiptSheet.getDataRange().getValues(),rh=rv[0].map(String),rid=rh.indexOf('ReceiptID'),dataCol=rh.indexOf('Data');
+    for(let i=1;i<rv.length;i++)if(rid>=0&&String(rv[i][rid]||'').trim()===receiptId){
+      let receipt={};try{receipt=JSON.parse(String(dataCol>=0?rv[i][dataCol]:'{}')||'{}')}catch(e){}
+      return {ok:true,status:'PAID',requestId:requestId,receipt:receipt,message:'পেমেন্ট অনুমোদিত হয়েছে; মানি রসিদ তৈরি হয়েছে।'};
+    }
+  }
+  return {ok:true,status:'APPROVED',requestId:requestId,receiptId:receiptId,message:'পেমেন্ট অনুমোদিত, তবে রসিদের বিস্তারিত পাওয়া যায়নি।'};
+}
+
 function buildPublicOnlinePaymentHtml_(){
   const esc=function(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');};
   const months=['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
