@@ -1687,17 +1687,55 @@ function saveOnlineServiceRecord(token,docKey,personId,data,html) {
 function getOnlineServicePublic_(code,personId) {
   const c=String(code||'').trim().toUpperCase(), pid=String(personId||'').trim();
   if(!c||!pid) return {ok:false,message:'সংকেত ও ID দুটিই দিন।'};
-  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ONLINE_SERVICES);
-  if(!sh||sh.getLastRow()<2) return {ok:false,message:'এখনো কোনো অনলাইন সেবা সংরক্ষিত হয়নি।'};
-  const vals=sh.getDataRange().getValues(), h=vals[0], ci=h.indexOf('ServiceCode'), pi=h.indexOf('PersonID'), si=h.indexOf('Status');
-  for(let i=vals.length-1;i>0;i--){
-    if(String(vals[i][ci]).trim().toUpperCase()===c && String(vals[i][pi]).trim()===pid && (!si||String(vals[i][si]).toUpperCase()!=='DELETED')){
-      const row=objectFrom_(h,vals[i]);
-      return {ok:true,row,serviceId:row.ServiceID,serviceCode:c,personId:pid,title:row.Title||'',html:row.HTML||'',pdfUrl:row.PdfUrl||'',
-        message:'অনলাইন সেবা পাওয়া গেছে।'};
+  const ss=SpreadsheetApp.getActiveSpreadsheet();
+
+  // RC: also search payment receipts. Hand-cash receipts are saved in RECEIPTS,
+  // not necessarily in ONLINE_SERVICES, so the public service search must check both.
+  if(c==='RC'){
+    const receiptSheet=ss.getSheetByName(SHEETS.RECEIPTS);
+    if(receiptSheet && receiptSheet.getLastRow()>1){
+      const rv=receiptSheet.getDataRange().getValues(), rh=rv[0].map(String);
+      const ridx=rh.indexOf('ReceiptID'), refidx=rh.indexOf('RefID'), typeidx=rh.indexOf('Type'),
+            amountidx=rh.indexOf('Amount'), dateidx=rh.indexOf('Date'), dataidx=rh.indexOf('Data');
+      for(let ri=rv.length-1;ri>0;ri--){
+        const rid=String(ridx>=0?rv[ri][ridx]:'').trim();
+        const refid=String(refidx>=0?rv[ri][refidx]:'').trim();
+        let receipt={};
+        try{receipt=JSON.parse(String(dataidx>=0?rv[ri][dataidx]:'{}')||'{}')||{};}catch(parseErr){receipt={};}
+        const studentId=String(receipt.StudentID||refid).trim();
+        const isOnlinePayment=String(receipt.Type||(typeidx>=0?rv[ri][typeidx]:'')).toUpperCase()==='ONLINE_PAYMENT';
+        if(!isOnlinePayment) continue;
+        if(rid.toUpperCase()!==pid.toUpperCase() && studentId.toUpperCase()!==pid.toUpperCase()) continue;
+        if(!receipt.ReceiptID)receipt.ReceiptID=rid;
+        if(!receipt.StudentID)receipt.StudentID=studentId;
+        if(receipt.Amount==null&&amountidx>=0)receipt.Amount=rv[ri][amountidx];
+        if(!receipt.Date&&dateidx>=0)receipt.Date=rv[ri][dateidx];
+        const e=function(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');};
+        const html='<div style="max-width:780px;margin:0 auto;border:2px solid #8b5e00;padding:18px;font-family:Arial,sans-serif;color:#111;background:#fff">'+
+          '<div style="text-align:center;border-bottom:2px solid #8b5e00;padding-bottom:10px"><h2 style="margin:4px">'+e(receipt.Institution||APP.nameBn||'জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা')+'</h2>'+
+          '<div>'+e(receipt.Address||APP.address||'')+'</div><b>হটলাইন: '+e(receipt.Hotline||APP.hotline1||'01823316630')+'</b></div>'+
+          '<h3 style="text-align:center">মানি রসিদ / PAYMENT RECEIPT</h3><table style="width:100%;border-collapse:collapse">'+
+          [['Receipt ID',receipt.ReceiptID],['শিক্ষার্থী',receipt.Name],['Student ID',receipt.StudentID],['শ্রেণি/জামাত',receipt.Class],['পরিমাণ',String(receipt.Amount==null?'':receipt.Amount)+' টাকা'],['মাধ্যম',receipt.Method],['Reference',receipt.Reference],['মাস',receipt.Month],['খাত',receipt.Category],['তারিখ',receipt.Date]].map(function(x){return '<tr><th style="text-align:left;border:1px solid #888;padding:8px;width:35%">'+e(x[0])+'</th><td style="border:1px solid #888;padding:8px">'+e(x[1])+'</td></tr>';}).join('')+
+          '</table><p style="text-align:center;font-weight:bold;margin-top:18px">পেমেন্ট সফল / অনুমোদিত</p><p style="text-align:right;margin-top:30px">প্রদানকারী: '+e(receipt.Hotline||APP.hotline1||'01823316630')+'</p></div>';
+        return {ok:true,row:receipt,serviceId:receipt.ReceiptID,serviceCode:'RC',personId:studentId,title:'মানি রসিদ',html:html,pdfUrl:'',message:'সংরক্ষিত মানি রসিদ পাওয়া গেছে।'};
+      }
     }
   }
-  return {ok:false,message:'এই সংকেত + ID-এর কোনো অনলাইন সেবা পাওয়া যায়নি।'};
+
+  const sh=ss.getSheetByName(SHEETS.ONLINE_SERVICES);
+  if(sh && sh.getLastRow()>1){
+    const vals=sh.getDataRange().getValues(), h=vals[0].map(String),
+      ci=h.indexOf('ServiceCode'), pi=h.indexOf('PersonID'), si=h.indexOf('Status');
+    for(let i=vals.length-1;i>0;i--){
+      if(ci>=0 && pi>=0 && String(vals[i][ci]||'').trim().toUpperCase()===c &&
+         String(vals[i][pi]||'').trim()===pid &&
+         (si<0 || String(vals[i][si]||'').toUpperCase()!=='DELETED')){
+        const row=objectFrom_(h,vals[i]);
+        return {ok:true,row:row,serviceId:row.ServiceID,serviceCode:c,personId:pid,title:row.Title||'',html:row.HTML||'',pdfUrl:row.PdfUrl||'',message:'অনলাইন সেবা পাওয়া গেছে।'};
+      }
+    }
+  }
+  return {ok:false,message:c==='RC'?'এই Student ID বা Receipt ID-তে কোনো সংরক্ষিত মানি রসিদ পাওয়া যায়নি।':'এই সংকেত + ID-এর কোনো অনলাইন সেবা পাওয়া যায়নি।'};
 }
 function buildPublicOnlineServiceHtml_(code,personId,result) {
   const esc=function(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')};
