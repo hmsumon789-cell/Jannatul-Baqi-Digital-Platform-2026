@@ -13135,6 +13135,11 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     savedAdmission={admissionId:(r.row&&r.row.AdmissionID)||d.FormID,studentId:sid,data:d};
     return savedAdmission;
   }
+  window.showAdmissionReceipt2026=function(r){
+    r=r||{};var rows=[['রসিদ নম্বর',r.ReceiptID||''],['শিক্ষার্থী আইডি',r.StudentID||''],['নাম',r.Name||''],['ফি খাত',r.Category||''],['পরিমাণ',String(r.Amount||0)+' টাকা'],['মাধ্যম',r.Method||''],['Transaction ID',r.Reference||''],['তারিখ',r.Date||'']];
+    var html='<!doctype html><html lang="bn"><meta charset="utf-8"><title>মানি রসিদ</title><style>body{font-family:Arial,sans-serif;padding:24px;color:#111}.receipt{max-width:760px;margin:auto;border:3px double #222;padding:24px}h1,h2,p{text-align:center}table{width:100%;border-collapse:collapse;margin:18px 0}th,td{border:1px solid #777;padding:10px;text-align:left}.actions{text-align:center;margin:20px}button{padding:10px 16px;margin:4px}@media print{.actions{display:none}}</style><div class="receipt"><h1>'+(r.Institution||'জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা')+'</h1><p>'+(r.Address||'')+' | হটলাইন: '+(r.Hotline||'01823316630')+'</p><h2>মানি রসিদ — পেমেন্ট সফল</h2><table><tbody>'+rows.map(function(x){return '<tr><th>'+esc(x[0])+'</th><td>'+esc(x[1])+'</td></tr>'}).join('')+'</tbody></table><p>আল্লাহ আপনার দান/পরিশোধ কবুল করুন।</p><div class="actions"><button onclick="window.print()">🖨️ প্রিন্ট / PDF সংরক্ষণ</button><button onclick="window.close()">বন্ধ করুন</button></div></div></html>';
+    var w=window.open('','_blank');if(!w){safeToast('রসিদ খুলতে পপ-আপ অনুমতি দিন।');return}w.document.open();w.document.write(html);w.document.close();setTimeout(function(){w.focus()},250);
+  };
   window.updateAdmissionPaymentTotal2026=function(){var el=E('admPayCategories2026'),keys=el?Array.from(el.selectedOptions).map(function(o){return o.value}):[],n=keys.reduce(function(sum,k){return sum+(Number(fees[k])||0)},0);if(E('admPayTotal2026'))E('admPayTotal2026').innerHTML='<b>মোট নির্বাচিত: '+n.toLocaleString('bn-BD')+' টাকা</b>';};
   window.submitAdmissionPayment2026=async function(){
     var method=V('admPayMethod2026'),ref=V('admPayRef2026');
@@ -13146,8 +13151,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       var d={StudentID:saved.studentId,Name:saved.data.NameBN,Month:month,Category:selectedFees.map(function(x){return x.label}).join(' + '),Amount:selectedTotal,Method:method,Reference:ref||('HAND-CASH-'+Date.now()),PayerMobile:V('admPayMobile2026'),PayerEmail:V('admPayEmail2026'),Note:'ভর্তির ধরন: '+saved.data.AdmissionEntryType+'; শিক্ষার্থীর ধরন: '+saved.data.StudentCategory+'; বেতন/ছাড়: '+saved.data.AdmissionType+'; মাসিক বেতন '+fees.MonthlySalary+'; আবাসিক '+fees.ResidentialFee+'; খোরাকী '+fees.MonthlyFoodFee+'; সেশন '+fees.SessionFee+'; '+V('admPayNote2026'),PaymentMode:'PENDING'};
       var r=await call('submitOnlinePayment',d,token);
       if(!r||!r.ok){safeToast((r&&r.message)||'পেমেন্ট অনুরোধ পাঠানো যায়নি। আবেদন সংরক্ষিত হয়েছে; পেমেন্ট আবার চেষ্টা করুন।');return}
-      paymentRequested=true;paymentChoice='ONLINE';E('admPaymentState2026').textContent='✓ অনলাইন পেমেন্ট অনুরোধ গ্রহণ হয়েছে (Pending)';
-      window.closeAdmissionDialog2026();safeToast((r.message||'পেমেন্ট অনুরোধ গ্রহণ হয়েছে।')+' Student ID: '+saved.studentId);
+      paymentRequested=true;paymentChoice='ONLINE';window.closeAdmissionDialog2026();if(String(r.status||'').toUpperCase()==='PAID'&&r.receipt){E('admPaymentState2026').textContent='✓ পেমেন্ট সফল';window.showAdmissionReceipt2026(r.receipt);safeToast('পেমেন্ট সফল হয়েছে; মানি রসিদ খোলা হয়েছে।')}else{E('admPaymentState2026').textContent='✓ পেমেন্ট অনুরোধ গ্রহণ — অনুমোদন অপেক্ষমাণ';safeToast((r.message||'পেমেন্ট অনুরোধ গ্রহণ হয়েছে; অনুমোদনের পর রসিদ পাওয়া যাবে।')+' Student ID: '+saved.studentId)}
     }catch(e){safeToast('পেমেন্ট প্রক্রিয়ায় ত্রুটি: '+(e&&e.message||e))}
   };
   window.chooseAdmissionPayLater2026=async function(){
