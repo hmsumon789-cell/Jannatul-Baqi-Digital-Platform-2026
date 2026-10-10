@@ -13050,7 +13050,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   function val(id){return String((el(id)||{}).value||'').trim()}
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
   function say(t){if(typeof toast==='function')toast(t);else alert(t)}
-  function ready(){if(!window.token){say('প্রশ্নপত্র সংরক্ষণ/খোঁজার আগে অনুমোদিত অ্যাডমিন হিসেবে লগইন করুন।');return false}return true}
+  function ready(){if(typeof token==='undefined'||!token){say('প্রশ্নপত্র সংরক্ষণ/খোঁজার আগে অনুমোদিত অ্যাডমিন হিসেবে লগইন করুন।');return false}return true}
   function ensureTools(){
     var win=el('jbQuestionPaperWin2026'),body=win&&win.querySelector('.windowBody');if(!body||el('jbQpOnlineTools20261010'))return;
     var tools=document.createElement('div');tools.id='jbQpOnlineTools20261010';tools.className='jb-qp-online-tools';
