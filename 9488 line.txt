@@ -12225,24 +12225,25 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 <!-- ===== ONLINE SERVICE PUBLIC SEARCH — SIGNAL + ID DIRECT VIEW — 2026-10-07 ===== -->
 <script id="jb-online-service-public-search-2026-10-07">
 (function(){
-  var CODES={TI:1,AF:1,LF:1,ER:1,TC:1,AP:1,LM:1,LC:1,TR:1,TA:1,EF:1,EI:1};
+  var CODES={MS:1,RS:1,ID:1,AC:1,CT:1,RC:1,TI:1,AF:1,LF:1,ER:1,TC:1,AP:1,LM:1,LC:1,TR:1,TA:1,EF:1,EI:1};
   function E(id){return document.getElementById(id)}
   function openOnline(sig,q){
-    var base='';
+    var base=window.location.href.split('#')[0].split('?')[0];
+    // Open synchronously from the user's click so the browser does not block the result tab.
+    var target=window.open('about:blank','_blank');
+    if(!target){if(typeof toast==='function')toast('অনলাইন সেবা খুলতে ব্রাউজারের Popup অনুমতি দিন।');else alert('অনলাইন সেবা খুলতে ব্রাউজারের Popup অনুমতি দিন।');return;}
+    function navigate(url){try{target.location.href=url;}catch(e){if(typeof toast==='function')toast('অনলাইন সেবা খোলা যায়নি। মূল ওয়েব অ্যাপ URL যাচাই করুন।');}}
+    function makeUrl(root){return root+'?online=1&code='+encodeURIComponent(sig)+'&id='+encodeURIComponent(q);}
     try{
       if(typeof call==='function'){
         call('getMainWebAppUrl').then(function(r){
-          base=String(r&&r.ok&&r.url?r.url:window.location.href).split('#')[0].split('?')[0];
-          window.open(base+'?online=1&code='+encodeURIComponent(sig)+'&id='+encodeURIComponent(q),'_blank');
-        }).catch(function(){
-          base=window.location.href.split('#')[0].split('?')[0];
-          window.open(base+'?online=1&code='+encodeURIComponent(sig)+'&id='+encodeURIComponent(q),'_blank');
-        });
+          base=String(r&&r.ok&&r.url?r.url:base).split('#')[0].split('?')[0];
+          navigate(makeUrl(base));
+        }).catch(function(){navigate(makeUrl(base));});
         return;
       }
     }catch(e){}
-    base=window.location.href.split('#')[0].split('?')[0];
-    window.open(base+'?online=1&code='+encodeURIComponent(sig)+'&id='+encodeURIComponent(q),'_blank');
+    navigate(makeUrl(base));
   }
   var old=window.doSearch;
   if(typeof old!=='function')return;
