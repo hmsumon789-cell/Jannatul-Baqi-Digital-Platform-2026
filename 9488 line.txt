@@ -9761,9 +9761,9 @@ var wrap=document.getElementById('jbDocPreviewWrap');if(!wrap)return;wrap.innerH
     var title=esc(currentDoc&&currentDoc.title||'Document');
     w.document.open();
     w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>'+title+'</title><style>'+
-      '@page{size:auto;margin:8mm}body{margin:0;background:#fff;color:#111;font-family:Arial,sans-serif}'+
+      '@page{size:'+(currentDoc&&currentDoc.key==='receipts'?'A5 portrait':'A4 portrait')+';margin:8mm}body{margin:0;background:#fff;color:#111;font-family:Arial,sans-serif}'+
       '.jb-doc-preview{margin:0 auto;background:#fff;color:#111;border:8px solid #8b5e00;box-shadow:inset 0 0 0 5px #1976d2,inset 0 0 0 10px #2e7d32;padding:20px;box-sizing:border-box;overflow:hidden}'+
-      '.jb-doc-preview.a4{width:210mm;min-height:297mm}.jb-doc-preview.half{width:210mm;min-height:148mm}.jb-doc-preview.idcard{width:86mm;min-height:54mm;padding:10px;border-width:4px;font-size:12px}'+
+      '.jb-doc-preview.a4{width:210mm;min-height:297mm}.jb-doc-preview.half{width:'+(currentDoc&&currentDoc.key==='receipts'?'148mm':'210mm')+';min-height:'+(currentDoc&&currentDoc.key==='receipts'?'210mm':'148mm')+'}.jb-doc-preview.idcard{width:86mm;min-height:54mm;padding:10px;border-width:4px;font-size:12px}'+
       '.jb-doc-head{text-align:center;border-bottom:2px solid #333;padding-bottom:8px;margin-bottom:10px}.jb-doc-head h2,.jb-doc-head h3,.jb-doc-head p{margin:3px}'+
       '.jb-doc-photo{float:right;width:90px;height:110px;object-fit:cover;border:2px solid #222;margin-left:10px}.jb-doc-idcard .jb-doc-photo{width:70px;height:82px}'+
       '.jb-doc-row{display:flex;gap:8px;padding:4px 0;border-bottom:1px dotted #999}.jb-doc-row b{min-width:135px}.jb-corner{position:absolute;inset:0;border:3px solid #c62828;pointer-events:none}'+
@@ -13249,3 +13249,81 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 })();
 </script>
 <!-- ===== END ADMISSION PANEL SELECTOR + STUDENT FEE/PAYMENT WORKFLOW ===== -->
+
+
+<!-- ===== PRINT REPAIR: A4 FORMS + A5 MONEY RECEIPTS + CONTACT HEADER 2026-10-10 ===== -->
+<style id="jb-universal-print-repair-20261010">
+.jb-print-institution-header-20261010{display:none}
+@media print{
+  @page{size:A4 portrait;margin:10mm}
+  body>*:not(#formWin):not(#admReceiptOverlay2026){display:none!important}
+  #formWin{display:block!important;width:190mm!important;max-width:none!important;height:auto!important;max-height:none!important;position:static!important;transform:none!important;overflow:visible!important;border:0!important;box-shadow:none!important}
+  #formWin .win-body{height:auto!important;max-height:none!important;overflow:visible!important}
+  #formWin .jb-print-institution-header-20261010{display:grid!important}
+  #admReceiptOverlay2026{display:block!important;visibility:visible!important;position:absolute!important;inset:0!important;overflow:visible!important;background:#fff!important;padding:0!important}
+  body>div#admReceiptOverlay2026#admReceiptOverlay2026{display:block!important}
+  #admReceiptOverlay2026 .adm-receipt-paper{display:block!important;width:148mm!important;max-width:148mm!important;min-height:190mm!important;margin:0!important;padding:5mm!important;box-sizing:border-box!important;border:2px double #222!important;box-shadow:none!important}
+  #admReceiptOverlay2026 .adm-receipt-actions{display:none!important}
+}
+.jb-print-institution-header-20261010{grid-template-columns:20mm minmax(0,1fr) 20mm;gap:3mm;align-items:center;width:100%;box-sizing:border-box;padding:2mm 0 3mm;margin:0 0 4mm;border-bottom:1.5px solid #222;background:#fff;color:#111;direction:ltr}
+.jb-print-institution-header-20261010 img{width:18mm;height:18mm;max-width:18mm;max-height:18mm;object-fit:contain;display:block}
+.jb-print-institution-header-20261010 .jb-print-inst-center-20261010{text-align:center;line-height:1.25;font-family:Arial,"Noto Sans Bengali",sans-serif}
+.jb-print-institution-header-20261010 .jb-print-inst-name-20261010{font-weight:900;font-size:13pt;margin-bottom:2px}
+.jb-print-institution-header-20261010 .jb-print-inst-address-20261010{font-weight:700;font-size:8.5pt}
+.jb-print-institution-header-20261010 .jb-print-inst-hotline-20261010{font-weight:800;font-size:8.5pt;margin-top:2px}
+.adm-receipt-header-20261010{display:grid;grid-template-columns:18mm minmax(0,1fr) 18mm;gap:3mm;align-items:center;border-bottom:1.5px solid #222;padding:0 0 3mm;margin-bottom:4mm;direction:ltr}
+.adm-receipt-header-20261010 img{display:block;width:16mm;height:16mm;object-fit:contain}
+.adm-receipt-header-20261010 .adm-rh-center{text-align:center;line-height:1.25}
+.adm-receipt-header-20261010 .adm-rh-name{font-size:12pt;font-weight:900}
+.adm-receipt-header-20261010 .adm-rh-address,.adm-receipt-header-20261010 .adm-rh-hotline{font-size:8pt;font-weight:700;margin-top:2px}
+</style>
+<script id="jb-universal-print-repair-js-20261010">
+(function(){
+  function escPrint20261010(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function contact20261010(){
+    var logo=document.getElementById('contactLoginLogo2026')||document.getElementById('loginLogo');
+    var qr=document.getElementById('contactMainQR2026')||document.getElementById('loginMainQR802268e');
+    var name=document.querySelector('#contactFooter .contact-name');
+    var address=document.querySelector('#contactFooter .contact-address');
+    var info=document.querySelector('#contactFooter .contact-info');
+    var hotline='01823316630';
+    if(info){var m=(info.innerText||info.textContent||'').match(/হটলাইন\s*:\s*([+0-9০-৯ -]+)/);if(m)hotline=m[1].trim()}
+    return {logo:logo&&logo.src||'',qr:qr&&qr.src||'',name:name&&(name.innerText||name.textContent).trim()||'জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা',address:address&&(address.innerText||address.textContent).trim()||'উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০',hotline:hotline};
+  }
+  function headerHTML20261010(extraClass){
+    var c=contact20261010();
+    var qr=c.qr;
+    if(!qr){qr='https://quickchart.io/qr?size=180&margin=2&text='+encodeURIComponent(location.href.split('#')[0])}
+    return '<div class="'+(extraClass||'jb-print-institution-header-20261010')+'"><div><img alt="মাদ্রাসার লোগো" src="'+escPrint20261010(c.logo)+'"></div><div class="'+(extraClass?'adm-rh-center':'jb-print-inst-center-20261010')+'"><div class="'+(extraClass?'adm-rh-name':'jb-print-inst-name-20261010')+'">'+escPrint20261010(c.name)+'</div><div class="'+(extraClass?'adm-rh-address':'jb-print-inst-address-20261010')+'">'+escPrint20261010(c.address)+'</div><div class="'+(extraClass?'adm-rh-hotline':'jb-print-inst-hotline-20261010')+'">হটলাইন: '+escPrint20261010(c.hotline)+'</div></div><div><img alt="মূল পেজের QR কোড" src="'+escPrint20261010(qr)+'"></div></div>';
+  }
+  window.printCurrentForm=function(){
+    var w=document.getElementById('formWin'),body=document.getElementById('winBody');
+    if(!w||!body)return;
+    w.classList.remove('minimized');
+    var old=body.querySelector('.jb-print-institution-header-20261010');if(old)old.remove();
+    body.insertAdjacentHTML('afterbegin',headerHTML20261010());
+    var clean=function(){var x=body.querySelector('.jb-print-institution-header-20261010');if(x)x.remove();window.removeEventListener('afterprint',clean)};
+    window.addEventListener('afterprint',clean);
+    setTimeout(function(){window.print()},80);
+  };
+  window.showAdmissionReceipt2026=function(r){
+    r=r||{};
+    var rows=[['রসিদ নম্বর',r.ReceiptID||''],['শিক্ষার্থী আইডি',r.StudentID||''],['নাম',r.Name||''],['শ্রেণি/জামাত',r.Class||''],['ফি খাত',r.Category||''],['পরিমাণ',String(r.Amount||0)+' টাকা'],['মাধ্যম',r.Method||''],['Transaction ID',r.Reference||''],['তারিখ',r.Date||'']];
+    var old=document.getElementById('admReceiptOverlay2026');if(old)old.remove();
+    var style=document.getElementById('admReceiptPrintStyle2026');if(style)style.remove();
+    var c=contact20261010();
+    var header=headerHTML20261010('adm-receipt-header-20261010');
+    var html='<div class="adm-receipt-overlay" id="admReceiptOverlay2026" style="position:fixed;inset:0;z-index:2147483000;background:rgba(0,0,0,.62);overflow:auto;padding:18px;box-sizing:border-box"><div class="adm-receipt-paper" style="width:148mm;max-width:148mm;margin:12px auto;background:#fff;color:#111;border:3px double #222;padding:6mm;font-family:Arial,sans-serif;box-sizing:border-box">'+header+'<h2 style="text-align:center;margin:2mm 0 4mm">মানি রসিদ — পেমেন্ট সফল</h2><table style="width:100%;border-collapse:collapse;margin:3mm 0"><tbody>'+rows.map(function(x){return '<tr><th style="border:1px solid #777;padding:5px;text-align:left">'+escPrint20261010(x[0])+'</th><td style="border:1px solid #777;padding:5px;text-align:left">'+escPrint20261010(x[1])+'</td></tr>'}).join('')+'</tbody></table><p style="text-align:center">আল্লাহ আপনার পরিশোধ কবুল করুন।</p><div class="adm-receipt-actions" style="text-align:center;margin:12px"><button type="button" onclick="window.print()">🖨️ প্রিন্ট / PDF সংরক্ষণ</button><button type="button" onclick="document.getElementById(\'admReceiptOverlay2026\').remove()">বন্ধ করুন</button></div></div></div>';
+    document.body.insertAdjacentHTML('beforeend',html);
+  };
+  window.printOnlineReceipt=function(){
+    var b=document.getElementById('onlineReceiptBody');if(!b)return;
+    var w=window.open('','_blank','width=850,height=750');if(!w){window.print();return}
+    var c=contact20261010(),qr=c.qr||('https://quickchart.io/qr?size=180&margin=2&text='+encodeURIComponent(location.href.split('#')[0]));
+    var header='<div class="adm-receipt-header-20261010"><div><img src="'+escPrint20261010(c.logo)+'" alt="লোগো"></div><div class="adm-rh-center"><div class="adm-rh-name">'+escPrint20261010(c.name)+'</div><div class="adm-rh-address">'+escPrint20261010(c.address)+'</div><div class="adm-rh-hotline">হটলাইন: '+escPrint20261010(c.hotline)+'</div></div><div><img src="'+escPrint20261010(qr)+'" alt="মূল পেজের QR"></div></div>';
+    w.document.open();w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>মানি রসিদ</title><style>@page{size:A5 portrait;margin:7mm}*{box-sizing:border-box}body{font-family:Arial,"Noto Sans Bengali",sans-serif;margin:0;color:#111}.adm-receipt-header-20261010{display:grid;grid-template-columns:18mm minmax(0,1fr) 18mm;gap:3mm;align-items:center;border-bottom:1.5px solid #222;padding:0 0 3mm;margin-bottom:4mm}.adm-receipt-header-20261010 img{width:16mm;height:16mm;object-fit:contain}.adm-rh-center{text-align:center;line-height:1.25}.adm-rh-name{font-size:12pt;font-weight:900}.adm-rh-address,.adm-rh-hotline{font-size:8pt;font-weight:700;margin-top:2px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:5px;text-align:left}h2,h3{text-align:center}</style></head><body>'+header+b.outerHTML+'</body></html>');
+    w.document.close();w.focus();setTimeout(function(){w.print()},300);
+  };
+})();
+</script>
+<!-- ===== END PRINT REPAIR 2026-10-10 ===== -->
