@@ -10588,7 +10588,7 @@ body.dark #jbDocumentBuilderEntry2026{background:#000;color:#ffe95c;border-color
         exam.type='button';exam.className='primary';exam.id='jbExamDashboardEntry2026';
         exam.textContent='📝 পরীক্ষা ড্যাশবোর্ড';
         exam.onclick=function(){if(typeof window.openExamDashboard==='function')window.openExamDashboard();};
-        row.appendChild(exam);row.appendChild(b);
+        row.appendChild(exam);row.appendChild(b);var admission=document.createElement('button');admission.type='button';admission.className='primary';admission.id='jbOnlineAdmissionPanelEntry2026';admission.textContent='📝 অনলাইন ভর্তি+আবেদন প্যানেল';admission.title='অনলাইন ভর্তি, পরীক্ষার্থী নিবন্ধন, চাকরির আবেদন ও তালিকা';admission.onclick=function(){if(typeof window.openAdmissionPanel2026==='function')window.openAdmissionPanel2026();else if(typeof window.openModule==='function')window.openModule('admission');};row.appendChild(admission);
         anchor.parentNode.insertBefore(row,anchor.nextSibling);
       }else if(!row.contains(b))row.appendChild(b);
     }else app.appendChild(b);
