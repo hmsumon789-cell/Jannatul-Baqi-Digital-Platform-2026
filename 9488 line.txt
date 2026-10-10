@@ -13022,12 +13022,11 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
         '<label>ভর্তির ধরন <span class="adm-required">*</span><select id="admEntryType2026" class="field"><option value="">নির্বাচন করুন</option><option value="নতুন ভর্তি">নতুন ভর্তি</option><option value="পুনঃভর্তি">পুনঃভর্তি</option><option value="স্থানান্তর">স্থানান্তর</option></select></label>'+
         '<label>শিক্ষার্থীর ধরন <span class="adm-required">*</span><select id="admStudentCategory2026" class="field"><option value="">নির্বাচন করুন</option><option value="সাধারণ">সাধারণ</option><option value="এতিম">এতিম</option><option value="গোরাবা">গোরাবা</option></select></label></div>'+
         '<div class="adm-fee-actions">'+
-        '<div><button type="button" class="primary" onclick="openAdmissionDialog2026(\'fees\')">💰 ভর্তি/মাসিক ফি নির্ধারণ</button><div id="admFeeState2026" class="adm-state">এখনো ফি নির্ধারণ হয়নি</div></div>'+
-        '<div><button type="button" class="primary" onclick="openAdmissionDialog2026(\'admissionPaid\')">💵 ভর্তি ফি প্রদান করুন</button><div id="admAdmissionPaidState2026" class="adm-state">ভর্তিকালীন অর্থ/বকেয়া দিন</div></div>'+
-        '<div><button type="button" class="primary" onclick="openAdmissionDialog2026(\'type\')">📋 বেতন/ছাড়ের ধরন</button><div id="admTypeState2026" class="adm-state">এখনো ধরন নির্বাচন হয়নি</div></div>'+
-        '<div><button type="button" class="primary" onclick="openAdmissionDialog2026(\'payment\')">💳 প্রদান করুন</button><div id="admPaymentState2026" class="adm-state">পেমেন্ট অনুরোধ বাকি</div></div>'+
-        '</div><div id="admFeeSummary2026" class="card" style="padding:10px;margin:8px 0">ভর্তি ফি, মাসিক বেতন, আবাসিক ফি, মাসিক খোরাকী ও সেশন ফি নির্ধারণ করুন।</div>'+
-        '<p class="adm-required">ফি ও ধরন পূরণ করে অনলাইন পেমেন্ট অনুরোধ পাঠান অথবা পরে পরিশোধ নির্বাচন করুন। চূড়ান্ত ভর্তি প্রশাসনের অনুমোদনসাপেক্ষ।</p></section>';
+        '<div><button type="button" class="primary" onclick="openAdmissionDialog2026(\'fees\')">💰 ভর্তি ফি/মাসিক বেতন নির্ধারণ</button><div id="admFeeState2026" class="adm-state">এক বা একাধিক ফি খাত নির্বাচন করুন</div></div>'+
+        '<div><label>বেতন/ফ্রি/ছাড়ের ধরন<select id="admInlineAdmissionType2026" class="field" onchange="selectAdmissionTypeInline2026(this.value)"><option value="">নির্বাচন করুন</option><option value="FULL">পূর্ণ বেতন</option><option value="HALF">অর্ধেক বেতন</option><option value="PARTIAL">আংশিক ছাড়</option><option value="FREE_SCHOLARSHIP">ফ্রি স্কলারশিপ</option></select></label><div id="admTypeState2026" class="adm-state">এখনো ধরন নির্বাচন হয়নি</div></div>'+
+        '<div><button type="button" class="primary" onclick="openAdmissionDialog2026(\'payment\')">💳 পেমেন্ট পেজ খুলুন</button><div id="admPaymentState2026" class="adm-state">পেমেন্টের আগে ফর্ম প্রিভিউ করুন</div></div>'+
+        '</div><div id="admFeeSummary2026" class="card" style="padding:10px;margin:8px 0">ভর্তি ফি, নিবন্ধন ফি, মাসিক বেতন, আবাসিক ফি, মাসিক খোরাকী ও সেশন ফি নির্বাচন করুন।</div>'+
+        '<p class="adm-required">ফর্মের প্রিভিউ দেখে সম্পাদনা করুন; পেমেন্টের অবস্থা নিশ্চিত না হওয়া পর্যন্ত রসিদকে Paid দেখানো হবে না।</p></section>';
       if(save){save.insertAdjacentHTML('beforebegin',panel);save.outerHTML='<button class="primary" type="button" onclick="saveAdmissionApplication2026()">💾 ভর্তি আবেদন সংরক্ষণ</button>'}
       else {var fg=body.querySelector('.form-grid');if(fg)fg.insertAdjacentHTML('afterend',panel)}
       var action=body.querySelector('.form-action-bar button');if(action)action.textContent='💾 ভর্তি আবেদন সংরক্ষণ';
@@ -13097,7 +13096,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     E('admAdmissionPaidState2026').textContent='✓ প্রদত্ত: '+admissionPaid+' টাকা | বকেয়া: '+admissionDue+' টাকা';
     window.closeAdmissionDialog2026();safeToast('ভর্তিকালীন প্রদত্ত অর্থ ও বকেয়ার তথ্য সংরক্ষিত হয়েছে।');
   };
-  window.confirmAdmissionType2026=function(){
+  window.selectAdmissionTypeInline2026=function(v){if(!v){typeConfirmed=false;return}if(!E('admAdmissionType2026')){var h=document.createElement('input');h.type='hidden';h.id='admAdmissionType2026';E('winBody').appendChild(h)}E('admAdmissionType2026').value=v;typeConfirmed=true;var labels={FULL:'পূর্ণ বেতন',HALF:'অর্ধেক বেতন',PARTIAL:'আংশিক ছাড়',FREE_SCHOLARSHIP:'ফ্রি স্কলারশিপ'};E('admTypeState2026').textContent='✓ '+(labels[v]||v)};\n  window.confirmAdmissionType2026=function(){
     var x=document.querySelector('input[name="admAdmissionTypeInput2026"]:checked');if(!x){safeToast('ভর্তির ধরন থেকে একটি নির্বাচন করুন।');return}
     if(!E('admAdmissionType2026')){var h=document.createElement('input');h.type='hidden';h.id='admAdmissionType2026';E('winBody').appendChild(h)}
     E('admAdmissionType2026').value=x.value;typeConfirmed=true;
