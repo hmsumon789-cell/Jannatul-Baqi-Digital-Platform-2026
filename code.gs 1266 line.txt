@@ -28,7 +28,7 @@ const SHEETS = {
   CONFIG:'CONFIG', AUDIT:'AUDIT', OTP_LOG:'OTP_LOG', EXECUTIVES:'EXECUTIVES',
   ADVISERS:'ADVISERS', FOUNDERS:'FOUNDERS', LOCATION_MASTER:'LOCATION_MASTER',
   MADRASAS:'MADRASAS', SALARY:'SALARY', CERTIFICATES:'CERTIFICATES',
-  ID_CARDS:'ID_CARDS', ADMIT_CARDS:'ADMIT_CARDS', RECEIPTS:'RECEIPTS', ONLINE_SERVICES:'ONLINE_SERVICES'
+  ID_CARDS:'ID_CARDS', ADMIT_CARDS:'ADMIT_CARDS', RECEIPTS:'RECEIPTS', ONLINE_SERVICES:'ONLINE_SERVICES', QUESTION_PAPERS:'QUESTION_PAPERS', QUESTION_BANK:'QUESTION_BANK'
 };
 
 const HEADERS = {
@@ -61,7 +61,9 @@ const HEADERS = {
   ID_CARDS:['Serial','CardID','StudentID','IssueDate','Data'],
   ADMIT_CARDS:['Serial','AdmitID','StudentID','Exam','IssueDate','Data'],
   RECEIPTS:['Serial','ReceiptID','RefID','Type','Amount','Date','Data'],
-  ONLINE_SERVICES:['Serial','ServiceID','ServiceCode','DocKey','PersonID','Name','Title','IssueDate','PdfFileId','PdfUrl','Data','HTML','Status','CreatedAt']
+  ONLINE_SERVICES:['Serial','ServiceID','ServiceCode','DocKey','PersonID','Name','Title','IssueDate','PdfFileId','PdfUrl','Data','HTML','Status','CreatedAt'],
+  QUESTION_PAPERS:['Serial','PaperID','Exam','Class','Subject','ExamDate','FullMarks','Duration','Instructions','QuestionsJSON','QuestionText','Status','CreatedBy','CreatedAt','UpdatedAt'],
+  QUESTION_BANK:['Serial','QuestionID','Class','Subject','QuestionType','QuestionText','Marks','Tags','CreatedBy','CreatedAt']
 };
 
 function doGet(e) {
@@ -1011,7 +1013,7 @@ function ensureAutoPersonDocuments_(personSheet, person, personId) {
 
 function saveRecord(token,sheetName,data) {
   auth_(token);
-  const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
+  const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission',QUESTION_PAPERS:'exam',QUESTION_BANK:'exam'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
   if(!HEADERS[sheetName]) throw new Error('Invalid sheet');
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
   data=normalizeMobileFields_(data);
@@ -1074,7 +1076,7 @@ function saveRecord(token,sheetName,data) {
 }
 
 function updateRecord(token,sheetName,serial,data) {
-  auth_(token); const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
+  auth_(token); const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission',QUESTION_PAPERS:'exam',QUESTION_BANK:'exam'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
   data=normalizeMobileFields_(data);
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
   const values=sh.getDataRange().getValues();
@@ -1094,7 +1096,7 @@ function updateRecord(token,sheetName,serial,data) {
 }
 
 function deleteRecord(token,sheetName,serial) {
-  auth_(token); const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
+  auth_(token); const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission',QUESTION_PAPERS:'exam',QUESTION_BANK:'exam'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
   const vals=sh.getRange(2,1,Math.max(1,sh.getLastRow()-1),1).getValues();
   const idx=vals.findIndex(r=>String(r[0])===String(serial));
@@ -2431,6 +2433,57 @@ function getAllDocumentBuilderHistory(token, personId) {
 
 
 /* ===== EXAM DASHBOARD SERVER API — 2026-10-09 ===== */
+
+/* ===== QUESTION PAPER + QUESTION BANK — 2026-10-10 ===== */
+function ensureQuestionPaperSheets2026_(){
+  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  [['QUESTION_PAPERS',HEADERS.QUESTION_PAPERS],['QUESTION_BANK',HEADERS.QUESTION_BANK]].forEach(function(x){
+    let sh=ss.getSheetByName(x[0]);
+    if(!sh){sh=ss.insertSheet(x[0]);sh.getRange(1,1,1,x[1].length).setValues([x[1]]);}
+    else if(sh.getLastRow()===0){sh.getRange(1,1,1,x[1].length).setValues([x[1]]);}
+  });
+}
+function saveQuestionPaper2026(token,paper){
+  auth_(token);requireFeature_(token,'exam');ensureQuestionPaperSheets2026_();paper=paper||{};
+  const exam=String(paper.Exam||'').trim(),cls=String(paper.Class||'').trim(),subject=String(paper.Subject||'').trim(),text=String(paper.QuestionText||'').trim();
+  if(!exam||!cls||!subject||!text)return {ok:false,message:'পরীক্ষা, শ্রেণি, বিষয় ও প্রশ্ন আবশ্যক।'};
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName('QUESTION_PAPERS'),vals=sh.getDataRange().getValues(),headers=vals[0],pId=String(paper.PaperID||'').trim();let idx=-1;
+  if(pId){for(let i=1;i<vals.length;i++){if(String(vals[i][headers.indexOf('PaperID')]||'')===pId){idx=i+1;break;}}}
+  const serial=idx?sh.getRange(idx,1).getValue():nextSerial_(sh),id=pId||('QP-'+Utilities.formatDate(new Date(),APP.timezone,'yyyyMMdd')+'-'+String(serial).padStart(4,'0'));
+  const obj={Serial:serial,PaperID:id,Exam:exam,Class:cls,Subject:subject,ExamDate:String(paper.ExamDate||''),FullMarks:String(paper.FullMarks||''),Duration:String(paper.Duration||''),Instructions:String(paper.Instructions||''),QuestionsJSON:JSON.stringify(Array.isArray(paper.Questions)?paper.Questions:[]),QuestionText:text,Status:String(paper.Status||'DRAFT'),CreatedBy:sessionUser_(token),CreatedAt:idx?(vals[idx-1][headers.indexOf('CreatedAt')]||now_()):now_(),UpdatedAt:now_()};
+  const row=headers.map(function(k){return Object.prototype.hasOwnProperty.call(obj,k)?obj[k]:'';});
+  if(idx)sh.getRange(idx,1,1,headers.length).setValues([row]);else sh.appendRow(row);
+  log_(sessionUser_(token),idx?'update':'create','QUESTION_PAPERS',id);
+  return {ok:true,paperId:id,message:idx?'প্রশ্নপত্রের পরিবর্তন সংরক্ষণ হয়েছে।':'প্রশ্নপত্র অনলাইনে সংরক্ষণ হয়েছে।'};
+}
+function getQuestionPaper2026(token,paperId){
+  auth_(token);requireFeature_(token,'exam');ensureQuestionPaperSheets2026_();const id=String(paperId||'').trim();
+  if(!id)return {ok:false,message:'প্রশ্নপত্রের আইডি দিন।'};
+  const row=listRows_('QUESTION_PAPERS',token,5000).find(function(x){return String(x.PaperID||'').toUpperCase()===id.toUpperCase();});
+  return row?{ok:true,paper:row}:{ok:false,message:'এই আইডিতে কোনো প্রশ্নপত্র পাওয়া যায়নি।'};
+}
+function listQuestionPapers2026(token,filters){
+  auth_(token);requireFeature_(token,'exam');ensureQuestionPaperSheets2026_();filters=filters||{};
+  const cl=String(filters.Class||'').trim(),sub=String(filters.Subject||'').trim(),q=String(filters.Search||'').trim().toLowerCase();
+  const rows=listRows_('QUESTION_PAPERS',token,5000).filter(function(x){return (!cl||String(x.Class||'')===cl)&&(!sub||String(x.Subject||'').toLowerCase().indexOf(sub.toLowerCase())>=0)&&(!q||[x.PaperID,x.Exam,x.Class,x.Subject,x.QuestionText].join(' ').toLowerCase().indexOf(q)>=0);});
+  return {ok:true,rows:rows.reverse()};
+}
+function saveQuestionBank2026(token,item){
+  auth_(token);requireFeature_(token,'exam');ensureQuestionPaperSheets2026_();item=item||{};
+  const cls=String(item.Class||'').trim(),sub=String(item.Subject||'').trim(),question=String(item.QuestionText||'').trim();
+  if(!cls||!sub||!question)return {ok:false,message:'শ্রেণি, বিষয় ও প্রশ্ন আবশ্যক।'};
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName('QUESTION_BANK'),serial=nextSerial_(sh),id='QB-'+Utilities.formatDate(new Date(),APP.timezone,'yyyyMMdd')+'-'+String(serial).padStart(4,'0');
+  sh.appendRow([serial,id,cls,sub,String(item.QuestionType||'সাধারণ'),question,Number(item.Marks)||0,String(item.Tags||''),sessionUser_(token),now_()]);
+  return {ok:true,questionId:id,message:'প্রশ্ন প্রশ্নব্যাংকে সংরক্ষণ হয়েছে।'};
+}
+function listQuestionBank2026(token,filters){
+  auth_(token);requireFeature_(token,'exam');ensureQuestionPaperSheets2026_();filters=filters||{};
+  const cl=String(filters.Class||'').trim(),sub=String(filters.Subject||'').trim(),q=String(filters.Search||'').trim().toLowerCase();
+  const rows=listRows_('QUESTION_BANK',token,10000).filter(function(x){return (!cl||String(x.Class||'')===cl)&&(!sub||String(x.Subject||'').toLowerCase().indexOf(sub.toLowerCase())>=0)&&(!q||[x.QuestionID,x.QuestionText,x.Tags,x.Subject].join(' ').toLowerCase().indexOf(q)>=0);});
+  return {ok:true,rows:rows.reverse()};
+}
+/* ===== END QUESTION PAPER + QUESTION BANK ===== */
+
 function getExamDashboardData(token, exam, className) {
   auth_(token); requireFeature_(token,'exam');
   const ex=String(exam||'').trim(), cl=String(className||'').trim();
