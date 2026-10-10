@@ -13174,8 +13174,8 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     var original=document.getElementById('jbAdmissionOriginalLogo20261010'),qr=document.getElementById('jbAdmissionMainQR20261010');
     var sourceLogo=document.getElementById('contactLoginLogo2026')||document.getElementById('loginLogo')||document.getElementById('headerLogo');
     var sourceQR=document.getElementById('contactMainQR2026')||document.getElementById('loginMainQR802268e');
-    if(original&&sourceLogo){var ls=sourceLogo.getAttribute('src')||sourceLogo.src;if(ls&&ls!=='about:blank')original.src=ls;}
-    if(qr){var qs=sourceQR&&(sourceQR.getAttribute('src')||sourceQR.src);if(qs&&qs!=='about:blank')qr.src=qs;else qr.src='https://quickchart.io/qr?size=180&margin=2&text='+encodeURIComponent(location.href.split('#')[0]);}
+    if(original&&sourceLogo){var ls=sourceLogo.getAttribute('src');if(ls&&ls!=='about:blank')original.src=ls;}
+    if(qr){var qs=sourceQR&&sourceQR.getAttribute('src');if(qs&&qs!=='about:blank')qr.src=qs;else qr.src='https://quickchart.io/qr?size=180&margin=2&text='+encodeURIComponent(location.href.split('#')[0]);}
   };
 
   function openPicker(){
@@ -13233,6 +13233,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       '<label class="full">ঠিকানা <span class="adm-required">*</span><textarea id="admGenericAddress2026" class="field" required></textarea></label>'+
       '<label class="full">অভিজ্ঞতা / আবেদনের বিবরণ<textarea id="admGenericDetails2026" class="field" rows="4"></textarea></label></div>'+
       '<div class="form-action-bar"><button type="button" class="primary" onclick="saveGeneralAdmissionApplication2026()">💾 আবেদন সংরক্ষণ</button><button type="button" class="secondary" onclick="openAdmissionPanel2026()">↩ ফর্ম নির্বাচন</button><button type="button" class="secondary" onclick="printCurrentForm()">🖨️ প্রিন্ট</button></div>';
+    syncAdmissionBrandHeader20261010();setTimeout(syncAdmissionBrandHeader20261010,250);setTimeout(syncAdmissionBrandHeader20261010,900);
     E('formWin').classList.remove('minimized');E('formWin').style.height='';openWindow('formWin');
   };
   window.openAdmissionPanel2026=openPicker;
