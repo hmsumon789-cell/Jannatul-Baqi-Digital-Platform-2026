@@ -1239,7 +1239,7 @@ if(k==='gallery')return `<div class="media-upload-note"><b>ফটো:</b> সর
 if(k==='help')return `<button class="primary" onclick="openWindow('quickWin')">দ্রুত সেবা / হেল্প</button>`;
 if(k==='institution')return `<h3>প্রতিষ্ঠানের সংক্ষিপ্ত ইতিহাস</h3><p>সালাতুল এস্তেখারার মাধ্যমে মহান আল্লাহ তায়ালার উপর পূর্ণ আস্থা রেখে খালেছ নিয়তে মানব জাতিকে অন্ধকার থেকে আলোর পথে আনার জন্য এবং সহি দ্বিনি ইলম শিক্ষা দেয়ার উদ্দেশ্যে 10-10-2005 ইংরেজী সনে প্রতিষ্ঠিত হয়।</p><p><b>প্রতিষ্ঠাতা-প্রিন্সিপাল/মুহতামিম:</b> জনাব হাফেজ হযরত মাওলানা মু. আতিকুর রহমান (ফরিদপুরী), ২০০৫ হতে ২০২৬ চলমান।</p>`;
 if(k==='finance')return window.financeFormHtml2026();
- if(['payment','fees'].includes(k))return `<div class="payment-online-head"><b>🌐 অনলাইন পেমেন্ট</b><span>ডিজিটাল প্লাটফর্ম / সার্ভারে পেমেন্ট কার্যক্রম চলমান</span></div><div class="form-grid"><label>Student ID<input id="pStudent" class="field" onblur="lookupOnlinePaymentStudent()"></label><label>নাম<input id="pName" class="field" readonly></label><label>শ্রেণি/জামাত<input id="pClass" class="field" readonly></label><label>মোবাইল<input id="pMobile" class="field" readonly></label><label>মাস<select id="pMonth" class="field"><option>জানুয়ারি</option><option>ফেব্রুয়ারি</option><option>মার্চ</option><option>এপ্রিল</option><option>মে</option><option>জুন</option><option>জুলাই</option><option>আগস্ট</option><option>সেপ্টেম্বর</option><option>অক্টোবর</option><option>নভেম্বর</option><option>ডিসেম্বর</option></select></label><label>Category<select id="pCat" class="field"><option>মাসিক বেতন</option><option>ভর্তি ফি</option><option>পরীক্ষার ফি</option><option>অন্যান্য</option></select></label><label>Amount<input id="pAmount" class="field" type="number" min="1"></label><label>পেমেন্টের ধরন<select id="pMode" class="field" onchange="updatePaymentModeUI()"><option value="QUICK">দ্রুত পেমেন্ট</option><option value="PENDING">Pending + অনুমোদন</option></select></label><label>মাধ্যম<select id="pMethod" class="field" onchange="updatePaymentMethodLogo()"><option>bKash</option><option>Nagad</option><option>mCash</option><option>Rocket</option><option>ব্যাংকিং</option><option>হ্যান্ড ক্যাশ</option></select></label><label>Transaction / Reference ID<input id="pReference" class="field"></label><label>প্রদানকারীর মোবাইল<input id="pPayerMobile" class="field"></label><label class="full">Note<textarea id="pNote" class="field"></textarea></label></div><div id="paymentMethodLogo" class="payment-method-box"><div class="payment-method-logo payment-logo-bk">bK</div><div class="payment-method-name">bKash</div></div><div id="paymentFeedback" class="payment-feedback">মাধ্যম নির্বাচন করলে সংশ্লিষ্ট পেমেন্ট মাধ্যমের পরিচিতি দেখাবে।</div><div id="onlinePaymentStudentInfo" class="card" style="padding:9px;margin:8px 0;display:none"></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="primary" type="button" onclick="savePayment()">📤 পেমেন্ট দিন</button><button class="secondary" type="button" onclick="openPendingPayments()">📋 Pending পেমেন্ট / লেনদেন</button></div><div class="card" style="margin-top:12px;padding:12px"><b>🧾 আগের মানি রসিদ খুঁজুন</b><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><input id="onlinePaymentReceiptSearchId" class="field" style="flex:1;min-width:220px" placeholder="রসিদ আইডি লিখুন (RCT-OP-...)"><button class="secondary" type="button" onclick="searchOnlinePaymentReceipt()">🔎 সার্চ</button></div><div id="onlinePaymentReceiptSearchMessage" class="small" style="margin-top:6px"></div></div>`;
+ if(['payment','fees'].includes(k))return `<div class="payment-online-head"><b>🌐 অনলাইন পেমেন্ট</b><span>ডিজিটাল প্লাটফর্ম / সার্ভারে পেমেন্ট কার্যক্রম চলমান</span></div><div class="form-grid"><label>Student ID<input id="pStudent" class="field" onblur="lookupOnlinePaymentStudent()"></label><label>নাম<input id="pName" class="field" readonly></label><label>শ্রেণি/জামাত<input id="pClass" class="field" readonly></label><label>মোবাইল<input id="pMobile" class="field" readonly></label><label>মাস<select id="pMonth" class="field"><option>জানুয়ারি</option><option>ফেব্রুয়ারি</option><option>মার্চ</option><option>এপ্রিল</option><option>মে</option><option>জুন</option><option>জুলাই</option><option>আগস্ট</option><option>সেপ্টেম্বর</option><option>অক্টোবর</option><option>নভেম্বর</option><option>ডিসেম্বর</option></select></label><label>Category<select id="pCat" class="field"><option>মাসিক বেতন</option><option>ভর্তি ফি</option><option>পরীক্ষার ফি</option><option>অন্যান্য</option></select></label><label>Amount<input id="pAmount" class="field" type="number" min="1"></label><label>পেমেন্টের ধরন<select id="pMode" class="field" onchange="updatePaymentModeUI()"><option value="QUICK">দ্রুত পেমেন্ট</option><option value="PENDING">Pending + অনুমোদন</option></select></label><label>মাধ্যম<select id="pMethod" class="field" onchange="updatePaymentMethodLogo()"><option>bKash</option><option>Nagad</option><option>mCash</option><option>Rocket</option><option>ব্যাংকিং</option><option>হ্যান্ড ক্যাশ</option></select></label><label>Transaction / Reference ID<input id="pReference" class="field"></label><label>প্রদানকারীর মোবাইল<input id="pPayerMobile" class="field"></label><label class="full">Note<textarea id="pNote" class="field"></textarea></label></div><div id="paymentMethodLogo" class="payment-method-box"><div class="payment-method-logo payment-logo-bk">bK</div><div class="payment-method-name">bKash</div></div><div id="paymentFeedback" class="payment-feedback">মাধ্যম নির্বাচন করলে সংশ্লিষ্ট পেমেন্ট মাধ্যমের পরিচিতি দেখাবে।</div><div id="onlinePaymentStudentInfo" class="card" style="padding:9px;margin:8px 0;display:none"></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="primary" type="button" onclick="savePayment()">📤 পেমেন্ট দিন</button><button class="secondary" type="button" onclick="openPendingPayments()">📋 Pending পেমেন্ট / লেনদেন</button></div><div class="card" style="margin-top:12px;padding:12px"><b>🧾 আগের মানি রসিদ খুঁজুন</b><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><input id="onlinePaymentReceiptSearchId" class="field" style="flex:1;min-width:220px" placeholder="Receipt ID (RCT-OP-...) অথবা Student ID (যেমন 7777)"><button class="secondary" type="button" onclick="searchOnlinePaymentReceipt()">🔎 সার্চ</button></div><div id="onlinePaymentReceiptSearchMessage" class="small" style="margin-top:6px"></div></div>`;
 if(k==='admission')return `<div class="student-meta-row-2026"><label>আইডি লিখুন<input id="adStudentID" class="field"></label><label>জন্ম তারিখ লিখুন<input id="adDob" class="field" type="date"></label><label>তারিখ লিখুন<input id="adRecordDate" class="field" type="date"></label></div><div class="form-grid">
 <label>বাংলা নাম / Student Name<input id="adNameBN" class="field"></label>
 <label>العربية الاسم<input id="adNameAR" class="field" dir="rtl"></label>
@@ -1388,14 +1388,31 @@ function showOnlinePaymentReceipt(x){
 async function searchOnlinePaymentReceipt(){
   const input=$('onlinePaymentReceiptSearchId'),msg=$('onlinePaymentReceiptSearchMessage');
   const id=String(input&&input.value||'').trim();
-  if(!id){if(msg)msg.textContent='❌ রসিদ আইডি লিখুন।';return;}
+  if(!id){if(msg)msg.textContent='❌ Receipt ID অথবা Student ID লিখুন।';return;}
   if(msg)msg.textContent='⏳ রসিদ খোঁজা হচ্ছে...';
   try{
     const r=await call('searchOnlinePaymentReceipt',token,id);
-    if(!r||!r.ok){if(msg)msg.textContent='❌ '+((r&&r.message)||'এই আইডির রসিদ পাওয়া যায়নি।');return;}
-    if(msg)msg.textContent='✅ রসিদ পাওয়া গেছে: '+(r.receipt.ReceiptID||id);
-    showOnlinePaymentReceipt(r.receipt);
-  }catch(e){if(msg)msg.textContent='❌ সার্চে ত্রুটি: '+(e&&e.message?e.message:e);}
+    if(!r||!r.ok){
+      if(msg)msg.textContent='❌ '+((r&&r.message)||'এই আইডির রসিদ পাওয়া যায়নি।');
+      return;
+    }
+    if(!r.receipt||typeof r.receipt!=='object'){
+      if(msg)msg.textContent='❌ রসিদের তথ্য অসম্পূর্ণ—প্রশাসককে RECEIPTS শিট যাচাই করতে বলুন।';
+      return;
+    }
+    if(msg)msg.textContent='✅ রসিদ পাওয়া গেছে: '+(r.receipt.ReceiptID||r.receiptId||id);
+    try{
+      showOnlinePaymentReceipt(r.receipt);
+      const receiptWin=$('onlinePaymentReceiptWin');
+      if(!receiptWin)throw new Error('রসিদ দেখানোর উইন্ডো তৈরি হয়নি।');
+      receiptWin.classList.add('show');
+      receiptWin.style.display='';
+    }catch(viewError){
+      if(msg)msg.textContent='❌ রসিদ পাওয়া গেছে, কিন্তু দেখাতে সমস্যা: '+(viewError&&viewError.message?viewError.message:viewError);
+    }
+  }catch(e){
+    if(msg)msg.textContent='❌ সার্চে ত্রুটি: '+(e&&e.message?e.message:e);
+  }
 }
 function printOnlineReceipt(){
   const b=$('onlineReceiptBody');if(!b)return;
