@@ -2058,8 +2058,26 @@ function submitOnlinePayment(data,token){
   if(mode==='QUICK'){
     if(!token)return {ok:false,message:'হ্যান্ড ক্যাশ সরাসরি গ্রহণের জন্য অনুমোদিত অ্যাকাউন্টে লগইন করুন।'};
     try{
-      requireFeature_(token,'payment');
-      const pay=saveRecord(token,SHEETS.PAYMENTS,{StudentID:id,Name:data.Name,Month:String(data.Month||'').trim(),Category:String(data.Category||'').trim(),Amount:amount,Method:method,Reference:ref,Date:now_(),Note:String(data.Note||'').trim()});
+      let paymentPermission=true;
+      try{requireFeature_(token,'payment');}catch(paymentAccessError){requireFeature_(token,'admission');paymentPermission=false;}
+      let pay;
+      const paymentData={StudentID:id,Name:data.Name,Month:String(data.Month||'').trim(),Category:String(data.Category||'').trim(),Amount:amount,Method:method,Reference:ref,Date:now_(),Note:String(data.Note||'').trim()};
+      if(paymentPermission){
+        pay=saveRecord(token,SHEETS.PAYMENTS,paymentData);
+      }else{
+        // Admission-only operators may record cash received through this guarded QUICK endpoint,
+        // without gaining general write access to the PAYMENTS sheet.
+        const psh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.PAYMENTS);
+        if(!psh)throw new Error('PAYMENTS শিট পাওয়া যায়নি।');
+        const ph=HEADERS[SHEETS.PAYMENTS],paymentId='PAY-CASH-'+Date.now();
+        paymentData.PaymentID=paymentId;
+        const prow=ph.map(function(h){return paymentData[h]!==undefined?paymentData[h]:'';});
+        prow[0]=nextSerial_(psh);
+        if(ph.indexOf('CreatedAt')>=0)prow[ph.indexOf('CreatedAt')]=now_();
+        psh.appendRow(prow);
+        pay={ok:true,paymentId:paymentId};
+        log_(sessionUser_(token)||'','quick-pay','PAYMENTS',id+' / '+amount+' / '+method);
+      }
       if(!pay||!pay.ok)return {ok:false,message:(pay&&pay.message)||'PAYMENTS-এ সরাসরি সংরক্ষণ ব্যর্থ।'};
       const receiptId='RCT-OP-'+Date.now(),receiptData={ReceiptID:receiptId,TransactionID:pay.paymentId||'',PaymentID:pay.paymentId||'',Type:'ONLINE_PAYMENT',StudentID:id,Name:data.Name,Class:st.Class||'',Month:String(data.Month||'').trim(),Category:String(data.Category||'').trim(),Amount:amount,Method:method,Reference:ref,Mobile:payerMobile||st.Mobile||st.WhatsApp||'',PayerMobile:payerMobile,Note:String(data.Note||'').trim(),Date:now_(),Institution:APP.nameBn||'জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা',Address:APP.address||'',Hotline:APP.hotline1||'01823316630',CreatedAt:now_()};
       const rsh=ensureSheet_(SpreadsheetApp.getActiveSpreadsheet(),SHEETS.RECEIPTS,HEADERS[SHEETS.RECEIPTS]);append_(SHEETS.RECEIPTS,[nextSerial_(rsh),receiptId,id,'ONLINE_PAYMENT',amount,receiptData.Date,JSON.stringify(receiptData)]);
