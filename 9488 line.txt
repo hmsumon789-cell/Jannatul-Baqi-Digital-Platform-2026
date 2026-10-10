@@ -12988,7 +12988,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 (function(){
   var originalOpenModule=window.openModule;
   var originalSaveCurrentForm=window.saveCurrentForm;
-  var appType='', feeConfirmed=false, typeConfirmed=false, paymentRequested=false, paymentChoice='', savedAdmission=null, draftAdmissionId='';
+  var appType='', feeConfirmed=false, typeConfirmed=false, paymentRequested=false, paymentChoice='', savedAdmission=null, draftAdmissionId='', paymentRequestId='';
   var fees={AdmissionFee:'',RegistrationFee:'',MonthlySalary:'',ResidentialFee:'',MonthlyFoodFee:'',SessionFee:''};
   var admissionPaid='', admissionDue='', admissionPaidConfirmed=false;
   function E(id){return document.getElementById(id)}
@@ -13011,7 +13011,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   }
   window.openModule=function(key){if(key==='admission'){openPicker();return}return originalOpenModule.apply(this,arguments)};
   window.openAdmissionForm2026=function(type){
-    appType=type;feeConfirmed=false;typeConfirmed=false;paymentRequested=false;paymentChoice='';savedAdmission=null;draftAdmissionId='';admissionPaid='';admissionDue='';admissionPaidConfirmed=false;fees={AdmissionFee:'',RegistrationFee:'',MonthlySalary:'',ResidentialFee:'',MonthlyFoodFee:'',SessionFee:''};
+    appType=type;feeConfirmed=false;typeConfirmed=false;paymentRequested=false;paymentChoice='';savedAdmission=null;draftAdmissionId='';paymentRequestId='';admissionPaid='';admissionDue='';admissionPaidConfirmed=false;fees={AdmissionFee:'',RegistrationFee:'',MonthlySalary:'',ResidentialFee:'',MonthlyFoodFee:'',SessionFee:''};
     if(type==='student'){
       originalOpenModule('admission');
       E('winTitle').textContent='ছাত্র/ছাত্রী ভর্তি আবেদন ফর্ম';
@@ -13141,6 +13141,15 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     var w=window.open('','_blank');if(!w){safeToast('রসিদ খুলতে পপ-আপ অনুমতি দিন।');return}w.document.open();w.document.write(html);w.document.close();setTimeout(function(){w.focus()},250);
   };
   window.updateAdmissionPaymentTotal2026=function(){var el=E('admPayCategories2026'),keys=el?Array.from(el.selectedOptions).map(function(o){return o.value}):[],n=keys.reduce(function(sum,k){return sum+(Number(fees[k])||0)},0);if(E('admPayTotal2026'))E('admPayTotal2026').innerHTML='<b>মোট নির্বাচিত: '+n.toLocaleString('bn-BD')+' টাকা</b>';};
+  window.checkAdmissionPaymentStatus2026=async function(){
+    if(!paymentRequestId){safeToast('আগে পেমেন্ট অনুরোধ জমা দিন।');return}
+    try{var r=await call('getAdmissionPaymentStatus2026',token,paymentRequestId);if(!r||!r.ok){safeToast((r&&r.message)||'পেমেন্টের অবস্থা পাওয়া যায়নি।');return}
+      var box=E('admPaymentState2026');
+      if(r.status==='PAID'&&r.receipt){if(box)box.textContent='✓ পেমেন্ট সফল — রসিদ প্রস্তুত';window.showAdmissionReceipt2026(r.receipt);safeToast('পেমেন্ট অনুমোদিত হয়েছে। মানি রসিদ খোলা হয়েছে।')}
+      else if(r.status==='REJECTED'){if(box)box.textContent='✖ পেমেন্ট প্রত্যাখ্যাত';safeToast(r.message||'পেমেন্ট প্রত্যাখ্যাত হয়েছে।')}
+      else{if(box)box.innerHTML='⏳ পেমেন্ট যাচাই/অনুমোদন অপেক্ষমাণ <button type="button" class="secondary" onclick="checkAdmissionPaymentStatus2026()">অবস্থা আবার যাচাই করুন</button>';safeToast(r.message||'এখনও পেমেন্ট অনুমোদিত হয়নি।')}
+    }catch(e){safeToast('পেমেন্টের অবস্থা যাচাই করা যায়নি: '+(e&&e.message||e))}
+  };
   window.submitAdmissionPayment2026=async function(){
     var method=V('admPayMethod2026'),ref=V('admPayRef2026');
     if(method!=='হ্যান্ড ক্যাশ'&&!ref){safeToast('Transaction / Reference ID লিখুন।');return}
@@ -13151,7 +13160,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       var d={StudentID:saved.studentId,Name:saved.data.NameBN,Month:month,Category:selectedFees.map(function(x){return x.label}).join(' + '),Amount:selectedTotal,Method:method,Reference:ref||('HAND-CASH-'+Date.now()),PayerMobile:V('admPayMobile2026'),PayerEmail:V('admPayEmail2026'),Note:'ভর্তির ধরন: '+saved.data.AdmissionEntryType+'; শিক্ষার্থীর ধরন: '+saved.data.StudentCategory+'; বেতন/ছাড়: '+saved.data.AdmissionType+'; মাসিক বেতন '+fees.MonthlySalary+'; আবাসিক '+fees.ResidentialFee+'; খোরাকী '+fees.MonthlyFoodFee+'; সেশন '+fees.SessionFee+'; '+V('admPayNote2026'),PaymentMode:'PENDING'};
       var r=await call('submitOnlinePayment',d,token);
       if(!r||!r.ok){safeToast((r&&r.message)||'পেমেন্ট অনুরোধ পাঠানো যায়নি। আবেদন সংরক্ষিত হয়েছে; পেমেন্ট আবার চেষ্টা করুন।');return}
-      paymentRequested=true;paymentChoice='ONLINE';window.closeAdmissionDialog2026();if(String(r.status||'').toUpperCase()==='PAID'&&r.receipt){E('admPaymentState2026').textContent='✓ পেমেন্ট সফল';window.showAdmissionReceipt2026(r.receipt);safeToast('পেমেন্ট সফল হয়েছে; মানি রসিদ খোলা হয়েছে।')}else{E('admPaymentState2026').textContent='✓ পেমেন্ট অনুরোধ গ্রহণ — অনুমোদন অপেক্ষমাণ';safeToast((r.message||'পেমেন্ট অনুরোধ গ্রহণ হয়েছে; অনুমোদনের পর রসিদ পাওয়া যাবে।')+' Student ID: '+saved.studentId)}
+      paymentRequested=true;paymentChoice='ONLINE';paymentRequestId=String(r.requestId||'');window.closeAdmissionDialog2026();if(String(r.status||'').toUpperCase()==='PAID'&&r.receipt){E('admPaymentState2026').textContent='✓ পেমেন্ট সফল';window.showAdmissionReceipt2026(r.receipt);safeToast('পেমেন্ট সফল হয়েছে; মানি রসিদ খোলা হয়েছে।')}else{E('admPaymentState2026').innerHTML='✓ পেমেন্ট অনুরোধ গ্রহণ — অনুমোদন অপেক্ষমাণ <button type="button" class="secondary" onclick="checkAdmissionPaymentStatus2026()">পেমেন্ট/রসিদ অবস্থা যাচাই</button>';safeToast((r.message||'পেমেন্ট অনুরোধ গ্রহণ হয়েছে; অনুমোদনের পর রসিদ পাওয়া যাবে।')+' Student ID: '+saved.studentId)}
     }catch(e){safeToast('পেমেন্ট প্রক্রিয়ায় ত্রুটি: '+(e&&e.message||e))}
   };
   window.chooseAdmissionPayLater2026=async function(){
