@@ -828,11 +828,19 @@ function saveAdmissionDraft2026(token,data,action) {
   if(rowNum>1)sh.getRange(rowNum,1,1,headers.length).setValues([row]);else{sh.appendRow(row);rowNum=sh.getLastRow();}
   SpreadsheetApp.flush();
   if(!finalizing)return {ok:true,draft:true,admissionId:admissionId,status:'INCOMPLETE',message:'অসম্পূর্ণ আবেদন খসড়া হিসেবে সংরক্ষিত হয়েছে; পরে সম্পাদনা বা বাতিল করা যাবে।'};
-  const workflow=syncAdmissionToStudent_(token,data);
+  let workflow;
+  try {
+    workflow=syncAdmissionToStudent_(token,data);
+  } catch(e) {
+    return {ok:false,message:'ভর্তি আবেদন তালিকায় সংরক্ষিত হয়েছে, কিন্তু শিক্ষার্থী রেকর্ড তৈরি হয়নি: '+String(e&&e.message||e)};
+  }
   const sid=String((workflow&&workflow.studentId)||data.StudentID||'').trim();
-  if(sid&&headers.indexOf('StudentID')>=0)sh.getRange(rowNum,headers.indexOf('StudentID')+1).setValue(sid);
+  if(!sid || (workflow&&workflow.skipped)) {
+    return {ok:false,message:'ভর্তি আবেদন তালিকায় সংরক্ষিত হয়েছে, কিন্তু শিক্ষার্থী আইডি তৈরি হয়নি। '+String((workflow&&workflow.message)||'ফর্মের নাম ও প্রয়োজনীয় তথ্য যাচাই করুন।')};
+  }
+  if(headers.indexOf('StudentID')>=0)sh.getRange(rowNum,headers.indexOf('StudentID')+1).setValue(sid);
   SpreadsheetApp.flush();
-  return {ok:true,row:{AdmissionID:admissionId,StudentID:sid},studentWorkflow:workflow,status:'PENDING',message:'ভর্তি আবেদন সংরক্ষিত হয়েছে; প্রশাসনিক অনুমোদন ও পেমেন্ট যাচাই প্রযোজ্য।'};
+  return {ok:true,row:{AdmissionID:admissionId,StudentID:sid},studentWorkflow:workflow,status:'PENDING',message:'আলহামদুলিল্লাহ, ভর্তি আবেদন ও শিক্ষার্থী রেকর্ড সংরক্ষিত হয়েছে। চূড়ান্ত অনুমোদন প্রশাসনের নিয়ম অনুযায়ী হবে।'};
 }
 
 function getStudentMasterList(token,status) {
