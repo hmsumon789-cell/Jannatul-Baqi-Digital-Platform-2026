@@ -13062,6 +13062,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       var lab=E('admFeeAmountWrap_'+k);if(lab)lab.style.display=cb&&cb.checked?'block':'none';
     });
   }
+  window.syncAdmissionFeeDropdown2026=syncAdmissionFeeDropdown2026;
   function syncAdmissionPayDropdown2026(){
     var keys=['AdmissionFee','RegistrationFee','MonthlySalary','ResidentialFee','MonthlyFoodFee','SessionFee'];
     var sel=E('admPayCategories2026');
@@ -13071,6 +13072,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     });
     window.updateAdmissionPaymentTotal2026();
   }
+  window.syncAdmissionPayDropdown2026=syncAdmissionPayDropdown2026;
   window.openAdmissionDialog2026=function(kind){
     if(kind==='fees'){
       var oldFee=E('admInlineFeeDropdown2026');if(oldFee)oldFee.remove();
