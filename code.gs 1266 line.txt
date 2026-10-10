@@ -776,6 +776,9 @@ function syncAdmissionToStudent_(token,data) {
   if(existing<0 && birthCol>=0 && src.BirthReg) for(let i=1;i<vals.length;i++) if(String(vals[i][birthCol]).trim()===String(src.BirthReg).trim()){existing=i+1;break;}
   if(existing<0 && nidCol>=0 && src.NID) for(let i=1;i<vals.length;i++) if(String(vals[i][nidCol]).trim()===String(src.NID).trim()){existing=i+1;break;}
   const info=studentSourceInfo_(token);
+  const admissionStatus=String(data.Status||'PENDING').trim().toUpperCase();
+  const admissionApproved=['APPROVED','ACTIVE','ADMITTED','CONFIRMED'].includes(admissionStatus);
+  if(!admissionApproved) info.status='PENDING';
   if(existing>1){
     h.forEach(function(k,j){if(Object.prototype.hasOwnProperty.call(src,k) && String(src[k]??'').trim()!=='') sh.getRange(existing,j+1).setValue(src[k]);});
     const currentStatus=h.indexOf('ApprovalStatus')>=0?String(sh.getRange(existing,h.indexOf('ApprovalStatus')+1).getValue()||'').toUpperCase():'';
@@ -797,6 +800,41 @@ function syncAdmissionToStudent_(token,data) {
   try{autoDocuments=ensureAutoPersonDocuments_('STUDENTS',src,String(sid))}catch(e){autoDocuments={ok:false,message:String(e&&e.message||e)}}
   return {ok:true,studentId:String(sid),created:true,status:info.status,autoDocuments:autoDocuments};
 }
+
+function saveAdmissionDraft2026(token,data,action) {
+  auth_(token);
+  requireFeature_(token,'admission');
+  data=data||{};
+  action=String(action||'SAVE').toUpperCase();
+  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  const sh=ss.getSheetByName(SHEETS.ADMISSIONS)||ensureSheet_(ss,SHEETS.ADMISSIONS,HEADERS.ADMISSIONS);
+  const admissionId=String(data.AdmissionID||data.FormID||'').trim();
+  if(!admissionId)return {ok:false,message:'আবেদন ID তৈরি হয়নি।'};
+  const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
+  const values=sh.getDataRange().getValues();
+  const idCol=headers.indexOf('AdmissionID'),statusCol=headers.indexOf('Status');
+  let rowNum=-1;
+  for(let i=1;i<values.length;i++)if(idCol>=0&&String(values[i][idCol]||'').trim()===admissionId){rowNum=i+1;break;}
+  if(action==='CANCEL'){
+    if(rowNum<2)return {ok:true,cancelled:true,message:'আবেদন বাতিল করা হয়েছে।'};
+    if(statusCol>=0)sh.getRange(rowNum,statusCol+1).setValue('CANCELLED');
+    SpreadsheetApp.flush();
+    return {ok:true,cancelled:true,admissionId:admissionId,message:'আবেদন বাতিল করা হয়েছে।'};
+  }
+  const finalizing=action==='FINALIZE';
+  data.Status=finalizing?'PENDING':'INCOMPLETE';
+  data.AdmissionID=admissionId;
+  const row=headers.map(function(h){return h==='Serial'?(rowNum>1?values[rowNum-1][0]:nextSerial_(sh)):h==='CreatedAt'?(rowNum>1?values[rowNum-1][headers.indexOf('CreatedAt')]:now_()):(data[h]!==undefined?data[h]:'');});
+  if(rowNum>1)sh.getRange(rowNum,1,1,headers.length).setValues([row]);else{sh.appendRow(row);rowNum=sh.getLastRow();}
+  SpreadsheetApp.flush();
+  if(!finalizing)return {ok:true,draft:true,admissionId:admissionId,status:'INCOMPLETE',message:'অসম্পূর্ণ আবেদন খসড়া হিসেবে সংরক্ষিত হয়েছে; পরে সম্পাদনা বা বাতিল করা যাবে।'};
+  const workflow=syncAdmissionToStudent_(token,data);
+  const sid=String((workflow&&workflow.studentId)||data.StudentID||'').trim();
+  if(sid&&headers.indexOf('StudentID')>=0)sh.getRange(rowNum,headers.indexOf('StudentID')+1).setValue(sid);
+  SpreadsheetApp.flush();
+  return {ok:true,row:{AdmissionID:admissionId,StudentID:sid},studentWorkflow:workflow,status:'PENDING',message:'ভর্তি আবেদন সংরক্ষিত হয়েছে; প্রশাসনিক অনুমোদন ও পেমেন্ট যাচাই প্রযোজ্য।'};
+}
+
 function getStudentMasterList(token,status) {
   const session=auth_(token); ensureStudentWorkflowColumns_();
   let rows=listRows_(SHEETS.STUDENTS,token,10000);
@@ -2126,6 +2164,33 @@ function rejectOnlinePayment(token,requestId,reason){
   const now=now_();sh.getRange(rowNo,h.indexOf('Status')+1).setValue('REJECTED');sh.getRange(rowNo,h.indexOf('ApprovedBy')+1).setValue(sessionUser_(token)||'');sh.getRange(rowNo,h.indexOf('ApprovedAt')+1).setValue(now);sh.getRange(rowNo,h.indexOf('FailureReason')+1).setValue(String(reason||'যাচাই হয়নি'));
   log_(sessionUser_(token)||'','reject','ONLINE_PAYMENT',requestId+' / '+String(reason||''));return {ok:true,message:'Payment rejected.'};
 }
+
+function getAdmissionPaymentStatus2026(token,requestId) {
+  auth_(token);
+  requireFeature_(token,'admission');
+  requestId=String(requestId||'').trim();
+  if(!requestId)return {ok:false,message:'পেমেন্ট অনুরোধ ID পাওয়া যায়নি।'};
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(ONLINE_PAYMENT_REQUEST_SHEET);
+  if(!sh)return {ok:false,message:'পেমেন্ট অনুরোধের তালিকা পাওয়া যায়নি।'};
+  const values=sh.getDataRange().getValues(),headers=values[0].map(String),idCol=headers.indexOf('RequestID');
+  let req=null;
+  for(let i=1;i<values.length;i++)if(idCol>=0&&String(values[i][idCol]||'').trim()===requestId){req=objectFrom_(headers,values[i]);break;}
+  if(!req)return {ok:false,message:'এই পেমেন্ট অনুরোধ পাওয়া যায়নি।'};
+  const status=String(req.Status||'PENDING').toUpperCase();
+  if(status==='REJECTED')return {ok:true,status:status,message:'পেমেন্ট অনুরোধ প্রত্যাখ্যাত হয়েছে: '+String(req.FailureReason||'অনুগ্রহ করে প্রশাসনের সঙ্গে যোগাযোগ করুন।')};
+  if(status!=='APPROVED')return {ok:true,status:'PENDING',requestId:requestId,message:'পেমেন্ট অনুরোধ গৃহীত হয়েছে, Super Admin যাচাই/অনুমোদন এখনও বাকি।'};
+  const receiptId=String(req.ReceiptID||'').trim();
+  const receiptSheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.RECEIPTS);
+  if(receiptId&&receiptSheet){
+    const rv=receiptSheet.getDataRange().getValues(),rh=rv[0].map(String),rid=rh.indexOf('ReceiptID'),dataCol=rh.indexOf('Data');
+    for(let i=1;i<rv.length;i++)if(rid>=0&&String(rv[i][rid]||'').trim()===receiptId){
+      let receipt={};try{receipt=JSON.parse(String(dataCol>=0?rv[i][dataCol]:'{}')||'{}')}catch(e){}
+      return {ok:true,status:'PAID',requestId:requestId,receipt:receipt,message:'পেমেন্ট অনুমোদিত হয়েছে; মানি রসিদ তৈরি হয়েছে।'};
+    }
+  }
+  return {ok:true,status:'APPROVED',requestId:requestId,receiptId:receiptId,message:'পেমেন্ট অনুমোদিত, তবে রসিদের বিস্তারিত পাওয়া যায়নি।'};
+}
+
 function buildPublicOnlinePaymentHtml_(){
   const esc=function(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');};
   const months=['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
