@@ -68,6 +68,12 @@ const HEADERS = {
 
 function doGet(e) {
   var p = (e && e.parameter) || {};
+  if (String(p.gallery || '') === '1') {
+    var galleryHtml;
+    try { galleryHtml = buildPublicPhotoGalleryHtml_(); }
+    catch(galleryError) { galleryHtml = '<!doctype html><html lang="bn"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ফটো গ্যালারী</title><body style="font-family:Arial,sans-serif;padding:24px;text-align:center"><h2>জান্নাতুল বাক্বী — ফটো গ্যালারী</h2><p>গ্যালারী এখন লোড করা যাচ্ছে না। কিছুক্ষণ পর আবার চেষ্টা করুন।</p></body></html>'; }
+    return HtmlService.createHtmlOutput(galleryHtml).setTitle(APP.nameBn + ' | Public Photo Gallery').setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  }
   if (String(p.payment || '') === '1') {
     return HtmlService.createHtmlOutput(buildPublicOnlinePaymentHtml_())
       .setTitle(APP.nameEn + ' | Online Payment')
@@ -1128,6 +1134,38 @@ function sendQuickService(token,data) {
   return {ok:true,message:'মেসেজ পাঠানো হয়েছে।'};
 }
 
+function getPublicPhotoGalleryPhotos_(){
+  const ss=SpreadsheetApp.getActiveSpreadsheet(),sh=ss.getSheetByName(SHEETS.MEDIA);
+  if(!sh||sh.getLastRow()<2)return [];
+  const values=sh.getDataRange().getValues(),headers=values[0].map(function(v){return String(v||'').trim();});
+  const ix={};headers.forEach(function(k,i){ix[k]=i;});
+  const photos=[];
+  for(let r=1;r<values.length;r++){
+    const row=values[r],status=String(row[ix.Status]||'').toUpperCase(),type=String(row[ix.Type]||'').toLowerCase();
+    if(type!=='image'||!(status==='ACTIVE'||status==='ACTIVE_PUBLIC'))continue;
+    const name=String(row[ix.Name]||'ছবি');
+    const data=String(row[ix.DataURL]||'');
+    let url='';
+    if(data.indexOf('DRIVE:')===0){
+      const id=data.slice(6);
+      try{
+        const file=DriveApp.getFileById(id);
+        try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
+        const rk=String(file.getResourceKey()||'');
+        url='https://drive.google.com/thumbnail?id='+encodeURIComponent(id)+'&sz=w1200'+(rk?'&resourcekey='+encodeURIComponent(rk):'');
+      }catch(e){url='';}
+    }else if(/^https?:\/\//i.test(data)||/^data:image\//i.test(data)){url=data;}
+    if(url)photos.push({name:name,url:url,createdAt:String(row[ix.CreatedAt]||'')});
+  }
+  return photos;
+}
+function buildPublicPhotoGalleryHtml_(){
+  const photos=getPublicPhotoGalleryPhotos_();
+  const esc=function(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');};
+  const cards=photos.map(function(p,i){return '<button class="photo" type="button" onclick="openPhoto('+i+')"><img loading="lazy" src="'+esc(p.url)+'" alt="'+esc(p.name)+'"><span>'+esc(p.name)+'</span></button>';}).join('');
+  const json=JSON.stringify(photos.map(function(p){return {name:p.name,url:p.url};})).replace(/</g,'\\u003c');
+  return '<!doctype html><html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>জান্নাতুল বাক্বী — ফটো গ্যালারী</title><style>*{box-sizing:border-box}body{margin:0;padding:18px;background:#f6f1df;color:#222;font-family:Arial,"Noto Sans Bengali",sans-serif}.head{max-width:1200px;margin:0 auto 18px;padding:18px;text-align:center;background:#fff;border:3px solid #9b7100;border-radius:16px}.head h1{margin:0 0 8px;font-size:clamp(22px,4vw,34px)}.head p{margin:0}.grid{max-width:1200px;margin:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}.photo{border:2px solid #d0a51c;border-radius:12px;padding:8px;background:#fff;color:#222;cursor:pointer;text-align:left;font-weight:800;overflow-wrap:anywhere}.photo img{width:100%;height:170px;object-fit:cover;border-radius:8px;background:#eee;display:block;margin-bottom:7px}.empty{max-width:800px;margin:25px auto;text-align:center;background:#fff;padding:22px;border-radius:12px}.light{display:none;position:fixed;inset:0;z-index:99999;background:#000e;align-items:center;justify-content:center;padding:16px}.light.show{display:flex}.inside{max-width:96vw;max-height:96vh;text-align:center;color:white}.inside img{display:block;max-width:94vw;max-height:82vh;object-fit:contain;margin:auto}.inside button{margin:8px;padding:9px 14px;border:2px solid white;border-radius:8px;background:#111;color:white;font-weight:900}@media(max-width:600px){body{padding:8px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.photo img{height:125px}}</style></head><body><header class="head"><h1>📸 জান্নাতুল বাক্বী — ফটো গ্যালারী</h1><p>সবার জন্য প্রকাশিত মাদ্রাসার ছবি</p><p>হটলাইন: 01823316630</p></header>'+(cards||'<div class="empty">এখনো কোনো পাবলিক ছবি প্রকাশ করা হয়নি।</div>')+'<div id="light" class="light" onclick="if(event.target===this)closePhoto()"><div class="inside"><button type="button" onclick="closePhoto()">✕ বন্ধ করুন</button><img id="large" alt=""><div id="caption"></div></div></div><script>var photos='+json+';function openPhoto(i){var p=photos[i];if(!p)return;document.getElementById("large").src=p.url;document.getElementById("large").alt=p.name;document.getElementById("caption").textContent=p.name;document.getElementById("light").classList.add("show")}function closePhoto(){document.getElementById("light").classList.remove("show")}</script></body></html>';
+}
 function getMediaRules_(){
   // Media limits: 100 photos, 20 videos, 50 audio files.
   return {video:{maxMB:50,maxCount:20},audio:{maxMB:50,maxCount:50},image:{maxMB:20,maxCount:100}};
@@ -1160,7 +1198,7 @@ function startMediaUpload(token,meta){
   const size=Number(meta.size||0);
   if(size<=0||size>rules.maxMB*1024*1024)return {ok:false,message:type==='image'?'ফটোর সর্বোচ্চ সীমা 20 MB।':'ভিডিও/অডিওর সর্বোচ্চ সীমা 50 MB।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
-  const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
+  const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status||'').toUpperCase().indexOf('ACTIVE')===0&&String(x.Type).toLowerCase()===type);
   if(rows.length>=rules.maxCount)return {ok:false,message:type==='image'?'সর্বোচ্চ 100টি ফটো রাখা যাবে।':'সর্বোচ্চ 50টি '+(type==='video'?'ভিডিও':'অডিও')+' রাখা যাবে।'};
   const uploadId=Utilities.getUuid();
   const folder=mediaTempFolder_();
@@ -1196,7 +1234,7 @@ function finishMediaUpload(token,uploadId){
   if(total!==Number(meta.size||0))return {ok:false,message:'ফাইলের আকার মিলছে না। '+total+' / '+meta.size};
   if(total>rules.maxMB*1024*1024)return {ok:false,message:'ফাইলের আকার অনুমোদিত সীমার বেশি।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
-  const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
+  const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status||'').toUpperCase().indexOf('ACTIVE')===0&&String(x.Type).toLowerCase()===type);
   if(rows.length>=rules.maxCount)return {ok:false,message:type==='image'?'সর্বোচ্চ 100টি ফটো রাখা যাবে।':'সর্বোচ্চ 50টি '+(type==='video'?'ভিডিও':'অডিও')+' রাখা যাবে।'};
   const file=mediaDriveFolder_().createFile(Utilities.newBlob(bytes,meta.mimeType||'application/octet-stream',meta.name||('media-'+Date.now())));
   try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
@@ -1217,7 +1255,7 @@ function saveMediaForm(form){
   if(size<=0)return {ok:false,message:'ফাইল খালি।'};
   if(size>rules.maxMB*1024*1024)return {ok:false,message:type==='image'?'ফটোর সর্বোচ্চ সীমা 20 MB।':'ভিডিও/অডিওর সর্বোচ্চ সীমা 50 MB।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
-  const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
+  const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status||'').toUpperCase().indexOf('ACTIVE')===0&&String(x.Type).toLowerCase()===type);
   if(rows.length>=rules.maxCount)return {ok:false,message:type==='image'?'সর্বোচ্চ 100টি ফটো রাখা যাবে।':'সর্বোচ্চ 50টি '+(type==='video'?'ভিডিও':'অডিও')+' রাখা যাবে।'};
   const name=String(blob.getName()||('media-'+Date.now()));
   const file=mediaDriveFolder_().createFile(blob.setName(name));
@@ -1234,19 +1272,26 @@ function saveMedia(token,item) {
   const size=Number(item.size||0);
   if(size>rules.maxMB*1024*1024) return {ok:false,message:type==='image'?'ফটোর সর্বোচ্চ সীমা 20 MB।':'ভিডিও/অডিওর সর্বোচ্চ সীমা 50 MB।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
-  const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
+  const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status||'').toUpperCase().indexOf('ACTIVE')===0&&String(x.Type).toLowerCase()===type);
   if(rows.length>=rules.maxCount) return {ok:false,message:type==='image'?'সর্বোচ্চ 100টি ফটো রাখা যাবে।':'সর্বোচ্চ 50টি '+(type==='video'?'ভিডিও':'অডিও')+' রাখা যাবে।'};
   const raw=String(item.dataUrl).split(',')[1]||''; if(!raw)return {ok:false,message:'ফাইল ডাটা পাওয়া যায়নি।'};
   const blob=Utilities.newBlob(Utilities.base64Decode(raw),item.mimeType||'application/octet-stream',item.name||('media-'+Date.now()));
   const file=mediaDriveFolder_().createFile(blob);
   try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
   const serial=nextSerial_(sh), mediaId='MED-'+Date.now();
-  sh.appendRow([serial,mediaId,type,item.name||'','DRIVE:'+file.getId(),item.mimeType||'',size,item.sort||0,'ACTIVE',now_()]);
+  const visibility=type==='image'&&String(item.visibility||'public').toLowerCase()==='admin'?'ACTIVE_ADMIN':(type==='image'?'ACTIVE_PUBLIC':'ACTIVE');
+  sh.appendRow([serial,mediaId,type,item.name||'','DRIVE:'+file.getId(),item.mimeType||'',size,item.sort||0,visibility,now_()]);
   return {ok:true,serial:serial,mediaId:mediaId};
 }
 function listMedia(token) {
   auth_(token);
-  return listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status||'').toUpperCase()==='ACTIVE').map(function(x){
+  let canSeeAdminPhotos=false;
+  try{requireFeature_(token,'gallery');canSeeAdminPhotos=true;}catch(e){}
+  return listRows_(SHEETS.MEDIA,token,1000).filter(function(x){
+    const status=String(x.Status||'').toUpperCase();
+    return status.indexOf('ACTIVE')===0 && (canSeeAdminPhotos || status!=='ACTIVE_ADMIN');
+  }).map(function(x){
+    x.Visibility=String(x.Status||'').toUpperCase()==='ACTIVE_ADMIN'?'admin':'public';
     if(String(x.DataURL||'').indexOf('DRIVE:')===0){
       const id=String(x.DataURL).slice(6);
       let rk='';
