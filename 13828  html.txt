@@ -14471,6 +14471,7 @@ function rebuild(type){
  var rootTop=header+idTools+'<div class="adm-section"><h3 class="adm-section-title">ভর্তি ফর্ম</h3>'+letter+'</div>';
  root.innerHTML=rootTop;
  var oldParent=oldGrid.parentNode;
+ if(fieldLabels.address&&fieldLabels.address.firstChild&&fieldLabels.address.firstChild.nodeType===3)fieldLabels.address.firstChild.textContent='স্থায়ী ঠিকানা ';
  // Keep the existing location input/select elements intact; only re-parent their existing labels.
  var extraLabels={
   fatherdob:labelHtml('পিতার জন্ম তারিখ','adFatherDob2026','date',''),
@@ -14523,7 +14524,7 @@ function rebuild(type){
  root.appendChild(oldGrid);
  if(oldParent&&oldParent!==body&&oldParent.contains(root)){} else if(oldParent)oldParent.insertBefore(root,oldGrid.nextSibling);
  // Root inserted before old grid earlier; now ensure root wraps every visible section and existing workflow panel.
- var panel=el('admissionMandatoryPanel2026');if(panel){root.appendChild(panel);var labels=panel.querySelectorAll('label');labels.forEach(function(l){var id=l.querySelector('select,input,textarea');if(!id)return; if(['admEntryType2026','admStudentCategory2026','admInlineAdmissionType2026'].includes(id.id)){var g=root.querySelector('.adm-section:nth-of-type(5) .adm-grid');if(g)g.appendChild(l)}})}
+ var panel=el('admissionMandatoryPanel2026');if(panel){root.appendChild(panel);var labels=panel.querySelectorAll('label');labels.forEach(function(l){var id=l.querySelector('select,input,textarea');if(!id)return; if(['admEntryType2026','admStudentCategory2026','admInlineAdmissionType2026'].includes(id.id)){var g=root.querySelector('.adm-section:nth-of-type(4) .adm-grid');if(g)g.appendChild(l)}})}
  var originalSave=body.querySelector('button[onclick="saveAdmissionApplication2026()"]');
  if(originalSave){originalSave.classList.add('adm-existing-final-save');originalSave.textContent='💾 আবেদন চূড়ান্তভাবে সংরক্ষণ করুন'}
  var manual=el('admManualID2026');
