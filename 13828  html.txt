@@ -14352,7 +14352,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   'use strict';
   function byId(id){return document.getElementById(id)}
   function esc(v){return String(v==null?'':v).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
-  function currentRole(){var u=window.currentUser||{};return String(u.Role||u.role||'').toUpperCase().replace(/[\s-]+/g,'_')}
+  function currentRole(){var u=(typeof currentUser!=='undefined'&&currentUser)||window.currentUser||{};return String(u.Role||u.role||'').toUpperCase().replace(/[\s-]+/g,'_')}
   function isAllowed(){var r=currentRole();return r==='SUPER_ADMIN'||r==='SUPERADMIN'}
   function getSheetOptions(){
     var src=byId('sheetSelect'), opts=[];
