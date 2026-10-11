@@ -1369,22 +1369,47 @@ window.loadAllReports2026=async function(){
  const status=$('allReportStatus2026'),summary=$('allReportSummary2026'),out=$('allReportResults2026');
  if(!status||!summary||!out)return;
  status.textContent='⏳ রিপোর্ট লোড হচ্ছে…';summary.innerHTML='';out.innerHTML='';
+ const kind=$('allReportKind2026').value,from=$('allReportFrom2026').value,to=$('allReportTo2026').value;
+ const sheetMap={
+  students:['STUDENTS','ছাত্র/ছাত্রী'],teachers:['TEACHERS','শিক্ষক/শিক্ষিকা'],
+  admissions:['ADMISSIONS','ভর্তি আবেদন'],examreg:['EXAM_REG','পরীক্ষার্থী নিবন্ধন'],
+  payments:['PAYMENTS','বেতন-ফি আদায়'],income:['INCOME','আয় রিপোর্ট'],
+  expenses:['EXPENSES','ব্যয় রিপোর্ট'],results:['RESULTS','পরীক্ষার ফলাফল'],
+  attendance:['ATTENDANCE','হাজিরা'],donors:['DONORS','দাতা সদস্য']
+ };
+ const selected=kind==='all'?Object.keys(sheetMap):[kind];
  try{
-  const r=await call('getAllReports2026',token,$('allReportKind2026').value,$('allReportFrom2026').value,$('allReportTo2026').value);
-  if(!r||!r.ok)throw new Error(r&&r.message||'রিপোর্ট লোড করা যায়নি।');
-  const reports=r.reports||[];
-  const count=reports.reduce((n,x)=>n+(x.rows||[]).length,0);
+  const reports=[];
+  for(const key of selected){
+   const spec=sheetMap[key];if(!spec)continue;
+   const response=await call('getSheetData',token,spec[0],5000);
+   if(!response||!response.ok)throw new Error(response&&response.message||spec[1]+' লোড করা যায়নি।');
+   const rawRows=Array.isArray(response.rows)?response.rows:[];
+   const keys=Array.isArray(response.headers)?response.headers:Object.keys(rawRows[0]||{});
+   const dateKey=keys.find(k=>/^(date|createdat|issuedate|admissiondate|paymentdate|examdate|recorddate)$/i.test(String(k)))||keys.find(k=>/date|তারিখ/i.test(String(k)));
+   const rows=rawRows.filter(row=>{
+    if(!from&&!to)return true;
+    const val=dateKey?String(row[dateKey]||'').slice(0,10):'';
+    if(!val)return !from&&!to;
+    return (!from||val>=from)&&(!to||val<=to);
+   });
+   const columns=keys.map(key=>({key:key,label:key}));
+   const amountKey=keys.find(k=>/^(amount|total|paidamount|fee|income|expense)$/i.test(String(k)));
+   const amountTotal=amountKey?rows.reduce((sum,row)=>sum+(Number(row[amountKey])||0),0):null;
+   reports.push({label:spec[1],rows:rows,columns:columns,amountTotal:amountTotal});
+  }
+  const count=reports.reduce((n,x)=>n+x.rows.length,0);
   const money=reports.reduce((n,x)=>n+(Number(x.amountTotal)||0),0);
-  summary.innerHTML='<div class="form-grid"><div class="card" style="padding:12px"><b>রিপোর্টের বিভাগ</b><div style="font-size:24px;font-weight:900">'+reports.length+'</div></div><div class="card" style="padding:12px"><b>মোট রেকর্ড</b><div style="font-size:24px;font-weight:900">'+count+'</div></div><div class="card" style="padding:12px"><b>প্রদর্শিত অর্থের যোগফল</b><div style="font-size:24px;font-weight:900">'+reportEsc2026(money.toLocaleString('en-US'))+' টাকা</div><small>যে রিপোর্টে Amount কলাম আছে সেগুলোর যোগফল</small></div></div>';
-  if(!reports.length){out.innerHTML='<div class="card" style="padding:14px">নির্বাচিত রিপোর্ট পাওয়া যায়নি।</div>';status.textContent='রিপোর্ট সম্পন্ন: কোনো রেকর্ড পাওয়া যায়নি।';return;}
+  summary.innerHTML='<div class="form-grid"><div class="card" style="padding:12px"><b>রিপোর্টের বিভাগ</b><div style="font-size:24px;font-weight:900">'+reports.length+'</div></div><div class="card" style="padding:12px"><b>মোট রেকর্ড</b><div style="font-size:24px;font-weight:900">'+count+'</div></div><div class="card" style="padding:12px"><b>প্রদর্শিত অর্থের যোগফল</b><div style="font-size:24px;font-weight:900">'+reportEsc2026(money.toLocaleString('en-US'))+' টাকা</div><small>যে বিভাগে Amount/Total কলাম আছে সেগুলোর যোগফল</small></div></div>';
+  if(!reports.some(rep=>rep.rows.length)){out.innerHTML='<div class="card" style="padding:14px">নির্বাচিত তারিখ/বিভাগে কোনো রেকর্ড পাওয়া যায়নি।</div>';status.textContent='রিপোর্ট সম্পন্ন: কোনো রেকর্ড পাওয়া যায়নি।';return;}
   out.innerHTML=reports.map(function(rep){
-   const rows=rep.rows||[], cols=rep.columns||[];
+   const rows=rep.rows||[],cols=rep.columns||[];
    return '<section class="card" style="padding:12px;margin:12px 0;overflow:auto"><h3>'+reportEsc2026(rep.label)+' ('+rows.length+')</h3>'+
    (rows.length?'<table style="width:100%;border-collapse:collapse"><thead><tr>'+cols.map(c=>'<th style="border:1px solid #888;padding:7px;text-align:left">'+reportEsc2026(c.label)+'</th>').join('')+'</tr></thead><tbody>'+rows.map(row=>'<tr>'+cols.map(c=>'<td style="border:1px solid #aaa;padding:7px">'+reportEsc2026(row[c.key])+'</td>').join('')+'</tr>').join('')+'</tbody></table>':'<p>এই বিভাগে কোনো রেকর্ড নেই।</p>')+
    (rep.amountTotal!=null?'<p><b>মোট অর্থ: '+reportEsc2026(Number(rep.amountTotal).toLocaleString('en-US'))+' টাকা</b></p>':'')+'</section>';
   }).join('');
-  status.textContent='✓ রিপোর্ট তৈরি হয়েছে। তারিখ অনুযায়ী ফিল্টার প্রয়োগ করা হয়েছে।';
- }catch(e){status.textContent='রিপোর্ট লোড হয়নি: '+(e&&e.message||e);}
+  status.textContent='✓ রিপোর্ট তৈরি হয়েছে। বিদ্যমান getSheetData সার্ভার ফাংশন থেকে তথ্য নেওয়া হয়েছে।';
+ }catch(e){status.textContent='রিপোর্ট লোড হয়নি: '+(e&&e.message?e.message:String(e));}
 };
 window.printAllReports2026=function(){
  const body=$('allReportResults2026');if(!body)return;
