@@ -13294,7 +13294,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
         
         '<div><button type="button" class="primary" onclick="openAdmissionDialog2026(\'payment\')">💳 পেমেন্টের খাত নির্বাচন</button><div id="admPaymentState2026" class="adm-state">পেমেন্টের আগে ফর্ম প্রিভিউ করুন</div></div>'+
         '</div><div id="admFeeSummary2026" class="card" style="padding:10px;margin:8px 0">ভর্তি ফি, নিবন্ধন ফি, মাসিক বেতন, আবাসিক ফি, মাসিক খোরাকী ও সেশন ফি নির্বাচন করুন।</div>'+
-        '<p class="adm-required">ফর্মের প্রিভিউ দেখে সম্পাদনা করুন; পেমেন্টের অবস্থা নিশ্চিত না হওয়া পর্যন্ত রসিদকে Paid দেখানো হবে না।</p></section>';
+        '<p class="adm-required">ফর্মের প্রিভিউ দেখে সম্পাদনা করুন; পেমেন্টের অবস্থা নিশ্চিত না হওয়া পর্যন্ত রসিদকে Paid দেখানো হবে না।</p><div class="form-action-bar" style="margin-top:12px"><button id="admFinalSaveButton2026" type="button" class="primary" onclick="saveAdmissionApplication2026()" disabled>💾 ভর্তি আবেদন সংরক্ষণ</button></div></section>';
       if(save){save.insertAdjacentHTML('beforebegin',panel);save.outerHTML='<button class="primary" type="button" onclick="previewAdmissionApplication2026()">📋 ফর্ম প্রিভিউ / পরবর্তী ধাপ</button>'}
       else {var fg=body.querySelector('.form-grid');if(fg)fg.insertAdjacentHTML('afterend',panel)}
       var previewBtn=body.querySelector('button[onclick="previewAdmissionApplication2026()"]');var feeActions=body.querySelector('#admissionMandatoryPanel2026 .adm-fee-actions');if(previewBtn&&feeActions)feeActions.appendChild(previewBtn);
@@ -13475,14 +13475,14 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       var d={StudentID:saved.studentId,Name:saved.data.NameBN,Month:month,Category:selectedFees.map(function(x){return x.label}).join(' + '),Amount:selectedTotal,Method:method,Reference:ref||('HAND-CASH-'+Date.now()),PayerMobile:V('admPayMobile2026')||saved.data.Mobile||saved.data.WhatsApp||'',PayerEmail:V('admPayEmail2026')||saved.data.Email||'',Note:'ভর্তির ধরন: '+saved.data.AdmissionEntryType+'; শিক্ষার্থীর ধরন: '+saved.data.StudentCategory+'; বেতন/ছাড়: '+(({FULL:'পূর্ণ বেতন',HALF:'অর্ধেক বেতন',PARTIAL:'আংশিক ছাড়',FREE_SCHOLARSHIP:'ফ্রি স্কলারশিপ'})[saved.data.AdmissionType]||saved.data.AdmissionType||'নির্বাচন হয়নি')+'; মাসিক বেতন '+fees.MonthlySalary+'; আবাসিক '+fees.ResidentialFee+'; খোরাকী '+fees.MonthlyFoodFee+'; সেশন '+fees.SessionFee+'; '+V('admPayNote2026'),PaymentMode:method==='হ্যান্ড ক্যাশ'?'QUICK':'PENDING'};
       var r=await call('submitOnlinePayment',d,token);
       if(!r||!r.ok){safeToast((r&&r.message)||'পেমেন্ট অনুরোধ পাঠানো যায়নি। আবেদন সংরক্ষিত হয়েছে; পেমেন্ট আবার চেষ্টা করুন।');return}
-      paymentRequested=true;paymentChoice=method==='হ্যান্ড ক্যাশ'?'CASH_RECEIVED':'ONLINE';paymentRequestId=String(r.requestId||'');if(E('admInlinePayment2026'))E('admInlinePayment2026').remove();if(String(r.status||'').toUpperCase()==='PAID'&&r.receipt){E('admPaymentState2026').textContent='✓ হ্যান্ড ক্যাশ/পেমেন্ট সফল — মানি রসিদ তৈরি';window.showAdmissionReceipt2026(r.receipt);safeToast(method==='হ্যান্ড ক্যাশ'?'আলহামদুলিল্লাহ, হ্যান্ড ক্যাশ গ্রহণ সফল হয়েছে। মানি রসিদ প্রিন্ট/PDF করা যাবে।':'পেমেন্ট সফল হয়েছে; মানি রসিদ খোলা হয়েছে।')}else{E('admPaymentState2026').innerHTML='✓ পেমেন্ট অনুরোধ গ্রহণ — অনুমোদন অপেক্ষমাণ <button type="button" class="secondary" onclick="checkAdmissionPaymentStatus2026()">পেমেন্ট/রসিদ অবস্থা যাচাই</button>';safeToast((r.message||'পেমেন্ট অনুরোধ গ্রহণ হয়েছে; অনুমোদনের পর রসিদ পাওয়া যাবে।')+' Student ID: '+saved.studentId)}
+      paymentRequested=true;paymentChoice=method==='হ্যান্ড ক্যাশ'?'CASH_RECEIVED':'ONLINE';paymentRequestId=String(r.requestId||'');if(E('admFinalSaveButton2026'))E('admFinalSaveButton2026').disabled=false;if(E('admInlinePayment2026'))E('admInlinePayment2026').remove();if(String(r.status||'').toUpperCase()==='PAID'&&r.receipt){E('admPaymentState2026').textContent='✓ হ্যান্ড ক্যাশ/পেমেন্ট সফল — মানি রসিদ তৈরি';window.showAdmissionReceipt2026(r.receipt);safeToast(method==='হ্যান্ড ক্যাশ'?'আলহামদুলিল্লাহ, হ্যান্ড ক্যাশ গ্রহণ সফল হয়েছে। মানি রসিদ প্রিন্ট/PDF করা যাবে।':'পেমেন্ট সফল হয়েছে; মানি রসিদ খোলা হয়েছে।')}else{E('admPaymentState2026').innerHTML='✓ পেমেন্ট অনুরোধ গ্রহণ — অনুমোদন অপেক্ষমাণ <button type="button" class="secondary" onclick="checkAdmissionPaymentStatus2026()">পেমেন্ট/রসিদ অবস্থা যাচাই</button>';safeToast((r.message||'পেমেন্ট অনুরোধ গ্রহণ হয়েছে; অনুমোদনের পর রসিদ পাওয়া যাবে।')+' Student ID: '+saved.studentId)}
     }catch(e){safeToast('পেমেন্ট প্রক্রিয়ায় ত্রুটি: '+(e&&e.message||e))}
   };
   window.chooseAdmissionPayLater2026=async function(){
     if(!feeConfirmed||!typeConfirmed||!admissionPaidConfirmed){safeToast('আগে ফি, প্রদত্ত অর্থ/বকেয়া এবং বেতন/ছাড়ের ধরন নির্ধারণ করুন।');return}
     if(!V('admEntryType2026')||!V('admStudentCategory2026')){safeToast('ভর্তির ধরন এবং শিক্ষার্থীর ধরন নির্বাচন করুন।');return}
     paymentChoice='LATER';var s=await saveAdmissionRecord();if(!s)return;
-    paymentRequested=true;E('admPaymentState2026').textContent='✓ পরে পরিশোধের জন্য নির্বাচন করা হয়েছে';
+    paymentRequested=true;if(E('admFinalSaveButton2026'))E('admFinalSaveButton2026').disabled=false;E('admPaymentState2026').textContent='✓ পরে পরিশোধের জন্য নির্বাচন করা হয়েছে';
     if(E('admInlinePayment2026'))E('admInlinePayment2026').remove();safeToast('আবেদন সংরক্ষিত হয়েছে। ফি পরে পরিশোধের জন্য চিহ্নিত; প্রশাসনের অনুমোদন অপেক্ষমাণ।');
   };
   window.previewAdmissionApplication2026=async function(){
@@ -13502,7 +13502,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     if(!V('admEntryType2026')||!V('admStudentCategory2026')){safeToast('ভর্তির ধরন এবং শিক্ষার্থীর ধরন নির্বাচন করুন।');return}
     if(!paymentRequested){safeToast('চতুর্থ ধাপে অনলাইন পেমেন্ট অনুরোধ পাঠান অথবা “পরে পরিশোধ করব” নির্বাচন করুন।');return}
     var s=await saveAdmissionRecord();if(!s)return;
-    safeToast('আলহামদুলিল্লাহ, ভর্তি আবেদন সফলভাবে সংরক্ষিত হয়েছে। আবেদন ID: '+s.admissionId+' | Student ID: '+s.studentId+' | অবস্থা: প্রশাসনের অনুমোদনের অপেক্ষায়।');
+    if(E('admFinalSaveButton2026')){E('admFinalSaveButton2026').disabled=true;E('admFinalSaveButton2026').textContent='✓ ভর্তি আবেদন সংরক্ষিত';}safeToast('আলহামদুলিল্লাহ, ভর্তি আবেদন সফলভাবে সংরক্ষিত হয়েছে। আবেদন ID: '+s.admissionId+' | Student ID: '+s.studentId+' | অবস্থা: প্রশাসনের অনুমোদনের অপেক্ষায়।');
   };
   window.saveGeneralAdmissionApplication2026=async function(){
     var name=V('admGenericName2026'),mobile=V('admGenericMobile2026'),address=V('admGenericAddress2026'),position=V('admGenericPosition2026');
