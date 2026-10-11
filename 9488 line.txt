@@ -1192,7 +1192,56 @@ function renderMedia(){
 function nextMedia(){if(media.length){mediaIndex=(mediaIndex+1)%media.length;renderMedia()}}
 function prevMedia(){if(media.length){mediaIndex=(mediaIndex-1+media.length)%media.length;renderMedia()}}
 async function deleteCurrentMedia(){if(!media.length)return;const current=media[mediaIndex%media.length],r=await call('deleteMedia',token,current.Serial);toast(r.ok?'মুছে ফেলা হয়েছে':'ব্যর্থ');if(r.ok){media.splice(mediaIndex,1);mediaIndex=media.length?mediaIndex%media.length:0;renderMedia();}}
+
+function reportEsc2026(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+const reportKinds2026=[
+ ['all','সকল রিপোর্ট'],['students','ছাত্র/ছাত্রী'],['teachers','শিক্ষক/শিক্ষিকা'],['admissions','ভর্তি আবেদন'],
+ ['examreg','পরীক্ষার্থী নিবন্ধন'],['payments','বেতন-ফি আদায়'],['income','আয় রিপোর্ট'],['expenses','ব্যয় রিপোর্ট'],
+ ['results','পরীক্ষার ফলাফল'],['attendance','হাজিরা'],['donors','দাতা সদস্য']
+];
+async function openAllReports2026(){
+ $('winTitle').textContent='অল রিপোর্ট — রিপোর্ট ড্যাশবোর্ড';
+ $('winBody').innerHTML='<div class="form-language-fixed"><span>বাংলা</span><span>العربية</span><span>English</span></div>'+
+ '<section class="card" style="padding:14px;margin:10px 0"><h3>📊 অল রিপোর্ট ড্যাশবোর্ড</h3><div class="form-grid">'+
+ '<label>রিপোর্টের ধরন<select id="allReportKind2026" class="field">'+reportKinds2026.map(x=>'<option value="'+x[0]+'">'+x[1]+'</option>').join('')+'</select></label>'+
+ '<label>শুরুর তারিখ<input id="allReportFrom2026" class="field" type="date"></label>'+
+ '<label>শেষ তারিখ<input id="allReportTo2026" class="field" type="date"></label></div>'+
+ '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0"><button type="button" class="primary" onclick="loadAllReports2026()">🔎 রিপোর্ট দেখুন</button><button type="button" class="secondary" onclick="printAllReports2026()">🖨️ প্রিন্ট / PDF</button></div>'+
+ '<div id="allReportStatus2026" role="status">বাস্তব শিটের তথ্য আনতে “রিপোর্ট দেখুন” চাপুন।</div></section>'+
+ '<div id="allReportSummary2026"></div><div id="allReportResults2026"></div>';
+ $('formWin').classList.remove('minimized');$('formWin').style.height='';openWindow('formWin');
+}
+window.openAllReports2026=openAllReports2026;
+window.loadAllReports2026=async function(){
+ const status=$('allReportStatus2026'),summary=$('allReportSummary2026'),out=$('allReportResults2026');
+ if(!status||!summary||!out)return;
+ status.textContent='⏳ রিপোর্ট লোড হচ্ছে…';summary.innerHTML='';out.innerHTML='';
+ try{
+  const r=await call('getAllReports2026',token,$('allReportKind2026').value,$('allReportFrom2026').value,$('allReportTo2026').value);
+  if(!r||!r.ok)throw new Error(r&&r.message||'রিপোর্ট লোড করা যায়নি।');
+  const reports=r.reports||[];
+  const count=reports.reduce((n,x)=>n+(x.rows||[]).length,0);
+  const money=reports.reduce((n,x)=>n+(Number(x.amountTotal)||0),0);
+  summary.innerHTML='<div class="form-grid"><div class="card" style="padding:12px"><b>রিপোর্টের বিভাগ</b><div style="font-size:24px;font-weight:900">'+reports.length+'</div></div><div class="card" style="padding:12px"><b>মোট রেকর্ড</b><div style="font-size:24px;font-weight:900">'+count+'</div></div><div class="card" style="padding:12px"><b>প্রদর্শিত অর্থের যোগফল</b><div style="font-size:24px;font-weight:900">'+reportEsc2026(money.toLocaleString('en-US'))+' টাকা</div><small>যে রিপোর্টে Amount কলাম আছে সেগুলোর যোগফল</small></div></div>';
+  if(!reports.length){out.innerHTML='<div class="card" style="padding:14px">নির্বাচিত রিপোর্ট পাওয়া যায়নি।</div>';status.textContent='রিপোর্ট সম্পন্ন: কোনো রেকর্ড পাওয়া যায়নি।';return;}
+  out.innerHTML=reports.map(function(rep){
+   const rows=rep.rows||[], cols=rep.columns||[];
+   return '<section class="card" style="padding:12px;margin:12px 0;overflow:auto"><h3>'+reportEsc2026(rep.label)+' ('+rows.length+')</h3>'+
+   (rows.length?'<table style="width:100%;border-collapse:collapse"><thead><tr>'+cols.map(c=>'<th style="border:1px solid #888;padding:7px;text-align:left">'+reportEsc2026(c.label)+'</th>').join('')+'</tr></thead><tbody>'+rows.map(row=>'<tr>'+cols.map(c=>'<td style="border:1px solid #aaa;padding:7px">'+reportEsc2026(row[c.key])+'</td>').join('')+'</tr>').join('')+'</tbody></table>':'<p>এই বিভাগে কোনো রেকর্ড নেই।</p>')+
+   (rep.amountTotal!=null?'<p><b>মোট অর্থ: '+reportEsc2026(Number(rep.amountTotal).toLocaleString('en-US'))+' টাকা</b></p>':'')+'</section>';
+  }).join('');
+  status.textContent='✓ রিপোর্ট তৈরি হয়েছে। তারিখ অনুযায়ী ফিল্টার প্রয়োগ করা হয়েছে।';
+ }catch(e){status.textContent='রিপোর্ট লোড হয়নি: '+(e&&e.message||e);}
+};
+window.printAllReports2026=function(){
+ const body=$('allReportResults2026');if(!body)return;
+ const w=window.open('','_blank');if(!w){toast('প্রিন্ট উইন্ডো খুলতে ব্রাউজারের অনুমতি দিন।');return;}
+ w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>অল রিপোর্ট</title><style>body{font-family:Arial,"Noto Sans Bengali",sans-serif;color:#111;padding:15px}h2,h3{text-align:center}table{width:100%;border-collapse:collapse;margin-bottom:12px}th,td{border:1px solid #555;padding:6px;text-align:left;font-size:12px}.card{margin:10px 0;break-inside:avoid}@page{size:A4 landscape;margin:10mm}</style></head><body><h2>জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</h2><h3>অল রিপোর্ট</h3>'+body.innerHTML+'</body></html>');
+ w.document.close();w.focus();setTimeout(function(){w.print();},250);
+};
+
 function openModule(key){
+if(key==='report'){openAllReports2026();return;}
 const labels=Object.fromEntries(modules.map(x=>[x[0],x[1]]));
 $('winTitle').textContent=labels[key]||key;
 $('winBody').innerHTML='<div class="form-language-fixed"><span>বাংলা</span><span>العربية</span><span>English</span></div>'+moduleForm(key)+'<div class="form-signatures"><div class="signature-box"><div>আবেদনকারীর স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>অভিভাবকের স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>প্রধান শিক্ষিকার স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>প্রিন্সিপাল/মুহতামিম এর স্বাক্ষর</div><div class="signature-line"></div></div></div><div class="form-action-bar"><button type="button" class="primary" onclick="saveCurrentForm()">💾 সেভ</button><button type="button" class="secondary" onclick="printCurrentForm()">🖨️ প্রিন্ট</button><button type="button" class="secondary" onclick="enableFormEdit()">✏️ এডিট</button><button type="button" class="secondary" onclick="downloadCurrentForm()">⬇️ ডাউনলোড</button><button type="button" class="secondary" onclick="clearFormWindow()">🧹 ক্লিয়ার</button></div>';
