@@ -14382,7 +14382,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     function exportData(kind){
       var sheet=sel.value;if(!sheet){status.textContent='আগে শিট নির্বাচন করুন।';return}
       status.textContent='ডেটা লোড হচ্ছে...';
-      Promise.resolve().then(function(){return window.call('getSheetData',window.token,sheet,300)}).then(function(r){
+      Promise.resolve().then(function(){return call('getSheetData',token,sheet,300)}).then(function(r){
         if(!r||!r.ok)throw new Error(r&&r.message?r.message:'শিটের ডেটা পাওয়া যায়নি।');
         var rows=Array.isArray(r.rows)?r.rows:[];
         if(!rows.length){status.textContent='এই শিটে ডাউনলোড করার মতো রেকর্ড পাওয়া যায়নি।';return}
