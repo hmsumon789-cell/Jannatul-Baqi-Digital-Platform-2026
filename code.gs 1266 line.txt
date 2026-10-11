@@ -1357,11 +1357,53 @@ function deleteMedia(token,serial) {
   sh.deleteRow(idx+2); return {ok:true};
 }
 
+
+/* ===== ALL DOCUMENTS / FILES STORAGE 2026 ===== */
+function documentDriveFolder_(){const name='Jannatul Baqi Digital Platform - Documents and Files 2026';const it=DriveApp.getFoldersByName(name);return it.hasNext()?it.next():DriveApp.createFolder(name);}
+function documentTempFolder_(){const name='Jannatul Baqi Digital Platform - Documents Upload Temp 2026';const it=DriveApp.getFoldersByName(name);return it.hasNext()?it.next():DriveApp.createFolder(name);}
+function startFileUpload(token,meta){
+  auth_(token);requireFeature_(token,'files');meta=meta||{};const name=String(meta.name||'').trim(),size=Number(meta.size||0),folder=String(meta.folder||'GENERAL').trim()||'GENERAL';
+  if(!name)return {ok:false,message:'ফাইলের নাম পাওয়া যায়নি।'};if(size<=0||size>20*1024*1024)return {ok:false,message:'প্রতিটি ফাইল 20 MB-এর মধ্যে হতে হবে।'};
+  const rows=listRows_(SHEETS.FILES,token,5000).filter(function(x){return String(x.Status||'').toUpperCase()==='ACTIVE';});
+  if(rows.some(function(x){return String(x.Name||'').trim().toLowerCase()===name.toLowerCase()&&String(x.Folder||'GENERAL')===folder;}))return {ok:false,message:'এই বিভাগে একই নামে ফাইল আগে থেকেই আছে।'};
+  const uploadId=Utilities.getUuid();documentTempFolder_().createFile(Utilities.newBlob(JSON.stringify({uploadId:uploadId,name:name,mimeType:String(meta.mimeType||'application/octet-stream'),size:size,folder:folder,created:Date.now()}),'application/json','META-'+uploadId+'.json'));return {ok:true,uploadId:uploadId};
+}
+function uploadFileChunk(token,uploadId,index,base64){
+  auth_(token);requireFeature_(token,'files');uploadId=String(uploadId||'');index=Number(index);const raw=String(base64||'');
+  if(!uploadId||!isFinite(index)||index<0||!raw)return {ok:false,message:'ফাইলের অংশের তথ্য সঠিক নয়।'};
+  documentTempFolder_().createFile(Utilities.newBlob(Utilities.base64Decode(raw),'application/octet-stream','CHUNK-'+uploadId+'-'+String(index).padStart(6,'0')));return {ok:true,index:index};
+}
+function finishFileUpload(token,uploadId){
+  auth_(token);requireFeature_(token,'files');uploadId=String(uploadId||'');if(!uploadId)return {ok:false,message:'Upload ID পাওয়া যায়নি。'};
+  const temp=documentTempFolder_(),iter=temp.getFiles(),chunks=[],metas=[];while(iter.hasNext()){const f=iter.next(),n=f.getName();if(n==='META-'+uploadId+'.json')metas.push(f);else if(n.indexOf('CHUNK-'+uploadId+'-')===0)chunks.push(f);}
+  if(!metas.length||!chunks.length)return {ok:false,message:'ফাইলের সব অংশ পাওয়া যায়নি; আবার আপলোড করুন।'};
+  let meta;try{meta=JSON.parse(metas[0].getBlob().getDataAsString());}catch(e){return {ok:false,message:'ফাইলের তথ্য পড়া যায়নি।'};}
+  chunks.sort(function(a,b){return a.getName().localeCompare(b.getName());});let bytes=[],total=0;chunks.forEach(function(f){const b=f.getBlob().getBytes();total+=b.length;bytes=bytes.concat(b);});
+  if(total!==Number(meta.size||0)||total>20*1024*1024)return {ok:false,message:'ফাইলের আকার মেলেনি বা 20 MB ছাড়িয়েছে।'};
+  const rows=listRows_(SHEETS.FILES,token,5000);if(rows.some(function(x){return String(x.Status||'').toUpperCase()==='ACTIVE'&&String(x.Name||'').trim().toLowerCase()===String(meta.name||'').trim().toLowerCase()&&String(x.Folder||'GENERAL')===String(meta.folder||'GENERAL');}))return {ok:false,message:'এই বিভাগে একই নামে ফাইল আগে থেকেই আছে।'};
+  const blob=Utilities.newBlob(bytes,meta.mimeType||'application/octet-stream',meta.name||'document'),file=documentDriveFolder_().createFile(blob);try{file.setSharing(DriveApp.Access.PRIVATE,DriveApp.Permission.NONE);}catch(e){}
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.FILES),serial=nextSerial_(sh),fileId='FIL-'+Utilities.getUuid();sh.appendRow([serial,fileId,meta.name||'',meta.mimeType||'application/octet-stream',meta.mimeType||'application/octet-stream','DRIVE:'+file.getId(),total,String(meta.folder||'GENERAL'),'ACTIVE',now_()]);
+  chunks.forEach(function(f){try{f.setTrashed(true);}catch(e){}});metas.forEach(function(f){try{f.setTrashed(true);}catch(e){}});log_(sessionUser_(token),'upload','FILES',fileId+' | '+meta.name);return {ok:true,serial:serial,fileId:fileId,name:meta.name};
+}
+function listFiles(token){
+  auth_(token);requireFeature_(token,'files');return listRows_(SHEETS.FILES,token,5000).filter(function(x){return String(x.Status||'').toUpperCase()==='ACTIVE';}).map(function(x){return {Serial:x.Serial,FileID:x.FileID,Name:x.Name||'',Type:x.Type||'',MimeType:x.MimeType||'',Size:Number(x.Size||0),Folder:x.Folder||'GENERAL',Status:x.Status||'ACTIVE',CreatedAt:x.CreatedAt||''};}).reverse();
+}
+function getFileContent(token,serial){
+  auth_(token);requireFeature_(token,'files');const x=listRows_(SHEETS.FILES,token,5000).find(function(r){return String(r.Serial)===String(serial)&&String(r.Status||'').toUpperCase()==='ACTIVE';});if(!x)return {ok:false,message:'ফাইল পাওয়া যায়নি বা মুছে ফেলা হয়েছে।'};
+  try{const data=String(x.DataURL||'');let blob;if(data.indexOf('DRIVE:')===0)blob=DriveApp.getFileById(data.slice(6)).getBlob();else if(data.indexOf('data:')===0){const p=data.indexOf(',');if(p<0)return {ok:false,message:'পুরোনো ফাইলের ডাটা সঠিক নয়।'};return {ok:true,name:x.Name||'document',mimeType:x.MimeType||'application/octet-stream',base64:data.slice(p+1)};}else return {ok:false,message:'এই পুরোনো ফাইলের ডাটা পাওয়া যাচ্ছে না。'};return {ok:true,name:x.Name||blob.getName()||'document',mimeType:String(blob.getContentType()||x.MimeType||'application/octet-stream'),base64:Utilities.base64Encode(blob.getBytes())};}catch(e){return {ok:false,message:'ফাইল খোলা যায়নি। অনুমতি বা ফাইলের অবস্থান যাচাই করুন।'};}
+}
+function deleteFile(token,serial){
+  auth_(token);requireFeature_(token,'files');const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.FILES);if(!sh||sh.getLastRow()<2)return {ok:false,message:'ফাইল তালিকা খালি।'};
+  const values=sh.getDataRange().getValues(),headers=values[0].map(function(v){return String(v||'').trim();}),ix={};headers.forEach(function(v,i){ix[v]=i;});const row=values.slice(1).findIndex(function(r){return String(r[ix.Serial])===String(serial)&&String(r[ix.Status]||'').toUpperCase()==='ACTIVE';});if(row<0)return {ok:false,message:'ফাইল পাওয়া যায়নি।'};
+  const record=values[row+1],fileData=String(record[ix.DataURL]||'');if(fileData.indexOf('DRIVE:')===0){try{DriveApp.getFileById(fileData.slice(6)).setTrashed(true);}catch(e){}}sh.deleteRow(row+2);log_(sessionUser_(token),'delete','FILES',String(record[ix.FileID]||serial));return {ok:true};
+}
+
 function uploadFile(token,item) {
-  auth_(token); requireFeature_(token,'files');
-  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.FILES);
-  sh.appendRow([nextSerial_(sh),'FIL-'+Date.now(),item.name||'',item.type||'',item.mimeType||'',item.dataUrl||'',item.size||0,item.folder||'GENERAL','ACTIVE',now_()]);
-  return {ok:true};
+  auth_(token);requireFeature_(token,'files');item=item||{};const name=String(item.name||'').trim(),data=String(item.dataUrl||''),folder=String(item.folder||'GENERAL');
+  if(!name||!data)return {ok:false,message:'ফাইলের নাম বা ডাটা পাওয়া যায়নি।'};if(Number(item.size||0)>20*1024*1024)return {ok:false,message:'ফাইল সর্বোচ্চ 20 MB হতে পারবে।'};
+  const rows=listRows_(SHEETS.FILES,token,5000);if(rows.some(function(x){return String(x.Status||'').toUpperCase()==='ACTIVE'&&String(x.Name||'').trim().toLowerCase()===name.toLowerCase()&&String(x.Folder||'GENERAL')===folder;}))return {ok:false,message:'এই বিভাগে একই নামে ফাইল আগে থেকেই আছে।'};
+  const raw=data.split(',')[1]||'';if(!raw)return {ok:false,message:'ফাইলের ডাটা সঠিক নয়।'};const blob=Utilities.newBlob(Utilities.base64Decode(raw),item.mimeType||'application/octet-stream',name),file=documentDriveFolder_().createFile(blob);try{file.setSharing(DriveApp.Access.PRIVATE,DriveApp.Permission.NONE);}catch(e){}
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.FILES),serial=nextSerial_(sh),fileId='FIL-'+Utilities.getUuid();sh.appendRow([serial,fileId,name,item.mimeType||item.type||'',item.mimeType||'application/octet-stream','DRIVE:'+file.getId(),Number(item.size||blob.getBytes().length),folder,'ACTIVE',now_()]);log_(sessionUser_(token),'upload','FILES',fileId+' | '+name);return {ok:true,serial:serial,fileId:fileId};
 }
 
 function getSheetData(token,sheetName,limit) {
