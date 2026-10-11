@@ -14006,3 +14006,44 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 })();
 </script>
 <!-- ===== END ALL DOCUMENTS BUTTON ROUTING + COMPLETE DOCUMENT TYPE LIST ===== -->
+
+<!-- ===== ACTUAL DASHBOARD ALL DOCUMENTS BUTTON CLICK FIX — 2026-10-11 ===== -->
+<script id="jb-actual-all-documents-click-fix-20261011">
+(function(){
+  'use strict';
+  function isAllDocumentsLabel(value){
+    var t=String(value||'').toLowerCase().replace(/[\\s\\u200b_-]+/g,'');
+    return t.indexOf('অলডকুমেন্টস')>=0 ||
+      t.indexOf('সবডকুমেন্টস')>=0 ||
+      t.indexOf('alldocuments')>=0 ||
+      (t.indexOf('ডকুমেন্টস')>=0 && (t.indexOf('অল')>=0 || t.indexOf('সব')>=0)) ||
+      (t.indexOf('documents')>=0 && (t.indexOf('all')>=0 || t.indexOf('every')>=0));
+  }
+  function openList(){
+    if(typeof window.jbShowCardTypeList2026==='function'){window.jbShowCardTypeList2026();return;}
+    alert('অল ডকুমেন্টস তালিকা এখনো লোড হয়নি। পেজটি রিফ্রেশ করে আবার চেষ্টা করুন।');
+  }
+  /* Catch the actual dynamically-created dashboard button by visible label,
+     rather than guessing its backend module key. */
+  document.addEventListener('click',function(ev){
+    var target=ev.target;
+    var b=target&&target.closest?target.closest('button,[role="button"],a'):null;
+    if(!b)return;
+    var label=(b.innerText||b.textContent||b.getAttribute('aria-label')||b.title||'').trim();
+    if(!isAllDocumentsLabel(label))return;
+    ev.preventDefault();ev.stopPropagation();
+    if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();
+    openList();
+  },true);
+  document.addEventListener('change',function(ev){
+    var el=ev.target;
+    if(!el||el.id!=='featureSelect')return;
+    var opt=el.options&&el.selectedIndex>=0?el.options[el.selectedIndex]:null;
+    if(!opt||!isAllDocumentsLabel(opt.textContent))return;
+    ev.preventDefault();ev.stopPropagation();
+    if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();
+    openList();el.value='';
+  },true);
+})();
+</script>
+<!-- ===== END ACTUAL DASHBOARD ALL DOCUMENTS BUTTON CLICK FIX ===== -->
