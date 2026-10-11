@@ -8864,11 +8864,60 @@ window.saveResult=async function(k){
   }
   function renderRows(rows,backendKey){
     var w=ensureListWindow(),body=document.getElementById('moduleListBody2026'),heads=rows.length?Object.keys(rows[0]):[];
-    var h='<div class="table-wrap"><table class="data-table"><thead><tr>'+heads.map(function(k){return '<th>'+esc(k)+'</th>'}).join('')+'<th>কার্যক্রম</th></tr></thead><tbody>';
+    var isStudents=/^STUDENTS?$/i.test(String(backendKey||''))||/শিক্ষার্থী|ছাত্র|ছাত্রী/i.test(String(currentTitle||''));
+    var h='<div class="table-wrap"><table class="data-table"><thead><tr>';
+    if(isStudents) h+='<th>ছবি/ডকুমেন্ট</th>';
+    h+=heads.map(function(k){return '<th>'+esc(k)+'</th>'}).join('')+'<th>কার্যক্রম</th></tr></thead><tbody>';
     if(!rows.length){h+='<tr><td colspan="99">কোন তথ্য পাওয়া যায়নি।</td></tr>';}
-    rows.forEach(function(r,i){h+='<tr data-row-index="'+i+'">'+heads.map(function(k){return '<td data-key="'+esc(k)+'">'+esc(r[k])+'</td>'}).join('')+'<td><div class="list-actions"><button class="secondary" type="button" onclick="listDetail2026('+i+')">📄 বিস্তারিত দেখুন</button><button class="secondary" type="button" onclick="listEdit2026('+i+')">✏️</button></div></td></tr>';});
+    rows.forEach(function(r,i){
+      var id=r.StudentID||r.ID||r.Id||r.Serial||r.serial||'';
+      var photo=r.Photo||r.PhotoURL||r.StudentPhoto||r.Image||'';
+      var docs=r.Documents||r.Document||r.Attachments||'';
+      var preview='';
+      if(isStudents){
+        preview='<div style="display:flex;flex-direction:column;gap:5px;align-items:center;min-width:90px">';
+        if(photo&&/^\s*(https?:\/\/|data:image\/)/i.test(String(photo)))preview+='<img src="'+esc(photo)+'" alt="শিক্ষার্থীর ছবি" style="width:54px;height:64px;object-fit:cover;border:1px solid #999;border-radius:5px" onerror="this.style.display=\'none\'">';
+        else preview+='<span style="font-size:11px;color:#777">ছবি নেই</span>';
+        if(docs)preview+='<span style="font-size:11px;max-width:120px;overflow-wrap:anywhere">📎 '+esc(String(docs).slice(0,80))+'</span>';
+        preview+='</div>';
+      }
+      h+='<tr data-row-index="'+i+'">'+(isStudents?'<td>'+preview+'</td>':'')+heads.map(function(k){return '<td data-key="'+esc(k)+'">'+esc(r[k])+'</td>'}).join('')+'<td><div class="list-actions" style="display:flex;flex-wrap:wrap;gap:5px"><button class="secondary" type="button" onclick="listDetail2026('+i+')">📄 বিস্তারিত দেখুন</button><button class="secondary" type="button" onclick="listEdit2026('+i+')">✏️ সম্পাদনা</button>'+(isStudents?'<button class="primary" type="button" onclick="listRegisterExam2026('+i+')">📝 পরীক্ষার্থী তালিকায়</button><button class="secondary" type="button" onclick="listStudentCards2026('+i+')">🪪 কার্ড তৈরি</button>':'')+'</div></td></tr>';
+    });
     body.innerHTML=h+'</tbody></table></div>';
   }
+  window.listRegisterExam2026=async function(i){
+    var r=currentRows[i]||{},sid=String(r.StudentID||r.ID||r.Id||'').trim();
+    if(!sid)return toast('এই শিক্ষার্থীর Student ID পাওয়া যায়নি।');
+    var exam=prompt('কোন পরীক্ষায় নিবন্ধন করবেন? পরীক্ষার নাম লিখুন:');
+    if(!exam||!exam.trim())return;
+    try{
+      var result=await call('registerExamCandidate',token,sid,exam.trim(),r.Class||r.Jamaat||'',r.Branch||'');
+      if(result&&result.ok)toast(result.message||'পরীক্ষার্থী তালিকায় যুক্ত হয়েছে।');
+      else toast((result&&result.message)||'পরীক্ষার্থী নিবন্ধন হয়নি।');
+    }catch(e){toast('পরীক্ষার্থী নিবন্ধনে সার্ভার ত্রুটি: '+(e&&e.message||e));}
+  };
+  window.listStudentCards2026=function(i){
+    var r=currentRows[i]||{},sid=String(r.StudentID||r.ID||r.Id||'').trim();
+    if(!sid)return toast('এই শিক্ষার্থীর Student ID পাওয়া যায়নি।');
+    var types=[['marks','মার্কশিট'],['result','রেজাল্ট/মার্কশিট'],['admit_cards','অ্যাডমিট কার্ড'],['id_cards','আইডি কার্ড'],['certificates','সনদপত্র'],['receipts','মানি রিসিট']];
+    var old=document.getElementById('listStudentCardsModal2026');if(old)old.remove();
+    var modal=document.createElement('div');modal.id='listStudentCardsModal2026';
+    modal.style.cssText='position:fixed;inset:0;z-index:100010;background:#0008;display:flex;align-items:center;justify-content:center;padding:16px';
+    modal.innerHTML='<div style="width:min(540px,96vw);max-height:85vh;overflow:auto;background:var(--panel);color:var(--text);border:3px solid var(--border);border-radius:14px;padding:16px"><h3 style="margin-top:0">🪪 কার্ড নির্বাচন — ID: '+esc(sid)+'</h3><p>এক বা একাধিক কার্ড নির্বাচন করুন।</p><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px">'+types.map(function(t){return '<label style="display:flex;gap:7px;align-items:center;padding:8px;border:1px solid var(--border);border-radius:8px"><input type="checkbox" value="'+t[0]+'"> '+t[1]+'</label>'}).join('')+'</div><div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px"><button class="primary" type="button" id="listCardsStart2026">▶️ নির্বাচিত কার্ড তৈরি শুরু</button><button class="secondary" type="button" id="listCardsClose2026">বন্ধ</button></div><p style="font-size:12px">প্রতিটি কার্ডের জন্য বিদ্যমান Document Builder খুলবে; সেখানে তথ্য যাচাই করে তৈরি ও অনলাইন সেবায় সংরক্ষণ করুন।</p></div>';
+    document.body.appendChild(modal);
+    modal.querySelector('#listCardsClose2026').onclick=function(){modal.remove()};
+    modal.querySelector('#listCardsStart2026').onclick=function(){
+      var chosen=Array.from(modal.querySelectorAll('input[type=checkbox]:checked')).map(function(x){return x.value});
+      if(!chosen.length){toast('অন্তত একটি কার্ড নির্বাচন করুন।');return}
+      window.__jbStudentCardQueue2026=chosen.slice(1);
+      modal.remove();
+      if(typeof window.jbOpenDocumentType2026!=='function'){toast('Document Builder পাওয়া যায়নি।');return}
+      window.jbOpenDocumentType2026(chosen[0]);
+      var idInput=document.getElementById('jbDocId');if(idInput){idInput.value=sid;idInput.dispatchEvent(new Event('change',{bubbles:true}));}
+      if(typeof window.jbFindStudent==='function')window.jbFindStudent();
+      if(chosen.length>1)toast('প্রথম কার্ড খোলা হয়েছে। এটি তৈরি/সংরক্ষণের পর পরবর্তী কার্ডের জন্য তালিকা থেকে আবার নির্বাচন করুন।');
+    };
+  };
   var currentRows=[],currentBackend='',currentTitle='';
   window.openListSelector=function(){baseOpen('listSelectorWindow2026');};
   function baseOpen(id){ensureSelector();if(typeof baseOpenWindow==='function')baseOpenWindow(id);else{var w=document.getElementById(id);w.classList.add('show');}}
