@@ -14047,3 +14047,59 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 })();
 </script>
 <!-- ===== END ACTUAL DASHBOARD ALL DOCUMENTS BUTTON CLICK FIX ===== -->
+
+<!-- ===== SALARY PAYMENT MODULE FUNCTIONAL FIX — 2026-10-11 ===== -->
+<script id="jb-salary-payment-functional-fix-20261011">
+(function(){
+  'use strict';
+  var previousModuleForm=window.moduleForm;
+  var months=['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+  function salaryForm(){
+    var monthOptions=months.map(function(m){return '<option value="'+m+'">'+m+'</option>';}).join('');
+    var today=new Date();
+    var date=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+    return '<div class="card" style="padding:14px;margin:8px 0"><h3 style="margin:0 0 8px">💵 শিক্ষক/শিক্ষিকা/স্টাফের বেতন প্রদান</h3><p>কর্মীর আইডি ও নাম লিখে মাস, টাকার পরিমাণ এবং প্রদানের মাধ্যম নির্বাচন করে বেতন সংরক্ষণ করুন। সংরক্ষিত তথ্য SALARY শিটে যাবে।</p><div class="form-grid">'+
+      '<label>কর্মীর ধরন<select id="jbSalaryEmployeeType2026" class="field"><option value="শিক্ষক/শিক্ষিকা">শিক্ষক/শিক্ষিকা</option><option value="স্টাফ/কর্মচারী">স্টাফ/কর্মচারী</option><option value="অন্যান্য">অন্যান্য</option></select></label>'+
+      '<label>কর্মী ID / Employee ID<input id="jbSalaryEmployeeID2026" class="field" autocomplete="off" placeholder="যেমন T-0001" required></label>'+
+      '<label>কর্মীর নাম<input id="jbSalaryName2026" class="field" autocomplete="name" required></label>'+
+      '<label>বেতনের মাস<select id="jbSalaryMonth2026" class="field">'+monthOptions+'</select></label>'+
+      '<label>বেতনের পরিমাণ (টাকা)<input id="jbSalaryAmount2026" class="field" type="number" min="1" step="0.01" required></label>'+
+      '<label>প্রদানের মাধ্যম<select id="jbSalaryMethod2026" class="field"><option value="হ্যান্ড ক্যাশ">হ্যান্ড ক্যাশ</option><option value="ব্যাংক">ব্যাংক</option><option value="bKash">bKash</option><option value="Nagad">Nagad</option><option value="Rocket">Rocket</option><option value="অন্যান্য">অন্যান্য</option></select></label>'+
+      '<label>প্রদানের তারিখ<input id="jbSalaryDate2026" class="field" type="date" value="'+date+'" required></label>'+
+      '<label class="full">বিবরণ / Reference<textarea id="jbSalaryNote2026" class="field" rows="2" placeholder="লেনদেন নম্বর বা প্রয়োজনীয় বিবরণ"></textarea></label></div>'+
+      '<div id="jbSalaryFeedback2026" class="card" style="padding:9px;margin:10px 0" aria-live="polite">বেতনের তথ্য পূরণ করে নিচের বাটনে চাপুন।</div>'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="primary" type="button" onclick="jbSaveSalaryPayment2026()">💾 বেতন প্রদান সংরক্ষণ করুন</button><button class="secondary" type="button" onclick="jbClearSalaryPayment2026()">🧹 ফর্ম পরিষ্কার</button></div></div>';
+  }
+  window.moduleForm=function(key){
+    if(String(key||'').toLowerCase()==='salary')return salaryForm();
+    return typeof previousModuleForm==='function'?previousModuleForm.apply(this,arguments):'<p>ফর্ম পাওয়া যায়নি।</p>';
+  };
+  window.jbClearSalaryPayment2026=function(){
+    ['jbSalaryEmployeeID2026','jbSalaryName2026','jbSalaryAmount2026','jbSalaryNote2026'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
+    var fb=document.getElementById('jbSalaryFeedback2026');if(fb)fb.textContent='ফর্ম পরিষ্কার করা হয়েছে।';
+  };
+  window.jbSaveSalaryPayment2026=async function(){
+    var el=function(id){return document.getElementById(id);};
+    var employeeId=String((el('jbSalaryEmployeeID2026')||{}).value||'').trim();
+    var name=String((el('jbSalaryName2026')||{}).value||'').trim();
+    var month=String((el('jbSalaryMonth2026')||{}).value||'').trim();
+    var amount=Number((el('jbSalaryAmount2026')||{}).value);
+    var method=String((el('jbSalaryMethod2026')||{}).value||'').trim();
+    var date=String((el('jbSalaryDate2026')||{}).value||'').trim();
+    var fb=el('jbSalaryFeedback2026');
+    function report(message,ok){if(fb){fb.textContent=message;fb.style.color=ok?'#137333':'#b00020';}if(typeof window.toast==='function')window.toast(message);}
+    if(!employeeId||!name||!month||!isFinite(amount)||amount<=0||!method||!date){report('❌ কর্মীর ID, নাম, মাস, সঠিক বেতনের পরিমাণ, মাধ্যম ও তারিখ পূরণ করুন।',false);return;}
+    var btn=document.querySelector('#winBody button[onclick="jbSaveSalaryPayment2026()"]');
+    if(btn){btn.disabled=true;btn.textContent='⏳ সংরক্ষণ হচ্ছে...';}
+    try{
+      var data={SalaryID:'SAL-'+Date.now(),EmployeeID:employeeId,Name:name,EmployeeType:String((el('jbSalaryEmployeeType2026')||{}).value||'শিক্ষক/শিক্ষিকা'),Month:month,Amount:amount,Method:method,Date:date,Note:String((el('jbSalaryNote2026')||{}).value||'').trim()};
+      var result=await call('saveRecord',token,'SALARY',data);
+      if(!result||!result.ok){report('❌ বেতন সংরক্ষণ হয়নি: '+((result&&result.message)||'সার্ভার থেকে সফলতার উত্তর পাওয়া যায়নি।'),false);return;}
+      report('✅ বেতন প্রদান সফলভাবে সংরক্ষিত হয়েছে। বেতন ID: '+data.SalaryID+' | '+name+' | '+month+' | '+amount.toLocaleString('bn-BD')+' টাকা',true);
+      ['jbSalaryEmployeeID2026','jbSalaryName2026','jbSalaryAmount2026','jbSalaryNote2026'].forEach(function(id){if(el(id))el(id).value='';});
+    }catch(error){report('❌ বেতন সংরক্ষণে সার্ভার ত্রুটি: '+(error&&error.message?error.message:error),false);}
+    finally{if(btn){btn.disabled=false;btn.textContent='💾 বেতন প্রদান সংরক্ষণ করুন';}}
+  };
+})();
+</script>
+<!-- ===== END SALARY PAYMENT MODULE FUNCTIONAL FIX ===== -->
