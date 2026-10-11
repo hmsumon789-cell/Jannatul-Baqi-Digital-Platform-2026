@@ -14024,3 +14024,47 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 })();
 </script>
 <!-- ===== END ALL REPORTS MODULE ===== -->
+
+<!-- ===== LOGIN CLICK SAFETY FIX 2026-10-11 ===== -->
+<style id="jb-login-click-safety-20261011">
+#loginPage .login-auth-qr-802268e,
+#loginPage .login-auth-802268e,
+#loginPage .login-grid{position:relative!important;z-index:20!important;pointer-events:auto!important}
+#loginPage #mainLoginBtn{position:relative!important;z-index:30!important;pointer-events:auto!important;cursor:pointer!important;touch-action:manipulation!important}
+</style>
+<script id="jb-login-click-safety-handler-20261011">
+(function(){
+  function bindLoginClick(){
+    var btn=document.getElementById('mainLoginBtn');
+    if(!btn||btn.dataset.jbClickSafety==='1')return;
+    btn.dataset.jbClickSafety='1';
+    document.addEventListener('click',function(ev){
+      var target=ev.target;
+      var hit=target&&target.closest?target.closest('#mainLoginBtn'):null;
+      if(!hit)return;
+      ev.preventDefault();
+      ev.stopPropagation();
+      if(typeof ev.stopImmediatePropagation==='function')ev.stopImmediatePropagation();
+      if(hit.disabled)return;
+      if(typeof window.login!=='function'){
+        var msg=document.getElementById('toast');
+        if(msg){msg.textContent='লগইন স্ক্রিপ্ট লোড হয়নি। পেজটি রিফ্রেশ করে আবার চেষ্টা করুন।';msg.style.display='block';}
+        return;
+      }
+      try{
+        var result=window.login();
+        if(result&&typeof result.catch==='function')result.catch(function(err){
+          var msg=document.getElementById('toast');
+          if(msg){msg.textContent='লগইন ত্রুটি: '+(err&&err.message?err.message:err);msg.style.display='block';}
+        });
+      }catch(err){
+        var msg=document.getElementById('toast');
+        if(msg){msg.textContent='লগইন ত্রুটি: '+(err&&err.message?err.message:err);msg.style.display='block';}
+      }
+    },true);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindLoginClick);else bindLoginClick();
+  setTimeout(bindLoginClick,250);
+  setTimeout(bindLoginClick,900);
+})();
+</script>
