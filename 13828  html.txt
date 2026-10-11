@@ -13994,7 +13994,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   };
   var oldOpen=window.openModule;
   window.openModule=function(key){
-    var k=String(key==null?'':key).toLowerCase().replace(/[\\s_-]+/g,'');
+    var k=String(key==null?'':key).toLowerCase().replace(/[\s_-]+/g,'');
     var aliases=['alldocuments','documents','document','alldocs','docs','documentbuilder','অলডকুমেন্টস','ডকুমেন্টস','সবডকুমেন্ট','সবডকুমেন্টস'];
     if(aliases.indexOf(k)>=0){
       if(typeof window.jbShowCardTypeList2026==='function'){window.jbShowCardTypeList2026();return;}
