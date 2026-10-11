@@ -13826,3 +13826,119 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
 </script>
+
+<!-- ===== ALL REPORTS BUTTON FUNCTIONALITY — 2026-10-11 ===== -->
+<style id="jb-all-reports-style-20261011">
+#jbAllReportsPanel20261011{display:block;width:100%;box-sizing:border-box}
+#jbAllReportsPanel20261011 .jb-report-controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;align-items:end}
+#jbAllReportsPanel20261011 .jb-report-actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+#jbAllReportsPanel20261011 .jb-report-status{padding:9px 12px;border:1px solid var(--border);border-radius:8px;margin:10px 0;white-space:pre-wrap}
+#jbAllReportsPanel20261011 .jb-report-table-wrap{width:100%;overflow:auto;margin:10px 0}
+#jbAllReportsPanel20261011 table{border-collapse:collapse;width:100%;min-width:600px}
+#jbAllReportsPanel20261011 th,#jbAllReportsPanel20261011 td{border:1px solid var(--border);padding:7px;text-align:left;vertical-align:top;overflow-wrap:anywhere}
+#jbAllReportsPanel20261011 th{position:sticky;top:0;background:var(--panel)}
+@media(max-width:600px){#jbAllReportsPanel20261011 .jb-report-controls{grid-template-columns:1fr}}
+</style>
+<script id="jb-all-reports-js-20261011">
+(function(){
+  'use strict';
+  var SHEETS=[
+    {value:'all',label:'সব রিপোর্ট',sheets:['STUDENTS','TEACHERS','DONORS','ADMISSIONS','EXAM_REG','PAYMENTS','EXPENSES','RESULTS','ATTENDANCE','NOTICES','MADRASAS','SALARY','CERTIFICATES','ID_CARDS','ADMIT_CARDS','RECEIPTS']},
+    {value:'STUDENTS',label:'ছাত্র/ছাত্রী',sheets:['STUDENTS']},
+    {value:'TEACHERS',label:'শিক্ষক/শিক্ষিকা',sheets:['TEACHERS']},
+    {value:'DONORS',label:'দাতা/সদস্য',sheets:['DONORS']},
+    {value:'ADMISSIONS',label:'ভর্তি আবেদন',sheets:['ADMISSIONS']},
+    {value:'EXAM_REG',label:'পরীক্ষার্থী নিবন্ধন',sheets:['EXAM_REG']},
+    {value:'PAYMENTS',label:'পেমেন্ট/বেতন-ফি',sheets:['PAYMENTS']},
+    {value:'EXPENSES',label:'ব্যয়',sheets:['EXPENSES']},
+    {value:'RESULTS',label:'পরীক্ষার ফলাফল',sheets:['RESULTS']},
+    {value:'ATTENDANCE',label:'হাজিরা',sheets:['ATTENDANCE']},
+    {value:'NOTICES',label:'নোটিশ',sheets:['NOTICES']},
+    {value:'MADRASAS',label:'নিবন্ধিত মাদ্রাসা',sheets:['MADRASAS']},
+    {value:'SALARY',label:'বেতন/সেলারি',sheets:['SALARY']},
+    {value:'CERTIFICATES',label:'সনদপত্র',sheets:['CERTIFICATES']},
+    {value:'ID_CARDS',label:'আইডি কার্ড',sheets:['ID_CARDS']},
+    {value:'ADMIT_CARDS',label:'এডমিট কার্ড',sheets:['ADMIT_CARDS']},
+    {value:'RECEIPTS',label:'রসিদ',sheets:['RECEIPTS']}
+  ];
+  function el(id){return document.getElementById(id)}
+  function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+  function role(){var u=window.currentUser||{};return String(u.Role||u.role||'').toUpperCase().replace(/[\\s-]+/g,'_')}
+  function allowed(){var r=role();return r==='SUPER_ADMIN'||r==='SUPERADMIN'}
+  function html(){
+    return '<section id="jbAllReportsPanel20261011" class="card" style="padding:12px">'+
+      '<h3 style="margin-top:0">📊 অল রিপোর্ট — রিপোর্ট দেখুন, প্রিন্ট ও ডাউনলোড</h3>'+
+      '<p>নির্বাচিত বিভাগ/শিটের তথ্য সার্ভার থেকে এনে এখানে দেখানো হবে। এই রিপোর্ট প্যানেল শুধু Super Admin ব্যবহার করতে পারবেন।</p>'+
+      '<div class="jb-report-controls">'+
+      '<label>রিপোর্টের বিভাগ<select id="jbReportSheet20261011" class="field">'+SHEETS.map(function(s){return '<option value="'+esc(s.value)+'">'+esc(s.label)+'</option>'}).join('')+'</select></label>'+
+      '<label>শুরুর তারিখ<input id="jbReportFrom20261011" class="field" type="date"></label>'+
+      '<label>শেষ তারিখ<input id="jbReportTo20261011" class="field" type="date"></label>'+
+      '<label>শব্দ/ID দিয়ে খুঁজুন<input id="jbReportQuery20261011" class="field" placeholder="নাম, ID, মোবাইল ইত্যাদি"></label>'+
+      '</div><div class="jb-report-actions">'+
+      '<button type="button" class="primary" onclick="jbLoadAllReports20261011()">🔎 রিপোর্ট তৈরি করুন</button>'+
+      '<button type="button" class="secondary" onclick="jbPrintAllReports20261011()">🖨️ প্রিন্ট / PDF</button>'+
+      '<button type="button" class="secondary" onclick="jbDownloadAllReports20261011()">⬇️ CSV ডাউনলোড</button>'+
+      '<button type="button" class="secondary" onclick="jbClearAllReports20261011()">♻️ পরিষ্কার</button></div>'+
+      '<div id="jbReportStatus20261011" class="jb-report-status" role="status">রিপোর্ট তৈরি করতে “রিপোর্ট তৈরি করুন” চাপুন।</div>'+
+      '<div id="jbReportSummary20261011"></div><div id="jbReportResults20261011"></div></section>';
+  }
+  var previous=window.moduleForm;
+  window.moduleForm=function(k){if(k==='report')return html();return typeof previous==='function'?previous.apply(this,arguments):'<p>ফর্ম পাওয়া যায়নি।</p>'};
+  function dateValue(row,keys){
+    var candidates=keys.filter(function(k){return /date|তারিখ|created|সময়/i.test(String(k))});
+    for(var i=0;i<candidates.length;i++){var v=row[candidates[i]];if(v==null||v==='')continue;var s=String(v);var m=s.match(/(\\d{4})[-/](\\d{1,2})[-/](\\d{1,2})/);if(m)return m[1]+'-'+('0'+m[2]).slice(-2)+'-'+('0'+m[3]).slice(-2);var d=new Date(v);if(!isNaN(d.getTime()))return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
+    return '';
+  }
+  function rowsOf(response){return Array.isArray(response&&response.rows)?response.rows:[]}
+  window.jbLoadAllReports20261011=async function(){
+    var status=el('jbReportStatus20261011'),out=el('jbReportResults20261011'),summary=el('jbReportSummary20261011');
+    if(!status||!out||!summary)return;
+    if(!allowed()){status.textContent='⛔ নিরাপত্তার কারণে শুধু Super Admin অল রিপোর্ট দেখতে পারবেন।';out.innerHTML='';summary.innerHTML='';return}
+    var selected=el('jbReportSheet20261011').value,from=el('jbReportFrom20261011').value,to=el('jbReportTo20261011').value,q=(el('jbReportQuery20261011').value||'').trim().toLowerCase();
+    var spec=SHEETS.find(function(s){return s.value===selected})||SHEETS[0],names=spec.sheets.slice(),reports=[],errors=[];
+    status.textContent='⏳ রিপোর্ট লোড হচ্ছে…';out.innerHTML='';summary.innerHTML='';
+    try{
+      for(var i=0;i<names.length;i++){
+        var sheet=names[i];
+        try{
+          var response=await call('getSheetData',token,sheet,5000);
+          if(!response||!response.ok)throw new Error(response&&response.message?response.message:'শিটের তথ্য পাওয়া যায়নি');
+          var rows=rowsOf(response),headers=Array.isArray(response.headers)?response.headers.slice():Object.keys(rows[0]||{});
+          if(!headers.length&&rows.length)headers=Object.keys(rows[0]);
+          var filtered=rows.filter(function(row){
+            var dt=dateValue(row,headers);
+            if(from&&(!dt||dt<from))return false;
+            if(to&&(!dt||dt>to))return false;
+            if(q&&JSON.stringify(row).toLowerCase().indexOf(q)<0)return false;
+            return true;
+          });
+          reports.push({sheet:sheet,label:(SHEETS.find(function(x){return x.value===sheet})||{}).label||sheet,headers:headers,rows:filtered,total:rows.length});
+        }catch(e){errors.push(sheet+': '+String(e&&e.message||e))}
+      }
+      var count=reports.reduce(function(n,r){return n+r.rows.length},0);
+      summary.innerHTML='<div class="form-grid"><div class="card" style="padding:10px"><b>রিপোর্ট বিভাগ</b><div style="font-size:22px;font-weight:900">'+reports.length+'</div></div><div class="card" style="padding:10px"><b>মোট রেকর্ড</b><div style="font-size:22px;font-weight:900">'+count+'</div></div><div class="card" style="padding:10px"><b>তারিখ/সার্চের আগে রেকর্ড</b><div style="font-size:22px;font-weight:900">'+reports.reduce(function(n,r){return n+r.total},0)+'</div></div></div>';
+      if(!reports.length){status.textContent='রিপোর্ট পাওয়া যায়নি। '+errors.join(' | ');return}
+      out.innerHTML=reports.map(function(rep){
+        var heads=rep.headers.length?rep.headers:Object.keys(rep.rows[0]||{});
+        return '<section class="card jb-report-section-20261011" data-sheet="'+esc(rep.sheet)+'" style="padding:10px;margin:12px 0"><h3>'+esc(rep.label)+' ('+rep.rows.length+')</h3><div class="jb-report-table-wrap">'+
+          (rep.rows.length&&heads.length?'<table><thead><tr>'+heads.map(function(h){return '<th>'+esc(h)+'</th>'}).join('')+'</tr></thead><tbody>'+rep.rows.map(function(row){return '<tr>'+heads.map(function(h){return '<td>'+esc(row[h])+'</td>'}).join('')+'</tr>'}).join('')+'</tbody></table>':'<p>এই বিভাগে নির্বাচিত শর্তে কোনো রেকর্ড নেই।</p>')+'</div></section>';
+      }).join('');
+      status.textContent='✓ রিপোর্ট তৈরি হয়েছে।'+(errors.length?' কিছু শিট পাওয়া যায়নি/অ্যাক্সেস নেই: '+errors.join(' | '):' সব নির্বাচিত শিট লোড হয়েছে।')+' (সার্ভারের ফেরত দেওয়া রেকর্ডের সীমা প্রযোজ্য।';
+      window.__jbAllReportsData20261011=reports;
+    }catch(e){status.textContent='রিপোর্ট তৈরি করা যায়নি: '+String(e&&e.message||e)}
+  };
+  window.jbPrintAllReports20261011=function(){
+    var out=el('jbReportResults20261011');if(!out||!out.innerHTML.trim())return alert('আগে রিপোর্ট তৈরি করুন।');
+    var w=window.open('','_blank','width=1100,height=850');if(!w){alert('প্রিন্ট উইন্ডো খুলতে ব্রাউজারের অনুমতি দিন।');return}
+    w.document.open();w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>অল রিপোর্ট</title><style>@page{size:A4 landscape;margin:10mm}body{font-family:Arial,"Noto Sans Bengali",sans-serif;color:#111}h2{text-align:center}h3{margin:12px 0 6px}table{border-collapse:collapse;width:100%;font-size:10px}th,td{border:1px solid #555;padding:4px;text-align:left;vertical-align:top;overflow-wrap:anywhere}section{margin-bottom:14px;break-inside:auto}tr{break-inside:avoid}button{display:none!important}</style></head><body><h2>জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা — অল রিপোর্ট</h2>'+out.innerHTML+'</body></html>');w.document.close();w.focus();setTimeout(function(){w.print()},350);
+  };
+  window.jbDownloadAllReports20261011=function(){
+    var reports=window.__jbAllReportsData20261011||[];if(!reports.length)return alert('আগে রিপোর্ট তৈরি করুন।');
+    function csv(v){var s=String(v==null?'':v).replace(/"/g,'""');return '"'+s+'"'}
+    var chunks=[];
+    reports.forEach(function(r){chunks.push(csv('বিভাগ: '+r.label));var heads=r.headers.length?r.headers:Object.keys(r.rows[0]||{});if(heads.length)chunks.push(heads.map(csv).join(','));r.rows.forEach(function(row){chunks.push(heads.map(function(h){return csv(row[h])}).join(','))});chunks.push('')});
+    var blob=new Blob(['\\ufeff'+chunks.join('\\r\\n')],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='Jannatul_Baqi_All_Reports.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url)},1200);
+  };
+  window.jbClearAllReports20261011=function(){['jbReportFrom20261011','jbReportTo20261011','jbReportQuery20261011'].forEach(function(id){if(el(id))el(id).value=''});if(el('jbReportSheet20261011'))el('jbReportSheet20261011').value='all';if(el('jbReportStatus20261011'))el('jbReportStatus20261011').textContent='ফিল্টার পরিষ্কার হয়েছে। নতুন রিপোর্ট তৈরি করুন।';if(el('jbReportSummary20261011'))el('jbReportSummary20261011').innerHTML='';if(el('jbReportResults20261011'))el('jbReportResults20261011').innerHTML='';window.__jbAllReportsData20261011=[]};
+})();
+</script>
