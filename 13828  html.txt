@@ -1129,7 +1129,7 @@ body.gold #loginPage .main-qr-802268e{background:#fff!important;border-color:#11
       <div class="header-date-button" id="appDate">--</div>
     </div>
     <div class="header-running-row header-mainline header-mainline-v2" id="headerMainline">
-      <button type="button" class="sheet-btn header-sheet-v2" onclick="openProtectedSheet2026()">📊 সরাসরি শিট</button>
+      <button type="button" class="sheet-btn header-sheet-v2" onclick="openFileExport2026()">📁 Excel + Word + Coding ফাইল</button>
       <div class="news header-news" data-news="জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম">
         <span class="running-news-text"><span class="news-full-run">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম</span></span>
         <button type="button" class="news-mic" title="নতুন নিউজ যোগ করুন" aria-label="নতুন নিউজ যোগ করুন">🎙️</button>
@@ -14344,3 +14344,78 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 })();
 </script>
 <!-- ===== END CONTACT + EMAIL MANAGER ===== -->
+
+
+<!-- ===== EXCEL + WORD + CODING FILE EXPORT BUTTON — 2026-10-11 ===== -->
+<script id="jb-excel-word-coding-export-20261011">
+(function(){
+  'use strict';
+  function byId(id){return document.getElementById(id)}
+  function esc(v){return String(v==null?'':v).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function currentRole(){var u=window.currentUser||{};return String(u.Role||u.role||'').toUpperCase().replace(/[\s-]+/g,'_')}
+  function isAllowed(){var r=currentRole();return r==='SUPER_ADMIN'||r==='SUPERADMIN'}
+  function getSheetOptions(){
+    var src=byId('sheetSelect'), opts=[];
+    if(src)Array.prototype.forEach.call(src.options,function(o){if(o.value)opts.push({value:o.value,label:o.textContent||o.value})});
+    return opts;
+  }
+  window.openFileExport2026=function(){
+    if(!isAllowed()){if(typeof window.toast==='function')window.toast('এই ফাইল এক্সপোর্ট সুবিধা শুধু Super Admin ব্যবহার করতে পারবেন।');else alert('এই ফাইল এক্সপোর্ট সুবিধা শুধু Super Admin ব্যবহার করতে পারবেন।');return}
+    var old=byId('jbFileExportWin2026');if(old)old.remove();
+    var win=document.createElement('div');win.id='jbFileExportWin2026';win.className='window show';
+    win.style.cssText='display:block;position:fixed;z-index:1000200;left:50%;top:50%;transform:translate(-50%,-50%);width:min(760px,95vw);max-height:90vh;overflow:auto';
+    win.innerHTML='<div class="win-head"><b>📁 Excel + Word + Coding ফাইল</b><button type="button" class="secondary" id="jbFileExportClose2026">✕</button></div><div class="win-body"><p>মূল শিট থেকে একটি বিভাগ নির্বাচন করে Excel-compatible CSV, Word document অথবা Coding/Data JSON ফাইল তৈরি করুন।</p><label>শিট / ডেটা বিভাগ<select id="jbFileExportSheet2026" class="field"><option value="">শিট নির্বাচন করুন</option></select></label><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:14px"><button type="button" class="primary" id="jbExportCsv2026">📊 Excel ফাইল (.csv)</button><button type="button" class="primary" id="jbExportWord2026">📝 Word ফাইল (.doc)</button><button type="button" class="primary" id="jbExportJson2026">💻 Coding/Data ফাইল (.json)</button></div><p id="jbFileExportStatus2026" role="status" style="margin-top:12px"></p><p style="font-size:12px;opacity:.8">নিরাপত্তার জন্য এই সুবিধা শুধু Super Admin-এর জন্য। ডাউনলোডে সার্ভার থেকে ফেরত পাওয়া রেকর্ডগুলো থাকবে।</p></div>';
+    document.body.appendChild(win);
+    var sel=byId('jbFileExportSheet2026'), status=byId('jbFileExportStatus2026');
+    getSheetOptions().forEach(function(o){var opt=document.createElement('option');opt.value=o.value;opt.textContent=o.label;sel.appendChild(opt)});
+    if(!sel.options.length||sel.options.length===1){
+      try{if(typeof window.fillSheets==='function')window.fillSheets()}catch(e){}
+      getSheetOptions().forEach(function(o){var opt=document.createElement('option');opt.value=o.value;opt.textContent=o.label;sel.appendChild(opt)});
+    }
+    byId('jbFileExportClose2026').onclick=function(){win.remove()};
+    function download(name,mime,text){
+      var blob=new Blob([text],{type:mime}),url=URL.createObjectURL(blob),a=document.createElement('a');
+      a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
+      setTimeout(function(){URL.revokeObjectURL(url)},1500);
+    }
+    function csvCell(v){return '"'+String(v==null?'':v).replace(/"/g,'""')+'"'}
+    function exportData(kind){
+      var sheet=sel.value;if(!sheet){status.textContent='আগে শিট নির্বাচন করুন।';return}
+      status.textContent='ডেটা লোড হচ্ছে...';
+      Promise.resolve().then(function(){return window.call('getSheetData',window.token,sheet,300)}).then(function(r){
+        if(!r||!r.ok)throw new Error(r&&r.message?r.message:'শিটের ডেটা পাওয়া যায়নি।');
+        var rows=Array.isArray(r.rows)?r.rows:[];
+        if(!rows.length){status.textContent='এই শিটে ডাউনলোড করার মতো রেকর্ড পাওয়া যায়নি।';return}
+        var headers=Array.isArray(rows[0])?rows[0].map(function(_,i){return 'Column '+(i+1)}):Object.keys(rows[0]||{});
+        var matrix=Array.isArray(rows[0])?rows.map(function(row){return row}):[headers].concat(rows.map(function(row){return headers.map(function(h){return row[h]})}));
+        var safe=String(sheet).replace(/[^a-zA-Z0-9_-]+/g,'_')||'data';
+        if(kind==='csv'){
+          var textData='\ufeff'+matrix.map(function(row){return row.map(csvCell).join(',')}).join('\r\n');
+          download('Jannatul_Baqi_'+safe+'.csv','text/csv;charset=utf-8',textData);
+        }else if(kind==='word'){
+          var table='<table><thead><tr>'+headers.map(function(h){return '<th>'+esc(h)+'</th>'}).join('')+'</tr></thead><tbody>'+rows.map(function(row){return '<tr>'+headers.map(function(h,i){var v=Array.isArray(row)?row[i]:row[h];return '<td>'+esc(v)+'</td>'}).join('')+'</tr>'}).join('')+'</tbody></table>';
+          var doc='<!doctype html><html><head><meta charset="utf-8"><title>'+esc(sheet)+'</title><style>body{font-family:Arial,sans-serif}h2{text-align:center}table{border-collapse:collapse;width:100%}td,th{border:1px solid #555;padding:5px;text-align:left}</style></head><body><h2>জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</h2><h3>'+esc(sheet)+'</h3>'+table+'</body></html>';
+          download('Jannatul_Baqi_'+safe+'.doc','application/msword;charset=utf-8',doc);
+        }else{
+          download('Jannatul_Baqi_'+safe+'_data.json','application/json;charset=utf-8',JSON.stringify({institution:'Jannatul Baqi Mohila Madrasa & Eatimkhana',sheet:sheet,exportedAt:new Date().toISOString(),rows:rows},null,2));
+        }
+        status.textContent='✓ ফাইল তৈরি হয়েছে। মোট '+rows.length+'টি রেকর্ড এক্সপোর্ট করা হয়েছে।';
+      }).catch(function(e){status.textContent='এক্সপোর্ট ব্যর্থ: '+(e&&e.message?e.message:String(e))});
+    }
+    byId('jbExportCsv2026').onclick=function(){exportData('csv')};
+    byId('jbExportWord2026').onclick=function(){exportData('word')};
+    byId('jbExportJson2026').onclick=function(){exportData('json')};
+  };
+  /* If a separate dashboard module is labelled Excel/Spreadsheet, route it to this same working export window. */
+  document.addEventListener('click',function(ev){
+    var b=ev.target&&ev.target.closest?ev.target.closest('button,[role="button"],a'):null;if(!b)return;
+    if(b.classList&&b.classList.contains('sheet-btn'))return;
+    var t=String(b.innerText||b.textContent||b.getAttribute('aria-label')||'').toLowerCase();
+    if(!(t.indexOf('excel')>=0||t.indexOf('এক্সেল')>=0||t.indexOf('spreadsheet')>=0||t.indexOf('excel sheet')>=0))return;
+    b.textContent='📁 Excel + Word + Coding ফাইল';
+    ev.preventDefault();ev.stopPropagation();if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();
+    window.openFileExport2026();
+  },true);
+})();
+</script>
+<!-- ===== END EXCEL + WORD + CODING FILE EXPORT BUTTON ===== -->
