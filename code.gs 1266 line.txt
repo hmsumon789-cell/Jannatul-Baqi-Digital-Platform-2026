@@ -1276,22 +1276,25 @@ function saveMedia(token,item) {
   if(rows.length>=rules.maxCount) return {ok:false,message:type==='image'?'সর্বোচ্চ 100টি ফটো রাখা যাবে।':'সর্বোচ্চ 50টি '+(type==='video'?'ভিডিও':'অডিও')+' রাখা যাবে।'};
   const raw=String(item.dataUrl).split(',')[1]||''; if(!raw)return {ok:false,message:'ফাইল ডাটা পাওয়া যায়নি।'};
   const blob=Utilities.newBlob(Utilities.base64Decode(raw),item.mimeType||'application/octet-stream',item.name||('media-'+Date.now()));
-  const file=mediaDriveFolder_().createFile(blob);
-  try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
-  const serial=nextSerial_(sh), mediaId='MED-'+Date.now();
   const visibility=type==='image'&&String(item.visibility||'public').toLowerCase()==='admin'?'ACTIVE_ADMIN':(type==='image'?'ACTIVE_PUBLIC':'ACTIVE');
+  const file=mediaDriveFolder_().createFile(blob);
+  try{
+    if(visibility==='ACTIVE_ADMIN')file.setSharing(DriveApp.Access.PRIVATE,DriveApp.Permission.NONE);
+    else file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);
+  }catch(e){}
+  const serial=nextSerial_(sh), mediaId='MED-'+Date.now();
   sh.appendRow([serial,mediaId,type,item.name||'','DRIVE:'+file.getId(),item.mimeType||'',size,item.sort||0,visibility,now_()]);
   return {ok:true,serial:serial,mediaId:mediaId};
 }
 function listMedia(token) {
   auth_(token);
-  let canSeeAdminPhotos=false;
-  try{requireFeature_(token,'gallery');canSeeAdminPhotos=true;}catch(e){}
+  // The dashboard media player receives only public media. Private photos are
+  // served separately through the authenticated gallery functions below.
   return listRows_(SHEETS.MEDIA,token,1000).filter(function(x){
     const status=String(x.Status||'').toUpperCase();
-    return status.indexOf('ACTIVE')===0 && (canSeeAdminPhotos || status!=='ACTIVE_ADMIN');
+    return status.indexOf('ACTIVE')===0 && status!=='ACTIVE_ADMIN';
   }).map(function(x){
-    x.Visibility=String(x.Status||'').toUpperCase()==='ACTIVE_ADMIN'?'admin':'public';
+    x.Visibility='public';
     if(String(x.DataURL||'').indexOf('DRIVE:')===0){
       const id=String(x.DataURL).slice(6);
       let rk='';
@@ -1309,6 +1312,39 @@ function listMedia(token) {
     }
     return x;
   });
+}
+function listGalleryPhotos(token){
+  auth_(token); requireFeature_(token,'gallery');
+  return listRows_(SHEETS.MEDIA,token,1000).filter(function(x){
+    const status=String(x.Status||'').toUpperCase();
+    return String(x.Type||'').toLowerCase()==='image' && status.indexOf('ACTIVE')===0;
+  }).map(function(x){
+    const status=String(x.Status||'').toUpperCase(), privatePhoto=status==='ACTIVE_ADMIN';
+    let url='';
+    const data=String(x.DataURL||'');
+    if(!privatePhoto && data.indexOf('DRIVE:')===0){
+      const id=data.slice(6);
+      try{
+        const file=DriveApp.getFileById(id);
+        try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
+        const rk=String(file.getResourceKey()||'');
+        url='https://drive.google.com/thumbnail?id='+encodeURIComponent(id)+'&sz=w900'+(rk?'&resourcekey='+encodeURIComponent(rk):'');
+      }catch(e){}
+    }else if(!privatePhoto && (/^https?:\/\//i.test(data)||/^data:image\//i.test(data))){url=data;}
+    return {Serial:x.Serial,MediaID:x.MediaID,Name:x.Name||'ছবি',Visibility:privatePhoto?'admin':'public',DataURL:url,Size:x.Size||0,CreatedAt:x.CreatedAt||''};
+  });
+}
+function getPrivateGalleryPhoto(token,serial){
+  auth_(token); requireFeature_(token,'gallery');
+  const item=listRows_(SHEETS.MEDIA,token,1000).find(function(x){return String(x.Serial)===String(serial);});
+  if(!item||String(item.Type||'').toLowerCase()!=='image'||String(item.Status||'').toUpperCase()!=='ACTIVE_ADMIN')return {ok:false,message:'অ্যাডমিন-শুধু ছবি পাওয়া যায়নি বা অনুমতি নেই।'};
+  const data=String(item.DataURL||'');
+  if(data.indexOf('DRIVE:')!==0)return {ok:false,message:'ব্যক্তিগত ছবির ফাইল আইডি সঠিক নয়।'};
+  try{
+    const blob=DriveApp.getFileById(data.slice(6)).getBlob();
+    const mime=String(blob.getContentType()||item.MimeType||'image/jpeg');
+    return {ok:true,dataUrl:'data:'+mime+';base64,'+Utilities.base64Encode(blob.getBytes()),name:item.Name||'ছবি'};
+  }catch(e){return {ok:false,message:'ব্যক্তিগত ছবি লোড করা যায়নি।'};}
 }
 function deleteMedia(token,serial) {
   auth_(token); requireFeature_(token,'gallery');
