@@ -8865,26 +8865,40 @@ window.saveResult=async function(k){
   function renderRows(rows,backendKey){
     var w=ensureListWindow(),body=document.getElementById('moduleListBody2026'),heads=rows.length?Object.keys(rows[0]):[];
     var isStudents=/^STUDENTS?$/i.test(String(backendKey||''))||/শিক্ষার্থী|ছাত্র|ছাত্রী/i.test(String(currentTitle||''));
-    var h='<div class="table-wrap"><table class="data-table"><thead><tr>';
-    if(isStudents) h+='<th>ছবি/ডকুমেন্ট</th>';
-    h+=heads.map(function(k){return '<th>'+esc(k)+'</th>'}).join('')+'<th>কার্যক্রম</th></tr></thead><tbody>';
+    if(isStudents){
+      var h='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px"><input id="studentListSearch2026" class="field" style="flex:1;min-width:240px" placeholder="সিরিয়াল / ভর্তি ID / Student ID / মোবাইল ID / ইমেইল ID / নাম দিয়ে খুঁজুন" oninput="filterStudentList2026(this.value)"><button class="secondary" type="button" onclick="var x=document.getElementById(\'studentListSearch2026\');if(x){x.value=\'\';filterStudentList2026(\'\')}">✖ সার্চ মুছুন</button></div>';
+      h+='<div class="table-wrap"><table class="data-table" style="min-width:2450px"><thead><tr><th>১. সিরিয়াল</th><th>২. ভর্তি-কালীন হাতে লেখা ID</th><th>৩. সিস্টেম Student ID</th><th>৪. মোবাইল/ইমেইল ID</th><th>৫. ফটো</th><th>৬. জন্ম তারিখ</th><th>৭. নাম বাংলা</th><th>৮. নাম আরবি</th><th>৯. নাম ইংরেজি</th><th>১০. পিতার নাম বাংলা</th><th>১১. পিতার নাম আরবি</th><th>১২. পিতার নাম ইংরেজি</th><th>১৩. মাতার নাম বাংলা</th><th>১৪. মাতার নাম আরবি</th><th>১৫. মাতার নাম ইংরেজি</th><th>১৬. শ্রেণি/জামাত</th><th>১৭. বিভাগ</th><th>১৮. জেলা</th><th>১৯. উপজেলা/থানা</th><th>২০. ইউনিয়ন</th><th>২১. ওয়ার্ড</th><th>২২. ডাকঘর</th><th>২৩. গ্রাম</th><th>২৪. ফটো URL</th><th>২৫. সংযুক্তি/ডকুমেন্ট</th><th>২৬. কার্যক্রম</th></tr></thead><tbody>';
+      if(!rows.length)h+='<tr><td colspan="26">কোন শিক্ষার্থীর তথ্য পাওয়া যায়নি।</td></tr>';
+      rows.forEach(function(r,i){
+        var ix=currentRows.indexOf(r);if(ix<0)ix=i;
+        function v(){for(var j=0;j<arguments.length;j++){var x=r[arguments[j]];if(x!==undefined&&x!==null&&String(x).trim()!=='')return String(x)}return ''}
+        var sid=v('StudentID','ID','Id'),formId=v('FormID','AdmissionID','AdmissionNo','HandwrittenID','ApplicationID');
+        var mobileId=v('MobileID','Mobile'),emailId=v('EmailID','Email');
+        var photo=v('PhotoURL','Photo','StudentPhoto','Image'),docs=v('Documents','Document','Attachments','BirthReg','NID');
+        var search=[i+1,formId,sid,mobileId,emailId,v('Mobile','Phone','WhatsApp'),v('Email'),v('DOB','BirthDate'),v('NameBN','Name','StudentNameBN'),v('NameAR'),v('NameEN'),v('FatherBN','FatherNameBN'),v('FatherAR','FatherNameAR'),v('FatherEN','FatherNameEN'),v('MotherBN','MotherNameBN'),v('MotherAR','MotherNameAR'),v('MotherEN','MotherNameEN'),v('Class','Jamaat'),v('Division'),v('District'),v('Upazila','Thana'),v('Union'),v('Ward'),v('PostOffice','Post','PostOfficeName'),v('Village')].join(' ').toLowerCase();
+        var img=photo&&/^\s*(https?:\/\/|data:image\/)/i.test(photo)?'<img src="'+esc(photo)+'" alt="ফটো" title="শিক্ষার্থীর ফটো" style="width:48px;height:56px;object-fit:cover;border:1px solid #999;border-radius:4px" onerror="this.style.display=\'none\'">':'—';
+        var docShort=docs?String(docs).split(/[;,\n]/).filter(Boolean).slice(0,2).map(function(x){return esc(x.trim().slice(0,32))}).join('<br>'):'—';
+        h+='<tr data-student-search="'+esc(search)+'"><td>'+String(i+1)+'</td><td>'+esc(formId||'—')+'</td><td>'+esc(sid||'—')+'</td><td><div style="font-size:11px;line-height:1.45"><div title="মোবাইল আইডি">📱 '+esc(mobileId||'—')+'</div><div title="ইমেইল আইডি">✉️ '+esc(emailId||'—')+'</div></div></td><td style="text-align:center">'+img+'</td><td>'+esc(v('DOB','BirthDate')||'—')+'</td><td>'+esc(v('NameBN','Name','StudentNameBN')||'—')+'</td><td>'+esc(v('NameAR')||'—')+'</td><td>'+esc(v('NameEN')||'—')+'</td><td>'+esc(v('FatherBN','FatherNameBN')||'—')+'</td><td>'+esc(v('FatherAR','FatherNameAR')||'—')+'</td><td>'+esc(v('FatherEN','FatherNameEN')||'—')+'</td><td>'+esc(v('MotherBN','MotherNameBN')||'—')+'</td><td>'+esc(v('MotherAR','MotherNameAR')||'—')+'</td><td>'+esc(v('MotherEN','MotherNameEN')||'—')+'</td><td>'+esc(v('Class','Jamaat')||'—')+'</td><td>'+esc(v('Division')||'—')+'</td><td>'+esc(v('District')||'—')+'</td><td>'+esc(v('Upazila','Thana')||'—')+'</td><td>'+esc(v('Union')||'—')+'</td><td>'+esc(v('Ward')||'—')+'</td><td>'+esc(v('PostOffice','Post','PostOfficeName')||'—')+'</td><td>'+esc(v('Village')||'—')+'</td><td title="'+esc(photo)+'" style="max-width:130px;overflow-wrap:anywhere;font-size:10px">'+(photo?esc(photo.length>36?photo.slice(0,33)+'…':photo):'—')+'</td><td title="'+esc(docs)+'" style="max-width:160px;overflow-wrap:anywhere;font-size:11px">'+docShort+'</td><td><div class="list-actions" style="display:flex;flex-direction:column;gap:5px;min-width:145px"><button class="secondary" type="button" onclick="listDetail2026('+ix+')">📄 বিস্তারিত দেখুন</button><button class="secondary" type="button" onclick="listEdit2026('+ix+')">✏️ সম্পাদনা</button><button class="primary" type="button" onclick="listRegisterExam2026('+ix+')">📝 পরীক্ষার্থী তালিকায়</button><button class="secondary" type="button" onclick="listStudentCards2026('+ix+')">🪪 কার্ড তৈরি</button></div></td></tr>';
+      });
+      h+='</tbody></table></div>';
+      body.innerHTML=h;
+      return;
+    }
+    var h='<div class="table-wrap"><table class="data-table"><thead><tr>'+heads.map(function(k){return '<th>'+esc(k)+'</th>'}).join('')+'<th>কার্যক্রম</th></tr></thead><tbody>';
     if(!rows.length){h+='<tr><td colspan="99">কোন তথ্য পাওয়া যায়নি।</td></tr>';}
     rows.forEach(function(r,i){
-      var id=r.StudentID||r.ID||r.Id||r.Serial||r.serial||'';
-      var photo=r.Photo||r.PhotoURL||r.StudentPhoto||r.Image||'';
-      var docs=r.Documents||r.Document||r.Attachments||'';
-      var preview='';
-      if(isStudents){
-        preview='<div style="display:flex;flex-direction:column;gap:5px;align-items:center;min-width:90px">';
-        if(photo&&/^\s*(https?:\/\/|data:image\/)/i.test(String(photo)))preview+='<img src="'+esc(photo)+'" alt="শিক্ষার্থীর ছবি" style="width:54px;height:64px;object-fit:cover;border:1px solid #999;border-radius:5px" onerror="this.style.display=\'none\'">';
-        else preview+='<span style="font-size:11px;color:#777">ছবি নেই</span>';
-        if(docs)preview+='<span style="font-size:11px;max-width:120px;overflow-wrap:anywhere">📎 '+esc(String(docs).slice(0,80))+'</span>';
-        preview+='</div>';
-      }
-      h+='<tr data-row-index="'+i+'">'+(isStudents?'<td>'+preview+'</td>':'')+heads.map(function(k){return '<td data-key="'+esc(k)+'">'+esc(r[k])+'</td>'}).join('')+'<td><div class="list-actions" style="display:flex;flex-wrap:wrap;gap:5px"><button class="secondary" type="button" onclick="listDetail2026('+i+')">📄 বিস্তারিত দেখুন</button><button class="secondary" type="button" onclick="listEdit2026('+i+')">✏️ সম্পাদনা</button>'+(isStudents?'<button class="primary" type="button" onclick="listRegisterExam2026('+i+')">📝 পরীক্ষার্থী তালিকায়</button><button class="secondary" type="button" onclick="listStudentCards2026('+i+')">🪪 কার্ড তৈরি</button>':'')+'</div></td></tr>';
+      var ix=currentRows.indexOf(r);if(ix<0)ix=i;
+      h+='<tr data-row-index="'+ix+'">'+heads.map(function(k){return '<td data-key="'+esc(k)+'">'+esc(r[k])+'</td>'}).join('')+'<td><div class="list-actions" style="display:flex;flex-wrap:wrap;gap:5px"><button class="secondary" type="button" onclick="listDetail2026('+ix+')">📄 বিস্তারিত দেখুন</button><button class="secondary" type="button" onclick="listEdit2026('+ix+')">✏️ সম্পাদনা</button></div></td></tr>';
     });
     body.innerHTML=h+'</tbody></table></div>';
   }
+  window.filterStudentList2026=function(q){
+    var query=String(q||'').trim().toLowerCase(),body=document.getElementById('moduleListBody2026');
+    if(!body)return;var rows=body.querySelectorAll('tr[data-student-search]'),shown=0;
+    rows.forEach(function(tr){var ok=!query||String(tr.getAttribute('data-student-search')||'').indexOf(query)>=0;tr.style.display=ok?'':'none';if(ok)shown++;});
+    var note=document.getElementById('studentListSearchCount2026');
+    if(note)note.textContent='মোট '+currentRows.length+' জন | পাওয়া গেছে '+shown+' জন';
+  };
   window.listRegisterExam2026=async function(i){
     var r=currentRows[i]||{},sid=String(r.StudentID||r.ID||r.Id||'').trim();
     if(!sid)return toast('এই শিক্ষার্থীর Student ID পাওয়া যায়নি।');
