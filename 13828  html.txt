@@ -14726,3 +14726,6 @@ window.jbAdmissionImportFile2026=async function(file){var fb=el('admAdmissionRed
 })();
 </script>
 <!-- ===== END ADMISSION FORM CHROME-STYLE INTERNAL TABS + RELIABLE CLOSE ===== -->
+
+<!-- ===== ADMISSION CLOSE SAFETY FIX 2026-10-12 ===== -->
+<script>(function(){document.addEventListener('click',function(e){var b=e.target&&e.target.closest&&e.target.closest('#jbAdmissionChromeTabs20261012 .jb-adm-close-window');if(!b)return;setTimeout(function(){var w=document.getElementById('formWin');if(w)w.style.display='none';var t=document.getElementById('jbAdmTaskbar20261012');if(t)t.remove()},0)},true)})();</script>
