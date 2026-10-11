@@ -2556,3 +2556,67 @@ function saveExamDashboardItems(token, kind, items) {
   SpreadsheetApp.flush();
   return {ok:true,items:items,message:'পরীক্ষার তালিকা ডাটাবেজে সংরক্ষণ হয়েছে।'};
 }
+
+
+/* ===== CONTACT + EMAIL MANAGER API — 2026-10-11 ===== */
+function saveContactEmailRecord(token, data) {
+  auth_(token);
+  data = data || {};
+  const name = String(data.Name || data.name || '').trim();
+  const mobile = normalizeBdMobile_(data.Mobile || data.mobile || '');
+  const whatsapp = normalizeBdMobile_(data.WhatsApp || data.whatsapp || '');
+  const email = String(data.Email || data.email || '').trim();
+  const role = String(data.Role || data.role || '').trim();
+  const note = String(data.Note || data.note || '').trim();
+  if (!name) return {ok:false, message:'কন্টাক্টের নাম লিখুন।'};
+  if (!mobile && !whatsapp && !email) return {ok:false, message:'মোবাইল, WhatsApp অথবা ইমেইল—কমপক্ষে একটি দিন।'};
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return {ok:false, message:'ইমেইল ঠিকানাটি সঠিক নয়।'};
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(SHEETS.CONTACTS);
+  if (!sh) return {ok:false, message:'CONTACTS শিট পাওয়া যায়নি। আগে সিস্টেম সেটআপ করুন।'};
+  const vals = sh.getDataRange().getValues();
+  const headers = (vals[0] || []).map(String);
+  const emailIx = headers.indexOf('Email');
+  const mobileIx = headers.indexOf('Mobile');
+  const nameIx = headers.indexOf('Name');
+  for (let i = 1; i < vals.length; i++) {
+    const sameEmail = email && emailIx >= 0 && String(vals[i][emailIx] || '').trim().toLowerCase() === email.toLowerCase();
+    const sameMobile = mobile && mobileIx >= 0 && normalizeBdMobile_(vals[i][mobileIx]) === mobile;
+    const sameName = nameIx >= 0 && String(vals[i][nameIx] || '').trim().toLowerCase() === name.toLowerCase();
+    if (sameEmail || (sameMobile && sameName)) return {ok:false, message:'এই ইমেইল বা একই নাম-মোবাইলের কন্টাক্ট আগে থেকেই আছে।'};
+  }
+  const id = 'C-' + Date.now();
+  append_(SHEETS.CONTACTS, [nextSerial_(sh), id, name, mobile, whatsapp, email, role, note, now_()]);
+  log_(sessionUser_(token), 'create', 'CONTACTS', JSON.stringify({ContactID:id,Name:name,Mobile:mobile,Email:email}).slice(0,500));
+  return {ok:true, contactId:id, message:'কন্টাক্ট সফলভাবে সংরক্ষণ হয়েছে।'};
+}
+
+function sendContactEmail(token, recipients, subject, body) {
+  auth_(token);
+  if (!Array.isArray(recipients) || !recipients.length) return {ok:false, message:'কমপক্ষে একজন ইমেইল প্রাপক নির্বাচন করুন।'};
+  subject = String(subject || '').trim();
+  body = String(body || '').trim();
+  if (!subject || !body) return {ok:false, message:'ইমেইলের বিষয় ও বার্তা লিখুন।'};
+  if (subject.length > 200 || body.length > 10000) return {ok:false, message:'বিষয় সর্বোচ্চ ২০০ এবং বার্তা সর্বোচ্চ ১০,০০০ অক্ষর হতে পারবে।'};
+  if (recipients.length > 50) return {ok:false, message:'একবারে সর্বোচ্চ ৫০ জনকে ইমেইল পাঠানো যাবে।'};
+  const seen = {};
+  let sent = 0, skipped = 0, failed = 0;
+  const errors = [];
+  recipients.forEach(function(item) {
+    item = item || {};
+    const to = String(item.email || item.Email || '').trim();
+    const key = to.toLowerCase();
+    if (!to || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to) || seen[key]) { skipped++; return; }
+    seen[key] = true;
+    try {
+      MailApp.sendEmail(to, subject, body);
+      sent++;
+    } catch (e) {
+      failed++;
+      if (errors.length < 3) errors.push(to + ': ' + String(e && e.message || e));
+    }
+  });
+  log_(sessionUser_(token), 'send_email', 'CONTACTS', JSON.stringify({sent:sent,skipped:skipped,failed:failed,subject:subject}).slice(0,500));
+  return {ok:sent > 0 && failed === 0, sent:sent, skipped:skipped, failed:failed,
+    message:sent+' জনকে ইমেইল পাঠানোর অনুরোধ সম্পন্ন হয়েছে।'+(skipped?' '+skipped+'টি ঠিকানা বাদ গেছে।':'')+(failed?' '+failed+'টি ব্যর্থ হয়েছে: '+errors.join(' | '):'')};
+}
