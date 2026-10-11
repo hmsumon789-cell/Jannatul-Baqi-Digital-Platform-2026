@@ -14103,3 +14103,146 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 })();
 </script>
 <!-- ===== END SALARY PAYMENT MODULE FUNCTIONAL FIX ===== -->
+
+
+<!-- ===== DIGITAL ATTENDANCE BUTTON + WORKING ATTENDANCE MODULE — 2026-10-11 ===== -->
+<style id="jb-digital-attendance-style-20261011">
+#winBody .jb-attendance-wrap{display:grid;gap:12px}
+#winBody .jb-attendance-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:end}
+#winBody .jb-attendance-toolbar label{display:flex;flex-direction:column;gap:5px;font-weight:800;min-width:180px;flex:1}
+#winBody .jb-attendance-table-wrap{overflow:auto;max-height:52vh;border:1px solid var(--border);border-radius:10px}
+#winBody .jb-attendance-table{width:100%;border-collapse:collapse;min-width:650px}
+#winBody .jb-attendance-table th,#winBody .jb-attendance-table td{padding:8px;border:1px solid var(--border);text-align:left}
+#winBody .jb-attendance-table th{position:sticky;top:0;background:var(--panel);z-index:1}
+#winBody .jb-attendance-table select{min-width:110px;max-width:100%;padding:6px;border:1px solid var(--border);border-radius:7px;background:var(--panel);color:var(--text)}
+#winBody .jb-attendance-status{padding:10px;border:2px solid var(--border);border-radius:10px;font-weight:800}
+@media(max-width:650px){#winBody .jb-attendance-toolbar{display:grid;grid-template-columns:1fr}#winBody .jb-attendance-toolbar label{min-width:0}}
+</style>
+<script id="jb-digital-attendance-js-20261011">
+(function(){
+  'use strict';
+  var previousModuleForm=window.moduleForm;
+  var people=[],attendanceHistory=[],loadedType='student',loadSeq=0;
+  function el(id){return document.getElementById(id)}
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function today(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+  function attendanceForm(){
+    return '<div class="jb-attendance-wrap">'+
+      '<div class="card" style="padding:12px"><h3 style="margin:0 0 5px">📋 ডিজিটাল হাজিরা</h3><div>শিক্ষার্থী বা শিক্ষক/শিক্ষিকার তালিকা লোড করে তারিখভিত্তিক উপস্থিতি নিন। হাজিরা ATTENDANCE শিটে সংরক্ষিত হবে।</div></div>'+
+      '<div class="jb-attendance-toolbar">'+
+      '<label>হাজিরার ধরন<select id="jbAttendanceType2026" class="field" onchange="jbAttendanceLoad2026()"><option value="student">ছাত্র/ছাত্রী</option><option value="teacher">শিক্ষক/শিক্ষিকা</option></select></label>'+
+      '<label>তারিখ<input id="jbAttendanceDate2026" class="field" type="date" value="'+today()+'" onchange="jbAttendanceLoad2026()"></label>'+
+      '<label>শ্রেণি/জামাত ফিল্টার<input id="jbAttendanceClassFilter2026" class="field" placeholder="যেমন: মিজান জামাত" oninput="jbAttendanceRender2026()"></label>'+
+      '<label>নাম / ID সার্চ<input id="jbAttendanceSearch2026" class="field" placeholder="নাম বা ID লিখুন" oninput="jbAttendanceRender2026()"></label>'+
+      '</div>'+
+      '<div class="jb-attendance-toolbar"><button type="button" class="secondary" onclick="jbAttendanceSelectVisible2026(true)">☑ দৃশ্যমান সবাই নির্বাচন</button><button type="button" class="secondary" onclick="jbAttendanceSelectVisible2026(false)">☐ নির্বাচন বাতিল</button><button type="button" class="secondary" onclick="jbAttendanceSetVisibleStatus2026(\'উপস্থিত\')">✓ সবাই উপস্থিত</button><button type="button" class="secondary" onclick="jbAttendanceSetVisibleStatus2026(\'অনুপস্থিত\')">✕ সবাই অনুপস্থিত</button><button type="button" class="secondary" onclick="jbAttendanceLoad2026()">↻ তালিকা রিফ্রেশ</button></div>'+
+      '<div id="jbAttendanceFeedback2026" class="jb-attendance-status" aria-live="polite">⏳ হাজিরার তালিকা লোড হচ্ছে...</div>'+
+      '<div class="jb-attendance-table-wrap"><table class="jb-attendance-table"><thead><tr><th>নির্বাচন</th><th>আইডি</th><th>নাম</th><th>শ্রেণি/পদবি</th><th>হাজিরার অবস্থা</th></tr></thead><tbody id="jbAttendanceRows2026"><tr><td colspan="5" style="text-align:center;padding:20px">তালিকা লোড হচ্ছে...</td></tr></tbody></table></div>'+
+      '<div class="jb-attendance-toolbar"><button type="button" class="primary" onclick="jbAttendanceSave2026()">💾 নির্বাচিত হাজিরা সংরক্ষণ</button><button type="button" class="secondary" onclick="jbAttendanceLoadHistory2026()">🧾 এই তারিখের সংরক্ষিত হাজিরা</button></div>'+
+      '<div id="jbAttendanceHistory2026"></div>'+
+      '<div class="card" style="padding:12px"><b>কর্মচারীর হাজিরা</b><div class="form-grid" style="margin-top:8px"><label>কর্মচারী ID<input id="jbAttendanceStaffID2026" class="field" placeholder="কর্মচারী ID"></label><label>কর্মচারীর নাম<input id="jbAttendanceStaffName2026" class="field" placeholder="নাম"></label><label>অবস্থা<select id="jbAttendanceStaffStatus2026" class="field"><option>উপস্থিত</option><option>অনুপস্থিত</option><option>ছুটি</option></select></label></div><button type="button" class="secondary" style="margin-top:8px" onclick="jbAttendanceAddStaff2026()">＋ কর্মচারীর হাজিরা তালিকায় যোগ</button></div>'+
+      '</div>';
+  }
+  window.moduleForm=function(key){
+    if(String(key||'').toLowerCase()==='attendance')return attendanceForm();
+    return typeof previousModuleForm==='function'?previousModuleForm.apply(this,arguments):'<p>ফর্ম পাওয়া যায়নি।</p>';
+  };
+  function report(msg,ok){var b=el('jbAttendanceFeedback2026');if(b){b.textContent=msg;b.style.color=ok?'#137333':'#b00020';}}
+  function identity(x,type){
+    var id=type==='teacher'?(x.TeacherID||x.StaffID||x.EmployeeID||x.ID):(x.StudentID||x.ID);
+    return {id:String(id||'').trim(),name:String(x.NameBN||x.Name||x.NameEN||x.FullName||'').trim(),group:String(type==='teacher'?(x.Designation||x.Position||'শিক্ষক/শিক্ষিকা'):(x.Class||x.ClassName||'')),branch:String(x.Branch||''),type:type,serial:x.Serial||''};
+  }
+  function filtered(){
+    var q=String((el('jbAttendanceSearch2026')||{}).value||'').trim().toLowerCase();
+    var cls=String((el('jbAttendanceClassFilter2026')||{}).value||'').trim().toLowerCase();
+    return people.filter(function(p){return (!q||(p.id+' '+p.name+' '+p.group).toLowerCase().indexOf(q)>=0)&&(!cls||p.group.toLowerCase().indexOf(cls)>=0)});
+  }
+  window.jbAttendanceRender2026=function(){
+    var body=el('jbAttendanceRows2026');if(!body)return;
+    var rows=filtered();
+    if(!rows.length){body.innerHTML='<tr><td colspan="5" style="text-align:center;padding:20px">কোনো রেকর্ড পাওয়া যায়নি। তালিকা রিফ্রেশ করুন বা কর্মচারীর তথ্য নিচে যোগ করুন।</td></tr>';return}
+    body.innerHTML=rows.map(function(p,i){
+      var key=esc(p.type+'|'+p.id);
+      return '<tr data-jb-attendance-key="'+key+'"><td><input type="checkbox" class="jb-attendance-check" data-key="'+key+'"></td><td>'+esc(p.id)+'</td><td>'+esc(p.name)+'</td><td>'+esc(p.group||p.branch||'—')+'</td><td><select class="jb-attendance-status-select" data-key="'+key+'"><option value="উপস্থিত">উপস্থিত</option><option value="অনুপস্থিত">অনুপস্থিত</option><option value="ছুটি">ছুটি</option></select></td></tr>';
+    }).join('');
+  };
+  window.jbAttendanceSelectVisible2026=function(on){filtered().forEach(function(p){var k=p.type+'|'+p.id;var c=document.querySelector('.jb-attendance-check[data-key="'+CSS.escape(k)+'"]');if(c)c.checked=!!on})};
+  window.jbAttendanceSetVisibleStatus2026=function(status){filtered().forEach(function(p){var k=p.type+'|'+p.id;var s=document.querySelector('.jb-attendance-status-select[data-key="'+CSS.escape(k)+'"]');if(s)s.value=status})};
+  window.jbAttendanceLoad2026=async function(){
+    var seq=++loadSeq;var type=String((el('jbAttendanceType2026')||{}).value||'student');loadedType=type;people=[];
+    var body=el('jbAttendanceRows2026');if(body)body.innerHTML='<tr><td colspan="5" style="text-align:center;padding:20px">⏳ তালিকা লোড হচ্ছে...</td></tr>';
+    report('⏳ '+(type==='teacher'?'শিক্ষক/শিক্ষিকার':'ছাত্র/ছাত্রীর')+' তালিকা লোড হচ্ছে...',true);
+    try{
+      var r=type==='teacher'?await call('getModuleList',token,'teachers'):await call('getStudentMasterList',token,'ACTIVE');
+      if(seq!==loadSeq)return;
+      if(!r||!r.ok)throw new Error((r&&r.message)||'তালিকা পাওয়া যায়নি।');
+      people=(r.rows||[]).map(function(x){return identity(x,type)}).filter(function(x){return x.id&&x.name});
+      // আগে যোগ করা কর্মচারী এই তালিকা রিফ্রেশে হারাবে না।
+      (window.__jbAttendanceManual2026||[]).forEach(function(x){if(type==='staff')people.push(x)});
+      window.jbAttendanceRender2026();
+      report('✅ '+people.length+' জনের তালিকা পাওয়া গেছে। যাদের হাজিরা নেবেন তাদের নির্বাচন করুন, তারপর সংরক্ষণ করুন।',true);
+    }catch(e){
+      if(seq!==loadSeq)return;
+      if(body)body.innerHTML='<tr><td colspan="5" style="text-align:center;padding:20px">❌ '+esc(e&&e.message?e.message:e)+'</td></tr>';
+      report('❌ তালিকা লোড হয়নি: '+(e&&e.message?e.message:e)+'। কর্মচারীর হাজিরা নিচের ফর্মে যোগ করা যাবে।',false);
+    }
+  };
+  window.jbAttendanceAddStaff2026=function(){
+    var id=String((el('jbAttendanceStaffID2026')||{}).value||'').trim(),name=String((el('jbAttendanceStaffName2026')||{}).value||'').trim(),status=String((el('jbAttendanceStaffStatus2026')||{}).value||'উপস্থিত');
+    if(!id||!name){report('❌ কর্মচারীর ID ও নাম লিখুন।',false);return}
+    var p={id:id,name:name,group:'স্টাফ/কর্মচারী',branch:'',type:'staff',serial:''};
+    window.__jbAttendanceManual2026=window.__jbAttendanceManual2026||[];
+    window.__jbAttendanceManual2026=window.__jbAttendanceManual2026.filter(function(x){return x.id!==id}).concat([p]);
+    people=people.filter(function(x){return !(x.type==='staff'&&x.id===id)});people.push(p);window.jbAttendanceRender2026();
+    var c=document.querySelector('.jb-attendance-check[data-key="'+CSS.escape('staff|'+id)+'"]');if(c)c.checked=true;
+    var s=document.querySelector('.jb-attendance-status-select[data-key="'+CSS.escape('staff|'+id)+'"]');if(s)s.value=status;
+    report('✅ কর্মচারী তালিকায় যোগ হয়েছে। এখন নির্বাচিত হাজিরা সংরক্ষণ করুন।',true);
+  };
+  window.jbAttendanceSave2026=async function(){
+    var date=String((el('jbAttendanceDate2026')||{}).value||'').trim();
+    var selected=filtered().filter(function(p){var c=document.querySelector('.jb-attendance-check[data-key="'+CSS.escape(p.type+'|'+p.id)+'"]');return c&&c.checked}).map(function(p){var s=document.querySelector('.jb-attendance-status-select[data-key="'+CSS.escape(p.type+'|'+p.id)+'"]');return {person:p,status:s?s.value:'উপস্থিত'}});
+    if(!date){report('❌ হাজিরার তারিখ নির্বাচন করুন।',false);return}
+    if(!selected.length){report('❌ সংরক্ষণের আগে অন্তত একজনের পাশে টিক দিন।',false);return}
+    var btn=document.querySelector('#winBody button[onclick="jbAttendanceSave2026()"]');if(btn){btn.disabled=true;btn.textContent='⏳ সংরক্ষণ হচ্ছে...'}
+    var done=0,failed=[];
+    try{
+      // Super Admin-এর জন্য আগে থেকে থাকা একই দিনের রেকর্ড পাওয়া গেলে সেটিই আপডেট হবে; অন্যথায় নতুন রেকর্ড যোগ হবে।
+      var existing=[];
+      try{var hr=await call('getSheetData',token,'ATTENDANCE',5000);if(hr&&hr.ok)existing=hr.rows||[]}catch(ignore){}
+      for(var i=0;i<selected.length;i++){
+        var item=selected[i],p=item.person,personId=p.id;
+        var attendanceId='ATT-'+date.replace(/-/g,'')+'-'+personId.replace(/[^A-Za-z0-9-]/g,'').slice(0,24);
+        var note='ধরন: '+(p.type==='student'?'ছাত্র/ছাত্রী':p.type==='teacher'?'শিক্ষক/শিক্ষিকা':'স্টাফ/কর্মচারী')+(p.branch?' | শাখা: '+p.branch:'');
+        var data={AttendanceID:attendanceId,StudentID:personId,Date:date,Status:item.status,Class:p.group||'',Branch:p.branch||'',Note:note};
+        var old=existing.find(function(x){return String(x.Date||'').slice(0,10)===date&&String(x.StudentID||'')===personId&&String(x.Note||'').indexOf('ধরন: '+(p.type==='student'?'ছাত্র/ছাত্রী':p.type==='teacher'?'শিক্ষক/শিক্ষিকা':'স্টাফ/কর্মচারী'))===0});
+        try{
+          var saved=old&&old.Serial?await call('updateRecord',token,'ATTENDANCE',old.Serial,data):await call('saveRecord',token,'ATTENDANCE',data);
+          if(saved&&saved.ok){done++;if(old){Object.assign(old,data)}else existing.push(Object.assign({Serial:''},data))}
+          else failed.push(p.name+' ('+personId+'): '+((saved&&saved.message)||'সংরক্ষণ ব্যর্থ'));
+        }catch(e){failed.push(p.name+' ('+personId+'): '+(e&&e.message?e.message:e))}
+      }
+      if(done){report('✅ '+done+' জনের হাজিরা সংরক্ষণ হয়েছে। তারিখ: '+date+(failed.length?' | ❌ '+failed.length+' জন সংরক্ষণ হয়নি।':'') ,!failed.length);window.jbAttendanceLoadHistory2026()}
+      else report('❌ কোনো হাজিরা সংরক্ষণ হয়নি। '+failed.slice(0,3).join(' | '),false);
+    }finally{if(btn){btn.disabled=false;btn.textContent='💾 নির্বাচিত হাজিরা সংরক্ষণ'}}
+  };
+  window.jbAttendanceLoadHistory2026=async function(){
+    var box=el('jbAttendanceHistory2026');if(!box)return;
+    var date=String((el('jbAttendanceDate2026')||{}).value||'').trim();box.innerHTML='<div class="card" style="padding:10px">⏳ সংরক্ষিত হাজিরা খোঁজা হচ্ছে...</div>';
+    try{
+      var r=await call('getSheetData',token,'ATTENDANCE',5000);
+      if(!r||!r.ok)throw new Error((r&&r.message)||'এই অ্যাকাউন্টে পুরোনো হাজিরা তালিকা দেখার অনুমতি নেই।');
+      var rows=(r.rows||[]).filter(function(x){return String(x.Date||'').slice(0,10)===date});
+      box.innerHTML='<div class="card" style="padding:10px;margin-top:8px"><b>🧾 '+esc(date)+' তারিখের হাজিরা — '+rows.length+' জন</b><div class="table-wrap"><table class="data-table"><thead><tr><th>ID</th><th>নাম/পরিচয়</th><th>অবস্থা</th><th>শ্রেণি/পদবি</th></tr></thead><tbody>'+rows.map(function(x){return '<tr><td>'+esc(x.StudentID||'')+'</td><td>'+esc(x.Note||'')+'</td><td>'+esc(x.Status||'')+'</td><td>'+esc(x.Class||'')+'</td></tr>'}).join('')+'</tbody></table></div></div>';
+    }catch(e){box.innerHTML='<div class="card" style="padding:10px;margin-top:8px">ℹ️ '+esc(e&&e.message?e.message:e)+'</div>'}
+  };
+  var previousOpenModule=window.openModule;
+  window.openModule=function(key){
+    var result=typeof previousOpenModule==='function'?previousOpenModule.apply(this,arguments):undefined;
+    if(String(key||'').toLowerCase()==='attendance')setTimeout(function(){window.jbAttendanceLoad2026()},100);
+    return result;
+  };
+  function boot(){if(typeof window.openModule==='function'&&!window.openModule.__jbAttendanceWrapped2026)window.openModule.__jbAttendanceWrapped2026=true;}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+})();
+</script>
+<!-- ===== END DIGITAL ATTENDANCE MODULE ===== -->
