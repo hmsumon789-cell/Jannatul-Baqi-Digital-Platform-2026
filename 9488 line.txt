@@ -1383,6 +1383,7 @@ $('formWin').style.height='';
 openWindow('formWin');
 if(key==='gallery')setTimeout(function(){loadPhotoGalleryData2026();},60);
 if(key==='files')setTimeout(function(){loadDocumentFiles2026();},80);
+if(key==='salary')setTimeout(function(){initSalaryPaymentModule2026();},80);
 setTimeout(function(){clearFormWindow(false);},0);
 }
 function locationField(id,label,options){
@@ -1423,7 +1424,8 @@ if(k==='files')return `<div class="media-upload-note"><b>📁 অল ডকু�
 if(k==='gallery')return `<div class="media-upload-note"><b>ফটো:</b> সর্বোচ্চ 20 MB, 100টি। <b>ভিডিও:</b> সর্বোচ্চ 50 MB, 20টি। <b>অডিও:</b> সর্বোচ্চ 50 MB, 50টি।<br><b>ছবির গোপনীয়তা:</b> পাবলিক ছবি সবাই দেখবে; অ্যাডমিন-শুধু ছবি কেবল গ্যালারী-অনুমোদিত অ্যাডমিন দেখবে। ভিডিও/অডিওর বর্তমান ব্যবস্থা অপরিবর্তিত।</div><div class="form-grid"><label>নতুন ফটোর অনুমতি<select id="mediaVisibility" class="field"><option value="public">🌐 পাবলিক — সবাই দেখতে পারবে</option><option value="admin">🔒 অ্যাডমিন-শুধু</option></select></label><label>ফটো/ভিডিও/অডিও নির্বাচন<input id="mediaFiles" class="field" type="file" multiple accept="image/*,video/*,audio/*"></label></div><div class="photo-gallery-tools-2026"><button class="primary" type="button" onclick="uploadMedia()">⬆ আপলোড</button><button class="secondary" type="button" onclick="openPublicPhotoGallery2026()">🌐 পাবলিক গ্যালারী খুলুন</button></div><h3>📸 ফটো গ্যালারী — গ্রিড</h3><label>ছবি ফিল্টার <select id="photoGalleryFilter2026" class="field" onchange="renderPhotoGalleryGrid2026()"><option value="all">সব অনুমোদিত ছবি</option><option value="public">পাবলিক ছবি</option><option value="admin">অ্যাডমিন-শুধু ছবি</option></select></label><div id="photoGalleryGrid2026" class="photo-gallery-grid-2026"></div><h3>📂 মিডিয়া তালিকা</h3><div id="mediaList"></div>`;
 if(k==='help')return `<button class="primary" onclick="openWindow('quickWin')">দ্রুত সেবা / হেল্প</button>`;
 if(k==='institution')return `<h3>প্রতিষ্ঠানের সংক্ষিপ্ত ইতিহাস</h3><p>সালাতুল এস্তেখারার মাধ্যমে মহান আল্লাহ তায়ালার উপর পূর্ণ আস্থা রেখে খালেছ নিয়তে মানব জাতিকে অন্ধকার থেকে আলোর পথে আনার জন্য এবং সহি দ্বিনি ইলম শিক্ষা দেয়ার উদ্দেশ্যে 10-10-2005 ইংরেজী সনে প্রতিষ্ঠিত হয়।</p><p><b>প্রতিষ্ঠাতা-প্রিন্সিপাল/মুহতামিম:</b> জনাব হাফেজ হযরত মাওলানা মু. আতিকুর রহমান (ফরিদপুরী), ২০০৫ হতে ২০২৬ চলমান।</p>`;
-if(k==='finance')return window.financeFormHtml2026();
+if(k==='salary')return `<div class="card" style="padding:14px;margin:8px 0;border-left:5px solid #d97706"><h3 style="margin:0 0 8px">💰 শিক্ষক/শিক্ষিকা ও কর্মীর বেতন প্রদান</h3><div>কর্মীর তথ্য নির্বাচন/লিখে মাসিক বেতন সংরক্ষণ করুন। সংরক্ষণের পর বেতন ID ও লেনদেনের ইতিহাস পাওয়া যাবে।</div></div><div class="form-grid"><label>নিবন্ধিত শিক্ষক/শিক্ষিকা<select id="salaryEmployeeSelect2026" class="field" onchange="selectSalaryEmployee2026()"><option value="">তালিকা লোড হচ্ছে…</option></select></label><label>কর্মী ID<input id="salaryEmployeeID2026" class="field" placeholder="Teacher ID / কর্মী ID"></label><label>কর্মীর নাম<input id="salaryEmployeeName2026" class="field" placeholder="পূর্ণ নাম"></label><label>বেতন মাস<select id="salaryMonth2026" class="field">${['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'].map(x=>'<option>'+x+'</option>').join('')}</select></label><label>বেতন প্রদানের তারিখ<input id="salaryDate2026" class="field" type="date"></label><label>প্রদত্ত বেতন (টাকা)<input id="salaryAmount2026" class="field" type="number" min="1" step="0.01" placeholder="যেমন: 15000"></label><label>প্রদানের মাধ্যম<select id="salaryMethod2026" class="field"><option>হ্যান্ড ক্যাশ</option><option>ব্যাংক ট্রান্সফার</option><option>bKash</option><option>Nagad</option><option>Rocket</option><option>অন্যান্য</option></select></label><label class="full">মন্তব্য / বিবরণ<textarea id="salaryNote2026" class="field" placeholder="ঐচ্ছিক"></textarea></label></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0"><button type="button" class="primary" onclick="saveSalaryPayment2026()">💵 বেতন প্রদান সংরক্ষণ</button><button type="button" class="secondary" onclick="loadSalaryPayments2026()">🔄 হিস্ট্রি রিফ্রেশ</button></div><div id="salaryPaymentMessage2026" class="small" style="margin:8px 0"></div><div class="card" style="padding:12px;margin:12px 0"><h3 style="margin:0 0 10px">📚 বেতন প্রদানের হিস্ট্রি / সার্চ</h3><div class="form-grid"><label>নাম / কর্মী ID / বেতন ID দিয়ে খুঁজুন<input id="salarySearch2026" class="field" oninput="renderSalaryPayments2026()" placeholder="সার্চ করুন"></label><label>মাস অনুযায়ী ফিল্টার<select id="salaryFilterMonth2026" class="field" onchange="loadSalaryPayments2026()"><option value="">সব মাস</option>${['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'].map(x=>'<option>'+x+'</option>').join('')}</select></label></div><div id="salaryPaymentSummary2026" style="font-weight:900;margin:8px 0"></div><div id="salaryPaymentHistory2026" class="table-wrap"><div class="card" style="padding:12px">বেতন প্রদানের তথ্য লোড হচ্ছে…</div></div></div>`;
+ if(k==='finance')return window.financeFormHtml2026();
  if(['payment','fees'].includes(k))return `<div class="payment-online-head"><b>🌐 অনলাইন পেমেন্ট</b><span>ডিজিটাল প্লাটফর্ম / সার্ভারে পেমেন্ট কার্যক্রম চলমান</span></div><div class="form-grid"><label>Student ID<input id="pStudent" class="field" onblur="lookupOnlinePaymentStudent()"></label><label>নাম<input id="pName" class="field" readonly></label><label>শ্রেণি/জামাত<input id="pClass" class="field" readonly></label><label>মোবাইল<input id="pMobile" class="field" readonly></label><label>মাস<select id="pMonth" class="field"><option>জানুয়ারি</option><option>ফেব্রুয়ারি</option><option>মার্চ</option><option>এপ্রিল</option><option>মে</option><option>জুন</option><option>জুলাই</option><option>আগস্ট</option><option>সেপ্টেম্বর</option><option>অক্টোবর</option><option>নভেম্বর</option><option>ডিসেম্বর</option></select></label><label>Category<select id="pCat" class="field"><option>মাসিক বেতন</option><option>ভর্তি ফি</option><option>পরীক্ষার ফি</option><option>অন্যান্য</option></select></label><label>Amount<input id="pAmount" class="field" type="number" min="1"></label><label>পেমেন্টের ধরন<select id="pMode" class="field" onchange="updatePaymentModeUI()"><option value="QUICK">দ্রুত পেমেন্ট</option><option value="PENDING">Pending + অনুমোদন</option></select></label><label>মাধ্যম<select id="pMethod" class="field" onchange="updatePaymentMethodLogo()"><option>bKash</option><option>Nagad</option><option>mCash</option><option>Rocket</option><option>ব্যাংকিং</option><option>হ্যান্ড ক্যাশ</option></select></label><label>Transaction / Reference ID<input id="pReference" class="field"></label><label>প্রদানকারীর মোবাইল<input id="pPayerMobile" class="field"></label><label class="full">Note<textarea id="pNote" class="field"></textarea></label></div><div id="paymentMethodLogo" class="payment-method-box"><div class="payment-method-logo payment-logo-bk">bK</div><div class="payment-method-name">bKash</div></div><div id="paymentFeedback" class="payment-feedback">মাধ্যম নির্বাচন করলে সংশ্লিষ্ট পেমেন্ট মাধ্যমের পরিচিতি দেখাবে।</div><div id="onlinePaymentStudentInfo" class="card" style="padding:9px;margin:8px 0;display:none"></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="primary" type="button" onclick="savePayment()">📤 পেমেন্ট দিন</button><button class="secondary" type="button" onclick="openPendingPayments()">📋 Pending পেমেন্ট / লেনদেন</button></div><div class="card" style="margin-top:12px;padding:12px"><b>🧾 আগের মানি রসিদ খুঁজুন</b><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><input id="onlinePaymentReceiptSearchId" class="field" style="flex:1;min-width:220px" placeholder="Receipt ID (RCT-OP-...) অথবা Student ID (যেমন 7777)"><button class="secondary" type="button" onclick="searchOnlinePaymentReceipt()">🔎 সার্চ</button></div><div id="onlinePaymentReceiptSearchMessage" class="small" style="margin-top:6px"></div></div>`;
 if(k==='admission')return `<div class="student-meta-row-2026"><label>আইডি লিখুন<input id="adStudentID" class="field"></label><label>তারিখ লিখুন<input id="adRecordDate" class="field" type="date"></label></div><div class="form-grid">
 <label>বাংলা নাম / Student Name<input id="adNameBN" class="field"></label>
@@ -1456,6 +1458,78 @@ ${locationField('adVillage','গ্রাম',['কোনাখোলা','ম�
 if(['result','marks','exam'].includes(k))return `<div class="student-meta-row-2026"><label>আইডি লিখুন<input id="rStudentMeta" class="field"></label><label>জন্ম তারিখ লিখুন<input id="rDob" class="field" type="date"></label><label>তারিখ লিখুন<input id="rRecordDate" class="field" type="date"></label></div><div class="form-grid"><label>Student ID<input id="rStudent" class="field"></label><label>নাম<input id="rName" class="field"></label><label>শ্রেনি<input id="rClass" class="field"></label><label>পরীক্ষা<input id="rExam" class="field"></label><label class="full">Subject/Marks JSON<textarea id="rSubjects" class="field" placeholder='{"বাংলা":80,"আরবি":85}'></textarea></label></div><button class="primary" onclick="saveResult('${k}')">Save</button>`;
 return `<p>এই ফিচারের জন্য ৩ ভাষা, A4, ৩ কলাম উইন্ডো কাঠামো প্রস্তুত। প্রয়োজনীয় তথ্য পূরণ করুন।</p><div class="form-grid"><label class="full">বিবরণ<textarea class="field" rows="8" id="genericData"></textarea></label></div><button class="primary" onclick="toast('ফিচার উইন্ডো প্রস্তুত')">Save</button>`;
 }
+
+/* ===== STAFF SALARY PAYMENT UI — 2026-10-11 ===== */
+var salaryEmployees2026=[],salaryPayments2026=[];
+function initSalaryPaymentModule2026(){
+  var date=document.getElementById('salaryDate2026');
+  if(date&&!date.value)date.value=new Date().toISOString().slice(0,10);
+  loadSalaryEmployees2026();
+  loadSalaryPayments2026();
+}
+async function loadSalaryEmployees2026(){
+  var sel=document.getElementById('salaryEmployeeSelect2026');if(!sel)return;
+  sel.innerHTML='<option value="">কর্মীর তালিকা লোড হচ্ছে…</option>';
+  try{
+    var r=await call('getSalaryEmployees2026',token);
+    salaryEmployees2026=r&&r.ok&&Array.isArray(r.employees)?r.employees:[];
+    sel.innerHTML='<option value="">নিবন্ধিত কর্মী নির্বাচন করুন</option>'+salaryEmployees2026.map(function(x,i){return '<option value="'+i+'">'+escapeHtml(x.Name)+' — '+escapeHtml(x.EmployeeID)+'</option>';}).join('');
+    if(!salaryEmployees2026.length)sel.insertAdjacentHTML('beforeend','<option value="">তালিকায় শিক্ষক নেই — নিচে নাম ও ID লিখুন</option>');
+  }catch(e){sel.innerHTML='<option value="">তালিকা পাওয়া যায়নি — নিচে কর্মীর তথ্য লিখুন</option>';var msg=document.getElementById('salaryPaymentMessage2026');if(msg)msg.textContent='কর্মীর তালিকা লোড হয়নি: '+String(e&&e.message||e);}
+}
+function selectSalaryEmployee2026(){
+  var sel=document.getElementById('salaryEmployeeSelect2026');if(!sel||sel.value==='')return;
+  var x=salaryEmployees2026[Number(sel.value)];if(!x)return;
+  var id=document.getElementById('salaryEmployeeID2026'),name=document.getElementById('salaryEmployeeName2026');
+  if(id)id.value=x.EmployeeID||'';if(name)name.value=x.Name||'';
+}
+async function saveSalaryPayment2026(){
+  var d={EmployeeID:(document.getElementById('salaryEmployeeID2026')||{}).value||'',Name:(document.getElementById('salaryEmployeeName2026')||{}).value||'',Month:(document.getElementById('salaryMonth2026')||{}).value||'',Date:(document.getElementById('salaryDate2026')||{}).value||'',Amount:Number((document.getElementById('salaryAmount2026')||{}).value||0),Method:(document.getElementById('salaryMethod2026')||{}).value||'',Note:(document.getElementById('salaryNote2026')||{}).value||''};
+  d.EmployeeID=d.EmployeeID.trim();d.Name=d.Name.trim();
+  if(!d.EmployeeID||!d.Name||!d.Month||!d.Date||!d.Amount||d.Amount<=0||!d.Method){toast('কর্মীর ID, নাম, মাস, তারিখ, বেতনের পরিমাণ ও প্রদানের মাধ্যম পূরণ করুন।');return;}
+  var btn=Array.from(document.querySelectorAll('button')).find(function(b){return b.getAttribute('onclick')==='saveSalaryPayment2026()';});
+  if(btn){btn.disabled=true;btn.textContent='⏳ সংরক্ষণ হচ্ছে…';}
+  var msg=document.getElementById('salaryPaymentMessage2026');if(msg)msg.textContent='বেতন সংরক্ষণ করা হচ্ছে…';
+  try{
+    var r=await call('saveSalaryPayment2026',token,d);
+    if(!r||!r.ok){var m=(r&&r.message)||'বেতন সংরক্ষণ করা যায়নি।';if(msg)msg.textContent='❌ '+m;toast(m);return;}
+    if(msg)msg.textContent='✅ '+(r.message||'বেতন সংরক্ষণ হয়েছে।');
+    toast(r.message||'বেতন সফলভাবে সংরক্ষণ হয়েছে।');
+    var a=document.getElementById('salaryAmount2026'),n=document.getElementById('salaryNote2026');if(a)a.value='';if(n)n.value='';
+    await loadSalaryPayments2026();
+    if(r.record)printSalarySlip2026(encodeURIComponent(JSON.stringify(r.record)));
+  }catch(e){var m='বেতন সংরক্ষণে ত্রুটি: '+String(e&&e.message||e);if(msg)msg.textContent='❌ '+m;toast(m);}
+  finally{if(btn){btn.disabled=false;btn.textContent='💵 বেতন প্রদান সংরক্ষণ';}}
+}
+async function loadSalaryPayments2026(){
+  var box=document.getElementById('salaryPaymentHistory2026');if(!box)return;
+  box.innerHTML='<div class="card" style="padding:12px">বেতন প্রদানের তথ্য লোড হচ্ছে…</div>';
+  try{
+    var f=document.getElementById('salaryFilterMonth2026');
+    var r=await call('listSalaryPayments2026',token,{Month:f?f.value:''});
+    if(!r||!r.ok)throw new Error((r&&r.message)||'তথ্য পাওয়া যায়নি');
+    salaryPayments2026=Array.isArray(r.rows)?r.rows:[];
+    renderSalaryPayments2026();
+  }catch(e){box.innerHTML='<div class="card" style="padding:12px;color:#b00020">বেতনের ইতিহাস লোড হয়নি: '+escapeHtml(e&&e.message||e)+'</div>';}
+}
+function renderSalaryPayments2026(){
+  var box=document.getElementById('salaryPaymentHistory2026');if(!box)return;
+  var q=String((document.getElementById('salarySearch2026')||{}).value||'').trim().toLowerCase();
+  var rows=salaryPayments2026.filter(function(x){return !q||[x.SalaryID,x.EmployeeID,x.Name,x.Month,x.Method,x.Note].some(function(v){return String(v||'').toLowerCase().includes(q);});});
+  var total=rows.reduce(function(a,x){return a+Number(x.Amount||0);},0);
+  var sum=document.getElementById('salaryPaymentSummary2026');if(sum)sum.textContent='মোট রেকর্ড: '+rows.length+'টি | মোট প্রদত্ত বেতন: '+total.toLocaleString('bn-BD')+' টাকা';
+  if(!rows.length){box.innerHTML='<div class="card" style="padding:14px;text-align:center">এই অনুসন্ধানে কোনো বেতন রেকর্ড পাওয়া যায়নি।</div>';return;}
+  box.innerHTML='<table class="data-table"><thead><tr><th>বেতন ID</th><th>কর্মী ID</th><th>নাম</th><th>মাস</th><th>পরিমাণ</th><th>মাধ্যম</th><th>তারিখ</th><th>রসিদ</th></tr></thead><tbody>'+rows.map(function(x){return '<tr><td>'+escapeHtml(x.SalaryID||'')+'</td><td>'+escapeHtml(x.EmployeeID||'')+'</td><td>'+escapeHtml(x.Name||'')+'</td><td>'+escapeHtml(x.Month||'')+'</td><td>'+Number(x.Amount||0).toLocaleString('bn-BD')+' টাকা</td><td>'+escapeHtml(x.Method||'')+'</td><td>'+escapeHtml(x.Date||'')+'</td><td><button class="secondary" type="button" onclick="printSalarySlip2026(\''+encodeURIComponent(JSON.stringify(x))+'\')">🧾 রসিদ</button></td></tr>';}).join('')+'</tbody></table>';
+}
+function printSalarySlip2026(encoded){
+  var x;try{x=JSON.parse(decodeURIComponent(encoded));}catch(e){toast('বেতনের রসিদের তথ্য পড়া যায়নি।');return;}
+  var escFn=function(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});};
+  var w=window.open('','_blank','width=850,height=750');if(!w){toast('রসিদ প্রিন্ট করতে ব্রাউজারের pop-up অনুমতি দিন।');return;}
+  w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>বেতন রসিদ '+escFn(x.SalaryID||'')+'</title><style>@page{size:A4 portrait;margin:16mm}body{font-family:Arial,"Noto Sans Bengali",sans-serif;color:#111;padding:16px}.receipt{border:2px solid #222;padding:22px;max-width:720px;margin:auto}h2,h3{text-align:center;margin:6px}table{width:100%;border-collapse:collapse;margin-top:20px}th,td{border:1px solid #333;padding:10px;text-align:left}th{width:36%;background:#f3f3f3}.sign{display:flex;justify-content:space-between;margin-top:48px}</style></head><body><div class="receipt"><h2>জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</h2><div style="text-align:center">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০<br>হটলাইন: 01823316630</div><h3>বেতন প্রদান রসিদ</h3><table>'+[['বেতন ID',x.SalaryID],['কর্মী ID',x.EmployeeID],['কর্মীর নাম',x.Name],['বেতন মাস',x.Month],['প্রদত্ত পরিমাণ',Number(x.Amount||0).toLocaleString('bn-BD')+' টাকা'],['প্রদানের মাধ্যম',x.Method],['প্রদানের তারিখ',x.Date],['মন্তব্য',x.Note||'—']].map(function(a){return '<tr><th>'+escFn(a[0])+'</th><td>'+escFn(a[1]||'—')+'</td></tr>';}).join('')+'</table><div class="sign"><span>প্রদানকারীর স্বাক্ষর: _____________</span><span>গ্রহণকারীর স্বাক্ষর: _____________</span></div><p style="text-align:center;font-size:11px;margin-top:22px">Jannatul Baqi Digital Platform 2026</p></div><script>window.onload=function(){setTimeout(function(){window.print()},250)};<\/script></body></html>');
+  w.document.close();
+}
+/* ===== END STAFF SALARY PAYMENT UI ===== */
+
 async function saveModule(k){
 const map={student:'STUDENTS',teacher:'TEACHERS',donor:'DONORS'};const s=map[k];
 const d={StudentID:$('fStudentID')?.value||'',DOB:$('fDob')?.value||'',RecordDate:$('fRecordDate')?.value||'',NameBN:$('fNameBN').value,NameAR:$('fNameAR').value,NameEN:$('fNameEN').value,
