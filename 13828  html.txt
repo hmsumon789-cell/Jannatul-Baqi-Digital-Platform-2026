@@ -819,19 +819,23 @@ body.gold #app .header-calendar-select-v2{background:#f4d56b!important;color:#11
 })();
 </script>
 <script id="direct-sheet-password-2026">
-function openProtectedSheet2026(){
-  var p=prompt('সরাসরি শিটে প্রবেশের পাসওয়ার্ড দিন:');
+async function openProtectedSheet2026(){
+  var p=prompt('Excel / Google শিটে প্রবেশের পাসওয়ার্ড দিন:');
   if(p===null)return;
   if(String(p)!=='1234'){alert('ভুল পাসওয়ার্ড।');return;}
+  if(!token||!currentUser){alert('প্রথমে Super Admin হিসেবে লগইন করুন।');return;}
+  var role=String((currentUser||{}).Role||(currentUser||{}).role||'').toUpperCase().replace(/\s+/g,'_');
+  if(role!=='SUPER_ADMIN'&&role!=='SUPERADMIN'){alert('Excel শিটে প্রবেশের অনুমতি শুধু Super Admin-এর আছে।');return;}
   var w=window.open('about:blank','_blank');
-  if(!w){alert('নতুন শিট উইন্ডো খোলা যাচ্ছে না। Browser popup অনুমতি দিন।');return;}
-  call('getDirectSheetUrl').then(function(r){
-    if(r&&r.ok&&r.url){w.location.href=r.url;}
-    else{try{w.close();}catch(e){} alert((r&&r.message)||'শিটের ঠিকানা পাওয়া যায়নি।');}
-  }).catch(function(e){
+  if(!w){alert('নতুন শিট উইন্ডো খোলা যাচ্ছে না। ব্রাউজারে Pop-up অনুমতি দিন।');return;}
+  try{
+    var r=await call('getDirectSheetUrl',token);
+    if(r&&r.ok&&/^https:\/\/docs\.google\.com\/spreadsheets\//i.test(String(r.url||''))){w.location.replace(r.url);}
+    else{try{w.close();}catch(e){} alert((r&&r.message)||'Excel / Google শিটের সঠিক ঠিকানা পাওয়া যায়নি।');}
+  }catch(e){
     try{w.close();}catch(x){}
-    alert('সরাসরি শিটে প্রবেশ করা যাচ্ছে না।');
-  });
+    alert('শিট খোলা যায়নি: '+String(e&&e.message||e));
+  }
 }
 </script>
 
