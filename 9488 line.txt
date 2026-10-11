@@ -8877,7 +8877,7 @@ window.saveResult=async function(k){
     document.getElementById('moduleListTitle2026').textContent=title;
     document.getElementById('moduleListBody2026').innerHTML='<p>⏳ '+esc(title)+' লোড হচ্ছে...</p>';
     if(typeof baseOpenWindow==='function')baseOpenWindow('moduleListWindow2026');else document.getElementById('moduleListWindow2026').classList.add('show');
-    if(typeof call!=='function'||!window.token){document.getElementById('moduleListBody2026').innerHTML='<p>লগইন সেশন পাওয়া যায়নি।</p>';return;}
+    if(typeof call!=='function'||!token){document.getElementById('moduleListBody2026').innerHTML='<p>লগইন সেশন পাওয়া যায়নি।</p>';return;}
     call('getModuleList',token,backend).then(function(r){
       currentRows=Array.isArray(r&&r.rows)?r.rows:(Array.isArray(r&&r.data)?r.data:[]);
       if(key==='femaleMadrasas')currentRows=currentRows.filter(function(x){return /female|মহিলা|নারী/i.test(String(x.Gender||x.gender||x.Type||x.type||x.Category||x.category||''));});
