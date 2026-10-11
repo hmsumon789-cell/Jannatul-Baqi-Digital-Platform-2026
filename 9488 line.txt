@@ -1302,6 +1302,8 @@ async function login(){  const u=$('username')?.value.trim()||'', p=$('password'
     if(btn){btn.disabled=false;btn.textContent=btn.dataset.oldText||'লগইন';}
   }
 } 
+/* Explicit global binding for the inline login button. */
+window.login=login;
 async function verifyOtp(){const code=[...document.querySelectorAll('.otp-box')].map(x=>x.value).join('');if(code.length!==6)return toast('৬ সংখ্যার OTP দিন।');const r=await call('verifyLoginOtp',otpToken,$('username').value.trim(),code);if(!r.ok)return toast(r.message);token=r.token;currentUser=r.user;$('loginPage').classList.add('jb-login-hidden-2026');$('app').classList.add('show','jb-dashboard-visible-2026');await loadApp()}
 async function resendOtp(){const r=await call('requestOtp',$('username').value.trim());if(r&&r.ok&&r.token){otpToken=r.token;$('otpArea').classList.add('show');$('otpMsg').textContent=(r.message||'নতুন OTP পাঠানো হয়েছে।')+' '+(r.emailMask||'');clearOtp();return}toast((r&&r.message)||'নতুন OTP পাঠানো যায়নি।')}
 function clearOtp(){document.querySelectorAll('.otp-box').forEach(x=>x.value='');$('otpBoxes').firstElementChild.focus()}
