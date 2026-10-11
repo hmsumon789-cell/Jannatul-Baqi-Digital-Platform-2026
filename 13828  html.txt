@@ -14512,6 +14512,8 @@ function rebuild(type){
  addSection('৬. ওয়ার্ড, ডাকঘর, গ্রাম ও পরিচয়পত্র',['ward','village','birth','nid'],['postcode','copy']);
  addSection('৭. পূর্ববর্তী শিক্ষা ও যোগাযোগ',['prev','photo'],['guardianemail']);
  addSection('৮. বর্তমান ঠিকানা',['address'],['current']);
+ // Place the existing grid inside the new root before inserting sections; this keeps every original field node and ID.
+ root.appendChild(oldGrid);
  // Main grid stays in place for all existing form logic; old labels that were not mapped are retained below.
  var known={};Object.keys(fieldLabels).forEach(function(k){if(fieldLabels[k])known[fieldLabels[k]]=true});
  var leftovers=allLabels.filter(function(l){return !known[l]});
