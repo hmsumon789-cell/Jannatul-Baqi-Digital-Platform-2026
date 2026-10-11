@@ -2762,3 +2762,79 @@ function saveExamDashboardItems(token, kind, items) {
   SpreadsheetApp.flush();
   return {ok:true,items:items,message:'পরীক্ষার তালিকা ডাটাবেজে সংরক্ষণ হয়েছে।'};
 }
+
+
+/* ===== ALL REPORTS — DATABASE SUMMARY AND FILTERS — 2026-10-11 ===== */
+function getAllReportsData2026(token, filters) {
+  auth_(token);
+  requireFeature_(token, 'report');
+  filters = filters || {};
+  const type = String(filters.type || 'all').toLowerCase();
+  const from = String(filters.from || '').slice(0,10);
+  const to = String(filters.to || '').slice(0,10);
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const specs = {
+    students:{sheet:SHEETS.STUDENTS,type:'শিক্ষার্থী',date:['CreatedAt','Date'],id:['StudentID','FormID'],name:['NameBN','NameEN','Name'],category:['Class','Department'],status:['ApprovalStatus','Status'],mobile:['Mobile','WhatsApp'],amount:[]},
+    teachers:{sheet:SHEETS.TEACHERS,type:'শিক্ষক/শিক্ষিকা',date:['CreatedAt','Date'],id:['TeacherID'],name:['NameBN','NameEN','Name'],category:['Department','Branch'],status:['Status'],mobile:['Mobile','WhatsApp'],amount:[]},
+    admissions:{sheet:SHEETS.ADMISSIONS,type:'ভর্তি আবেদন',date:['CreatedAt','Date'],id:['AdmissionID','StudentID'],name:['Name','NameBN'],category:['Class','Branch'],status:['Status'],mobile:['Mobile'],amount:[]},
+    payments:{sheet:SHEETS.PAYMENTS,type:'বেতন/ফি আদায়',date:['Date','CreatedAt'],id:['PaymentID','StudentID'],name:['Name','NameBN'],category:['Category','Month'],status:['Status'],mobile:['Mobile','PayerMobile'],amount:['Amount']},
+    salary:{sheet:SHEETS.SALARY,type:'বেতন প্রদান',date:['Date','CreatedAt'],id:['SalaryID','EmployeeID'],name:['Name'],category:['Month'],status:['Status'],mobile:['Mobile'],amount:['Amount']},
+    income:{sheet:SHEETS.INCOME,type:'আয়',date:['Date','CreatedAt'],id:['IncomeID'],name:['Name','PersonName'],category:['Category'],status:['Status'],mobile:['Mobile'],amount:['Amount']},
+    expense:{sheet:SHEETS.EXPENSES,type:'ব্যয়',date:['Date','CreatedAt'],id:['ExpenseID'],name:['Name','PersonName'],category:['Category'],status:['Status'],mobile:['Mobile'],amount:['Amount']},
+    results:{sheet:SHEETS.RESULTS,type:'ফলাফল',date:['Date','CreatedAt'],id:['ResultID','StudentID'],name:['Name'],category:['Class'],exam:['Exam'],status:['Published','Status'],mobile:['Mobile'],amount:[]},
+    exams:{sheet:SHEETS.EXAM_REG,type:'পরীক্ষার্থী নিবন্ধন',date:['CreatedAt','Date'],id:['ExamRegID','StudentID'],name:['Name','NameBN'],category:['Class','Branch'],exam:['Exam'],status:['Status'],mobile:['Mobile'],amount:[]},
+    attendance:{sheet:SHEETS.ATTENDANCE,type:'হাজিরা',date:['Date','CreatedAt'],id:['AttendanceID','StudentID'],name:['Name','NameBN'],category:['Class'],status:['Status'],mobile:['Mobile'],amount:[]},
+    files:{sheet:SHEETS.FILES,type:'ডকুমেন্ট/ফাইল',date:['CreatedAt','Date'],id:['FileID'],name:['Name'],category:['Folder','Type'],status:['Status'],mobile:[],amount:[]},
+    receipts:{sheet:SHEETS.RECEIPTS,type:'মানি রসিদ',date:['Date','CreatedAt'],id:['ReceiptID','RefID'],name:['Name'],category:['Type'],status:['Status'],mobile:['Mobile'],amount:['Amount']},
+    donors:{sheet:SHEETS.DONORS,type:'দাতা সদস্য',date:['CreatedAt','Date'],id:['DonorID'],name:['NameBN','NameEN','Name'],category:['Fund'],status:['Status'],mobile:['Mobile','WhatsApp'],amount:['Amount']},
+    admins:{sheet:SHEETS.ADMINS,type:'অ্যাডমিন',date:['CreatedAt'],id:['AdminID','Username'],name:['NameBN','NameEN','Name'],category:['Role'],status:['Status'],mobile:['Mobile','WhatsApp'],amount:[]},
+    madrasas:{sheet:SHEETS.MADRASAS,type:'নিবন্ধিত মাদ্রাসা',date:['CreatedAt'],id:['MadrasaID'],name:['Name'],category:['GenderType','Level'],status:['Status'],mobile:['Mobile'],amount:[]}
+  };
+  const chosen = type === 'all' ? Object.keys(specs) : (specs[type] ? [type] : []);
+  if (!chosen.length) return {ok:false,message:'রিপোর্টের ধরন সঠিক নয়।'};
+  const rows = [], totals = {students:0,teachers:0,payments:0,salary:0,income:0,expense:0};
+  function valueOf(obj, keys) {
+    for (let i=0;i<(keys||[]).length;i++) {
+      const v=obj[keys[i]];
+      if (v !== undefined && v !== null && String(v).trim() !== '') return v;
+    }
+    return '';
+  }
+  function dateKey(value) {
+    if (value instanceof Date && !isNaN(value.getTime())) return Utilities.formatDate(value, APP.timezone || 'Asia/Dhaka', 'yyyy-MM-dd');
+    const s=String(value==null?'':value).trim();
+    if (!s) return '';
+    const m=s.match(/^(\d{4}-\d{2}-\d{2})/);
+    if (m) return m[1];
+    const d=new Date(s);
+    return isNaN(d.getTime())?'':Utilities.formatDate(d,APP.timezone || 'Asia/Dhaka','yyyy-MM-dd');
+  }
+  Object.keys(specs).forEach(function(k) {
+    const spec=specs[k], sh=ss.getSheetByName(spec.sheet);
+    if (!sh || sh.getLastRow()<2) return;
+    const values=sh.getDataRange().getValues(), headers=values[0].map(String);
+    values.slice(1, Math.min(values.length, 3001)).forEach(function(raw) {
+      const obj=objectFrom_(headers,raw);
+      const dateValue=valueOf(obj,spec.date), day=dateKey(dateValue);
+      if (from && (!day || day < from)) return;
+      if (to && (!day || day > to)) return;
+      const amount=Number(valueOf(obj,spec.amount) || 0);
+      if (k==='students') totals.students++;
+      if (k==='teachers') totals.teachers++;
+      if (k==='payments') totals.payments+=amount;
+      if (k==='salary') totals.salary+=amount;
+      if (k==='income') totals.income+=amount;
+      if (k==='expense') totals.expense+=amount;
+      if (chosen.indexOf(k)<0) return;
+      rows.push({
+        Type:spec.type,Date:dateValue,ID:valueOf(obj,spec.id),Name:valueOf(obj,spec.name),
+        Details:valueOf(obj,['Note','Address','Title','FileID']),Class:valueOf(obj,['Class']),
+        Exam:valueOf(obj,spec.exam||['Exam']),Category:valueOf(obj,spec.category),
+        Amount:spec.amount.length?amount:'',Status:valueOf(obj,spec.status),Mobile:valueOf(obj,spec.mobile)
+      });
+    });
+  });
+  rows.sort(function(a,b){return String(b.Date||'').localeCompare(String(a.Date||''));});
+  return {ok:true,rows:rows.slice(0,3000),count:rows.length,summary:totals,message:'রিপোর্ট সফলভাবে তৈরি হয়েছে।'};
+}
+/* ===== END ALL REPORTS ===== */
