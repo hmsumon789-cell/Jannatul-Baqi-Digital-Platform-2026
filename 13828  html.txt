@@ -13942,3 +13942,67 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   window.jbClearAllReports20261011=function(){['jbReportFrom20261011','jbReportTo20261011','jbReportQuery20261011'].forEach(function(id){if(el(id))el(id).value=''});if(el('jbReportSheet20261011'))el('jbReportSheet20261011').value='all';if(el('jbReportStatus20261011'))el('jbReportStatus20261011').textContent='ফিল্টার পরিষ্কার হয়েছে। নতুন রিপোর্ট তৈরি করুন।';if(el('jbReportSummary20261011'))el('jbReportSummary20261011').innerHTML='';if(el('jbReportResults20261011'))el('jbReportResults20261011').innerHTML='';window.__jbAllReportsData20261011=[]};
 })();
 </script>
+
+<!-- ===== ALL DOCUMENTS BUTTON ROUTING + COMPLETE DOCUMENT TYPE LIST — 2026-10-11 ===== -->
+<script id="jb-all-documents-routing-20261011">
+(function(){
+  'use strict';
+  var TYPES=[
+    ['marks','📋 মার্কশিট তৈরি'],
+    ['result','🏆 রেজাল্ট / মার্কশিট তৈরি'],
+    ['id_cards','🪪 ছাত্র/ছাত্রী আইডি কার্ড'],
+    ['admit_cards','🎫 অ্যাডমিট কার্ড'],
+    ['certificates','📜 সনদপত্র'],
+    ['receipts','🧾 মানি রিসিট'],
+    ['teacher_id','👩‍🏫 শিক্ষক/শিক্ষিকা আইডি কার্ড'],
+    ['admission_form','📝 ভর্তি আবেদন ফর্ম'],
+    ['leave_form','📄 ছুটির আবেদন ফর্ম'],
+    ['exam_routine','📅 পরীক্ষার রুটিন'],
+    ['tc','📑 টিসি / ছাড়পত্র'],
+    ['attestation','📃 প্রত্যয়ন পত্র'],
+    ['lifetime_member_form','🤝 আজীবন সদস্য ফর্ম'],
+    ['lifetime_member_certificate','🏅 আজীবন সদস্য সনদ'],
+    ['teacher_recruitment_form','👩‍🏫 শিক্ষক/শিক্ষিকা নিয়োগ আবেদন'],
+    ['teacher_appointment','📄 শিক্ষক/শিক্ষিকা নিয়োগপত্র'],
+    ['executive_form','🏛️ নির্বাহী পরিষদ ফর্ম'],
+    ['executive_id','🪪 নির্বাহী পরিষদ সদস্য আইডি কার্ড']
+  ];
+  window.jbShowCardTypeList2026=function(){
+    var old=document.getElementById('jbCardTypeList2026');
+    if(old)old.remove();
+    var box=document.createElement('div');
+    box.id='jbCardTypeList2026';
+    box.style.cssText='position:fixed;inset:0;z-index:100002;background:#0009;display:flex;align-items:center;justify-content:center;padding:12px;box-sizing:border-box';
+    var panel=document.createElement('div');
+    panel.style.cssText='width:min(820px,98vw);max-height:92vh;overflow:auto;background:var(--panel,#fff);color:var(--text,#111);border:4px solid var(--border,#222);border-radius:18px;padding:14px;box-shadow:0 20px 70px #0009';
+    panel.innerHTML='<div style="position:sticky;top:-14px;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:8px;margin:-14px -14px 12px;padding:12px 14px;background:var(--panel,#fff);border-bottom:2px solid var(--border,#222)"><b style="font-size:20px">📚 অল ডকুমেন্টস — প্রয়োজনীয় নথি নির্বাচন করুন</b><button class="secondary" type="button" id="jbCardTypeClose2026">✕ বন্ধ</button></div><p style="margin:0 0 10px">নিচের তালিকা থেকে ডকুমেন্ট নির্বাচন করুন। ID দিয়ে তথ্য এনে প্রয়োজনমতো তৈরি, সম্পাদনা, সেভ, ডাউনলোড ও প্রিন্ট করুন।</p><div id="jbCardTypeGrid2026" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:9px"></div>';
+    box.appendChild(panel);document.body.appendChild(box);
+    var grid=panel.querySelector('#jbCardTypeGrid2026');
+    TYPES.forEach(function(item){
+      var b=document.createElement('button');
+      b.type='button';b.className='primary';b.textContent=item[1];
+      b.style.cssText='min-height:48px;padding:10px;border-radius:12px;font-weight:900;white-space:normal';
+      b.onclick=function(){
+        if(typeof window.jbOpenDocumentType2026!=='function'){alert('ডকুমেন্ট বিল্ডার লোড হয়নি। পেজ রিফ্রেশ করে আবার চেষ্টা করুন।');return;}
+        box.remove();
+        window.jbOpenDocumentType2026(item[0]);
+      };
+      grid.appendChild(b);
+    });
+    panel.querySelector('#jbCardTypeClose2026').onclick=function(){box.remove()};
+    box.onclick=function(e){if(e.target===box)box.remove()};
+  };
+  var oldOpen=window.openModule;
+  window.openModule=function(key){
+    var k=String(key==null?'':key).toLowerCase().replace(/[\\s_-]+/g,'');
+    var aliases=['alldocuments','documents','document','alldocs','docs','documentbuilder','অলডকুমেন্টস','ডকুমেন্টস','সবডকুমেন্ট','সবডকুমেন্টস'];
+    if(aliases.indexOf(k)>=0){
+      if(typeof window.jbShowCardTypeList2026==='function'){window.jbShowCardTypeList2026();return;}
+      if(typeof window.jbOpenDocumentType2026==='function'){window.jbOpenDocumentType2026('marks');return;}
+      alert('অল ডকুমেন্টস মডিউল লোড হয়নি। পেজ রিফ্রেশ করে আবার চেষ্টা করুন।');return;
+    }
+    if(typeof oldOpen==='function')return oldOpen.apply(this,arguments);
+  };
+})();
+</script>
+<!-- ===== END ALL DOCUMENTS BUTTON ROUTING + COMPLETE DOCUMENT TYPE LIST ===== -->
