@@ -13659,7 +13659,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 </script>
 
 
-<!-- ===== jb-youtube-button-before-media-load-20261011: YouTube button before Media Load; no sheet/database writes ===== -->
+<!-- ===== jb-youtube-inline-media-20261011: embedded YouTube panel; no new tab and no sheet writes ===== -->
 <style id="jb-youtube-button-before-media-load-20261011-css">
 #mediaStage .jb-youtube-direct-btn{
   display:inline-flex!important;align-items:center!important;justify-content:center!important;
@@ -13669,22 +13669,23 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   cursor:pointer!important;white-space:nowrap!important;
 }
 #mediaStage .jb-youtube-direct-btn:hover{filter:brightness(1.08)!important;transform:translateY(-1px)!important}
-@media(max-width:700px){#mediaStage .jb-youtube-direct-btn{font-size:12px!important;padding:6px 8px!important;min-height:40px!important}}
+#mediaStage .jb-yt-inline-panel{position:absolute;inset:8px;z-index:40;background:#101010;color:#fff;border:2px solid #e62117;border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:8px;min-height:0}
+#mediaStage .jb-yt-inline-top{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#mediaStage .jb-yt-inline-top input{flex:1;min-width:130px;padding:9px;border-radius:6px;border:1px solid #aaa;font-size:15px}
+#mediaStage .jb-yt-inline-top button{padding:8px 12px;border:0;border-radius:6px;font-weight:800;cursor:pointer}
+#mediaStage .jb-yt-inline-frame{width:100%;flex:1;min-height:180px;border:0;background:#000}
+#mediaStage .jb-yt-inline-note{font-size:12px;color:#ddd}
+@media(max-width:700px){#mediaStage .jb-youtube-direct-btn{font-size:12px!important;padding:6px 8px!important;min-height:40px!important}#mediaStage .jb-yt-inline-panel{inset:3px;padding:6px}}
 </style>
 <script id="jb-youtube-button-before-media-load-20261011-js">
 (function(){
-  var ytId='jbYouTubeDirectButton20261011';
+  var ytId='jbYouTubeDirectButton20261011', panelId='jbYouTubeInlinePanel20261011';
   function addYouTubeButton(){
-    var stage=document.getElementById('mediaStage');
-    if(!stage)return;
-    var controls=stage.querySelector('.dashboard-slider-controls .slider-center-controls')||
-                 stage.querySelector('.dashboard-slider-controls');
+    var stage=document.getElementById('mediaStage');if(!stage)return;
+    var controls=stage.querySelector('.dashboard-slider-controls .slider-center-controls')||stage.querySelector('.dashboard-slider-controls');
     if(!controls)return;
     var existing=document.getElementById(ytId);
-    if(existing){
-      if(existing.parentElement!==controls)existing.remove();
-      else return;
-    }
+    if(existing){if(existing.parentElement!==controls)existing.remove();else return;}
     var buttons=Array.prototype.slice.call(controls.querySelectorAll('button'));
     var loadButton=buttons.find(function(b){
       var label=((b.innerText||b.textContent||'')+' '+(b.title||'')).toLowerCase();
@@ -13692,27 +13693,39 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       return /gallery/.test(click)||/\bload\b|লোড|আপলোড/.test(label);
     });
     if(!loadButton)return;
-    var yt=document.createElement('button');
-    yt.type='button';yt.id=ytId;yt.className='jb-youtube-direct-btn';
-    yt.title='নতুন ট্যাবে YouTube খুলুন—কোনো URL লিখতে হবে না';
+    var yt=document.createElement('button');yt.type='button';yt.id=ytId;yt.className='jb-youtube-direct-btn';
+    yt.title='বর্তমান মিডিয়া উইন্ডোর ভেতরে YouTube অনুসন্ধান করুন';
     yt.textContent='▶ YouTube';
-    yt.addEventListener('click',function(){
-      /* Direct external navigation only: no media upload, spreadsheet write, or backup. */
-      window.open('https://www.youtube.com/','_blank');
-    });
+    yt.addEventListener('click',function(){showInlineYouTube();});
     controls.insertBefore(yt,loadButton);
+  }
+  function showInlineYouTube(){
+    var stage=document.getElementById('mediaStage'),box=document.getElementById('mediaStageContent');
+    if(!stage||!box)return;
+    var old=document.getElementById(panelId);
+    if(old){old.remove();return;}
+    var panel=document.createElement('section');panel.id=panelId;panel.className='jb-yt-inline-panel';
+    panel.innerHTML='<div class="jb-yt-inline-top"><strong>▶ YouTube</strong><input type="search" id="jbYtSearchInput20261011" placeholder="ভিডিওর নাম লিখুন (URL লাগবে না)" aria-label="YouTube ভিডিও অনুসন্ধান"><button type="button" id="jbYtSearchBtn20261011">খুঁজুন</button><button type="button" id="jbYtCloseBtn20261011">বন্ধ</button></div><div class="jb-yt-inline-note">ভিডিও অনুসন্ধানটি এই মিডিয়া উইন্ডোর মধ্যেই দেখানোর চেষ্টা করবে। YouTube কিছু পৃষ্ঠা iframe-এ চালানো বন্ধ রাখতে পারে।</div><iframe class="jb-yt-inline-frame" id="jbYtFrame20261011" title="YouTube এই মিডিয়া উইন্ডোর মধ্যে" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>';
+    var cs=getComputedStyle(box);if(cs.position==='static')box.style.position='relative';
+    box.appendChild(panel);
+    function search(){
+      var q=(document.getElementById('jbYtSearchInput20261011').value||'').trim();
+      if(!q)q='popular videos';
+      var frame=document.getElementById('jbYtFrame20261011');
+      /* Keep YouTube inside the existing player area; never open a new tab/window. */
+      frame.src='https://www.youtube.com/results?search_query='+encodeURIComponent(q);
+    }
+    document.getElementById('jbYtSearchBtn20261011').addEventListener('click',search);
+    document.getElementById('jbYtSearchInput20261011').addEventListener('keydown',function(e){if(e.key==='Enter')search()});
+    document.getElementById('jbYtCloseBtn20261011').addEventListener('click',function(){panel.remove()});
+    document.getElementById('jbYtSearchInput20261011').focus();
   }
   function boot(){
     addYouTubeButton();
     var root=document.getElementById('mediaStage')||document.body;
-    if(root&&!root.__jbYtObserver20261011){
-      var ob=new MutationObserver(function(){addYouTubeButton()});
-      ob.observe(root,{subtree:true,childList:true});
-      root.__jbYtObserver20261011=ob;
-    }
+    if(root&&!root.__jbYtObserver20261011){var ob=new MutationObserver(function(){addYouTubeButton()});ob.observe(root,{subtree:true,childList:true});root.__jbYtObserver20261011=ob;}
     [250,700,1400,2500].forEach(function(ms){setTimeout(addYouTubeButton,ms)});
   }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
-  else boot();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
 </script>
