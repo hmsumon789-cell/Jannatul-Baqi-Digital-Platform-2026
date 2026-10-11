@@ -14250,3 +14250,97 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 })();
 </script>
 <!-- ===== END DIGITAL ATTENDANCE MODULE ===== -->
+
+
+<!-- ===== CONTACT + EMAIL MANAGER — 2026-10-11 ===== -->
+<style id="jb-contact-email-manager-2026-10-11">
+#jbContactEmailManager2026{display:grid;gap:12px}
+#jbContactEmailManager2026 .cem-card{border:2px solid var(--border);border-radius:12px;padding:12px;background:var(--panel)}
+#jbContactEmailManager2026 .cem-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+#jbContactEmailManager2026 .cem-tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+#jbContactEmailManager2026 .cem-tools .field{flex:1;min-width:180px}
+#jbContactEmailManager2026 .cem-table-wrap{overflow:auto;max-height:380px;border:1px solid var(--border);border-radius:9px}
+#jbContactEmailManager2026 table{border-collapse:collapse;width:100%;min-width:780px}
+#jbContactEmailManager2026 th,#jbContactEmailManager2026 td{border:1px solid var(--border);padding:7px;text-align:left}
+#jbContactEmailManager2026 th{position:sticky;top:0;background:var(--panel);z-index:1}
+@media(max-width:650px){#jbContactEmailManager2026 .cem-grid{grid-template-columns:1fr}}
+</style>
+<script id="jb-contact-email-manager-2026-10-11">
+(function(){
+  function cemEsc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function cemHtml(){
+    return '<div id="jbContactEmailManager2026">'+
+      '<div class="cem-card"><h3 style="margin:0 0 6px">📇 কন্টাক্ট + ইমেইল ম্যানেজ</h3><p style="margin:0">সংরক্ষিত যোগাযোগ খুঁজুন, নতুন কন্টাক্ট যোগ করুন এবং নির্বাচিত ইমেইল ঠিকানায় বার্তা পাঠান।</p><div id="jbCemFeedback2026" role="status" style="margin-top:8px;font-weight:800">যোগাযোগ তালিকা লোড হচ্ছে...</div></div>'+
+      '<div class="cem-card"><h4 style="margin:0 0 8px">➕ নতুন কন্টাক্ট সংরক্ষণ</h4><div class="cem-grid">'+
+      '<label>নাম *<input id="jbCemName2026" class="field" maxlength="160"></label><label>ধরন / পদবি<input id="jbCemRole2026" class="field" maxlength="100" placeholder="যেমন: অভিভাবক / স্টাফ"></label>'+
+      '<label>মোবাইল<input id="jbCemMobile2026" class="field" inputmode="tel" maxlength="20" placeholder="01XXXXXXXXX"></label><label>WhatsApp<input id="jbCemWhatsApp2026" class="field" inputmode="tel" maxlength="20"></label>'+
+      '<label class="full">ইমেইল<input id="jbCemEmail2026" class="field" type="email" maxlength="254" placeholder="name@example.com"></label>'+
+      '<label class="full">নোট / ঠিকানা<textarea id="jbCemNote2026" class="field" rows="2" maxlength="1000"></textarea></label></div>'+
+      '<div style="margin-top:8px"><button type="button" class="primary" onclick="jbCemSave2026()">💾 কন্টাক্ট সংরক্ষণ</button></div></div>'+
+      '<div class="cem-card"><h4 style="margin:0 0 8px">📨 যোগাযোগ তালিকা ও ইমেইল</h4><div class="cem-tools"><input id="jbCemSearch2026" class="field" placeholder="নাম / ID / মোবাইল / ইমেইল দিয়ে খুঁজুন" oninput="jbCemRender2026()"><button type="button" class="secondary" onclick="jbCemLoad2026()">↻ রিফ্রেশ</button><button type="button" class="secondary" onclick="jbCemSelectAll2026(true)">☑️ সব নির্বাচন</button><button type="button" class="secondary" onclick="jbCemSelectAll2026(false)">☐ নির্বাচন বাতিল</button></div>'+
+      '<div class="cem-table-wrap" style="margin-top:8px"><table><thead><tr><th><input type="checkbox" aria-label="সব নির্বাচন" onchange="jbCemSelectAll2026(this.checked)"></th><th>ধরন</th><th>ID</th><th>নাম</th><th>মোবাইল</th><th>ইমেইল</th></tr></thead><tbody id="jbCemRows2026"><tr><td colspan="6" style="text-align:center">তালিকা লোড হচ্ছে...</td></tr></tbody></table></div>'+
+      '<div style="margin-top:10px;display:grid;gap:8px"><label>ইমেইলের বিষয় *<input id="jbCemSubject2026" class="field" maxlength="200" placeholder="বিষয় লিখুন"></label><label>বার্তা *<textarea id="jbCemBody2026" class="field" rows="4" maxlength="10000" placeholder="ইমেইলের বার্তা লিখুন"></textarea></label><div class="cem-tools"><button type="button" class="primary" onclick="jbCemSend2026()">📤 নির্বাচিতদের ইমেইল পাঠান</button><span id="jbCemSelectedCount2026">০ জন নির্বাচিত</span></div></div></div></div>';
+  }
+  function currentRows(){return window.__jbCemRows2026||[]}
+  function filteredRows(){
+    var q=((document.getElementById('jbCemSearch2026')||{}).value||'').trim().toLowerCase();
+    return currentRows().filter(function(x){return !q||[x.id,x.name,x.mobile,x.whatsapp,x.email,x.type,x.source].join(' ').toLowerCase().indexOf(q)>=0});
+  }
+  function render(){
+    var body=document.getElementById('jbCemRows2026');if(!body)return;
+    var rows=filteredRows();
+    body.innerHTML=rows.map(function(x){
+      var ix=currentRows().indexOf(x),checked=x.__cemSelected?' checked':'';
+      return '<tr><td><input type="checkbox" data-cem-index="'+ix+'"'+checked+' onchange="jbCemOneToggle2026(this)"></td><td>'+cemEsc(x.type||x.source||'')+'</td><td>'+cemEsc(x.id||'')+'</td><td>'+cemEsc(x.name||'')+'</td><td>'+cemEsc(x.mobile||'—')+'</td><td>'+cemEsc(x.email||'—')+'</td></tr>';
+    }).join('')||'<tr><td colspan="6" style="text-align:center;padding:18px">কোনো যোগাযোগ পাওয়া যায়নি।</td></tr>';
+    var n=currentRows().filter(function(x){return x.__cemSelected&&String(x.email||'').trim()}).length;
+    var count=document.getElementById('jbCemSelectedCount2026');if(count)count.textContent=n+' জন ইমেইল প্রাপক নির্বাচিত';
+  }
+  window.jbCemOneToggle2026=function(el){var x=currentRows()[Number(el.getAttribute('data-cem-index'))];if(x)x.__cemSelected=!!el.checked;render()};
+  window.jbCemSelectAll2026=function(on){currentRows().forEach(function(x){x.__cemSelected=!!on});render()};
+  window.jbCemRender2026=render;
+  window.jbCemLoad2026=async function(){
+    var fb=document.getElementById('jbCemFeedback2026');if(!fb)return;
+    fb.textContent='⏳ যোগাযোগ তালিকা লোড হচ্ছে...';
+    try{
+      var r=await call('getSmsPortalContacts',token);
+      if(!r||!r.ok)throw new Error((r&&r.message)||'যোগাযোগ তালিকা পাওয়া যায়নি।');
+      window.__jbCemRows2026=(r.rows||[]).map(function(x){return Object.assign({},x,{__cemSelected:false})});
+      render();fb.textContent='✅ '+window.__jbCemRows2026.length+'টি সংরক্ষিত যোগাযোগ পাওয়া গেছে।';
+    }catch(e){fb.textContent='❌ তালিকা লোড হয়নি: '+(e&&e.message?e.message:e)}
+  };
+  window.jbCemSave2026=async function(){
+    var d={Name:(document.getElementById('jbCemName2026')||{}).value||'',Role:(document.getElementById('jbCemRole2026')||{}).value||'',Mobile:(document.getElementById('jbCemMobile2026')||{}).value||'',WhatsApp:(document.getElementById('jbCemWhatsApp2026')||{}).value||'',Email:(document.getElementById('jbCemEmail2026')||{}).value||'',Note:(document.getElementById('jbCemNote2026')||{}).value||''};
+    if(!d.Name.trim())return toast('কন্টাক্টের নাম লিখুন।');
+    if(!d.Mobile.trim()&&!d.WhatsApp.trim()&&!d.Email.trim())return toast('কমপক্ষে মোবাইল, WhatsApp অথবা ইমেইল দিন।');
+    var fb=document.getElementById('jbCemFeedback2026');if(fb)fb.textContent='⏳ কন্টাক্ট সংরক্ষণ হচ্ছে...';
+    try{var r=await call('saveContactEmailRecord',token,d);if(!r||!r.ok){if(fb)fb.textContent='❌ '+((r&&r.message)||'সংরক্ষণ ব্যর্থ হয়েছে।');return}
+      ['jbCemName2026','jbCemRole2026','jbCemMobile2026','jbCemWhatsApp2026','jbCemEmail2026','jbCemNote2026'].forEach(function(id){var e=document.getElementById(id);if(e)e.value=''});
+      if(fb)fb.textContent='✅ '+(r.message||'কন্টাক্ট সংরক্ষণ হয়েছে।');await window.jbCemLoad2026();
+    }catch(e){if(fb)fb.textContent='❌ সংরক্ষণ ব্যর্থ: '+(e&&e.message?e.message:e)}
+  };
+  window.jbCemSend2026=async function(){
+    var recipients=currentRows().filter(function(x){return x.__cemSelected&&String(x.email||'').trim()}).map(function(x){return {id:x.id,name:x.name,email:x.email,source:x.source}});
+    var subject=((document.getElementById('jbCemSubject2026')||{}).value||'').trim(),body=((document.getElementById('jbCemBody2026')||{}).value||'').trim();
+    if(!recipients.length)return toast('ইমেইল ঠিকানাসহ অন্তত একজন প্রাপক নির্বাচন করুন।');
+    if(!subject||!body)return toast('ইমেইলের বিষয় ও বার্তা লিখুন।');
+    if(recipients.length>50)return toast('একবারে সর্বোচ্চ ৫০ জনকে ইমেইল পাঠানো যাবে।');
+    var fb=document.getElementById('jbCemFeedback2026');if(fb)fb.textContent='⏳ '+recipients.length+' জনকে ইমেইল পাঠানো হচ্ছে...';
+    try{var r=await call('sendContactEmail',token,recipients,subject,body);if(fb)fb.textContent=(r&&r.ok?'✅ ':'❌ ')+((r&&r.message)||'ইমেইল পাঠানোর ফলাফল পাওয়া যায়নি।');toast((r&&r.message)||'ইমেইল পাঠানো যায়নি।')}
+    catch(e){if(fb)fb.textContent='❌ ইমেইল পাঠাতে সমস্যা: '+(e&&e.message?e.message:e)}
+  };
+  function bind(){
+    var old=window.moduleForm;if(typeof old==='function'&&!old.__jbContactEmailManager2026){
+      var wrapped=function(k){var key=String(k||'').toLowerCase();if(['contact','contacts','contactemail','emailmanage','contact_email'].indexOf(key)>=0)return cemHtml();return old.apply(this,arguments)};
+      wrapped.__jbContactEmailManager2026=true;window.moduleForm=wrapped;
+    }
+    var oldOpen=window.openModule;if(typeof oldOpen==='function'&&!oldOpen.__jbContactEmailOpen2026){
+      var openWrapped=function(k){var key=String(k||'').toLowerCase();if(['contacts','contactemail','emailmanage','contact_email'].indexOf(key)>=0)k='contact';var res=oldOpen.apply(this,[k].concat(Array.prototype.slice.call(arguments,1)));if(String(k||'').toLowerCase()==='contact')setTimeout(window.jbCemLoad2026,120);return res};
+      openWrapped.__jbContactEmailOpen2026=true;window.openModule=openWrapped;
+    }
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();
+  setTimeout(bind,500);setTimeout(bind,1500);
+})();
+</script>
+<!-- ===== END CONTACT + EMAIL MANAGER ===== -->
