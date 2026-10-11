@@ -2395,6 +2395,52 @@ function saveFinanceEntry(token,data){
 }
 
 
+
+/* ===== STAFF SALARY PAYMENT MODULE — 2026-10-11 ===== */
+function getSalaryEmployees2026(token) {
+  auth_(token); requireFeature_(token,'salary');
+  const teachers=listRows_(SHEETS.TEACHERS,token,5000).map(function(x){
+    return {EmployeeID:String(x.TeacherID||x.Serial||''),Name:String(x.NameBN||x.NameEN||x.NameAR||''),Role:'শিক্ষক/শিক্ষিকা',Mobile:String(x.Mobile||'')};
+  }).filter(function(x){return x.EmployeeID&&x.Name;});
+  return {ok:true,employees:teachers};
+}
+function saveSalaryPayment2026(token,data) {
+  auth_(token); requireFeature_(token,'salary'); data=data||{};
+  const employeeId=String(data.EmployeeID||'').trim(), name=String(data.Name||'').trim();
+  const month=String(data.Month||'').trim(), amount=Number(data.Amount||0);
+  const date=String(data.Date||'').trim(), method=String(data.Method||'').trim();
+  if(!employeeId||!name||!month||!date||!method||!Number.isFinite(amount)||amount<=0)
+    return {ok:false,message:'কর্মীর ID, নাম, মাস, তারিখ, বেতনের পরিমাণ ও প্রদানের মাধ্যম পূরণ করুন।'};
+  if(amount>100000000) return {ok:false,message:'বেতনের পরিমাণ যাচাই করুন।'};
+  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  let sh=ss.getSheetByName(SHEETS.SALARY);
+  if(!sh){setupSystem();sh=ss.getSheetByName(SHEETS.SALARY);}
+  if(!sh) throw new Error('SALARY শিট পাওয়া যায়নি।');
+  if(sh.getLastRow()===0) sh.appendRow(HEADERS.SALARY);
+  let headers=sh.getRange(1,1,1,Math.max(1,sh.getLastColumn())).getValues()[0].map(String);
+  if(!headers.includes('SalaryID')){
+    if(sh.getLastRow()<=1){sh.clear();sh.appendRow(HEADERS.SALARY);headers=HEADERS.SALARY.slice();}
+    else throw new Error('SALARY শিটের কলাম বিন্যাস ঠিক নেই; বিদ্যমান তথ্য না মুছে শিরোনাম যাচাই করুন।');
+  }
+  const id='SAL-'+Utilities.formatDate(new Date(),APP.timezone,'yyyyMMdd-HHmmss')+'-'+Math.floor(100+Math.random()*900);
+  const record={Serial:nextSerial_(sh),SalaryID:id,EmployeeID:employeeId,Name:name,Month:month,Amount:amount,Method:method,Date:date,Note:String(data.Note||'').trim(),CreatedAt:now_()};
+  sh.appendRow(headers.map(function(k){return Object.prototype.hasOwnProperty.call(record,k)?record[k]:'';}));
+  log_(sessionUser_(token),'salary_payment','SALARY',id+' | '+employeeId+' | '+amount+' | '+month);
+  return {ok:true,salaryId:id,record:record,message:'আলহামদুলিল্লাহ, বেতন প্রদান সফলভাবে সংরক্ষণ হয়েছে। বেতন ID: '+id};
+}
+function listSalaryPayments2026(token,filters) {
+  auth_(token); requireFeature_(token,'salary'); filters=filters||{};
+  const q=String(filters.Search||'').trim().toLowerCase(), month=String(filters.Month||'').trim();
+  const rows=listRows_(SHEETS.SALARY,token,10000).filter(function(x){
+    if(month&&String(x.Month||'')!==month)return false;
+    if(!q)return true;
+    return [x.SalaryID,x.EmployeeID,x.Name,x.Month,x.Method,x.Note].some(function(v){return String(v||'').toLowerCase().includes(q);});
+  });
+  rows.reverse();
+  return {ok:true,rows:rows};
+}
+/* ===== END STAFF SALARY PAYMENT MODULE ===== */
+
 function getFinanceRecords(token){
   if(!isSuperAdmin_(token)) return {ok:false,message:'শুধু Super Admin আয়-ব্যয়ের তালিকা দেখতে পারবেন।'};
   var ss=SpreadsheetApp.getActiveSpreadsheet(),out=[];
