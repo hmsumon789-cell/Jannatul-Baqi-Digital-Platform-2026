@@ -1425,6 +1425,50 @@ function getSignals_(){
     ['tr','শিক্ষক/শিক্ষিকা নিয়োগ আবেদন'],['ta','শিক্ষক/শিক্ষিকা নিয়োগ পত্র'],['ef','নির্বাহী পরিষদ ফর্ম'],['ei','নির্বাহী পরিষদ সদস্য আইডি কার্ড']
   ];
 }
+
+
+/* ===== ALL REPORTS DASHBOARD — 2026 ===== */
+function getAllReports2026(token, kind, fromDate, toDate) {
+  auth_(token);
+  const requested=String(kind||'all').trim().toLowerCase();
+  const from=String(fromDate||'').trim(), to=String(toDate||'').trim();
+  if(from && to && from>to) return {ok:false,message:'শুরুর তারিখ শেষ তারিখের পরে হতে পারে না।'};
+  const defs=[
+    {key:'students',label:'ছাত্র/ছাত্রী',sheet:SHEETS.STUDENTS,date:['CreatedAt','Date'],amount:null,cols:[['StudentID','আইডি'],['NameBN','নাম'],['Class','শ্রেণি/জামাত'],['Mobile','মোবাইল'],['ApprovalStatus','অনুমোদন'],['CreatedAt','তারিখ']]},
+    {key:'teachers',label:'শিক্ষক/শিক্ষিকা',sheet:SHEETS.TEACHERS,date:['CreatedAt','Date'],amount:null,cols:[['TeacherID','আইডি'],['NameBN','নাম'],['Department','বিভাগ'],['Mobile','মোবাইল'],['CreatedAt','তারিখ']]},
+    {key:'admissions',label:'ভর্তি আবেদন',sheet:SHEETS.ADMISSIONS,date:['CreatedAt','Date'],amount:null,cols:[['AdmissionID','আবেদন আইডি'],['StudentID','শিক্ষার্থী আইডি'],['Class','শ্রেণি/জামাত'],['Status','অবস্থা'],['CreatedAt','তারিখ']]},
+    {key:'examreg',label:'পরীক্ষার্থী নিবন্ধন',sheet:SHEETS.EXAM_REG,date:['CreatedAt','Date'],amount:null,cols:[['ExamRegID','নিবন্ধন আইডি'],['StudentID','শিক্ষার্থী আইডি'],['Exam','পরীক্ষা'],['Class','শ্রেণি/জামাত'],['Status','অবস্থা'],['CreatedAt','তারিখ']]},
+    {key:'payments',label:'বেতন-ফি আদায়',sheet:SHEETS.PAYMENTS,date:['Date','CreatedAt'],amount:'Amount',cols:[['PaymentID','পেমেন্ট আইডি'],['StudentID','শিক্ষার্থী আইডি'],['Name','নাম'],['Category','খাত'],['Month','মাস'],['Amount','টাকা'],['Method','মাধ্যম'],['Date','তারিখ']]},
+    {key:'income',label:'আয় রিপোর্ট',sheet:SHEETS.INCOME,date:['Date','CreatedAt'],amount:'Amount',cols:[['IncomeID','আয় আইডি'],['Category','আয়ের খাত'],['Amount','টাকা'],['Method','মাধ্যম'],['Date','তারিখ'],['Note','বিবরণ']]},
+    {key:'expenses',label:'ব্যয় রিপোর্ট',sheet:SHEETS.EXPENSES,date:['Date','CreatedAt'],amount:'Amount',cols:[['ExpenseID','ব্যয় আইডি'],['Category','ব্যয়ের খাত'],['Amount','টাকা'],['Method','মাধ্যম'],['Date','তারিখ'],['Note','বিবরণ']]},
+    {key:'results',label:'পরীক্ষার ফলাফল',sheet:SHEETS.RESULTS,date:['Date','CreatedAt'],amount:null,cols:[['ResultID','ফলাফল আইডি'],['StudentID','শিক্ষার্থী আইডি'],['Name','নাম'],['Class','শ্রেণি/জামাত'],['Exam','পরীক্ষা'],['Total','মোট নম্বর'],['GPA','GPA'],['Grade','গ্রেড'],['Published','প্রকাশিত'],['Date','তারিখ']]},
+    {key:'attendance',label:'হাজিরা',sheet:SHEETS.ATTENDANCE,date:['Date','CreatedAt'],amount:null,cols:[['AttendanceID','হাজিরা আইডি'],['StudentID','শিক্ষার্থী আইডি'],['Class','শ্রেণি/জামাত'],['Status','উপস্থিতি'],['Date','তারিখ'],['Note','বিবরণ']]},
+    {key:'donors',label:'দাতা সদস্য',sheet:SHEETS.DONORS,date:['CreatedAt','Date'],amount:'Amount',cols:[['DonorID','দাতা আইডি'],['NameBN','নাম'],['Mobile','মোবাইল'],['Fund','ফান্ড'],['Amount','টাকা'],['CreatedAt','তারিখ']]}
+  ];
+  const chosen=requested==='all'?defs:defs.filter(function(x){return x.key===requested;});
+  if(!chosen.length)return {ok:false,message:'রিপোর্টের ধরন সঠিক নয়।'};
+  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  const reports=chosen.map(function(def){
+    const sh=ss.getSheetByName(def.sheet), rows=[];
+    if(sh&&sh.getLastRow()>1){
+      const values=sh.getDataRange().getValues(), headers=values[0].map(String), ix={};
+      headers.forEach(function(h,i){ix[h]=i;});
+      values.slice(1).forEach(function(raw){
+        const obj={};headers.forEach(function(h,i){const v=raw[i];obj[h]=v instanceof Date?Utilities.formatDate(v,APP.timezone,'yyyy-MM-dd HH:mm:ss'):v;});
+        const dateKey=def.date.find(function(k){return ix[k]!=null;});
+        const dateVal=dateKey?String(obj[dateKey]||'').slice(0,10):'';
+        if(from&&(!dateVal||dateVal<from))return;
+        if(to&&(!dateVal||dateVal>to))return;
+        const row={};def.cols.forEach(function(c){row[c[0]]=obj[c[0]]==null?'':obj[c[0]];});
+        rows.push(row);
+      });
+    }
+    const amountTotal=def.amount?rows.reduce(function(n,row){return n+(Number(row[def.amount])||0);},0):null;
+    return {key:def.key,label:def.label,columns:def.cols.map(function(c){return {key:c[0],label:c[1]};}),rows:rows,amountTotal:amountTotal};
+  });
+  return {ok:true,fromDate:from,toDate:to,reports:reports,generatedAt:Utilities.formatDate(new Date(),APP.timezone,'yyyy-MM-dd HH:mm:ss')};
+}
+
 function getModules_(){
   return [
     ['institution','প্রতিষ্ঠান পরিচিতি'],['student','ছাত্র/ছাত্রী অ্যাড করুন'],['teacher','শিক্ষক/শিক্ষিকা অ্যাড করুন'],['donor','দাতা সদস্য অ্যাড করুন'],
