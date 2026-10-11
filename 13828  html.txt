@@ -14654,7 +14654,7 @@ window.jbAdmissionImportFile2026=async function(file){var fb=el('admAdmissionRed
 
 <!-- ===== ADMISSION FORM CHROME-STYLE INTERNAL TABS + RELIABLE CLOSE — 2026-10-12 ===== -->
 <style id="jb-admission-internal-tabs-style-20261012">
-#formWin:has(#admAdmissionRedesign20261011){position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;max-width:none!important;max-height:none!important;margin:0!important;border-radius:0!important;z-index:2147482000!important;transform:none!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
+#formWin:has(#admAdmissionRedesign20261011){z-index:2147482000!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}#formWin:has(#admAdmissionRedesign20261011).jb-adm-win-fullscreen-20261012{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;max-width:none!important;max-height:none!important;margin:0!important;border-radius:0!important;transform:none!important}
 #formWin:has(#admAdmissionRedesign20261011)>.win-head{display:flex!important;align-items:stretch!important;gap:8px!important;min-height:48px!important;padding:0 8px!important;cursor:default!important;flex-shrink:0!important}
 #formWin:has(#admAdmissionRedesign20261011)>.win-head>#winTitle{display:none!important}
 #formWin:has(#admAdmissionRedesign20261011)>.win-head>.win-actions,
@@ -14666,7 +14666,7 @@ window.jbAdmissionImportFile2026=async function(file){var fb=el('admAdmissionRed
 #jbAdmissionChromeTabs20261012 .jb-adm-tab span{overflow:hidden;text-overflow:ellipsis}
 #jbAdmissionChromeTabs20261012 .jb-adm-tab .jb-adm-tab-close{border:0;background:transparent;padding:0 3px;min-width:20px;color:inherit;font-weight:900;cursor:pointer}
 #jbAdmissionChromeTabs20261012 .jb-adm-newtab,#jbAdmissionChromeTabs20261012 .jb-adm-close-window{height:30px;min-width:32px;padding:3px 9px;border:1px solid #d8bd67;border-radius:8px;background:#fff8dd;color:#17432e;font-weight:900;cursor:pointer;align-self:center}
-#jbAdmissionChromeTabs20261012 .jb-adm-close-window{background:#a62929;color:#fff;border-color:#a62929}
+#jbAdmissionChromeTabs20261012 .jb-adm-close-window{background:#a62929;color:#fff;border-color:#a62929}#jbAdmissionChromeTabs20261012 .jb-adm-winbtn{height:30px;min-width:32px;padding:3px 9px;border:1px solid #d8bd67;border-radius:8px;background:#fff8dd;color:#17432e;font-weight:900;cursor:pointer;align-self:center}#jbAdmissionChromeTabs20261012 .jb-adm-close-window{background:#a62929;color:#fff;border-color:#a62929}#jbAdmTaskbar20261012{position:fixed;left:8px;bottom:6px;z-index:2147483646;display:flex;gap:6px}#jbAdmTaskbar20261012 button{padding:8px 12px;border:2px solid #c9a33a;border-radius:9px;background:#fff8dc;color:#173d2a;font-weight:800;cursor:pointer}
 #formWin:has(#admAdmissionRedesign20261011)>.win-body{flex:1!important;min-height:0!important;height:auto!important;max-height:none!important;overflow:auto!important;position:relative!important}
 #jbAdmissionChromeTabs20261012~*{min-width:0}
 .jb-adm-internal-pane-20261012{width:100%;height:100%;min-height:0;overflow:auto}
@@ -14686,7 +14686,7 @@ window.jbAdmissionImportFile2026=async function(file){var fb=el('admAdmissionRed
  var winId='formWin',bodyId='winBody',tabsId='jbAdmissionChromeTabs20261012',seq=1,tabs=[],active='admission-1',wrapped=false;
  function el(id){return document.getElementById(id)}
  function isAdmission(){return !!el('admAdmissionRedesign20261011')}
- function safeToast(msg){if(typeof window.toast==='function')window.toast(msg);else if(typeof window.safeToast==='function')window.safeToast(msg)}
+ function safeToast(msg){if(typeof window.toast==='function')window.toast(msg);else if(typeof window.safeToast==='function')window.safeToast(msg)}function taskbar(){var t=el('jbAdmTaskbar20261012');if(!t){t=document.createElement('div');t.id='jbAdmTaskbar20261012';document.body.appendChild(t)}return t}function minimize(){var w=el(winId);if(!w)return;w.style.display='none';var t=taskbar();t.innerHTML='';var b=document.createElement('button');b.type='button';b.textContent='▣ ভর্তি ফর্ম দেখুন';b.onclick=function(){w.style.display='flex';t.innerHTML=''};t.appendChild(b)}function fullscreen(){var w=el(winId);if(!w)return;if(w.classList.toggle('jb-adm-win-fullscreen-20261012')){w.style.left='';w.style.top='';w.style.width='';w.style.height='';w.style.transform=''}else{w.style.position='fixed';w.style.inset='4vh auto auto 50%';w.style.width='min(1200px,96vw)';w.style.height='92vh';w.style.transform='translateX(-50%)';w.style.maxWidth='96vw';w.style.maxHeight='92vh'}}
  function closeForm(){var w=el(winId);if(!w)return;tabs=[];seq=1;active='admission-1';wrapped=false;var bar=el(tabsId);if(bar)bar.remove();var b=el(bodyId);if(b){b.querySelectorAll('.jb-adm-internal-pane-20261012').forEach(function(p){p.remove()});b.style.display='';}w.classList.remove('show','minimized','jb-adm-win-fullscreen-20261012','jb-adm-win-minimized-20261012');w.style.display='';w.style.width='';w.style.height='';w.style.left='';w.style.top='';}
  function selectTab(id){active=id;tabs.forEach(function(t){t.pane.style.display=t.id===id?'block':'none';t.button.classList.toggle('active',t.id===id);t.button.setAttribute('aria-selected',t.id===id?'true':'false')})}
  function removeTab(id){var i=tabs.findIndex(function(t){return t.id===id});if(i<0)return;var t=tabs[i];if(t.pane)t.pane.remove();t.button.remove();tabs.splice(i,1);if(!tabs.length){closeForm();return}if(active===id)selectTab(tabs[Math.max(0,i-1)].id);renumber()}
@@ -14699,19 +14699,19 @@ window.jbAdmissionImportFile2026=async function(file){var fb=el('admAdmissionRed
   // Remove the old fullscreen/minimize/clear/close controls and legacy taskbar items for this form only.
   head.querySelectorAll('.win-actions,.task3-window-controls,#jbAdmissionWindowControls20261012').forEach(function(x){x.remove()});
   if(!bar.querySelector('.jb-adm-newtab')){var plus=document.createElement('button');plus.type='button';plus.className='jb-adm-newtab';plus.textContent='+ নতুন ট্যাব';plus.title='একই বারে আরেকটি স্বাধীন ভর্তি ফর্ম খুলুন';plus.onclick=addIndependentTab;bar.appendChild(plus)}
-  if(!bar.querySelector('.jb-adm-close-window')){var close=document.createElement('button');close.type='button';close.className='jb-adm-close-window';close.textContent='✕';close.title='ভর্তি ফর্ম বন্ধ করুন';close.onclick=closeForm;bar.appendChild(close)}
+  if(!bar.querySelector('.jb-adm-fullscreen')){var fs=document.createElement('button');fs.type='button';fs.className='jb-adm-winbtn jb-adm-fullscreen';fs.textContent='⛶';fs.title='ফুলস্ক্রিন চালু/বন্ধ';fs.onclick=fullscreen;bar.appendChild(fs)}if(!bar.querySelector('.jb-adm-minimize')){var mn=document.createElement('button');mn.type='button';mn.className='jb-adm-winbtn jb-adm-minimize';mn.textContent='—';mn.title='মিনিমাইজ';mn.onclick=minimize;bar.appendChild(mn)}if(!bar.querySelector('.jb-adm-close-window')){var close=document.createElement('button');close.type='button';close.className='jb-adm-winbtn jb-adm-close-window';close.textContent='✕';close.title='ভর্তি ফর্ম বন্ধ করুন';close.onclick=closeForm;bar.appendChild(close)}
   if(!wrapped){
    var pane=document.createElement('div');pane.className='jb-adm-internal-pane-20261012';pane.dataset.tabPane='admission-1';
    while(body.firstChild)pane.appendChild(body.firstChild);
    body.appendChild(pane);wrapped=true;
-   var tab={id:'admission-1',pane:pane,button:addTabButton('admission-1','ভর্তি ফর্ম 1')};tabs.push(tab);selectTab(tab.id);
+   var tab={id:'admission-1',pane:pane,button:addTabButton('admission-1','ভর্তি ফর্ম 1')};tabs.push(tab);selectTab(tab.id);if(!w.classList.contains('jb-adm-win-fullscreen-20261012')){w.classList.add('jb-adm-win-fullscreen-20261012');w.style.position='fixed';w.style.inset='0';w.style.width='100vw';w.style.height='100vh';w.style.transform='none'}
   }
  }
  function addIndependentTab(){
   var body=el(bodyId),bar=el(tabsId);if(!body||!bar)return;
   var id='admission-'+(++seq),pane=document.createElement('div');pane.className='jb-adm-internal-pane-20261012 jb-adm-iframe-pane';pane.dataset.tabPane=id;
   var frame=document.createElement('iframe');frame.title='স্বতন্ত্র ভর্তি ফর্ম '+seq;frame.loading='eager';
-  var u=new URL(window.location.href);u.hash='jb-open-admission-student-20261012';frame.src=u.href;
+  var base=window.location.href.split('#')[0];frame.src=base+'#jb-open-admission-student-20261012';frame.onload=function(){setTimeout(function(){try{var cw=frame.contentWindow;if(cw&&typeof cw.openAdmissionForm2026==='function'&&!cw.document.getElementById('admAdmissionRedesign20261011'))cw.openAdmissionForm2026('student');if(cw&&!cw.document.getElementById('admAdmissionRedesign20261011')){var m=document.createElement('div');m.style.cssText='padding:30px;text-align:center;font-weight:bold;color:#173d2a';m.textContent='নতুন ট্যাবে ফর্ম লোড হয়নি। আবার নতুন ট্যাব চাপুন অথবা বর্তমান ফর্ম ব্যবহার করুন।';if(!pane.querySelector('.jb-adm-tab-load-error')){m.className='jb-adm-tab-load-error';pane.appendChild(m)}}}catch(e){var m=document.createElement('div');m.style.cssText='padding:30px;text-align:center;font-weight:bold;color:#173d2a';m.textContent='নতুন ট্যাব লোড করতে ব্রাউজার বাধা দিয়েছে।';if(!pane.querySelector('.jb-adm-tab-load-error'))pane.appendChild(m)}},900)};
   pane.appendChild(frame);body.appendChild(pane);
   var tab={id:id,pane:pane,button:addTabButton(id,'ভর্তি ফর্ম '+seq)};tabs.push(tab);selectTab(id);
  }
