@@ -14092,7 +14092,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     var btn=document.querySelector('#winBody button[onclick="jbSaveSalaryPayment2026()"]');
     if(btn){btn.disabled=true;btn.textContent='⏳ সংরক্ষণ হচ্ছে...';}
     try{
-      var data={SalaryID:'SAL-'+Date.now(),EmployeeID:employeeId,Name:name,EmployeeType:String((el('jbSalaryEmployeeType2026')||{}).value||'শিক্ষক/শিক্ষিকা'),Month:month,Amount:amount,Method:method,Date:date,Note:String((el('jbSalaryNote2026')||{}).value||'').trim()};
+      var employeeType=String((el('jbSalaryEmployeeType2026')||{}).value||'শিক্ষক/শিক্ষিকা');var note=String((el('jbSalaryNote2026')||{}).value||'').trim();var data={SalaryID:'SAL-'+Date.now(),EmployeeID:employeeId,Name:name,Month:month,Amount:amount,Method:method,Date:date,Note:'কর্মীর ধরন: '+employeeType+(note?' | '+note:'')};
       var result=await call('saveRecord',token,'SALARY',data);
       if(!result||!result.ok){report('❌ বেতন সংরক্ষণ হয়নি: '+((result&&result.message)||'সার্ভার থেকে সফলতার উত্তর পাওয়া যায়নি।'),false);return;}
       report('✅ বেতন প্রদান সফলভাবে সংরক্ষিত হয়েছে। বেতন ID: '+data.SalaryID+' | '+name+' | '+month+' | '+amount.toLocaleString('bn-BD')+' টাকা',true);
