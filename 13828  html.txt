@@ -13518,7 +13518,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   };
   function studentFormData(){
     var d={
-      StudentID:V('adStudentID'),FormID:V('adStudentID')||draftAdmissionId||('ADM-'+Date.now()),DOB:V('adDob'),RecordDate:V('adRecordDate'),
+      StudentID:V('adStudentID'),FormID:V('adStudentID')||draftAdmissionId||('ADM-'+Date.now()),DOB:V('adDob'),FatherDOB:V('adFatherDob2026'),MotherDOB:V('adMotherDob2026'),RecordDate:V('adRecordDate'),
       NameBN:V('adNameBN'),NameAR:V('adNameAR'),NameEN:V('adNameEN'),
       FatherBN:V('adFatherBN'),FatherNameBN:V('adFatherBN'),FatherAR:V('adFatherAR'),FatherNameAR:V('adFatherAR'),FatherEN:V('adFatherEN'),FatherNameEN:V('adFatherEN'),
       MotherBN:V('adMotherBN'),MotherNameBN:V('adMotherBN'),MotherAR:V('adMotherAR'),MotherNameAR:V('adMotherAR'),MotherEN:V('adMotherEN'),MotherNameEN:V('adMotherEN'),
@@ -13526,7 +13526,8 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       Division:typeof getLocationValue==='function'?getLocationValue('adDivision'):'',District:typeof getLocationValue==='function'?getLocationValue('adDistrict'):'',
       Upazila:typeof getLocationValue==='function'?getLocationValue('adUpazila'):'',Union:typeof getLocationValue==='function'?getLocationValue('adUnion'):'',
       Post:typeof getLocationValue==='function'?getLocationValue('adPost'):'',Ward:typeof getLocationValue==='function'?getLocationValue('adWard'):'',
-      Village:typeof getLocationValue==='function'?getLocationValue('adVillage'):'',Class:V('adClass'),Department:V('adDept'),Branch:V('adBranch'),
+      Village:typeof getLocationValue==='function'?getLocationValue('adVillage'):'',PostCode:V('adPostCode2026'),Class:V('adClass'),Department:V('adDept'),Branch:V('adBranch'),
+      ResidenceType:V('adResidenceType2026'),BloodGroup:V('adBloodGroup2026'),PreviousClass:V('adPreviousClass2026'),GuardianEmail:V('adGuardianEmail2026'),CurrentAddress:V('adCurrentAddress2026'),IdentityCopyName:((E('adIdentityCopy2026')||{}).files&&E('adIdentityCopy2026').files[0]&&E('adIdentityCopy2026').files[0].name)||'',
       Address:V('adAddress'),BirthReg:V('adBirth'),NID:V('adNid'),Photo:'',AdmissionEntryType:V('admEntryType2026'),StudentCategory:V('admStudentCategory2026'),AdmissionFee:fees.AdmissionFee,RegistrationFee:fees.RegistrationFee,MonthlySalary:fees.MonthlySalary,ResidentialFee:fees.ResidentialFee,
       MonthlyFoodFee:fees.MonthlyFoodFee,SessionFee:fees.SessionFee,AdmissionPaid:admissionPaid,AdmissionDue:admissionDue,AdmissionPaidConfirmed:admissionPaidConfirmed?'YES':'NO',AdmissionType:V('admAdmissionType2026'),
       FeeTotal:totalFees(),FeeConfirmed:feeConfirmed?'YES':'NO',AdmissionTypeConfirmed:typeConfirmed?'YES':'NO',PaymentPlan:paymentChoice||'NOT_SELECTED'
@@ -14394,7 +14395,158 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
           download('Jannatul_Baqi_'+safe+'.csv','text/csv;charset=utf-8',textData);
         }else if(kind==='word'){
           var table='<table><thead><tr>'+headers.map(function(h){return '<th>'+esc(h)+'</th>'}).join('')+'</tr></thead><tbody>'+rows.map(function(row){return '<tr>'+headers.map(function(h,i){var v=Array.isArray(row)?row[i]:row[h];return '<td>'+esc(v)+'</td>'}).join('')+'</tr>'}).join('')+'</tbody></table>';
-          var doc='<!doctype html><html><head><meta charset="utf-8"><title>'+esc(sheet)+'</title><style>body{font-family:Arial,sans-serif}h2{text-align:center}table{border-collapse:collapse;width:100%}td,th{border:1px solid #555;padding:5px;text-align:left}</style></head><body><h2>জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</h2><h3>'+esc(sheet)+'</h3>'+table+'</body></html>';
+          var doc='<!doctype html><html><head><meta charset="utf-8"><title>'+esc(sheet)+'</title><style>body{font-family:Arial,sans-serif}h2{text-align:center}table{border-collapse:collapse;width:100%}td,th{border:1px solid #555;padding:5px;text-align:left}</style></head><body><h2>জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</h2><h3>'+esc(sheet)+'</h3>'+table+'<!-- ===== ONLINE ADMISSION FORM REDESIGN — LOCATION-SAFE 2026-10-11 ===== -->
+
+<style id="jb-admission-redesign-location-safe-20261011">
+#formWin:has(#admAdmissionRedesign20261011){border:2px solid #c59a32;border-radius:16px;overflow:hidden}
+#formWin:has(#admAdmissionRedesign20261011) .win-head{background:linear-gradient(100deg,#0b5137,#19734d);color:#fff7dc;border-bottom:3px solid #d4ae4d}
+#formWin:has(#admAdmissionRedesign20261011) .win-body{background:linear-gradient(180deg,#f3faf5,#fffdf6);color:#193d2d}
+#admAdmissionRedesign20261011{display:grid;gap:12px}
+#admAdmissionRedesign20261011 .adm-redesign-head{display:grid;grid-template-columns:90px minmax(0,1fr) 76px;gap:12px;align-items:center;padding:14px;border:2px solid #cba33f;border-radius:14px;background:linear-gradient(120deg,#eff9f1,#fffdf4);text-align:center}
+#admAdmissionRedesign20261011 .adm-redesign-head img{width:76px;height:76px;object-fit:contain;justify-self:center}
+#admAdmissionRedesign20261011 .adm-brand-bn{font-size:clamp(16px,2vw,23px);font-weight:900;color:#0e5939}
+#admAdmissionRedesign20261011 .adm-brand-ar{font-size:clamp(15px,1.8vw,21px);font-weight:800;direction:rtl}
+#admAdmissionRedesign20261011 .adm-brand-en{font-size:12px;font-weight:800;letter-spacing:.2px}
+#admAdmissionRedesign20261011 .adm-brand-meta{font-size:11px;line-height:1.55;font-weight:700;overflow-wrap:anywhere}
+#admAdmissionRedesign20261011 .adm-id-tools{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;padding:12px;border:1px solid #d8c47f;border-radius:12px;background:#fff}
+#admAdmissionRedesign20261011 .adm-id-tools label,#admAdmissionRedesign20261011 .adm-grid label{display:flex;flex-direction:column;gap:5px;font-weight:800;min-width:0;color:#244c37}
+#admAdmissionRedesign20261011 .field{box-sizing:border-box;width:100%;min-width:0;min-height:40px;border:1.4px solid #b7d1bf;border-radius:8px;background:#fff;color:#183b2b;padding:8px 10px}
+#admAdmissionRedesign20261011 .adm-id-tools button,#admAdmissionRedesign20261011 .adm-action-row button{white-space:normal;min-height:42px;font-weight:800}
+#admAdmissionRedesign20261011 .adm-section{border:1px solid #d8c47f;border-radius:12px;padding:12px;background:rgba(255,255,255,.92);box-shadow:0 3px 10px #173f2510}
+#admAdmissionRedesign20261011 .adm-section-title{margin:0 0 10px;padding:7px 12px;border-radius:999px;background:linear-gradient(90deg,#176b45,#287d53);color:#fff7dc;text-align:center;font-weight:900}
+#admAdmissionRedesign20261011 .adm-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+#admAdmissionRedesign20261011 .adm-grid .full{grid-column:1/-1}
+#admAdmissionRedesign20261011 .adm-address-note{font-size:12px;font-weight:700;color:#516b59;margin-top:6px}
+#admAdmissionRedesign20261011 .adm-letter{border:1px solid #d5c078;border-radius:10px;background:#fffef7;padding:12px;line-height:1.8;font-weight:700}
+#admAdmissionRedesign20261011 .adm-declaration{border:1px solid #d7c47f;background:#fff9e7;padding:12px;border-radius:10px;line-height:1.8}
+#admAdmissionRedesign20261011 .adm-action-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+#admAdmissionRedesign20261011 .adm-preview-thumb{display:none;max-width:100px;max-height:90px;object-fit:contain;border:1px solid #aaa;border-radius:7px;cursor:zoom-in}
+#admAdmissionRedesign20261011 .adm-file-note{font-size:11px;color:#76520b;line-height:1.5}
+#admAdmissionRedesign20261011 .adm-proposed-logo-20261010,#admAdmissionRedesign20261011 .jb-adm-proposed-logo-20261010{display:none!important}
+#admAdmissionRedesign20261011 .adm-hidden-internal{display:none!important}
+@media(max-width:900px){#admAdmissionRedesign20261011 .adm-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#admAdmissionRedesign20261011 .adm-id-tools{grid-template-columns:repeat(2,minmax(0,1fr))}#admAdmissionRedesign20261011 .adm-action-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){#admAdmissionRedesign20261011 .adm-redesign-head{grid-template-columns:58px minmax(0,1fr) 48px;padding:8px;gap:5px}#admAdmissionRedesign20261011 .adm-redesign-head img{width:48px;height:48px}#admAdmissionRedesign20261011 .adm-brand-meta{font-size:9px}#admAdmissionRedesign20261011 .adm-grid,#admAdmissionRedesign20261011 .adm-id-tools,#admAdmissionRedesign20261011 .adm-action-row{grid-template-columns:1fr}}
+@media print{#admAdmissionRedesign20261011 .adm-id-tools button,#admAdmissionRedesign20261011 .adm-action-row,#admAdmissionRedesign20261011 .adm-upload-controls{display:none!important}#admAdmissionRedesign20261011 .adm-redesign-head{break-inside:avoid}}
+</style>
+<script id="jb-admission-redesign-location-safe-20261011">
+(function(){
+'use strict';
+if(window.__jbAdmissionRedesignLocationSafe20261011)return;
+window.__jbAdmissionRedesignLocationSafe20261011=true;
+var oldOpen=window.openAdmissionForm2026;
+function el(id){return document.getElementById(id)}
+function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function sysId(){var d=new Date();return 'ADM-'+d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'-'+Date.now().toString().slice(-6)}
+function sourceImage(id,fallback){var x=el(id);return x&&x.getAttribute('src')&&x.getAttribute('src')!=='about:blank'?x.getAttribute('src'):fallback}
+function section(title,labels){return '<section class="adm-section"><h3 class="adm-section-title">'+title+'</h3><div class="adm-grid">'+labels+'</div></section>'}
+function takeLabel(id){var x=el(id);return x?x.closest('label'):null}
+function makeLabel(title,id,type,extra){return '<label'+(extra?' class="'+extra+'"':'')+'>'+title+(type==='select'?'<select id="'+id+'" class="field"><option value="">নির্বাচন করুন</option></select>':'<input id="'+id+'" class="field" type="'+(type||'text')+'">')+'</label>'}
+function labelHtml(title,id,type,attrs,extra){return '<label'+(extra?' class="'+extra+'"':'')+'>'+title+'<input id="'+id+'" class="field" type="'+(type||'text')+'" '+(attrs||'')+'></label>'}
+function rebuild(type){
+ if(type!=='student')return;
+ var body=el('winBody');if(!body||!el('adNameBN')||el('admAdmissionRedesign20261011'))return;
+ var originalLogo=sourceImage('jbAdmissionOriginalLogo20261010',sourceImage('contactLoginLogo2026',sourceImage('loginLogo','')));
+ var originalQR=sourceImage('jbAdmissionMainQR20261010',sourceImage('contactMainQR2026',sourceImage('loginMainQR802268e','')));
+ var autoId=sysId();
+ var hiddenId=el('adStudentID'),recordDate=el('adRecordDate');
+ if(hiddenId){hiddenId.type='hidden';hiddenId.value=hiddenId.value||autoId;hiddenId.classList.add('adm-hidden-internal')}
+ if(recordDate){recordDate.type='hidden';recordDate.classList.add('adm-hidden-internal')}
+ var oldHeader=el('jbAdmissionOriginalLogo20261010')&&el('jbAdmissionOriginalLogo20261010').closest('.jb-admission-brand-header-20261010');
+ var oldGrid=body.querySelector('.form-grid');
+ if(!oldGrid)return;
+ var fieldLabels={
+  namebn:takeLabel('adNameBN'),namear:takeLabel('adNameAR'),nameen:takeLabel('adNameEN'),dob:takeLabel('adDob'),
+  fatherbn:takeLabel('adFatherBN'),fatherar:takeLabel('adFatherAR'),fatheren:takeLabel('adFatherEN'),
+  motherbn:takeLabel('adMotherBN'),motherar:takeLabel('adMotherAR'),motheren:takeLabel('adMotherEN'),
+  class:takeLabel('adClass'),dept:takeLabel('adDept'),branch:takeLabel('adBranch'),photo:takeLabel('adPhoto'),
+  birth:takeLabel('adBirth'),nid:takeLabel('adNid'),address:takeLabel('adAddress'),
+  division:takeLabel('adDivisionSelect'),district:takeLabel('adDistrictSelect'),upazila:takeLabel('adUpazilaSelect'),union:takeLabel('adUnionSelect'),
+  ward:takeLabel('adWardSelect'),village:takeLabel('adVillageSelect')
+ };
+ // If a location selector has not been added by the safe location binder yet, preserve the entire field container and bind it later.
+ var root=document.createElement('div');root.id='admAdmissionRedesign20261011';
+ var header='<div class="adm-redesign-head"><img id="admAdmissionRedesignLogo2026" alt="মাদ্রাসার মূল লোগো" src="'+esc(originalLogo)+'"><div><div class="adm-brand-bn">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div><div class="adm-brand-ar">المدرسة الجنة الباقية للبنات ودار الايتام</div><div class="adm-brand-en">Jannatul Baky Mohila Madrasha &amp; Eatimkhana</div><div class="adm-brand-meta">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০<br>হটলাইন: 01823316630 · ইমেইল: hmatik90@gmail.com</div></div><img id="admAdmissionRedesignQR2026" alt="মূল পেজের QR কোড" src="'+esc(originalQR)+'"></div>';
+ var idTools='<div class="adm-id-tools"><label>সিস্টেম অটো আইডি<input id="admSystemID2026" class="field" readonly value="'+esc(autoId)+'"></label><label>হাতে লেখা / নিজস্ব আইডি<input id="admManualID2026" class="field" placeholder="পুরাতন আবেদন ID (ঐচ্ছিক)"></label><div><label>&nbsp;</label><button type="button" class="secondary" onclick="jbAdmissionLoadDraft2026()">🔎 ID দিয়ে পুরাতন/অসম্পূর্ণ ফর্ম আনুন</button></div><div><label>&nbsp;</label><button type="button" class="secondary" onclick="jbAdmissionShowRules2026()">📜 ভর্তির নিয়মাবলি/শর্ত দেখুন</button></div></div>';
+ var letter='<div class="adm-letter"><b>বরাবর,</b><br>মাননীয় প্রিন্সিপাল/মুহতামিম সাহেব<br>জান্নাতুল বাক্বী মহিলা মাদ্রাসা লিল্লাহ বোর্ডিং ও এতিমখানা<br>উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div>';
+ var rootTop=header+idTools+'<div class="adm-section"><h3 class="adm-section-title">ভর্তি ফর্ম</h3>'+letter+'</div>';
+ root.innerHTML=rootTop;
+ var oldParent=oldGrid.parentNode;
+ // Keep the existing location input/select elements intact; only re-parent their existing labels.
+ var extraLabels={
+  fatherdob:labelHtml('পিতার জন্ম তারিখ','adFatherDob2026','date',''),
+  motherdob:labelHtml('মাতার জন্ম তারিখ','adMotherDob2026','date',''),
+  residence:'<label>আবাসিক / অনাবাসিক<select id="adResidenceType2026" class="field"><option value="">নির্বাচন করুন</option><option>আবাসিক</option><option>অনাবাসিক</option></select></label>',
+  blood:'<label>রক্তের গ্রুপ<select id="adBloodGroup2026" class="field"><option value="">নির্বাচন করুন</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option><option>জানা নেই</option></select></label>',
+  prev:labelHtml('পূর্বে যে শ্রেণি/জামাতে পড়েছে','adPreviousClass2026','text',''),
+  guardianemail:labelHtml('অভিভাবকের ইমেইল','adGuardianEmail2026','email',''),
+  current:labelHtml('বর্তমান ঠিকানা','adCurrentAddress2026','text','', 'full'),
+  postcode:labelHtml('পোস্ট কোড','adPostCode2026','text','inputmode="numeric"'),
+  copy:'<label>জন্ম নিবন্ধন / জাতীয় কার্ডের কপি<input id="adIdentityCopy2026" class="field" type="file" accept="image/*,application/pdf"><span class="adm-file-note">সর্বোচ্চ ২০ MB। বড় ফাইল হলে crop/ছোট করে আবার লোড করুন।</span><img id="adIdentityCopyThumb2026" class="adm-preview-thumb" alt="নথির প্রিভিউ" onclick="jbAdmissionViewIdentityCopy2026()"><button type="button" class="secondary" onclick="jbAdmissionViewIdentityCopy2026()">🔍 ছোট বক্সে দেখুন / বড় ভিউ</button><span id="adIdentityCopyFeedback2026" class="adm-file-note"></span></label>'
+ };
+ // Pull existing labels out of their original grid; no location database, dropdown, or cascade code is replaced.
+ var allLabels=Array.prototype.slice.call(oldGrid.querySelectorAll(':scope > label'));
+ allLabels.forEach(function(l){l.remove()});
+ var oldMeta=body.querySelector('.student-meta-row-2026');if(oldMeta)oldMeta.remove();
+ if(oldHeader)oldHeader.remove();
+ oldGrid.innerHTML='';
+ oldGrid.classList.add('adm-redesign-root-grid');
+ var originalDate=recordDate?recordDate:document.createElement('input');if(originalDate&&originalDate.id==='adRecordDate')originalDate.type='hidden';
+ root.appendChild(oldGrid);
+ function addSection(title,keys,extraKeys){
+   var sec=document.createElement('section');sec.className='adm-section';
+   var h=document.createElement('h3');h.className='adm-section-title';h.textContent=title;sec.appendChild(h);
+   var grid=document.createElement('div');grid.className='adm-grid';
+   keys.forEach(function(k){var node=fieldLabels[k];if(node){node.classList.remove('full');grid.appendChild(node)}});
+   (extraKeys||[]).forEach(function(k){grid.insertAdjacentHTML('beforeend',extraLabels[k]||'')});
+   sec.appendChild(grid);root.insertBefore(sec,oldGrid);
+ }
+ // Move ID internals into hidden storage and connect the manually entered ID without altering the original save logic.
+ if(hiddenId){hiddenId.value=autoId;root.appendChild(hiddenId)}
+ if(recordDate)root.appendChild(recordDate);
+ addSection('১. শিক্ষার্থীর ব্যক্তিগত তথ্য',['namebn','namear','nameen','dob']);
+ addSection('২. পিতা/অভিভাবকের তথ্য',['fatherbn','fatherar','fatheren'],['fatherdob']);
+ addSection('৩. মাতার তথ্য',['motherbn','motherar','motheren'],['motherdob']);
+ addSection('৪. ভর্তি সংক্রান্ত তথ্য',['class','dept','branch'],['residence','blood']);
+ addSection('৫. স্থায়ী ঠিকানা — লোকেশন ডাটাবেজের ড্রপডাউন অপরিবর্তিত',['division','district','upazila','union']);
+ // Post field is added by the existing location binder; it is moved after the binder finishes.
+ addSection('৬. ওয়ার্ড, ডাকঘর, গ্রাম ও পরিচয়পত্র',['ward','village','birth','nid'],['postcode','copy']);
+ addSection('৭. পূর্ববর্তী শিক্ষা ও যোগাযোগ',['prev','photo'],['guardianemail']);
+ addSection('৮. বর্তমান ঠিকানা',['address'],['current']);
+ // Main grid stays in place for all existing form logic; old labels that were not mapped are retained below.
+ var known={};Object.keys(fieldLabels).forEach(function(k){if(fieldLabels[k])known[fieldLabels[k]]=true});
+ var leftovers=allLabels.filter(function(l){return !known[l]});
+ if(leftovers.length){var sec=document.createElement('section');sec.className='adm-section';sec.innerHTML='<h3 class="adm-section-title">অতিরিক্ত তথ্য</h3>';var grid=document.createElement('div');grid.className='adm-grid';leftovers.forEach(function(l){grid.appendChild(l)});sec.appendChild(grid);root.insertBefore(sec,oldGrid)}
+ oldGrid.innerHTML='<div class="adm-declaration full">উপরে প্রদত্ত তথ্য সঠিক এবং আমি অত্র প্রতিষ্ঠানের সকল নিয়ম-কানুন মেনে নেওয়ার শর্তে ইলমে দ্বীন শিক্ষার উদ্দেশ্যে আপনার মাদ্রাসায় ভর্তি হতে ইচ্ছুক। অতএব, আমাকে ভর্তির অনুমতি দিয়ে ইলমে দ্বীন অর্জনের সুযোগ দানে বাধিত করবেন।</div><div class="adm-action-row full"><label>আবেদন সিদ্ধান্ত<select id="admApplicantDecision2026" class="field"><option value="">নির্বাচন করুন</option><option value="APPROVE">আবেদন মঞ্জুর</option><option value="REJECT">আবেদন নামঞ্জুর</option></select></label><div><label>&nbsp;</label><button type="button" class="primary" onclick="openAdmissionDialog2026(\'payment\')">💳 পেমেন্ট সম্পন্ন করুন</button></div><div><label>&nbsp;</label><button type="button" class="secondary" onclick="jbAdmissionPrint2026()">🖨️ A4 প্রিন্ট</button></div><div><label>&nbsp;</label><button type="button" class="secondary" onclick="jbAdmissionDownload2026()">⬇️ ফর্ম ডাউনলোড</button></div><div><label>&nbsp;</label><button type="button" class="secondary" onclick="jbAdmissionSaveDraft2026()">💾 আবেদন সংরক্ষণ / এডিট</button></div><div><label>&nbsp;</label><button type="button" class="secondary" onclick="jbAdmissionImportClick2026()">📤 পূরণ করা ফর্ম আপলোড</button><input id="adCompletedUpload2026" type="file" accept=".docx,.xlsx,.xls,.csv,.txt,.json,.pdf,image/*" style="display:none" onchange="jbAdmissionImportFile2026(this.files&&this.files[0])"></div></div><div id="admAdmissionRedesignFeedback2026" class="adm-file-note full" aria-live="polite"></div>';
+ // Keep the original fees, admission type, payment and final-save panel; its IDs/functions remain unchanged.
+ root.appendChild(oldGrid);
+ if(oldParent&&oldParent!==body&&oldParent.contains(root)){} else if(oldParent)oldParent.insertBefore(root,oldGrid.nextSibling);
+ // Root inserted before old grid earlier; now ensure root wraps every visible section and existing workflow panel.
+ var panel=el('admissionMandatoryPanel2026');if(panel){root.appendChild(panel);var labels=panel.querySelectorAll('label');labels.forEach(function(l){var id=l.querySelector('select,input,textarea');if(!id)return; if(['admEntryType2026','admStudentCategory2026','admInlineAdmissionType2026'].includes(id.id)){var g=root.querySelector('.adm-section:nth-of-type(5) .adm-grid');if(g)g.appendChild(l)}})}
+ var originalSave=body.querySelector('button[onclick="saveAdmissionApplication2026()"]');
+ if(originalSave){originalSave.classList.add('adm-existing-final-save');originalSave.textContent='💾 আবেদন চূড়ান্তভাবে সংরক্ষণ করুন'}
+ var manual=el('admManualID2026');
+ if(manual)manual.addEventListener('input',function(){if(hiddenId)hiddenId.value=manual.value.trim()||autoId});
+ var date=el('adRecordDate');if(date&&!date.value)date.value=new Date().toISOString().slice(0,10);
+ var copy=el('adIdentityCopy2026');if(copy)copy.addEventListener('change',function(){var f=copy.files&&copy.files[0],fb=el('adIdentityCopyFeedback2026'),thumb=el('adIdentityCopyThumb2026');if(!f)return;if(f.size>20*1024*1024){copy.value='';if(fb)fb.textContent='❌ ফাইল ২০ MB-এর বেশি। Crop/Compress করে পুনরায় লোড করুন।';if(thumb)thumb.style.display='none';return}if(fb)fb.textContent='✓ '+f.name+' ('+(f.size/1024/1024).toFixed(2)+' MB)';if(f.type.indexOf('image/')===0&&thumb){thumb.src=URL.createObjectURL(f);thumb.style.display='block'}else if(thumb)thumb.style.display='none'});
+ // The location selector code is intentionally untouched. Add its generated post field to the same grid after it exists.
+ setTimeout(function(){var post=takeLabel('adPostSelect');if(post){var g=root.querySelector('.adm-section:nth-of-type(6) .adm-grid');if(g&&!g.contains(post))g.insertBefore(post,g.firstChild)}},300);
+ body.insertBefore(root,body.firstChild);
+ if(typeof window.syncAdmissionBrandHeader20261010==='function'){} // The new original-logo and QR nodes use the actual source images captured above.
+ if(el('admAdmissionRedesignQR2026')&&!originalQR)el('admAdmissionRedesignQR2026').src='https://quickchart.io/qr?size=180&margin=2&text='+encodeURIComponent(location.href.split('#')[0]);
+}
+window.openAdmissionForm2026=function(type){var ret=oldOpen.apply(this,arguments);if(type==='student'){setTimeout(function(){rebuild(type)},40);setTimeout(function(){rebuild(type)},220);setTimeout(function(){rebuild(type)},650)}return ret};
+window.jbAdmissionShowRules2026=function(){var old=el('jbAdmissionRulesOverlay2026');if(old)old.remove();document.body.insertAdjacentHTML('beforeend','<div id="jbAdmissionRulesOverlay2026" style="position:fixed;inset:0;z-index:2147483647;background:#0009;display:grid;place-items:center;padding:14px"><div style="background:#fffef8;color:#183b2b;border:3px solid #c79a28;border-radius:14px;max-width:720px;max-height:85vh;overflow:auto;padding:20px"><h2 style="text-align:center;color:#125438">ভর্তির নিয়মাবলি ও শর্তাবলি</h2><ol><li>আবেদনপত্রে শিক্ষার্থী, পিতা-মাতা, জন্মতারিখ, ঠিকানা ও যোগাযোগের তথ্য সঠিকভাবে লিখতে হবে।</li><li>জন্ম নিবন্ধন/জাতীয় পরিচয়পত্রের তথ্য ও কপি সঠিক হতে হবে; ফাইল সর্বোচ্চ ২০ MB।</li><li>শ্রেণি/জামাত, শাখা, আবাসিক/অনাবাসিক এবং ফি-সংক্রান্ত নির্বাচন যাচাই করতে হবে।</li><li>ফর্ম সংরক্ষণ বা জমা দেওয়া ভর্তি অনুমোদনের নিশ্চয়তা নয়; কর্তৃপক্ষ যাচাই করে সিদ্ধান্ত দেবেন।</li><li>প্রযোজ্য ফি/পেমেন্ট যাচাই ও প্রশাসনিক অনুমোদনের পর ভর্তি চূড়ান্ত হবে।</li><li>ভুল তথ্য বা অসম্পূর্ণ আবেদন সংশোধনের জন্য ফেরত দেওয়া হতে পারে।</li></ol><div style="text-align:center"><button type="button" onclick="document.getElementById(\\'jbAdmissionRulesOverlay2026\\').remove()">বন্ধ করুন</button></div></div></div>')};
+window.jbAdmissionLoadDraft2026=async function(){var id=String((el('admManualID2026')||{}).value||'').trim();if(!id){var fb=el('admAdmissionRedesignFeedback2026');if(fb)fb.textContent='আগের/অসম্পূর্ণ ফর্মের ID লিখুন।';return}var fb=el('admAdmissionRedesignFeedback2026');if(fb)fb.textContent='⏳ ফর্ম খোঁজা হচ্ছে...';try{var r=await call('saveAdmissionDraft2026',token,{AdmissionID:id},'LOAD');if(!r||!r.ok||!r.found)throw new Error((r&&r.message)||'এই ID-তে পুরাতন/অসম্পূর্ণ ফর্ম পাওয়া যায়নি।');var d=r.formData||{};var map={adStudentID:d.StudentID||d.FormID||id,adDob:d.DOB,adFatherBN:d.FatherBN||d.FatherNameBN,adFatherAR:d.FatherAR||d.FatherNameAR,adFatherEN:d.FatherEN||d.FatherNameEN,adMotherBN:d.MotherBN||d.MotherNameBN,adMotherAR:d.MotherAR||d.MotherNameAR,adMotherEN:d.MotherEN||d.MotherNameEN,adNameBN:d.NameBN,adNameAR:d.NameAR,adNameEN:d.NameEN,adMobile:d.Mobile,adWa:d.WhatsApp,adEmail:d.Email,adClass:d.Class,adDept:d.Department,adBranch:d.Branch,adBirth:d.BirthReg,adNid:d.NID,adAddress:d.Address,adFatherDob2026:d.FatherDOB,adMotherDob2026:d.MotherDOB,adResidenceType2026:d.ResidenceType,adBloodGroup2026:d.BloodGroup,adPreviousClass2026:d.PreviousClass,adGuardianEmail2026:d.GuardianEmail,adCurrentAddress2026:d.CurrentAddress,adPostCode2026:d.PostCode};Object.keys(map).forEach(function(k){var x=el(k);if(x&&map[k]!=null)x.value=map[k]});['Division','District','Upazila','Union','Ward','Village','Post'].forEach(function(k){var val=d[k]||'',manual=el('ad'+k+'Manual'),sel=el('ad'+k+'Select');if(manual)manual.value='';if(sel){var opt=Array.prototype.find.call(sel.options,function(o){return o.value===val||o.textContent===val});if(opt){sel.value=opt.value;if(manual)manual.value=''}else if(manual)manual.value=val}else if(manual)manual.value=val});if(el('admManualID2026'))el('admManualID2026').value=id;if(fb)fb.textContent='✓ পুরাতন/অসম্পূর্ণ ফর্মের তথ্য এসেছে। প্রয়োজনমতো সম্পাদনা করে সংরক্ষণ করুন।'}catch(e){if(fb)fb.textContent='❌ ফর্ম লোড হয়নি: '+(e&&e.message||e)}};
+window.jbAdmissionSaveDraft2026=async function(){var fb=el('admAdmissionRedesignFeedback2026');try{if(typeof window.previewAdmissionApplication2026==='function'){await window.previewAdmissionApplication2026();if(fb&&!(fb.textContent||''))fb.textContent='খসড়া সংরক্ষণের অনুরোধ পাঠানো হয়েছে।'}else if(fb)fb.textContent='সংরক্ষণ ফাংশন পাওয়া যায়নি।'}catch(e){if(fb)fb.textContent='সংরক্ষণে সমস্যা: '+(e&&e.message||e)}};
+window.jbAdmissionPrint2026=function(){var old=el('admAdmissionRedesign20261011');if(!old)return;window.print()};
+window.jbAdmissionDownload2026=function(){var root=el('admAdmissionRedesign20261011');if(!root)return;var clone=root.cloneNode(true);clone.querySelectorAll('button,input[type=file],#adCompletedUpload2026').forEach(function(x){x.remove()});var doc='<!doctype html><html lang="bn"><meta charset="utf-8"><title>ভর্তি ফর্ম</title><style>body{font-family:Arial,sans-serif;color:#173b2a}label{display:inline-block;vertical-align:top;width:23%;margin:1%;font-weight:bold}input,textarea,select{display:block;width:96%;min-height:25px;border:1px solid #888;padding:4px}.adm-section{border:1px solid #b99a42;padding:10px;margin:10px 0}.adm-section-title{text-align:center;background:#176b45;color:white;padding:7px}.adm-redesign-head{display:grid;grid-template-columns:80px 1fr 70px;gap:10px;text-align:center}.adm-redesign-head img{width:70px;height:70px;object-fit:contain}.adm-declaration{padding:10px;background:#fff8e5}</style><body>'+clone.outerHTML+'</body></html>';var blob=new Blob([doc],{type:'text/html;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='Jannatul_Baqi_Admission_Form.html';a.click();setTimeout(function(){URL.revokeObjectURL(url)},1000)};
+window.jbAdmissionImportClick2026=function(){var x=el('adCompletedUpload2026');if(x)x.click()};
+window.jbAdmissionViewIdentityCopy2026=function(){var f=el('adIdentityCopy2026'),file=f&&f.files&&f.files[0];if(!file)return;var old=el('jbAdmissionIdentityView2026');if(old)old.remove();var u=URL.createObjectURL(file);var inner=file.type.indexOf('image/')===0?'<img src="'+u+'" style="max-width:90vw;max-height:80vh;object-fit:contain">':'<iframe src="'+u+'" style="width:90vw;height:80vh;border:0;background:white"></iframe>';document.body.insertAdjacentHTML('beforeend','<div id="jbAdmissionIdentityView2026" style="position:fixed;inset:0;z-index:2147483647;background:#000c;display:grid;place-items:center;padding:12px" onclick="this.remove()"><div style="background:#fff;padding:8px;border-radius:8px" onclick="event.stopPropagation()">'+inner+'<p style="text-align:center"><button type="button" onclick="document.getElementById(\\'jbAdmissionIdentityView2026\\').remove()">বন্ধ করুন</button></p></div></div>')};
+window.jbAdmissionImportFile2026=async function(file){var fb=el('admAdmissionRedesignFeedback2026');if(!file)return;if(fb)fb.textContent='ফাইল নির্বাচিত: '+file.name+' — ফাইলের ধরন পরীক্ষা হচ্ছে...';if(file.size>20*1024*1024){if(fb)fb.textContent='❌ ফাইল ২০ MB-এর বেশি। ছোট/ক্রপ করে আবার আপলোড করুন।';return}var ext=(file.name.split('.').pop()||'').toLowerCase();if(['txt','csv','json'].indexOf(ext)>=0){var text=await file.text();try{var data=ext==='json'?JSON.parse(text):null;if(!data){data={};text.split(/\r?\n/).forEach(function(line){var m=line.match(/^\s*([^:,=]+)\s*[:,=]\s*(.*?)\s*$/);if(m)data[m[1].trim()]=m[2].trim()})}var aliases={NameBN:['NameBN','নাম বাংলা','বাংলা নাম','শিক্ষার্থীর নাম'],NameAR:['NameAR','নাম আরবি','আরবি নাম'],NameEN:['NameEN','English Name','নাম ইংরেজি'],FatherBN:['FatherBN','পিতার নাম'],MotherBN:['MotherBN','মাতার নাম'],DOB:['DOB','জন্ম তারিখ'],Mobile:['Mobile','মোবাইল'],Email:['Email','ইমেইল'],Class:['Class','শ্রেণি','জামাত'],Address:['Address','ঠিকানা']};Object.keys(aliases).forEach(function(k){var v='';aliases[k].some(function(a){if(data[a]!=null){v=data[a];return true}var key=Object.keys(data).find(function(z){return z.toLowerCase()===a.toLowerCase()});if(key){v=data[key];return true}return false});if(v){var id={NameBN:'adNameBN',NameAR:'adNameAR',NameEN:'adNameEN',FatherBN:'adFatherBN',MotherBN:'adMotherBN',DOB:'adDob',Mobile:'adMobile',Email:'adEmail',Class:'adClass',Address:'adAddress'}[k],x=el(id);if(x)x.value=v}});if(fb)fb.textContent='✓ সমর্থিত টেক্সট ফাইল থেকে মিল থাকা তথ্য পূরণ করা হয়েছে। বাকি ঘরগুলো যাচাই করুন।'}catch(e){if(fb)fb.textContent='❌ ফাইল পড়া যায়নি: '+(e&&e.message||e)}}else if((ext==='xlsx'||ext==='xls')&&window.XLSX){var buf=await file.arrayBuffer(),wb=window.XLSX.read(buf,{type:'array'}),rows=window.XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''}),obj=rows[0]||{};['NameBN','NameAR','NameEN','FatherBN','MotherBN','DOB','Mobile','Email','Class','Address'].forEach(function(k){if(obj[k]!=null){var id={NameBN:'adNameBN',NameAR:'adNameAR',NameEN:'adNameEN',FatherBN:'adFatherBN',MotherBN:'adMotherBN',DOB:'adDob',Mobile:'adMobile',Email:'adEmail',Class:'adClass',Address:'adAddress'}[k];if(el(id))el(id).value=obj[k]}});if(fb)fb.textContent='✓ Excel থেকে তথ্য আনা হয়েছে। সব ঘর যাচাই করুন.'}else if(ext==='docx'&&window.mammoth){var ab=await file.arrayBuffer(),res=await window.mammoth.extractRawText({arrayBuffer:ab});if(fb)fb.textContent='Word ফাইলের লেখা পাওয়া গেছে। তথ্য স্বয়ংক্রিয়ভাবে মেলাতে নির্দিষ্ট field-label format প্রয়োজন; পাওয়া লেখা: '+res.value.slice(0,500)}else if(file.type.indexOf('image/')===0||ext==='pdf'){if(fb)fb.textContent='ফাইল লোড হয়েছে, কিন্তু ছবি/PDF থেকে OCR করে স্বয়ংক্রিয় পূরণের ব্যবস্থা এই সংস্করণে নেই; প্রিভিউ করে তথ্য হাতে পূরণ করুন।'}else if(fb)fb.textContent='এই ফাইলের অটো-পূরণের লাইব্রেরি পাওয়া যায়নি। .txt/.csv/.json ফাইলে “NameBN: ...” ধরনের লাইন দিয়ে আবার আপলোড করুন।'};
+})();
+</script>
+
+</body></html>';
           download('Jannatul_Baqi_'+safe+'.doc','application/msword;charset=utf-8',doc);
         }else{
           download('Jannatul_Baqi_'+safe+'_data.json','application/json;charset=utf-8',JSON.stringify({institution:'Jannatul Baqi Mohila Madrasa & Eatimkhana',sheet:sheet,exportedAt:new Date().toISOString(),rows:rows},null,2));
