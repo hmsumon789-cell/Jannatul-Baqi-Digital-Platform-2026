@@ -29,23 +29,7 @@ body.gold .card,body.gold .module,body.gold .stat{border-radius:35px}
 .app{display:none}.app.show{display:block}.header{padding:10px}.header-top{position:relative;text-align:center;min-height:170px;padding:10px;overflow:hidden}.header-slides{position:absolute;inset:0;display:flex;gap:4px;opacity:.25}.header-slides img{width:20%;object-fit:cover}.header-content{position:relative;z-index:2}.header-content .logo{width:72px;height:72px}.header-content .title-bn{font-size:26px}.header-tools{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;margin-top:8px}.date-line{font-size:19px;font-weight:900;margin-top:5px}.news{border:2px solid var(--border);padding:8px;font-weight:800;overflow:hidden;white-space:nowrap}.dashboard-nav{display:grid;grid-template-columns:auto auto 1fr auto;gap:7px;align-items:center;margin:10px 0}.dashboard-nav h2{margin:0;text-align:center;font-size:21px}.features-select{min-width:210px}
 .slider{padding:8px;margin-bottom:10px}.media-stage{height:260px;border:2px solid var(--border);border-radius:15px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#000}.media-stage img,.media-stage video{max-width:100%;max-height:100%}.media-stage audio{width:80%}.slider-controls{display:flex;justify-content:space-between;margin-top:7px}.main-grid{display:grid;grid-template-columns:1fr 2fr 1fr;gap:10px}.module-col{display:grid;grid-template-columns:1fr;gap:7px;align-content:start}.module{min-height:68px;padding:8px;border:3px solid var(--border);background:var(--panel);color:inherit;font-weight:900;box-shadow:0 5px 12px #0002;transition:.2s}.module:hover{transform:translateY(-2px) scale(1.01)}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}.stat{padding:14px;border:3px solid var(--border);background:var(--panel);text-align:center}.stat b{display:block;font-size:24px}.footer{text-align:center;margin:12px 0;padding:15px}
 .window{display:none;position:fixed;z-index:50;top:90px;left:50%;transform:translateX(-50%);width:min(1000px,94vw);max-height:82vh;overflow:auto;background:var(--panel);color:var(--text);border:4px solid var(--border);border-radius:16px;box-shadow:0 25px 80px #0008}.window.show{display:block}.win-head{position:sticky;top:0;background:var(--panel);padding:9px;border-bottom:2px solid var(--border);display:flex;justify-content:space-between;cursor:move;z-index:3}.win-body{padding:12px}.form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.form-grid label{display:flex;flex-direction:column;gap:4px;font-weight:800}.form-grid .full{grid-column:1/-1}.table-wrap{overflow:auto}.data-table{width:100%;border-collapse:collapse}.data-table th,.data-table td{border:1px solid var(--border);padding:6px;text-align:left}.toast{position:fixed;right:15px;bottom:15px;z-index:100;padding:12px 16px;border:3px solid var(--border);border-radius:12px;background:var(--panel);display:none}
-.payment-online-head{padding:10px;margin-bottom:8px;border:2px solid var(--border);border-radius:12px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}.payment-online-head b{font-size:20px}.payment-online-head span{font-weight:700}.payment-mode-row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.payment-mode-row label{flex:1;min-width:220px}.payment-method-box{display:flex;gap:8px;align-items:center;padding:8px;border:2px solid var(--border);border-radius:12px;margin-top:6px}.payment-method-logo{width:54px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;background:#fff;border:2px solid var(--border)}.payment-method-name{font-weight:900}.payment-feedback{padding:10px;border:2px solid var(--border);border-radius:12px;margin:8px 0;font-weight:900}.payment-logo-bk{color:#e2136e}.payment-logo-ng{color:#f58220}.payment-logo-mc{color:#0b7d3e}.payment-logo-rk{color:#8b2f8f}.payment-logo-bank{color:#174a8b}.payment-logo-cash{color:#157347}
-/* ===== SAFE PHOTO GALLERY GRID 2026 ===== */
-.photo-gallery-grid-2026{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:10px;margin:12px 0}
-.photo-gallery-card-2026{position:relative;display:flex;flex-direction:column;gap:6px;min-width:0;padding:7px;border:2px solid var(--border);border-radius:12px;background:var(--panel);color:var(--text);text-align:left}
-.photo-gallery-card-2026 img{width:100%;height:135px;object-fit:cover;border-radius:8px;background:#111;cursor:pointer}
-.photo-gallery-card-2026 .photo-name-2026{font-size:12px;font-weight:800;overflow-wrap:anywhere;cursor:pointer}
-.photo-gallery-badge-2026{display:inline-block;align-self:flex-start;padding:3px 7px;border-radius:99px;background:#1769aa;color:#fff;font-size:11px;font-weight:900}
-.photo-gallery-badge-2026.admin{background:#8b2f8f}
-.photo-gallery-tools-2026{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0}
-.photo-gallery-private-preview-2026{width:100%;height:135px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:#1d2635;color:#fff;font-size:48px;cursor:pointer}
-.photo-gallery-delete-2026{align-self:flex-start;padding:4px 8px;border:1px solid #b42318;border-radius:7px;background:#b42318;color:#fff;font-weight:800}
-.photo-gallery-lightbox-2026{display:none;position:fixed;inset:0;z-index:2147483647;background:rgba(0,0,0,.92);align-items:center;justify-content:center;padding:18px;box-sizing:border-box}
-.photo-gallery-lightbox-2026.show{display:flex}
-.photo-gallery-lightbox-inner-2026{position:relative;max-width:min(1100px,96vw);max-height:94vh;text-align:center;color:#fff}
-.photo-gallery-lightbox-inner-2026 img{display:block;max-width:94vw;max-height:80vh;object-fit:contain;margin:auto}
-.photo-gallery-lightbox-2026 button{margin:8px;padding:8px 14px;border:2px solid #fff;border-radius:9px;background:#111;color:#fff;font-weight:900}
-@media(max-width:600px){.photo-gallery-grid-2026{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.photo-gallery-card-2026 img,.photo-gallery-private-preview-2026{height:115px}}\n@media(max-width:900px){.quick{grid-template-columns:repeat(3,1fr)}.main-grid{grid-template-columns:1fr}.summary{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:1fr}.header-tools{grid-template-columns:1fr}.login-grid{grid-template-columns:1fr}.actions{flex-direction:column}}
+.payment-online-head{padding:10px;margin-bottom:8px;border:2px solid var(--border);border-radius:12px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}.payment-online-head b{font-size:20px}.payment-online-head span{font-weight:700}.payment-mode-row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.payment-mode-row label{flex:1;min-width:220px}.payment-method-box{display:flex;gap:8px;align-items:center;padding:8px;border:2px solid var(--border);border-radius:12px;margin-top:6px}.payment-method-logo{width:54px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;background:#fff;border:2px solid var(--border)}.payment-method-name{font-weight:900}.payment-feedback{padding:10px;border:2px solid var(--border);border-radius:12px;margin:8px 0;font-weight:900}.payment-logo-bk{color:#e2136e}.payment-logo-ng{color:#f58220}.payment-logo-mc{color:#0b7d3e}.payment-logo-rk{color:#8b2f8f}.payment-logo-bank{color:#174a8b}.payment-logo-cash{color:#157347}\n@media(max-width:900px){.quick{grid-template-columns:repeat(3,1fr)}.main-grid{grid-template-columns:1fr}.summary{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:1fr}.header-tools{grid-template-columns:1fr}.login-grid{grid-template-columns:1fr}.actions{flex-direction:column}}
 
 /* ===== REQUESTED: 5 SECOND WELCOME ===== */
 #welcomeScreen{position:fixed;inset:0;z-index:9999999;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;text-align:center;background:radial-gradient(circle,#650000 0%,#210000 52%,#050000 100%);color:#fff}
@@ -1024,20 +1008,6 @@ body.gold #loginPage .main-qr-802268e{background:#fff!important;border-color:#11
 </style>
 <!-- ===== END ADMISSION FORM VISUAL DESIGN ONLY ===== -->
 
-<style id="all-documents-files-2026">
-.files-toolbar-2026{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}.files-toolbar-2026>*{flex:1;min-width:180px}
-.files-summary-2026{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.files-summary-2026 span{padding:6px 10px;border-radius:9px;background:var(--panel);border:1px solid var(--border);font-weight:800}
-.files-grid-2026{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin:12px 0}.files-card-2026{display:flex;flex-direction:column;gap:7px;min-width:0;padding:12px;border:1px solid var(--border);border-radius:12px;background:var(--panel);color:var(--text)}
-.files-card-icon-2026{font-size:34px;line-height:1.3}.files-card-name-2026{font-weight:900;overflow-wrap:anywhere}.files-card-meta-2026{font-size:12px;opacity:.8;overflow-wrap:anywhere}
-.files-card-actions-2026{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto}.files-card-actions-2026 button{flex:1;min-width:72px}
-.files-progress-2026{height:10px;background:var(--border);border-radius:99px;overflow:hidden;margin:8px 0}.files-progress-2026>div{height:100%;width:0;background:#16803c;transition:width .15s}
-.files-empty-2026{padding:22px;text-align:center;border:1px dashed var(--border);border-radius:12px;opacity:.85}
-.files-preview-layer-2026{display:none;position:fixed;inset:0;z-index:2147483647;background:#000e;padding:14px;box-sizing:border-box;align-items:center;justify-content:center}.files-preview-layer-2026.show{display:flex}
-.files-preview-inner-2026{width:min(1100px,98vw);height:min(92vh,900px);background:var(--panel);color:var(--text);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:8px}
-.files-preview-inner-2026 iframe,.files-preview-inner-2026 img{border:0;width:100%;height:100%;min-height:0;flex:1;object-fit:contain;background:#222}
-.files-preview-head-2026{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;font-weight:900;overflow-wrap:anywhere}
-@media(max-width:600px){.files-grid-2026{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.files-card-2026{padding:8px}.files-card-actions-2026 button{font-size:12px;padding:7px 5px}}
-</style>
 </head>
 <body>
 <div id="welcomeScreen">
@@ -1302,8 +1272,6 @@ async function login(){  const u=$('username')?.value.trim()||'', p=$('password'
     if(btn){btn.disabled=false;btn.textContent=btn.dataset.oldText||'লগইন';}
   }
 } 
-/* Explicit global binding for the inline login button. */
-window.login=login;
 async function verifyOtp(){const code=[...document.querySelectorAll('.otp-box')].map(x=>x.value).join('');if(code.length!==6)return toast('৬ সংখ্যার OTP দিন।');const r=await call('verifyLoginOtp',otpToken,$('username').value.trim(),code);if(!r.ok)return toast(r.message);token=r.token;currentUser=r.user;$('loginPage').classList.add('jb-login-hidden-2026');$('app').classList.add('show','jb-dashboard-visible-2026');await loadApp()}
 async function resendOtp(){const r=await call('requestOtp',$('username').value.trim());if(r&&r.ok&&r.token){otpToken=r.token;$('otpArea').classList.add('show');$('otpMsg').textContent=(r.message||'নতুন OTP পাঠানো হয়েছে।')+' '+(r.emailMask||'');clearOtp();return}toast((r&&r.message)||'নতুন OTP পাঠানো যায়নি।')}
 function clearOtp(){document.querySelectorAll('.otp-box').forEach(x=>x.value='');$('otpBoxes').firstElementChild.focus()}
@@ -1362,20 +1330,6 @@ function renderMedia(){
 function nextMedia(){if(media.length){mediaIndex=(mediaIndex+1)%media.length;renderMedia()}}
 function prevMedia(){if(media.length){mediaIndex=(mediaIndex-1+media.length)%media.length;renderMedia()}}
 async function deleteCurrentMedia(){if(!media.length)return;const current=media[mediaIndex%media.length],r=await call('deleteMedia',token,current.Serial);toast(r.ok?'মুছে ফেলা হয়েছে':'ব্যর্থ');if(r.ok){media.splice(mediaIndex,1);mediaIndex=media.length?mediaIndex%media.length:0;renderMedia();}}
-
-/* ===== ALL DOCUMENTS / FILES MODULE 2026 ===== */
-var documentFiles2026=[];
-var documentFilePreviewUrl2026='';
-function documentFileIcon2026(x){var n=String(x&&x.Name||'').toLowerCase(),m=String(x&&x.MimeType||'').toLowerCase();if(m.indexOf('pdf')>=0||/\.pdf$/.test(n))return '📕';if(/\.(doc|docx|odt)$/.test(n)||m.indexOf('word')>=0)return '📝';if(/\.(xls|xlsx|csv)$/.test(n)||m.indexOf('sheet')>=0||m.indexOf('excel')>=0)return '📊';if(/\.(ppt|pptx)$/.test(n)||m.indexOf('presentation')>=0)return '📽️';if(/^image\//.test(m)||/\.(png|jpe?g|gif|webp|bmp)$/.test(n))return '🖼️';if(/\.(zip|rar|7z)$/.test(n))return '🗜️';if(/\.(mp3|wav|m4a|ogg)$/.test(n))return '🎵';if(/\.(mp4|mov|webm|avi)$/.test(n))return '🎬';return '📄';}
-function documentFileSize2026(n){n=Number(n)||0;if(n<1024)return n+' B';if(n<1048576)return (n/1024).toFixed(1)+' KB';return (n/1048576).toFixed(2)+' MB';}
-function documentFileFolderLabel2026(v){return ({GENERAL:'সাধারণ/অন্যান্য',STUDENTS:'ছাত্র/ছাত্রী',TEACHERS:'শিক্ষক/শিক্ষিকা',ADMISSION:'ভর্তি আবেদন',EXAM:'পরীক্ষা/প্রশ্নপত্র',RESULTS:'রেজাল্ট/মার্কশিট',ID_CARDS:'আইডি/এডমিট কার্ড',CERTIFICATES:'সনদপত্র/ছাড়পত্র',PAYMENTS:'রসিদ/পেমেন্ট',FINANCE:'আয়-ব্যয়/হিসাব',OFFICIAL:'অফিসিয়াল নথি'})[String(v||'GENERAL')]||String(v||'সাধারণ');}
-async function loadDocumentFiles2026(){var box=$('docFilesGrid2026');if(!box)return;box.innerHTML='<div class="files-empty-2026">⏳ ফাইল তালিকা লোড হচ্ছে…</div>';try{var r=await call('listFiles',token);documentFiles2026=Array.isArray(r)?r:[];renderDocumentFiles2026();}catch(e){box.innerHTML='<div class="files-empty-2026">ফাইল তালিকা লোড করা যায়নি। '+escapeHtml(e&&e.message||'সার্ভার ত্রুটি')+'</div>';}}
-function renderDocumentFiles2026(){var box=$('docFilesGrid2026');if(!box)return;var q=String($('docFileSearch2026')&&$('docFileSearch2026').value||'').trim().toLowerCase(),filter=String($('docFileFilter2026')&&$('docFileFilter2026').value||'ALL');var all=Array.isArray(documentFiles2026)?documentFiles2026:[],rows=all.filter(function(x){return (filter==='ALL'||String(x.Folder||'GENERAL')===filter)&&(!q||[x.Name,x.FileID,x.Folder,x.MimeType].some(function(v){return String(v||'').toLowerCase().indexOf(q)>=0;}));});var sum=$('docFileSummary2026');if(sum)sum.innerHTML='<span>মোট ফাইল: '+all.length+'</span><span>দেখানো হচ্ছে: '+rows.length+'</span>';box.innerHTML='';if(!rows.length){box.innerHTML='<div class="files-empty-2026">কোনো ফাইল পাওয়া যায়নি।</div>';return;}rows.forEach(function(x){var card=document.createElement('article');card.className='files-card-2026';var ic=document.createElement('div');ic.className='files-card-icon-2026';ic.textContent=documentFileIcon2026(x);var nm=document.createElement('div');nm.className='files-card-name-2026';nm.textContent=String(x.Name||'নামহীন ফাইল');var meta=document.createElement('div');meta.className='files-card-meta-2026';meta.textContent='ID: '+String(x.FileID||'')+' · '+documentFileSize2026(x.Size)+' · '+documentFileFolderLabel2026(x.Folder)+' · '+String(x.CreatedAt||'');var actions=document.createElement('div');actions.className='files-card-actions-2026';var view=document.createElement('button');view.type='button';view.className='secondary';view.textContent='👁️ দেখুন';view.onclick=function(){openDocumentFile2026(x.FileID,false);};var down=document.createElement('button');down.type='button';down.className='primary';down.textContent='⬇ ডাউনলোড';down.onclick=function(){openDocumentFile2026(x.FileID,true);};var del=document.createElement('button');del.type='button';del.className='secondary';del.textContent='🗑️ মুছুন';del.onclick=function(){deleteDocumentFile2026(x.FileID);};actions.appendChild(view);actions.appendChild(down);actions.appendChild(del);card.appendChild(ic);card.appendChild(nm);card.appendChild(meta);card.appendChild(actions);box.appendChild(card);});}
-async function uploadDocumentFiles2026(){var input=$('docFileInput2026');if(!input||!input.files||!input.files.length)return toast('প্রথমে ফাইল নির্বাচন করুন।');var files=Array.prototype.slice.call(input.files),folder=String($('docFileFolder2026')&&$('docFileFolder2026').value||'GENERAL');if(files.some(function(f){return f.size>20*1024*1024;})){toast('প্রতিটি ফাইল সর্বোচ্চ 20 MB হতে পারবে। বড় ফাইল বাদ দিয়ে আবার নির্বাচন করুন।');return;}var known={};documentFiles2026.forEach(function(x){known[String(x.Name||'').trim().toLowerCase()+'|'+String(x.Folder||'GENERAL')]=true;});var duplicates=[];files.forEach(function(f){var k=f.name.trim().toLowerCase()+'|'+folder;if(known[k])duplicates.push(f);else known[k]=true;});if(duplicates.length){toast('একই বিভাগে একই নামে ফাইল আছে: '+duplicates.map(function(f){return f.name;}).join(', '));return;}var ok=0,fail=0;for(var i=0;i<files.length;i++){var f=files[i],uploadId='';try{var data=await readFile(f),start=await call('startFileUpload',token,{name:f.name,mimeType:f.type||'application/octet-stream',size:f.size,folder:folder});if(!start||!start.ok)throw new Error(start&&start.message||'আপলোড শুরু হয়নি');uploadId=start.uploadId;var payload=String(data).split(',')[1]||'',chunkSize=180000,parts=Math.ceil(payload.length/chunkSize);for(var j=0;j<parts;j++){var cr=await call('uploadFileChunk',token,uploadId,j,payload.slice(j*chunkSize,(j+1)*chunkSize));if(!cr||!cr.ok)throw new Error(cr&&cr.message||'ফাইলের অংশ পাঠানো যায়নি');var pct=Math.round(((j+1)/parts)*100);if($('docFileProgressBar2026'))$('docFileProgressBar2026').style.width=Math.round(((i+pct/100)/files.length)*100)+'%';if($('docFileProgressText2026'))$('docFileProgressText2026').textContent='আপলোড হচ্ছে: '+f.name+' — '+pct+'%';}var done=await call('finishFileUpload',token,uploadId);if(!done||!done.ok)throw new Error(done&&done.message||'ফাইল সংরক্ষণ হয়নি');ok++;}catch(e){fail++;toast(f.name+' সংরক্ষণ হয়নি: '+String(e&&e.message||e));}}if($('docFileProgressText2026'))$('docFileProgressText2026').textContent='সম্পন্ন: '+ok+'টি সফল, '+fail+'টি ব্যর্থ।';if($('docFileProgressBar2026'))$('docFileProgressBar2026').style.width='100%';input.value='';await loadDocumentFiles2026();toast(ok+'টি ফাইল সংরক্ষিত, '+fail+'টি ব্যর্থ।');}
-async function openDocumentFile2026(fileId,download){try{var r=await call('getFileContent',token,fileId);if(!r||!r.ok)throw new Error(r&&r.message||'ফাইল পাওয়া যায়নি');var binary=atob(String(r.base64||'')),bytes=new Uint8Array(binary.length);for(var i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);var blob=new Blob([bytes],{type:r.mimeType||'application/octet-stream'}),url=URL.createObjectURL(blob),name=String(r.name||'document');if(download||(!/^(application\/pdf|image\/)/i.test(r.mimeType||''))){var a=document.createElement('a');a.href=url;a.download=name;a.style.display='none';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},60000);if(!download)toast('এই ফাইলের সরাসরি প্রিভিউ সমর্থিত নয়; ডাউনলোড শুরু হয়েছে।');return;}var layer=document.getElementById('docFilePreviewLayer2026');if(!layer){layer=document.createElement('div');layer.id='docFilePreviewLayer2026';layer.className='files-preview-layer-2026';layer.innerHTML='<div class="files-preview-inner-2026"><div class="files-preview-head-2026"><span id="docFilePreviewName2026"></span><button type="button" class="secondary" id="docFilePreviewClose2026">✕ বন্ধ</button></div><div id="docFilePreviewContent2026" style="flex:1;min-height:0;display:flex"></div></div>';document.body.appendChild(layer);layer.addEventListener('click',function(e){if(e.target===layer)closeDocumentFilePreview2026();});document.getElementById('docFilePreviewClose2026').onclick=closeDocumentFilePreview2026;}if(documentFilePreviewUrl2026)URL.revokeObjectURL(documentFilePreviewUrl2026);documentFilePreviewUrl2026=url;document.getElementById('docFilePreviewName2026').textContent=name;var content=document.getElementById('docFilePreviewContent2026');content.innerHTML='';var el;if(/^image\//i.test(r.mimeType||'')){el=document.createElement('img');el.src=url;el.alt=name;}else{el=document.createElement('iframe');el.src=url;el.title=name;}content.appendChild(el);layer.classList.add('show');}catch(e){toast('ফাইল খোলা যায়নি: '+String(e&&e.message||e));}}
-function closeDocumentFilePreview2026(){var layer=document.getElementById('docFilePreviewLayer2026');if(layer)layer.classList.remove('show');if(documentFilePreviewUrl2026){URL.revokeObjectURL(documentFilePreviewUrl2026);documentFilePreviewUrl2026='';}}
-async function deleteDocumentFile2026(fileId){var x=documentFiles2026.find(function(f){return String(f.FileID)===String(fileId);});if(!x)return;if(!confirm('“'+String(x.Name||'ফাইল')+'” স্থায়ীভাবে মুছে ফেলতে চান?'))return;try{var r=await call('deleteFile',token,serial);if(r&&r.ok){toast('ফাইল মুছে ফেলা হয়েছে।');await loadDocumentFiles2026();}else toast((r&&r.message)||'ফাইল মুছতে ব্যর্থ হয়েছে।');}catch(e){toast('ফাইল মুছতে ব্যর্থ: '+String(e&&e.message||e));}}
-
 function openModule(key){
 const labels=Object.fromEntries(modules.map(x=>[x[0],x[1]]));
 $('winTitle').textContent=labels[key]||key;
@@ -1383,9 +1337,6 @@ $('winBody').innerHTML='<div class="form-language-fixed"><span>বাংলা</
 $('formWin').classList.remove('minimized');
 $('formWin').style.height='';
 openWindow('formWin');
-if(key==='gallery')setTimeout(function(){loadPhotoGalleryData2026();},60);
-if(key==='files')setTimeout(function(){loadDocumentFiles2026();},80);
-if(key==='salary')setTimeout(function(){initSalaryPaymentModule2026();},80);
 setTimeout(function(){clearFormWindow(false);},0);
 }
 function locationField(id,label,options){
@@ -1422,12 +1373,10 @@ ${locationField('fVillage','গ্রাম',['কোনাখোলা','মড
 if(['student','teacher','donor'].includes(k))return common+`<div class="form-grid"><label>শ্রেনি/জামাত<select id="fClass" class="field">${['প্লে শ্রেনি','শিশু শ্রেনি','আউয়াল জামাত','ছানী জামাত','ছালেছ জামাত','রাবে জামাত','পঞ্চম জামাত','মিজান জামাত','নাহবেমীর জামাত','কুদুরী জামাত','শরহে বেকায়া জামাত','হেদায়া জামাত','মিশকাত জামাত','দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)'].map(x=>`<option>${x}</option>`).join('')}</select></label><label>বিভাগ<select id="fDept" class="field"><option>কিতাব বিভাগ</option><option>হিফজুল কুরআন বিভাগ</option><option>নুরানী বিভাগ</option><option>গণিত বিভাগ</option><option>ইংলিশ বিভাগ</option><option>বাংলা বিভাগ</option><option>বোর্ডিং বিভাগ</option><option>হিসাব বিভাগ</option></select></label><label>শাখা<select id="fBranch" class="field"><option>প্রধান শাখা</option><option>২য় শাখা</option><option>৩য় শাখা</option><option>বালক শাখা</option><option>বালিকা শাখা</option></select></label><label>ছবি<input id="fPhoto" class="field" type="file" accept="image/*"></label><label>জন্ম নিবন্ধন<input id="fBirth" class="field"></label><label>জাতীয় ১৭ ডিজিট NID<input id="fNid" class="field"></label></div><button class="primary" onclick="saveModule('${k}')">Save</button>`;
 if(k==='admin')return `<div class="form-grid"><label>Username<input id="aUser" class="field" required></label><label>Password<input id="aPass" class="field" type="password" required></label><label>Email<input id="aEmail" class="field" type="email" required></label><label>Mobile<input id="aMobile" class="field" required></label><label class="full">মাদ্রাসার নাম<input id="mName" class="field" required></label><label>প্রতিষ্ঠা সন<input id="mYear" class="field" required></label><label class="full">ঠিকানা<textarea id="mAddress" class="field" required></textarea></label><label class="full">মাদ্রাসার ফটো<input id="mPhoto" class="field" type="file" accept="image/*" required></label></div><button class="primary" type="button" onclick="saveMadrasaRegistration()">📄 পেজ তৈরি করুন</button>`;
 if(k==='madrasa')return `<div class="form-grid"><label>Username<input id="mUser" class="field" required></label><label>Password<input id="mPass" class="field" type="password" required></label><label>Email<input id="mEmail" class="field" type="email" required></label><label>Mobile<input id="mMobile" class="field" required></label><label class="full">মাদ্রাসার নাম<input id="mName" class="field" required></label><label>প্রতিষ্ঠা সন<input id="mYear" class="field" required></label><label class="full">ঠিকানা<textarea id="mAddress" class="field" required></textarea></label><label class="full">মাদ্রাসার ফটো<input id="mPhoto" class="field" type="file" accept="image/*" required></label></div><button class="primary" type="button" onclick="saveMadrasaRegistration()">📄 পেজ তৈরি করুন</button>`;
-if(k==='files')return `<div class="media-upload-note"><b>📁 অল ডকুমেন্টস/ফাইল</b> — ফাইল বর্তমান FILES শিটের রেকর্ড ও ব্যক্তিগত Google Drive ফোল্ডারে সংরক্ষিত হবে। অনুমতি ছাড়া অন্য কেউ ফাইলের সরাসরি লিংক পাবে না। সর্বোচ্চ 20 MB/ফাইল।</div><div class="form-grid"><label>ফাইলের বিভাগ<select id="docFileFolder2026" class="field"><option value="GENERAL">সাধারণ/অন্যান্য</option><option value="STUDENTS">ছাত্র/ছাত্রী</option><option value="TEACHERS">শিক্ষক/শিক্ষিকা</option><option value="ADMISSION">ভর্তি আবেদন</option><option value="EXAM">পরীক্ষা/প্রশ্নপত্র</option><option value="RESULTS">রেজাল্ট/মার্কশিট</option><option value="ID_CARDS">আইডি কার্ড/এডমিট কার্ড</option><option value="CERTIFICATES">সনদপত্র/ছাড়পত্র</option><option value="PAYMENTS">রসিদ/পেমেন্ট</option><option value="FINANCE">আয়-ব্যয়/হিসাব</option><option value="OFFICIAL">অফিসিয়াল নথি</option></select></label><label>ফাইল নির্বাচন<input id="docFileInput2026" class="field" type="file" multiple></label></div><div class="files-toolbar-2026"><button type="button" class="primary" onclick="uploadDocumentFiles2026()">⬆ ফাইল আপলোড/সংরক্ষণ</button><button type="button" class="secondary" onclick="loadDocumentFiles2026()">🔄 তালিকা রিফ্রেশ</button></div><div id="docFileProgressText2026" class="small">ফাইল নির্বাচন করে আপলোড করুন।</div><div class="files-progress-2026"><div id="docFileProgressBar2026"></div></div><div class="files-toolbar-2026"><input id="docFileSearch2026" class="field" placeholder="নাম / File ID / বিভাগ দিয়ে খুঁজুন" oninput="renderDocumentFiles2026()"><select id="docFileFilter2026" class="field" onchange="renderDocumentFiles2026()"><option value="ALL">সব বিভাগ</option><option value="GENERAL">সাধারণ/অন্যান্য</option><option value="STUDENTS">ছাত্র/ছাত্রী</option><option value="TEACHERS">শিক্ষক/শিক্ষিকা</option><option value="ADMISSION">ভর্তি আবেদন</option><option value="EXAM">পরীক্ষা/প্রশ্নপত্র</option><option value="RESULTS">রেজাল্ট/মার্কশিট</option><option value="ID_CARDS">আইডি/এডমিট কার্ড</option><option value="CERTIFICATES">সনদপত্র/ছাড়পত্র</option><option value="PAYMENTS">রসিদ/পেমেন্ট</option><option value="FINANCE">আয়-ব্যয়/হিসাব</option><option value="OFFICIAL">অফিসিয়াল নথি</option></select></div><div id="docFileSummary2026" class="files-summary-2026"></div><div id="docFilesGrid2026" class="files-grid-2026"><div class="files-empty-2026">ফাইল তালিকা লোড হচ্ছে…</div></div>`;
-if(k==='gallery')return `<div class="media-upload-note"><b>ফটো:</b> সর্বোচ্চ 20 MB, 100টি। <b>ভিডিও:</b> সর্বোচ্চ 50 MB, 20টি। <b>অডিও:</b> সর্বোচ্চ 50 MB, 50টি।<br><b>ছবির গোপনীয়তা:</b> পাবলিক ছবি সবাই দেখবে; অ্যাডমিন-শুধু ছবি কেবল গ্যালারী-অনুমোদিত অ্যাডমিন দেখবে। ভিডিও/অডিওর বর্তমান ব্যবস্থা অপরিবর্তিত।</div><div class="form-grid"><label>নতুন ফটোর অনুমতি<select id="mediaVisibility" class="field"><option value="public">🌐 পাবলিক — সবাই দেখতে পারবে</option><option value="admin">🔒 অ্যাডমিন-শুধু</option></select></label><label>ফটো/ভিডিও/অডিও নির্বাচন<input id="mediaFiles" class="field" type="file" multiple accept="image/*,video/*,audio/*"></label></div><div class="photo-gallery-tools-2026"><button class="primary" type="button" onclick="uploadMedia()">⬆ আপলোড</button><button class="secondary" type="button" onclick="openPublicPhotoGallery2026()">🌐 পাবলিক গ্যালারী খুলুন</button></div><h3>📸 ফটো গ্যালারী — গ্রিড</h3><label>ছবি ফিল্টার <select id="photoGalleryFilter2026" class="field" onchange="renderPhotoGalleryGrid2026()"><option value="all">সব অনুমোদিত ছবি</option><option value="public">পাবলিক ছবি</option><option value="admin">অ্যাডমিন-শুধু ছবি</option></select></label><div id="photoGalleryGrid2026" class="photo-gallery-grid-2026"></div><h3>📂 মিডিয়া তালিকা</h3><div id="mediaList"></div>`;
+if(k==='gallery')return `<div class="media-upload-note"><b>ফটো:</b> সর্বোচ্চ 20 MB, 100টি। <b>ভিডিও:</b> সর্বোচ্চ 50 MB, 20টি। <b>অডিও:</b> সর্বোচ্চ 50 MB, 50টি।</div><input id="mediaFiles" class="field" type="file" multiple accept="image/*,video/*,audio/*"><button class="primary" onclick="uploadMedia()">⬆ আপলোড</button><div id="mediaList"></div>`;
 if(k==='help')return `<button class="primary" onclick="openWindow('quickWin')">দ্রুত সেবা / হেল্প</button>`;
 if(k==='institution')return `<h3>প্রতিষ্ঠানের সংক্ষিপ্ত ইতিহাস</h3><p>সালাতুল এস্তেখারার মাধ্যমে মহান আল্লাহ তায়ালার উপর পূর্ণ আস্থা রেখে খালেছ নিয়তে মানব জাতিকে অন্ধকার থেকে আলোর পথে আনার জন্য এবং সহি দ্বিনি ইলম শিক্ষা দেয়ার উদ্দেশ্যে 10-10-2005 ইংরেজী সনে প্রতিষ্ঠিত হয়।</p><p><b>প্রতিষ্ঠাতা-প্রিন্সিপাল/মুহতামিম:</b> জনাব হাফেজ হযরত মাওলানা মু. আতিকুর রহমান (ফরিদপুরী), ২০০৫ হতে ২০২৬ চলমান।</p>`;
-if(k==='salary')return `<div class="card" style="padding:14px;margin:8px 0;border-left:5px solid #d97706"><h3 style="margin:0 0 8px">💰 শিক্ষক/শিক্ষিকা ও কর্মীর বেতন প্রদান</h3><div>কর্মীর তথ্য নির্বাচন/লিখে মাসিক বেতন সংরক্ষণ করুন। সংরক্ষণের পর বেতন ID ও লেনদেনের ইতিহাস পাওয়া যাবে।</div></div><div class="form-grid"><label>নিবন্ধিত শিক্ষক/শিক্ষিকা<select id="salaryEmployeeSelect2026" class="field" onchange="selectSalaryEmployee2026()"><option value="">তালিকা লোড হচ্ছে…</option></select></label><label>কর্মী ID<input id="salaryEmployeeID2026" class="field" placeholder="Teacher ID / কর্মী ID"></label><label>কর্মীর নাম<input id="salaryEmployeeName2026" class="field" placeholder="পূর্ণ নাম"></label><label>বেতন মাস<select id="salaryMonth2026" class="field">${['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'].map(x=>'<option>'+x+'</option>').join('')}</select></label><label>বেতন প্রদানের তারিখ<input id="salaryDate2026" class="field" type="date"></label><label>প্রদত্ত বেতন (টাকা)<input id="salaryAmount2026" class="field" type="number" min="1" step="0.01" placeholder="যেমন: 15000"></label><label>প্রদানের মাধ্যম<select id="salaryMethod2026" class="field"><option>হ্যান্ড ক্যাশ</option><option>ব্যাংক ট্রান্সফার</option><option>bKash</option><option>Nagad</option><option>Rocket</option><option>অন্যান্য</option></select></label><label class="full">মন্তব্য / বিবরণ<textarea id="salaryNote2026" class="field" placeholder="ঐচ্ছিক"></textarea></label></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0"><button type="button" class="primary" onclick="saveSalaryPayment2026()">💵 বেতন প্রদান সংরক্ষণ</button><button type="button" class="secondary" onclick="loadSalaryPayments2026()">🔄 হিস্ট্রি রিফ্রেশ</button></div><div id="salaryPaymentMessage2026" class="small" style="margin:8px 0"></div><div class="card" style="padding:12px;margin:12px 0"><h3 style="margin:0 0 10px">📚 বেতন প্রদানের হিস্ট্রি / সার্চ</h3><div class="form-grid"><label>নাম / কর্মী ID / বেতন ID দিয়ে খুঁজুন<input id="salarySearch2026" class="field" oninput="renderSalaryPayments2026()" placeholder="সার্চ করুন"></label><label>মাস অনুযায়ী ফিল্টার<select id="salaryFilterMonth2026" class="field" onchange="loadSalaryPayments2026()"><option value="">সব মাস</option>${['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'].map(x=>'<option>'+x+'</option>').join('')}</select></label></div><div id="salaryPaymentSummary2026" style="font-weight:900;margin:8px 0"></div><div id="salaryPaymentHistory2026" class="table-wrap"><div class="card" style="padding:12px">বেতন প্রদানের তথ্য লোড হচ্ছে…</div></div></div>`;
- if(k==='finance')return window.financeFormHtml2026();
+if(k==='finance')return window.financeFormHtml2026();
  if(['payment','fees'].includes(k))return `<div class="payment-online-head"><b>🌐 অনলাইন পেমেন্ট</b><span>ডিজিটাল প্লাটফর্ম / সার্ভারে পেমেন্ট কার্যক্রম চলমান</span></div><div class="form-grid"><label>Student ID<input id="pStudent" class="field" onblur="lookupOnlinePaymentStudent()"></label><label>নাম<input id="pName" class="field" readonly></label><label>শ্রেণি/জামাত<input id="pClass" class="field" readonly></label><label>মোবাইল<input id="pMobile" class="field" readonly></label><label>মাস<select id="pMonth" class="field"><option>জানুয়ারি</option><option>ফেব্রুয়ারি</option><option>মার্চ</option><option>এপ্রিল</option><option>মে</option><option>জুন</option><option>জুলাই</option><option>আগস্ট</option><option>সেপ্টেম্বর</option><option>অক্টোবর</option><option>নভেম্বর</option><option>ডিসেম্বর</option></select></label><label>Category<select id="pCat" class="field"><option>মাসিক বেতন</option><option>ভর্তি ফি</option><option>পরীক্ষার ফি</option><option>অন্যান্য</option></select></label><label>Amount<input id="pAmount" class="field" type="number" min="1"></label><label>পেমেন্টের ধরন<select id="pMode" class="field" onchange="updatePaymentModeUI()"><option value="QUICK">দ্রুত পেমেন্ট</option><option value="PENDING">Pending + অনুমোদন</option></select></label><label>মাধ্যম<select id="pMethod" class="field" onchange="updatePaymentMethodLogo()"><option>bKash</option><option>Nagad</option><option>mCash</option><option>Rocket</option><option>ব্যাংকিং</option><option>হ্যান্ড ক্যাশ</option></select></label><label>Transaction / Reference ID<input id="pReference" class="field"></label><label>প্রদানকারীর মোবাইল<input id="pPayerMobile" class="field"></label><label class="full">Note<textarea id="pNote" class="field"></textarea></label></div><div id="paymentMethodLogo" class="payment-method-box"><div class="payment-method-logo payment-logo-bk">bK</div><div class="payment-method-name">bKash</div></div><div id="paymentFeedback" class="payment-feedback">মাধ্যম নির্বাচন করলে সংশ্লিষ্ট পেমেন্ট মাধ্যমের পরিচিতি দেখাবে।</div><div id="onlinePaymentStudentInfo" class="card" style="padding:9px;margin:8px 0;display:none"></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="primary" type="button" onclick="savePayment()">📤 পেমেন্ট দিন</button><button class="secondary" type="button" onclick="openPendingPayments()">📋 Pending পেমেন্ট / লেনদেন</button></div><div class="card" style="margin-top:12px;padding:12px"><b>🧾 আগের মানি রসিদ খুঁজুন</b><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><input id="onlinePaymentReceiptSearchId" class="field" style="flex:1;min-width:220px" placeholder="Receipt ID (RCT-OP-...) অথবা Student ID (যেমন 7777)"><button class="secondary" type="button" onclick="searchOnlinePaymentReceipt()">🔎 সার্চ</button></div><div id="onlinePaymentReceiptSearchMessage" class="small" style="margin-top:6px"></div></div>`;
 if(k==='admission')return `<div class="student-meta-row-2026"><label>আইডি লিখুন<input id="adStudentID" class="field"></label><label>তারিখ লিখুন<input id="adRecordDate" class="field" type="date"></label></div><div class="form-grid">
 <label>বাংলা নাম / Student Name<input id="adNameBN" class="field"></label>
@@ -1460,78 +1409,6 @@ ${locationField('adVillage','গ্রাম',['কোনাখোলা','ম�
 if(['result','marks','exam'].includes(k))return `<div class="student-meta-row-2026"><label>আইডি লিখুন<input id="rStudentMeta" class="field"></label><label>জন্ম তারিখ লিখুন<input id="rDob" class="field" type="date"></label><label>তারিখ লিখুন<input id="rRecordDate" class="field" type="date"></label></div><div class="form-grid"><label>Student ID<input id="rStudent" class="field"></label><label>নাম<input id="rName" class="field"></label><label>শ্রেনি<input id="rClass" class="field"></label><label>পরীক্ষা<input id="rExam" class="field"></label><label class="full">Subject/Marks JSON<textarea id="rSubjects" class="field" placeholder='{"বাংলা":80,"আরবি":85}'></textarea></label></div><button class="primary" onclick="saveResult('${k}')">Save</button>`;
 return `<p>এই ফিচারের জন্য ৩ ভাষা, A4, ৩ কলাম উইন্ডো কাঠামো প্রস্তুত। প্রয়োজনীয় তথ্য পূরণ করুন।</p><div class="form-grid"><label class="full">বিবরণ<textarea class="field" rows="8" id="genericData"></textarea></label></div><button class="primary" onclick="toast('ফিচার উইন্ডো প্রস্তুত')">Save</button>`;
 }
-
-/* ===== STAFF SALARY PAYMENT UI — 2026-10-11 ===== */
-var salaryEmployees2026=[],salaryPayments2026=[];
-function initSalaryPaymentModule2026(){
-  var date=document.getElementById('salaryDate2026');
-  if(date&&!date.value)date.value=new Date().toISOString().slice(0,10);
-  loadSalaryEmployees2026();
-  loadSalaryPayments2026();
-}
-async function loadSalaryEmployees2026(){
-  var sel=document.getElementById('salaryEmployeeSelect2026');if(!sel)return;
-  sel.innerHTML='<option value="">কর্মীর তালিকা লোড হচ্ছে…</option>';
-  try{
-    var r=await call('getSalaryEmployees2026',token);
-    salaryEmployees2026=r&&r.ok&&Array.isArray(r.employees)?r.employees:[];
-    sel.innerHTML='<option value="">নিবন্ধিত কর্মী নির্বাচন করুন</option>'+salaryEmployees2026.map(function(x,i){return '<option value="'+i+'">'+escapeHtml(x.Name)+' — '+escapeHtml(x.EmployeeID)+'</option>';}).join('');
-    if(!salaryEmployees2026.length)sel.insertAdjacentHTML('beforeend','<option value="">তালিকায় শিক্ষক নেই — নিচে নাম ও ID লিখুন</option>');
-  }catch(e){sel.innerHTML='<option value="">তালিকা পাওয়া যায়নি — নিচে কর্মীর তথ্য লিখুন</option>';var msg=document.getElementById('salaryPaymentMessage2026');if(msg)msg.textContent='কর্মীর তালিকা লোড হয়নি: '+String(e&&e.message||e);}
-}
-function selectSalaryEmployee2026(){
-  var sel=document.getElementById('salaryEmployeeSelect2026');if(!sel||sel.value==='')return;
-  var x=salaryEmployees2026[Number(sel.value)];if(!x)return;
-  var id=document.getElementById('salaryEmployeeID2026'),name=document.getElementById('salaryEmployeeName2026');
-  if(id)id.value=x.EmployeeID||'';if(name)name.value=x.Name||'';
-}
-async function saveSalaryPayment2026(){
-  var d={EmployeeID:(document.getElementById('salaryEmployeeID2026')||{}).value||'',Name:(document.getElementById('salaryEmployeeName2026')||{}).value||'',Month:(document.getElementById('salaryMonth2026')||{}).value||'',Date:(document.getElementById('salaryDate2026')||{}).value||'',Amount:Number((document.getElementById('salaryAmount2026')||{}).value||0),Method:(document.getElementById('salaryMethod2026')||{}).value||'',Note:(document.getElementById('salaryNote2026')||{}).value||''};
-  d.EmployeeID=d.EmployeeID.trim();d.Name=d.Name.trim();
-  if(!d.EmployeeID||!d.Name||!d.Month||!d.Date||!d.Amount||d.Amount<=0||!d.Method){toast('কর্মীর ID, নাম, মাস, তারিখ, বেতনের পরিমাণ ও প্রদানের মাধ্যম পূরণ করুন।');return;}
-  var btn=Array.from(document.querySelectorAll('button')).find(function(b){return b.getAttribute('onclick')==='saveSalaryPayment2026()';});
-  if(btn){btn.disabled=true;btn.textContent='⏳ সংরক্ষণ হচ্ছে…';}
-  var msg=document.getElementById('salaryPaymentMessage2026');if(msg)msg.textContent='বেতন সংরক্ষণ করা হচ্ছে…';
-  try{
-    var r=await call('saveSalaryPayment2026',token,d);
-    if(!r||!r.ok){var m=(r&&r.message)||'বেতন সংরক্ষণ করা যায়নি।';if(msg)msg.textContent='❌ '+m;toast(m);return;}
-    if(msg)msg.textContent='✅ '+(r.message||'বেতন সংরক্ষণ হয়েছে।');
-    toast(r.message||'বেতন সফলভাবে সংরক্ষণ হয়েছে।');
-    var a=document.getElementById('salaryAmount2026'),n=document.getElementById('salaryNote2026');if(a)a.value='';if(n)n.value='';
-    await loadSalaryPayments2026();
-    // রসিদ ইতিহাসের ‘রসিদ’ বাটন থেকে খুলবে; async save-এর পরে popup blocker এড়ানো হয়।
-  }catch(e){var m='বেতন সংরক্ষণে ত্রুটি: '+String(e&&e.message||e);if(msg)msg.textContent='❌ '+m;toast(m);}
-  finally{if(btn){btn.disabled=false;btn.textContent='💵 বেতন প্রদান সংরক্ষণ';}}
-}
-async function loadSalaryPayments2026(){
-  var box=document.getElementById('salaryPaymentHistory2026');if(!box)return;
-  box.innerHTML='<div class="card" style="padding:12px">বেতন প্রদানের তথ্য লোড হচ্ছে…</div>';
-  try{
-    var f=document.getElementById('salaryFilterMonth2026');
-    var r=await call('listSalaryPayments2026',token,{Month:f?f.value:''});
-    if(!r||!r.ok)throw new Error((r&&r.message)||'তথ্য পাওয়া যায়নি');
-    salaryPayments2026=Array.isArray(r.rows)?r.rows:[];
-    renderSalaryPayments2026();
-  }catch(e){box.innerHTML='<div class="card" style="padding:12px;color:#b00020">বেতনের ইতিহাস লোড হয়নি: '+escapeHtml(e&&e.message||e)+'</div>';}
-}
-function renderSalaryPayments2026(){
-  var box=document.getElementById('salaryPaymentHistory2026');if(!box)return;
-  var q=String((document.getElementById('salarySearch2026')||{}).value||'').trim().toLowerCase();
-  var rows=salaryPayments2026.filter(function(x){return !q||[x.SalaryID,x.EmployeeID,x.Name,x.Month,x.Method,x.Note].some(function(v){return String(v||'').toLowerCase().includes(q);});});
-  var total=rows.reduce(function(a,x){return a+Number(x.Amount||0);},0);
-  var sum=document.getElementById('salaryPaymentSummary2026');if(sum)sum.textContent='মোট রেকর্ড: '+rows.length+'টি | মোট প্রদত্ত বেতন: '+total.toLocaleString('bn-BD')+' টাকা';
-  if(!rows.length){box.innerHTML='<div class="card" style="padding:14px;text-align:center">এই অনুসন্ধানে কোনো বেতন রেকর্ড পাওয়া যায়নি।</div>';return;}
-  box.innerHTML='<table class="data-table"><thead><tr><th>বেতন ID</th><th>কর্মী ID</th><th>নাম</th><th>মাস</th><th>পরিমাণ</th><th>মাধ্যম</th><th>তারিখ</th><th>রসিদ</th></tr></thead><tbody>'+rows.map(function(x){return '<tr><td>'+escapeHtml(x.SalaryID||'')+'</td><td>'+escapeHtml(x.EmployeeID||'')+'</td><td>'+escapeHtml(x.Name||'')+'</td><td>'+escapeHtml(x.Month||'')+'</td><td>'+Number(x.Amount||0).toLocaleString('bn-BD')+' টাকা</td><td>'+escapeHtml(x.Method||'')+'</td><td>'+escapeHtml(x.Date||'')+'</td><td><button class="secondary" type="button" onclick="printSalarySlip2026(\''+encodeURIComponent(JSON.stringify(x))+'\')">🧾 রসিদ</button></td></tr>';}).join('')+'</tbody></table>';
-}
-function printSalarySlip2026(encoded){
-  var x;try{x=JSON.parse(decodeURIComponent(encoded));}catch(e){toast('বেতনের রসিদের তথ্য পড়া যায়নি।');return;}
-  var escFn=function(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});};
-  var w=window.open('','_blank','width=850,height=750');if(!w){toast('রসিদ প্রিন্ট করতে ব্রাউজারের pop-up অনুমতি দিন।');return;}
-  w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>বেতন রসিদ '+escFn(x.SalaryID||'')+'</title><style>@page{size:A4 portrait;margin:16mm}body{font-family:Arial,"Noto Sans Bengali",sans-serif;color:#111;padding:16px}.receipt{border:2px solid #222;padding:22px;max-width:720px;margin:auto}h2,h3{text-align:center;margin:6px}table{width:100%;border-collapse:collapse;margin-top:20px}th,td{border:1px solid #333;padding:10px;text-align:left}th{width:36%;background:#f3f3f3}.sign{display:flex;justify-content:space-between;margin-top:48px}</style></head><body><div class="receipt"><h2>জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</h2><div style="text-align:center">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০<br>হটলাইন: 01823316630</div><h3>বেতন প্রদান রসিদ</h3><table>'+[['বেতন ID',x.SalaryID],['কর্মী ID',x.EmployeeID],['কর্মীর নাম',x.Name],['বেতন মাস',x.Month],['প্রদত্ত পরিমাণ',Number(x.Amount||0).toLocaleString('bn-BD')+' টাকা'],['প্রদানের মাধ্যম',x.Method],['প্রদানের তারিখ',x.Date],['মন্তব্য',x.Note||'—']].map(function(a){return '<tr><th>'+escFn(a[0])+'</th><td>'+escFn(a[1]||'—')+'</td></tr>';}).join('')+'</table><div class="sign"><span>প্রদানকারীর স্বাক্ষর: _____________</span><span>গ্রহণকারীর স্বাক্ষর: _____________</span></div><p style="text-align:center;font-size:11px;margin-top:22px">Jannatul Baqi Digital Platform 2026</p></div><script>window.onload=function(){setTimeout(function(){window.print()},250)};<\/script></body></html>');
-  w.document.close();
-}
-/* ===== END STAFF SALARY PAYMENT UI ===== */
-
 async function saveModule(k){
 const map={student:'STUDENTS',teacher:'TEACHERS',donor:'DONORS'};const s=map[k];
 const d={StudentID:$('fStudentID')?.value||'',DOB:$('fDob')?.value||'',RecordDate:$('fRecordDate')?.value||'',NameBN:$('fNameBN').value,NameAR:$('fNameAR').value,NameEN:$('fNameEN').value,
@@ -1717,11 +1594,11 @@ async function uploadMedia(){
         fr.onerror=function(){reject(new Error('ফাইল পড়া যায়নি।'));};
         fr.readAsDataURL(f);
       });
-      const r=await call('saveMedia',token,{name:f.name,type:type,size:f.size,mimeType:f.type,dataUrl:dataUrl,sort:0,visibility:type==='image'?($('mediaVisibility')?.value||'public'):'public'});
+      const r=await call('saveMedia',token,{name:f.name,type:type,size:f.size,mimeType:f.type,dataUrl:dataUrl,sort:0});
       if(r&&r.ok){uploaded++;toast('আপলোড 100% সম্পন্ন: '+f.name);}
       else{failed++;toast((r&&r.message)||('আপলোড ব্যর্থ: '+f.name));}
     }
-    await loadPhotoGalleryData2026();
+    media=await call('listMedia',token);media=Array.isArray(media)?media:[];
     mediaIndex=media.length?Math.min(mediaIndex,media.length-1):0;
     renderMedia();if(typeof renderMediaList==='function')renderMediaList();
     if(uploaded&&failed)toast(uploaded+'টি আপলোড হয়েছে, '+failed+'টি ব্যর্থ।');
@@ -1730,14 +1607,8 @@ async function uploadMedia(){
     input.value='';
   }catch(e){toast('আপলোডে সার্ভার ত্রুটি: '+(e&&e.message?e.message:String(e)))}
 }
-function renderMediaList(){const box=$('mediaList');if(box)box.innerHTML=media.map(function(x,i){return '<div class="media-list-item"><span>'+escapeHtml(x.Name||('Media '+(i+1)))+'</span><button type="button" class="secondary" onclick="deleteMediaByIndex('+i+')">🗑 Delete</button></div>';}).join('');renderPhotoGalleryGrid2026();}
-async function loadPhotoGalleryData2026(){const out=await Promise.all([call('listMedia',token),call('listGalleryPhotos',token)]);media=Array.isArray(out[0])?out[0]:[];window.__jbPhotoGalleryRecords2026=Array.isArray(out[1])?out[1]:[];mediaIndex=media.length?Math.min(mediaIndex,media.length-1):0;renderMedia();renderMediaList();}
-function renderPhotoGalleryGrid2026(){var box=$('photoGalleryGrid2026');if(!box)return;var filter=$('photoGalleryFilter2026')?.value||'all';var photos=(window.__jbPhotoGalleryRecords2026||[]).filter(function(x){return filter==='all'||(filter==='admin'?x.Visibility==='admin':x.Visibility!=='admin');});window.__jbPhotoGalleryPhotos2026=photos;box.innerHTML='';if(!photos.length){box.innerHTML='<p>এই ফিল্টারে কোনো ছবি পাওয়া যায়নি।</p>';return;}photos.forEach(function(p,i){var card=document.createElement('div');card.className='photo-gallery-card-2026';var preview;if(p.Visibility==='admin'){preview=document.createElement('div');preview.className='photo-gallery-private-preview-2026';preview.textContent='🔒';preview.title='অ্যাডমিন-শুধু ছবি দেখতে চাপ দিন';preview.onclick=function(){openPhotoGalleryImage2026(i);};}else{preview=document.createElement('img');preview.loading='lazy';preview.src=String(p.DataURL||'');preview.alt=String(p.Name||'মাদ্রাসার ছবি');preview.onclick=function(){openPhotoGalleryImage2026(i);};}var name=document.createElement('span');name.className='photo-name-2026';name.textContent=String(p.Name||('ছবি '+(i+1)));name.onclick=function(){openPhotoGalleryImage2026(i);};var badge=document.createElement('span');badge.className='photo-gallery-badge-2026'+(p.Visibility==='admin'?' admin':'');badge.textContent=p.Visibility==='admin'?'🔒 অ্যাডমিন-শুধু':'🌐 পাবলিক';var del=document.createElement('button');del.type='button';del.className='photo-gallery-delete-2026';del.textContent='🗑️ মুছুন';del.onclick=function(){deleteGalleryPhoto2026(i);};card.appendChild(preview);card.appendChild(name);card.appendChild(badge);card.appendChild(del);box.appendChild(card);});}
-async function openPhotoGalleryImage2026(i){var photos=window.__jbPhotoGalleryPhotos2026||[],p=photos[i];if(!p)return;var src=String(p.DataURL||'');if(p.Visibility==='admin'){toast('নিরাপদভাবে অ্যাডমিন-শুধু ছবি লোড হচ্ছে…');var r=await call('getPrivateGalleryPhoto',token,p.Serial);if(!r||!r.ok||!r.dataUrl)return toast((r&&r.message)||'ব্যক্তিগত ছবি লোড করা যায়নি।');src=r.dataUrl;}var layer=document.getElementById('jbPhotoGalleryLightbox2026');if(!layer){layer=document.createElement('div');layer.id='jbPhotoGalleryLightbox2026';layer.className='photo-gallery-lightbox-2026';layer.innerHTML='<div class="photo-gallery-lightbox-inner-2026"><button type="button" id="jbPhotoGalleryClose2026">✕ বন্ধ করুন</button><img id="jbPhotoGalleryLargeImage2026" alt=""><div id="jbPhotoGalleryLargeName2026"></div></div>';layer.addEventListener('click',function(e){if(e.target===layer)closePhotoGalleryImage2026();});document.body.appendChild(layer);document.getElementById('jbPhotoGalleryClose2026').onclick=closePhotoGalleryImage2026;}document.getElementById('jbPhotoGalleryLargeImage2026').src=src;document.getElementById('jbPhotoGalleryLargeImage2026').alt=String(p.Name||'');document.getElementById('jbPhotoGalleryLargeName2026').textContent=String(p.Name||'');layer.classList.add('show');}
-async function deleteGalleryPhoto2026(i){var p=(window.__jbPhotoGalleryPhotos2026||[])[i];if(!p)return;if(!confirm('এই ছবি স্থায়ীভাবে মুছে ফেলতে চান?'))return;var r=await call('deleteMedia',token,p.Serial);if(r&&r.ok){await loadPhotoGalleryData2026();toast('ছবি মুছে ফেলা হয়েছে।');}else toast((r&&r.message)||'ছবি মুছতে ব্যর্থ হয়েছে।')}
-function closePhotoGalleryImage2026(){var layer=document.getElementById('jbPhotoGalleryLightbox2026');if(layer)layer.classList.remove('show');}
-function openPublicPhotoGallery2026(){var win=window.open('about:blank','_blank');if(!win){toast('পাবলিক গ্যালারী খুলতে ব্রাউজারের পপ-আপ অনুমতি দিন।');return;}call('getMainWebAppUrl').then(function(r){if(r&&r.ok&&r.url){win.location.href=r.url+(r.url.indexOf('?')>=0?'&':'?')+'gallery=1';}else{try{win.close();}catch(e){}toast('পাবলিক গ্যালারীর লিংক পাওয়া যায়নি।');}}).catch(function(e){try{win.close();}catch(x){}toast('পাবলিক গ্যালারী খোলা যায়নি।');});}
-async function deleteMediaByIndex(i){if(!media[i])return;const r=await call('deleteMedia',token,media[i].Serial);if(r&&r.ok){await loadPhotoGalleryData2026();toast('মিডিয়া মুছে ফেলা হয়েছে।')}else toast((r&&r.message)||'ডিলিট ব্যর্থ')}
+function renderMediaList(){const box=$('mediaList');if(!box)return;box.innerHTML=media.map(function(x,i){return '<div class="media-list-item"><span>'+escapeHtml(x.Name||('Media '+(i+1)))+'</span><button type="button" class="secondary" onclick="deleteMediaByIndex('+i+')">🗑 Delete</button></div>';}).join('');}
+async function deleteMediaByIndex(i){if(!media[i])return;const r=await call('deleteMedia',token,media[i].Serial);if(r&&r.ok){media.splice(i,1);if(mediaIndex>=media.length)mediaIndex=Math.max(0,media.length-1);renderMedia();renderMediaList();toast('মিডিয়া মুছে ফেলা হয়েছে।')}else toast((r&&r.message)||'ডিলিট ব্যর্থ')}
 async function fileData(id){const f=$(id)?.files?.[0];return f?await readFile(f):''}function readFile(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f)})}
 async function doSearch(where){const sig=$(where==='login'?'loginSignal':'appSignal').value,q=$(where==='login'?'loginSearch':'appSearch').value.trim();if(!sig)return toast('প্রথমে সংকেত নির্বাচন করুন।');if(!q)return toast('ID / মোবাইল / ইমেইল দিন।');const r=await call('searchAll',token,sig,q);if(!r.ok)return toast(r.message);$('searchBody').innerHTML=`<h3>${r.signal} / ${r.query} — ${r.count} ফলাফল</h3>`+table(r.matches);openWindow('searchWin')}
 function table(rows){if(!rows.length)return '<p>কোন তথ্য পাওয়া যায়নি।</p>';const h=Object.keys(rows[0]);return '<div class="table-wrap"><table class="data-table"><thead><tr>'+h.map(x=>`<th>${x}</th>`).join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+h.map(x=>`<td>${String(r[x]??'')}</td>`).join('')+'</tr>').join('')+'</tbody></table></div>'}
@@ -13930,143 +13801,5 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     [250,700,1400,2500].forEach(function(ms){setTimeout(addYouTubeButton,ms)});
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
-})();
-</script>
-
-
-<!-- ===== ALL REPORTS MODULE — FILTER / PRINT / CSV — 2026-10-11 ===== -->
-<style id="jb-all-reports-style-20261011">
-#jbAllReportsOverlay2026{position:fixed;inset:0;z-index:100150;background:rgba(0,0,0,.62);display:none;align-items:center;justify-content:center;padding:12px;box-sizing:border-box}
-#jbAllReportsOverlay2026.show{display:flex}
-#jbAllReportsOverlay2026 .jb-ar-panel{width:min(1250px,98vw);height:min(92vh,900px);background:var(--panel,#fff);color:var(--text,#171717);border:3px solid var(--border,#222);border-radius:16px;box-shadow:0 15px 50px #0006;display:flex;flex-direction:column;overflow:hidden}
-#jbAllReportsOverlay2026 .jb-ar-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;border-bottom:2px solid var(--border,#222);font-weight:900;font-size:20px}
-#jbAllReportsOverlay2026 .jb-ar-head button{border:2px solid var(--border,#222);border-radius:8px;padding:6px 12px;background:var(--panel,#fff);color:inherit}
-#jbAllReportsOverlay2026 .jb-ar-controls{display:grid;grid-template-columns:repeat(4,minmax(130px,1fr));gap:9px;padding:12px;border-bottom:1px solid #888}
-#jbAllReportsOverlay2026 label{display:flex;flex-direction:column;gap:4px;font-weight:800;font-size:13px}
-#jbAllReportsOverlay2026 input,#jbAllReportsOverlay2026 select{min-width:0;width:100%;padding:9px;border:1px solid #777;border-radius:8px;background:var(--panel,#fff);color:inherit;box-sizing:border-box}
-#jbAllReportsOverlay2026 .jb-ar-actions{display:flex;gap:7px;flex-wrap:wrap;padding:0 12px 10px}
-#jbAllReportsOverlay2026 .jb-ar-actions button{border:2px solid var(--border,#222);border-radius:8px;padding:8px 12px;font-weight:800;background:var(--panel,#fff);color:inherit}
-#jbAllReportsOverlay2026 .jb-ar-actions .primary{background:#155e36;color:#fff}
-#jbAllReportsOverlay2026 .jb-ar-content{padding:12px;overflow:auto;flex:1}
-#jbAllReportsOverlay2026 .jb-ar-stats{display:grid;grid-template-columns:repeat(4,minmax(130px,1fr));gap:9px;margin-bottom:12px}
-#jbAllReportsOverlay2026 .jb-ar-stat{border:2px solid var(--border,#222);border-radius:10px;padding:10px;background:var(--panel,#fff)}
-#jbAllReportsOverlay2026 .jb-ar-stat span{display:block;font-size:12px;font-weight:700}
-#jbAllReportsOverlay2026 .jb-ar-stat b{display:block;font-size:22px;margin-top:4px;overflow-wrap:anywhere}
-#jbAllReportsOverlay2026 .jb-ar-tablewrap{overflow:auto;border:1px solid #888;border-radius:8px}
-#jbAllReportsOverlay2026 table{border-collapse:collapse;width:100%;min-width:850px;font-size:13px}
-#jbAllReportsOverlay2026 th,#jbAllReportsOverlay2026 td{padding:8px;border:1px solid #aaa;text-align:left;vertical-align:top}
-#jbAllReportsOverlay2026 th{position:sticky;top:0;background:var(--panel,#eee);z-index:1}
-#jbAllReportsOverlay2026 .jb-ar-msg{padding:14px;font-weight:800}
-@media(max-width:700px){#jbAllReportsOverlay2026 .jb-ar-controls{grid-template-columns:repeat(2,minmax(0,1fr))}#jbAllReportsOverlay2026 .jb-ar-stats{grid-template-columns:repeat(2,minmax(0,1fr))}#jbAllReportsOverlay2026 .jb-ar-head{font-size:16px}}
-@media print{body.jb-ar-printing>*:not(#jbAllReportsOverlay2026){display:none!important}#jbAllReportsOverlay2026{display:block!important;position:static!important;inset:auto!important;padding:0!important;background:#fff!important}#jbAllReportsOverlay2026 .jb-ar-panel{height:auto!important;width:100%!important;border:0!important;box-shadow:none!important}#jbAllReportsOverlay2026 .jb-ar-head button,#jbAllReportsOverlay2026 .jb-ar-controls,#jbAllReportsOverlay2026 .jb-ar-actions{display:none!important}#jbAllReportsOverlay2026 .jb-ar-content{overflow:visible!important;padding:0!important}#jbAllReportsOverlay2026 table{min-width:0!important;font-size:9px!important}#jbAllReportsOverlay2026 th,#jbAllReportsOverlay2026 td{padding:4px!important;color:#000!important;background:#fff!important}}
-</style>
-<script id="jb-all-reports-js-20261011">
-(function(){
-  'use strict';
-  var overlayId='jbAllReportsOverlay2026', reportRows=[], reportSummary={};
-  function el(id){return document.getElementById(id)}
-  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
-  function money(v){var n=Number(v||0);return (isFinite(n)?n:0).toLocaleString('bn-BD')+' টাকা'}
-  function ensure(){
-    if(el(overlayId))return;
-    var root=document.createElement('div');root.id=overlayId;
-    root.innerHTML='<section class="jb-ar-panel" role="dialog" aria-modal="true" aria-label="অল রিপোর্ট"><header class="jb-ar-head"><span>📊 অল রিপোর্ট — All Reports</span><button type="button" id="jbArClose2026">✕ বন্ধ</button></header>'+
-      '<div class="jb-ar-controls"><label>রিপোর্টের ধরন<select id="jbArType2026"><option value="all">সব রিপোর্ট</option><option value="students">ছাত্র/ছাত্রী তালিকা</option><option value="teachers">শিক্ষক/শিক্ষিকা তালিকা</option><option value="admissions">ভর্তি আবেদন</option><option value="payments">বেতন/ফি আদায়</option><option value="salary">বেতন প্রদান</option><option value="income">আয়ের রিপোর্ট</option><option value="expense">ব্যয়ের রিপোর্ট</option><option value="results">পরীক্ষার ফলাফল</option><option value="exams">পরীক্ষার্থী নিবন্ধন</option><option value="attendance">হাজিরা</option><option value="files">ডকুমেন্টস/ফাইল</option><option value="receipts">মানি রসিদ</option><option value="donors">দাতা সদস্য</option><option value="admins">অ্যাডমিন</option><option value="madrasas">নিবন্ধিত মাদ্রাসা</option></select></label>'+
-      '<label>শুরুর তারিখ<input id="jbArFrom2026" type="date"></label><label>শেষ তারিখ<input id="jbArTo2026" type="date"></label><label>নাম / ID / খাত / অবস্থা খুঁজুন<input id="jbArSearch2026" type="search" placeholder="সার্চ লিখুন"></label></div>'+
-      '<div class="jb-ar-actions"><button class="primary" type="button" id="jbArLoad2026">🔎 রিপোর্ট দেখুন</button><button type="button" id="jbArReset2026">♻️ রিসেট</button><button type="button" id="jbArPrint2026">🖨️ প্রিন্ট / PDF</button><button type="button" id="jbArCsv2026">⬇ CSV / Excel</button></div>'+
-      '<main class="jb-ar-content"><div id="jbArMsg2026" class="jb-ar-msg">রিপোর্ট লোড করতে অপেক্ষা করুন…</div><div id="jbArStats2026" class="jb-ar-stats"></div><div id="jbArTable2026"></div></main></section>';
-    document.body.appendChild(root);
-    el('jbArClose2026').onclick=close;
-    root.addEventListener('click',function(e){if(e.target===root)close()});
-    el('jbArLoad2026').onclick=load;
-    el('jbArReset2026').onclick=function(){el('jbArType2026').value='all';el('jbArFrom2026').value='';el('jbArTo2026').value='';el('jbArSearch2026').value='';load()};
-    el('jbArPrint2026').onclick=function(){document.body.classList.add('jb-ar-printing');window.print();setTimeout(function(){document.body.classList.remove('jb-ar-printing')},500)};
-    el('jbArCsv2026').onclick=downloadCsv;
-    el('jbArSearch2026').addEventListener('input',render);
-    el('jbArType2026').addEventListener('change',load);
-    el('jbArFrom2026').addEventListener('change',load);
-    el('jbArTo2026').addEventListener('change',load);
-  }
-  function open(){ensure();el(overlayId).classList.add('show');load()}
-  function close(){if(el(overlayId))el(overlayId).classList.remove('show')}
-  function load(){
-    ensure();var msg=el('jbArMsg2026');msg.style.display='block';msg.textContent='⏳ রিপোর্ট ডাটাবেজ থেকে লোড হচ্ছে…';
-    el('jbArStats2026').innerHTML='';el('jbArTable2026').innerHTML='';
-    var filter={type:el('jbArType2026').value||'all',from:el('jbArFrom2026').value||'',to:el('jbArTo2026').value||''};
-    var t=window.token||(typeof token!=='undefined'?token:'');
-    if(!t){msg.textContent='❌ লগইন সেশন পাওয়া যায়নি। আবার লগইন করুন।';return}
-    if(typeof google==='undefined'||!google.script||!google.script.run){msg.textContent='❌ Apps Script সার্ভারের সঙ্গে সংযোগ পাওয়া যায়নি।';return}
-    google.script.run.withSuccessHandler(function(r){
-      if(!r||!r.ok){msg.textContent='❌ '+((r&&r.message)||'রিপোর্ট লোড করা যায়নি।');return}
-      reportRows=Array.isArray(r.rows)?r.rows:[];reportSummary=r.summary||{};
-      msg.textContent='✅ '+(r.message||'রিপোর্ট তৈরি হয়েছে।')+' মোট রেকর্ড: '+Number(r.count||reportRows.length).toLocaleString('bn-BD');render();
-    }).withFailureHandler(function(e){msg.textContent='❌ সার্ভার ত্রুটি: '+(e&&e.message?e.message:e)}).getAllReportsData2026(t,filter);
-  }
-  function filtered(){
-    var q=String(el('jbArSearch2026')&&el('jbArSearch2026').value||'').trim().toLowerCase();
-    return reportRows.filter(function(r){if(!q)return true;return [r.Type,r.ID,r.Name,r.Category,r.Amount,r.Status,r.Date,r.Details,r.Class,r.Exam,r.Mobile].some(function(v){return String(v==null?'':v).toLowerCase().indexOf(q)>=0})});
-  }
-  function render(){
-    var rows=filtered(),stats=el('jbArStats2026'),table=el('jbArTable2026');
-    var cards=[['মোট শিক্ষার্থী',reportSummary.students||0],['মোট শিক্ষক/শিক্ষিকা',reportSummary.teachers||0],['বেতন/ফি আদায়',money(reportSummary.payments||0)],['বেতন প্রদান',money(reportSummary.salary||0)],['মোট আয়',money(reportSummary.income||0)],['মোট ব্যয়',money(reportSummary.expense||0)],['নগদ স্থিতি',money((reportSummary.payments||0)+(reportSummary.income||0)-(reportSummary.salary||0)-(reportSummary.expense||0))],['দেখানো রেকর্ড',rows.length]];
-    stats.innerHTML=cards.map(function(x){return '<div class="jb-ar-stat"><span>'+esc(x[0])+'</span><b>'+esc(x[1])+'</b></div>'}).join('');
-    if(!rows.length){table.innerHTML='<div class="jb-ar-msg">এই ফিল্টারে কোনো রেকর্ড পাওয়া যায়নি।</div>';return}
-    table.innerHTML='<div class="jb-ar-tablewrap"><table><thead><tr><th>ধরন</th><th>তারিখ</th><th>ID</th><th>নাম / বিবরণ</th><th>শ্রেণি / পরীক্ষা</th><th>খাত</th><th>পরিমাণ</th><th>অবস্থা</th><th>মোবাইল</th></tr></thead><tbody>'+
-      rows.map(function(r){return '<tr><td>'+esc(r.Type)+'</td><td>'+esc(r.Date)+'</td><td>'+esc(r.ID)+'</td><td>'+esc(r.Name||r.Details)+'</td><td>'+esc([r.Class,r.Exam].filter(Boolean).join(' / '))+'</td><td>'+esc(r.Category)+'</td><td>'+((r.Amount!==''&&r.Amount!=null)?esc(money(r.Amount)):'—')+'</td><td>'+esc(r.Status)+'</td><td>'+esc(r.Mobile)+'</td></tr>'}).join('')+'</tbody></table></div>';
-  }
-  function downloadCsv(){
-    var rows=filtered();if(!rows.length){el('jbArMsg2026').textContent='CSV তৈরি করার মতো কোনো রেকর্ড নেই।';return}
-    var cols=['Type','Date','ID','Name','Details','Class','Exam','Category','Amount','Status','Mobile'];
-    var csv='\uFEFF'+[cols.join(',')].concat(rows.map(function(r){return cols.map(function(k){return '"'+String(r[k]==null?'':r[k]).replace(/"/g,'""')+'"'}).join(',')})).join('\r\n');
-    var blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='Jannatul_Baqi_All_Reports_2026.csv';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
-  }
-  var oldOpen=window.openModule;
-  window.openModule=function(k){if(String(k||'')==='report'){open();return}return typeof oldOpen==='function'?oldOpen.apply(this,arguments):undefined};
-  window.openAllReports2026=open;
-})();
-</script>
-<!-- ===== END ALL REPORTS MODULE ===== -->
-
-<!-- ===== LOGIN CLICK SAFETY FIX 2026-10-11 ===== -->
-<style id="jb-login-click-safety-20261011">
-#loginPage .login-auth-qr-802268e,
-#loginPage .login-auth-802268e,
-#loginPage .login-grid{position:relative!important;z-index:20!important;pointer-events:auto!important}
-#loginPage #mainLoginBtn{position:relative!important;z-index:30!important;pointer-events:auto!important;cursor:pointer!important;touch-action:manipulation!important}
-</style>
-<script id="jb-login-click-safety-handler-20261011">
-(function(){
-  function bindLoginClick(){
-    var btn=document.getElementById('mainLoginBtn');
-    if(!btn||btn.dataset.jbClickSafety==='1')return;
-    btn.dataset.jbClickSafety='1';
-    document.addEventListener('click',function(ev){
-      var target=ev.target;
-      var hit=target&&target.closest?target.closest('#mainLoginBtn'):null;
-      if(!hit)return;
-      ev.preventDefault();
-      ev.stopPropagation();
-      if(typeof ev.stopImmediatePropagation==='function')ev.stopImmediatePropagation();
-      if(hit.disabled)return;
-      if(typeof window.login!=='function'){
-        var msg=document.getElementById('toast');
-        if(msg){msg.textContent='লগইন স্ক্রিপ্ট লোড হয়নি। পেজটি রিফ্রেশ করে আবার চেষ্টা করুন।';msg.style.display='block';}
-        return;
-      }
-      try{
-        var result=window.login();
-        if(result&&typeof result.catch==='function')result.catch(function(err){
-          var msg=document.getElementById('toast');
-          if(msg){msg.textContent='লগইন ত্রুটি: '+(err&&err.message?err.message:err);msg.style.display='block';}
-        });
-      }catch(err){
-        var msg=document.getElementById('toast');
-        if(msg){msg.textContent='লগইন ত্রুটি: '+(err&&err.message?err.message:err);msg.style.display='block';}
-      }
-    },true);
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindLoginClick);else bindLoginClick();
-  setTimeout(bindLoginClick,250);
-  setTimeout(bindLoginClick,900);
 })();
 </script>
