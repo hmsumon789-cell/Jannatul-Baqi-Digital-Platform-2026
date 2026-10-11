@@ -14650,3 +14650,81 @@ window.jbAdmissionImportClick2026=function(){var x=el('adCompletedUpload2026');i
 window.jbAdmissionViewIdentityCopy2026=function(){var f=el('adIdentityCopy2026'),file=f&&f.files&&f.files[0];if(!file)return;var old=el('jbAdmissionIdentityView2026');if(old)old.remove();var u=URL.createObjectURL(file);var inner=file.type.indexOf('image/')===0?'<img src="'+u+'" style="max-width:90vw;max-height:80vh;object-fit:contain">':'<iframe src="'+u+'" style="width:90vw;height:80vh;border:0;background:white"></iframe>';document.body.insertAdjacentHTML('beforeend','<div id="jbAdmissionIdentityView2026" style="position:fixed;inset:0;z-index:2147483647;background:#000c;display:grid;place-items:center;padding:12px" onclick="this.remove()"><div style="background:#fff;padding:8px;border-radius:8px" onclick="event.stopPropagation()">'+inner+'<p style="text-align:center"><button type="button" onclick="document.getElementById(\'jbAdmissionIdentityView2026\').remove()">বন্ধ করুন</button></p></div></div>')};
 window.jbAdmissionImportFile2026=async function(file){var fb=el('admAdmissionRedesignFeedback2026');if(!file)return;if(fb)fb.textContent='ফাইল নির্বাচিত: '+file.name+' — ফাইলের ধরন পরীক্ষা হচ্ছে...';if(file.size>20*1024*1024){if(fb)fb.textContent='❌ ফাইল ২০ MB-এর বেশি। ছোট/ক্রপ করে আবার আপলোড করুন।';return}var ext=(file.name.split('.').pop()||'').toLowerCase();if(['txt','csv','json'].indexOf(ext)>=0){var text=await file.text();try{var data=ext==='json'?JSON.parse(text):null;if(!data){data={};text.split(/\r?\n/).forEach(function(line){var m=line.match(/^\s*([^:,=]+)\s*[:,=]\s*(.*?)\s*$/);if(m)data[m[1].trim()]=m[2].trim()})}var aliases={NameBN:['NameBN','নাম বাংলা','বাংলা নাম','শিক্ষার্থীর নাম'],NameAR:['NameAR','নাম আরবি','আরবি নাম'],NameEN:['NameEN','English Name','নাম ইংরেজি'],FatherBN:['FatherBN','পিতার নাম'],MotherBN:['MotherBN','মাতার নাম'],DOB:['DOB','জন্ম তারিখ'],Mobile:['Mobile','মোবাইল'],Email:['Email','ইমেইল'],Class:['Class','শ্রেণি','জামাত'],Address:['Address','ঠিকানা']};Object.keys(aliases).forEach(function(k){var v='';aliases[k].some(function(a){if(data[a]!=null){v=data[a];return true}var key=Object.keys(data).find(function(z){return z.toLowerCase()===a.toLowerCase()});if(key){v=data[key];return true}return false});if(v){var id={NameBN:'adNameBN',NameAR:'adNameAR',NameEN:'adNameEN',FatherBN:'adFatherBN',MotherBN:'adMotherBN',DOB:'adDob',Mobile:'adMobile',Email:'adEmail',Class:'adClass',Address:'adAddress'}[k],x=el(id);if(x)x.value=v}});if(fb)fb.textContent='✓ সমর্থিত টেক্সট ফাইল থেকে মিল থাকা তথ্য পূরণ করা হয়েছে। বাকি ঘরগুলো যাচাই করুন।'}catch(e){if(fb)fb.textContent='❌ ফাইল পড়া যায়নি: '+(e&&e.message||e)}}else if((ext==='xlsx'||ext==='xls')&&window.XLSX){var buf=await file.arrayBuffer(),wb=window.XLSX.read(buf,{type:'array'}),rows=window.XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''}),obj=rows[0]||{};['NameBN','NameAR','NameEN','FatherBN','MotherBN','DOB','Mobile','Email','Class','Address'].forEach(function(k){if(obj[k]!=null){var id={NameBN:'adNameBN',NameAR:'adNameAR',NameEN:'adNameEN',FatherBN:'adFatherBN',MotherBN:'adMotherBN',DOB:'adDob',Mobile:'adMobile',Email:'adEmail',Class:'adClass',Address:'adAddress'}[k];if(el(id))el(id).value=obj[k]}});if(fb)fb.textContent='✓ Excel থেকে তথ্য আনা হয়েছে। সব ঘর যাচাই করুন.'}else if(ext==='docx'&&window.mammoth){var ab=await file.arrayBuffer(),res=await window.mammoth.extractRawText({arrayBuffer:ab});if(fb)fb.textContent='Word ফাইলের লেখা পাওয়া গেছে। তথ্য স্বয়ংক্রিয়ভাবে মেলাতে নির্দিষ্ট field-label format প্রয়োজন; পাওয়া লেখা: '+res.value.slice(0,500)}else if(file.type.indexOf('image/')===0||ext==='pdf'){if(fb)fb.textContent='ফাইল লোড হয়েছে, কিন্তু ছবি/PDF থেকে OCR করে স্বয়ংক্রিয় পূরণের ব্যবস্থা এই সংস্করণে নেই; প্রিভিউ করে তথ্য হাতে পূরণ করুন।'}else if(fb)fb.textContent='এই ফাইলের অটো-পূরণের লাইব্রেরি পাওয়া যায়নি। .txt/.csv/.json ফাইলে “NameBN: ...” ধরনের লাইন দিয়ে আবার আপলোড করুন।'};
 </script>
+
+
+<!-- ===== ADMISSION WINDOW CONTROLS + MULTI-TAB + HOTLINE NEWS TICKER — 2026-10-12 ===== -->
+<style id="jb-admission-window-controls-style-20261012">
+#formWin.jb-adm-win-fullscreen-20261012{position:fixed!important;inset:0!important;left:0!important;top:0!important;width:100vw!important;height:100vh!important;max-width:none!important;max-height:none!important;margin:0!important;border-radius:0!important;z-index:2147482000!important;transform:none!important}
+#formWin.jb-adm-win-snap-left-20261012{position:fixed!important;left:0!important;top:0!important;width:50vw!important;height:calc(100vh - 48px)!important;max-width:none!important;max-height:none!important;margin:0!important;z-index:2147481000!important}
+#formWin.jb-adm-win-snap-right-20261012{position:fixed!important;left:50vw!important;top:0!important;width:50vw!important;height:calc(100vh - 48px)!important;max-width:none!important;max-height:none!important;margin:0!important;z-index:2147481000!important}
+#formWin.jb-adm-win-minimized-20261012{display:none!important}
+#jbAdmissionWindowControls20261012{display:flex;gap:4px;align-items:center;margin-left:auto;flex-wrap:wrap}
+#jbAdmissionWindowControls20261012 button{min-width:30px;min-height:28px;padding:3px 8px;border:1px solid #d8bd67;border-radius:6px;background:#fff8dd;color:#17432e;font-weight:900;cursor:pointer}
+#jbAdmissionWindowTaskbar20261012{position:fixed;left:8px;right:8px;bottom:5px;display:flex;gap:6px;z-index:2147483000;pointer-events:none}
+#jbAdmissionWindowTaskbar20261012 button{pointer-events:auto;border:2px solid #b28a2d;border-radius:8px;padding:7px 12px;background:#0c6844;color:#fff;font-weight:900;box-shadow:0 2px 8px #0003}
+#admAdmissionRedesign20261011 .jb-admission-news-ticker-20261012{display:flex;align-items:center;gap:8px;overflow:hidden;margin-top:5px;padding:5px 8px;border-radius:7px;background:#0d5b3d;color:#fff7d8;font-size:12px;font-weight:800;text-align:left}
+#admAdmissionRedesign20261011 .jb-admission-news-ticker-20261012 strong{white-space:nowrap;color:#ffe17a}
+#admAdmissionRedesign20261011 .jb-admission-news-ticker-20261012 .jb-news-moving{white-space:nowrap;display:inline-block;min-width:max-content;animation:jbAdmissionTickerMove20261012 22s linear infinite}
+@keyframes jbAdmissionTickerMove20261012{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
+@media(max-width:700px){#formWin.jb-adm-win-snap-left-20261012,#formWin.jb-adm-win-snap-right-20261012{width:100vw!important;left:0!important;height:calc(100vh - 48px)!important}#jbAdmissionWindowControls20261012{gap:2px}#jbAdmissionWindowControls20261012 button{padding:3px 5px}}
+</style>
+<script id="jb-admission-window-controls-script-20261012">
+(function(){
+ 'use strict';
+ if(window.__jbAdmissionWindowControls20261012)return;
+ window.__jbAdmissionWindowControls20261012=true;
+ var winId='formWin',taskId='jbAdmissionWindowTaskbar20261012',ctrlId='jbAdmissionWindowControls20261012';
+ function el(id){return document.getElementById(id)}
+ function isAdmission(){return !!el('admAdmissionRedesign20261011')}
+ function ensureTaskbar(){var t=el(taskId);if(!t){t=document.createElement('div');t.id=taskId;document.body.appendChild(t)}return t}
+ function clearTask(){var t=el(taskId);if(t)t.innerHTML=''}
+ function restore(){var w=el(winId);if(!w)return;clearTask();w.classList.remove('jb-adm-win-minimized-20261012');w.style.display='block';w.classList.add('show');w.style.zIndex='2147482000'}
+ function minimize(){var w=el(winId);if(!w)return;w.classList.remove('jb-adm-win-fullscreen-20261012','jb-adm-win-snap-left-20261012','jb-adm-win-snap-right-20261012');w.classList.add('jb-adm-win-minimized-20261012');w.style.display='none';var t=ensureTaskbar();t.innerHTML='';var b=document.createElement('button');b.type='button';b.textContent='▣ ভর্তি ফর্ম পুনরায় খুলুন';b.onclick=restore;t.appendChild(b)}
+ function fullscreen(){var w=el(winId);if(!w)return;if(w.classList.contains('jb-adm-win-fullscreen-20261012')){w.classList.remove('jb-adm-win-fullscreen-20261012');w.style.width='';w.style.height='';w.style.left='';w.style.top=''}else{restore();w.classList.remove('jb-adm-win-snap-left-20261012','jb-adm-win-snap-right-20261012');w.classList.add('jb-adm-win-fullscreen-20261012')} }
+ function snap(side){var w=el(winId);if(!w)return;restore();w.classList.remove('jb-adm-win-fullscreen-20261012','jb-adm-win-snap-left-20261012','jb-adm-win-snap-right-20261012');w.classList.add(side==='left'?'jb-adm-win-snap-left-20261012':'jb-adm-win-snap-right-20261012')}
+ function newTab(){var u=new URL(window.location.href);u.hash='jb-open-admission-student-20261012';window.open(u.href,'_blank','noopener')}
+ function addButton(parent,text,title,fn){var b=document.createElement('button');b.type='button';b.textContent=text;b.title=title;b.onclick=function(e){e.preventDefault();e.stopPropagation();fn()};parent.appendChild(b)}
+ function installControls(){
+  var w=el(winId);if(!w||!isAdmission())return;
+  var head=w.querySelector('.win-head');if(!head)return;
+  var ctr=el(ctrlId);if(!ctr){ctr=document.createElement('div');ctr.id=ctrlId;ctr.setAttribute('aria-label','ভর্তি ফর্ম উইন্ডো নিয়ন্ত্রণ');head.appendChild(ctr);
+   addButton(ctr,'↙','বামে অর্ধেক স্ক্রিনে নিন',function(){snap('left')});
+   addButton(ctr,'↘','ডানে অর্ধেক স্ক্রিনে নিন',function(){snap('right')});
+   addButton(ctr,'□','ফুল স্ক্রিন / স্বাভাবিক',fullscreen);
+   addButton(ctr,'—','মিনিমাইজ করে নিচের taskbar-এ রাখুন',minimize);
+   addButton(ctr,'＋ নতুন ট্যাব','নতুন ট্যাবে আরেকটি ভর্তি ফর্ম খুলুন',newTab);
+  }
+  // Add the ticker directly beneath the existing address/hotline/email; never alter location fields or dropdowns.
+  var root=el('admAdmissionRedesign20261011'),meta=root&&root.querySelector('.adm-brand-meta');
+  if(meta&&!root.querySelector('.jb-admission-news-ticker-20261012')){
+   var tick=document.createElement('div');tick.className='jb-admission-news-ticker-20261012';
+   tick.innerHTML='<strong>📢 সংবাদ</strong><span class="jb-news-moving">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা — অনলাইন ভর্তি আবেদন গ্রহণ চলছে। ফর্মের তথ্য যাচাই করে সংরক্ষণ করুন। প্রয়োজনে হটলাইন 01823316630 · ইমেইল hmatik90@gmail.com</span>';
+   meta.appendChild(tick);
+  }
+  // Drag the titlebar; snap to either edge, and dragging to the bottom minimizes to the taskbar.
+  if(head.dataset.jbAdmDrag20261012!=='1'){
+   head.dataset.jbAdmDrag20261012='1';var drag=null;
+   head.addEventListener('pointerdown',function(e){
+    if(e.button!==0||e.target.closest('button,input,select,a,[role="button"]'))return;
+    drag={x:e.clientX,y:e.clientY,left:w.getBoundingClientRect().left,top:w.getBoundingClientRect().top,moved:false};
+    try{head.setPointerCapture(e.pointerId)}catch(_){}
+   });
+   head.addEventListener('pointermove',function(e){
+    if(!drag)return;var dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.abs(dx)+Math.abs(dy)>4)drag.moved=true;if(!drag.moved)return;
+    if(w.classList.contains('jb-adm-win-fullscreen-20261012')){w.classList.remove('jb-adm-win-fullscreen-20261012');w.style.width='min(1100px,96vw)';w.style.height='';w.style.left=Math.max(0,e.clientX-w.offsetWidth/2)+'px';w.style.top='0px';drag.left=parseFloat(w.style.left)||0;drag.top=0;drag.x=e.clientX;drag.y=e.clientY;return}
+    w.classList.remove('jb-adm-win-snap-left-20261012','jb-adm-win-snap-right-20261012');
+    w.style.position='fixed';w.style.margin='0';w.style.left=Math.max(0,Math.min(window.innerWidth-w.offsetWidth,drag.left+dx))+'px';w.style.top=Math.max(0,Math.min(window.innerHeight-80,drag.top+dy))+'px';
+   });
+   function finish(e){if(!drag)return;var moved=drag.moved;drag=null;if(!moved)return;if(e.clientY>=window.innerHeight-24){minimize();return}if(e.clientX<=8){snap('left');return}if(e.clientX>=window.innerWidth-8){snap('right');return}}
+   head.addEventListener('pointerup',finish);head.addEventListener('pointercancel',function(){drag=null});
+  }
+ }
+ function runWhenReady(){if(isAdmission())installControls()}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',runWhenReady);else runWhenReady();
+ if(window.MutationObserver){var mo=new MutationObserver(function(){if(isAdmission())installControls()});mo.observe(document.documentElement,{childList:true,subtree:true})}
+ // A new browser tab can independently open another form without replacing the current tab's form.
+ function consumeTabFlag(){if(window.location.hash==='#jb-open-admission-student-20261012'){history.replaceState(null,'',window.location.pathname+window.location.search);setTimeout(function(){if(typeof window.openAdmissionForm2026==='function')window.openAdmissionForm2026('student')},700)}}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',consumeTabFlag,{once:true});else consumeTabFlag();
+})();
+</script>
+<!-- ===== END ADMISSION WINDOW CONTROLS + MULTI-TAB + HOTLINE NEWS TICKER ===== -->
