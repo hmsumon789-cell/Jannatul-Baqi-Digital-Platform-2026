@@ -14419,3 +14419,68 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 })();
 </script>
 <!-- ===== END EXCEL + WORD + CODING FILE EXPORT BUTTON ===== -->
+
+
+<!-- ===== LOCAL PC UPLOAD NEXT TO EXCEL WORD CODING BUTTON — 2026-10-11 ===== -->
+<style id="jb-local-pc-upload-style-20261011">
+.jb-local-upload-btn-20261011{margin-left:6px!important;white-space:nowrap!important;background:#087f5b!important;color:#fff!important;border:1px solid #056747!important;font-weight:900!important}
+.jb-local-file-overlay-20261011{position:fixed;inset:0;z-index:2147483000;background:#0009;display:none;align-items:center;justify-content:center;padding:12px;box-sizing:border-box}
+.jb-local-file-overlay-20261011.show{display:flex}
+.jb-local-file-dialog-20261011{width:min(850px,96vw);max-height:90vh;display:flex;flex-direction:column;background:var(--panel,#fff);color:var(--text,#111);border:2px solid #b78a25;border-radius:14px;box-shadow:0 18px 55px #0006;overflow:hidden}
+.jb-local-file-head-20261011{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 15px;background:#f5e7b7;color:#432f00;font-weight:900}
+.jb-local-file-body-20261011{padding:14px;overflow:auto}
+.jb-local-file-item-20261011{border:1px solid #c9b778;border-radius:8px;padding:10px;margin:8px 0;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.jb-local-file-preview-20261011{white-space:pre-wrap;overflow:auto;max-height:40vh;background:#101827;color:#e5f2ff;padding:12px;border-radius:8px;font:12px/1.5 ui-monospace,monospace}
+@media(max-width:650px){.jb-local-upload-btn-20261011{margin:5px 0 0 0!important}.jb-local-file-head-20261011{align-items:flex-start}}
+</style>
+<script id="jb-local-pc-upload-script-20261011">
+(function(){
+ 'use strict';if(window.__jbLocalPcUpload20261011)return;window.__jbLocalPcUpload20261011=true;
+ var files=[];
+ var accept='.xlsx,.xls,.doc,.docx,.docm,.pdf,.js,.html,.htm,.css,.gs,.py,.json,.txt,.csv,.xml,.md,.sql,.java,.ts,.tsx,.jsx,.php,.yml,.yaml';
+ function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+ function fmt(n){return n<1024?n+' B':n<1048576?(n/1024).toFixed(1)+' KB':(n/1048576).toFixed(2)+' MB'}
+ function build(){
+  var ov=document.getElementById('jbLocalPcFileOverlay2026');if(ov)return ov;
+  ov=document.createElement('div');ov.id='jbLocalPcFileOverlay2026';ov.className='jb-local-file-overlay-20261011';
+  ov.innerHTML='<section class="jb-local-file-dialog-20261011" role="dialog" aria-modal="true"><header class="jb-local-file-head-20261011"><span>⬆ পিসি থেকে ফাইল আপলোড / লোড</span><button type="button" class="secondary" id="jbLocalPcClose2026">✕ বন্ধ</button></header><div class="jb-local-file-body-20261011"><div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="primary" id="jbLocalPcChoose2026">📂 পিসি থেকে ফাইল নির্বাচন</button><button type="button" class="secondary" id="jbLocalPcClear2026">🧹 তালিকা খালি</button></div><p>Excel, Word, PDF, Coding ও Text ফাইল নির্বাচন করুন। নির্বাচিত ফাইল এই উইন্ডোতে থাকবে। নিরাপত্তার জন্য ফাইলগুলো সার্ভারে পাঠানো বা অনলাইনে স্থায়ীভাবে সংরক্ষণ করা হচ্ছে না।</p><div id="jbLocalPcList2026"></div><div id="jbLocalPcPreviewBox2026" style="display:none"><b id="jbLocalPcPreviewTitle2026"></b><pre id="jbLocalPcPreview2026" class="jb-local-file-preview-20261011"></pre></div></div></section>';
+  document.body.appendChild(ov);
+  ov.addEventListener('click',function(e){if(e.target===ov)ov.classList.remove('show')});
+  ov.querySelector('#jbLocalPcClose2026').onclick=function(){ov.classList.remove('show')};
+  ov.querySelector('#jbLocalPcChoose2026').onclick=function(){var i=document.getElementById('jbLocalPcInput2026');if(i)i.click()};
+  ov.querySelector('#jbLocalPcClear2026').onclick=function(){files=[];render()};
+  return ov;
+ }
+ function open(){build().classList.add('show');render()}
+ function render(){
+  var ov=build(),list=ov.querySelector('#jbLocalPcList2026');ov.querySelector('#jbLocalPcPreviewBox2026').style.display='none';
+  if(!files.length){list.innerHTML='<div style="margin-top:12px;padding:18px;text-align:center;border:1px dashed #b8a66d;border-radius:8px">এখনো কোনো ফাইল লোড হয়নি। “পিসি থেকে ফাইল নির্বাচন” চাপুন।</div>';return}
+  list.innerHTML=files.map(function(x,i){return '<div class="jb-local-file-item-20261011"><div><b>'+esc(x.file.name)+'</b><div><small>'+fmt(x.file.size)+' · '+esc(x.status)+'</small></div></div><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="secondary" type="button" data-prev="'+i+'">দেখুন</button><button class="primary" type="button" data-down="'+i+'">মূল ফাইল নিন</button><button class="secondary" type="button" data-del="'+i+'">✕</button></div></div>'}).join('');
+  list.querySelectorAll('[data-prev]').forEach(function(b){b.onclick=function(){var x=files[+b.dataset.prev],box=ov.querySelector('#jbLocalPcPreviewBox2026');ov.querySelector('#jbLocalPcPreviewTitle2026').textContent=x.file.name;ov.querySelector('#jbLocalPcPreview2026').textContent=x.text==null?'ফাইলটি লোড হয়েছে। Excel/Word/PDF-এর আসল বিন্যাস এখানে প্রিভিউ করা যাচ্ছে না; “মূল ফাইল নিন” চাপুন।':x.text.slice(0,100000)+(x.text.length>100000?'\n[প্রিভিউ ১০০,০০০ অক্ষরে সীমিত]':'');box.style.display='block'}});
+  list.querySelectorAll('[data-down]').forEach(function(b){b.onclick=function(){var x=files[+b.dataset.down],u=URL.createObjectURL(x.file),a=document.createElement('a');a.href=u;a.download=x.file.name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},1200)}});
+  list.querySelectorAll('[data-del]').forEach(function(b){b.onclick=function(){files.splice(+b.dataset.del,1);render()}});
+ }
+ function load(fileList){
+  Array.prototype.forEach.call(fileList||[],function(file){
+   if(files.some(function(x){return x.file.name===file.name&&x.file.size===file.size&&x.file.lastModified===file.lastModified}))return;
+   var ext=(file.name.split('.').pop()||'').toLowerCase(),x={file:file,text:null,status:'লোড হয়েছে'};files.push(x);
+   if(/^(txt|csv|js|html?|css|gs|py|json|xml|md|sql|java|ts|tsx|jsx|php|yml|yaml)$/.test(ext)){
+    x.status='পড়া হচ্ছে…';var rd=new FileReader();rd.onload=function(){x.text=String(rd.result||'');x.status='লোড সম্পন্ন · প্রিভিউ প্রস্তুত';render()};rd.onerror=function(){x.status='ফাইল পড়া যায়নি';render()};rd.readAsText(file);
+   }
+  });open();
+ }
+ function attach(){
+  var input=document.getElementById('jbLocalPcInput2026');
+  if(!input){input=document.createElement('input');input.type='file';input.id='jbLocalPcInput2026';input.accept=accept;input.multiple=true;input.hidden=true;input.onchange=function(){load(this.files);this.value=''};document.body.appendChild(input)}
+  build();
+  var btn=document.querySelector('button[onclick="openFileExport2026()"]');
+  if(!btn)btn=Array.prototype.find.call(document.querySelectorAll('button'),function(b){return /Excel\s*\+\s*Word\s*\+\s*Coding/i.test(b.textContent||'')});
+  if(btn&&!document.getElementById('jbLocalPcUploadButton2026')){
+   var up=document.createElement('button');up.id='jbLocalPcUploadButton2026';up.type='button';up.className=(btn.className||'secondary')+' jb-local-upload-btn-20261011';up.textContent='⬆ আপলোড';up.title='পিসি থেকে Excel, Word, Coding বা PDF ফাইল লোড করুন';up.onclick=function(e){e.preventDefault();e.stopPropagation();input.click()};btn.insertAdjacentElement('afterend',up);
+  }
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',attach,{once:true});else attach();
+ if(window.MutationObserver){var mo=new MutationObserver(function(){if(!document.getElementById('jbLocalPcUploadButton2026'))attach()});mo.observe(document.documentElement,{childList:true,subtree:true})}
+})();
+</script>
+<!-- ===== END LOCAL PC UPLOAD NEXT TO EXCEL WORD CODING BUTTON ===== -->
