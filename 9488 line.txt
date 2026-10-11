@@ -1497,7 +1497,7 @@ async function saveSalaryPayment2026(){
     toast(r.message||'বেতন সফলভাবে সংরক্ষণ হয়েছে।');
     var a=document.getElementById('salaryAmount2026'),n=document.getElementById('salaryNote2026');if(a)a.value='';if(n)n.value='';
     await loadSalaryPayments2026();
-    if(r.record)printSalarySlip2026(encodeURIComponent(JSON.stringify(r.record)));
+    // রসিদ ইতিহাসের ‘রসিদ’ বাটন থেকে খুলবে; async save-এর পরে popup blocker এড়ানো হয়।
   }catch(e){var m='বেতন সংরক্ষণে ত্রুটি: '+String(e&&e.message||e);if(msg)msg.textContent='❌ '+m;toast(m);}
   finally{if(btn){btn.disabled=false;btn.textContent='💵 বেতন প্রদান সংরক্ষণ';}}
 }
