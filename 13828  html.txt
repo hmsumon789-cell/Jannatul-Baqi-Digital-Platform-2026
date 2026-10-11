@@ -13863,7 +13863,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   ];
   function el(id){return document.getElementById(id)}
   function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
-  function role(){var u=window.currentUser||{};return String(u.Role||u.role||'').toUpperCase().replace(/[\\s-]+/g,'_')}
+  function role(){var u=window.currentUser||{};return String(u.Role||u.role||'').toUpperCase().replace(/[\s-]+/g,'_')}
   function allowed(){var r=role();return r==='SUPER_ADMIN'||r==='SUPERADMIN'}
   function html(){
     return '<section id="jbAllReportsPanel20261011" class="card" style="padding:12px">'+
@@ -13886,7 +13886,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   window.moduleForm=function(k){if(k==='report')return html();return typeof previous==='function'?previous.apply(this,arguments):'<p>ফর্ম পাওয়া যায়নি।</p>'};
   function dateValue(row,keys){
     var candidates=keys.filter(function(k){return /date|তারিখ|created|সময়/i.test(String(k))});
-    for(var i=0;i<candidates.length;i++){var v=row[candidates[i]];if(v==null||v==='')continue;var s=String(v);var m=s.match(/(\\d{4})[-/](\\d{1,2})[-/](\\d{1,2})/);if(m)return m[1]+'-'+('0'+m[2]).slice(-2)+'-'+('0'+m[3]).slice(-2);var d=new Date(v);if(!isNaN(d.getTime()))return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
+    for(var i=0;i<candidates.length;i++){var v=row[candidates[i]];if(v==null||v==='')continue;var s=String(v);var m=s.match(/(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);if(m)return m[1]+'-'+('0'+m[2]).slice(-2)+'-'+('0'+m[3]).slice(-2);var d=new Date(v);if(!isNaN(d.getTime()))return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
     return '';
   }
   function rowsOf(response){return Array.isArray(response&&response.rows)?response.rows:[]}
@@ -13937,7 +13937,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     function csv(v){var s=String(v==null?'':v).replace(/"/g,'""');return '"'+s+'"'}
     var chunks=[];
     reports.forEach(function(r){chunks.push(csv('বিভাগ: '+r.label));var heads=r.headers.length?r.headers:Object.keys(r.rows[0]||{});if(heads.length)chunks.push(heads.map(csv).join(','));r.rows.forEach(function(row){chunks.push(heads.map(function(h){return csv(row[h])}).join(','))});chunks.push('')});
-    var blob=new Blob(['\\ufeff'+chunks.join('\\r\\n')],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='Jannatul_Baqi_All_Reports.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url)},1200);
+    var blob=new Blob(['\ufeff'+chunks.join('\r\n')],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='Jannatul_Baqi_All_Reports.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url)},1200);
   };
   window.jbClearAllReports20261011=function(){['jbReportFrom20261011','jbReportTo20261011','jbReportQuery20261011'].forEach(function(id){if(el(id))el(id).value=''});if(el('jbReportSheet20261011'))el('jbReportSheet20261011').value='all';if(el('jbReportStatus20261011'))el('jbReportStatus20261011').textContent='ফিল্টার পরিষ্কার হয়েছে। নতুন রিপোর্ট তৈরি করুন।';if(el('jbReportSummary20261011'))el('jbReportSummary20261011').innerHTML='';if(el('jbReportResults20261011'))el('jbReportResults20261011').innerHTML='';window.__jbAllReportsData20261011=[]};
 })();
