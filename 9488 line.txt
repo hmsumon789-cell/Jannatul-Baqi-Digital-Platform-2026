@@ -13930,3 +13930,97 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
 </script>
+
+
+<!-- ===== ALL REPORTS MODULE — FILTER / PRINT / CSV — 2026-10-11 ===== -->
+<style id="jb-all-reports-style-20261011">
+#jbAllReportsOverlay2026{position:fixed;inset:0;z-index:100150;background:rgba(0,0,0,.62);display:none;align-items:center;justify-content:center;padding:12px;box-sizing:border-box}
+#jbAllReportsOverlay2026.show{display:flex}
+#jbAllReportsOverlay2026 .jb-ar-panel{width:min(1250px,98vw);height:min(92vh,900px);background:var(--panel,#fff);color:var(--text,#171717);border:3px solid var(--border,#222);border-radius:16px;box-shadow:0 15px 50px #0006;display:flex;flex-direction:column;overflow:hidden}
+#jbAllReportsOverlay2026 .jb-ar-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;border-bottom:2px solid var(--border,#222);font-weight:900;font-size:20px}
+#jbAllReportsOverlay2026 .jb-ar-head button{border:2px solid var(--border,#222);border-radius:8px;padding:6px 12px;background:var(--panel,#fff);color:inherit}
+#jbAllReportsOverlay2026 .jb-ar-controls{display:grid;grid-template-columns:repeat(4,minmax(130px,1fr));gap:9px;padding:12px;border-bottom:1px solid #888}
+#jbAllReportsOverlay2026 label{display:flex;flex-direction:column;gap:4px;font-weight:800;font-size:13px}
+#jbAllReportsOverlay2026 input,#jbAllReportsOverlay2026 select{min-width:0;width:100%;padding:9px;border:1px solid #777;border-radius:8px;background:var(--panel,#fff);color:inherit;box-sizing:border-box}
+#jbAllReportsOverlay2026 .jb-ar-actions{display:flex;gap:7px;flex-wrap:wrap;padding:0 12px 10px}
+#jbAllReportsOverlay2026 .jb-ar-actions button{border:2px solid var(--border,#222);border-radius:8px;padding:8px 12px;font-weight:800;background:var(--panel,#fff);color:inherit}
+#jbAllReportsOverlay2026 .jb-ar-actions .primary{background:#155e36;color:#fff}
+#jbAllReportsOverlay2026 .jb-ar-content{padding:12px;overflow:auto;flex:1}
+#jbAllReportsOverlay2026 .jb-ar-stats{display:grid;grid-template-columns:repeat(4,minmax(130px,1fr));gap:9px;margin-bottom:12px}
+#jbAllReportsOverlay2026 .jb-ar-stat{border:2px solid var(--border,#222);border-radius:10px;padding:10px;background:var(--panel,#fff)}
+#jbAllReportsOverlay2026 .jb-ar-stat span{display:block;font-size:12px;font-weight:700}
+#jbAllReportsOverlay2026 .jb-ar-stat b{display:block;font-size:22px;margin-top:4px;overflow-wrap:anywhere}
+#jbAllReportsOverlay2026 .jb-ar-tablewrap{overflow:auto;border:1px solid #888;border-radius:8px}
+#jbAllReportsOverlay2026 table{border-collapse:collapse;width:100%;min-width:850px;font-size:13px}
+#jbAllReportsOverlay2026 th,#jbAllReportsOverlay2026 td{padding:8px;border:1px solid #aaa;text-align:left;vertical-align:top}
+#jbAllReportsOverlay2026 th{position:sticky;top:0;background:var(--panel,#eee);z-index:1}
+#jbAllReportsOverlay2026 .jb-ar-msg{padding:14px;font-weight:800}
+@media(max-width:700px){#jbAllReportsOverlay2026 .jb-ar-controls{grid-template-columns:repeat(2,minmax(0,1fr))}#jbAllReportsOverlay2026 .jb-ar-stats{grid-template-columns:repeat(2,minmax(0,1fr))}#jbAllReportsOverlay2026 .jb-ar-head{font-size:16px}}
+@media print{body.jb-ar-printing>*:not(#jbAllReportsOverlay2026){display:none!important}#jbAllReportsOverlay2026{display:block!important;position:static!important;inset:auto!important;padding:0!important;background:#fff!important}#jbAllReportsOverlay2026 .jb-ar-panel{height:auto!important;width:100%!important;border:0!important;box-shadow:none!important}#jbAllReportsOverlay2026 .jb-ar-head button,#jbAllReportsOverlay2026 .jb-ar-controls,#jbAllReportsOverlay2026 .jb-ar-actions{display:none!important}#jbAllReportsOverlay2026 .jb-ar-content{overflow:visible!important;padding:0!important}#jbAllReportsOverlay2026 table{min-width:0!important;font-size:9px!important}#jbAllReportsOverlay2026 th,#jbAllReportsOverlay2026 td{padding:4px!important;color:#000!important;background:#fff!important}}
+</style>
+<script id="jb-all-reports-js-20261011">
+(function(){
+  'use strict';
+  var overlayId='jbAllReportsOverlay2026', reportRows=[], reportSummary={};
+  function el(id){return document.getElementById(id)}
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function money(v){var n=Number(v||0);return (isFinite(n)?n:0).toLocaleString('bn-BD')+' টাকা'}
+  function ensure(){
+    if(el(overlayId))return;
+    var root=document.createElement('div');root.id=overlayId;
+    root.innerHTML='<section class="jb-ar-panel" role="dialog" aria-modal="true" aria-label="অল রিপোর্ট"><header class="jb-ar-head"><span>📊 অল রিপোর্ট — All Reports</span><button type="button" id="jbArClose2026">✕ বন্ধ</button></header>'+
+      '<div class="jb-ar-controls"><label>রিপোর্টের ধরন<select id="jbArType2026"><option value="all">সব রিপোর্ট</option><option value="students">ছাত্র/ছাত্রী তালিকা</option><option value="teachers">শিক্ষক/শিক্ষিকা তালিকা</option><option value="admissions">ভর্তি আবেদন</option><option value="payments">বেতন/ফি আদায়</option><option value="salary">বেতন প্রদান</option><option value="income">আয়ের রিপোর্ট</option><option value="expense">ব্যয়ের রিপোর্ট</option><option value="results">পরীক্ষার ফলাফল</option><option value="exams">পরীক্ষার্থী নিবন্ধন</option><option value="attendance">হাজিরা</option><option value="files">ডকুমেন্টস/ফাইল</option><option value="receipts">মানি রসিদ</option><option value="donors">দাতা সদস্য</option><option value="admins">অ্যাডমিন</option><option value="madrasas">নিবন্ধিত মাদ্রাসা</option></select></label>'+
+      '<label>শুরুর তারিখ<input id="jbArFrom2026" type="date"></label><label>শেষ তারিখ<input id="jbArTo2026" type="date"></label><label>নাম / ID / খাত / অবস্থা খুঁজুন<input id="jbArSearch2026" type="search" placeholder="সার্চ লিখুন"></label></div>'+
+      '<div class="jb-ar-actions"><button class="primary" type="button" id="jbArLoad2026">🔎 রিপোর্ট দেখুন</button><button type="button" id="jbArReset2026">♻️ রিসেট</button><button type="button" id="jbArPrint2026">🖨️ প্রিন্ট / PDF</button><button type="button" id="jbArCsv2026">⬇ CSV / Excel</button></div>'+
+      '<main class="jb-ar-content"><div id="jbArMsg2026" class="jb-ar-msg">রিপোর্ট লোড করতে অপেক্ষা করুন…</div><div id="jbArStats2026" class="jb-ar-stats"></div><div id="jbArTable2026"></div></main></section>';
+    document.body.appendChild(root);
+    el('jbArClose2026').onclick=close;
+    root.addEventListener('click',function(e){if(e.target===root)close()});
+    el('jbArLoad2026').onclick=load;
+    el('jbArReset2026').onclick=function(){el('jbArType2026').value='all';el('jbArFrom2026').value='';el('jbArTo2026').value='';el('jbArSearch2026').value='';load()};
+    el('jbArPrint2026').onclick=function(){document.body.classList.add('jb-ar-printing');window.print();setTimeout(function(){document.body.classList.remove('jb-ar-printing')},500)};
+    el('jbArCsv2026').onclick=downloadCsv;
+    el('jbArSearch2026').addEventListener('input',render);
+    el('jbArType2026').addEventListener('change',load);
+    el('jbArFrom2026').addEventListener('change',load);
+    el('jbArTo2026').addEventListener('change',load);
+  }
+  function open(){ensure();el(overlayId).classList.add('show');load()}
+  function close(){if(el(overlayId))el(overlayId).classList.remove('show')}
+  function load(){
+    ensure();var msg=el('jbArMsg2026');msg.style.display='block';msg.textContent='⏳ রিপোর্ট ডাটাবেজ থেকে লোড হচ্ছে…';
+    el('jbArStats2026').innerHTML='';el('jbArTable2026').innerHTML='';
+    var filter={type:el('jbArType2026').value||'all',from:el('jbArFrom2026').value||'',to:el('jbArTo2026').value||''};
+    var t=window.token||(typeof token!=='undefined'?token:'');
+    if(!t){msg.textContent='❌ লগইন সেশন পাওয়া যায়নি। আবার লগইন করুন।';return}
+    if(typeof google==='undefined'||!google.script||!google.script.run){msg.textContent='❌ Apps Script সার্ভারের সঙ্গে সংযোগ পাওয়া যায়নি।';return}
+    google.script.run.withSuccessHandler(function(r){
+      if(!r||!r.ok){msg.textContent='❌ '+((r&&r.message)||'রিপোর্ট লোড করা যায়নি।');return}
+      reportRows=Array.isArray(r.rows)?r.rows:[];reportSummary=r.summary||{};
+      msg.textContent='✅ '+(r.message||'রিপোর্ট তৈরি হয়েছে।')+' মোট রেকর্ড: '+Number(r.count||reportRows.length).toLocaleString('bn-BD');render();
+    }).withFailureHandler(function(e){msg.textContent='❌ সার্ভার ত্রুটি: '+(e&&e.message?e.message:e)}).getAllReportsData2026(t,filter);
+  }
+  function filtered(){
+    var q=String(el('jbArSearch2026')&&el('jbArSearch2026').value||'').trim().toLowerCase();
+    return reportRows.filter(function(r){if(!q)return true;return [r.Type,r.ID,r.Name,r.Category,r.Amount,r.Status,r.Date,r.Details,r.Class,r.Exam,r.Mobile].some(function(v){return String(v==null?'':v).toLowerCase().indexOf(q)>=0})});
+  }
+  function render(){
+    var rows=filtered(),stats=el('jbArStats2026'),table=el('jbArTable2026');
+    var cards=[['মোট শিক্ষার্থী',reportSummary.students||0],['মোট শিক্ষক/শিক্ষিকা',reportSummary.teachers||0],['বেতন/ফি আদায়',money(reportSummary.payments||0)],['বেতন প্রদান',money(reportSummary.salary||0)],['মোট আয়',money(reportSummary.income||0)],['মোট ব্যয়',money(reportSummary.expense||0)],['নগদ স্থিতি',money((reportSummary.payments||0)+(reportSummary.income||0)-(reportSummary.salary||0)-(reportSummary.expense||0))],['দেখানো রেকর্ড',rows.length]];
+    stats.innerHTML=cards.map(function(x){return '<div class="jb-ar-stat"><span>'+esc(x[0])+'</span><b>'+esc(x[1])+'</b></div>'}).join('');
+    if(!rows.length){table.innerHTML='<div class="jb-ar-msg">এই ফিল্টারে কোনো রেকর্ড পাওয়া যায়নি।</div>';return}
+    table.innerHTML='<div class="jb-ar-tablewrap"><table><thead><tr><th>ধরন</th><th>তারিখ</th><th>ID</th><th>নাম / বিবরণ</th><th>শ্রেণি / পরীক্ষা</th><th>খাত</th><th>পরিমাণ</th><th>অবস্থা</th><th>মোবাইল</th></tr></thead><tbody>'+
+      rows.map(function(r){return '<tr><td>'+esc(r.Type)+'</td><td>'+esc(r.Date)+'</td><td>'+esc(r.ID)+'</td><td>'+esc(r.Name||r.Details)+'</td><td>'+esc([r.Class,r.Exam].filter(Boolean).join(' / '))+'</td><td>'+esc(r.Category)+'</td><td>'+((r.Amount!==''&&r.Amount!=null)?esc(money(r.Amount)):'—')+'</td><td>'+esc(r.Status)+'</td><td>'+esc(r.Mobile)+'</td></tr>'}).join('')+'</tbody></table></div>';
+  }
+  function downloadCsv(){
+    var rows=filtered();if(!rows.length){el('jbArMsg2026').textContent='CSV তৈরি করার মতো কোনো রেকর্ড নেই।';return}
+    var cols=['Type','Date','ID','Name','Details','Class','Exam','Category','Amount','Status','Mobile'];
+    var csv='\\uFEFF'+[cols.join(',')].concat(rows.map(function(r){return cols.map(function(k){return '"'+String(r[k]==null?'':r[k]).replace(/"/g,'""')+'"'}).join(',')})).join('\\r\\n');
+    var blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='Jannatul_Baqi_All_Reports_2026.csv';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+  }
+  var oldOpen=window.openModule;
+  window.openModule=function(k){if(String(k||'')==='report'){open();return}return typeof oldOpen==='function'?oldOpen.apply(this,arguments):undefined};
+  window.openAllReports2026=open;
+})();
+</script>
+<!-- ===== END ALL REPORTS MODULE ===== -->
