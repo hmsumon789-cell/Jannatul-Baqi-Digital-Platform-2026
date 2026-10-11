@@ -13199,7 +13199,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 <script id="two-stage-account-review-ui-2026-10-09">
 (function(){
   function e(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
-  function role(){var u=window.currentUser||{};return String(u.Role||u.role||'').toUpperCase().replace(/\s+/g,'_')}
+  function role(){var u=window.currentUser||currentUser||{};return String(u.Role||u.role||'').toUpperCase().replace(/\s+/g,'_')}
   window.openAccountReview=async function(){
     var r=role(),u=window.currentUser||{};
     if(r==='SUPER_ADMIN'||r==='SUPERADMIN'){if(typeof toast==='function')toast('প্রাথমিক যাচাই অন্য Admin অথবা নতুন Account নিজে করবেন; চূড়ান্ত অনুমোদন আপনি দেবেন।');return}
