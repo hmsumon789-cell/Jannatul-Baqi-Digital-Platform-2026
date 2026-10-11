@@ -68,12 +68,6 @@ const HEADERS = {
 
 function doGet(e) {
   var p = (e && e.parameter) || {};
-  if (String(p.gallery || '') === '1') {
-    var galleryHtml;
-    try { galleryHtml = buildPublicPhotoGalleryHtml_(); }
-    catch(galleryError) { galleryHtml = '<!doctype html><html lang="bn"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ফটো গ্যালারী</title><body style="font-family:Arial,sans-serif;padding:24px;text-align:center"><h2>জান্নাতুল বাক্বী — ফটো গ্যালারী</h2><p>গ্যালারী এখন লোড করা যাচ্ছে না। কিছুক্ষণ পর আবার চেষ্টা করুন।</p></body></html>'; }
-    return HtmlService.createHtmlOutput(galleryHtml).setTitle(APP.nameBn + ' | Public Photo Gallery').setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
-  }
   if (String(p.payment || '') === '1') {
     return HtmlService.createHtmlOutput(buildPublicOnlinePaymentHtml_())
       .setTitle(APP.nameEn + ' | Online Payment')
@@ -1134,38 +1128,6 @@ function sendQuickService(token,data) {
   return {ok:true,message:'মেসেজ পাঠানো হয়েছে।'};
 }
 
-function getPublicPhotoGalleryPhotos_(){
-  const ss=SpreadsheetApp.getActiveSpreadsheet(),sh=ss.getSheetByName(SHEETS.MEDIA);
-  if(!sh||sh.getLastRow()<2)return [];
-  const values=sh.getDataRange().getValues(),headers=values[0].map(function(v){return String(v||'').trim();});
-  const ix={};headers.forEach(function(k,i){ix[k]=i;});
-  const photos=[];
-  for(let r=1;r<values.length;r++){
-    const row=values[r],status=String(row[ix.Status]||'').toUpperCase(),type=String(row[ix.Type]||'').toLowerCase();
-    if(type!=='image'||!(status==='ACTIVE'||status==='ACTIVE_PUBLIC'))continue;
-    const name=String(row[ix.Name]||'ছবি');
-    const data=String(row[ix.DataURL]||'');
-    let url='';
-    if(data.indexOf('DRIVE:')===0){
-      const id=data.slice(6);
-      try{
-        const file=DriveApp.getFileById(id);
-        try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
-        const rk=String(file.getResourceKey()||'');
-        url='https://drive.google.com/thumbnail?id='+encodeURIComponent(id)+'&sz=w1200'+(rk?'&resourcekey='+encodeURIComponent(rk):'');
-      }catch(e){url='';}
-    }else if(/^https?:\/\//i.test(data)||/^data:image\//i.test(data)){url=data;}
-    if(url)photos.push({name:name,url:url,createdAt:String(row[ix.CreatedAt]||'')});
-  }
-  return photos;
-}
-function buildPublicPhotoGalleryHtml_(){
-  const photos=getPublicPhotoGalleryPhotos_();
-  const esc=function(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');};
-  const cards=photos.map(function(p,i){return '<button class="photo" type="button" onclick="openPhoto('+i+')"><img loading="lazy" src="'+esc(p.url)+'" alt="'+esc(p.name)+'"><span>'+esc(p.name)+'</span></button>';}).join('');
-  const json=JSON.stringify(photos.map(function(p){return {name:p.name,url:p.url};})).replace(/</g,'\\u003c');
-  return '<!doctype html><html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>জান্নাতুল বাক্বী — ফটো গ্যালারী</title><style>*{box-sizing:border-box}body{margin:0;padding:18px;background:#f6f1df;color:#222;font-family:Arial,"Noto Sans Bengali",sans-serif}.head{max-width:1200px;margin:0 auto 18px;padding:18px;text-align:center;background:#fff;border:3px solid #9b7100;border-radius:16px}.head h1{margin:0 0 8px;font-size:clamp(22px,4vw,34px)}.head p{margin:0}.grid{max-width:1200px;margin:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}.photo{border:2px solid #d0a51c;border-radius:12px;padding:8px;background:#fff;color:#222;cursor:pointer;text-align:left;font-weight:800;overflow-wrap:anywhere}.photo img{width:100%;height:170px;object-fit:cover;border-radius:8px;background:#eee;display:block;margin-bottom:7px}.empty{max-width:800px;margin:25px auto;text-align:center;background:#fff;padding:22px;border-radius:12px}.light{display:none;position:fixed;inset:0;z-index:99999;background:#000e;align-items:center;justify-content:center;padding:16px}.light.show{display:flex}.inside{max-width:96vw;max-height:96vh;text-align:center;color:white}.inside img{display:block;max-width:94vw;max-height:82vh;object-fit:contain;margin:auto}.inside button{margin:8px;padding:9px 14px;border:2px solid white;border-radius:8px;background:#111;color:white;font-weight:900}@media(max-width:600px){body{padding:8px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.photo img{height:125px}}</style></head><body><header class="head"><h1>📸 জান্নাতুল বাক্বী — ফটো গ্যালারী</h1><p>সবার জন্য প্রকাশিত মাদ্রাসার ছবি</p><p>হটলাইন: 01823316630</p></header>'+(cards||'<div class="empty">এখনো কোনো পাবলিক ছবি প্রকাশ করা হয়নি।</div>')+'<div id="light" class="light" onclick="if(event.target===this)closePhoto()"><div class="inside"><button type="button" onclick="closePhoto()">✕ বন্ধ করুন</button><img id="large" alt=""><div id="caption"></div></div></div><script>var photos='+json+';function openPhoto(i){var p=photos[i];if(!p)return;document.getElementById("large").src=p.url;document.getElementById("large").alt=p.name;document.getElementById("caption").textContent=p.name;document.getElementById("light").classList.add("show")}function closePhoto(){document.getElementById("light").classList.remove("show")}</script></body></html>';
-}
 function getMediaRules_(){
   // Media limits: 100 photos, 20 videos, 50 audio files.
   return {video:{maxMB:50,maxCount:20},audio:{maxMB:50,maxCount:50},image:{maxMB:20,maxCount:100}};
@@ -1198,7 +1160,7 @@ function startMediaUpload(token,meta){
   const size=Number(meta.size||0);
   if(size<=0||size>rules.maxMB*1024*1024)return {ok:false,message:type==='image'?'ফটোর সর্বোচ্চ সীমা 20 MB।':'ভিডিও/অডিওর সর্বোচ্চ সীমা 50 MB।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
-  const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status||'').toUpperCase().indexOf('ACTIVE')===0&&String(x.Type).toLowerCase()===type);
+  const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
   if(rows.length>=rules.maxCount)return {ok:false,message:type==='image'?'সর্বোচ্চ 100টি ফটো রাখা যাবে।':'সর্বোচ্চ 50টি '+(type==='video'?'ভিডিও':'অডিও')+' রাখা যাবে।'};
   const uploadId=Utilities.getUuid();
   const folder=mediaTempFolder_();
@@ -1234,7 +1196,7 @@ function finishMediaUpload(token,uploadId){
   if(total!==Number(meta.size||0))return {ok:false,message:'ফাইলের আকার মিলছে না। '+total+' / '+meta.size};
   if(total>rules.maxMB*1024*1024)return {ok:false,message:'ফাইলের আকার অনুমোদিত সীমার বেশি।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
-  const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status||'').toUpperCase().indexOf('ACTIVE')===0&&String(x.Type).toLowerCase()===type);
+  const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
   if(rows.length>=rules.maxCount)return {ok:false,message:type==='image'?'সর্বোচ্চ 100টি ফটো রাখা যাবে।':'সর্বোচ্চ 50টি '+(type==='video'?'ভিডিও':'অডিও')+' রাখা যাবে।'};
   const file=mediaDriveFolder_().createFile(Utilities.newBlob(bytes,meta.mimeType||'application/octet-stream',meta.name||('media-'+Date.now())));
   try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
@@ -1255,7 +1217,7 @@ function saveMediaForm(form){
   if(size<=0)return {ok:false,message:'ফাইল খালি।'};
   if(size>rules.maxMB*1024*1024)return {ok:false,message:type==='image'?'ফটোর সর্বোচ্চ সীমা 20 MB।':'ভিডিও/অডিওর সর্বোচ্চ সীমা 50 MB।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
-  const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status||'').toUpperCase().indexOf('ACTIVE')===0&&String(x.Type).toLowerCase()===type);
+  const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
   if(rows.length>=rules.maxCount)return {ok:false,message:type==='image'?'সর্বোচ্চ 100টি ফটো রাখা যাবে।':'সর্বোচ্চ 50টি '+(type==='video'?'ভিডিও':'অডিও')+' রাখা যাবে।'};
   const name=String(blob.getName()||('media-'+Date.now()));
   const file=mediaDriveFolder_().createFile(blob.setName(name));
@@ -1272,29 +1234,19 @@ function saveMedia(token,item) {
   const size=Number(item.size||0);
   if(size>rules.maxMB*1024*1024) return {ok:false,message:type==='image'?'ফটোর সর্বোচ্চ সীমা 20 MB।':'ভিডিও/অডিওর সর্বোচ্চ সীমা 50 MB।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
-  const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status||'').toUpperCase().indexOf('ACTIVE')===0&&String(x.Type).toLowerCase()===type);
+  const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
   if(rows.length>=rules.maxCount) return {ok:false,message:type==='image'?'সর্বোচ্চ 100টি ফটো রাখা যাবে।':'সর্বোচ্চ 50টি '+(type==='video'?'ভিডিও':'অডিও')+' রাখা যাবে।'};
   const raw=String(item.dataUrl).split(',')[1]||''; if(!raw)return {ok:false,message:'ফাইল ডাটা পাওয়া যায়নি।'};
   const blob=Utilities.newBlob(Utilities.base64Decode(raw),item.mimeType||'application/octet-stream',item.name||('media-'+Date.now()));
-  const visibility=type==='image'&&String(item.visibility||'public').toLowerCase()==='admin'?'ACTIVE_ADMIN':(type==='image'?'ACTIVE_PUBLIC':'ACTIVE');
   const file=mediaDriveFolder_().createFile(blob);
-  try{
-    if(visibility==='ACTIVE_ADMIN')file.setSharing(DriveApp.Access.PRIVATE,DriveApp.Permission.NONE);
-    else file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);
-  }catch(e){}
+  try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
   const serial=nextSerial_(sh), mediaId='MED-'+Date.now();
-  sh.appendRow([serial,mediaId,type,item.name||'','DRIVE:'+file.getId(),item.mimeType||'',size,item.sort||0,visibility,now_()]);
+  sh.appendRow([serial,mediaId,type,item.name||'','DRIVE:'+file.getId(),item.mimeType||'',size,item.sort||0,'ACTIVE',now_()]);
   return {ok:true,serial:serial,mediaId:mediaId};
 }
 function listMedia(token) {
   auth_(token);
-  // The dashboard media player receives only public media. Private photos are
-  // served separately through the authenticated gallery functions below.
-  return listRows_(SHEETS.MEDIA,token,1000).filter(function(x){
-    const status=String(x.Status||'').toUpperCase();
-    return status.indexOf('ACTIVE')===0 && status!=='ACTIVE_ADMIN';
-  }).map(function(x){
-    x.Visibility='public';
+  return listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status||'').toUpperCase()==='ACTIVE').map(function(x){
     if(String(x.DataURL||'').indexOf('DRIVE:')===0){
       const id=String(x.DataURL).slice(6);
       let rk='';
@@ -1313,39 +1265,6 @@ function listMedia(token) {
     return x;
   });
 }
-function listGalleryPhotos(token){
-  auth_(token); requireFeature_(token,'gallery');
-  return listRows_(SHEETS.MEDIA,token,1000).filter(function(x){
-    const status=String(x.Status||'').toUpperCase();
-    return String(x.Type||'').toLowerCase()==='image' && status.indexOf('ACTIVE')===0;
-  }).map(function(x){
-    const status=String(x.Status||'').toUpperCase(), privatePhoto=status==='ACTIVE_ADMIN';
-    let url='';
-    const data=String(x.DataURL||'');
-    if(!privatePhoto && data.indexOf('DRIVE:')===0){
-      const id=data.slice(6);
-      try{
-        const file=DriveApp.getFileById(id);
-        try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
-        const rk=String(file.getResourceKey()||'');
-        url='https://drive.google.com/thumbnail?id='+encodeURIComponent(id)+'&sz=w900'+(rk?'&resourcekey='+encodeURIComponent(rk):'');
-      }catch(e){}
-    }else if(!privatePhoto && (/^https?:\/\//i.test(data)||/^data:image\//i.test(data))){url=data;}
-    return {Serial:x.Serial,MediaID:x.MediaID,Name:x.Name||'ছবি',Visibility:privatePhoto?'admin':'public',DataURL:url,Size:x.Size||0,CreatedAt:x.CreatedAt||''};
-  });
-}
-function getPrivateGalleryPhoto(token,serial){
-  auth_(token); requireFeature_(token,'gallery');
-  const item=listRows_(SHEETS.MEDIA,token,1000).find(function(x){return String(x.Serial)===String(serial);});
-  if(!item||String(item.Type||'').toLowerCase()!=='image'||String(item.Status||'').toUpperCase()!=='ACTIVE_ADMIN')return {ok:false,message:'অ্যাডমিন-শুধু ছবি পাওয়া যায়নি বা অনুমতি নেই।'};
-  const data=String(item.DataURL||'');
-  if(data.indexOf('DRIVE:')!==0)return {ok:false,message:'ব্যক্তিগত ছবির ফাইল আইডি সঠিক নয়।'};
-  try{
-    const blob=DriveApp.getFileById(data.slice(6)).getBlob();
-    const mime=String(blob.getContentType()||item.MimeType||'image/jpeg');
-    return {ok:true,dataUrl:'data:'+mime+';base64,'+Utilities.base64Encode(blob.getBytes()),name:item.Name||'ছবি'};
-  }catch(e){return {ok:false,message:'ব্যক্তিগত ছবি লোড করা যায়নি।'};}
-}
 function deleteMedia(token,serial) {
   auth_(token); requireFeature_(token,'gallery');
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA), last=sh.getLastRow();
@@ -1357,53 +1276,11 @@ function deleteMedia(token,serial) {
   sh.deleteRow(idx+2); return {ok:true};
 }
 
-
-/* ===== ALL DOCUMENTS / FILES STORAGE 2026 ===== */
-function documentDriveFolder_(){const name='Jannatul Baqi Digital Platform - Documents and Files 2026';const it=DriveApp.getFoldersByName(name);return it.hasNext()?it.next():DriveApp.createFolder(name);}
-function documentTempFolder_(){const name='Jannatul Baqi Digital Platform - Documents Upload Temp 2026';const it=DriveApp.getFoldersByName(name);return it.hasNext()?it.next():DriveApp.createFolder(name);}
-function startFileUpload(token,meta){
-  auth_(token);requireFeature_(token,'files');meta=meta||{};const name=String(meta.name||'').trim(),size=Number(meta.size||0),folder=String(meta.folder||'GENERAL').trim()||'GENERAL';
-  if(!name)return {ok:false,message:'ফাইলের নাম পাওয়া যায়নি।'};if(size<=0||size>20*1024*1024)return {ok:false,message:'প্রতিটি ফাইল 20 MB-এর মধ্যে হতে হবে।'};
-  const rows=listRows_(SHEETS.FILES,token,5000).filter(function(x){return String(x.Status||'').toUpperCase()==='ACTIVE';});
-  if(rows.some(function(x){return String(x.Name||'').trim().toLowerCase()===name.toLowerCase()&&String(x.Folder||'GENERAL')===folder;}))return {ok:false,message:'এই বিভাগে একই নামে ফাইল আগে থেকেই আছে।'};
-  const uploadId=Utilities.getUuid();documentTempFolder_().createFile(Utilities.newBlob(JSON.stringify({uploadId:uploadId,name:name,mimeType:String(meta.mimeType||'application/octet-stream'),size:size,folder:folder,created:Date.now()}),'application/json','META-'+uploadId+'.json'));return {ok:true,uploadId:uploadId};
-}
-function uploadFileChunk(token,uploadId,index,base64){
-  auth_(token);requireFeature_(token,'files');uploadId=String(uploadId||'');index=Number(index);const raw=String(base64||'');
-  if(!uploadId||!isFinite(index)||index<0||!raw)return {ok:false,message:'ফাইলের অংশের তথ্য সঠিক নয়।'};
-  documentTempFolder_().createFile(Utilities.newBlob(Utilities.base64Decode(raw),'application/octet-stream','CHUNK-'+uploadId+'-'+String(index).padStart(6,'0')));return {ok:true,index:index};
-}
-function finishFileUpload(token,uploadId){
-  auth_(token);requireFeature_(token,'files');uploadId=String(uploadId||'');if(!uploadId)return {ok:false,message:'Upload ID পাওয়া যায়নি。'};
-  const temp=documentTempFolder_(),iter=temp.getFiles(),chunks=[],metas=[];while(iter.hasNext()){const f=iter.next(),n=f.getName();if(n==='META-'+uploadId+'.json')metas.push(f);else if(n.indexOf('CHUNK-'+uploadId+'-')===0)chunks.push(f);}
-  if(!metas.length||!chunks.length)return {ok:false,message:'ফাইলের সব অংশ পাওয়া যায়নি; আবার আপলোড করুন।'};
-  let meta;try{meta=JSON.parse(metas[0].getBlob().getDataAsString());}catch(e){return {ok:false,message:'ফাইলের তথ্য পড়া যায়নি।'};}
-  chunks.sort(function(a,b){return a.getName().localeCompare(b.getName());});let bytes=[],total=0;chunks.forEach(function(f){const b=f.getBlob().getBytes();total+=b.length;bytes=bytes.concat(b);});
-  if(total!==Number(meta.size||0)||total>20*1024*1024)return {ok:false,message:'ফাইলের আকার মেলেনি বা 20 MB ছাড়িয়েছে।'};
-  const rows=listRows_(SHEETS.FILES,token,5000);if(rows.some(function(x){return String(x.Status||'').toUpperCase()==='ACTIVE'&&String(x.Name||'').trim().toLowerCase()===String(meta.name||'').trim().toLowerCase()&&String(x.Folder||'GENERAL')===String(meta.folder||'GENERAL');}))return {ok:false,message:'এই বিভাগে একই নামে ফাইল আগে থেকেই আছে।'};
-  const blob=Utilities.newBlob(bytes,meta.mimeType||'application/octet-stream',meta.name||'document'),file=documentDriveFolder_().createFile(blob);try{file.setSharing(DriveApp.Access.PRIVATE,DriveApp.Permission.NONE);}catch(e){}
-  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.FILES),serial=nextSerial_(sh),fileId='FIL-'+Utilities.getUuid();sh.appendRow([serial,fileId,meta.name||'',meta.mimeType||'application/octet-stream',meta.mimeType||'application/octet-stream','DRIVE:'+file.getId(),total,String(meta.folder||'GENERAL'),'ACTIVE',now_()]);
-  chunks.forEach(function(f){try{f.setTrashed(true);}catch(e){}});metas.forEach(function(f){try{f.setTrashed(true);}catch(e){}});log_(sessionUser_(token),'upload','FILES',fileId+' | '+meta.name);return {ok:true,serial:serial,fileId:fileId,name:meta.name};
-}
-function listFiles(token){
-  auth_(token);requireFeature_(token,'files');return listRows_(SHEETS.FILES,token,5000).filter(function(x){return String(x.Status||'').toUpperCase()==='ACTIVE';}).map(function(x){return {Serial:x.Serial,FileID:x.FileID,Name:x.Name||'',Type:x.Type||'',MimeType:x.MimeType||'',Size:Number(x.Size||0),Folder:x.Folder||'GENERAL',Status:x.Status||'ACTIVE',CreatedAt:x.CreatedAt||''};}).reverse();
-}
-function getFileContent(token,serial){
-  auth_(token);requireFeature_(token,'files');const x=listRows_(SHEETS.FILES,token,5000).find(function(r){return (String(r.FileID)===String(serial)||String(r.Serial)===String(serial))&&String(r.Status||'').toUpperCase()==='ACTIVE';});if(!x)return {ok:false,message:'ফাইল পাওয়া যায়নি বা মুছে ফেলা হয়েছে।'};
-  try{const data=String(x.DataURL||'');let blob;if(data.indexOf('DRIVE:')===0)blob=DriveApp.getFileById(data.slice(6)).getBlob();else if(data.indexOf('data:')===0){const p=data.indexOf(',');if(p<0)return {ok:false,message:'পুরোনো ফাইলের ডাটা সঠিক নয়।'};return {ok:true,name:x.Name||'document',mimeType:x.MimeType||'application/octet-stream',base64:data.slice(p+1)};}else return {ok:false,message:'এই পুরোনো ফাইলের ডাটা পাওয়া যাচ্ছে না。'};return {ok:true,name:x.Name||blob.getName()||'document',mimeType:String(blob.getContentType()||x.MimeType||'application/octet-stream'),base64:Utilities.base64Encode(blob.getBytes())};}catch(e){return {ok:false,message:'ফাইল খোলা যায়নি। অনুমতি বা ফাইলের অবস্থান যাচাই করুন।'};}
-}
-function deleteFile(token,serial){
-  auth_(token);requireFeature_(token,'files');const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.FILES);if(!sh||sh.getLastRow()<2)return {ok:false,message:'ফাইল তালিকা খালি।'};
-  const values=sh.getDataRange().getValues(),headers=values[0].map(function(v){return String(v||'').trim();}),ix={};headers.forEach(function(v,i){ix[v]=i;});const row=values.slice(1).findIndex(function(r){return (String(r[ix.FileID])===String(serial)||String(r[ix.Serial])===String(serial))&&String(r[ix.Status]||'').toUpperCase()==='ACTIVE';});if(row<0)return {ok:false,message:'ফাইল পাওয়া যায়নি।'};
-  const record=values[row+1],fileData=String(record[ix.DataURL]||'');if(fileData.indexOf('DRIVE:')===0){try{DriveApp.getFileById(fileData.slice(6)).setTrashed(true);}catch(e){}}sh.deleteRow(row+2);log_(sessionUser_(token),'delete','FILES',String(record[ix.FileID]||serial));return {ok:true};
-}
-
 function uploadFile(token,item) {
-  auth_(token);requireFeature_(token,'files');item=item||{};const name=String(item.name||'').trim(),data=String(item.dataUrl||''),folder=String(item.folder||'GENERAL');
-  if(!name||!data)return {ok:false,message:'ফাইলের নাম বা ডাটা পাওয়া যায়নি।'};if(Number(item.size||0)>20*1024*1024)return {ok:false,message:'ফাইল সর্বোচ্চ 20 MB হতে পারবে।'};
-  const rows=listRows_(SHEETS.FILES,token,5000);if(rows.some(function(x){return String(x.Status||'').toUpperCase()==='ACTIVE'&&String(x.Name||'').trim().toLowerCase()===name.toLowerCase()&&String(x.Folder||'GENERAL')===folder;}))return {ok:false,message:'এই বিভাগে একই নামে ফাইল আগে থেকেই আছে।'};
-  const raw=data.split(',')[1]||'';if(!raw)return {ok:false,message:'ফাইলের ডাটা সঠিক নয়।'};const blob=Utilities.newBlob(Utilities.base64Decode(raw),item.mimeType||'application/octet-stream',name),file=documentDriveFolder_().createFile(blob);try{file.setSharing(DriveApp.Access.PRIVATE,DriveApp.Permission.NONE);}catch(e){}
-  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.FILES),serial=nextSerial_(sh),fileId='FIL-'+Utilities.getUuid();sh.appendRow([serial,fileId,name,item.mimeType||item.type||'',item.mimeType||'application/octet-stream','DRIVE:'+file.getId(),Number(item.size||blob.getBytes().length),folder,'ACTIVE',now_()]);log_(sessionUser_(token),'upload','FILES',fileId+' | '+name);return {ok:true,serial:serial,fileId:fileId};
+  auth_(token); requireFeature_(token,'files');
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.FILES);
+  sh.appendRow([nextSerial_(sh),'FIL-'+Date.now(),item.name||'',item.type||'',item.mimeType||'',item.dataUrl||'',item.size||0,item.folder||'GENERAL','ACTIVE',now_()]);
+  return {ok:true};
 }
 
 function getSheetData(token,sheetName,limit) {
@@ -2395,52 +2272,6 @@ function saveFinanceEntry(token,data){
 }
 
 
-
-/* ===== STAFF SALARY PAYMENT MODULE — 2026-10-11 ===== */
-function getSalaryEmployees2026(token) {
-  auth_(token); requireFeature_(token,'salary');
-  const teachers=listRows_(SHEETS.TEACHERS,token,5000).map(function(x){
-    return {EmployeeID:String(x.TeacherID||x.Serial||''),Name:String(x.NameBN||x.NameEN||x.NameAR||''),Role:'শিক্ষক/শিক্ষিকা',Mobile:String(x.Mobile||'')};
-  }).filter(function(x){return x.EmployeeID&&x.Name;});
-  return {ok:true,employees:teachers};
-}
-function saveSalaryPayment2026(token,data) {
-  auth_(token); requireFeature_(token,'salary'); data=data||{};
-  const employeeId=String(data.EmployeeID||'').trim(), name=String(data.Name||'').trim();
-  const month=String(data.Month||'').trim(), amount=Number(data.Amount||0);
-  const date=String(data.Date||'').trim(), method=String(data.Method||'').trim();
-  if(!employeeId||!name||!month||!date||!method||!Number.isFinite(amount)||amount<=0)
-    return {ok:false,message:'কর্মীর ID, নাম, মাস, তারিখ, বেতনের পরিমাণ ও প্রদানের মাধ্যম পূরণ করুন।'};
-  if(amount>100000000) return {ok:false,message:'বেতনের পরিমাণ যাচাই করুন।'};
-  const ss=SpreadsheetApp.getActiveSpreadsheet();
-  let sh=ss.getSheetByName(SHEETS.SALARY);
-  if(!sh){setupSystem();sh=ss.getSheetByName(SHEETS.SALARY);}
-  if(!sh) throw new Error('SALARY শিট পাওয়া যায়নি।');
-  if(sh.getLastRow()===0) sh.appendRow(HEADERS.SALARY);
-  let headers=sh.getRange(1,1,1,Math.max(1,sh.getLastColumn())).getValues()[0].map(String);
-  if(!headers.includes('SalaryID')){
-    if(sh.getLastRow()<=1){sh.clear();sh.appendRow(HEADERS.SALARY);headers=HEADERS.SALARY.slice();}
-    else throw new Error('SALARY শিটের কলাম বিন্যাস ঠিক নেই; বিদ্যমান তথ্য না মুছে শিরোনাম যাচাই করুন।');
-  }
-  const id='SAL-'+Utilities.formatDate(new Date(),APP.timezone,'yyyyMMdd-HHmmss')+'-'+Math.floor(100+Math.random()*900);
-  const record={Serial:nextSerial_(sh),SalaryID:id,EmployeeID:employeeId,Name:name,Month:month,Amount:amount,Method:method,Date:date,Note:String(data.Note||'').trim(),CreatedAt:now_()};
-  sh.appendRow(headers.map(function(k){return Object.prototype.hasOwnProperty.call(record,k)?record[k]:'';}));
-  log_(sessionUser_(token),'salary_payment','SALARY',id+' | '+employeeId+' | '+amount+' | '+month);
-  return {ok:true,salaryId:id,record:record,message:'আলহামদুলিল্লাহ, বেতন প্রদান সফলভাবে সংরক্ষণ হয়েছে। বেতন ID: '+id};
-}
-function listSalaryPayments2026(token,filters) {
-  auth_(token); requireFeature_(token,'salary'); filters=filters||{};
-  const q=String(filters.Search||'').trim().toLowerCase(), month=String(filters.Month||'').trim();
-  const rows=listRows_(SHEETS.SALARY,token,10000).filter(function(x){
-    if(month&&String(x.Month||'')!==month)return false;
-    if(!q)return true;
-    return [x.SalaryID,x.EmployeeID,x.Name,x.Month,x.Method,x.Note].some(function(v){return String(v||'').toLowerCase().includes(q);});
-  });
-  rows.reverse();
-  return {ok:true,rows:rows};
-}
-/* ===== END STAFF SALARY PAYMENT MODULE ===== */
-
 function getFinanceRecords(token){
   if(!isSuperAdmin_(token)) return {ok:false,message:'শুধু Super Admin আয়-ব্যয়ের তালিকা দেখতে পারবেন।'};
   var ss=SpreadsheetApp.getActiveSpreadsheet(),out=[];
@@ -2762,79 +2593,3 @@ function saveExamDashboardItems(token, kind, items) {
   SpreadsheetApp.flush();
   return {ok:true,items:items,message:'পরীক্ষার তালিকা ডাটাবেজে সংরক্ষণ হয়েছে।'};
 }
-
-
-/* ===== ALL REPORTS — DATABASE SUMMARY AND FILTERS — 2026-10-11 ===== */
-function getAllReportsData2026(token, filters) {
-  auth_(token);
-  requireFeature_(token, 'report');
-  filters = filters || {};
-  const type = String(filters.type || 'all').toLowerCase();
-  const from = String(filters.from || '').slice(0,10);
-  const to = String(filters.to || '').slice(0,10);
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const specs = {
-    students:{sheet:SHEETS.STUDENTS,type:'শিক্ষার্থী',date:['CreatedAt','Date'],id:['StudentID','FormID'],name:['NameBN','NameEN','Name'],category:['Class','Department'],status:['ApprovalStatus','Status'],mobile:['Mobile','WhatsApp'],amount:[]},
-    teachers:{sheet:SHEETS.TEACHERS,type:'শিক্ষক/শিক্ষিকা',date:['CreatedAt','Date'],id:['TeacherID'],name:['NameBN','NameEN','Name'],category:['Department','Branch'],status:['Status'],mobile:['Mobile','WhatsApp'],amount:[]},
-    admissions:{sheet:SHEETS.ADMISSIONS,type:'ভর্তি আবেদন',date:['CreatedAt','Date'],id:['AdmissionID','StudentID'],name:['Name','NameBN'],category:['Class','Branch'],status:['Status'],mobile:['Mobile'],amount:[]},
-    payments:{sheet:SHEETS.PAYMENTS,type:'বেতন/ফি আদায়',date:['Date','CreatedAt'],id:['PaymentID','StudentID'],name:['Name','NameBN'],category:['Category','Month'],status:['Status'],mobile:['Mobile','PayerMobile'],amount:['Amount']},
-    salary:{sheet:SHEETS.SALARY,type:'বেতন প্রদান',date:['Date','CreatedAt'],id:['SalaryID','EmployeeID'],name:['Name'],category:['Month'],status:['Status'],mobile:['Mobile'],amount:['Amount']},
-    income:{sheet:SHEETS.INCOME,type:'আয়',date:['Date','CreatedAt'],id:['IncomeID'],name:['Name','PersonName'],category:['Category'],status:['Status'],mobile:['Mobile'],amount:['Amount']},
-    expense:{sheet:SHEETS.EXPENSES,type:'ব্যয়',date:['Date','CreatedAt'],id:['ExpenseID'],name:['Name','PersonName'],category:['Category'],status:['Status'],mobile:['Mobile'],amount:['Amount']},
-    results:{sheet:SHEETS.RESULTS,type:'ফলাফল',date:['Date','CreatedAt'],id:['ResultID','StudentID'],name:['Name'],category:['Class'],exam:['Exam'],status:['Published','Status'],mobile:['Mobile'],amount:[]},
-    exams:{sheet:SHEETS.EXAM_REG,type:'পরীক্ষার্থী নিবন্ধন',date:['CreatedAt','Date'],id:['ExamRegID','StudentID'],name:['Name','NameBN'],category:['Class','Branch'],exam:['Exam'],status:['Status'],mobile:['Mobile'],amount:[]},
-    attendance:{sheet:SHEETS.ATTENDANCE,type:'হাজিরা',date:['Date','CreatedAt'],id:['AttendanceID','StudentID'],name:['Name','NameBN'],category:['Class'],status:['Status'],mobile:['Mobile'],amount:[]},
-    files:{sheet:SHEETS.FILES,type:'ডকুমেন্ট/ফাইল',date:['CreatedAt','Date'],id:['FileID'],name:['Name'],category:['Folder','Type'],status:['Status'],mobile:[],amount:[]},
-    receipts:{sheet:SHEETS.RECEIPTS,type:'মানি রসিদ',date:['Date','CreatedAt'],id:['ReceiptID','RefID'],name:['Name'],category:['Type'],status:['Status'],mobile:['Mobile'],amount:['Amount']},
-    donors:{sheet:SHEETS.DONORS,type:'দাতা সদস্য',date:['CreatedAt','Date'],id:['DonorID'],name:['NameBN','NameEN','Name'],category:['Fund'],status:['Status'],mobile:['Mobile','WhatsApp'],amount:['Amount']},
-    admins:{sheet:SHEETS.ADMINS,type:'অ্যাডমিন',date:['CreatedAt'],id:['AdminID','Username'],name:['NameBN','NameEN','Name'],category:['Role'],status:['Status'],mobile:['Mobile','WhatsApp'],amount:[]},
-    madrasas:{sheet:SHEETS.MADRASAS,type:'নিবন্ধিত মাদ্রাসা',date:['CreatedAt'],id:['MadrasaID'],name:['Name'],category:['GenderType','Level'],status:['Status'],mobile:['Mobile'],amount:[]}
-  };
-  const chosen = type === 'all' ? Object.keys(specs) : (specs[type] ? [type] : []);
-  if (!chosen.length) return {ok:false,message:'রিপোর্টের ধরন সঠিক নয়।'};
-  const rows = [], totals = {students:0,teachers:0,payments:0,salary:0,income:0,expense:0};
-  function valueOf(obj, keys) {
-    for (let i=0;i<(keys||[]).length;i++) {
-      const v=obj[keys[i]];
-      if (v !== undefined && v !== null && String(v).trim() !== '') return v;
-    }
-    return '';
-  }
-  function dateKey(value) {
-    if (value instanceof Date && !isNaN(value.getTime())) return Utilities.formatDate(value, APP.timezone || 'Asia/Dhaka', 'yyyy-MM-dd');
-    const s=String(value==null?'':value).trim();
-    if (!s) return '';
-    const m=s.match(/^(\d{4}-\d{2}-\d{2})/);
-    if (m) return m[1];
-    const d=new Date(s);
-    return isNaN(d.getTime())?'':Utilities.formatDate(d,APP.timezone || 'Asia/Dhaka','yyyy-MM-dd');
-  }
-  Object.keys(specs).forEach(function(k) {
-    const spec=specs[k], sh=ss.getSheetByName(spec.sheet);
-    if (!sh || sh.getLastRow()<2) return;
-    const values=sh.getDataRange().getValues(), headers=values[0].map(String);
-    values.slice(1, Math.min(values.length, 3001)).forEach(function(raw) {
-      const obj=objectFrom_(headers,raw);
-      const dateValue=valueOf(obj,spec.date), day=dateKey(dateValue);
-      if (from && (!day || day < from)) return;
-      if (to && (!day || day > to)) return;
-      const amount=Number(valueOf(obj,spec.amount) || 0);
-      if (k==='students') totals.students++;
-      if (k==='teachers') totals.teachers++;
-      if (k==='payments') totals.payments+=amount;
-      if (k==='salary') totals.salary+=amount;
-      if (k==='income') totals.income+=amount;
-      if (k==='expense') totals.expense+=amount;
-      if (chosen.indexOf(k)<0) return;
-      rows.push({
-        Type:spec.type,Date:dateValue,ID:valueOf(obj,spec.id),Name:valueOf(obj,spec.name),
-        Details:valueOf(obj,['Note','Address','Title','FileID']),Class:valueOf(obj,['Class']),
-        Exam:valueOf(obj,spec.exam||['Exam']),Category:valueOf(obj,spec.category),
-        Amount:spec.amount.length?amount:'',Status:valueOf(obj,spec.status),Mobile:valueOf(obj,spec.mobile)
-      });
-    });
-  });
-  rows.sort(function(a,b){return String(b.Date||'').localeCompare(String(a.Date||''));});
-  return {ok:true,rows:rows.slice(0,3000),count:rows.length,summary:totals,message:'রিপোর্ট সফলভাবে তৈরি হয়েছে।'};
-}
-/* ===== END ALL REPORTS ===== */
