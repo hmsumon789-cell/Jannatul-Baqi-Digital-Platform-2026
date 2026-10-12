@@ -14729,3 +14729,9 @@ window.jbAdmissionImportFile2026=async function(file){var fb=el('admAdmissionRed
 
 <!-- ===== ADMISSION CLOSE SAFETY FIX 2026-10-12 ===== -->
 <script>(function(){document.addEventListener('click',function(e){var b=e.target&&e.target.closest&&e.target.closest('#jbAdmissionChromeTabs20261012 .jb-adm-close-window');if(!b)return;setTimeout(function(){var w=document.getElementById('formWin');if(w)w.style.display='none';var t=document.getElementById('jbAdmTaskbar20261012');if(t)t.remove()},0)},true)})();</script>
+
+<!-- ===== ONLINE ADMISSION CLOSE BUTTON VISIBILITY FIX 2026-10-12 ===== -->
+<style id="jb-admission-close-button-visible-20261012">
+/* Keep the admission form's close control visible even when the tab strip overflows. */
+#jbAdmissionChromeTabs20261012 .jb-adm-close-window{position:fixed!important;top:8px!important;right:10px!important;z-index:2147483647!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;min-width:38px!important;height:32px!important;padding:3px 10px!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;box-shadow:0 2px 8px #0004!important}
+</style>
