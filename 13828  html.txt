@@ -14572,53 +14572,208 @@ window.jbAdmissionDownload2026=function(){
  var clone=root.cloneNode(true);
  clone.querySelectorAll('button,input[type=file],#adCompletedUpload2026').forEach(function(x){x.remove()});
  var doc='<!doctype html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ভর্তি ফর্ম</title><style>body{font-family:Arial,sans-serif;color:#173b2a;margin:18px}label{display:inline-block;vertical-align:top;width:23%;margin:1%;font-weight:bold;box-sizing:border-box}input,textarea,select{display:block;width:96%;min-height:25px;border:1px solid #888;padding:4px;box-sizing:border-box}.adm-section{border:1px solid #b99a42;padding:10px;margin:10px 0;break-inside:avoid}.adm-section-title{text-align:center;background:#176b45;color:white;padding:7px}.adm-redesign-head{display:grid;grid-template-columns:80px 1fr 70px;gap:10px;text-align:center}.adm-redesign-head img{width:70px;height:70px;object-fit:contain}.adm-declaration{padding:10px;background:#fff8e5}@page{size:A4;margin:12mm}@media print{body{margin:0}}</style></head><body>'+clone.outerHTML+'
-<!-- ===== OLD STUDENT BULK IMPORT + ACADEMIC YEAR FILTER 2026-10-12 ===== -->
+<!-- ===== OLD STUDENT IMPORT + YEAR/CLASS FILTER + ID EDIT — 2026-10-12 ===== -->
 <script id="jb-old-student-import-20261012">
 (function(){
 'use strict';
-var imported=[],stored=[];
+if(window.__jbOldStudentImport20261012)return;window.__jbOldStudentImport20261012=true;
+var imported=[],stored=[],currentRows=[],editing=null;
+var classNames=['প্লে শ্রেনি','শিশু শ্রেনি','আউয়াল জামাত','ছানী জামাত','ছালেছ জামাত','রাবে জামাত','পঞ্চম জামাত','মিজান জামাত','নাহবেমীর জামাত','কুদুরী জামাত','শরহে বেকায়া জামাত','হেদায়া জামাত','মিশকাত জামাত','দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)'];
 function E(id){return document.getElementById(id)}
 function say(t){if(typeof safeToast==='function')safeToast(t);else if(typeof toast==='function')toast(t);else alert(t)}
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
-function years(){var a=[];for(var y=2005;y<=new Date().getFullYear()+1;y++)a.push(y);return a}
-var classNames=['প্লে শ্রেনি','শিশু শ্রেনি','আউয়াল জামাত','ছানী জামাত','ছালেছ জামাত','রাবে জামাত','পঞ্চম জামাত','মিজান জামাত','নাহবেমীর জামাত','কুদুরী জামাত','শরহে বেকায়া জামাত','হেদায়া জামাত','মিশকাত জামাত','দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)'];
-function yearOpts(){return years().map(function(y){return '<option value="'+y+'"'+(y===new Date().getFullYear()?' selected':'')+'>'+y+'</option>'}).join('')}
-function classOpts(all){return (all?'<option value="">সকল শ্রেণি/জামাত</option>':'<option value="">ফাইলের তথ্য / নির্বাচন করুন</option>')+classNames.map(function(c){return '<option>'+esc(c)+'</option>'}).join('')}
+function norm(v){return String(v==null?'':v).toLowerCase().replace(/[\s_\-./\\()[\]{}:：,;]+/g,'')}
+var fields={
+ StudentID:['studentid','student id','student code','student no','student number','id','শিক্ষার্থী আইডি','ছাত্র আইডি','ছাত্রীর আইডি','স্টুডেন্ট আইডি','আইডি'],
+ FormID:['formid','form id','roll','roll no','roll number','রোল','রোল নং','ক্রমিক নং'],
+ NameBN:['namebn','name','student name','studentname','নাম','বাংলা নাম','শিক্ষার্থীর নাম','ছাত্রের নাম','ছাত্রীর নাম','ছাত্র/ছাত্রীর নাম','ছাত্রী নাম'],
+ NameAR:['namear','arabic name','নাম আরবি','আরবি নাম'],
+ NameEN:['nameen','english name','name english','ইংরেজি নাম','নাম ইংরেজি'],
+ FatherBN:['fatherbn','father name','fathername','father','পিতার নাম','বাবার নাম','পিতা','অভিভাবকের নাম'],
+ FatherAR:['fatherar','পিতার নাম আরবি'],
+ FatherEN:['fatheren','father name english','পিতার নাম ইংরেজি'],
+ MotherBN:['motherbn','mother name','mothername','mother','মাতার নাম','মায়ের নাম','মা'],
+ MotherAR:['motherar','মাতার নাম আরবি'],
+ MotherEN:['motheren','mother name english','মাতার নাম ইংরেজি'],
+ DOB:['dob','date of birth','birth date','জন্ম তারিখ','জন্মতারিখ','জন্ম'],
+ Gender:['gender','sex','লিঙ্গ','ছেলে/মেয়ে'],
+ Class:['class','grade','class name','jamat','jamaat','শ্রেণি','শ্রেণী','শ্রেনি','জামাত','শ্রেণি/জামাত','ক্লাস'],
+ Department:['department','বিভাগ','বিভাগের নাম'],
+ Branch:['branch','শাখা','শাখার নাম'],
+ Residence:['residence','residential','আবাসিক','আবাসিক/অনাবাসিক'],
+ Mobile:['mobile','mobile number','phone','phone number','contact number','মোবাইল','মোবাইল নম্বর','মোবাইল নাম্বার','ফোন','ফোন নম্বর','যোগাযোগ নম্বর'],
+ WhatsApp:['whatsapp','whatsapp number','হোয়াটসঅ্যাপ','হোয়াটসঅ্যাপ'],
+ Email:['email','e-mail','ইমেইল','ই-মেইল','ইমেল'],
+ Address:['address','ঠিকানা','বর্তমান ঠিকানা','স্থায়ী ঠিকানা'],
+ BirthReg:['birthreg','birth registration','birth certificate no','জন্ম নিবন্ধন','জন্ম নিবন্ধন নম্বর'],
+ NID:['nid','national id','national id number','জাতীয় পরিচয়পত্র','জাতীয় পরিচয়পত্র নম্বর','এনআইডি'],
+ AcademicYear:['academicyear','academic year','year','session','school year','শিক্ষাবর্ষ','শিক্ষা বর্ষ','শিক্ষা সন','সাল','বছর','শিক্ষাবর্ষ/সেশন']
+};
+var aliases={};Object.keys(fields).forEach(function(k){fields[k].concat([k]).forEach(function(a){aliases[norm(a)]=k})});
+function fieldFor(h){return aliases[norm(h)]||''}
+function nonempty(v){return String(v==null?'':v).trim()!==''}
+function yearOptions(){var y=new Date().getFullYear(),s='';for(var n=2005;n<=y+1;n++)s+='<option value="'+n+'"'+(n===y?' selected':'')+'>'+n+' ইংরেজী</option>';return s}
+function classOptions(all){return '<option value="">'+(all?'সকল শ্রেণি/জামাত':'— শ্রেণি/জামাত নির্বাচন করুন —')+'</option>'+classNames.map(function(c){return '<option value="'+esc(c)+'">'+esc(c)+'</option>'}).join('')}
+function matrixToObjects(matrix){
+ matrix=(matrix||[]).filter(function(r){return Array.isArray(r)&&r.some(nonempty)});if(matrix.length<2)return [];
+ var heads=matrix[0].map(function(v){return String(v==null?'':v).trim()}),recognized=heads.filter(function(h){return !!fieldFor(h)}).length;
+ if(!recognized)return [];
+ return matrix.slice(1).map(function(row){var d={};heads.forEach(function(h,i){if(!nonempty(row[i]))return;var k=fieldFor(h);d[k||('Extra_'+String(h||('Column'+(i+1))).slice(0,50))]=String(row[i]).trim()});return d}).filter(function(d){return Object.keys(d).some(function(k){return nonempty(d[k])})});
+}
+function parseDelimited(text){
+ var lines=String(text||'').replace(/^\uFEFF/,'').split(/\r\n|\n|\r/).filter(function(x){return x.trim()!==''});if(!lines.length)return [];
+ var first=lines[0],delim=first.indexOf('\t')>=0?'\t':(first.indexOf('|')>=0?'|':',');
+ return lines.map(function(line){var row=[],cell='',quoted=false;for(var i=0;i<line.length;i++){var ch=line[i];if(ch==='"'&&quoted&&line[i+1]==='"'){cell+='"';i++}else if(ch==='"')quoted=!quoted;else if(ch===delim&&!quoted){row.push(cell.trim());cell=''}else cell+=ch}row.push(cell.trim());return row});
+}
+function parseKeyValue(text){
+ var blocks=String(text||'').replace(/^\uFEFF/,'').split(/\n\s*\n+/),out=[];
+ blocks.forEach(function(block){var d={};block.split(/\r\n|\n|\r/).forEach(function(line){var m=line.match(/^\s*([^:=：\t]{1,80})\s*[:=：\t]\s*(.*?)\s*$/);if(!m)return;var k=fieldFor(m[1]);d[k||('Extra_'+m[1].trim().slice(0,50))]=m[2].trim()});if(Object.keys(d).some(function(k){return nonempty(d[k])}))out.push(d)});
+ return out;
+}
+function loadScript(url,test){
+ if(test())return Promise.resolve();
+ return new Promise(function(resolve,reject){var prior=document.querySelector('script[data-jb-old-lib="'+url+'"]');if(prior){prior.addEventListener('load',function(){test()?resolve():reject(new Error('ফাইল পড়ার লাইব্রেরি চালু হয়নি'))},{once:true});prior.addEventListener('error',function(){reject(new Error('লাইব্রেরি লোড হয়নি'))},{once:true});return}
+ var sc=document.createElement('script');sc.src=url;sc.async=true;sc.dataset.jbOldLib=url;sc.onload=function(){test()?resolve():reject(new Error('ফাইল পড়ার লাইব্রেরি চালু হয়নি'))};sc.onerror=function(){reject(new Error('ইন্টারনেট থেকে ফাইল-পাঠ লাইব্রেরি লোড হয়নি'))};document.head.appendChild(sc)});
+}
+async function parseFile(file){
+ if(file.size>20*1024*1024)throw new Error(file.name+' ফাইলটি ২০ MB-এর বেশি।');
+ var ext=(file.name.split('.').pop()||'').toLowerCase(),out=[];
+ if(ext==='doc')throw new Error(file.name+': পুরাতন .doc ফাইল সরাসরি পড়া যায় না। Word-এ খুলে .docx হিসেবে Save As করে আবার দিন।');
+ if(ext==='xlsx'||ext==='xls'){
+  await loadScript('https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js',function(){return !!window.XLSX});
+  var wb=window.XLSX.read(await file.arrayBuffer(),{type:'array',cellDates:true});
+  wb.SheetNames.forEach(function(n){out=out.concat(matrixToObjects(window.XLSX.utils.sheet_to_json(wb.Sheets[n],{header:1,defval:'',raw:false})))});
+  return out;
+ }
+ if(ext==='csv'||ext==='tsv'||ext==='txt'||ext==='text'||ext==='md'){
+  var text=await file.text(),rows=matrixToObjects(parseDelimited(text));
+  return rows.length?rows:parseKeyValue(text);
+ }
+ if(ext==='json'){
+  var j=JSON.parse(await file.text());
+  if(Array.isArray(j))return j.map(normalizeObject);
+  if(j&&Array.isArray(j.students))return j.students.map(normalizeObject);
+  if(j&&typeof j==='object')return [normalizeObject(j)];
+  return [];
+ }
+ if(ext==='docx'||ext==='docm'){
+  await loadScript('https://cdn.jsdelivr.net/npm/mammoth@1.9.1/mammoth.browser.min.js',function(){return !!window.mammoth});
+  var ab=await file.arrayBuffer(),html=await window.mammoth.convertToHtml({arrayBuffer:ab}),holder=document.createElement('div');holder.innerHTML=html.value||'';
+  holder.querySelectorAll('table').forEach(function(table){
+   var matrix=Array.from(table.querySelectorAll('tr')).map(function(tr){return Array.from(tr.querySelectorAll('th,td')).map(function(td){return td.textContent.trim()})});
+   var got=matrixToObjects(matrix);if(got.length){out=out.concat(got);return}
+   var obj={};matrix.forEach(function(row){if(row.length<2)return;var k=fieldFor(row[0]);if(k)obj[k]=row.slice(1).join(' ').trim();else if(nonempty(row[0])&&nonempty(row.slice(1).join(' ')))obj['Extra_'+row[0].slice(0,50)]=row.slice(1).join(' ').trim()});
+   if(Object.keys(obj).length)out.push(obj);
+  });
+  if(out.length)return out;
+  return parseKeyValue((await window.mammoth.extractRawText({arrayBuffer:ab})).value||'');
+ }
+ throw new Error(file.name+': Excel (.xlsx/.xls), Word (.docx), CSV/TSV, TXT বা JSON ফাইল দিন।');
+}
+function normalizeObject(obj){var out={};Object.keys(obj||{}).forEach(function(k){var f=fieldFor(k);out[f||('Extra_'+String(k).slice(0,50))]=obj[k]});return out}
 function ensureButton(){
  var body=E('winBody'),grid=body&&body.querySelector('.adm-choice-grid');if(!grid||grid.querySelector('#jbOldStudentImportEntry2026'))return;
- var card=document.createElement('div');card.className='adm-choice-card';card.innerHTML='<h3>📚 পুরাতন ছাত্র/ছাত্রী</h3><p>কম্পিউটারের ফাইল থেকে পুরোনো শিক্ষার্থী যোগ করুন</p><button type="button" class="primary" id="jbOldStudentImportEntry2026">পুরাতন ছাত্র/ছাত্রী অ্যাড করুন</button>';grid.appendChild(card);E('jbOldStudentImportEntry2026').onclick=openImport;
+ var card=document.createElement('div');card.className='adm-choice-card';card.id='jbOldStudentImportCard2026';
+ card.innerHTML='<h3>📚 পুরাতন ছাত্র/ছাত্রী</h3><p>২০০৫ ইংরেজী থেকে Excel, Word ও Text ফাইল দিয়ে পুরাতন শিক্ষার্থীর তথ্য যোগ করুন; শিক্ষাবর্ষ/জামাত অনুযায়ী দেখুন এবং Student ID দিয়ে সম্পাদনা করুন।</p><button type="button" class="primary" id="jbOldStudentImportEntry2026">📂 পুরাতন ছাত্র/ছাত্রী অ্যাড করুন</button>';
+ grid.appendChild(card);E('jbOldStudentImportEntry2026').onclick=openImport;
 }
 var originalPanel=window.openAdmissionPanel2026;
 if(typeof originalPanel==='function')window.openAdmissionPanel2026=function(){var r=originalPanel.apply(this,arguments);setTimeout(ensureButton,0);setTimeout(ensureButton,120);return r};
 function openImport(){
  var w=E('formWin'),t=E('winTitle'),b=E('winBody');if(!w||!t||!b){say('অনলাইন ভর্তি প্যানেল পাওয়া যায়নি।');return}
  t.textContent='পুরাতন ছাত্র/ছাত্রী অ্যাড করুন';
- b.innerHTML='<div class="form-language-fixed"><span>বাংলা</span><span>العربية</span><span>English</span></div><p><b>কম্পিউটার থেকে পুরাতন শিক্ষার্থীদের ফাইল নির্বাচন করুন।</b> অসম্পূর্ণ তথ্য এবং একই নাম/মোবাইলের রেকর্ডও আলাদা করে যোগ হবে।</p>'+
- '<div class="form-grid"><label>শিক্ষাবর্ষ (ইংরেজি) <select id="jbOldAcademicYear2026" class="field">'+yearOpts()+'</select></label><label>ডিফল্ট শ্রেণি/জামাত <select id="jbOldClass2026" class="field">'+classOpts(false)+'</select></label><label class="full">Excel (.xlsx/.xls), Word (.docx), Text/CSV (.txt/.csv) <input id="jbOldFiles2026" class="field" type="file" multiple accept=".xlsx,.xls,.docx,.csv,.txt"></label></div>'+
- '<p style="font-size:13px">প্রথম সারিতে কলামের নাম থাকলে নাম, পিতার নাম, মোবাইল, শ্রেণি ও শিক্ষাবর্ষ মিলিয়ে নেওয়া হবে। পুরোনো .doc ফাইল আগে .docx হিসেবে Save করুন।</p>'+
- '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0"><button type="button" class="primary" id="jbOldRead2026">📂 ফাইল পড়ুন ও তালিকা দেখুন</button><button type="button" class="primary" id="jbOldSave2026" disabled>✅ ছাত্র/ছাত্রী তালিকায় যোগ করুন</button><button type="button" class="secondary" id="jbOldBack2026">↩ ফর্ম নির্বাচন</button></div><div id="jbOldStatus2026" role="status"></div>'+
- '<div class="form-grid" style="margin-top:10px"><label>তালিকা দেখার শিক্ষাবর্ষ <select id="jbOldFilterYear2026">'+yearOpts()+'</select></label><label>শ্রেণি/জামাত <select id="jbOldFilterClass2026">'+classOpts(true)+'</select></label></div><div id="jbOldPreview2026" style="overflow:auto;max-height:45vh"></div>';
+ b.innerHTML='<div class="form-language-fixed"><span>বাংলা</span><span>العربية</span><span>English</span></div><p><b>কম্পিউটার থেকে পুরাতন ছাত্র/ছাত্রীর Excel, Word বা Text ফাইল নির্বাচন করুন।</b> অসম্পূর্ণ তথ্য এবং একই নাম/মোবাইলের রেকর্ডও আলাদা করে যোগ হবে।</p>'+
+ '<div class="form-grid"><label>ডিফল্ট শিক্ষাবর্ষ (২০০৫ ইংরেজী থেকে) <select id="jbOldAcademicYear2026" class="field">'+yearOptions()+'</select></label><label>ডিফল্ট শ্রেণি/জামাত <select id="jbOldClass2026" class="field">'+classOptions(false)+'</select></label><label class="full">Excel (.xlsx/.xls), Word (.docx), Text/CSV (.txt/.csv), TSV বা JSON <input id="jbOldFiles2026" class="field" type="file" multiple accept=".xlsx,.xls,.docx,.docm,.doc,.csv,.tsv,.txt,.text,.json,.md"></label></div>'+
+ '<p style="font-size:13px">ফাইলে শিক্ষাবর্ষ/শ্রেণি থাকলে তা রাখা হবে; না থাকলে উপরের ডিফল্ট ব্যবহার হবে। পুরোনো Word .doc ফাইল আগে .docx হিসেবে Save করুন।</p>'+
+ '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0"><button type="button" class="primary" id="jbOldRead2026">📂 ফাইল পড়ুন / প্রিভিউ</button><button type="button" class="primary" id="jbOldSave2026" disabled>✅ ছাত্র/ছাত্রী তালিকায় যোগ করুন</button><button type="button" class="secondary" id="jbOldBack2026">↩ ফর্ম নির্বাচন</button></div><div id="jbOldStatus2026" role="status" style="white-space:pre-wrap;font-weight:800"></div><div id="jbOldImportPreview2026" style="overflow:auto;max-height:30vh"></div>'+
+ '<hr><h3>📚 শিক্ষাবর্ষ ও শ্রেণি/জামাত অনুযায়ী তথ্য দেখুন</h3><div class="form-grid"><label>তালিকার শিক্ষাবর্ষ <select id="jbOldFilterYear2026" class="field">'+yearOptions()+'</select></label><label>শ্রেণি/জামাত <select id="jbOldFilterClass2026" class="field">'+classOptions(false)+'</select></label><label class="full">Student ID দিয়ে তথ্য আনুন <input id="jbOldLookupId2026" class="field" placeholder="Student ID লিখুন"></label></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0"><button type="button" class="primary" id="jbOldView2026">🔎 সাল+শ্রেণির তথ্য দেখুন</button><button type="button" class="secondary" id="jbOldLookup2026">🪪 ID দিয়ে তথ্য আনুন</button><button type="button" class="secondary" id="jbOldOpenList2026">📋 মূল ছাত্র/ছাত্রী তালিকা</button></div><div id="jbOldPreview2026" style="overflow:auto;max-height:38vh"></div><div id="jbOldEditor2026"></div>';
  E('jbOldRead2026').onclick=readFiles;E('jbOldSave2026').onclick=saveRows;E('jbOldBack2026').onclick=function(){if(typeof window.openAdmissionPanel2026==='function')window.openAdmissionPanel2026()};
- E('jbOldFilterYear2026').onchange=render;E('jbOldFilterClass2026').onchange=render;
+ E('jbOldFiles2026').addEventListener('change',readFiles);
+ E('jbOldFilterYear2026').onchange=loadStored;E('jbOldFilterClass2026').onchange=loadStored;
+ E('jbOldView2026').onclick=function(){loadStored()};
+ E('jbOldLookup2026').onclick=lookupId;
+ E('jbOldOpenList2026').onclick=function(){if(typeof window.loadModuleList==='function')window.loadModuleList('students');else if(typeof window.openListSelector==='function')window.openListSelector()};
  w.classList.remove('minimized');w.style.height='';if(typeof openWindow==='function')openWindow('formWin');else w.style.display='block';
- loadStored();
+ /* Trigger the operating-system file chooser directly from the user's button click. */
+ E('jbOldFiles2026').click();
 }
-function loadScript(src){return new Promise(function(ok,no){var s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=function(){no(new Error('ফাইল পড়ার লাইব্রেরি লোড হয়নি'))};document.head.appendChild(s)})}
-async function xlsxLib(){if(!window.XLSX)await loadScript('https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js')}
-async function wordLib(){if(!window.mammoth)await loadScript('https://unpkg.com/mammoth@1.8.0/mammoth.browser.min.js')}
-function parseText(txt){var lines=txt.replace(/^\uFEFF/,'').split(/\r?\n/).filter(function(x){return x.trim()});if(!lines.length)return [];var first=lines[0],d=first.split('\t').length>first.split(',').length?'\t':',';return lines.map(function(line){var a=[],v='',q=false;for(var i=0;i<line.length;i++){var c=line[i];if(c==='"'&&q&&line[i+1]==='"'){v+='"';i++}else if(c==='"')q=!q;else if(c===d&&!q){a.push(v.trim());v=''}else v+=c}a.push(v.trim());return a})}
-function nrm(x){return String(x==null?'':x).toLowerCase().replace(/[\s_\-./()ঃ:]+/g,'')}
-var alias={NameBN:['namebn','name','studentname','নাম','শিক্ষার্থীরনাম','ছাত্রছাত্রীরনাম','নামবাংলা'],NameAR:['namear','arabicname','আরবিনাম'],NameEN:['nameen','englishname','ইংরেজিনাম'],FatherBN:['fatherbn','fathername','father','পিতারনাম','বাবারনাম','অভিভাবকেরনাম'],MotherBN:['motherbn','mothername','mother','মাতারনাম','মায়েরনাম'],Mobile:['mobile','mobileno','phone','phoneno','contact','মোবাইল','মোবাইলনম্বর','ফোন','ফোননম্বর'],WhatsApp:['whatsapp','হোয়াটসঅ্যাপ'],Email:['email','emailid','ইমেইল','ইমেল'],DOB:['dob','birthdate','dateofbirth','জন্মতারিখ'],Gender:['gender','লিঙ্গ'],Class:['class','grade','jamaat','শ্রেণি','শ্রেনি','জামাত','ক্লাস'],Department:['department','বিভাগ'],Branch:['branch','শাখা'],Residence:['residence','আবাসিক','অনাবাসিক'],Address:['address','ঠিকানা','বর্তমানঠিকানা'],AcademicYear:['academicyear','academicsession','session','year','শিক্ষাবর্ষ','শিক্ষাবর্ষসাল','সাল','বর্ষ'],StudentID:['studentid','আইডি','শিক্ষার্থীআইডি'],BirthReg:['birthreg','birthregistration','জন্মনিবন্ধন'],NID:['nid','nationalid','জাতীয়পরিচয়পত্র']};
-function objects(rows,year,klass){if(!rows.length)return [];var headers=rows[0].map(function(x){return String(x==null?'':x).trim()}),map={};headers.forEach(function(h,i){var nh=nrm(h);Object.keys(alias).some(function(k){if(alias[k].some(function(a){return nrm(a)===nh})||(k==='Class'&&['class/jamaat','classjam at','শ্রেণি/জামাত','শ্রেনি/জামাত'].indexOf(nh)>=0)){map[k]=i;return true}return false})});var has=Object.keys(map).length>0,src=has?rows.slice(1):rows;return src.map(function(row){var d={};Object.keys(map).forEach(function(k){d[k]=row[map[k]]==null?'':String(row[map[k]]).trim()});if(!d.AcademicYear)d.AcademicYear=String(year||'');if(!d.Class)d.Class=String(klass||'');d._fileRow=true;return d}).filter(function(d){return Object.keys(d).some(function(k){return String(d[k]||'').trim()})})}
-async function parseFile(f,year,klass){var name=f.name.toLowerCase(),rows=[];if(/\.(xlsx|xls)$/.test(name)){await xlsxLib();var wb=XLSX.read(await f.arrayBuffer(),{type:'array'});wb.SheetNames.forEach(function(sn){var a=XLSX.utils.sheet_to_json(wb.Sheets[sn],{header:1,defval:'',raw:false});if(a.length)rows=rows.concat(rows.length?a.slice(1):a)})}else if(/\.docx$/.test(name)){await wordLib();var ab=await f.arrayBuffer(),res=await mammoth.convertToHtml({arrayBuffer:ab}),doc=new DOMParser().parseFromString(res.value,'text/html');doc.querySelectorAll('table').forEach(function(tb){var a=Array.from(tb.querySelectorAll('tr')).map(function(tr){return Array.from(tr.querySelectorAll('th,td')).map(function(td){return td.innerText.trim()})});if(a.length)rows=rows.concat(rows.length?a.slice(1):a)});if(!rows.length)rows=parseText((await mammoth.extractRawText({arrayBuffer:ab})).value)}else rows=parseText(await f.text());return objects(rows,year,klass).map(function(d){d._filename=f.name;return d})}
-function student(d,year,klass){var o={NameBN:d.NameBN||'',NameAR:d.NameAR||'',NameEN:d.NameEN||'',FatherBN:d.FatherBN||'',MotherBN:d.MotherBN||'',DOB:d.DOB||'',Gender:d.Gender||'',Class:d.Class||klass||'',Department:d.Department||'',Branch:d.Branch||'',Residence:d.Residence||'',Mobile:d.Mobile||'',WhatsApp:d.WhatsApp||'',Email:d.Email||'',Address:d.Address||'',BirthReg:d.BirthReg||'',NID:d.NID||'',AcademicYear:d.AcademicYear||year||'',SourceType:'OLD_STUDENT_IMPORT',ApprovalStatus:'APPROVED'};if(d.StudentID)o.StudentID=d.StudentID;return o}
-async function readFiles(){var fs=Array.from((E('jbOldFiles2026')||{}).files||[]),st=E('jbOldStatus2026'),btn=E('jbOldRead2026');if(!fs.length){st.textContent='কম্পিউটার থেকে ফাইল নির্বাচন করুন।';return}btn.disabled=true;imported=[];stored=[];try{for(var i=0;i<fs.length;i++){st.textContent='ফাইল পড়া হচ্ছে '+(i+1)+'/'+fs.length+': '+fs[i].name;var a=await parseFile(fs[i],E('jbOldAcademicYear2026').value,E('jbOldClass2026').value);imported=imported.concat(a)}E('jbOldSave2026').disabled=!imported.length;st.textContent=fs.length+'টি ফাইল থেকে '+imported.length+'টি রেকর্ড পাওয়া গেছে। পুনরাবৃত্ত নাম/মোবাইল বাদ দেওয়া হয়নি।';render()}catch(e){st.textContent='ফাইল পড়তে সমস্যা: '+(e&&e.message||e);E('jbOldSave2026').disabled=true}finally{btn.disabled=false}}
-async function saveRows(){var btn=E('jbOldSave2026'),st=E('jbOldStatus2026');if(!imported.length){st.textContent='কোনো রেকর্ড নেই।';return}if(!token){st.textContent='প্রথমে লগইন করুন।';return}if(!confirm(imported.length+'টি রেকর্ড মূল STUDENTS তালিকায় যোগ করবেন?'))return;btn.disabled=true;var ok=0,fail=[];for(var i=0;i<imported.length;i++){st.textContent='সংরক্ষণ হচ্ছে '+(i+1)+'/'+imported.length;try{var r=await call('saveRecord',token,'STUDENTS',student(imported[i],E('jbOldAcademicYear2026').value,E('jbOldClass2026').value));if(r&&r.ok){ok++;stored.push(imported[i])}else fail.push({i:i+1,m:r&&r.message||'ব্যর্থ'})}catch(e){fail.push({i:i+1,m:e&&e.message||String(e)})}}st.textContent='যোগ হয়েছে '+ok+'টি; ব্যর্থ '+fail.length+'টি.'+(fail.length?' প্রথম ত্রুটি: সারি '+fail[0].i+' — '+fail[0].m:'');imported=imported.filter(function(x){return stored.indexOf(x)<0});render();btn.disabled=!imported.length}
-async function loadStored(){try{if(!token)return;var r=await call('getSheetData',token,'STUDENTS',5000);if(r&&r.ok&&Array.isArray(r.rows)){stored=r.rows.map(function(row){var d={};if(Array.isArray(row))(r.headers||[]).forEach(function(h,i){d[h]=row[i]});else d=row;return {StudentID:d.StudentID||'',NameBN:d.NameBN||'',NameEN:d.NameEN||'',Mobile:d.Mobile||'',Class:d.Class||'',AcademicYear:String(d.AcademicYear||''),_saved:true}});render()}}catch(e){/* Listing can require super-admin permissions; upload remains available. */}}
-function render(){var target=E('jbOldPreview2026');if(!target)return;var y=String((E('jbOldFilterYear2026')||{}).value||''),c=String((E('jbOldFilterClass2026')||{}).value||''),all=stored.concat(imported),a=all.filter(function(d){return (!y||String(d.AcademicYear||'')===y)&&(!c||String(d.Class||'')===c)});target.innerHTML='<p>দেখানো রেকর্ড: '+a.length+'টি</p><table style="border-collapse:collapse;width:100%;font-size:13px"><thead><tr>'+['ID','নাম','মোবাইল','শ্রেণি/জামাত','শিক্ষাবর্ষ','উৎস'].map(function(h){return '<th style="border:1px solid #bbb;padding:5px">'+h+'</th>'}).join('')+'</tr></thead><tbody>'+a.slice(0,1000).map(function(d){return '<tr>'+[d.StudentID||'সংরক্ষণের পর ID',d.NameBN||d.NameEN||'',d.Mobile||'',d.Class||'',d.AcademicYear||'',d._saved?'মূল তালিকা':d._filename||'ফাইল থেকে'].map(function(v){return '<td style="border:1px solid #bbb;padding:5px">'+esc(v)+'</td>'}).join('')+'</tr>'}).join('')+'</tbody></table>'}
+async function readFiles(){
+ var fs=Array.from((E('jbOldFiles2026')||{}).files||[]),st=E('jbOldStatus2026'),btn=E('jbOldRead2026');
+ if(!fs.length){if(st)st.textContent='কম্পিউটার থেকে ফাইল নির্বাচন করুন।';return}
+ if(btn)btn.disabled=true;imported=[];st.textContent='ফাইল পড়া হচ্ছে...';
+ try{
+  var errors=[];
+  for(var i=0;i<fs.length;i++){try{var rows=await parseFile(fs[i]);rows.forEach(function(d){d._filename=fs[i].name});imported=imported.concat(rows)}catch(e){errors.push(fs[i].name+': '+(e&&e.message||e))}}
+  if(!imported.length)throw new Error('কোনো শিক্ষার্থী রেকর্ড পড়া যায়নি। Excel/Word টেবিলের প্রথম সারিতে কলামের নাম থাকতে হবে, অথবা TXT-তে “নাম: ...” ফরম্যাট ব্যবহার করুন।');
+  E('jbOldSave2026').disabled=false;
+  st.textContent=fs.length+'টি ফাইল থেকে '+imported.length+'টি রেকর্ড পাওয়া গেছে। একই নাম/মোবাইলের রেকর্ড বাদ দেওয়া হয়নি.'+(errors.length?'\nযে ফাইলগুলো পড়া যায়নি:\n'+errors.join('\n'):'');
+  renderImported();
+ }catch(e){st.textContent='❌ ফাইল পড়তে সমস্যা: '+(e&&e.message||e);E('jbOldSave2026').disabled=true}
+ finally{if(btn)btn.disabled=false}
+}
+function renderImported(){
+ var box=E('jbOldImportPreview2026');if(!box)return;
+ var a=imported.slice(0,20);
+ box.innerHTML='<p><b>আপলোড প্রিভিউ: '+imported.length+'টি রেকর্ড (প্রথম '+a.length+'টি দেখানো হচ্ছে)</b></p><table class="data-table"><thead><tr><th>ফাইল</th><th>নাম</th><th>পিতার নাম</th><th>মোবাইল</th><th>শ্রেণি/জামাত</th><th>শিক্ষাবর্ষ</th></tr></thead><tbody>'+a.map(function(d){return '<tr>'+[d._filename||'',d.NameBN||d.NameEN||d.NameAR||'',d.FatherBN||'',d.Mobile||'',d.Class||'',d.AcademicYear||''].map(function(v){return '<td>'+esc(v)+'</td>'}).join('')+'</tr>'}).join('')+'</tbody></table>';
+}
+async function saveRows(){
+ var st=E('jbOldStatus2026'),btn=E('jbOldSave2026'),year=E('jbOldAcademicYear2026').value,klass=E('jbOldClass2026').value;
+ if(!imported.length){st.textContent='প্রথমে ফাইল নির্বাচন করে পড়ুন।';return}
+ if(!year||!klass){st.textContent='তথ্য যোগ করার আগে ডিফল্ট শিক্ষাবর্ষ ও শ্রেণি/জামাত নির্বাচন করুন।';return}
+ if(!token){st.textContent='প্রথমে লগইন করুন।';return}
+ if(!confirm(imported.length+'টি পুরাতন ছাত্র/ছাত্রীর রেকর্ড STUDENTS তালিকায় যোগ করবেন?'))return;
+ btn.disabled=true;st.textContent='⏳ '+imported.length+'টি রেকর্ড মূল ছাত্র/ছাত্রী তালিকায় যুক্ত হচ্ছে...';
+ try{
+  var rows=imported.map(function(d){var x=Object.assign({},d);delete x._filename;delete x._fileRow;if(!nonempty(x.AcademicYear))x.AcademicYear=year;if(!nonempty(x.Class))x.Class=klass;return x});
+  var r=await call('importLegacyStudents',token,rows,year,klass);
+  if(!r||!r.ok)throw new Error((r&&r.message)||'তথ্য যুক্ত করা যায়নি।');
+  st.textContent='✅ '+r.message+'\nনতুন Student ID (প্রথম ১৫টি): '+(r.ids||[]).slice(0,15).join(', ')+(r.ids&&r.ids.length>15?' ...':'')+'\nঅবস্থা: '+(r.status==='ACTIVE'?'সক্রিয়':'অনুমোদনের অপেক্ষায়')+'.';
+  imported=[];E('jbOldSave2026').disabled=true;E('jbOldImportPreview2026').innerHTML='<p>✓ আপলোড সম্পন্ন হয়েছে। নিচে নির্বাচিত সাল ও শ্রেণি অনুযায়ী তালিকা দেখুন।</p>';
+  await loadStored();
+ }catch(e){st.textContent='❌ সংরক্ষণ হয়নি: '+(e&&e.message||e)}
+ finally{btn.disabled=false}
+}
+async function loadStored(){
+ var st=E('jbOldStatus2026'),target=E('jbOldPreview2026');if(!target)return;
+ var y=E('jbOldFilterYear2026').value,c=E('jbOldFilterClass2026').value;
+ if(!y||!c){target.innerHTML='<p>তথ্য দেখতে শিক্ষাবর্ষ এবং শ্রেণি/জামাত নির্বাচন করুন।</p>';return}
+ target.innerHTML='<p>⏳ তথ্য খোঁজা হচ্ছে...</p>';
+ try{var r=await call('getLegacyStudentsByYearClass',token,y,c,'');if(!r||!r.ok)throw new Error((r&&r.message)||'তথ্য পাওয়া যায়নি।');stored=r.rows||[];currentRows=stored;renderStored();if(st)st.textContent='নির্বাচিত শিক্ষাবর্ষ '+y+' · '+c+' — '+(r.count||0)+'টি রেকর্ড পাওয়া গেছে.'}
+ catch(e){target.innerHTML='<p>❌ তালিকা লোড হয়নি: '+esc(e&&e.message||e)+'</p>'}
+}
+function renderStored(){
+ var target=E('jbOldPreview2026'),rows=currentRows||[];
+ if(!rows.length){target.innerHTML='<p>এই শিক্ষাবর্ষ ও শ্রেণি/জামাতে কোনো ছাত্র/ছাত্রীর তথ্য পাওয়া যায়নি।</p>';return}
+ var a=rows.slice(0,500);
+ target.innerHTML='<p><b>মোট '+rows.length+'টি রেকর্ড'+(rows.length>a.length?' · প্রথম '+a.length+'টি দেখানো হচ্ছে':'')+'</b></p><table class="data-table"><thead><tr><th>Student ID</th><th>নাম</th><th>পিতার নাম</th><th>মোবাইল</th><th>শিক্ষাবর্ষ</th><th>শ্রেণি/জামাত</th><th>সম্পাদনা</th></tr></thead><tbody>'+a.map(function(d,i){return '<tr><td>'+esc(d.StudentID||'')+'</td><td>'+esc(d.NameBN||d.NameEN||d.NameAR||'')+'</td><td>'+esc(d.FatherBN||'')+'</td><td>'+esc(d.Mobile||d.MobileID||'')+'</td><td>'+esc(d.AcademicYear||'')+'</td><td>'+esc(d.Class||'')+'</td><td><button type="button" class="secondary" data-jb-old-edit="'+i+'">✏️ ID দিয়ে সম্পাদনা</button></td></tr>'}).join('')+'</tbody></table>';
+ target.querySelectorAll('[data-jb-old-edit]').forEach(function(b){b.onclick=function(){editRow(rows[+b.getAttribute('data-jb-old-edit')])}});
+}
+async function lookupId(){
+ var id=String(E('jbOldLookupId2026').value||'').trim(),target=E('jbOldPreview2026');if(!id){target.innerHTML='<p>Student ID লিখুন।</p>';return}
+ target.innerHTML='<p>⏳ ID দিয়ে তথ্য খোঁজা হচ্ছে...</p>';
+ try{var r=await call('getLegacyStudentsByYearClass',token,'','',id);if(!r||!r.ok)throw new Error((r&&r.message)||'তথ্য পাওয়া যায়নি।');currentRows=r.rows||[];renderStored();if(!currentRows.length)target.innerHTML='<p>এই Student ID পাওয়া যায়নি।</p>'}
+ catch(e){target.innerHTML='<p>❌ '+esc(e&&e.message||e)+'</p>'}
+}
+function editRow(row){
+ editing=row;
+ var fields=[['NameBN','বাংলা নাম'],['NameAR','আরবি নাম'],['NameEN','ইংরেজি নাম'],['FatherBN','পিতার নাম'],['FatherAR','পিতার নাম আরবি'],['FatherEN','পিতার নাম ইংরেজি'],['MotherBN','মাতার নাম'],['MotherAR','মাতার নাম আরবি'],['MotherEN','মাতার নাম ইংরেজি'],['DOB','জন্ম তারিখ'],['Gender','লিঙ্গ'],['Class','শ্রেণি/জামাত'],['Department','বিভাগ'],['Branch','শাখা'],['Residence','আবাসিক/অনাবাসিক'],['Mobile','মোবাইল'],['WhatsApp','WhatsApp'],['Email','ইমেইল'],['Address','ঠিকানা'],['AcademicYear','শিক্ষাবর্ষ'],['BirthReg','জন্ম নিবন্ধন'],['NID','NID']];
+ var box=E('jbOldEditor2026');
+ box.innerHTML='<div style="margin-top:12px;padding:12px;border:2px solid #c9a33a;border-radius:8px;background:var(--panel,#fff)"><h3>✏️ Student ID: '+esc(row.StudentID||'')+' — সম্পাদনা</h3><p>Student ID অপরিবর্তিত থাকবে। অসম্পূর্ণ তথ্য পূরণ করে সংরক্ষণ করুন।</p><div class="form-grid">'+fields.map(function(f){var val=String(row[f[0]]==null?'':row[f[0]]);if(f[0]==='Address')return '<label class="full">'+esc(f[1])+'<textarea class="field" rows="2" data-jb-old-field="'+f[0]+'">'+esc(val)+'</textarea></label>';return '<label>'+esc(f[1])+'<input class="field" data-jb-old-field="'+f[0]+'" value="'+esc(val)+'"></label>'}).join('')+'</div><div style="display:flex;gap:8px;margin-top:10px"><button type="button" class="primary" id="jbOldEditSave2026">💾 সম্পাদনা সংরক্ষণ</button><button type="button" class="secondary" id="jbOldEditCancel2026">বাতিল</button></div></div>';
+ E('jbOldEditSave2026').onclick=saveEdit;E('jbOldEditCancel2026').onclick=function(){box.innerHTML='';editing=null};
+}
+async function saveEdit(){
+ if(!editing||!editing.Serial){say('রেকর্ডের Serial পাওয়া যায়নি।');return}
+ var data={};E('jbOldEditor2026').querySelectorAll('[data-jb-old-field]').forEach(function(x){data[x.getAttribute('data-jb-old-field')]=x.value});
+ var btn=E('jbOldEditSave2026');btn.disabled=true;
+ try{var r=await call('updateRecord',token,'STUDENTS',editing.Serial,data);if(!r||!r.ok)throw new Error((r&&r.message)||'সংরক্ষণ হয়নি।');say('Student ID '+(editing.StudentID||'')+'-এর তথ্য সম্পাদনা সংরক্ষণ হয়েছে।');E('jbOldEditor2026').innerHTML='';editing=null;if(E('jbOldLookupId2026').value.trim())lookupId();else loadStored()}
+ catch(e){say('সম্পাদনা সংরক্ষণ হয়নি: '+(e&&e.message||e))}
+ finally{if(btn)btn.disabled=false}
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ensureButton,{once:true});else ensureButton();
+if(window.MutationObserver)new MutationObserver(ensureButton).observe(document.documentElement,{childList:true,subtree:true});
 })();
 </script>
-<!-- ===== END OLD STUDENT BULK IMPORT + ACADEMIC YEAR FILTER ===== -->
+<!-- ===== END OLD STUDENT IMPORT + YEAR/CLASS FILTER + ID EDIT ===== -->
 
 </body></html>';
  var blob=new Blob([doc],{type:'text/html;charset=utf-8'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='Jannatul_Baqi_Admission_Form.html';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url)},1500);
