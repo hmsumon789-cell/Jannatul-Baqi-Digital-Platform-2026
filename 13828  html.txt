@@ -14766,3 +14766,35 @@ window.jbAdmissionImportFile2026=async function(file){var fb=el('admAdmissionRed
 })();
 </script>
 <!-- ===== END ONLINE ADMISSION BUTTON ROUTING FIX ===== -->
+
+
+<!-- ===== WIRE ONLINE APPLICATION FORMS TO THEIR DASHBOARD BUTTONS — 2026-10-12 ===== -->
+<script id="jb-online-application-button-routing-20261012">
+(function(){
+  if(window.__jbOnlineApplicationRouting20261012)return;
+  window.__jbOnlineApplicationRouting20261012=true;
+  document.addEventListener('click',function(ev){
+    var b=ev.target&&ev.target.closest?ev.target.closest('button'):null;
+    if(!b)return;
+    var label=String(b.innerText||b.textContent||'').replace(/\\s+/g,' ').trim();
+    var action=String(b.getAttribute('onclick')||'');
+    var area=b.closest('#leftModules,#rightModules,.dashboard-nav,#app');
+    if(!area)return;
+    if(/openModule\\(['"]teacher['"]\\)/i.test(action) && /অ্যাড|যোগ|নতুন|add/i.test(label)){
+      ev.preventDefault();ev.stopImmediatePropagation();
+      if(typeof window.openAdmissionForm2026==='function')window.openAdmissionForm2026('teacher');
+      return;
+    }
+    if(/openModule\\(['"]donor['"]\\)/i.test(action) && /অ্যাড|যোগ|নতুন|add/i.test(label)){
+      ev.preventDefault();ev.stopImmediatePropagation();
+      if(typeof window.openAdmissionForm2026==='function')window.openAdmissionForm2026('member');
+      return;
+    }
+    if(/openModule\\(['"]exam['"]\\)/i.test(action) && /নিবন্ধ|registration/i.test(label) && !/তালিকা|list/i.test(label)){
+      ev.preventDefault();ev.stopImmediatePropagation();
+      if(typeof window.openModule==='function')window.openModule('exam');
+    }
+  },true);
+})();
+</script>
+<!-- ===== END ONLINE APPLICATION BUTTON ROUTING ===== -->
