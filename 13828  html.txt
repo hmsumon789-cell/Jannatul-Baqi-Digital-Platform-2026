@@ -14728,7 +14728,7 @@ async function saveRows(){
   var r=await call('importLegacyStudents',token,rows,year,klass);
   if(!r||!r.ok)throw new Error((r&&r.message)||'তথ্য যুক্ত করা যায়নি।');
   st.textContent='✅ '+r.message+'\nনতুন Student ID (প্রথম ১৫টি): '+(r.ids||[]).slice(0,15).join(', ')+(r.ids&&r.ids.length>15?' ...':'')+'\nঅবস্থা: '+(r.status==='ACTIVE'?'সক্রিয়':'অনুমোদনের অপেক্ষায়')+'.';
-  imported=[];E('jbOldSave2026').disabled=true;E('jbOldImportPreview2026').innerHTML='<p>✓ আপলোড সম্পন্ন হয়েছে। নিচে নির্বাচিত সাল ও শ্রেণি অনুযায়ী তালিকা দেখুন।</p>';
+  E('jbOldFilterYear2026').value=year;E('jbOldFilterClass2026').value=klass;imported=[];E('jbOldSave2026').disabled=true;E('jbOldImportPreview2026').innerHTML='<p>✓ আপলোড সম্পন্ন হয়েছে। নিচে নির্বাচিত সাল ও শ্রেণি অনুযায়ী তালিকা দেখুন।</p>';
   await loadStored();
  }catch(e){st.textContent='❌ সংরক্ষণ হয়নি: '+(e&&e.message||e)}
  finally{btn.disabled=false}
