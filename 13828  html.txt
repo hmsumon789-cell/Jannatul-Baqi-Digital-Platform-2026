@@ -14744,3 +14744,24 @@ window.jbAdmissionImportFile2026=async function(file){var fb=el('admAdmissionRed
 
 <!-- ===== ADMISSION CLOSE SAFETY FIX 2026-10-12 ===== -->
 <script>(function(){document.addEventListener('click',function(e){var b=e.target&&e.target.closest&&e.target.closest('#jbAdmissionChromeTabs20261012 .jb-adm-close-window');if(!b)return;setTimeout(function(){var w=document.getElementById('formWin');if(w)w.style.display='none';var t=document.getElementById('jbAdmTaskbar20261012');if(t)t.remove()},0)},true)})();</script>
+
+
+<!-- ===== LOGIN BUTTON CLICK SAFETY FIX 2026-10-12 ===== -->
+<script id="jb-login-click-safety-20261012">
+(function(){
+  if(window.__jbLoginClickSafety20261012)return;
+  window.__jbLoginClickSafety20261012=true;
+  document.addEventListener('click',function(e){
+    var btn=e.target&&e.target.closest?e.target.closest('#mainLoginBtn'):null;
+    if(!btn)return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    if(typeof window.login==='function'){
+      window.login();
+    }else{
+      var msg='লগইন স্ক্রিপ্ট লোড হয়নি। পেজটি Ctrl+F5 দিয়ে রিফ্রেশ করুন; সমস্যা থাকলে Apps Script-এর সর্বশেষ HTML Deploy পরীক্ষা করুন।';
+      if(typeof window.toast==='function')window.toast(msg);else alert(msg);
+    }
+  },true);
+})();
+</script>
