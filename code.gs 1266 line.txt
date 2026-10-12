@@ -2627,3 +2627,102 @@ function sendContactEmail(token, recipients, subject, body) {
   return {ok:sent > 0 && failed === 0, sent:sent, skipped:skipped, failed:failed,
     message:sent+' জনকে ইমেইল পাঠানোর অনুরোধ সম্পন্ন হয়েছে।'+(skipped?' '+skipped+'টি ঠিকানা বাদ গেছে।':'')+(failed?' '+failed+'টি ব্যর্থ হয়েছে: '+errors.join(' | '):'')};
 }
+
+
+/* ===== LEGACY STUDENT BULK IMPORT + YEAR/CLASS LOOKUP — 2026-10-12 ===== */
+function importLegacyStudents(token, records, defaultYear, defaultClass) {
+  auth_(token);
+  requireFeature_(token, 'student');
+  if (!Array.isArray(records) || !records.length) return {ok:false,message:'কোনো ছাত্র/ছাত্রীর তথ্য পাওয়া যায়নি।'};
+  if (records.length > 5000) return {ok:false,message:'একবারে সর্বোচ্চ ৫০০০টি রেকর্ড আপলোড করুন।'};
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    ensureStudentWorkflowColumns_();
+    const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.STUDENTS);
+    if (!sh) throw new Error('STUDENTS শিট পাওয়া যায়নি।');
+    const headers = sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(function(x){return String(x).trim();});
+    const all = sh.getLastRow() > 1 ? sh.getRange(2,1,sh.getLastRow()-1,sh.getLastColumn()).getValues() : [];
+    const idIndex = headers.indexOf('StudentID');
+    const existingIds = new Set();
+    all.forEach(function(r){if(idIndex>=0 && String(r[idIndex]||'').trim()) existingIds.add(String(r[idIndex]).trim());});
+    const suppliedIds = new Set();
+    records.forEach(function(d){d=d||{};var id=String(d.StudentID||d.ID||'').trim();if(id)suppliedIds.add(id);});
+    const batchIds = new Set();
+    const info = studentSourceInfo_(token);
+    const session = auth_(token);
+    const startSerial = sh.getLastRow();
+    const now = now_();
+    const output = [];
+    const newIds = [];
+    records.forEach(function(raw, offset){
+      const d = normalizeMobileFields_(raw || {});
+      const serial = startSerial + offset;
+      const year = String(d.AcademicYear || d.Year || d.Session || defaultYear || '').trim();
+      const klass = String(d.Class || d.Grade || d.Jamat || defaultClass || '').trim();
+      let sid = String(d.StudentID || d.ID || '').trim();
+      if (!sid || existingIds.has(sid) || batchIds.has(sid)) {
+        const y = year.replace(/[^0-9A-Za-z\u0980-\u09FF-]/g,'') || 'OLD';
+        let n = serial, candidate = '';
+        do { candidate = 'OLD-' + y + '-' + String(n++).padStart(5,'0'); }
+        while (existingIds.has(candidate) || batchIds.has(candidate) || suppliedIds.has(candidate));
+        sid = candidate;
+      }
+      batchIds.add(sid);
+      const data = Object.assign({}, d, {
+        StudentID:sid,
+        FormID:String(d.FormID||'').trim() || ('F-' + String(serial).padStart(5,'0')),
+        MobileID:String(d.MobileID||d.Mobile||'').trim(),
+        EmailID:String(d.EmailID||d.Email||'').trim(),
+        Class:klass,
+        AcademicYear:year,
+        CreatedAt:now,
+        ApprovalStatus:info.status,
+        SourceType:'LEGACY_IMPORT',
+        SourceAccount:String(info.sourceAccount || session.username || ''),
+        ApprovedBy:info.status==='ACTIVE'?String(info.sourceAccount || session.username || ''):'',
+        ApprovedAt:info.status==='ACTIVE'?now:''
+      });
+      const known = new Set(headers);
+      const extra = {};
+      Object.keys(d).forEach(function(k){
+        if (!known.has(k) && k!=='ID' && k!=='Year' && k!=='Session' && k!=='Grade' && k!=='Jamat' && d[k]!=='' && d[k]!=null) extra[k]=d[k];
+      });
+      if (Object.keys(extra).length) {
+        let oldExtra = {};
+        try { oldExtra = data.Documents ? JSON.parse(data.Documents) : {}; } catch(e) {}
+        data.Documents = JSON.stringify(Object.assign({},oldExtra,extra));
+      }
+      const row = headers.map(function(h){return data[h]===undefined || data[h]===null ? '' : data[h];});
+      row[0] = serial;
+      output.push(row);
+      newIds.push(sid);
+    });
+    if (output.length) sh.getRange(sh.getLastRow()+1,1,output.length,headers.length).setValues(output);
+    log_(String(session.username||''),'legacy_import','STUDENTS',JSON.stringify({count:output.length,year:String(defaultYear||''),className:String(defaultClass||''),firstId:newIds[0]||''}).slice(0,1000));
+    return {ok:true,inserted:output.length,ids:newIds,status:info.status,message:output.length+'টি পুরাতন ছাত্র/ছাত্রীর তথ্য তালিকায় যুক্ত হয়েছে।'};
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function getLegacyStudentsByYearClass(token, academicYear, className, studentId) {
+  const session = auth_(token);
+  requireFeature_(token, 'student');
+  ensureStudentWorkflowColumns_();
+  let rows = listRows_(SHEETS.STUDENTS, token, 50000);
+  if (!isSuperAdminSession_(token)) {
+    const account = String(session.username || '').trim();
+    rows = rows.filter(function(r){return String(r.SourceAccount||'').trim()===account;});
+  }
+  const id = String(studentId||'').trim().toLowerCase();
+  const year = String(academicYear||'').trim();
+  const klass = String(className||'').trim();
+  if (id) rows = rows.filter(function(r){return String(r.StudentID||'').trim().toLowerCase()===id;});
+  else {
+    if (year) rows = rows.filter(function(r){return String(r.AcademicYear||'').trim()===year;});
+    if (klass) rows = rows.filter(function(r){return String(r.Class||'').trim()===klass;});
+  }
+  return {ok:true,rows:rows,count:rows.length};
+}
+/* ===== END LEGACY STUDENT BULK IMPORT + YEAR/CLASS LOOKUP ===== */
