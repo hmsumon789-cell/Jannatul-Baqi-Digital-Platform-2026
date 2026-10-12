@@ -13358,7 +13358,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       '<div class="adm-choice-card"><h3>🎓 ছাত্র/ছাত্রী ভর্তি</h3><p>ভর্তি তথ্য, নির্ধারিত ফি, ভর্তির ধরন ও পেমেন্ট</p><button type="button" class="primary" onclick="openAdmissionForm2026(\'student\')">ছাত্র/ছাত্রী ভর্তি ফর্ম</button></div>'+
       '<div class="adm-choice-card"><h3>👩‍🏫 চাকরির আবেদন</h3><p>শিক্ষক/শিক্ষিকা পদে আবেদন</p><button type="button" class="primary" onclick="openAdmissionForm2026(\'teacher\')">শিক্ষক/শিক্ষিকা আবেদন ফর্ম</button></div>'+
       '<div class="adm-choice-card"><h3>🤝 সদস্য আবেদন</h3><p>মাদ্রাসার সদস্য হওয়ার আবেদন</p><button type="button" class="primary" onclick="openAdmissionForm2026(\'member\')">সদস্য আবেদন ফর্ম</button></div>'+
-      '<div class="adm-choice-card"><h3>📝 পরীক্ষার্থী নিবন্ধন</h3><p>পরীক্ষার জন্য শিক্ষার্থী নিবন্ধন</p><button type="button" class="primary" onclick="openExamDashboard2026()">পরীক্ষার্থী নিবন্ধন ফর্ম</button></div>'+
+      '<div class="adm-choice-card"><h3>📝 পরীক্ষার্থী নিবন্ধন</h3><p>পরীক্ষার জন্য শিক্ষার্থী নিবন্ধন</p><button type="button" class="primary" onclick="openModule('exam')">পরীক্ষার্থী নিবন্ধন ফর্ম</button></div>'+
       '<div class="adm-choice-card"><h3>📋 ছাত্র/ছাত্রী তালিকা</h3><p>নিবন্ধিত শিক্ষার্থীদের তালিকা দেখুন</p><button type="button" class="primary" onclick="openStudentAdmissionList2026()">ছাত্র/ছাত্রী তালিকা</button></div>'+
       '</div><p class="adm-required">* ভর্তি, পরীক্ষার্থী নিবন্ধন, চাকরির আবেদন ও ছাত্র/ছাত্রী তালিকা এখান থেকে নির্বাচন করুন।</p>';
     E('formWin').classList.remove('minimized');E('formWin').style.height='';openWindow('formWin');
@@ -14735,3 +14735,34 @@ window.jbAdmissionImportFile2026=async function(file){var fb=el('admAdmissionRed
 /* Keep the admission form's close control visible even when the tab strip overflows. */
 #jbAdmissionChromeTabs20261012 .jb-adm-close-window{position:fixed!important;top:8px!important;right:10px!important;z-index:2147483647!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;min-width:38px!important;height:32px!important;padding:3px 10px!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;box-shadow:0 2px 8px #0004!important}
 </style>
+
+<!-- ===== ONLINE ADMISSION BUTTON ROUTING FIX 2026-10-12 ===== -->
+<script id="jb-online-admission-button-routing-20261012">
+(function(){
+  'use strict';
+  if(window.__jbOnlineAdmissionButtonRouting20261012)return;
+  window.__jbOnlineAdmissionButtonRouting20261012=true;
+  document.addEventListener('click',function(e){
+    var b=e.target&&e.target.closest?e.target.closest('button'):null;
+    if(!b)return;
+    var label=String(b.innerText||b.textContent||'').replace(/\s+/g,' ').trim();
+    if(!label)return;
+    var norm=label.replace(/[➕➖🤝👩‍🏫📝📋]/g,'').replace(/\s+/g,' ').trim();
+    if(/শিক্ষক\/শিক্ষিকা\s*(অ্যাড|এড|Add)/i.test(norm)){
+      e.preventDefault();e.stopImmediatePropagation();
+      if(typeof window.openAdmissionForm2026==='function')window.openAdmissionForm2026('teacher');
+      return;
+    }
+    if(/দাতা\s*সদস্য\s*(অ্যাড|এড|Add)/i.test(norm)){
+      e.preventDefault();e.stopImmediatePropagation();
+      if(typeof window.openAdmissionForm2026==='function')window.openAdmissionForm2026('member');
+      return;
+    }
+    if(/^(নিবন্ধ|নিবন্ধন|পরীক্ষার্থী নিবন্ধন)$/i.test(norm)){
+      e.preventDefault();e.stopImmediatePropagation();
+      if(typeof window.openModule==='function')window.openModule('exam');
+    }
+  },true);
+})();
+</script>
+<!-- ===== END ONLINE ADMISSION BUTTON ROUTING FIX ===== -->
