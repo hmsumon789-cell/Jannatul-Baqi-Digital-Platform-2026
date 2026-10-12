@@ -916,7 +916,7 @@ function createAdmitCardFromCandidate(token,studentId,exam) {
   return {ok:true,admitId:aid,studentId:id,message:'Admit Card তৈরি হয়েছে।'};
 }
 function getStudent360(token,studentId) {
-  auth_(token);
+  auth_(token); ensureStudentWorkflowColumns_();
   const id=String(studentId||'').trim();
   const student=findBy_(SHEETS.STUDENTS,'StudentID',id);
   if(!student) return {ok:false,message:'Student পাওয়া যায়নি।'};
