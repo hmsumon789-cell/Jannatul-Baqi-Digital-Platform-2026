@@ -14787,12 +14787,19 @@ window.jbAdmissionImportFile2026=async function(file){var fb=el('admAdmissionRed
     }
     if(/openModule\\(['"]donor['"]\\)/i.test(action) && /অ্যাড|যোগ|নতুন|add/i.test(label)){
       ev.preventDefault();ev.stopImmediatePropagation();
-      if(typeof window.openAdmissionForm2026==='function')window.openAdmissionForm2026('member');
+      if(typeof window.openAdmissionForm2026==='function'){
+        window.openAdmissionForm2026('member');
+        setTimeout(function(){
+          var p=document.getElementById('admGenericPosition2026');
+          if(p){var o=Array.prototype.find.call(p.options,function(x){return x.text.indexOf('দাতা সদস্য')>=0;});if(o)p.value=o.value;}
+        },100);
+      }
       return;
     }
     if(/openModule\\(['"]exam['"]\\)/i.test(action) && /নিবন্ধ|registration/i.test(label) && !/তালিকা|list/i.test(label)){
       ev.preventDefault();ev.stopImmediatePropagation();
-      if(typeof window.openModule==='function')window.openModule('exam');
+      if(typeof window.openExamDashboard2026==='function')window.openExamDashboard2026();
+      else if(typeof window.openExamDashboard==='function')window.openExamDashboard();
     }
   },true);
 })();
