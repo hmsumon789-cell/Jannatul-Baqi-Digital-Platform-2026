@@ -15260,3 +15260,22 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   #app .header-mainline-v2 .header-sheet-v2{justify-self:center!important}
 }
 </style>
+
+
+<!-- ===== DASHBOARD TOP EMPTY SPACE REMOVE — 2026-10-13 ===== -->
+<style id="dashboard-top-empty-space-remove-20261013">
+/* হেডার ও সার্চ লাইনের উপরের অতিরিক্ত ফাঁকা জায়গা সরানো; লগইন পেজ অপরিবর্তিত */
+#app{
+  padding-top:0!important;
+  margin-top:0!important;
+}
+#app > #topActionBar{
+  margin-top:0!important;
+}
+#app > header.header{
+  margin-top:0!important;
+}
+@media(max-width:600px){
+  #app{padding-top:0!important;margin-top:0!important}
+}
+</style>
