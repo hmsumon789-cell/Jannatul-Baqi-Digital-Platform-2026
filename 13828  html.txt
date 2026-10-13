@@ -14772,7 +14772,7 @@ async function saveEdit(){
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ensureButton,{once:true});else ensureButton();
 if(window.MutationObserver)new MutationObserver(ensureButton).observe(document.documentElement,{childList:true,subtree:true});
 })();
-</script>
+<\/script>
 <!-- ===== END OLD STUDENT IMPORT + YEAR/CLASS FILTER + ID EDIT ===== -->
 
 </body></html>';
