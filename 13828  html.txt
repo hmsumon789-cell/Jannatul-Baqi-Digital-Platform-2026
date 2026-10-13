@@ -14913,3 +14913,47 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </script>
 <!-- ===== END ALL NOTICE BOARD MODULE — FIXED PLACEMENT ===== -->
 
+
+<!-- ===== NOTICE SLIDER DIRECTLY ABOVE INCOME / EXPENSE / ATTENDANCE BOXES ===== -->
+<style id="jb-notice-slider-directly-above-dashboard-charts-20261013">
+  /* নোটিশ স্লাইডার dashboardCharts-এর ঠিক আগে; পুরোনো 288px gap বাতিল */
+  #app #jbNoticeSlider5b4{
+    display:block!important;
+    position:relative!important;
+    width:100%!important;
+    box-sizing:border-box!important;
+    margin:10px 0 10px!important;
+    order:0!important;
+  }
+  #app #dashboardCharts{
+    margin-top:0!important;
+  }
+</style>
+<script id="jb-notice-slider-direct-placement-js-20261013">
+(function(){
+  function placeNoticeSlider(){
+    var slider=document.getElementById('jbNoticeSlider5b4');
+    var charts=document.getElementById('dashboardCharts');
+    if(!charts||!charts.parentNode)return;
+    if(!slider){
+      slider=document.createElement('section');
+      slider.id='jbNoticeSlider5b4';
+      slider.className='card';
+      slider.innerHTML='<div class="jbn-top"><div class="jbn-title">📢 অল নোটিশ বোর্ড</div><span>প্রকাশিত নোটিশ লোড হচ্ছে…</span></div>';
+    }
+    if(slider.parentNode!==charts.parentNode||slider.nextElementSibling!==charts){
+      charts.parentNode.insertBefore(slider,charts);
+    }
+    if(typeof window.jbNoticeReload5b4==='function'){
+      try{window.jbNoticeReload5b4()}catch(e){}
+    }else if(typeof window.renderNotices==='function'){
+      try{window.renderNotices(window.notices||[])}catch(e){}
+    }
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',placeNoticeSlider);
+  else placeNoticeSlider();
+  [300,900,1800,3000].forEach(function(ms){setTimeout(placeNoticeSlider,ms)});
+})();
+</script>
+<!-- ===== END NOTICE SLIDER POSITION FIX ===== -->
+
