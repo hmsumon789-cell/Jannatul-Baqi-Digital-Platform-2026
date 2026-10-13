@@ -12734,14 +12734,18 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       target.document.write('<!doctype html><html lang="bn"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>অনলাইন সেবা</title><body style="font-family:Arial,sans-serif;padding:30px;text-align:center"><h2>⏳ অনলাইন সেবা খোলা হচ্ছে...</h2><p>অনুগ্রহ করে অপেক্ষা করুন।</p></body></html>');
       target.document.close();
     }catch(e){}
+    function showError(message){
+      var msg=String(message||'অনলাইন সেবা খোলা যায়নি।').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]});
+      try{target.document.open();target.document.write('<!doctype html><html lang="bn"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>অনলাইন সেবা</title><body style="font-family:Arial,sans-serif;background:#fff8e1;padding:28px"><main style="max-width:700px;margin:20px auto;padding:22px;border:3px solid #b88408;border-radius:16px"><h2>অনলাইন সেবা খুলতে সমস্যা হয়েছে</h2><p>'+msg+'</p><p>মূল লগইন পেজে ফিরে গিয়ে আবার চেষ্টা করুন।</p></main></body></html>');target.document.close();}catch(e){}
+    }
     function go(base){
       base=String(base||'').trim().split('#')[0].split('?')[0];
       if(!/^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec$/i.test(base)){
-        try{target.document.body.innerHTML='<h2 style="font-family:Arial,sans-serif;color:#b00;text-align:center;margin:40px">মূল Web App URL পাওয়া যায়নি। অনুগ্রহ করে মূল লগইন পেজ থেকে আবার চেষ্টা করুন।</h2>';}catch(e){}
+        showError('মূল Web App URL পাওয়া যায়নি। Google Apps Script থেকে Web App Deploy করা আছে কি না যাচাই করুন।');
         return;
       }
       var url=base+'?online=1&code='+encodeURIComponent(sig)+'&id='+encodeURIComponent(q);
-      try{target.location.replace(url);}catch(e){target.location.href=url;}
+      try{target.location.href=url;}catch(e){showError('সেবা পেজে যাওয়ার সময় ত্রুটি: '+(e&&e.message||e));}
     }
     try{
       if(typeof google!=='undefined'&&google.script&&google.script.run){
