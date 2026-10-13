@@ -1196,7 +1196,7 @@ body.gold #loginContactStrip20261013{background:#fff9e7!important;color:#4a3300!
       <div class="header-date-button" id="appDate">--</div>
     </div>
     <div class="header-running-row header-mainline header-mainline-v2" id="headerMainline">
-      <button type="button" class="sheet-btn header-sheet-v2" onclick="openFileExport2026()">📁 Excel + Word + Coding ফাইল</button>
+      <button type="button" class="sheet-btn header-sheet-v2" onclick="openProtectedSheet2026()">📊 মূল শীটে প্রবেশ</button>
       <div class="news header-news" data-news="জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম">
         <span class="running-news-text"><span class="news-full-run">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম</span></span>
         <button type="button" class="news-mic" title="নতুন নিউজ যোগ করুন" aria-label="নতুন নিউজ যোগ করুন">🎙️</button>
