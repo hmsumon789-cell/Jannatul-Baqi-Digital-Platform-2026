@@ -1101,6 +1101,7 @@ body.gold #loginPage .main-qr-802268e{background:#fff!important;border-color:#11
       <div class="lc-address">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div>
       <div class="lc-hotline">☎ হটলাইন: 01823316630</div>
     </div>
+    <div class="lc-qr-side"><img class="lc-qr" id="loginContactQR20261013" alt="মূল পেজের QR কোড"><div class="lc-qr-label">মূল পেজ</div></div>
   </div>
 </section>
   </section>
@@ -1110,9 +1111,11 @@ body.gold #loginPage .main-qr-802268e{background:#fff!important;border-color:#11
 <style id="login-contact-strip-20261013-css">
 #loginContactStrip20261013{width:100%;max-width:100%;box-sizing:border-box;margin:14px auto 0;padding:10px 12px;background:var(--panel,#fff);color:var(--text,#222);border:2px solid var(--border,#c89b27);border-radius:14px;box-shadow:0 5px 14px #0002;text-align:center;position:relative;z-index:2}
 #loginContactStrip20261013 .lc-title{font-size:20px;font-weight:1000;margin-bottom:10px}
-#loginContactStrip20261013 .lc-layout{display:grid;grid-template-columns:78px minmax(0,1fr);align-items:center;gap:10px}
+#loginContactStrip20261013 .lc-layout{display:grid;grid-template-columns:78px minmax(0,1fr) 78px;align-items:center;gap:10px}
 #loginContactStrip20261013 .lc-logo-side{grid-column:1;grid-row:1}
 #loginContactStrip20261013 .lc-center{grid-column:2;grid-row:1}
+#loginContactStrip20261013 .lc-qr-side{grid-column:3;grid-row:1}
+#loginContactStrip20261013 .lc-qr-label{font-weight:900;font-size:12px;margin-top:3px}
 #loginContactStrip20261013 .lc-logo,#loginContactStrip20261013 .lc-qr{width:72px;height:72px;object-fit:contain;display:block;margin:auto;background:#fff;border:2px solid var(--border,#c89b27);border-radius:12px;box-sizing:border-box}
 #loginContactStrip20261013 .lc-name{font-size:21px;font-weight:1000;line-height:1.4;margin:0 0 5px}
 #loginContactStrip20261013 .lc-address{font-size:16px;font-weight:800;line-height:1.5;margin:0 0 7px}
@@ -1120,17 +1123,28 @@ body.gold #loginPage .main-qr-802268e{background:#fff!important;border-color:#11
 #loginContactStrip20261013 .lc-qr-label{font-weight:900;font-size:13px;margin-top:4px}
 body.dark #loginContactStrip20261013{background:#111!important;color:#fff!important;border-color:#ffcc33!important}
 body.gold #loginContactStrip20261013{background:#fff9e7!important;color:#4a3300!important;border-color:#b88408!important}
-@media(max-width:620px){#loginContactStrip20261013{padding:12px 8px}#loginContactStrip20261013 .lc-layout{grid-template-columns:1fr;gap:10px}#loginContactStrip20261013 .lc-center{grid-column:1;grid-row:1}#loginContactStrip20261013 .lc-logo-side{grid-column:1;grid-row:2}#loginContactStrip20261013 .lc-logo{width:82px;height:82px}#loginContactStrip20261013 .lc-name{font-size:18px}#loginContactStrip20261013 .lc-address{font-size:14px}#loginContactStrip20261013 .lc-hotline{font-size:15px}}
+@media(max-width:620px){#loginContactStrip20261013{padding:12px 8px}#loginContactStrip20261013 .lc-layout{grid-template-columns:1fr 1fr;gap:10px}#loginContactStrip20261013 .lc-center{grid-column:1/-1;grid-row:1}#loginContactStrip20261013 .lc-logo-side{grid-column:1;grid-row:2}#loginContactStrip20261013 .lc-qr-side{grid-column:2;grid-row:2}#loginContactStrip20261013 .lc-logo,#loginContactStrip20261013 .lc-qr{width:72px;height:72px}#loginContactStrip20261013 .lc-name{font-size:18px}#loginContactStrip20261013 .lc-address{font-size:14px}#loginContactStrip20261013 .lc-hotline{font-size:15px}}
 </style>
 
 <script id="login-contact-strip-20261013-js">
 (function(){
   function syncLoginContactStrip20261013(){
     var logoOut=document.getElementById('loginContactLogo20261013');
+    var qrOut=document.getElementById('loginContactQR20261013');
     var logoSource=document.getElementById('contactLoginLogo2026')||document.getElementById('loginLogo')||document.getElementById('headerLogo');
     if(logoOut&&logoSource){
       var src=logoSource.getAttribute('src')||logoSource.src;
       if(src&&src!=='about:blank'&&logoOut.src!==src)logoOut.src=src;
+    }
+    if(qrOut&&typeof call==='function'&&qrOut.dataset.loaded!=='yes'&&qrOut.dataset.loaded!=='pending'){
+      qrOut.dataset.loaded='pending';
+      Promise.resolve(call('getMainWebAppUrl')).then(function(r){
+        var url=r&&r.url?r.url:(typeof r==='string'?r:'');
+        if(url){
+          qrOut.src='https://quickchart.io/qr?size=220&margin=2&text='+encodeURIComponent(String(url).trim())+'&v='+Date.now();
+          qrOut.dataset.loaded='yes';
+        }else{qrOut.dataset.loaded='';}
+      }).catch(function(){qrOut.dataset.loaded='';});
     }
   }
   function runLoginContactStrip20261013(){syncLoginContactStrip20261013();}
