@@ -77,16 +77,26 @@ function doGet(e) {
     var onlineResult=null;
     var onlineHtml='';
     try {
+      /* Public search must work even if a required sheet has not yet been initialized. */
+      try { setupSystem(); } catch(setupErr) {}
       if(code && personId) onlineResult=getOnlineServicePublic_(code,personId);
       onlineHtml=buildPublicOnlineServiceHtml_(code,personId,onlineResult);
+      if(!onlineHtml || !String(onlineHtml).trim()) throw new Error('অনলাইন সেবা পেজ খালি তৈরি হয়েছে।');
     } catch(err) {
       var em=String(err&&err.message?err.message:err);
       em=em.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      onlineHtml='<!doctype html><html lang="bn"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>অনলাইন সেবা</title><body style="font-family:Arial,sans-serif;background:#f5f0df;padding:24px"><main style="max-width:760px;margin:20px auto;background:#fff;border:3px solid #b88408;border-radius:16px;padding:22px"><h2>অনলাইন সেবা পেজ তৈরি করা যায়নি</h2><p>সার্ভার থেকে পেজ তৈরি করার সময় ত্রুটি হয়েছে।</p><pre style="white-space:pre-wrap;color:#a00">'+em+'</pre><p>মূল লগইন পেজে ফিরে গিয়ে আবার চেষ্টা করুন।</p></main></body></html>';
+      onlineHtml='<!doctype html><html lang="bn"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>অনলাইন সেবা</title><body style="font-family:Arial,sans-serif;background:#f5f0df;padding:24px"><main style="max-width:760px;margin:20px auto;background:#fff;border:3px solid #b88408;border-radius:16px;padding:22px"><h2>অনলাইন সেবা পেজ তৈরি করা যায়নি</h2><p>সাদা পেজের বদলে এখানে ত্রুটির কারণ দেখানো হবে।</p><pre style="white-space:pre-wrap;color:#a00">'+em+'</pre><p>মূল লগইন পেজে ফিরে গিয়ে আবার চেষ্টা করুন।</p></main></body></html>';
     }
-    return HtmlService.createHtmlOutput(onlineHtml)
-      .setTitle(APP.nameEn + ' | Online Service')
-      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+    try {
+      return HtmlService.createHtmlOutput(String(onlineHtml||'<!doctype html><html lang="bn"><meta charset="utf-8"><body><h2>অনলাইন সেবা পেজ তৈরি হয়নি</h2><p>অনুগ্রহ করে আবার চেষ্টা করুন।</p></body></html>'))
+        .setTitle(APP.nameEn + ' | Online Service')
+        .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+    } catch(renderErr) {
+      var re=String(renderErr&&renderErr.message?renderErr.message:renderErr).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      return HtmlService.createHtmlOutput('<!doctype html><html lang="bn"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>অনলাইন সেবা</title><body style="font-family:Arial,sans-serif;padding:24px"><h2>অনলাইন সেবা দেখাতে সমস্যা হয়েছে</h2><pre style="white-space:pre-wrap;color:#a00">'+re+'</pre></body></html>')
+        .setTitle('Online Service Error')
+        .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+    }
   }
   if (String(p.verify || '') === '1' && String(p.doc || '').trim() && String(p.id || '').trim()) {
     var verifyKey=String(p.doc).trim(), verifyId=String(p.id).trim(), verifyResult;
