@@ -2734,3 +2734,63 @@ function legacyYearValue_(value) {
   const m = s.match(/(?:19|20)\d{2}/);
   return m ? m[0] : s;
 }
+
+function ensureNoticeBoardHeaders_() {
+  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  let sh=ss.getSheetByName(SHEETS.NOTICES);
+  if(!sh) sh=ss.insertSheet(SHEETS.NOTICES);
+  const required=HEADERS.NOTICES.concat(['Category','Attachments','Archived']);
+  if(sh.getLastRow()===0){sh.getRange(1,1,1,required.length).setValues([required]);return sh;}
+  const lastCol=Math.max(1,sh.getLastColumn());
+  const existing=sh.getRange(1,1,1,lastCol).getValues()[0].map(String);
+  required.forEach(function(h){if(existing.indexOf(h)<0){sh.getRange(1,sh.getLastColumn()+1).setValue(h);existing.push(h);}});
+  return sh;
+}
+function getNoticeBoardRecords(token, includeArchived) {
+  auth_(token); requireFeature_(token,'notice');
+  const sh=ensureNoticeBoardHeaders_(),v=sh.getDataRange().getValues(),h=v[0].map(String);
+  const rows=v.slice(1).filter(r=>r.some(x=>x!==''&&x!==null)).map(r=>objectFrom_(h,r));
+  const out=includeArchived?rows:rows.filter(r=>String(r.Status||'').toUpperCase()==='PUBLISHED'&&String(r.Archived||'').toUpperCase()!=='YES');
+  out.sort((a,b)=>String(b.Date||'').localeCompare(String(a.Date||'')));
+  return {ok:true,rows:out.slice(0,1000)};
+}
+function saveNoticeBoardRecord(token, serial, data) {
+  const session=auth_(token); requireFeature_(token,'notice');
+  if(!isSuperAdmin_(token)) return {ok:false,message:'শুধু Super Admin নোটিশ তৈরি/সম্পাদনা করতে পারবেন।'};
+  data=data||{};
+  const title=String(data.TitleBN||'').trim(),body=String(data.BodyBN||'').trim();
+  if(!title||!body)return {ok:false,message:'নোটিশের শিরোনাম ও বিস্তারিত আবশ্যক।'};
+  const sh=ensureNoticeBoardHeaders_(),v=sh.getDataRange().getValues(),h=v[0].map(String);
+  const rowObj=Object.assign({},data);
+  if(!rowObj.NoticeID)rowObj.NoticeID='NTC-'+Utilities.formatDate(new Date(),APP.timezone,'yyyyMMdd-HHmmss')+'-'+Math.floor(Math.random()*900+100);
+  let idx=-1;
+  if(serial){idx=v.findIndex((r,i)=>i>0&&String(r[h.indexOf('Serial')])===String(serial));if(idx<1)return {ok:false,message:'সম্পাদনার নোটিশটি পাওয়া যায়নি।'};}
+  const row=h.map(k=>k==='Serial'?(idx>0?v[idx][h.indexOf(k)]:nextSerial_(sh)):k==='CreatedAt'?(idx>0?v[idx][h.indexOf(k)]:now_()):(rowObj[k]===undefined?(idx>0?v[idx][h.indexOf(k)]:''):rowObj[k]));
+  if(idx>0)sh.getRange(idx+1,1,1,h.length).setValues([row]);else sh.appendRow(row);
+  log_(session.username,'notice_save',rowObj.NoticeID,title);
+  return {ok:true,message:idx>0?'নোটিশ আপডেট হয়েছে।':'নোটিশ সংরক্ষণ হয়েছে।',serial:row[ h.indexOf('Serial') ],noticeId:rowObj.NoticeID};
+}
+function deleteNoticeBoardRecord(token, serial) {
+  auth_(token); requireFeature_(token,'notice');
+  if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin নোটিশ মুছতে পারবেন।'};
+  const sh=ensureNoticeBoardHeaders_(),v=sh.getDataRange().getValues(),h=v[0].map(String),idx=v.findIndex((r,i)=>i>0&&String(r[h.indexOf('Serial')])===String(serial));
+  if(idx<1)return {ok:false,message:'নোটিশটি পাওয়া যায়নি।'};
+  sh.deleteRow(idx+1);return {ok:true,message:'নোটিশ মুছে ফেলা হয়েছে।'};
+}
+function uploadNoticeAttachment(token, fileName, mimeType, base64Data) {
+  auth_(token); requireFeature_(token,'notice');
+  if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin সংযুক্তি আপলোড করতে পারবেন।'};
+  fileName=String(fileName||'notice-file').replace(/[\\/:*?"<>|]/g,'_').slice(0,180);
+  mimeType=String(mimeType||'application/octet-stream').slice(0,120);
+  base64Data=String(base64Data||'');
+  if(!base64Data)return {ok:false,message:'ফাইলের ডাটা পাওয়া যায়নি।'};
+  if(base64Data.length>11500000)return {ok:false,message:'ফাইলটি ৮ MB-এর বেশি। ছোট ফাইল দিন।'};
+  try{
+    const bytes=Utilities.base64Decode(base64Data);
+    const blob=Utilities.newBlob(bytes,mimeType,fileName);
+    const file=DriveApp.createFile(blob);
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);
+    return {ok:true,fileId:file.getId(),url:file.getUrl(),name:file.getName(),mimeType:file.getMimeType()};
+  }catch(e){return {ok:false,message:'ফাইল আপলোডে ত্রুটি: '+String(e&&e.message||e)};}
+}
+// ===== END ALL NOTICE BOARD BACKEND =====
