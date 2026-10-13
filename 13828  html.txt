@@ -15049,7 +15049,52 @@ window.jbNoticeEdit5b4=function(id){var n=notices.find(function(x){return String
 window.jbNoticeSave5b4=async function(){if(!canManage())return status('⛔ শুধু Super Admin নোটিশ তৈরি/সম্পাদনা করতে পারবেন।');var title=(el('jbnTitle5b4').value||'').trim(),body=(el('jbnBody5b4').value||'').trim();if(!title||!body)return status('❌ শিরোনাম ও বিস্তারিত নোটিশ লিখুন।');var files=selectedFiles.slice(),input=el('jbnFiles5b4');try{for(var f of Array.from(input.files||[])){if(f.size>20*1024*1024)throw new Error('প্রতি ফাইল সর্বোচ্চ ২০ MB হতে পারবে।');var data=await new Promise(function(resolve,reject){var r=new FileReader();r.onload=function(){resolve(String(r.result).split(',')[1]||'')};r.onerror=reject;r.readAsDataURL(f)});var up=await call('uploadNoticeAttachment',token,f.name,f.type||'application/octet-stream',data);if(!up||!up.ok)throw new Error((up&&up.message)||('ফাইল আপলোড হয়নি: '+f.name));files.push({name:up.name||f.name,url:up.url,mime:f.type||'',fileId:up.fileId||''})}var payload={TitleBN:title,TitleAR:'',TitleEN:title,BodyBN:body,BodyAR:'',BodyEN:body,Date:el('jbnDate5b4').value||new Date().toISOString().slice(0,10),Status:el('jbnStatus5b4').value,Category:el('jbnCategory5b4').value,Attachments:JSON.stringify(files),Archived:el('jbnStatus5b4').value==='ARCHIVED'?'YES':'NO'};status('নোটিশ সংরক্ষণ হচ্ছে…');var r=await call('saveNoticeBoardRecord',token,editingSerial,payload);if(!r||!r.ok)throw new Error((r&&r.message)||'সংরক্ষণ ব্যর্থ');status('✅ '+(r.message||'নোটিশ সংরক্ষিত হয়েছে।'));await load();window.jbNoticeReset5b4()}catch(e){status('❌ '+(e.message||e))}};
 window.jbNoticeToggleArchive5b4=async function(id){var n=notices.find(function(x){return String(x.NoticeID||x.Serial)===String(id)});if(!n)return;var p=Object.assign({},n),arch=String(n.Status||'').toUpperCase()!=='ARCHIVED';p.Status=arch?'ARCHIVED':'DRAFT';p.Archived=arch?'YES':'NO';var r=await call('saveNoticeBoardRecord',token,String(n.Serial||''),p);if(!r||!r.ok)return status('❌ '+((r&&r.message)||'অবস্থা পরিবর্তন হয়নি'));await load();status('✅ নোটিশের অবস্থা পরিবর্তন হয়েছে।')};
 window.jbNoticeDelete5b4=async function(id){var n=notices.find(function(x){return String(x.NoticeID||x.Serial)===String(id)});if(!n||!confirm('এই নোটিশটি স্থায়ীভাবে মুছবেন?'))return;var r=await call('deleteNoticeBoardRecord',token,String(n.Serial||''));if(!r||!r.ok)return status('❌ '+((r&&r.message)||'ডিলিট ব্যর্থ'));await load();status('✅ নোটিশ মুছে ফেলা হয়েছে।')};
-window.jbNoticePrintList5b4=function(){var rows=notices.map(function(n){return '<article><h3>'+esc(n.TitleBN||'')+'</h3><p>'+esc(n.Category||'')+' · '+esc(n.Date||'')+'</p><div style="white-space:pre-wrap">'+esc(n.BodyBN||'')+'</div>'+parseFiles(n).map(function(f){return '<p><a href="'+esc(f.url||'')+'">'+esc(f.name||'ফাইল')+'</a></p>'}).join('')+'</article><hr>'}).join('');var w=window.open('','_blank','width=850,height=700');if(!w)return status('প্রিন্টের জন্য পপ-আপ অনুমতি দিন।');w.document.write('<!doctype html><html lang="bn"><meta charset="utf-8"><title>অল নোটিশ বোর্ড</title><body style="font-family:Arial,sans-serif;padding:24px">'+rows+'<script>window.onload=function(){setTimeout(function(){window.print()},250)}<\\/script></body></html>');w.document.close()};
+window.jbNoticePrintList5b4=function(){var rows=notices.map(function(n){return '<article><h3>'+esc(n.TitleBN||'')+'</h3><p>'+esc(n.Category||'')+' · '+esc(n.Date||'')+'</p><div style="white-space:pre-wrap">'+esc(n.BodyBN||'')+'</div>'+parseFiles(n).map(function(f){return '<p><a href="'+esc(f.url||'')+'">'+esc(f.name||'ফাইল')+'</a></p>'}).join('')+'</article><hr>'}).join('');var w=window.open('','_blank','width=850,height=700');if(!w)return status('প্রিন্টের জন্য পপ-আপ অনুমতি দিন।');w.document.write('<!doctype html><html lang="bn"><meta charset="utf-8"><title>অল নোটিশ বোর্ড</title><body style="font-family:Arial,sans-serif;padding:24px">'+rows+'<script>window.onload=function(){setTimeout(function(){window.print()},250)}<\\/script>
+<!-- ===== SYNC DASHBOARD HEADER IDENTITY FROM LOGIN PAGE — 2026-10-13 ===== -->
+<style id="sync-dashboard-header-login-identity-20261013-css">
+#app > header.header .header-content #headerLogo{object-fit:contain!important}
+#app > header.header .header-content .header-identity-contact{display:block!important}
+#app > header.header .header-content .header-address-line,
+#app > header.header .header-content .header-hotline-email-line{white-space:normal!important;overflow-wrap:anywhere!important}
+</style>
+<script id="sync-dashboard-header-login-identity-20261013-js">
+(function(){
+  function syncDashboardHeaderFromLogin20261013(){
+    var root=document.getElementById('loginPage');
+    var head=document.querySelector('#app > header.header');
+    if(!root||!head)return;
+    var loginLogo=root.querySelector('#loginLogo');
+    var headerLogo=head.querySelector('#headerLogo');
+    if(loginLogo&&headerLogo){
+      var logoSrc=loginLogo.getAttribute('src')||loginLogo.src;
+      if(logoSrc&&logoSrc!=='about:blank'&&headerLogo.getAttribute('src')!==logoSrc){
+        headerLogo.setAttribute('src',logoSrc);
+        headerLogo.alt=loginLogo.alt||'মাদ্রাসার লোগো';
+      }
+    }
+    [['.title-bn','.title-bn'],['.title-ar','.title-ar'],['.title-en','.title-en']].forEach(function(pair){
+      var source=root.querySelector(pair[0]),target=head.querySelector('.header-content '+pair[1]);
+      if(source&&target)target.textContent=source.textContent.trim();
+    });
+    var loginAddress=root.querySelector('.login-address');
+    var headerAddress=head.querySelector('.header-address-line');
+    if(loginAddress&&headerAddress)headerAddress.textContent='ঠিকানা: '+loginAddress.textContent.trim();
+    var contact=root.querySelectorAll('.login-contact span');
+    var hotline='',email='';
+    contact.forEach(function(node){
+      var value=node.textContent.trim();
+      if(/হটলাইন|hotline/i.test(value))hotline=value.replace(/^☎\s*/,'');
+      else if(/ইমেইল|email/i.test(value))email=value.replace(/^✉\s*/,'');
+    });
+    var headerContact=head.querySelector('.header-hotline-email-line');
+    if(headerContact)headerContact.textContent=(hotline?'☎ '+hotline:'হটলাইন: 01823316630')+(email?'  ·  ✉ '+email:'');
+  }
+  function run(){try{syncDashboardHeaderFromLogin20261013()}catch(e){}}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run);else run();
+  [250,700,1500,3000].forEach(function(ms){setTimeout(run,ms)});
+})();
+</script>
+</body></html>');w.document.close()};
 var prevModuleForm=window.moduleForm;
 window.moduleForm=function(k){if(['notice','notices'].indexOf(String(k||'').toLowerCase())>=0){if(!canManage())return '<section class="card" style="padding:15px"><h3>📢 অল নোটিশ বোর্ড</h3><p>নোটিশ ব্যবস্থাপনার জন্য Super Admin অনুমতি প্রয়োজন।</p></section>';return formHtml()}return typeof prevModuleForm==='function'?prevModuleForm.apply(this,arguments):'<p>ফর্ম পাওয়া যায়নি।</p>'};
 var prevOpenModule=window.openModule;if(typeof prevOpenModule==='function')window.openModule=function(k){var key=String(k||'').toLowerCase();if(key==='notice'||key==='notices'){var title=el('winTitle'),body=el('winBody'),win=el('formWin'),allowed=canManage();if(title)title.textContent='📢 অল নোটিশ বোর্ড';if(body)body.innerHTML=allowed?formHtml():'<section class="card" style="padding:15px"><h3>📢 অল নোটিশ বোর্ড</h3><p>নোটিশ ব্যবস্থাপনার জন্য Super Admin অনুমতি প্রয়োজন।</p></section>';if(win){win.classList.remove('minimized');win.style.height='';}if(typeof window.openWindow==='function')window.openWindow('formWin');else if(win)win.style.display='block';if(allowed)setTimeout(function(){window.jbNoticeReset5b4();load()},100);return;}return prevOpenModule.apply(this,arguments)};
