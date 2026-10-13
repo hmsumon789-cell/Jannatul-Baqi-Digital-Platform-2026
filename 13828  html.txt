@@ -15183,3 +15183,45 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   overflow:hidden!important;visibility:hidden!important;
 }
 </style>
+
+
+<!-- ===== DASHBOARD HEADER TEXT SPACING + YELLOW COLOR FIX — 2026-10-13 ===== -->
+<style id="dashboard-header-yellow-even-spacing-20261013">
+/* হেডারের নাম, ঠিকানা, হটলাইন ও ইমেইলের মাঝের ফাঁক সমান; লোগো/লেআউট অপরিবর্তিত */
+#app > header.header .header-top .header-content .title-bn,
+#app > header.header .header-top .header-content .title-ar,
+#app > header.header .header-top .header-content .title-en,
+#app > header.header .header-top .header-content .header-identity-contact,
+#app > header.header .header-top .header-content .header-address-line,
+#app > header.header .header-top .header-content .header-hotline-email-line {
+  color:#ffdf32!important;
+  text-shadow:0 1px 2px #5b4300!important;
+  box-sizing:border-box!important;
+}
+#app > header.header .header-top .header-content .title-bn,
+#app > header.header .header-top .header-content .title-ar,
+#app > header.header .header-top .header-content .title-en {
+  margin-top:0!important;
+  margin-bottom:6px!important;
+  padding-top:0!important;
+  padding-bottom:0!important;
+}
+#app > header.header .header-top .header-content .header-identity-contact {
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  gap:6px!important;
+  margin:0!important;
+  padding:0!important;
+  line-height:1.35!important;
+}
+#app > header.header .header-top .header-content .header-address-line,
+#app > header.header .header-top .header-content .header-hotline-email-line {
+  display:block!important;
+  margin:0!important;
+  padding:0!important;
+  line-height:1.35!important;
+  white-space:normal!important;
+  overflow-wrap:anywhere!important;
+}
+</style>
