@@ -1090,6 +1090,57 @@ body.gold #loginPage .main-qr-802268e{background:#fff!important;border-color:#11
   </section>
 </div>
 
+<!-- ===== LOGIN PAGE CONTACT STRIP — COPIED FROM DASHBOARD CONTACT — 2026-10-13 ===== -->
+<style id="login-contact-strip-20261013-css">
+#loginContactStrip20261013{width:min(1100px,96vw);box-sizing:border-box;margin:14px auto 22px;padding:14px 18px;background:var(--panel,#fff);color:var(--text,#222);border:3px solid var(--border,#c89b27);border-radius:18px;box-shadow:0 8px 22px #0002;text-align:center;position:relative;z-index:2}
+#loginContactStrip20261013 .lc-title{font-size:20px;font-weight:1000;margin-bottom:10px}
+#loginContactStrip20261013 .lc-layout{display:grid;grid-template-columns:110px minmax(0,1fr) 110px;align-items:center;gap:16px}
+#loginContactStrip20261013 .lc-logo,#loginContactStrip20261013 .lc-qr{width:100px;height:100px;object-fit:contain;display:block;margin:auto;background:#fff;border:2px solid var(--border,#c89b27);border-radius:12px;box-sizing:border-box}
+#loginContactStrip20261013 .lc-name{font-size:21px;font-weight:1000;line-height:1.4;margin:0 0 5px}
+#loginContactStrip20261013 .lc-address{font-size:16px;font-weight:800;line-height:1.5;margin:0 0 7px}
+#loginContactStrip20261013 .lc-hotline{font-size:17px;font-weight:1000;line-height:1.5}
+#loginContactStrip20261013 .lc-qr-label{font-weight:900;font-size:13px;margin-top:4px}
+body.dark #loginContactStrip20261013{background:#111!important;color:#fff!important;border-color:#ffcc33!important}
+body.gold #loginContactStrip20261013{background:#fff9e7!important;color:#4a3300!important;border-color:#b88408!important}
+@media(max-width:620px){#loginContactStrip20261013{padding:12px 8px}#loginContactStrip20261013 .lc-layout{grid-template-columns:1fr 1fr;gap:10px}#loginContactStrip20261013 .lc-center{grid-column:1/-1;grid-row:1}#loginContactStrip20261013 .lc-logo-side{grid-column:1;grid-row:2}#loginContactStrip20261013 .lc-qr-side{grid-column:2;grid-row:2}#loginContactStrip20261013 .lc-logo,#loginContactStrip20261013 .lc-qr{width:82px;height:82px}#loginContactStrip20261013 .lc-name{font-size:18px}#loginContactStrip20261013 .lc-address{font-size:14px}#loginContactStrip20261013 .lc-hotline{font-size:15px}}
+</style>
+<section id="loginContactStrip20261013" aria-label="মাদ্রাসার যোগাযোগ">
+  <div class="lc-title">📞 যোগাযোগ</div>
+  <div class="lc-layout">
+    <div class="lc-logo-side"><img class="lc-logo" id="loginContactLogo20261013" alt="মাদ্রাসার লোগো"></div>
+    <div class="lc-center">
+      <div class="lc-name">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div>
+      <div class="lc-address">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div>
+      <div class="lc-hotline">☎ হটলাইন: 01823316630</div>
+    </div>
+    <div class="lc-qr-side"><img class="lc-qr" id="loginContactQR20261013" alt="মূল পেজের QR কোড"><div class="lc-qr-label">মূল পেজ</div></div>
+  </div>
+</section>
+<script id="login-contact-strip-20261013-js">
+(function(){
+  function syncLoginContactStrip20261013(){
+    var logoOut=document.getElementById('loginContactLogo20261013');
+    var qrOut=document.getElementById('loginContactQR20261013');
+    var logoSource=document.getElementById('contactLoginLogo2026')||document.getElementById('loginLogo')||document.getElementById('headerLogo');
+    if(logoOut&&logoSource){
+      var src=logoSource.getAttribute('src')||logoSource.src;
+      if(src&&src!=='about:blank'&&logoOut.src!==src)logoOut.src=src;
+    }
+    if(qrOut&&typeof call==='function'&&!qrOut.dataset.loaded){
+      qrOut.dataset.loaded='pending';
+      call('getMainWebAppUrl').then(function(r){
+        if(r&&r.ok&&r.url){qrOut.src='https://quickchart.io/qr?size=220&margin=2&text='+encodeURIComponent(String(r.url).trim())+'&v='+Date.now();qrOut.dataset.loaded='yes';}
+        else qrOut.dataset.loaded='';
+      }).catch(function(){qrOut.dataset.loaded='';});
+    }
+  }
+  function runLoginContactStrip20261013(){syncLoginContactStrip20261013();}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',runLoginContactStrip20261013);else runLoginContactStrip20261013();
+  setTimeout(runLoginContactStrip20261013,500);
+  setTimeout(runLoginContactStrip20261013,1400);
+})();
+</script>
+
 <div id="app" class="app shell">
   <div id="topActionBar" class="top-action-bar">
     <button class="primary header-home-final" onclick="goHome()" title="Home">🏠 হোম</button>
