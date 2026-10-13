@@ -1529,11 +1529,20 @@ async function addSelectedOldStudents2026(){
  if(status)status.textContent='নির্বাচিত শিক্ষার্থীদের কাজ শেষ। সফলভাবে যোগ: '+ok+'; ব্যর্থ: '+fail+(errors.length?'\n'+errors.join('\n'):'');
 }
 async function importOldStudents2026(){
- var status=document.getElementById('oldStudentImportStatus2026'),fileEl=document.getElementById('oldStudentFile2026'),file=fileEl&&fileEl.files&&fileEl.files[0];
+ var status=document.getElementById('oldStudentImportStatus2026'),panel=document.getElementById('oldStudentImportPanel2026'),fileEl=document.getElementById('oldStudentFile2026');
+ // প্যানেল DOM-এ স্থানান্তরিত হওয়ার পর ফাইল ইনপুট অনুপস্থিত থাকলে সেটি আবার তৈরি করুন।
+ if(!fileEl&&panel){
+  var label=document.createElement('label');label.className='full';label.style.cssText='display:block!important;color:#171717!important;font-weight:700;margin:12px 0';
+  label.appendChild(document.createTextNode('কম্পিউটার থেকে Excel / CSV / TXT / DOCX ফাইল নির্বাচন করুন'));
+  fileEl=document.createElement('input');fileEl.id='oldStudentFile2026';fileEl.className='field';fileEl.type='file';fileEl.accept='.xlsx,.xls,.csv,.txt,.docx';fileEl.style.cssText='display:block!important;visibility:visible!important;opacity:1!important;width:100%!important;min-height:48px!important;margin-top:8px;padding:10px!important;background:#fff!important;color:#111!important;border:2px solid #8b6b19!important';
+  fileEl.onchange=function(){previewOldStudentFile2026(this);};label.appendChild(fileEl);
+  var preview=document.getElementById('oldStudentPreviewWrap2026');
+  if(preview&&preview.parentNode===panel)panel.insertBefore(label,preview);else panel.appendChild(label);
+ }
+ var file=fileEl&&fileEl.files&&fileEl.files[0];
  if(!file){
-  if(status)status.textContent='কম্পিউটার থেকে Excel, CSV, TXT অথবা DOCX ফাইল বেছে নিন।';
-  if(fileEl){try{fileEl.click();}catch(e){if(status)status.textContent='ফাইল বাছাইয়ের উইন্ডো খোলা যায়নি। উপরের ফাইল নির্বাচন ঘরে সরাসরি ক্লিক করুন।';}}
-  else if(status)status.textContent='ফাইল নির্বাচন ঘর পাওয়া যায়নি। ভর্তি ফর্মটি বন্ধ করে আবার খুলুন।';
+  if(status)status.textContent=fileEl?'কম্পিউটার থেকে Excel, CSV, TXT অথবা DOCX ফাইল বেছে নিন।':'ফাইল নির্বাচন ঘর তৈরি করা যায়নি। ভর্তি ফর্ম বন্ধ করে আবার খুলুন।';
+  if(fileEl){try{fileEl.click();}catch(e){if(status)status.textContent='ফাইল বাছাইয়ের উইন্ডো খোলা যায়নি। ফাইল নির্বাচন ঘরে সরাসরি ক্লিক করুন।';}}
   return;
  }
  await previewOldStudentFile2026(fileEl);
