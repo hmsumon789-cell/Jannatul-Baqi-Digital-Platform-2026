@@ -15179,3 +15179,46 @@ if(window.MutationObserver)new MutationObserver(function(){hook();if(el('formWin
 })();
 </script>
 <!-- ===== END LEGACY STUDENT BULK IMPORT + YEAR/CLASS FILTER ===== -->
+
+
+<!-- ===== FINAL FIX: KEEP ONE DASHBOARD HEADER LOGO FROM LOGIN PAGE — db39b91 ===== -->
+<style id="dashboard-header-single-logo-db39b91-css">
+#app > header.header .header-top .header-content img:not(#headerLogo){display:none!important}
+#app > header.header .header-top .header-content #headerLogo{display:block!important;object-fit:contain!important}
+</style>
+<script id="dashboard-header-single-logo-db39b91-js">
+(function(){
+  function fixDashboardHeaderLogoDb39b91(){
+    var top=document.querySelector('#app > header.header .header-top');
+    var loginLogo=document.getElementById('loginLogo');
+    var headerLogo=document.getElementById('headerLogo');
+    if(!top||!headerLogo)return;
+
+    /* লগইন পেজের প্রতিষ্ঠানের লোগোটিই ড্যাশবোর্ড হেডারে রাখুন */
+    if(loginLogo){
+      var src=loginLogo.getAttribute('src')||'';
+      if(src && src!=='about:blank' && headerLogo.getAttribute('src')!==src){
+        headerLogo.setAttribute('src',src);
+      }
+    }
+
+    /* হেডারের মূল ব্যাকগ্রাউন্ড স্লাইডের ছবি অক্ষত রেখে অন্য ডুপ্লিকেট লোগো সরান */
+    top.querySelectorAll('img').forEach(function(img){
+      if(img===headerLogo || img.closest('.header-slides'))return;
+      var marker=(String(img.id||'')+' '+String(img.className||'')+' '+String(img.alt||'')).toLowerCase();
+      if(img.closest('.header-content') || /logo|লোগো/.test(marker)){
+        img.remove();
+      }
+    });
+  }
+  function run(){try{fixDashboardHeaderLogoDb39b91()}catch(e){}}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run);else run();
+  setTimeout(run,250);setTimeout(run,900);setTimeout(run,1800);
+  var root=document.getElementById('app');
+  if(root && window.MutationObserver){
+    var observer=new MutationObserver(function(){run()});
+    observer.observe(root,{childList:true,subtree:true});
+  }
+})();
+</script>
+<!-- ===== END FINAL FIX: SINGLE DASHBOARD HEADER LOGO ===== -->
