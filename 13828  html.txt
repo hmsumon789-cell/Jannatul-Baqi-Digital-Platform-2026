@@ -1724,7 +1724,7 @@ function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'
 function role(){var u=window.currentUser||{};return String(u.Role||u.role||'').toUpperCase().replace(/[\s-]+/g,'_')}
 function canManage(){return role()==='SUPER_ADMIN'||role()==='SUPERADMIN'}
 function parseFiles(x){try{return Array.isArray(x.Attachments)?x.Attachments:JSON.parse(x.Attachments||'[]')}catch(e){return []}}
-function visibleNotices(){return notices.filter(function(n){return String(n.Status||'').toUpperCase()==='PUBLISHED'&&!String(n.Archived||'').match(/^(true|yes|1)$/i)})}
+function visibleNotices(){return notices.filter(function(n){return (!String(n.Status||'').trim()||['PUBLISHED','ACTIVE','PUBLISH','প্রকাশিত'].indexOf(String(n.Status||'').toUpperCase())>=0)&&!String(n.Archived||'').match(/^(true|yes|1)$/i)})}
 function renderSlider(){
  var charts=el('dashboardCharts');if(!charts)return;
  var box=el('jbNoticeSlider5b4');
