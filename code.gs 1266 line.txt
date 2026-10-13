@@ -2691,9 +2691,9 @@ function uploadNoticeAttachment(token, fileName, mimeType, base64Data) {
     mimeType=String(mimeType||'application/octet-stream');
     const encoded=String(base64Data||'');
     if(!encoded)return {ok:false,message:'ফাইলের ডাটা পাওয়া যায়নি।'};
-    if(encoded.length>11*1024*1024)return {ok:false,message:'ফাইলটি ৮ MB সীমার বেশি।'};
+    if(encoded.length>28*1024*1024)return {ok:false,message:'ফাইলটি ২০ MB সীমার বেশি।'};
     const bytes=Utilities.base64Decode(encoded);
-    if(bytes.length>8*1024*1024)return {ok:false,message:'প্রতি সংযুক্তি সর্বোচ্চ ৮ MB হতে পারবে।'};
+    if(bytes.length>20*1024*1024)return {ok:false,message:'প্রতি সংযুক্তি সর্বোচ্চ ২০ MB হতে পারবে।'};
     const folderName='Jannatul Baqi Notice Attachments 2026', iter=DriveApp.getFoldersByName(folderName);
     const folder=iter.hasNext()?iter.next():DriveApp.createFolder(folderName);
     const file=folder.createFile(Utilities.newBlob(bytes,mimeType,fileName));
