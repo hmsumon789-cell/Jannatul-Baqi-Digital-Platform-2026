@@ -1092,7 +1092,7 @@ if(k==='gallery')return `<div class="media-upload-note"><b>ফটো:</b> সর
 if(k==='help')return `<button class="primary" onclick="openWindow('quickWin')">দ্রুত সেবা / হেল্প</button>`;
 if(k==='institution')return `<h3>প্রতিষ্ঠানের সংক্ষিপ্ত ইতিহাস</h3><p>সালাতুল এস্তেখারার মাধ্যমে মহান আল্লাহ তায়ালার উপর পূর্ণ আস্থা রেখে খালেছ নিয়তে মানব জাতিকে অন্ধকার থেকে আলোর পথে আনার জন্য এবং সহি দ্বিনি ইলম শিক্ষা দেয়ার উদ্দেশ্যে 10-10-2005 ইংরেজী সনে প্রতিষ্ঠিত হয়।</p><p><b>প্রতিষ্ঠাতা-প্রিন্সিপাল/মুহতামিম:</b> জনাব হাফেজ হযরত মাওলানা মু. আতিকুর রহমান (ফরিদপুরী), ২০০৫ হতে ২০২৬ চলমান।</p>`;
 if(['payment','fees','finance'].includes(k))return `<div class="form-grid"><label>Student ID<input id="pStudent" class="field"></label><label>নাম<input id="pName" class="field"></label><label>মাস<input id="pMonth" class="field"></label><label>Category<input id="pCat" class="field" value="মাসিক বেতন"></label><label>Amount<input id="pAmount" class="field" type="number"></label><label>Method<select id="pMethod" class="field"><option>বিকাশ</option><option>নগদ</option><option>রকেট</option><option>ব্যাংকিং</option><option>ক্যাশ</option></select></label><label class="full">Note<textarea id="pNote" class="field"></textarea></label></div><button class="primary" onclick="savePayment()">Save Payment</button>`;
-if(k==='admission')return `<div class="form-grid">
+if(k==='admission')return `<div class="form-grid"><div class="full" style="grid-column:1/-1;border:2px solid var(--accent);border-radius:12px;padding:14px;margin-bottom:8px"><button type="button" class="primary" onclick="openOldStudentImport()">📚 পুরাতন ছাত্র/ছাত্রী অ্যাড করুন</button><div id="oldStudentImportPanel" style="display:none;margin-top:12px"><p>Excel, Word (.docx), TXT/CSV ফাইল আপলোড করুন। অসম্পূর্ণ তথ্য ও একই নাম/মোবাইলের রেকর্ডও আলাদা আইডিতে সংরক্ষিত হবে।</p><div class="form-grid"><label>শিক্ষাবর্ষ<select id="oldStudentYear" class="field">`+Array.from({length:46},(_,i)=>2005+i).map(y=>`<option value="${y}/${y+1}">${y}/${y+1}</option>`).join('')+`</select></label><label>শ্রেণি/জামাত<select id="oldStudentClass" class="field"><option>প্লে শ্রেনি</option><option>শিশু শ্রেনি</option><option>আউয়াল জামাত</option><option>ছানী জামাত</option><option>ছালেছ জামাত</option><option>রাবে জামাত</option><option>পঞ্চম জামাত</option><option>মিজান জামাত</option><option>নাহবেমীর জামাত</option><option>কুদুরী জামাত</option><option>শরহে বেকায়া জামাত</option><option>হেদায়া জামাত</option><option>মিশকাত জামাত</option><option>দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)</option></select></label><label class="full">ফাইল নির্বাচন<input id="oldStudentFiles" class="field" type="file" multiple accept=".xlsx,.xls,.csv,.txt,.docx,.doc"></label></div><p style="font-size:13px">পুরোনো .doc ফাইল Word-এ খুলে .docx বা .txt হিসেবে Save As করুন।</p><button type="button" class="primary" onclick="importOldStudents()">ফাইলের তথ্য পড়ে শিক্ষার্থী তালিকায় যুক্ত করুন</button><div id="oldStudentImportStatus" style="margin-top:10px;white-space:pre-wrap"></div></div></div>
 <label>বাংলা নাম / Student Name<input id="adNameBN" class="field"></label>
 <label>العربية الاسم<input id="adNameAR" class="field" dir="rtl"></label>
 <label>English Name<input id="adNameEN" class="field"></label>
@@ -1123,6 +1123,46 @@ ${locationField('adVillage','গ্রাম',['কোনাখোলা','ম�
 if(['result','marks','exam'].includes(k))return `<div class="form-grid"><label>Student ID<input id="rStudent" class="field"></label><label>নাম<input id="rName" class="field"></label><label>শ্রেনি<input id="rClass" class="field"></label><label>পরীক্ষা<input id="rExam" class="field"></label><label class="full">Subject/Marks JSON<textarea id="rSubjects" class="field" placeholder='{"বাংলা":80,"আরবি":85}'></textarea></label></div><button class="primary" onclick="saveResult('${k}')">Save</button>`;
 return `<p>এই ফিচারের জন্য ৩ ভাষা, A4, ৩ কলাম উইন্ডো কাঠামো প্রস্তুত। প্রয়োজনীয় তথ্য পূরণ করুন।</p><div class="form-grid"><label class="full">বিবরণ<textarea class="field" rows="8" id="genericData"></textarea></label></div><button class="primary" onclick="toast('ফিচার উইন্ডো প্রস্তুত')">Save</button>`;
 }
+
+function openOldStudentImport(){var p=document.getElementById('oldStudentImportPanel');if(p)p.style.display=p.style.display==='none'?'block':'none';}
+function oldNorm(v){return String(v==null?'':v).trim();}
+function oldKey(v){return oldNorm(v).toLowerCase().replace(/[\s\u200c\u200d]+/g,'');}
+function oldMapRow(row,year,cls){
+ var raw={};Object.keys(row||{}).forEach(function(k){raw[oldKey(k)]=oldNorm(row[k]);});
+ function pick(keys){for(var i=0;i<keys.length;i++){var v=raw[oldKey(keys[i])];if(v)return v;}return '';}
+ return {NameBN:pick(['NameBN','Name','Student Name','StudentName','ছাত্র/ছাত্রীর নাম','শিক্ষার্থীর নাম','নাম','বাংলা নাম']),NameAR:pick(['NameAR','Arabic Name','আরবি নাম']),NameEN:pick(['NameEN','English Name','ইংরেজি নাম']),FatherNameBN:pick(['FatherNameBN','Father','Father Name','পিতার নাম','বাবার নাম']),FatherNameAR:pick(['FatherNameAR','পিতার নাম আরবি']),FatherNameEN:pick(['FatherNameEN','Father English']),MotherNameBN:pick(['MotherNameBN','Mother','Mother Name','মাতার নাম','মায়ের নাম']),MotherNameAR:pick(['MotherNameAR','মাতার নাম আরবি']),MotherNameEN:pick(['MotherNameEN','Mother English']),Mobile:pick(['Mobile','Phone','Mobile Number','মোবাইল','মোবাইল নম্বর','ফোন']),WhatsApp:pick(['WhatsApp']),Email:pick(['Email','ইমেইল']),BirthReg:pick(['BirthReg','Birth Registration','জন্ম নিবন্ধন']),NID:pick(['NID','National ID','জাতীয় পরিচয়পত্র']),Gender:pick(['Gender','লিঙ্গ']),Address:pick(['Address','ঠিকানা']),Division:pick(['Division','বিভাগ']),District:pick(['District','জেলা']),Upazila:pick(['Upazila','Thana','উপজেলা','থানা']),Union:pick(['Union','ইউনিয়ন']),Ward:pick(['Ward','ওয়ার্ড']),Village:pick(['Village','গ্রাম']),Class:pick(['Class','Grade','Jamat','জামাত','শ্রেণি','শ্রেণী'])||cls,AcademicYear:pick(['AcademicYear','Academic Year','Year','শিক্ষাবর্ষ','শিক্ষা বর্ষ'])||year,Department:pick(['Department','বিভাগীয় শাখা']),Branch:pick(['Branch','শাখা'])};
+}
+function oldTextRows(txt){
+ var lines=String(txt||'').split(/\r?\n/).map(function(x){return x.trim();}).filter(Boolean);if(!lines.length)return [];
+ var delim=lines[0].indexOf('\t')>=0?'\t':(lines[0].indexOf(';')>=0?';':',');
+ function split(line){return line.split(delim).map(function(x){return x.trim().replace(/^["']|["']$/g,'');});}
+ var heads=split(lines[0]);if(heads.length>1)return lines.slice(1).map(function(line){var a=split(line),o={};heads.forEach(function(h,i){o[h]=a[i]||'';});return o;});
+ return lines.map(function(line){return {NameBN:line};});
+}
+async function oldReadFile(file){
+ var ext=(file.name.split('.').pop()||'').toLowerCase();
+ if(['xlsx','xls','csv'].indexOf(ext)>=0){
+  if(!window.XLSX)await new Promise(function(resolve,reject){var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';s.onload=resolve;s.onerror=function(){reject(new Error('Excel পাঠাগার লোড হয়নি; ইন্টারনেট পরীক্ষা করুন।'));};document.head.appendChild(s);});
+  var wb=XLSX.read(await file.arrayBuffer(),{type:'array'});return XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:'',raw:false});
+ }
+ if(ext==='txt')return oldTextRows(await file.text());
+ if(ext==='docx'){
+  if(!window.mammoth)await new Promise(function(resolve,reject){var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js';s.onload=resolve;s.onerror=function(){reject(new Error('Word পাঠাগার লোড হয়নি; ইন্টারনেট পরীক্ষা করুন।'));};document.head.appendChild(s);});
+  var res=await mammoth.extractRawText({arrayBuffer:await file.arrayBuffer()});return oldTextRows(res.value||'');
+ }
+ if(ext==='doc')throw new Error('পুরোনো .doc ফাইল Word-এ খুলে .docx বা .txt হিসেবে Save As করুন।');
+ return oldTextRows(await file.text());
+}
+async function importOldStudents(){
+ var input=document.getElementById('oldStudentFiles'),status=document.getElementById('oldStudentImportStatus'),files=Array.from(input&&input.files||[]);
+ if(!files.length){status.textContent='আগে কম্পিউটার থেকে ফাইল নির্বাচন করুন।';return;}
+ var year=document.getElementById('oldStudentYear').value,cls=document.getElementById('oldStudentClass').value,ok=0,failed=0,empty=0,errors=[];
+ status.textContent='ফাইল পড়া হচ্ছে…';
+ for(var fi=0;fi<files.length;fi++){try{var rows=await oldReadFile(files[fi]);for(var ri=0;ri<rows.length;ri++){var d=oldMapRow(rows[ri],year,cls);if(!Object.keys(d).some(function(k){return oldNorm(d[k]);})){empty++;continue;}var result=await call('saveRecord',token,'STUDENTS',d);if(result&&result.ok)ok++;else{failed++;if(errors.length<4)errors.push(files[fi].name+': '+((result&&result.message)||'সার্ভার রেকর্ড গ্রহণ করেনি'));}}}catch(e){failed++;if(errors.length<4)errors.push(files[fi].name+': '+(e.message||e));}}
+ status.textContent='কাজ শেষ। সফলভাবে যুক্ত: '+ok+'টি\nব্যর্থ/পড়া যায়নি: '+failed+'টি\nখালি সারি বাদ: '+empty+'টি'+(errors.length?'\nবিস্তারিত: '+errors.join('\n'):'');
+ if(typeof toast==='function')toast(ok+'টি পুরাতন শিক্ষার্থীর রেকর্ড যুক্ত হয়েছে');
+}
+
 async function saveModule(k){
 const map={student:'STUDENTS',teacher:'TEACHERS',donor:'DONORS'};const s=map[k];
 const d={NameBN:$('fNameBN').value,NameAR:$('fNameAR').value,NameEN:$('fNameEN').value,
