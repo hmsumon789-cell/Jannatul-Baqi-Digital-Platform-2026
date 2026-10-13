@@ -14863,7 +14863,7 @@ window.jbAdmissionImportFile2026=async function(file){var fb=el('admAdmissionRed
 #jbNoticeSlider5b4 .jbn-slide h4{margin:0 0 7px;font-size:19px}
 #jbNoticeSlider5b4 .jbn-meta{font-size:12px;opacity:.8;margin-bottom:6px}
 #jbNoticeSlider5b4 .jbn-attachments{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:9px;margin-top:10px}
-#jbNoticeSlider5b4 .jbn-media{width:100%;max-height:300px;border-radius:10px;object-fit:contain;background:#111}
+#jbNoticeSlider5b4 .jbn-media{width:100%;max-height:300px;border-radius:10px;object-fit:contain;background:#111}#jbNoticeSlider5b4 .jbn-videonative{height:360px;max-height:70vh}#jbNoticeSlider5b4 .jbn-audiopreview{width:100%;height:220px;border:0;background:#111;border-radius:8px}#jbNoticeSlider5b4 .jbn-preview-error{padding:12px;color:#a00;background:#fff0f0;border-radius:8px}
 #jbNoticeSlider5b4 .jbn-docpreview{width:100%;height:320px;border:1px solid var(--border);border-radius:8px;background:#fff}
 #jbNoticeSlider5b4 .jbn-filecard{min-width:0;padding:7px;border:1px solid var(--border);border-radius:9px;overflow-wrap:anywhere}
 #jbNoticeSlider5b4 .jbn-filecard>a{display:block;margin-top:5px}
@@ -14873,7 +14873,7 @@ window.jbAdmissionImportFile2026=async function(file){var fb=el('admAdmissionRed
 #jbNoticeBoard5b4 textarea{min-height:110px;resize:vertical}#jbNoticeBoard5b4 .jbn-list{display:grid;gap:8px;margin-top:12px}
 #jbNoticeBoard5b4 .jbn-item{padding:10px;border:1px solid var(--border);border-radius:10px}
 #jbNoticeBoard5b4 .jbn-attachments{display:flex;gap:7px;flex-wrap:wrap;margin-top:7px}
-#jbNoticeBoard5b4 .jbn-attachments a{overflow-wrap:anywhere}#jbNoticeBoard5b4 .jbn-feedback{padding:8px;margin:8px 0;border:1px dashed var(--border);white-space:pre-wrap}
+#jbNoticeBoard5b4 .jbn-attachments a{overflow-wrap:anywhere}#jbNoticeBoard5b4 .jbn-media{width:100%;max-height:300px;object-fit:contain;background:#111;border-radius:8px}#jbNoticeBoard5b4 .jbn-videopreview,#jbNoticeBoard5b4 .jbn-audiopreview{width:100%;height:320px;border:0;background:#111;border-radius:8px}#jbNoticeBoard5b4 .jbn-preview-error{padding:12px;color:#a00;background:#fff0f0;border-radius:8px}#jbNoticeBoard5b4 .jbn-feedback{padding:8px;margin:8px 0;border:1px dashed var(--border);white-space:pre-wrap}
 @media(max-width:700px){#jbNoticeBoard5b4 .jbn-grid{grid-template-columns:1fr}}
 </style>
 <script id="jb-all-notice-board-js-20261013">
@@ -14886,13 +14886,14 @@ function getRole(){var u={};try{u=(typeof currentUser!=='undefined'&&currentUser
 function canManage(){return getRole()==='SUPER_ADMIN'||getRole()==='SUPERADMIN'}
 function parseFiles(n){try{return Array.isArray(n.Attachments)?n.Attachments:JSON.parse(n.Attachments||'[]')}catch(e){return []}}
 function driveId(f){var id=String(f&&f.fileId||'');if(id)return id;var u=String(f&&f.url||'');var m=u.match(/\/d\/([a-zA-Z0-9_-]{10,})/)||u.match(/[?&]id=([a-zA-Z0-9_-]{10,})/);return m?m[1]:''}
-function mediaUrl(f,kind){var id=driveId(f);if(!id)return String(f&&f.url||'');if(kind==='image')return 'https://drive.google.com/uc?export=view&id='+encodeURIComponent(id);if(kind==='pdf'||kind==='video')return 'https://drive.google.com/file/d/'+encodeURIComponent(id)+'/preview';return 'https://drive.google.com/uc?export=download&id='+encodeURIComponent(id)}
-function attachmentHtml(f){var name=esc(f.name||'সংযুক্তি'),mime=String(f.mime||'').toLowerCase(),ext=String(f.name||'').split('.').pop().toLowerCase(),u=String(f.url||''),kind='doc',src='';
- if(/^image\//.test(mime)||/^(jpg|jpeg|jpe|png|gif|webp|bmp|tif|tiff|svg|heic)$/.test(ext)){kind='image';src=mediaUrl(f,'image')}
- else if(/^audio\//.test(mime)||/^(mp3|wav|ogg|m4a|aac|flac)$/.test(ext)){kind='audio';src=mediaUrl(f,'media')}
- else if(/^video\//.test(mime)||/^(mp4|webm|mov|m4v|ogv|avi|mkv)$/.test(ext)){kind='video';src=mediaUrl(f,'media')}
+function mediaUrl(f,kind){var id=driveId(f),u=String(f&&f.url||'');if(!id)return u;if(kind==='image')return 'https://drive.google.com/thumbnail?id='+encodeURIComponent(id)+'&sz=w1600';if(kind==='pdf'||kind==='video'||kind==='audio')return 'https://drive.google.com/file/d/'+encodeURIComponent(id)+'/preview';return 'https://drive.google.com/uc?export=download&id='+encodeURIComponent(id)}
+function attachmentHtml(f){var name=esc(f.name||'সংযুক্তি'),mime=String(f.mime||'').toLowerCase(),ext=String(f.name||'').split('.').pop().toLowerCase(),u=String(f.url||''),id=driveId(f),kind='doc',src='';
+ if(/^image\\//.test(mime)||/^(jpg|jpeg|jpe|png|gif|webp|bmp|tif|tiff|svg|heic)$/.test(ext)){kind='image';src=mediaUrl(f,'image')}
+ else if(/^audio\\//.test(mime)||/^(mp3|wav|ogg|m4a|aac|flac|opus|oga|wma)$/.test(ext)){kind='audio';src=mediaUrl(f,'audio')}
+ else if(/^video\\//.test(mime)||/^(mp4|webm|mov|m4v|ogv|avi|mkv|3gp|mpeg|mpg)$/.test(ext)){kind='video';src=mediaUrl(f,'video')}
  else if(mime==='application/pdf'||ext==='pdf'){kind='pdf';src=mediaUrl(f,'pdf')}
- var preview=kind==='image'?'<img class="jbn-media" loading="lazy" src="'+esc(src)+'" alt="'+name+'">':kind==='audio'?'<audio class="jbn-media" controls preload="metadata" src="'+esc(src)+'">এই অডিও চালানো যাচ্ছে না।</audio>':kind==='video'?'<iframe class="jbn-videopreview" loading="lazy" title="'+name+'" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" style="display:block;width:100%;max-width:900px;height:480px;max-height:70vh;border:0;background:#111;margin:8px auto" src="'+esc(src)+'"></iframe>':kind==='pdf'?'<iframe class="jbn-docpreview" loading="lazy" title="'+name+'" src="'+esc(src)+'"></iframe>':'';
+ var frameStyle='display:block;width:100%;max-width:900px;height:360px;max-height:70vh;border:0;background:#111;margin:8px auto';
+ var preview=kind==='image'?'<img class="jbn-media" loading="lazy" referrerpolicy="no-referrer" src="'+esc(src)+'" alt="'+name+'" onerror="this.style.display=\'none\';this.insertAdjacentHTML(\'afterend\',\'<div class=&quot;jbn-preview-error&quot;>ছবি দেখা যাচ্ছে না। ফাইলের অনুমতি পরীক্ষা করুন।</div>\')">':kind==='audio'?(id?'<iframe class="jbn-audiopreview" loading="lazy" title="'+name+'" allow="autoplay; encrypted-media" style="'+frameStyle.replace(/"/g,'&quot;')+'" src="'+esc(src)+'"></iframe>':'<audio class="jbn-media" controls preload="metadata" src="'+esc(src)+'">এই অডিও চালানো যাচ্ছে না।</audio>'):kind==='video'?(id?'<iframe class="jbn-videopreview" loading="lazy" title="'+name+'" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen style="'+frameStyle.replace(/"/g,'&quot;')+'" src="'+esc(src)+'"></iframe>':'<video class="jbn-media jbn-videonative" controls playsinline preload="metadata" src="'+esc(src)+'">এই ভিডিও চালানো যাচ্ছে না।</video>'):kind==='pdf'?'<iframe class="jbn-docpreview" loading="lazy" title="'+name+'" src="'+esc(src)+'"></iframe>':'';
  return '<div class="jbn-filecard">'+preview+'<a target="_blank" rel="noopener" href="'+esc(u)+'">📎 '+name+' — খুলুন/ডাউনলোড</a></div>';
 }
 function visibleNotices(){return notices.filter(function(n){var st=String(n.Status||'').trim().toUpperCase();return (!st||['PUBLISHED','ACTIVE','PUBLISH','প্রকাশিত'].indexOf(st)>=0)&&!/^(true|yes|1)$/i.test(String(n.Archived||''))})}
