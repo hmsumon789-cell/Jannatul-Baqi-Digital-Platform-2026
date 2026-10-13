@@ -15168,3 +15168,18 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 #loginPage .login-brand-qr-2026 {grid-template-columns:minmax(0,1fr)!important;}
 #contactMainQR2026 {display:block!important;visibility:visible!important;}
 </style>
+
+
+<!-- ===== FINAL FIX: REMOVE DUPLICATE EXTRA LOGO FROM DASHBOARD HEADER — 2026-10-13 ===== -->
+<style id="remove-duplicate-dashboard-top-logo-20261013">
+/* Keep the single original #headerLogo inside .header-content. Hide only the extra logo inserted by task4/task5. */
+#app > header.header > .task4-header-logo,
+#app > .task4-header-logo,
+#app + .task4-header-logo,
+.task4-header-logo.task5-outside-header{
+  display:none!important;
+  width:0!important;height:0!important;min-height:0!important;
+  padding:0!important;margin:0!important;border:0!important;
+  overflow:hidden!important;visibility:hidden!important;
+}
+</style>
