@@ -2627,3 +2627,78 @@ function sendContactEmail(token, recipients, subject, body) {
   return {ok:sent > 0 && failed === 0, sent:sent, skipped:skipped, failed:failed,
     message:sent+' জনকে ইমেইল পাঠানোর অনুরোধ সম্পন্ন হয়েছে।'+(skipped?' '+skipped+'টি ঠিকানা বাদ গেছে।':'')+(failed?' '+failed+'টি ব্যর্থ হয়েছে: '+errors.join(' | '):'')};
 }
+
+function ensureNoticeBoardSheet_() {
+  return ensureSheet_(SpreadsheetApp.getActiveSpreadsheet(), SHEETS.NOTICES || 'NOTICES',
+    ['Serial','NoticeID','TitleBN','TitleAR','TitleEN','BodyBN','BodyAR','BodyEN','Date','Status','CreatedAt','Category','Attachments','Archived']);
+}
+function getNoticeBoardRecords(token, includeArchived) {
+  try {
+    auth_(token);
+    const sh=ensureNoticeBoardSheet_();
+    if(sh.getLastRow()<2)return {ok:true,rows:[]};
+    const data=sh.getDataRange().getValues(), headers=data[0].map(v=>String(v||'').trim());
+    const rows=data.slice(1).map(function(row){
+      const n=objectFrom_(headers,row);
+      if(!n.NoticeID)n.NoticeID=n.Serial||'';
+      if(!String(n.Status||'').trim())n.Status='PUBLISHED';
+      if(!n.Category)n.Category='সাধারণ';
+      if(!n.Attachments)n.Attachments='[]';
+      return n;
+    }).filter(function(n){return includeArchived===true||(String(n.Status||'').toUpperCase()!=='ARCHIVED'&&!/^(true|yes|1)$/i.test(String(n.Archived||'')));});
+    rows.reverse();
+    return {ok:true,rows:rows};
+  } catch(e) {return {ok:false,message:'নোটিশ তালিকা লোড হয়নি: '+String(e&&e.message||e),rows:[]};}
+}
+function saveNoticeBoardRecord(token, serial, payload) {
+  try {
+    auth_(token);
+    if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin নোটিশ সংরক্ষণ করতে পারবেন।'};
+    payload=payload||{};
+    const title=String(payload.TitleBN||payload.TitleEN||'').trim(), body=String(payload.BodyBN||payload.BodyEN||'').trim();
+    if(!title||!body)return {ok:false,message:'নোটিশের শিরোনাম ও বিস্তারিত আবশ্যক।'};
+    const state=String(payload.Status||'DRAFT').toUpperCase();
+    if(['DRAFT','PUBLISHED','ARCHIVED'].indexOf(state)<0)return {ok:false,message:'নোটিশের অবস্থা সঠিক নয়।'};
+    const sh=ensureNoticeBoardSheet_(), headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(v=>String(v||'').trim());
+    let rowNum=0, old={}; const serialCol=headers.indexOf('Serial')+1, target=String(serial||'').trim();
+    if(target&&sh.getLastRow()>1){const vals=sh.getRange(2,serialCol,sh.getLastRow()-1,1).getDisplayValues();for(let i=0;i<vals.length;i++){if(String(vals[i][0]).trim()===target){rowNum=i+2;old=objectFrom_(headers,sh.getRange(rowNum,1,1,headers.length).getValues()[0]);break;}}}
+    const stamp=now_(), serialValue=rowNum?old.Serial:nextSerial_(sh);
+    const noticeId=rowNum?(old.NoticeID||('NTC-'+Date.now())):('NTC-'+Date.now()+'-'+Math.floor(Math.random()*900+100));
+    const item=Object.assign({},old,{Serial:serialValue,NoticeID:noticeId,TitleBN:title,TitleAR:String(payload.TitleAR||''),TitleEN:String(payload.TitleEN||title),BodyBN:body,BodyAR:String(payload.BodyAR||''),BodyEN:String(payload.BodyEN||body),Date:String(payload.Date||stamp.slice(0,10)),Status:state,Category:String(payload.Category||'সাধারণ'),Attachments:typeof payload.Attachments==='string'?payload.Attachments:JSON.stringify(payload.Attachments||[]),Archived:state==='ARCHIVED'?'YES':'NO',CreatedAt:rowNum?(old.CreatedAt||stamp):stamp});
+    const values=headers.map(function(h){return item[h]==null?'':item[h];});
+    if(rowNum)sh.getRange(rowNum,1,1,headers.length).setValues([values]);else sh.appendRow(values);
+    try{log_(sessionUser_(token),rowNum?'UPDATE_NOTICE':'CREATE_NOTICE',noticeId,title);}catch(ignore){}
+    return {ok:true,message:rowNum?'নোটিশ আপডেট হয়েছে।':'নোটিশ সংরক্ষণ হয়েছে।',serial:String(serialValue),noticeId:noticeId};
+  } catch(e) {return {ok:false,message:'নোটিশ সংরক্ষণ ব্যর্থ: '+String(e&&e.message||e)};}
+}
+function deleteNoticeBoardRecord(token, serial) {
+  try {
+    auth_(token);
+    if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin নোটিশ মুছতে পারবেন।'};
+    const sh=ensureNoticeBoardSheet_();
+    if(sh.getLastRow()<2)return {ok:false,message:'নোটিশ পাওয়া যায়নি।'};
+    const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(v=>String(v||'').trim()), col=headers.indexOf('Serial')+1;
+    const vals=sh.getRange(2,col,sh.getLastRow()-1,1).getDisplayValues();
+    for(let i=0;i<vals.length;i++)if(String(vals[i][0]).trim()===String(serial||'').trim()){sh.deleteRow(i+2);return {ok:true};}
+    return {ok:false,message:'নোটিশ পাওয়া যায়নি।'};
+  } catch(e) {return {ok:false,message:'নোটিশ ডিলিট ব্যর্থ: '+String(e&&e.message||e)};}
+}
+function uploadNoticeAttachment(token, fileName, mimeType, base64Data) {
+  try {
+    auth_(token);
+    if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin সংযুক্তি আপলোড করতে পারবেন।'};
+    fileName=String(fileName||'notice-attachment').replace(/[^a-zA-Z0-9._() -]/g,'_').slice(0,180);
+    mimeType=String(mimeType||'application/octet-stream');
+    const encoded=String(base64Data||'');
+    if(!encoded)return {ok:false,message:'ফাইলের ডাটা পাওয়া যায়নি।'};
+    if(encoded.length>11*1024*1024)return {ok:false,message:'ফাইলটি ৮ MB সীমার বেশি।'};
+    const bytes=Utilities.base64Decode(encoded);
+    if(bytes.length>8*1024*1024)return {ok:false,message:'প্রতি সংযুক্তি সর্বোচ্চ ৮ MB হতে পারবে।'};
+    const folderName='Jannatul Baqi Notice Attachments 2026', iter=DriveApp.getFoldersByName(folderName);
+    const folder=iter.hasNext()?iter.next():DriveApp.createFolder(folderName);
+    const file=folder.createFile(Utilities.newBlob(bytes,mimeType,fileName));
+    try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(shareError){}
+    return {ok:true,fileId:file.getId(),url:file.getUrl(),name:file.getName(),mime:mimeType};
+  } catch(e) {return {ok:false,message:'সংযুক্তি আপলোড ব্যর্থ: '+String(e&&e.message||e)};}
+}
+
