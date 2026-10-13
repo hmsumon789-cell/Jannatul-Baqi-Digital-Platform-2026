@@ -12722,15 +12722,35 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   var CODES={MS:1,RS:1,ID:1,AC:1,CT:1,RC:1,TI:1,AF:1,LF:1,ER:1,TC:1,AP:1,LM:1,LC:1,TR:1,TA:1,EF:1,EI:1};
   function E(id){return document.getElementById(id)}
   function openOnline(sig,q){
-    /* সম্পূর্ণ URL-এ সরাসরি ট্যাব খুলুন; about:blank রেখে async call-এর অপেক্ষায় সাদা পেজ থাকতে পারে। */
-    var base=String(window.location.href||'').split('#')[0].split('?')[0];
-    var url=base+'?online=1&code='+encodeURIComponent(sig)+'&id='+encodeURIComponent(q);
-    var target=window.open(url,'_blank');
+    /* সবসময় Apps Script-এর canonical /exec URL ব্যবহার করুন; userCodeAppPanel URL দিলে সাদা পেজ হয়। */
+    var target=window.open('about:blank','_blank');
     if(!target){
       if(typeof toast==='function')toast('অনলাইন সেবা খুলতে ব্রাউজারের Popup অনুমতি দিন।');
       else alert('অনলাইন সেবা খুলতে ব্রাউজারের Popup অনুমতি দিন।');
       return;
     }
+    try{
+      target.document.open();
+      target.document.write('<!doctype html><html lang="bn"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>অনলাইন সেবা</title><body style="font-family:Arial,sans-serif;padding:30px;text-align:center"><h2>⏳ অনলাইন সেবা খোলা হচ্ছে...</h2><p>অনুগ্রহ করে অপেক্ষা করুন।</p></body></html>');
+      target.document.close();
+    }catch(e){}
+    function go(base){
+      base=String(base||'').trim().split('#')[0].split('?')[0];
+      if(!/^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec$/i.test(base)){
+        try{target.document.body.innerHTML='<h2 style="font-family:Arial,sans-serif;color:#b00;text-align:center;margin:40px">মূল Web App URL পাওয়া যায়নি। অনুগ্রহ করে মূল লগইন পেজ থেকে আবার চেষ্টা করুন।</h2>';}catch(e){}
+        return;
+      }
+      var url=base+'?online=1&code='+encodeURIComponent(sig)+'&id='+encodeURIComponent(q);
+      try{target.location.replace(url);}catch(e){target.location.href=url;}
+    }
+    try{
+      if(typeof google!=='undefined'&&google.script&&google.script.run){
+        google.script.run.withSuccessHandler(function(r){go(r&&r.ok&&r.url?r.url:'');})
+          .withFailureHandler(function(){go('');}).getMainWebAppUrl();
+      }else if(typeof call==='function'){
+        Promise.resolve(call('getMainWebAppUrl')).then(function(r){go(r&&r.ok&&r.url?r.url:'');}).catch(function(){go('');});
+      }else{go('');}
+    }catch(e){go('');}
     try{target.focus();}catch(e){}
   }
   var old=window.doSearch;
