@@ -12553,6 +12553,61 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 </script>
 <!-- ===== END LOGIN ONLINE SERVICE + PAYMENT 2-COLUMN ROW ===== -->
 
+<!-- ===== LOGIN CONTACT INSIDE BORDER + REMOVE TOP-RIGHT QR — 2026-10-13 ===== -->
+<style id="login-contact-inside-border-final-20261013">
+/* Top-right login QR removed visually; preserve its element for existing card/QR functions. */
+#loginPage .main-qr-802268e{display:none!important;width:0!important;height:0!important;padding:0!important;border:0!important;margin:0!important}
+#loginPage .login-brand-qr-2026{display:flex!important;flex-direction:column!important;grid-template-columns:1fr!important;justify-items:center!important;align-items:center!important;width:100%!important;gap:0!important}
+#loginPage .login-brand-qr-2026 .loginLogoWrap{justify-self:center!important;text-align:center!important}
+#loginPage .login .jb-login-service-payment-row-2026{margin:12px auto 8px!important}
+#loginPage #loginContactStrip20261013{
+  display:block!important;width:100%!important;max-width:none!important;box-sizing:border-box!important;
+  margin:8px auto 0!important;padding:10px 12px!important;border-radius:14px!important;
+}
+#loginPage #loginContactStrip20261013 .lc-title{font-size:18px!important;margin-bottom:7px!important}
+#loginPage #loginContactStrip20261013 .lc-layout{grid-template-columns:82px minmax(0,1fr) 82px!important;gap:8px!important}
+#loginPage #loginContactStrip20261013 .lc-logo,
+#loginPage #loginContactStrip20261013 .lc-qr{width:76px!important;height:76px!important}
+#loginPage #loginContactStrip20261013 .lc-name{font-size:17px!important;line-height:1.3!important}
+#loginPage #loginContactStrip20261013 .lc-address{font-size:13px!important;line-height:1.35!important}
+#loginPage #loginContactStrip20261013 .lc-hotline{font-size:15px!important}
+#loginPage #loginContactStrip20261013 .lc-qr-label{font-size:12px!important}
+@media(max-width:620px){
+ #loginPage #loginContactStrip20261013{padding:9px 7px!important}
+ #loginPage #loginContactStrip20261013 .lc-layout{grid-template-columns:1fr 1fr!important;gap:8px!important}
+ #loginPage #loginContactStrip20261013 .lc-center{grid-column:1/-1!important;grid-row:1!important}
+ #loginPage #loginContactStrip20261013 .lc-logo-side{grid-column:1!important;grid-row:2!important}
+ #loginPage #loginContactStrip20261013 .lc-qr-side{grid-column:2!important;grid-row:2!important}
+ #loginPage #loginContactStrip20261013 .lc-logo,
+ #loginPage #loginContactStrip20261013 .lc-qr{width:68px!important;height:68px!important}
+ #loginPage #loginContactStrip20261013 .lc-name{font-size:16px!important}
+ #loginPage #loginContactStrip20261013 .lc-address{font-size:12px!important}
+ #loginPage #loginContactStrip20261013 .lc-hotline{font-size:14px!important}
+}
+</style>
+<script id="login-contact-inside-border-final-20261013-js">
+(function(){
+ function placeContactInsideLogin(){
+   var page=document.getElementById('loginPage');
+   var panel=page&&page.querySelector('.login');
+   var contact=document.getElementById('loginContactStrip20261013');
+   var row=document.getElementById('jbLoginServicePaymentRow2026');
+   if(!panel||!contact)return;
+   if(row&&row.parentNode!==panel)panel.appendChild(row);
+   if(contact.parentNode!==panel)panel.appendChild(contact);
+   if(row&&row.nextElementSibling!==contact)panel.insertBefore(row,contact);
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',placeContactInsideLogin);
+ else placeContactInsideLogin();
+ setTimeout(placeContactInsideLogin,300);
+ setTimeout(placeContactInsideLogin,1000);
+ setTimeout(placeContactInsideLogin,1800);
+ if(document.body)new MutationObserver(function(){placeContactInsideLogin()}).observe(document.body,{childList:true,subtree:true});
+})();
+</script>
+<!-- ===== END LOGIN CONTACT INSIDE BORDER PATCH ===== -->
+
+
 <!-- ===== ONLINE SERVICE — HOME DELIVERY BUTTON + SAVE — 2026-10-07 ===== -->
 <style id="jb-online-service-home-2026-10-07">
 #jbDocBuilderWin .jb-online-service-save-2026{
