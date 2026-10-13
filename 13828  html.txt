@@ -1530,7 +1530,12 @@ async function addSelectedOldStudents2026(){
 }
 async function importOldStudents2026(){
  var status=document.getElementById('oldStudentImportStatus2026'),fileEl=document.getElementById('oldStudentFile2026'),file=fileEl&&fileEl.files&&fileEl.files[0];
- if(!file){if(status)status.textContent='আগে কম্পিউটার থেকে Excel, CSV, TXT অথবা DOCX ফাইল নির্বাচন করুন।';return;}
+ if(!file){
+  if(status)status.textContent='কম্পিউটার থেকে Excel, CSV, TXT অথবা DOCX ফাইল বেছে নিন।';
+  if(fileEl){try{fileEl.click();}catch(e){if(status)status.textContent='ফাইল বাছাইয়ের উইন্ডো খোলা যায়নি। উপরের ফাইল নির্বাচন ঘরে সরাসরি ক্লিক করুন।';}}
+  else if(status)status.textContent='ফাইল নির্বাচন ঘর পাওয়া যায়নি। ভর্তি ফর্মটি বন্ধ করে আবার খুলুন।';
+  return;
+ }
  await previewOldStudentFile2026(fileEl);
 }
 async function saveModule(k){
