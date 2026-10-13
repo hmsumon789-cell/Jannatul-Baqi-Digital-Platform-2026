@@ -1431,18 +1431,24 @@ if(['result','marks','exam'].includes(k))return `<div class="student-meta-row-20
 return `<p>এই ফিচারের জন্য ৩ ভাষা, A4, ৩ কলাম উইন্ডো কাঠামো প্রস্তুত। প্রয়োজনীয় তথ্য পূরণ করুন।</p><div class="form-grid"><label class="full">বিবরণ<textarea class="field" rows="8" id="genericData"></textarea></label></div><button class="primary" onclick="toast('ফিচার উইন্ডো প্রস্তুত')">Save</button>`;
 }
 function openOldStudentImport2026(){var p=document.getElementById('oldStudentImportPanel2026');if(p)p.style.display=p.style.display==='none'?'block':'none';}
-function oldStudentHeaderKey2026(v){return String(v||'').trim().toLowerCase().replace(/[\\s_\\-./()]+/g,'');}
+function oldStudentHeaderKey2026(v){return String(v||'').trim().toLowerCase().replace(/[\\s_.()\\/-]+/g,'');}
 function oldStudentMapRow2026(row,year,klass){
 var aliases={NameBN:['namebn','name','studentname','studentnamebn','নাম','বাংলানাম','শিক্ষার্থীরনাম','ছাত্রছাত্রীরনাম'],NameAR:['namear','arabicname','الاسمالعربية','আরবীনাম'],NameEN:['nameen','englishname','নামইংরেজি','ইংরেজিনাম'],FatherNameBN:['fathernamebn','fathername','father','পিতারনাম','বাবারনাম'],FatherNameAR:['fathernamear','arabicfathername','اسم الأب'],FatherNameEN:['fathernameen','englishfathername'],MotherNameBN:['mothernamebn','mothername','mother','মাতারনাম','মায়েরনাম'],MotherNameAR:['mothernamear','arabicmothername','اسم الأم'],MotherNameEN:['mothernameen','englishmothername'],Mobile:['mobile','mobilephone','phone','মোবাইল','মোবাইলনম্বর','ফোন'],WhatsApp:['whatsapp','হোয়াটসঅ্যাপ'],Email:['email','ইমেইল'],DOB:['dob','dateofbirth','birthdate','জন্মতারিখ'],Address:['address','ঠিকানা'],BirthReg:['birthreg','birthregistration','জন্মনিবন্ধন'],NID:['nid','nationalid','জাতীয়পরিচয়পত্র']};
 var norm={};Object.keys(row||{}).forEach(function(k){norm[oldStudentHeaderKey2026(k)]=row[k]});
 function get(key){for(var a of aliases[key]){var nk=oldStudentHeaderKey2026(a);if(Object.prototype.hasOwnProperty.call(norm,nk)&&norm[nk]!=null)return String(norm[nk]).trim()}return ''}
 return {StudentID:'',DOB:get('DOB'),RecordDate:new Date().toISOString().slice(0,10),NameBN:get('NameBN'),NameAR:get('NameAR'),NameEN:get('NameEN'),FatherNameBN:get('FatherNameBN'),FatherNameAR:get('FatherNameAR'),FatherNameEN:get('FatherNameEN'),MotherNameBN:get('MotherNameBN'),MotherNameAR:get('MotherNameAR'),MotherNameEN:get('MotherNameEN'),Mobile:get('Mobile'),WhatsApp:get('WhatsApp'),Email:get('Email'),Address:get('Address'),Division:'',District:'',Upazila:'',Union:'',Ward:'',Village:'',Class:klass||'',AcademicYear:year,Department:'',Branch:'',Photo:'',BirthReg:get('BirthReg'),NID:get('NID'),AdmissionType:'Old Student'};
 }
+function oldStudentDelimitedRows2026(txt){
+var lines=String(txt||'').replace(/^\\uFEFF/,'').split(/\\r?\\n/).filter(function(x){return x.trim()});if(!lines.length)return [];
+var delim=lines[0].includes(String.fromCharCode(9))?String.fromCharCode(9):lines[0].includes(';')?';':',';
+var matrix=lines.map(function(line){return line.split(delim).map(function(x){return x.trim().replace(/^["']|["']$/g,'')})});
+var headers=matrix.shift();return matrix.map(function(cells){var o={};headers.forEach(function(h,i){o[h]=cells[i]||''});return o});
+}
 async function oldStudentReadRows2026(file){
 var ext=(file.name.split('.').pop()||'').toLowerCase();
 if(['xlsx','xls'].includes(ext)&&window.XLSX){var wb=window.XLSX.read(await file.arrayBuffer(),{type:'array'});return window.XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:'',raw:false});}
-if(ext==='docx'&&window.mammoth){var result=await window.mammoth.extractRawText({arrayBuffer:await file.arrayBuffer()});var lines=result.value.split(/\\r?\\n/).map(function(x){return x.trim()}).filter(Boolean);return lines.map(function(line){var cells=line.split(/[\\t,;|]/);return cells.length>1?cells:({NameBN:line})})}
-if(['txt','csv'].includes(ext)){var txt=await file.text();var lines=txt.replace(/^\\uFEFF/,'').split(/\\r?\\n/).filter(function(x){return x.trim()});if(!lines.length)return [];var delim=lines[0].includes('\\t')?'\\t':lines[0].includes(';')?';':',';var matrix=lines.map(function(line){return line.split(delim).map(function(x){return x.trim().replace(/^["']|["']$/g,'')})});var headers=matrix.shift();return matrix.map(function(cells){var o={};headers.forEach(function(h,i){o[h]=cells[i]||''});return o})}
+if(ext==='docx'&&window.mammoth){var result=await window.mammoth.extractRawText({arrayBuffer:await file.arrayBuffer()});return oldStudentDelimitedRows2026(result.value);}
+if(['txt','csv'].includes(ext))return oldStudentDelimitedRows2026(await file.text());
 throw new Error(ext==='doc'?'পুরাতন .doc ফাইল সরাসরি পড়া যায় না। Word থেকে .docx বা .txt হিসেবে সংরক্ষণ করুন।':'এই ফাইল ফরম্যাট সমর্থিত নয়। Excel, CSV, TXT অথবা DOCX দিন।');
 }
 async function importOldStudents2026(){
