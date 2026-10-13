@@ -15078,3 +15078,17 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </script>
 <!-- ===== END NOTICE SLIDER POSITION FIX ===== -->
 
+
+
+<!-- ===== REMOVE QR BESIDE LOGIN LOGO ONLY; KEEP CONTACT QR — 2026-10-13 ===== -->
+<style id="remove-login-top-logo-qr-20261013">
+/* উপরের লগইন লোগোর পাশে থাকা QR সরানো; যোগাযোগ বক্সের মূল পেজ QR অক্ষত */
+#loginPage .login-brand-qr-2026 > .main-qr-802268e,
+#loginPage .login-brand-qr-2026 .main-qr-802268e {
+  display:none!important;visibility:hidden!important;
+  width:0!important;height:0!important;min-width:0!important;min-height:0!important;
+  padding:0!important;margin:0!important;border:0!important;overflow:hidden!important;
+}
+#loginPage .login-brand-qr-2026 {grid-template-columns:minmax(0,1fr)!important;}
+#contactMainQR2026 {display:block!important;visibility:visible!important;}
+</style>
