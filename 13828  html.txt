@@ -5003,6 +5003,9 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
   filter:drop-shadow(0 4px 6px #0003);
 }
 
+/* ড্যাশবোর্ড হেডারের আগে অতিরিক্ত উপরের লোগোটি সরানো; মূল headerLogo অক্ষত */
+#app > .task4-header-logo{display:none!important}
+
 /* সকল Form/Window + Search Profile-এর win-head-এর বামে Logo */
 .window .win-head .task4-window-title-wrap{
   display:flex!important;
