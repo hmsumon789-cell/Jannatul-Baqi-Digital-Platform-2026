@@ -75,12 +75,16 @@ function doGet(e) {
     var code=String(p.code||'').trim().toUpperCase();
     var personId=String(p.id||'').trim();
     var onlineResult=null;
+    var onlineHtml='';
     try {
       if(code && personId) onlineResult=getOnlineServicePublic_(code,personId);
+      onlineHtml=buildPublicOnlineServiceHtml_(code,personId,onlineResult);
     } catch(err) {
-      onlineResult={ok:false,message:'অনলাইন সেবা লোড করার সময় সার্ভার ত্রুটি হয়েছে।'};
+      var em=String(err&&err.message?err.message:err);
+      em=em.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      onlineHtml='<!doctype html><html lang="bn"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>অনলাইন সেবা</title><body style="font-family:Arial,sans-serif;background:#f5f0df;padding:24px"><main style="max-width:760px;margin:20px auto;background:#fff;border:3px solid #b88408;border-radius:16px;padding:22px"><h2>অনলাইন সেবা পেজ তৈরি করা যায়নি</h2><p>সার্ভার থেকে পেজ তৈরি করার সময় ত্রুটি হয়েছে।</p><pre style="white-space:pre-wrap;color:#a00">'+em+'</pre><p>মূল লগইন পেজে ফিরে গিয়ে আবার চেষ্টা করুন।</p></main></body></html>';
     }
-    return HtmlService.createHtmlOutput(buildPublicOnlineServiceHtml_(code,personId,onlineResult))
+    return HtmlService.createHtmlOutput(onlineHtml)
       .setTitle(APP.nameEn + ' | Online Service')
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
   }
