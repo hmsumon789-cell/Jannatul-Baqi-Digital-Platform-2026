@@ -9622,28 +9622,40 @@ body.jb-custom-account .header-content .header-identity-contact{color:#fff!impor
 </style>
 <script id="contact-logo-qr-js-2026-10-05">
 (function(){
+  var lastMainUrl='';
+  var requestPending=false;
   function setContactLogo(){
     var logo=document.getElementById('contactLoginLogo2026');
-    var login=document.getElementById('loginLogo');
-    if(logo && login && login.src) logo.src=login.src;
+    var login=document.getElementById('loginLogo')||document.getElementById('headerLogo');
+    if(logo&&login){
+      var src=login.getAttribute('src')||login.src||'';
+      if(src&&src!=='about:blank'&&logo.src!==src)logo.src=src;
+    }
   }
   function setContactQR(url){
     var qr=document.getElementById('contactMainQR2026');
-    if(qr && url){
-      qr.src='https://quickchart.io/qr?size=220&margin=2&text='+encodeURIComponent(url)+'&v='+Date.now();
-    }
+    url=String(url||'').trim();
+    if(!qr||!url)return;
+    qr.alt='মূল পেজের QR কোড';
+    qr.title='মূল পেজ খুলতে স্ক্যান করুন';
+    qr.style.display='block';
+    if(url===lastMainUrl&&qr.getAttribute('src'))return;
+    lastMainUrl=url;
+    qr.src='https://quickchart.io/qr?size=260&margin=2&text='+encodeURIComponent(url);
   }
   function setContactMedia(){
     setContactLogo();
-    if(typeof call==='function'){
-      call('getMainWebAppUrl').then(function(r){
-        if(r&&r.ok&&r.url) setContactQR(r.url);
-      }).catch(function(){});
-    }
+    if(requestPending||typeof call!=='function')return;
+    requestPending=true;
+    call('getMainWebAppUrl').then(function(r){
+      if(r&&r.ok&&r.url)setContactQR(r.url);
+    }).catch(function(){}).then(function(){requestPending=false;});
   }
   function run(){setContactMedia();}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run);else run();
+  setTimeout(run,250);
   setTimeout(run,1000);
+  setTimeout(run,2500);
   setInterval(run,60000);
 })();
 </script>
