@@ -1495,7 +1495,7 @@ var tab=String.fromCharCode(9),delim=lines[0].includes(tab)?tab:(lines[0].includ
 var matrix=lines.map(function(line){return line.split(delim).map(function(x){x=x.trim();if(x.length>=2&&((x[0]==='"'&&x[x.length-1]==='"')||(x[0]==="'"&&x[x.length-1]==="'")))x=x.slice(1,-1);return x})});
 var headers=matrix.shift();return matrix.map(function(cells){var o={};headers.forEach(function(h,i){o[h]=cells[i]||''});return o});
 }
-async async function oldStudentReadRows2026(file){
+async function oldStudentReadRows2026(file){
 var ext=(file.name.split('.').pop()||'').toLowerCase();
 if(['xlsx','xls'].includes(ext)){if(!window.XLSX)throw new Error('Excel reader লোড হয়নি। ইন্টারনেট সংযোগ পরীক্ষা করুন অথবা ফাইলটি CSV হিসেবে সংরক্ষণ করুন।');var wb=window.XLSX.read(await file.arrayBuffer(),{type:'array'});var first=wb.Sheets[wb.SheetNames[0]];return first?window.XLSX.utils.sheet_to_json(first,{defval:'',raw:false}):[];}
 if(ext==='docx'){if(!window.mammoth)throw new Error('Word DOCX reader লোড হয়নি। ইন্টারনেট সংযোগ পরীক্ষা করুন অথবা ফাইলটি TXT/CSV হিসেবে সংরক্ষণ করুন।');var result=await window.mammoth.extractRawText({arrayBuffer:await file.arrayBuffer()});var text=result.value||'';var rows=oldStudentDelimitedRows2026(text);if(rows.length)return rows;var lines=text.split(/\\r?\\n/).map(function(x){return x.trim()}).filter(Boolean);if(lines.length>1){var out=[];lines.slice(1).forEach(function(line){var parts=line.split(/\\t+|\\s{2,}/).map(function(x){return x.trim()});if(parts.some(Boolean))out.push({[lines[0]]:parts[0]||'',NameBN:parts[0]||'',FatherNameBN:parts[1]||'',Mobile:parts[2]||''})});return out;}return [];}
