@@ -1693,7 +1693,78 @@ async function searchOnlinePaymentReceipt(){
 function printOnlineReceipt(){
   const b=$('onlineReceiptBody');if(!b)return;
   const w=window.open('','_blank','width=850,height=750');if(!w)return;
-  w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>মানি রসিদ</title><style>@page{size:A4 portrait;margin:14mm}body{font-family:Arial,"Noto Sans Bengali",sans-serif;padding:0;color:#111}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:9px;text-align:left}h2,h3{text-align:center}</style></head><body>'+b.outerHTML+'</body></html>');
+  w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>মানি রসিদ</title><style>@page{size:A4 portrait;margin:14mm}body{font-family:Arial,"Noto Sans Bengali",sans-serif;padding:0;color:#111}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:9px;text-align:left}h2,h3{text-align:center}</style></head><body>'+b.outerHTML+'
+<!-- ===== ALL NOTICE BOARD — BASED ONLY ON 5b4ae69 ===== -->
+<style id="jb-all-notice-board-5b4ae69">
+#jbNoticeSlider5b4{position:relative;margin:10px 0 16px;padding:12px;border:3px solid var(--border);border-radius:16px;background:var(--panel);box-shadow:var(--shadow);overflow:hidden}
+#jbNoticeSlider5b4 .jbn-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+#jbNoticeSlider5b4 .jbn-title{font-weight:900;font-size:20px}
+#jbNoticeSlider5b4 .jbn-slide{padding:12px;margin-top:8px;border:1px solid var(--border);border-radius:12px;min-height:88px}
+#jbNoticeSlider5b4 .jbn-slide h4{margin:0 0 7px;font-size:19px}
+#jbNoticeSlider5b4 .jbn-meta{font-size:12px;opacity:.8;margin-bottom:6px}
+#jbNoticeSlider5b4 .jbn-actions,#jbNoticeBoard5b4 .jbn-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+#jbNoticeBoard5b4{padding:12px}
+#jbNoticeBoard5b4 .jbn-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#jbNoticeBoard5b4 label{display:block;font-weight:800}
+#jbNoticeBoard5b4 input,#jbNoticeBoard5b4 select,#jbNoticeBoard5b4 textarea{width:100%;min-width:0;margin-top:4px}
+#jbNoticeBoard5b4 textarea{min-height:110px;resize:vertical}
+#jbNoticeBoard5b4 .jbn-list{display:grid;gap:8px;margin-top:12px}
+#jbNoticeBoard5b4 .jbn-item{padding:10px;border:1px solid var(--border);border-radius:10px}
+#jbNoticeBoard5b4 .jbn-attachments{display:flex;gap:7px;flex-wrap:wrap;margin-top:7px}
+#jbNoticeBoard5b4 .jbn-attachments a{overflow-wrap:anywhere}
+#jbNoticeBoard5b4 .jbn-feedback{padding:8px;margin:8px 0;border:1px dashed var(--border);white-space:pre-wrap}
+@media(max-width:700px){#jbNoticeBoard5b4 .jbn-grid{grid-template-columns:1fr}}
+</style>
+<script id="jb-all-notice-board-js-5b4ae69">
+(function(){
+'use strict';
+var notices=[],slideIndex=0,paused=false,timer=null,editingSerial='',selectedFiles=[];
+function el(id){return document.getElementById(id)}
+function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+function role(){var u=window.currentUser||{};return String(u.Role||u.role||'').toUpperCase().replace(/[\s-]+/g,'_')}
+function canManage(){return role()==='SUPER_ADMIN'||role()==='SUPERADMIN'}
+function parseFiles(x){try{return Array.isArray(x.Attachments)?x.Attachments:JSON.parse(x.Attachments||'[]')}catch(e){return []}}
+function visibleNotices(){return notices.filter(function(n){return String(n.Status||'').toUpperCase()==='PUBLISHED'&&!String(n.Archived||'').match(/^(true|yes|1)$/i)})}
+function renderSlider(){
+ var charts=el('dashboardCharts');if(!charts)return;
+ var box=el('jbNoticeSlider5b4');
+ if(!box){box=document.createElement('section');box.id='jbNoticeSlider5b4';box.className='card';charts.parentNode.insertBefore(box,charts)}
+ var a=visibleNotices();
+ if(!a.length){box.innerHTML='<div class="jbn-top"><div class="jbn-title">📢 অল নোটিশ বোর্ড</div><span>প্রকাশিত নোটিশ নেই</span></div>';return}
+ if(slideIndex>=a.length)slideIndex=0;
+ var n=a[slideIndex],files=parseFiles(n);
+ box.innerHTML='<div class="jbn-top"><div class="jbn-title">📢 অল নোটিশ বোর্ড</div><div class="jbn-actions"><button class="secondary" type="button" onclick="jbNoticePrev5b4()">◀ আগের</button><button class="secondary" type="button" onclick="jbNoticePause5b4()">'+(paused?'▶ চালু':'⏸ বিরতি')+'</button><button class="secondary" type="button" onclick="jbNoticeNext5b4()">পরের ▶</button><button class="primary" type="button" onclick="jbNoticeDetail5b4(\''+esc(n.NoticeID||n.Serial)+'\')">বিস্তারিত</button></div></div><article class="jbn-slide"><div class="jbn-meta">'+esc(n.Category||'সাধারণ')+' · '+esc(n.Date||'')+' · '+(slideIndex+1)+'/'+a.length+'</div><h4>'+esc(n.TitleBN||'শিরোনামহীন নোটিশ')+'</h4><div>'+esc(n.BodyBN||'').replace(/\n/g,'<br>')+'</div><div class="jbn-attachments">'+files.map(function(f){return '<a target="_blank" rel="noopener" href="'+esc(f.url||'')+'">📎 '+esc(f.name||'সংযুক্তি')+'</a>'}).join('')+'</div></article>';
+}
+window.jbNoticePrev5b4=function(){var a=visibleNotices();if(a.length){slideIndex=(slideIndex-1+a.length)%a.length;renderSlider()}};
+window.jbNoticeNext5b4=function(){var a=visibleNotices();if(a.length){slideIndex=(slideIndex+1)%a.length;renderSlider()}};
+window.jbNoticePause5b4=function(){paused=!paused;renderSlider();};
+window.jbNoticeDetail5b4=function(id){var n=notices.find(function(x){return String(x.NoticeID||x.Serial)===String(id)});if(!n)return;var fs=parseFiles(n);var w=window.open('','_blank','width=850,height=700');if(!w){if(typeof toast==='function')toast('বিস্তারিত দেখতে পপ-আপ অনুমতি দিন।');return}w.document.write('<!doctype html><html lang="bn"><meta charset="utf-8"><title>'+esc(n.TitleBN||'নোটিশ')+'</title><body style="font-family:Arial,sans-serif;max-width:850px;margin:30px auto;padding:20px"><h1>'+esc(n.TitleBN||'নোটিশ')+'</h1><p>'+esc(n.Category||'সাধারণ')+' · '+esc(n.Date||'')+'</p><hr><div style="white-space:pre-wrap;line-height:1.8">'+esc(n.BodyBN||'')+'</div><h3>সংযুক্তি</h3>'+fs.map(function(f){return '<p><a href="'+esc(f.url||'')+'">'+esc(f.name||'ফাইল')+'</a></p>'}).join('')+'<button onclick="print()">🖨️ প্রিন্ট / PDF</button></body></html>');w.document.close()};
+async function load(){var box=el('jbNoticeBoard5b4');if(box)status('নোটিশ লোড হচ্ছে…');try{var r=await call('getNoticeBoardRecords',token,true);if(!r||!r.ok)throw new Error((r&&r.message)||'নোটিশ লোড হয়নি');notices=r.rows||[];renderSlider();renderList();if(box)status('মোট '+notices.length+'টি নোটিশ পাওয়া গেছে।')}catch(e){if(box)status('❌ '+(e.message||e));renderSlider()}}
+function status(s){var e=el('jbNoticeFeedback5b4');if(e)e.textContent=s}
+function formHtml(){return '<section id="jbNoticeBoard5b4" class="card"><h3>📢 অল নোটিশ বোর্ড — তৈরি, প্রকাশ, অনুসন্ধান ও আর্কাইভ</h3><div class="jbn-feedback" id="jbNoticeFeedback5b4" role="status">নোটিশ লোড হচ্ছে…</div><div class="jbn-grid"><label>নোটিশ শিরোনাম *<input id="jbnTitle5b4" class="field" maxlength="250" placeholder="নোটিশের শিরোনাম"></label><label>বিভাগ<select id="jbnCategory5b4" class="field"><option>সাধারণ</option><option>ভর্তি</option><option>পরীক্ষা</option><option>ছুটি</option><option>ফি/বেতন</option><option>জরুরি</option><option>সভা/অনুষ্ঠান</option><option>অন্যান্য</option></select></label><label>তারিখ<input id="jbnDate5b4" type="date" class="field"></label><label>অবস্থা<select id="jbnStatus5b4" class="field"><option value="DRAFT">খসড়া</option><option value="PUBLISHED">প্রকাশিত</option><option value="ARCHIVED">আর্কাইভ</option></select></label><label style="grid-column:1/-1">বিস্তারিত নোটিশ *<textarea id="jbnBody5b4" class="field" placeholder="সম্পূর্ণ নোটিশ লিখুন"></textarea></label><label style="grid-column:1/-1">সংযুক্তি (PDF, Word, Excel, TXT, ছবি, অডিও, ভিডিও)<input id="jbnFiles5b4" class="field" type="file" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.jpg,.jpeg,.png,.gif,.webp,.mp3,.wav,.ogg,.mp4,.webm,.mov"></label></div><div class="jbn-actions"><button class="primary" type="button" onclick="jbNoticeSave5b4()">💾 সংরক্ষণ</button><button class="secondary" type="button" onclick="jbNoticeReset5b4()">নতুন / পরিষ্কার</button><button class="secondary" type="button" onclick="jbNoticeReload5b4()">↻ রিফ্রেশ</button><button class="secondary" type="button" onclick="jbNoticePrintList5b4()">🖨️ প্রিন্ট / PDF</button></div><hr><div class="jbn-grid"><label>নোটিশ খুঁজুন<input id="jbnSearch5b4" class="field" placeholder="শিরোনাম, লেখা, বিভাগ বা ID" oninput="jbNoticeRenderList5b4()"></label><label>তালিকা<select id="jbnFilter5b4" class="field" onchange="jbNoticeRenderList5b4()"><option value="all">সব নোটিশ</option><option value="PUBLISHED">প্রকাশিত</option><option value="DRAFT">খসড়া</option><option value="ARCHIVED">আর্কাইভ</option></select></label></div><div id="jbNoticeList5b4" class="jbn-list"></div></section>'}
+function renderList(){var out=el('jbNoticeList5b4');if(!out)return;var q=(el('jbnSearch5b4')||{}).value||'',filter=(el('jbnFilter5b4')||{}).value||'all';q=q.toLowerCase();var arr=notices.filter(function(n){var st=String(n.Status||'DRAFT').toUpperCase(),text=[n.NoticeID,n.TitleBN,n.BodyBN,n.Category].join(' ').toLowerCase();return(filter==='all'||st===filter)&&(!q||text.indexOf(q)>=0)});out.innerHTML=arr.map(function(n){var id=String(n.NoticeID||n.Serial),st=String(n.Status||'DRAFT').toUpperCase(),fs=parseFiles(n);return '<article class="jbn-item"><b>'+esc(n.TitleBN||'শিরোনামহীন')+'</b><div class="jbn-meta">'+esc(id)+' · '+esc(n.Category||'সাধারণ')+' · '+esc(n.Date||'')+' · '+esc(st)+'</div><div>'+esc(n.BodyBN||'').slice(0,400)+'</div><div class="jbn-attachments">'+fs.map(function(f){return '<a href="'+esc(f.url||'')+'" target="_blank" rel="noopener">📎 '+esc(f.name||'ফাইল')+'</a>'}).join('')+'</div><div class="jbn-actions"><button type="button" class="secondary" onclick="jbNoticeEdit5b4(\''+esc(id)+'\')">✏️ এডিট</button><button type="button" class="secondary" onclick="jbNoticeToggleArchive5b4(\''+esc(id)+'\')">'+(st==='ARCHIVED'?'আর্কাইভ থেকে ফেরত':'📦 আর্কাইভ')+'</button><button type="button" class="secondary" onclick="jbNoticeDelete5b4(\''+esc(id)+'\')">🗑️ ডিলিট</button><button type="button" class="secondary" onclick="jbNoticeDetail5b4(\''+esc(id)+'\')">বিস্তারিত / প্রিন্ট</button></div></article>'}).join('')||'<div class="jbn-item">কোনো নোটিশ পাওয়া যায়নি।</div>'}
+window.jbNoticeRenderList5b4=renderList;
+window.jbNoticeReload5b4=load;
+window.jbNoticeReset5b4=function(){editingSerial='';selectedFiles=[];['jbnTitle5b4','jbnBody5b4','jbnFiles5b4'].forEach(function(id){if(el(id))el(id).value=''});if(el('jbnStatus5b4'))el('jbnStatus5b4').value='DRAFT';if(el('jbnDate5b4'))el('jbnDate5b4').value=new Date().toISOString().slice(0,10);status('নতুন নোটিশ তৈরির জন্য প্রস্তুত।')};
+window.jbNoticeEdit5b4=function(id){var n=notices.find(function(x){return String(x.NoticeID||x.Serial)===String(id)});if(!n)return;editingSerial=String(n.Serial||'');el('jbnTitle5b4').value=n.TitleBN||'';el('jbnBody5b4').value=n.BodyBN||'';el('jbnCategory5b4').value=n.Category||'সাধারণ';el('jbnDate5b4').value=String(n.Date||'').slice(0,10);el('jbnStatus5b4').value=n.Status||'DRAFT';selectedFiles=parseFiles(n);status('এডিট মোড: '+(n.NoticeID||n.Serial))};
+window.jbNoticeSave5b4=async function(){if(!canManage()){status('⛔ শুধু Super Admin নোটিশ তৈরি/সম্পাদনা করতে পারবেন।');return}var title=(el('jbnTitle5b4').value||'').trim(),body=(el('jbnBody5b4').value||'').trim();if(!title||!body){status('❌ শিরোনাম ও বিস্তারিত নোটিশ লিখুন।');return}var files=[...selectedFiles],input=el('jbnFiles5b4');try{status('সংযুক্তি আপলোড হচ্ছে…');for(var f of [...(input.files||[])]){if(f.size>8*1024*1024)throw new Error('প্রতি ফাইল সর্বোচ্চ ৮ MB হতে পারবে। বড় ফাইল Drive-এ আলাদাভাবে আপলোড করুন।');var data=await new Promise(function(resolve,reject){var r=new FileReader();r.onload=function(){resolve(String(r.result).split(',')[1]||'')};r.onerror=reject;r.readAsDataURL(f)});var up=await call('uploadNoticeAttachment',token,f.name,f.type||'application/octet-stream',data);if(!up||!up.ok)throw new Error((up&&up.message)||('ফাইল আপলোড হয়নি: '+f.name));files.push({name:f.name,url:up.url,mime:f.type||'',fileId:up.fileId||''})}var payload={TitleBN:title,TitleAR:'',TitleEN:title,BodyBN:body,BodyAR:'',BodyEN:body,Date:el('jbnDate5b4').value||new Date().toISOString().slice(0,10),Status:el('jbnStatus5b4').value,Category:el('jbnCategory5b4').value,Attachments:JSON.stringify(files),Archived:el('jbnStatus5b4').value==='ARCHIVED'?'YES':'NO'};status('নোটিশ সংরক্ষণ হচ্ছে…');var r=await call('saveNoticeBoardRecord',token,editingSerial,payload);if(!r||!r.ok)throw new Error((r&&r.message)||'সংরক্ষণ ব্যর্থ');status('✅ '+(r.message||'নোটিশ সংরক্ষিত হয়েছে।'));await load();window.jbNoticeReset5b4()}catch(e){status('❌ '+(e.message||e))}};
+window.jbNoticeToggleArchive5b4=async function(id){var n=notices.find(function(x){return String(x.NoticeID||x.Serial)===String(id)});if(!n)return;var p={};Object.keys(n).forEach(function(k){p[k]=n[k]});var arch=String(n.Status||'').toUpperCase()!=='ARCHIVED';p.Status=arch?'ARCHIVED':'DRAFT';p.Archived=arch?'YES':'NO';var r=await call('saveNoticeBoardRecord',token,String(n.Serial||''),p);if(!r||!r.ok)return status('❌ '+((r&&r.message)||'অবস্থা পরিবর্তন হয়নি'));await load();status('✅ নোটিশের অবস্থা পরিবর্তন হয়েছে।')};
+window.jbNoticeDelete5b4=async function(id){var n=notices.find(function(x){return String(x.NoticeID||x.Serial)===String(id)});if(!n||!confirm('এই নোটিশটি স্থায়ীভাবে মুছবেন?'))return;var r=await call('deleteNoticeBoardRecord',token,String(n.Serial||''));if(!r||!r.ok)return status('❌ '+((r&&r.message)||'ডিলিট ব্যর্থ'));await load();status('✅ নোটিশ মুছে ফেলা হয়েছে।')};
+window.jbNoticePrintList5b4=function(){var rows=notices.map(function(n){return '<article><h3>'+esc(n.TitleBN||'')+'</h3><p>'+esc(n.Category||'')+' · '+esc(n.Date||'')+'</p><div style="white-space:pre-wrap">'+esc(n.BodyBN||'')+'</div></article><hr>'}).join('');var w=window.open('','_blank','width=850,height=700');if(!w)return status('প্রিন্টের জন্য পপ-আপ অনুমতি দিন।');w.document.write('<!doctype html><html lang="bn"><meta charset="utf-8"><title>অল নোটিশ বোর্ড</title><body style="font-family:Arial,sans-serif;padding:24px">'+rows+'<script>window.onload=function(){setTimeout(function(){window.print()},250)}<\/script></body></html>');w.document.close()};
+var prevForm=window.moduleForm;
+window.moduleForm=function(k){if(String(k||'').toLowerCase()==='notice'){if(!canManage())return '<section class="card" style="padding:15px"><h3>📢 অল নোটিশ বোর্ড</h3><p>নোটিশ ব্যবস্থাপনার জন্য Super Admin অনুমতি প্রয়োজন।</p><div id="jbNoticeFeedback5b4"></div><div id="jbNoticeList5b4"></div></section>';return formHtml()}return typeof prevForm==='function'?prevForm.apply(this,arguments):'<p>ফর্ম পাওয়া যায়নি।</p>'};
+var oldOpen=window.openModule;
+if(typeof oldOpen==='function'){window.openModule=function(k){var r=oldOpen.apply(this,arguments);if(String(k||'').toLowerCase()==='notice')setTimeout(function(){window.jbNoticeReset5b4();load()},100);return r}}
+var oldRender=window.renderNotices;
+window.renderNotices=function(n){notices=Array.isArray(n)?n:[];renderSlider();if(typeof oldRender==='function'){try{oldRender(n)}catch(e){}}};
+function boot(){renderSlider();if(!timer)timer=setInterval(function(){if(!paused)window.jbNoticeNext5b4()},6500)}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+setTimeout(boot,600);setTimeout(renderSlider,1500);
+})();
+</script>
+<!-- ===== END ALL NOTICE BOARD — BASED ONLY ON 5b4ae69 ===== -->
+
+</body></html>');
   w.document.close();w.focus();setTimeout(function(){w.print()},250);
 }
 
