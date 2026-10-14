@@ -15475,3 +15475,82 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   #app{padding-top:0!important;margin-top:0!important}
 }
 </style>
+
+<!-- ===== ONLINE ADMISSION NEWS + THREE-LANGUAGE DROPDOWN — 2026-10-14 ===== -->
+<style id="jb-admission-news-language-dropdown-20261014">
+#formWin #admAdmissionRedesign20261011 .jb-admission-news-language-row-20261014{
+  display:flex!important;align-items:center!important;gap:8px!important;width:100%!important;
+  margin-top:7px!important;min-width:0!important;box-sizing:border-box!important;
+}
+#formWin #admAdmissionRedesign20261011 .jb-admission-news-ticker-20261012{
+  display:flex!important;align-items:center!important;gap:9px!important;flex:1 1 auto!important;
+  min-width:0!important;width:auto!important;overflow:hidden!important;box-sizing:border-box!important;
+  padding:8px 12px!important;border:2px solid #b88408!important;border-radius:999px!important;
+  background:linear-gradient(90deg,#b77b00,#f4d56b,#b77b00)!important;color:#241800!important;
+  font-weight:800!important;line-height:1.4!important;
+}
+#formWin #admAdmissionRedesign20261011 .jb-admission-news-ticker-20261012 strong{flex:0 0 auto!important;white-space:nowrap!important}
+#formWin #admAdmissionRedesign20261011 .jb-admission-news-ticker-20261012 .jb-news-moving{
+  display:block!important;flex:1 1 auto!important;min-width:0!important;white-space:nowrap!important;
+  overflow:hidden!important;animation:jbAdmissionNewsMove20261014 18s linear infinite!important;
+}
+#formWin #admAdmissionRedesign20261011 .jb-admission-language-dropdown-20261014{
+  flex:0 0 145px!important;width:145px!important;max-width:40%!important;min-width:112px!important;
+  height:42px!important;box-sizing:border-box!important;border:3px solid #c79a28!important;
+  border-radius:11px!important;padding:5px 9px!important;background:#fff8df!important;
+  color:#573d00!important;font-size:14px!important;font-weight:900!important;cursor:pointer!important;
+}
+@keyframes jbAdmissionNewsMove20261014{0%{transform:translateX(100%)}100%{transform:translateX(-110%)}}
+@media(max-width:560px){
+ #formWin #admAdmissionRedesign20261011 .jb-admission-news-language-row-20261014{gap:5px!important}
+ #formWin #admAdmissionRedesign20261011 .jb-admission-news-ticker-20261012{padding:6px 8px!important;font-size:10px!important}
+ #formWin #admAdmissionRedesign20261011 .jb-admission-language-dropdown-20261014{flex-basis:112px!important;width:112px!important;min-width:112px!important;font-size:12px!important;padding:4px!important}
+}
+</style>
+<script id="jb-admission-news-language-dropdown-20261014-js">
+(function(){
+ 'use strict';
+ var guard='__jbAdmissionNewsLanguageDropdown20261014';
+ if(window[guard])return;window[guard]=true;
+ function setup(){
+  var root=document.getElementById('admAdmissionRedesign20261011');
+  if(!root)return;
+  var tick=root.querySelector('.jb-admission-news-ticker-20261012');
+  var meta=root.querySelector('.adm-brand-meta');
+  if(!tick||!meta)return;
+  var row=root.querySelector('.jb-admission-news-language-row-20261014');
+  if(!row){
+   row=document.createElement('div');row.className='jb-admission-news-language-row-20261014';
+   tick.parentNode.insertBefore(row,tick);row.appendChild(tick);
+  }else if(tick.parentNode!==row){row.appendChild(tick)}
+  var select=row.querySelector('.jb-admission-language-dropdown-20261014');
+  if(!select){
+   select=document.createElement('select');select.className='jb-admission-language-dropdown-20261014';
+   select.setAttribute('aria-label','ভাষা নির্বাচন / Language');
+   select.innerHTML='<option value="bn">বাংলা ▼</option><option value="ar">العربية ▼</option><option value="en">English ▼</option>';
+   row.appendChild(select);
+   select.addEventListener('change',function(){
+    var lang=select.value;
+    root.dataset.selectedLanguage=lang;
+    root.dir=lang==='ar'?'rtl':'ltr';
+    document.documentElement.lang=lang;
+    var labels={'bn':'বাংলা','ar':'العربية','en':'English'};
+    var win=document.getElementById('formWin');
+    if(win){
+     win.querySelectorAll('.form-language-fixed span').forEach(function(span){
+      var text=(span.textContent||'').trim();
+      span.classList.toggle('jb-lang-active-915bee5',text===labels[lang]);
+     });
+    }
+    var fb=document.getElementById('admAdmissionRedesignFeedback2026');
+    if(fb)fb.textContent=lang==='ar'?'تم اختيار العربية. يمكن إدخال المعلومات في الحقول.':(lang==='en'?'English selected. You can enter or edit the form fields.':'বাংলা ভাষা নির্বাচন করা হয়েছে। ফর্মের তথ্য লিখুন বা সম্পাদনা করুন।');
+   });
+  }
+ }
+ function run(){try{setup()}catch(e){}}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run);else run();
+ if(window.MutationObserver)new MutationObserver(run).observe(document.documentElement,{childList:true,subtree:true});
+ [250,700,1400,2500].forEach(function(ms){setTimeout(run,ms)});
+})();
+</script>
+<!-- ===== END ONLINE ADMISSION NEWS + THREE-LANGUAGE DROPDOWN ===== -->
