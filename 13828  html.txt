@@ -12722,16 +12722,42 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   var CODES={MS:1,RS:1,ID:1,AC:1,CT:1,RC:1,TI:1,AF:1,LF:1,ER:1,TC:1,AP:1,LM:1,LC:1,TR:1,TA:1,EF:1,EI:1};
   function E(id){return document.getElementById(id)}
   function openOnline(sig,q){
-    /* সম্পূর্ণ URL-এ সরাসরি ট্যাব খুলুন; about:blank রেখে async call-এর অপেক্ষায় সাদা পেজ থাকতে পারে। */
-    var base=String(window.location.href||'').split('#')[0].split('?')[0];
-    var url=base+'?online=1&code='+encodeURIComponent(sig)+'&id='+encodeURIComponent(q);
-    var target=window.open(url,'_blank');
+    /* Always resolve the real Apps Script Web App URL before navigating; show a status instead of a blank tab. */
+    var target=window.open('about:blank','_blank');
     if(!target){
       if(typeof toast==='function')toast('অনলাইন সেবা খুলতে ব্রাউজারের Popup অনুমতি দিন।');
       else alert('অনলাইন সেবা খুলতে ব্রাউজারের Popup অনুমতি দিন।');
       return;
     }
-    try{target.focus();}catch(e){}
+    try{
+      target.document.open();
+      target.document.write('<!doctype html><html lang="bn"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>অনলাইন সেবা</title><body style="font-family:Arial,sans-serif;padding:32px;text-align:center;color:#174b42"><h2>জান্নাতুল বাক্বী — অনলাইন সেবা</h2><p id="msg">সঠিক সেবা ঠিকানা খোঁজা হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন…</p></body></html>');
+      target.document.close();
+    }catch(e){}
+    function fail(message){
+      try{
+        var p=target.document.getElementById('msg');
+        if(p)p.textContent=message;
+      }catch(e){}
+    }
+    try{
+      if(typeof google!=='undefined'&&google.script&&google.script.run){
+        google.script.run
+          .withSuccessHandler(function(r){
+            var base=String(r&&r.ok&&r.url?r.url:'').trim().split('#')[0].split('?')[0];
+            if(!base){fail('সেবা ঠিকানা পাওয়া যায়নি। Code.gs-এর getMainWebAppUrl এবং Web App deployment যাচাই করুন।');return;}
+            target.location.replace(base+'?online=1&code='+encodeURIComponent(sig)+'&id='+encodeURIComponent(q));
+          })
+          .withFailureHandler(function(e){
+            fail('সার্ভার থেকে সেবা ঠিকানা পাওয়া যায়নি। Code.gs-এ getMainWebAppUrl এবং সর্বশেষ Web App deployment যাচাই করুন।');
+          })
+          .getMainWebAppUrl();
+      }else{
+        fail('এই পেজটি Google Apps Script Web App থেকে খুলুন; সরাসরি ফাইল/প্রিভিউ থেকে অনলাইন সেবা সার্চ করা যাবে না।');
+      }
+    }catch(e){
+      fail('অনলাইন সেবা খুলতে সমস্যা হয়েছে: '+String(e&&e.message||e));
+    }
   }
   var old=window.doSearch;
   if(typeof old!=='function')return;
@@ -13539,6 +13565,70 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
  };
  window.editExamDraft2026=function(i){var x=(window._jbExamItems||[])[i];if(!x)return;['examName','examYear','examType','examStatus','examStart','examEnd','examNote'].forEach(function(id,j){var e=document.getElementById(id);if(e)e.value=[x.name,x.year,x.type,x.status,x.start,x.end,x.note][j]||''})};
  window.deleteExamDraft2026=async function(i){if(!token)return;var a=await load();a.splice(i,1);try{var r=await call('saveExamDashboardItems',token,'EXAMS',a);if(!r||!r.ok)throw new Error(r&&r.message||'মুছতে ব্যর্থ');window._jbExamItems=a;await window.renderExamDrafts2026();note('পরীক্ষার তথ্য মুছে ফেলা হয়েছে।')}catch(e){note('পরীক্ষার তথ্য মুছতে ব্যর্থ: '+(e.message||e))}};
+
+ /* ===== SAFE EXAM WINDOW CONTROLS — isolated to exam windows ===== */
+ (function(){
+   var ids=['examDashboardWin','examManagerWin'], saved={};
+   function byId(id){return document.getElementById(id)}
+   function installStyle(){
+     if(byId('jbExamWindowControlsStyle2026'))return;
+     var st=document.createElement('style');st.id='jbExamWindowControlsStyle2026';
+     st.textContent='#examDashboardWin,#examManagerWin{box-sizing:border-box;max-width:100vw;max-height:100vh;overflow:auto}'+
+       '#examDashboardWin .windowHead,#examManagerWin .windowHead{display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:move;user-select:none}'+
+       '.jbExamWinTools2026{display:flex;align-items:center;gap:5px;flex-shrink:0}'+
+       '.jbExamWinTools2026 button,.jbExamRestore2026{min-width:34px;min-height:32px;cursor:pointer;font-weight:800}'+
+       '#examDashboardWin.jbExamFull2026,#examManagerWin.jbExamFull2026{position:fixed!important;inset:0!important;left:0!important;top:0!important;transform:none!important;width:100vw!important;height:100vh!important;max-width:100vw!important;max-height:100vh!important;border-radius:0!important;z-index:99990!important;margin:0!important}'+
+       '.jbExamRestore2026{position:fixed!important;bottom:12px!important;right:12px!important;z-index:100000!important;display:none;border:2px solid #b68b22;border-radius:10px;background:#fff3bf;color:#382900;padding:8px 12px}';
+     document.head.appendChild(st);
+   }
+   function ensureRestore(id){
+     var rid='jbExamRestore2026_'+id,b=byId(rid);
+     if(!b){b=document.createElement('button');b.type='button';b.id=rid;b.className='jbExamRestore2026';b.textContent='↗ '+(id==='examDashboardWin'?'পরীক্ষা ড্যাশবোর্ড ফিরিয়ে আনুন':'পরীক্ষা ব্যবস্থাপনা ফিরিয়ে আনুন');b.onclick=function(){restore(id)};document.body.appendChild(b)}
+     return b;
+   }
+   function showWindow(id){var w=byId(id);if(!w)return;w.style.display='block';w.classList.add('show');ensureRestore(id).style.display='none'}
+   function closeOnly(id){
+     var w=byId(id);if(!w)return;w.classList.remove('show','jbExamFull2026');w.style.display='none';ensureRestore(id).style.display='none';
+     if(saved[id]){var a=saved[id];w.style.left=a.left;w.style.top=a.top;w.style.width=a.width;w.style.height=a.height;w.style.maxWidth=a.maxWidth;w.style.maxHeight=a.maxHeight;w.style.transform=a.transform;a.full=false}
+   }
+   function minimize(id){var w=byId(id);if(!w)return;w.style.display='none';w.classList.remove('show');ensureRestore(id).style.display='block'}
+   function restore(id){showWindow(id)}
+   function toggleFull(id){
+     var w=byId(id);if(!w)return;
+     if(!saved[id]||!saved[id].full)saved[id]={left:w.style.left,top:w.style.top,width:w.style.width,height:w.style.height,maxWidth:w.style.maxWidth,maxHeight:w.style.maxHeight,transform:w.style.transform,full:true};
+     else{var a=saved[id];w.style.left=a.left;w.style.top=a.top;w.style.width=a.width;w.style.height=a.height;w.style.maxWidth=a.maxWidth;w.style.maxHeight=a.maxHeight;w.style.transform=a.transform;saved[id].full=false}
+     w.classList.toggle('jbExamFull2026',!!saved[id].full);
+   }
+   function drag(id,head){
+     head.addEventListener('mousedown',function(e){
+       if(e.button!==0||(e.target.closest&&e.target.closest('button')))return;
+       var w=byId(id);if(!w||w.classList.contains('jbExamFull2026'))return;
+       var r=w.getBoundingClientRect(),sx=e.clientX,sy=e.clientY,sl=r.left,st=r.top;
+       w.style.transform='none';w.style.left=sl+'px';w.style.top=st+'px';
+       function move(ev){w.style.left=Math.max(0,Math.min(window.innerWidth-r.width,sl+ev.clientX-sx))+'px';w.style.top=Math.max(0,Math.min(window.innerHeight-50,st+ev.clientY-sy))+'px'}
+       function up(){document.removeEventListener('mousemove',move);document.removeEventListener('mouseup',up)}
+       document.addEventListener('mousemove',move);document.addEventListener('mouseup',up);e.preventDefault();
+     });
+   }
+   function setupOne(id){
+     var w=byId(id);if(!w||w.dataset.jbExamControls2026==='1')return;
+     var head=w.querySelector('.windowHead');if(!head)return;
+     installStyle();w.dataset.jbExamControls2026='1';
+     var close=head.querySelector('button');
+     if(close){close.type='button';close.title='বন্ধ';close.setAttribute('aria-label','এই উইন্ডো বন্ধ করুন');close.onclick=function(e){e.preventDefault();e.stopPropagation();closeOnly(id)}}
+     else{close=document.createElement('button');close.type='button';close.textContent='✕';close.onclick=function(){closeOnly(id)};head.appendChild(close)}
+     var tools=document.createElement('span');tools.className='jbExamWinTools2026';
+     var min=document.createElement('button');min.type='button';min.title='মিনিমাইজ';min.textContent='—';min.onclick=function(e){e.preventDefault();e.stopPropagation();minimize(id)};
+     var full=document.createElement('button');full.type='button';full.title='ফুল স্ক্রিন / আগের আকার';full.textContent='□';full.onclick=function(e){e.preventDefault();e.stopPropagation();toggleFull(id)};
+     tools.appendChild(min);tools.appendChild(full);head.appendChild(tools);drag(id,head);ensureRestore(id);
+   }
+   function setup(){ids.forEach(setupOne)}
+   var oldDash=window.openExamDashboard;if(typeof oldDash==='function')window.openExamDashboard=function(){showWindow('examDashboardWin');return oldDash.apply(this,arguments)};
+   var oldManager=window.openExamManager;if(typeof oldManager==='function')window.openExamManager=function(){showWindow('examManagerWin');return oldManager.apply(this,arguments)};
+   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup);else setup();
+   setTimeout(setup,400);setTimeout(setup,1200);
+ })();
+
 })();
 </script>
 <!-- ===== END EXAM MANAGER DATABASE PERSISTENCE ===== -->
@@ -14684,8 +14774,15 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 #admAdmissionRedesign20261011 .adm-id-tools button,#admAdmissionRedesign20261011 .adm-action-row button{white-space:normal;min-height:42px;font-weight:800}
 #admAdmissionRedesign20261011 .adm-section{border:1px solid #d8c47f;border-radius:12px;padding:12px;background:rgba(255,255,255,.92);box-shadow:0 3px 10px #173f2510}
 #admAdmissionRedesign20261011 .adm-section-title{margin:0 0 10px;padding:7px 12px;border-radius:999px;background:linear-gradient(90deg,#176b45,#287d53);color:#fff7dc;text-align:center;font-weight:900}
+#admAdmissionRedesign20261011 .adm-section-title{font-size:16px!important;line-height:1.25!important;padding:8px 12px!important;margin:0 0 8px!important;width:100%!important;max-width:100%;min-height:38px;box-sizing:border-box;font-weight:1000!important;display:flex;align-items:center;justify-content:center}
+#admAdmissionRedesign20261011 .adm-section:first-of-type .adm-section-title{font-size:16px!important;font-weight:1000!important}
+#formWin:has(#admAdmissionRedesign20261011) .form-action-bar{display:none!important}
+#admAdmissionRedesign20261011 button{box-sizing:border-box!important;width:100%!important;min-width:0!important;min-height:42px!important;height:auto!important;padding:8px 12px!important;border-radius:999px!important;font-weight:900!important;display:flex!important;align-items:center!important;justify-content:center!important;text-align:center!important;white-space:normal!important;line-height:1.3!important}
+#admAdmissionRedesign20261011 .adm-section{padding:10px!important}
+#admAdmissionRedesign20261011 .adm-id-tools button,#admAdmissionRedesign20261011 .adm-action-row button{min-height:42px!important}
 #admAdmissionRedesign20261011 .adm-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
 #admAdmissionRedesign20261011 .adm-grid .full{grid-column:1/-1}
+#admAdmissionRedesign20261011 .adm-preview-thumb{display:none;width:78px;height:92px;object-fit:contain;border:1px solid #c8b16b;border-radius:7px;background:#fff;padding:3px;margin-top:5px}
 #admAdmissionRedesign20261011 .adm-address-note{font-size:12px;font-weight:700;color:#516b59;margin-top:6px}
 #admAdmissionRedesign20261011 .adm-letter{border:1px solid #d5c078;border-radius:10px;background:#fffef7;padding:12px;line-height:1.8;font-weight:700}
 #admAdmissionRedesign20261011 .adm-declaration{border:1px solid #d7c47f;background:#fff9e7;padding:12px;border-radius:10px;line-height:1.8}
@@ -14725,7 +14822,7 @@ function rebuild(type){
  var oldGrid=body.querySelector('.form-grid');
  if(!oldGrid)return;
  var fieldLabels={
-  namebn:takeLabel('adNameBN'),namear:takeLabel('adNameAR'),nameen:takeLabel('adNameEN'),dob:takeLabel('adDob'),
+  namebn:takeLabel('adNameBN'),namear:takeLabel('adNameAR'),nameen:takeLabel('adNameEN'),dob:takeLabel('adDob'),mobile:takeLabel('adMobile'),whatsapp:takeLabel('adWa'),email:takeLabel('adEmail'),
   fatherbn:takeLabel('adFatherBN'),fatherar:takeLabel('adFatherAR'),fatheren:takeLabel('adFatherEN'),
   motherbn:takeLabel('adMotherBN'),motherar:takeLabel('adMotherAR'),motheren:takeLabel('adMotherEN'),
   class:takeLabel('adClass'),dept:takeLabel('adDept'),branch:takeLabel('adBranch'),photo:takeLabel('adPhoto'),
@@ -14752,7 +14849,7 @@ function rebuild(type){
   guardianemail:labelHtml('অভিভাবকের ইমেইল','adGuardianEmail2026','email',''),
   current:labelHtml('বর্তমান ঠিকানা','adCurrentAddress2026','text','', 'full'),
   postcode:labelHtml('পোস্ট কোড','adPostCode2026','text','inputmode="numeric"'),
-  copy:'<label>জন্ম নিবন্ধন / জাতীয় কার্ডের কপি<input id="adIdentityCopy2026" class="field" type="file" accept="image/*,application/pdf"><span class="adm-file-note">সর্বোচ্চ ২০ MB। বড় ফাইল হলে crop/ছোট করে আবার লোড করুন।</span><img id="adIdentityCopyThumb2026" class="adm-preview-thumb" alt="নথির প্রিভিউ" onclick="jbAdmissionViewIdentityCopy2026()"><button type="button" class="secondary" onclick="jbAdmissionViewIdentityCopy2026()">🔍 ছোট বক্সে দেখুন / বড় ভিউ</button><span id="adIdentityCopyFeedback2026" class="adm-file-note"></span></label>'
+  copy:'<label>জন্ম নিবন্ধন / জাতীয় কার্ডের কপি<input id="adIdentityCopy2026" class="field" type="file" accept="image/*,application/pdf"><span class="adm-file-note">সর্বোচ্চ ২০ MB। বড় ফাইল হলে crop/ছোট করে আবার লোড করুন।</span><img id="adIdentityCopyThumb2026" class="adm-preview-thumb" alt="জন্ম নিবন্ধন / পরিচয়পত্রের প্রিভিউ"><span id="adIdentityCopyFeedback2026" class="adm-file-note"></span></label>''
  };
  // Pull existing labels out of their original grid; no location database, dropdown, or cascade code is replaced.
  var allLabels=Array.prototype.slice.call(oldGrid.querySelectorAll(':scope > label'));
@@ -14763,11 +14860,11 @@ function rebuild(type){
  oldGrid.classList.add('adm-redesign-root-grid');
  var originalDate=recordDate?recordDate:document.createElement('input');if(originalDate&&originalDate.id==='adRecordDate')originalDate.type='hidden';
  root.appendChild(oldGrid);
- function addSection(title,keys,extraKeys){
-   var sec=document.createElement('section');sec.className='adm-section';
+ function addSection(title,keys,extraKeys,sectionId){
+   var sec=document.createElement('section');sec.className='adm-section';if(sectionId)sec.id=sectionId;
    var h=document.createElement('h3');h.className='adm-section-title';h.textContent=title;sec.appendChild(h);
    var grid=document.createElement('div');grid.className='adm-grid';
-   keys.forEach(function(k){var node=fieldLabels[k];if(node){node.classList.remove('full');grid.appendChild(node)}});
+   keys.forEach(function(k){var node=fieldLabels[k];if(node){node.classList.remove('full');grid.appendChild(node)}else if(extraLabels[k]){grid.insertAdjacentHTML('beforeend',extraLabels[k])}});
    (extraKeys||[]).forEach(function(k){grid.insertAdjacentHTML('beforeend',extraLabels[k]||'')});
    sec.appendChild(grid);root.insertBefore(sec,oldGrid);
  }
@@ -14778,11 +14875,13 @@ function rebuild(type){
  addSection('২. পিতা/অভিভাবকের তথ্য',['fatherbn','fatherar','fatheren'],['fatherdob']);
  addSection('৩. মাতার তথ্য',['motherbn','motherar','motheren'],['motherdob']);
  addSection('৪. ভর্তি সংক্রান্ত তথ্য',['class','dept','branch'],['residence','blood']);
- addSection('৫. স্থায়ী ঠিকানা — লোকেশন ডাটাবেজের ড্রপডাউন অপরিবর্তিত',['division','district','upazila','union']);
- // Post field is added by the existing location binder; it is moved after the binder finishes.
- addSection('৬. ওয়ার্ড, ডাকঘর, গ্রাম ও পরিচয়পত্র',['ward','village','birth','nid'],['postcode','copy']);
- addSection('৭. পূর্ববর্তী শিক্ষা ও যোগাযোগ',['prev','photo'],['guardianemail']);
- addSection('৮. বর্তমান ঠিকানা',['address'],['current']);
+ addSection('৫. স্থায়ী ঠিকানা',['division','district','upazila','union','ward','village','postcode','birth','nid','copy','photo','current','mobile','whatsapp','email'],[],'admPermanentAddressSection2026');
+ // The existing location binder still creates and controls the post-office dropdown; only its label is placed beside the other address fields.
+ addSection('৬. পূর্ববর্তী শিক্ষা ও যোগাযোগ',['prev'],['guardianemail']);
+ // Remove the visible “ঠিকানা / Address” box but retain its original field hidden for legacy save/load compatibility.
+ var addressHidden=document.createElement('div');addressHidden.className='adm-hidden-internal';addressHidden.setAttribute('aria-hidden','true');
+ if(fieldLabels.address)addressHidden.appendChild(fieldLabels.address);
+ root.insertBefore(addressHidden,oldGrid);
  // Place the existing grid inside the new root before inserting sections; this keeps every original field node and ID.
  root.appendChild(oldGrid);
  // Main grid stays in place for all existing form logic; old labels that were not mapped are retained below.
@@ -14801,8 +14900,11 @@ function rebuild(type){
  if(manual)manual.addEventListener('input',function(){if(hiddenId)hiddenId.value=manual.value.trim()||autoId});
  var date=el('adRecordDate');if(date&&!date.value)date.value=new Date().toISOString().slice(0,10);
  var copy=el('adIdentityCopy2026');if(copy)copy.addEventListener('change',function(){var f=copy.files&&copy.files[0],fb=el('adIdentityCopyFeedback2026'),thumb=el('adIdentityCopyThumb2026');if(!f)return;if(f.size>20*1024*1024){copy.value='';if(fb)fb.textContent='❌ ফাইল ২০ MB-এর বেশি। Crop/Compress করে পুনরায় লোড করুন।';if(thumb)thumb.style.display='none';return}if(fb)fb.textContent='✓ '+f.name+' ('+(f.size/1024/1024).toFixed(2)+' MB)';if(f.type.indexOf('image/')===0&&thumb){thumb.src=URL.createObjectURL(f);thumb.style.display='block'}else if(thumb)thumb.style.display='none'});
+ var photo=el('adPhoto'),photoLabel=photo&&photo.closest('label');if(photoLabel&&!el('adPhotoThumb2026'))photoLabel.insertAdjacentHTML('beforeend','<img id="adPhotoThumb2026" class="adm-preview-thumb" alt="শিক্ষার্থীর ছবির প্রিভিউ"><span id="adPhotoFeedback2026" class="adm-file-note"></span>');
+ if(photo)photo.addEventListener('change',function(){var f=photo.files&&photo.files[0],thumb=el('adPhotoThumb2026'),fb=el('adPhotoFeedback2026');if(!f)return;if(f.size>20*1024*1024){photo.value='';if(fb)fb.textContent='❌ ছবি ২০ MB-এর বেশি। ছোট করে আবার আপলোড করুন।';if(thumb)thumb.style.display='none';return}if(f.type.indexOf('image/')!==0){photo.value='';if(fb)fb.textContent='❌ অনুগ্রহ করে ছবির ফাইল নির্বাচন করুন।';return}if(thumb){thumb.src=URL.createObjectURL(f);thumb.style.display='block'}if(fb)fb.textContent='✓ '+f.name+' ('+(f.size/1024/1024).toFixed(2)+' MB)'});
  // The location selector code is intentionally untouched. Add its generated post field to the same grid after it exists.
- setTimeout(function(){var post=takeLabel('adPostSelect');if(post){var g=root.querySelector('.adm-section:nth-of-type(6) .adm-grid');if(g&&!g.contains(post))g.insertBefore(post,g.firstChild)}},300);
+ function placePostField2026(){var post=takeLabel('adPostSelect');if(!post)return;var g=root.querySelector('#admPermanentAddressSection2026 .adm-grid');if(!g||g.contains(post))return;var wardLabel=takeLabel('adWardSelect');if(wardLabel&&wardLabel.parentNode===g)wardLabel.after(post);else g.appendChild(post)}
+ setTimeout(placePostField2026,300);setTimeout(placePostField2026,900);
  body.insertBefore(root,body.firstChild);
  if(typeof window.syncAdmissionBrandHeader20261010==='function'){} // The new original-logo and QR nodes use the actual source images captured above.
  if(el('admAdmissionRedesignQR2026')&&!originalQR)el('admAdmissionRedesignQR2026').src='https://quickchart.io/qr?size=180&margin=2&text='+encodeURIComponent(location.href.split('#')[0]);
