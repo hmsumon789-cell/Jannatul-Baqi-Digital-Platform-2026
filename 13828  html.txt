@@ -14785,7 +14785,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 #admAdmissionRedesign20261011 .adm-letter{border:1px solid #d5c078;border-radius:10px;background:#fffef7;padding:12px;line-height:1.8;font-weight:700}
 #admAdmissionRedesign20261011 .adm-declaration{border:1px solid #d7c47f;background:#fff9e7;padding:12px;border-radius:10px;line-height:1.8}
 #admAdmissionRedesign20261011 .adm-action-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
-#admAdmissionRedesign20261011 .adm-preview-thumb{display:none;max-width:100px;max-height:90px;object-fit:contain;border:1px solid #aaa;border-radius:7px;cursor:zoom-in}
+#admAdmissionRedesign20261011 .adm-preview-thumb{display:none;max-width:100px;max-height:90px;object-fit:contain;border:1px solid #aaa;border-radius:7px} #admAdmissionRedesign20261011 .adm-section-title{width:100%!important;max-width:none!important;box-sizing:border-box!important} #admAdmissionRedesign20261011 .adm-section:first-of-type .adm-section-title{font-size:13px!important}
 #admAdmissionRedesign20261011 .adm-file-note{font-size:11px;color:#76520b;line-height:1.5}
 #admAdmissionRedesign20261011 .adm-proposed-logo-20261010,#admAdmissionRedesign20261011 .jb-adm-proposed-logo-20261010{display:none!important}
 #admAdmissionRedesign20261011 .adm-hidden-internal{display:none!important}
@@ -14820,7 +14820,7 @@ function rebuild(type){
  var oldGrid=body.querySelector('.form-grid');
  if(!oldGrid)return;
  var fieldLabels={
-  namebn:takeLabel('adNameBN'),namear:takeLabel('adNameAR'),nameen:takeLabel('adNameEN'),dob:takeLabel('adDob'),
+  namebn:takeLabel('adNameBN'),namear:takeLabel('adNameAR'),nameen:takeLabel('adNameEN'),dob:takeLabel('adDob'),mobile:takeLabel('adMobile'),wa:takeLabel('adWa'),email:takeLabel('adEmail'),
   fatherbn:takeLabel('adFatherBN'),fatherar:takeLabel('adFatherAR'),fatheren:takeLabel('adFatherEN'),
   motherbn:takeLabel('adMotherBN'),motherar:takeLabel('adMotherAR'),motheren:takeLabel('adMotherEN'),
   class:takeLabel('adClass'),dept:takeLabel('adDept'),branch:takeLabel('adBranch'),photo:takeLabel('adPhoto'),
@@ -14847,7 +14847,7 @@ function rebuild(type){
   guardianemail:labelHtml('অভিভাবকের ইমেইল','adGuardianEmail2026','email',''),
   current:labelHtml('বর্তমান ঠিকানা','adCurrentAddress2026','text','', 'full'),
   postcode:labelHtml('পোস্ট কোড','adPostCode2026','text','inputmode="numeric"'),
-  copy:'<label>জন্ম নিবন্ধন / জাতীয় কার্ডের কপি<input id="adIdentityCopy2026" class="field" type="file" accept="image/*,application/pdf"><span class="adm-file-note">সর্বোচ্চ ২০ MB। বড় ফাইল হলে crop/ছোট করে আবার লোড করুন।</span><img id="adIdentityCopyThumb2026" class="adm-preview-thumb" alt="নথির প্রিভিউ" onclick="jbAdmissionViewIdentityCopy2026()"><button type="button" class="secondary" onclick="jbAdmissionViewIdentityCopy2026()">🔍 ছোট বক্সে দেখুন / বড় ভিউ</button><span id="adIdentityCopyFeedback2026" class="adm-file-note"></span></label>'
+  copy:'<label>জন্ম নিবন্ধন / জাতীয় কার্ডের কপি<input id="adIdentityCopy2026" class="field" type="file" accept="image/*,application/pdf"><span class="adm-file-note">সর্বোচ্চ ২০ MB। বড় ফাইল হলে crop/ছোট করে আবার লোড করুন।</span><img id="adIdentityCopyThumb2026" class="adm-preview-thumb" alt="নথির প্রিভিউ"><span id="adIdentityCopyFeedback2026" class="adm-file-note"></span></label>''
  };
  // Pull existing labels out of their original grid; no location database, dropdown, or cascade code is replaced.
  var allLabels=Array.prototype.slice.call(oldGrid.querySelectorAll(':scope > label'));
@@ -14863,7 +14863,7 @@ function rebuild(type){
    var h=document.createElement('h3');h.className='adm-section-title';h.textContent=title;sec.appendChild(h);
    var grid=document.createElement('div');grid.className='adm-grid';
    keys.forEach(function(k){var node=fieldLabels[k];if(node){node.classList.remove('full');grid.appendChild(node)}});
-   (extraKeys||[]).forEach(function(k){grid.insertAdjacentHTML('beforeend',extraLabels[k]||'')});
+   (extraKeys||[]).forEach(function(k){if(fieldLabels[k]){fieldLabels[k].classList.remove('full');grid.appendChild(fieldLabels[k])}else{grid.insertAdjacentHTML('beforeend',extraLabels[k]||'')}});
    sec.appendChild(grid);root.insertBefore(sec,oldGrid);
  }
  // Move ID internals into hidden storage and connect the manually entered ID without altering the original save logic.
@@ -14873,9 +14873,9 @@ function rebuild(type){
  addSection('২. পিতা/অভিভাবকের তথ্য',['fatherbn','fatherar','fatheren'],['fatherdob']);
  addSection('৩. মাতার তথ্য',['motherbn','motherar','motheren'],['motherdob']);
  addSection('৪. ভর্তি সংক্রান্ত তথ্য',['class','dept','branch'],['residence','blood']);
- addSection('৫. স্থায়ী ঠিকানা',['division','district','upazila','union','ward','village'],['postcode','birth','nid','copy'],'admPermanentAddressSection2026');
- // The existing location binder still creates and controls the post-office dropdown; only its label is placed beside the other address fields.
- addSection('৬. পূর্ববর্তী শিক্ষা ও যোগাযোগ',['prev','photo'],['guardianemail']);
+ addSection('৫. স্থায়ী ঠিকানা',['division','district','upazila','union','ward','village'],['postcode','birth','nid','copy','photo','current'],'admPermanentAddressSection2026');
+ // Contact inputs keep their original IDs so existing save/load logic continues to work.
+ addSection('৬. পূর্ববর্তী শিক্ষা ও যোগাযোগ',['mobile','wa','email','prev'],['guardianemail']);
  // Remove the visible “ঠিকানা / Address” box but retain its original field hidden for legacy save/load compatibility.
  var addressHidden=document.createElement('div');addressHidden.className='adm-hidden-internal';addressHidden.setAttribute('aria-hidden','true');
  if(fieldLabels.address)addressHidden.appendChild(fieldLabels.address);
@@ -14886,7 +14886,7 @@ function rebuild(type){
  var known={};Object.keys(fieldLabels).forEach(function(k){if(fieldLabels[k])known[fieldLabels[k]]=true});
  var leftovers=allLabels.filter(function(l){return !known[l]});
  if(leftovers.length){var sec=document.createElement('section');sec.className='adm-section';sec.innerHTML='<h3 class="adm-section-title">অতিরিক্ত তথ্য</h3>';var grid=document.createElement('div');grid.className='adm-grid';leftovers.forEach(function(l){grid.appendChild(l)});sec.appendChild(grid);root.insertBefore(sec,oldGrid)}
- oldGrid.innerHTML='<div class="adm-declaration full">উপরে প্রদত্ত তথ্য সঠিক এবং আমি অত্র প্রতিষ্ঠানের সকল নিয়ম-কানুন মেনে নেওয়ার শর্তে ইলমে দ্বীন শিক্ষার উদ্দেশ্যে আপনার মাদ্রাসায় ভর্তি হতে ইচ্ছুক। অতএব, আমাকে ভর্তির অনুমতি দিয়ে ইলমে দ্বীন অর্জনের সুযোগ দানে বাধিত করবেন।</div><div class="adm-action-row full"><label>আবেদন সিদ্ধান্ত<select id="admApplicantDecision2026" class="field"><option value="">নির্বাচন করুন</option><option value="APPROVE">আবেদন মঞ্জুর</option><option value="REJECT">আবেদন নামঞ্জুর</option></select></label><div><label>&nbsp;</label><button type="button" class="primary" onclick="openAdmissionDialog2026(\'payment\')">💳 পেমেন্ট সম্পন্ন করুন</button></div><div><label>&nbsp;</label><button type="button" class="secondary" onclick="jbAdmissionPrint2026()">🖨️ A4 প্রিন্ট</button></div><div><label>&nbsp;</label><button type="button" class="secondary" onclick="jbAdmissionDownload2026()">⬇️ ফর্ম ডাউনলোড</button></div><div><label>&nbsp;</label><button type="button" class="secondary" onclick="jbAdmissionSaveDraft2026()">💾 আবেদন সংরক্ষণ / এডিট</button></div><div><label>&nbsp;</label><button type="button" class="secondary" onclick="jbAdmissionImportClick2026()">📤 পূরণ করা ফর্ম আপলোড</button><input id="adCompletedUpload2026" type="file" accept=".docx,.xlsx,.xls,.csv,.txt,.json,.pdf,image/*" style="display:none" onchange="jbAdmissionImportFile2026(this.files&&this.files[0])"></div></div><div id="admAdmissionRedesignFeedback2026" class="adm-file-note full" aria-live="polite"></div>';
+ oldGrid.innerHTML='<div class="adm-declaration full">উপরে প্রদত্ত তথ্য সঠিক এবং আমি অত্র প্রতিষ্ঠানের সকল নিয়ম-কানুন মেনে নেওয়ার শর্তে ইলমে দ্বীন শিক্ষার উদ্দেশ্যে আপনার মাদ্রাসায় ভর্তি হতে ইচ্ছুক। অতএব, আমাকে ভর্তির অনুমতি দিয়ে ইলমে দ্বীন অর্জনের সুযোগ দানে বাধিত করবেন।</div><div class="adm-action-row full"><label>আবেদন সিদ্ধান্ত<select id="admApplicantDecision2026" class="field"><option value="">নির্বাচন করুন</option><option value="APPROVE">আবেদন মঞ্জুর</option><option value="REJECT">আবেদন নামঞ্জুর</option></select></label><div><label>&nbsp;</label><button type="button" class="primary" onclick="openAdmissionDialog2026(\'payment\')">💳 পেমেন্ট সম্পন্ন করুন</button></div></div><div id="admAdmissionRedesignFeedback2026" class="adm-file-note full" aria-live="polite"></div>';
  // Keep the original fees, admission type, payment and final-save panel; its IDs/functions remain unchanged.
  root.appendChild(oldGrid);
  if(oldParent&&root.parentNode!==oldParent)oldParent.appendChild(root);
@@ -14898,6 +14898,7 @@ function rebuild(type){
  if(manual)manual.addEventListener('input',function(){if(hiddenId)hiddenId.value=manual.value.trim()||autoId});
  var date=el('adRecordDate');if(date&&!date.value)date.value=new Date().toISOString().slice(0,10);
  var copy=el('adIdentityCopy2026');if(copy)copy.addEventListener('change',function(){var f=copy.files&&copy.files[0],fb=el('adIdentityCopyFeedback2026'),thumb=el('adIdentityCopyThumb2026');if(!f)return;if(f.size>20*1024*1024){copy.value='';if(fb)fb.textContent='❌ ফাইল ২০ MB-এর বেশি। Crop/Compress করে পুনরায় লোড করুন।';if(thumb)thumb.style.display='none';return}if(fb)fb.textContent='✓ '+f.name+' ('+(f.size/1024/1024).toFixed(2)+' MB)';if(f.type.indexOf('image/')===0&&thumb){thumb.src=URL.createObjectURL(f);thumb.style.display='block'}else if(thumb)thumb.style.display='none'});
+ var photo=el('adPhoto');if(photo){var photoLabel=photo.closest('label');if(photoLabel&&!el('adPhotoPreview2026'))photoLabel.insertAdjacentHTML('beforeend','<img id="adPhotoPreview2026" class="adm-preview-thumb" alt="শিক্ষার্থীর ছবির প্রিভিউ"><span id="adPhotoFeedback2026" class="adm-file-note"></span>');photo.addEventListener('change',function(){var f=photo.files&&photo.files[0],thumb=el('adPhotoPreview2026'),fb=el('adPhotoFeedback2026');if(!f)return;if(f.size>20*1024*1024){photo.value='';if(fb)fb.textContent='❌ ছবি ২০ MB-এর বেশি। ছোট করে পুনরায় লোড করুন।';if(thumb)thumb.style.display='none';return}if(fb)fb.textContent='✓ '+f.name+' ('+(f.size/1024/1024).toFixed(2)+' MB)';if(f.type.indexOf('image/')===0&&thumb){thumb.src=URL.createObjectURL(f);thumb.style.display='block'}})}
  // The location selector code is intentionally untouched. Add its generated post field to the same grid after it exists.
  function placePostField2026(){var post=takeLabel('adPostSelect');if(!post)return;var g=root.querySelector('#admPermanentAddressSection2026 .adm-grid');if(!g||g.contains(post))return;var wardLabel=takeLabel('adWardSelect');if(wardLabel&&wardLabel.parentNode===g)wardLabel.after(post);else g.appendChild(post)}
  setTimeout(placePostField2026,300);setTimeout(placePostField2026,900);
