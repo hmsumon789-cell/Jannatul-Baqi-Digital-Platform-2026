@@ -1757,10 +1757,7 @@ async function searchOnlinePaymentReceipt(){
 function printOnlineReceipt(){
   const b=$('onlineReceiptBody');if(!b)return;
   const w=window.open('','_blank','width=850,height=750');if(!w)return;
-  w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>মানি রসিদ</title><style>@page{size:A4 portrait;margin:14mm}body{font-family:Arial,"Noto Sans Bengali",sans-serif;padding:0;color:#111}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:9px;text-align:left}h2,h3{text-align:center}</style></head><body>'+b.outerHTML+'
-
-
-</body></html>');
+  w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>মানি রসিদ</title><style>@page{size:A4 portrait;margin:14mm}body{font-family:Arial,"Noto Sans Bengali",sans-serif;padding:0;color:#111}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:9px;text-align:left}h2,h3{text-align:center}</style></head><body>'+b.outerHTML+'</body></html>');
   w.document.close();w.focus();setTimeout(function(){w.print()},250);
 }
 
@@ -15049,60 +15046,7 @@ window.jbNoticeEdit5b4=function(id){var n=notices.find(function(x){return String
 window.jbNoticeSave5b4=async function(){if(!canManage())return status('⛔ শুধু Super Admin নোটিশ তৈরি/সম্পাদনা করতে পারবেন।');var title=(el('jbnTitle5b4').value||'').trim(),body=(el('jbnBody5b4').value||'').trim();if(!title||!body)return status('❌ শিরোনাম ও বিস্তারিত নোটিশ লিখুন।');var files=selectedFiles.slice(),input=el('jbnFiles5b4');try{for(var f of Array.from(input.files||[])){if(f.size>20*1024*1024)throw new Error('প্রতি ফাইল সর্বোচ্চ ২০ MB হতে পারবে।');var data=await new Promise(function(resolve,reject){var r=new FileReader();r.onload=function(){resolve(String(r.result).split(',')[1]||'')};r.onerror=reject;r.readAsDataURL(f)});var up=await call('uploadNoticeAttachment',token,f.name,f.type||'application/octet-stream',data);if(!up||!up.ok)throw new Error((up&&up.message)||('ফাইল আপলোড হয়নি: '+f.name));files.push({name:up.name||f.name,url:up.url,mime:f.type||'',fileId:up.fileId||''})}var payload={TitleBN:title,TitleAR:'',TitleEN:title,BodyBN:body,BodyAR:'',BodyEN:body,Date:el('jbnDate5b4').value||new Date().toISOString().slice(0,10),Status:el('jbnStatus5b4').value,Category:el('jbnCategory5b4').value,Attachments:JSON.stringify(files),Archived:el('jbnStatus5b4').value==='ARCHIVED'?'YES':'NO'};status('নোটিশ সংরক্ষণ হচ্ছে…');var r=await call('saveNoticeBoardRecord',token,editingSerial,payload);if(!r||!r.ok)throw new Error((r&&r.message)||'সংরক্ষণ ব্যর্থ');status('✅ '+(r.message||'নোটিশ সংরক্ষিত হয়েছে।'));await load();window.jbNoticeReset5b4()}catch(e){status('❌ '+(e.message||e))}};
 window.jbNoticeToggleArchive5b4=async function(id){var n=notices.find(function(x){return String(x.NoticeID||x.Serial)===String(id)});if(!n)return;var p=Object.assign({},n),arch=String(n.Status||'').toUpperCase()!=='ARCHIVED';p.Status=arch?'ARCHIVED':'DRAFT';p.Archived=arch?'YES':'NO';var r=await call('saveNoticeBoardRecord',token,String(n.Serial||''),p);if(!r||!r.ok)return status('❌ '+((r&&r.message)||'অবস্থা পরিবর্তন হয়নি'));await load();status('✅ নোটিশের অবস্থা পরিবর্তন হয়েছে।')};
 window.jbNoticeDelete5b4=async function(id){var n=notices.find(function(x){return String(x.NoticeID||x.Serial)===String(id)});if(!n||!confirm('এই নোটিশটি স্থায়ীভাবে মুছবেন?'))return;var r=await call('deleteNoticeBoardRecord',token,String(n.Serial||''));if(!r||!r.ok)return status('❌ '+((r&&r.message)||'ডিলিট ব্যর্থ'));await load();status('✅ নোটিশ মুছে ফেলা হয়েছে।')};
-window.jbNoticePrintList5b4=function(){var rows=notices.map(function(n){return '<article><h3>'+esc(n.TitleBN||'')+'</h3><p>'+esc(n.Category||'')+' · '+esc(n.Date||'')+'</p><div style="white-space:pre-wrap">'+esc(n.BodyBN||'')+'</div>'+parseFiles(n).map(function(f){return '<p><a href="'+esc(f.url||'')+'">'+esc(f.name||'ফাইল')+'</a></p>'}).join('')+'</article><hr>'}).join('');var w=window.open('','_blank','width=850,height=700');if(!w)return status('প্রিন্টের জন্য পপ-আপ অনুমতি দিন।');w.document.write('<!doctype html><html lang="bn"><meta charset="utf-8"><title>অল নোটিশ বোর্ড</title><body style="font-family:Arial,sans-serif;padding:24px">'+rows+'<script>window.onload=function(){setTimeout(function(){window.print()},250)}<\\/script>
-<!-- ===== EXAM WINDOWS CONTROLS PATCH — based on 8e60c00 ===== -->
-<style id="jb-exam-window-controls-2026">
-#examDashboardWin.jb-exam-window-fullscreen,#examManagerWin.jb-exam-window-fullscreen{position:fixed!important;inset:0!important;left:0!important;top:0!important;width:100vw!important;height:100dvh!important;max-width:none!important;max-height:100dvh!important;margin:0!important;transform:none!important;border-radius:0!important;z-index:99990!important;overflow:auto!important}
-#examDashboardWin .windowHead,#examManagerWin .windowHead{display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:move;user-select:none;touch-action:none}
-#examDashboardWin .jb-exam-window-tools,#examManagerWin .jb-exam-window-tools{display:flex;align-items:center;gap:5px;flex-shrink:0}
-#examDashboardWin .jb-exam-window-tools button,#examManagerWin .jb-exam-window-tools button{min-width:34px;min-height:32px}
-.jb-exam-restore-tab{position:fixed!important;right:14px!important;bottom:14px!important;z-index:100000!important;display:none;border:2px solid #b8860b!important;border-radius:999px!important;padding:10px 16px!important;background:#fff5c7!important;color:#352700!important;font-weight:900!important;box-shadow:0 4px 16px #0004!important}
-.jb-exam-restore-tab.visible{display:block!important}
-</style>
-<script id="jb-exam-window-controls-fix-2026">
-(function(){
-  var ids=['examDashboardWin','examManagerWin'];
-  function byId(id){return document.getElementById(id)}
-  function controls(w,id){
-    if(!w)return;
-    var head=w.querySelector('.windowHead,.win-head');
-    if(!head||head.querySelector('.jb-exam-window-tools'))return;
-    Array.prototype.slice.call(head.children).forEach(function(ch){if(ch.tagName==='BUTTON')ch.remove()});
-    var tools=document.createElement('span');tools.className='jb-exam-window-tools';
-    var min=document.createElement('button');min.type='button';min.title='মিনিমাইজ';min.setAttribute('aria-label','মিনিমাইজ');min.textContent='—';
-    var full=document.createElement('button');full.type='button';full.title='ফুল স্ক্রিন / আগের আকার';full.setAttribute('aria-label','ফুল স্ক্রিন');full.textContent='□';
-    var close=document.createElement('button');close.type='button';close.title='বন্ধ';close.setAttribute('aria-label','বন্ধ');close.textContent='✕';
-    [min,full,close].forEach(function(b){b.className='secondary';tools.appendChild(b)});
-    head.appendChild(tools);
-    min.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();w.style.display='none';w.classList.remove('show');restoreTab(id).classList.add('visible')});
-    full.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();if(w.classList.contains('jb-exam-window-fullscreen')){w.classList.remove('jb-exam-window-fullscreen');full.textContent='□';if(w.dataset.jbOldStyle!==undefined){w.setAttribute('style',w.dataset.jbOldStyle);delete w.dataset.jbOldStyle}}else{w.dataset.jbOldStyle=w.getAttribute('style')||'';w.classList.add('jb-exam-window-fullscreen');full.textContent='❐'}});
-    close.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();w.style.display='none';w.classList.remove('show','jb-exam-window-fullscreen');restoreTab(id).classList.remove('visible')});
-    head.addEventListener('mousedown',function(e){
-      if(e.button!==0||e.target.closest('button,input,select,textarea,a')||w.classList.contains('jb-exam-window-fullscreen'))return;
-      var rect=w.getBoundingClientRect(),sx=e.clientX,sy=e.clientY,ox=rect.left,oy=rect.top;
-      w.style.position='fixed';w.style.margin='0';w.style.transform='none';w.style.left=ox+'px';w.style.top=oy+'px';w.style.right='auto';
-      function move(ev){w.style.left=Math.max(0,Math.min(window.innerWidth-w.offsetWidth,ox+ev.clientX-sx))+'px';w.style.top=Math.max(0,Math.min(window.innerHeight-40,oy+ev.clientY-sy))+'px'}
-      function up(){document.removeEventListener('mousemove',move);document.removeEventListener('mouseup',up)}
-      document.addEventListener('mousemove',move);document.addEventListener('mouseup',up);e.preventDefault();
-    });
-  }
-  function restoreTab(id){
-    var tid='jbExamRestore_'+id,t=byId(tid);
-    if(!t){t=document.createElement('button');t.id=tid;t.type='button';t.className='jb-exam-restore-tab';t.textContent=id==='examManagerWin'?'➕ পরীক্ষা তৈরি/ব্যবস্থাপনা ফিরিয়ে আনুন':'📝 পরীক্ষা ড্যাশবোর্ড ফিরিয়ে আনুন';t.addEventListener('click',function(){var w=byId(id);if(!w)return;w.style.display='block';w.classList.add('show');t.classList.remove('visible')});document.body.appendChild(t)}
-    return t;
-  }
-  function setup(){ids.forEach(function(id){controls(byId(id),id)})}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup);else setup();
-  if(document.body)new MutationObserver(setup).observe(document.body,{childList:true,subtree:true});
-  var previousDashboardOpen=window.openExamDashboard;
-  window.openExamDashboard=function(){var w=byId('examDashboardWin');if(!w){if(typeof toast==='function')toast('পরীক্ষা ড্যাশবোর্ড পাওয়া যায়নি।');return}w.style.display='block';w.classList.add('show');restoreTab('examDashboardWin').classList.remove('visible');setup();if(typeof previousDashboardOpen==='function')return previousDashboardOpen.apply(this,arguments)};
-  var previousManagerOpen=window.openExamManager;
-  window.openExamManager=function(){var w=byId('examManagerWin');if(!w){if(typeof toast==='function')toast('পরীক্ষা তৈরি/ব্যবস্থাপনা উইন্ডো পাওয়া যায়নি।');return}w.style.display='block';w.classList.add('show');restoreTab('examManagerWin').classList.remove('visible');setup();if(typeof window.renderExamDrafts2026==='function')window.renderExamDrafts2026()};
-})();
-</script>
-<!-- ===== END EXAM WINDOWS CONTROLS PATCH ===== -->
-
-</body></html>');w.document.close()};
+window.jbNoticePrintList5b4=function(){var rows=notices.map(function(n){return '<article><h3>'+esc(n.TitleBN||'')+'</h3><p>'+esc(n.Category||'')+' · '+esc(n.Date||'')+'</p><div style="white-space:pre-wrap">'+esc(n.BodyBN||'')+'</div>'+parseFiles(n).map(function(f){return '<p><a href="'+esc(f.url||'')+'">'+esc(f.name||'ফাইল')+'</a></p>'}).join('')+'</article><hr>'}).join('');var w=window.open('','_blank','width=850,height=700');if(!w)return status('প্রিন্টের জন্য পপ-আপ অনুমতি দিন।');w.document.write('<!doctype html><html lang="bn"><meta charset="utf-8"><title>অল নোটিশ বোর্ড</title><body style="font-family:Arial,sans-serif;padding:24px">'+rows+'<script>window.onload=function(){setTimeout(function(){window.print()},250)}<\\/script></body></html>');w.document.close()};
 var prevModuleForm=window.moduleForm;
 window.moduleForm=function(k){if(['notice','notices'].indexOf(String(k||'').toLowerCase())>=0){if(!canManage())return '<section class="card" style="padding:15px"><h3>📢 অল নোটিশ বোর্ড</h3><p>নোটিশ ব্যবস্থাপনার জন্য Super Admin অনুমতি প্রয়োজন।</p></section>';return formHtml()}return typeof prevModuleForm==='function'?prevModuleForm.apply(this,arguments):'<p>ফর্ম পাওয়া যায়নি।</p>'};
 var prevOpenModule=window.openModule;if(typeof prevOpenModule==='function')window.openModule=function(k){var key=String(k||'').toLowerCase();if(key==='notice'||key==='notices'){var title=el('winTitle'),body=el('winBody'),win=el('formWin'),allowed=canManage();if(title)title.textContent='📢 অল নোটিশ বোর্ড';if(body)body.innerHTML=allowed?formHtml():'<section class="card" style="padding:15px"><h3>📢 অল নোটিশ বোর্ড</h3><p>নোটিশ ব্যবস্থাপনার জন্য Super Admin অনুমতি প্রয়োজন।</p></section>';if(win){win.classList.remove('minimized');win.style.height='';}if(typeof window.openWindow==='function')window.openWindow('formWin');else if(win)win.style.display='block';if(allowed)setTimeout(function(){window.jbNoticeReset5b4();load()},100);return;}return prevOpenModule.apply(this,arguments)};
