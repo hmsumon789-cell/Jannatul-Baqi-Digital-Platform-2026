@@ -1814,37 +1814,7 @@ async function searchOnlinePaymentReceipt(){
 function printOnlineReceipt(){
   const b=$('onlineReceiptBody');if(!b)return;
   const w=window.open('','_blank','width=850,height=750');if(!w)return;
-  w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>মানি রসিদ</title><style>@page{size:A4 portrait;margin:14mm}body{font-family:Arial,"Noto Sans Bengali",sans-serif;padding:0;color:#111}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:9px;text-align:left}h2,h3{text-align:center}</style></head><body>'+b.outerHTML+'<script id="jb-handwritten-a4-pdf-form-20261014">
-(function(){window.jbAdmissionDownload2026=function(){
-var r=document.getElementById('admAdmissionRedesign20261011');if(!r)return;
-var im=r.querySelector('#admAdmissionRedesignLogo2026'),logo=im?(im.currentSrc||im.src||''):'';
-logo=String(logo).replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;');
-var rows=[
-[['ভর্তি আইডি লিখুন',1],['অনলাইন আইডি',1],['ভর্তি ফর্ম নং',1],['ভর্তি তারিখ',1],['আবাসিক / অনাবাসিক □ আবাসিক □ অনাবাসিক',1]],
-[['শিক্ষার্থীর নাম (বাংলা)',2],['নাম (আরবি)',1],['নাম (English)',2]],
-[['জন্ম তারিখ',2],['জন্ম নিবন্ধন / আইডি নং',2],['রক্তের গ্রুপ',1]],
-[['পিতার নাম (বাংলা)',1],['পিতার নাম (আরবি)',1],['পিতার নাম (English)',1],['পিতার জন্ম তারিখ',1]],
-[['মাতার নাম (বাংলা)',1],['মাতার নাম (আরবি)',1],['মাতার নাম (English)',1],['মাতার জন্ম তারিখ',1]],
-[['যে শ্রেণি / জামাতে ভর্তি হতে ইচ্ছুক',2],['পূর্বে যে শ্রেণি / জামাতে পড়েছে',3]],
-[['যে প্রতিষ্ঠান থেকে এসেছে তার নাম',5]],
-[['স্থায়ী ঠিকানা — গ্রাম',1],['পোস্ট / পোস্ট কোড',1],['ওয়ার্ড',1],['ইউনিয়ন',2]],
-[['থানা / উপজেলা',2],['জেলা',2],['বিভাগ',1]],
-[['মোবাইল',2],['হোয়াটসঅ্যাপ',1],['ইমেইল',2]],
-[['বর্তমান ঠিকানা',5]],
-[['ভর্তি ফি',1],['মাসিক বেতন',1],['আবাসিক ফি',1],['অন্যান্য ফি',2]]
-];
-var table=rows.map(function(row){return '<tr>'+row.map(function(c){return '<td colspan="'+c[1]+'">'+c[0]+'<span class="line"></span></td>'}).join('')+'</tr>'}).join('');
-var d='<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>হাতে পূরণযোগ্য ভর্তি ফর্ম</title><style>'+
-'@page{size:A4 portrait;margin:7mm}*{box-sizing:border-box}body{margin:0;font-family:"Noto Sans Bengali","Nirmala UI","Vrinda",Arial,sans-serif;font-size:9px;color:#173b2a;line-height:1.2}.sheet{border:2px solid #98701c;padding:5px}.head{display:grid;grid-template-columns:18mm 1fr;gap:5px;align-items:center;text-align:center;border:1px solid #98701c;padding:4px;margin-bottom:4px}.head img{width:17mm;height:17mm;object-fit:contain}.head h1{font-size:15px;margin:0 0 2px}.head p{margin:1px;font-size:8px}.letter{text-align:center;border:1px solid #98701c;padding:4px;margin-bottom:4px}.letter h2{font-size:13px;margin:0 0 3px;text-decoration:underline}.letter p{margin:1px;font-weight:bold}.title{text-align:center;background:#ead899;border:1px solid #98701c;padding:3px;font-weight:bold}.tbl,.sign{width:100%;border-collapse:collapse;table-layout:fixed}.tbl td{border:1px solid #666;padding:3px;vertical-align:top;height:9mm}.line{display:block;border-bottom:1px dotted #888;height:4mm}.sign{margin-top:4px}.sign td{border:1px solid #666;height:15mm;text-align:center;vertical-align:bottom;padding:4px;font-weight:bold}.decl,.note{border:1px solid #666;padding:5px;margin-top:4px;text-align:justify}.note{border:2px solid #98701c;background:#fff8df;text-align:center;font-weight:bold}@media print{body{margin:0}}'+
-'</style></head><body><main class="sheet"><div class="head"><img src="'+logo+'" alt="লোগো"><div><h1>জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</h1><p dir="rtl">المدرسة الجنة الباقية للبنات ودار الايتام</p><p>Jannatul Baky Mohila Madrasha &amp; Eatimkhana</p><p>উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</p><p>হটলাইন: 01823316630 · ইমেইল: hmatik90@gmail.com</p></div></div>'+
-'<div class="letter"><h2>ভর্তি ফর্ম</h2><p>বরাবর,</p><p>মাননীয় প্রিন্সিপাল/মুহতামিম সাহেব</p><p>জান্নাতুল বাক্বী মহিলা মাদ্রাসা লিল্লাহ বোর্ডিং ও এতিমখানা</p><p>উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</p></div><div class="title">শিক্ষার্থীর তথ্য</div><table class="tbl"><tbody>'+table+'</tbody></table>'+
-'<div class="decl"><b>অঙ্গীকারনামা:</b> উপরে প্রদত্ত তথ্য সঠিক এবং আমি অত্র প্রতিষ্ঠানের সকল নিয়ম-কানুন মেনে নেওয়ার শর্তে ইলমে দ্বীন শিক্ষার উদ্দেশ্যে আপনার মাদ্রাসায় ভর্তি হতে ইচ্ছুক। অতএব, আমাকে ভর্তির অনুমতি দিয়ে ইলমে দ্বীন অর্জনের সুযোগ দানে বাধিত করবেন।</div>'+
-'<table class="sign"><tr><td>আবেদনকারীর স্বাক্ষর<br><br>........................</td><td>অভিভাবকের স্বাক্ষর<br><br>........................</td></tr><tr><td>প্রধান শিক্ষিকার স্বাক্ষর<br><br>........................</td><td>প্রিন্সিপাল / মুহতামিমের স্বাক্ষর<br><br>........................</td></tr></table>'+
-'<div class="note">বি.দ্র.: দ্রুত সময়ের মধ্যে হাতে পূরণকৃত ফর্মটি অবশ্যই মাদ্রাসার অনলাইন প্ল্যাটফর্ম / ওয়েবসাইটে এন্ট্রি করতে হবে।</div></main></body></html>';
-var w=window.open('','_blank');if(!w){var fb=document.getElementById('admAdmissionRedesignFeedback2026');if(fb)fb.textContent='PDF তৈরি করতে পপ-আপ অনুমতি দিন, তারপর আবার বাটনে চাপুন।';return}
-w.document.open();w.document.write(d);w.document.close();w.addEventListener('load',function(){setTimeout(function(){w.focus();w.print()},500)});
-};})();
-</script></body></html>');
+  w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>মানি রসিদ</title><style>@page{size:A4 portrait;margin:14mm}body{font-family:Arial,"Noto Sans Bengali",sans-serif;padding:0;color:#111}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:9px;text-align:left}h2,h3{text-align:center}</style></head><body>'+b.outerHTML+'</body></html>');
   w.document.close();w.focus();setTimeout(function(){w.print()},250);
 }
 
