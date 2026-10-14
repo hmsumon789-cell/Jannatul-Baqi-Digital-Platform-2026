@@ -15069,7 +15069,30 @@ window.jbAdmissionImportFile2026=async function(file){var fb=el('admAdmissionRed
   if(preview)preview.value=recognized;
   var aliases={NameBN:['বাংলা নাম','নাম বাংলা','শিক্ষার্থীর নাম','শিক্ষার্থীর নাম বাংলা','নাম'],NameAR:['নাম আরবি','আরবি নাম','اسم الطالب','الاسم'],NameEN:['English Name','Name EN','Student Name English'],FatherBN:['পিতার নাম','পিতার নাম বাংলা','Father Name'],MotherBN:['মাতার নাম','মাতার নাম বাংলা','Mother Name'],DOB:['জন্ম তারিখ','জন্মতারিখ','Date of Birth','DOB'],Mobile:['মোবাইল','মোবাইল নম্বর','Mobile','Phone'],Email:['ইমেইল','Email'],Class:['শ্রেণি','জামাত','Class'],Address:['ঠিকানা','Address']};
   var map={NameBN:'adNameBN',NameAR:'adNameAR',NameEN:'adNameEN',FatherBN:'adFatherBN',MotherBN:'adMotherBN',DOB:'adDob',Mobile:'adMobile',Email:'adEmail',Class:'adClass',Address:'adAddress'};
-  recognized.split(/\r?\n/).forEach(function(line){var clean=line.trim();if(!clean)return;Object.keys(aliases).forEach(function(k){aliases[k].some(function(label){var at=clean.indexOf(label);if(at===0){var value=clean.slice(label.length).replace(/^\s*[:：=—-]?\s*/,'').trim(),x=el(map[k]);if(value&&x&&!x.value.trim())x.value=value;return true}return false})})});
+  recognized.split(/\r?\n/).forEach(function(line){
+   var clean=(line||'').replace(/[：]/g,':').replace(/[|]/g,' ').trim();
+   if(!clean)return;
+   var normalized=clean.toLocaleLowerCase();
+   Object.keys(aliases).forEach(function(k){
+    var extra=({NameBN:['name bangla','student name','name'],NameAR:['arabic name','student name arabic'],NameEN:['english name','name english'],FatherBN:['father','father name','guardian name'],MotherBN:['mother','mother name'],DOB:['dob','birth date','date of birth'],Mobile:['phone number','mobile number','contact number'],Email:['email address'],Class:['class name','grade','jamaat'],Address:['present address','permanent address']})[k]||[];
+    var labels=aliases[k].concat(extra),found=null;
+    labels.some(function(label){
+     var l=String(label).toLocaleLowerCase().trim();
+     if(!l)return false;
+     var escaped=l.replace(/[.*+?^\${}()|[\]\\]/g,'\\$&');
+     var re=new RegExp('^\\s*'+escaped+'\\s*(?::|=|—|-)\\s*(.+?)\\s*$','i');
+     var m=clean.match(re);
+     if(m){found=m[1].trim();return true}
+     if(normalized.indexOf(l)===0){
+      var rest=clean.slice(label.length).replace(/^\s*[:：=—-]?\s*/,'').trim();
+      if(rest){found=rest;return true}
+     }
+     return false;
+    });
+    var field=el(map[k]);
+    if(found&&field&&!String(field.value||'').trim())field.value=found;
+   });
+  });
   if(fb)fb.textContent='✓ OCR সম্পন্ন। শনাক্ত হওয়া তথ্য পূরণ করা হয়েছে। OCR লেখা যাচাই করে বাকি তথ্য হাতে পূরণ করুন।';
  }catch(e){if(fb)fb.textContent='❌ OCR করা যায়নি: '+(e&&e.message||e)+' — ফর্মের বাকি ঘরগুলো হাতে পূরণ করতে পারবেন.'}
 }else if(fb)fb.textContent='এই ফাইলের অটো-পূরণের লাইব্রেরি পাওয়া যায়নি। .txt/.csv/.json ফাইলে “NameBN: ...” ধরনের লাইন দিয়ে আবার আপলোড করুন।'};
