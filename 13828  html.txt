@@ -14847,7 +14847,7 @@ function rebuild(type){
   guardianemail:labelHtml('অভিভাবকের ইমেইল','adGuardianEmail2026','email',''),
   current:labelHtml('বর্তমান ঠিকানা','adCurrentAddress2026','text','', 'full'),
   postcode:labelHtml('পোস্ট কোড','adPostCode2026','text','inputmode="numeric"'),
-  copy:'<label>জন্ম নিবন্ধন / জাতীয় কার্ডের কপি<input id="adIdentityCopy2026" class="field" type="file" accept="image/*,application/pdf"><span class="adm-file-note">সর্বোচ্চ ২০ MB। বড় ফাইল হলে crop/ছোট করে আবার লোড করুন।</span><img id="adIdentityCopyThumb2026" class="adm-preview-thumb" alt="নথির প্রিভিউ"><span id="adIdentityCopyFeedback2026" class="adm-file-note"></span></label>''
+  copy:'<label>জন্ম নিবন্ধন / জাতীয় কার্ডের কপি<input id="adIdentityCopy2026" class="field" type="file" accept="image/*,application/pdf"><span class="adm-file-note">সর্বোচ্চ ২০ MB। বড় ফাইল হলে crop/ছোট করে আবার লোড করুন।</span><img id="adIdentityCopyThumb2026" class="adm-preview-thumb" alt="নথির প্রিভিউ"><span id="adIdentityCopyFeedback2026" class="adm-file-note"></span></label>'
  };
  // Pull existing labels out of their original grid; no location database, dropdown, or cascade code is replaced.
  var allLabels=Array.prototype.slice.call(oldGrid.querySelectorAll(':scope > label'));
