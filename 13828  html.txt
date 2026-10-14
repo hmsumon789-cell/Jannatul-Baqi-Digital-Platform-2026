@@ -943,6 +943,34 @@ body.gold #loginPage .main-qr-802268e{background:#fff!important;border-color:#11
  color:var(--adm-green-dark);text-align:left;margin:0 0 14px;padding-bottom:10px;
  border-bottom:1px solid #e5d49b;font-size:clamp(17px,2vw,22px);
 }
+/* 076e87c follow-up: golden boxes across admission form; preserve existing running-news gold style */
+#formWin:has(#admAdmissionRedesign20261011) .adm-section,
+#formWin:has(#admissionMandatoryPanel2026) #admissionMandatoryPanel2026,
+#formWin:has(#admissionMandatoryPanel2026) .adm-fee-actions,
+#formWin:has(#admissionMandatoryPanel2026) #admFeeSummary2026,
+#formWin:has(#admissionMandatoryPanel2026) .adm-fee-actions>div,
+#formWin:has(#admissionMandatoryPanel2026) .adm-state,
+#formWin:has(#admAdmissionRedesign20261011) .adm-declaration,
+#formWin:has(#admAdmissionRedesign20261011) .adm-grid label{
+ border-color:#c99a18!important;
+}
+#formWin:has(#admAdmissionRedesign20261011) .adm-section,
+#formWin:has(#admissionMandatoryPanel2026) #admissionMandatoryPanel2026,
+#formWin:has(#admissionMandatoryPanel2026) .adm-fee-actions,
+#formWin:has(#admissionMandatoryPanel2026) #admFeeSummary2026,
+#formWin:has(#admissionMandatoryPanel2026) .adm-fee-actions>div,
+#formWin:has(#admissionMandatoryPanel2026) .adm-state,
+#formWin:has(#admAdmissionRedesign20261011) .adm-declaration{
+ background:linear-gradient(135deg,#fff9df,#f6e3a0)!important;
+ box-shadow:0 2px 8px #b8840820!important;
+}
+#formWin:has(#admissionMandatoryPanel2026) .adm-fee-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+#formWin:has(#admAdmissionRedesign20261011) input:not([type=file]),
+#formWin:has(#admAdmissionRedesign20261011) select,
+#formWin:has(#admAdmissionRedesign20261011) textarea,
+#formWin:has(#admissionMandatoryPanel2026) input,
+#formWin:has(#admissionMandatoryPanel2026) select{border-color:#c99a18!important}
+#formWin:has(#admissionMandatoryPanel2026) .adm-fee-actions>div{padding:10px!important}
 #formWin:has(#admissionMandatoryPanel2026) .adm-fee-actions{
  grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;
  padding:14px;border:1px solid #d8c27b;border-radius:14px;
@@ -13732,7 +13760,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
         '<p class="adm-required">ফর্মের প্রিভিউ দেখে সম্পাদনা করুন; পেমেন্টের অবস্থা নিশ্চিত না হওয়া পর্যন্ত রসিদকে Paid দেখানো হবে না।</p><div class="form-action-bar" style="margin-top:12px"><button id="admFinalSaveButton2026" type="button" class="primary" onclick="saveAdmissionApplication2026()" disabled>💾 ভর্তি আবেদন সংরক্ষণ</button></div></section>';
       if(save){save.insertAdjacentHTML('beforebegin',panel);save.outerHTML='<button class="primary" type="button" onclick="previewAdmissionApplication2026()">📋 ফর্ম প্রিভিউ / পরবর্তী ধাপ</button>'}
       else {var fg=body.querySelector('.form-grid');if(fg)fg.insertAdjacentHTML('afterend',panel)}
-      var previewBtn=body.querySelector('button[onclick="previewAdmissionApplication2026()"]');var feeActions=body.querySelector('#admissionMandatoryPanel2026 .adm-fee-actions');if(previewBtn&&feeActions)feeActions.appendChild(previewBtn);
+      var previewBtn=body.querySelector('button[onclick="previewAdmissionApplication2026()"]');var feeActions=body.querySelector('#admissionMandatoryPanel2026 .adm-fee-actions');if(feeActions){var feeItem=feeActions.children[0]||null;var paymentItem=feeActions.children[1]||null;var decision=el('admApplicantDecision2026');var decisionLabel=decision&&decision.closest('label');if(decisionLabel){var decisionWrap=document.createElement('div');decisionWrap.className='adm-decision-action';decisionWrap.appendChild(decisionLabel);feeActions.insertBefore(decisionWrap,feeItem);var emptyRow=decisionWrap.parentElement&&decisionWrap.parentElement.classList.contains('adm-action-row')?decisionWrap.parentElement:null;if(emptyRow&&!emptyRow.querySelector('button,select,input,textarea'))emptyRow.remove();}if(previewBtn&&paymentItem)feeActions.insertBefore(previewBtn,paymentItem);else if(previewBtn)feeActions.appendChild(previewBtn);}
       var action=body.querySelector('.form-action-bar button');if(action)action.textContent='💾 ভর্তি আবেদন সংরক্ষণ';
       setTimeout(function(){if(typeof bindAll==='function')bindAll()},40);
       return;
@@ -14886,14 +14914,14 @@ function rebuild(type){
  var known={};Object.keys(fieldLabels).forEach(function(k){if(fieldLabels[k])known[fieldLabels[k]]=true});
  var leftovers=allLabels.filter(function(l){return !known[l]});
  if(leftovers.length){var sec=document.createElement('section');sec.className='adm-section';sec.innerHTML='<h3 class="adm-section-title">অতিরিক্ত তথ্য</h3>';var grid=document.createElement('div');grid.className='adm-grid';leftovers.forEach(function(l){grid.appendChild(l)});sec.appendChild(grid);root.insertBefore(sec,oldGrid)}
- oldGrid.innerHTML='<div class="adm-declaration full">উপরে প্রদত্ত তথ্য সঠিক এবং আমি অত্র প্রতিষ্ঠানের সকল নিয়ম-কানুন মেনে নেওয়ার শর্তে ইলমে দ্বীন শিক্ষার উদ্দেশ্যে আপনার মাদ্রাসায় ভর্তি হতে ইচ্ছুক। অতএব, আমাকে ভর্তির অনুমতি দিয়ে ইলমে দ্বীন অর্জনের সুযোগ দানে বাধিত করবেন।</div><div class="adm-action-row full"><label>আবেদন সিদ্ধান্ত<select id="admApplicantDecision2026" class="field"><option value="">নির্বাচন করুন</option><option value="APPROVE">আবেদন মঞ্জুর</option><option value="REJECT">আবেদন নামঞ্জুর</option></select></label><div><label>&nbsp;</label><button type="button" class="primary" onclick="openAdmissionDialog2026(\'payment\')">💳 পেমেন্ট সম্পন্ন করুন</button></div></div><div id="admAdmissionRedesignFeedback2026" class="adm-file-note full" aria-live="polite"></div>';
+ oldGrid.innerHTML='<div class="adm-declaration full">উপরে প্রদত্ত তথ্য সঠিক এবং আমি অত্র প্রতিষ্ঠানের সকল নিয়ম-কানুন মেনে নেওয়ার শর্তে ইলমে দ্বীন শিক্ষার উদ্দেশ্যে আপনার মাদ্রাসায় ভর্তি হতে ইচ্ছুক। অতএব, আমাকে ভর্তির অনুমতি দিয়ে ইলমে দ্বীন অর্জনের সুযোগ দানে বাধিত করবেন।</div><div class="adm-action-row full"><label>আবেদন সিদ্ধান্ত<select id="admApplicantDecision2026" class="field"><option value="">নির্বাচন করুন</option><option value="APPROVE">আবেদন মঞ্জুর</option><option value="REJECT">আবেদন নামঞ্জুর</option></select></label></div><div id="admAdmissionRedesignFeedback2026" class="adm-file-note full" aria-live="polite"></div>';
  // Keep the original fees, admission type, payment and final-save panel; its IDs/functions remain unchanged.
  root.appendChild(oldGrid);
  if(oldParent&&root.parentNode!==oldParent)oldParent.appendChild(root);
  // Root inserted before old grid earlier; now ensure root wraps every visible section and existing workflow panel.
  var panel=el('admissionMandatoryPanel2026');if(panel){root.appendChild(panel);var labels=panel.querySelectorAll('label');labels.forEach(function(l){var id=l.querySelector('select,input,textarea');if(!id)return; if(['admEntryType2026','admStudentCategory2026','admInlineAdmissionType2026'].includes(id.id)){var g=root.querySelector('.adm-section:nth-of-type(4) .adm-grid');if(g)g.appendChild(l)}})}
  var originalSave=body.querySelector('button[onclick="saveAdmissionApplication2026()"]');
- if(originalSave){originalSave.classList.add('adm-existing-final-save');originalSave.textContent='💾 আবেদন চূড়ান্তভাবে সংরক্ষণ করুন'}
+ if(originalSave){originalSave.classList.add('adm-existing-final-save');originalSave.textContent='💾 আবেদন চূড়ান্তভাবে সংরক্ষণ করুন';body.querySelectorAll('.form-language-fixed').forEach(function(lang){if(originalSave.compareDocumentPosition(lang)&Node.DOCUMENT_POSITION_FOLLOWING)lang.remove()});body.querySelectorAll('button').forEach(function(btn){if(btn===originalSave||btn.id==='admFinalSaveButton2026')return;var label=(btn.textContent||'').replace(/[💾✏️🖨️⬇️🧹]/g,'').trim();if(/^(সেভ|সেভ করুন|Save|Edit|এডিট|প্রিন্ট|Print|ডাউনলোড|Download|ক্লিয়ার|Clear|পরিষ্কার করুন)$/i.test(label)){btn.remove();}});}
  var manual=el('admManualID2026');
  if(manual)manual.addEventListener('input',function(){if(hiddenId)hiddenId.value=manual.value.trim()||autoId});
  var date=el('adRecordDate');if(date&&!date.value)date.value=new Date().toISOString().slice(0,10);
