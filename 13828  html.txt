@@ -12722,16 +12722,42 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   var CODES={MS:1,RS:1,ID:1,AC:1,CT:1,RC:1,TI:1,AF:1,LF:1,ER:1,TC:1,AP:1,LM:1,LC:1,TR:1,TA:1,EF:1,EI:1};
   function E(id){return document.getElementById(id)}
   function openOnline(sig,q){
-    /* সম্পূর্ণ URL-এ সরাসরি ট্যাব খুলুন; about:blank রেখে async call-এর অপেক্ষায় সাদা পেজ থাকতে পারে। */
-    var base=String(window.location.href||'').split('#')[0].split('?')[0];
-    var url=base+'?online=1&code='+encodeURIComponent(sig)+'&id='+encodeURIComponent(q);
-    var target=window.open(url,'_blank');
+    /* Always resolve the real Apps Script Web App URL before navigating; show a status instead of a blank tab. */
+    var target=window.open('about:blank','_blank');
     if(!target){
       if(typeof toast==='function')toast('অনলাইন সেবা খুলতে ব্রাউজারের Popup অনুমতি দিন।');
       else alert('অনলাইন সেবা খুলতে ব্রাউজারের Popup অনুমতি দিন।');
       return;
     }
-    try{target.focus();}catch(e){}
+    try{
+      target.document.open();
+      target.document.write('<!doctype html><html lang="bn"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>অনলাইন সেবা</title><body style="font-family:Arial,sans-serif;padding:32px;text-align:center;color:#174b42"><h2>জান্নাতুল বাক্বী — অনলাইন সেবা</h2><p id="msg">সঠিক সেবা ঠিকানা খোঁজা হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন…</p></body></html>');
+      target.document.close();
+    }catch(e){}
+    function fail(message){
+      try{
+        var p=target.document.getElementById('msg');
+        if(p)p.textContent=message;
+      }catch(e){}
+    }
+    try{
+      if(typeof google!=='undefined'&&google.script&&google.script.run){
+        google.script.run
+          .withSuccessHandler(function(r){
+            var base=String(r&&r.ok&&r.url?r.url:'').trim().split('#')[0].split('?')[0];
+            if(!base){fail('সেবা ঠিকানা পাওয়া যায়নি। Code.gs-এর getMainWebAppUrl এবং Web App deployment যাচাই করুন।');return;}
+            target.location.replace(base+'?online=1&code='+encodeURIComponent(sig)+'&id='+encodeURIComponent(q));
+          })
+          .withFailureHandler(function(e){
+            fail('সার্ভার থেকে সেবা ঠিকানা পাওয়া যায়নি। Code.gs-এ getMainWebAppUrl এবং সর্বশেষ Web App deployment যাচাই করুন।');
+          })
+          .getMainWebAppUrl();
+      }else{
+        fail('এই পেজটি Google Apps Script Web App থেকে খুলুন; সরাসরি ফাইল/প্রিভিউ থেকে অনলাইন সেবা সার্চ করা যাবে না।');
+      }
+    }catch(e){
+      fail('অনলাইন সেবা খুলতে সমস্যা হয়েছে: '+String(e&&e.message||e));
+    }
   }
   var old=window.doSearch;
   if(typeof old!=='function')return;
