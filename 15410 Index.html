@@ -15513,19 +15513,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 #formWin #admAdmissionRedesign20261011 .jb-admission-news-language-row-20261014>button[onclick*="jbAdmissionShowRules2026"]{flex:0 0 auto!important;width:auto!important;max-width:190px!important;min-width:0!important;white-space:normal!important;line-height:1.25!important;padding:7px 9px!important;font-size:12px!important;background:linear-gradient(135deg,#fff0ad,#e8bd45)!important;color:#382500!important;border:2px solid #b88408!important;border-radius:9px!important}
 @media(max-width:560px){#formWin #admAdmissionRedesign20261011 .jb-admission-news-language-row-20261014>button[onclick*="jbAdmissionShowRules2026"]{max-width:112px!important;font-size:10px!important;padding:5px!important}}
 </style>\n<style id="jb-admission-logo-qr-news-upload-layout-20261014">
-/* ভর্তি ফর্ম: লোগো ও QR অর্ধ ইঞ্চি ওপরে */
-#formWin #admAdmissionRedesign20261011 .adm-redesign-head #admAdmissionRedesignLogo2026,
-#formWin #admAdmissionRedesign20261011 .adm-redesign-head #admAdmissionRedesignQR2026{
-  transform:translateY(-0.5in)!important;
-}
-/* নিউজ বক্স: ডেস্কটপে দুই পাশে ১ ইঞ্চি করে বিস্তৃত */
-@media(min-width:761px){
- #formWin #admAdmissionRedesign20261011 .jb-admission-news-language-row-20261014{
-  width:calc(100% + 2in)!important;
-  margin-left:-1in!important;
-  margin-right:-1in!important;
- }
-}
+/* লোগো/QR এবং চলমান নিউজ বক্সের পূর্বের অবস্থান ও মাপ বজায় রাখা হয়েছে */
 /* হাতে লেখা ফর্ম ডাউনলোডের ঠিক ডানে আপলোড বাটন */
 #formWin #admAdmissionRedesign20261011 .adm-id-tools>div:has(button[onclick*="jbAdmissionDownload2026(true)"]){
  display:flex!important;align-items:flex-end!important;gap:6px!important;min-width:0!important;
@@ -15534,19 +15522,14 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  display:none!important;
 }
 #formWin #admAdmissionRedesign20261011 .adm-id-tools>div:has(button[onclick*="jbAdmissionDownload2026(true)"]) button{
- flex:1 1 0!important;min-width:0!important;white-space:normal!important;
- margin:0!important;padding:7px 8px!important;font-size:12px!important;line-height:1.25!important;
+ flex:1 1 0!important;min-width:0!important;min-height:68px!important;height:auto!important;white-space:normal!important;
+ margin:0!important;padding:14px 8px!important;font-size:12px!important;line-height:1.5!important;
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;box-sizing:border-box!important;
 }
 @media(max-width:760px){
- #formWin #admAdmissionRedesign20261011 .adm-redesign-head #admAdmissionRedesignLogo2026,
- #formWin #admAdmissionRedesign20261011 .adm-redesign-head #admAdmissionRedesignQR2026{
-  transform:translateY(-0.5in)!important;
- }
- #formWin #admAdmissionRedesign20261011 .jb-admission-news-language-row-20261014{
-  width:100%!important;margin-left:0!important;margin-right:0!important;
- }
+ #formWin #admAdmissionRedesign20261011 .jb-admission-news-language-row-20261014{width:100%!important;margin-left:0!important;margin-right:0!important;}
  #formWin #admAdmissionRedesign20261011 .adm-id-tools>div:has(button[onclick*="jbAdmissionDownload2026(true)"]) button{
-  font-size:10px!important;padding:6px 4px!important;
+  min-height:68px!important;font-size:10px!important;padding:12px 4px!important;line-height:1.4!important;
  }
 }
 </style>
@@ -15601,57 +15584,6 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <!-- ===== END ONLINE ADMISSION NEWS + THREE-LANGUAGE DROPDOWN ===== -->
 
 
-<style id="jb-admission-logo-qr-ticker-buttons-adjust-20261014">
-/* ভর্তি ফর্ম: লোগো/QR অর্ধ ইঞ্চি উপরে; লোগো ডানে ও QR বামে ২ ইঞ্চি */
-#formWin #admAdmissionRedesign20261011 .adm-redesign-head #admAdmissionRedesignLogo2026{
-  transform:translate(2in,-0.5in)!important;
-}
-#formWin #admAdmissionRedesign20261011 .adm-redesign-head #admAdmissionRedesignQR2026{
-  transform:translate(-2in,-0.5in)!important;
-}
-/* চলমান নিউজ বক্স: দুই পাশে অতিরিক্ত এক ইঞ্চি করে */
-#formWin #admAdmissionRedesign20261011 .jb-admission-news-language-row-20261014{
-  overflow:visible!important;
-}
-#formWin #admAdmissionRedesign20261011 .jb-admission-news-language-row-20261014 .jb-admission-news-ticker-20261012{
-  width:calc(100% + 2in)!important;
-  flex:1 0 calc(100% + 2in)!important;
-  max-width:none!important;
-  margin-left:-1in!important;
-}
-/* হাতে-লেখা ফর্ম ডাউনলোড ও আপলোড—দুটি বাটনই প্রশস্ত */
-#formWin #admAdmissionRedesign20261011 .adm-id-tools button[onclick*="jbAdmissionDownload2026(true)"],
-#formWin #admAdmissionRedesign20261011 .adm-id-tools button[onclick*="jbAdmissionHandwrittenUpload2026"]{
-  display:inline-flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  min-width:250px!important;
-  min-height:58px!important;
-  padding:12px 18px!important;
-  white-space:normal!important;
-  line-height:1.35!important;
-  box-sizing:border-box!important;
-}
-@media(max-width:700px){
-  #formWin #admAdmissionRedesign20261011 .adm-redesign-head #admAdmissionRedesignLogo2026{
-    transform:translate(0.35in,-0.5in)!important;
-  }
-  #formWin #admAdmissionRedesign20261011 .adm-redesign-head #admAdmissionRedesignQR2026{
-    transform:translate(-0.35in,-0.5in)!important;
-  }
-  #formWin #admAdmissionRedesign20261011 .jb-admission-news-language-row-20261014 .jb-admission-news-ticker-20261012{
-    width:calc(100% + 0.5in)!important;
-    flex-basis:calc(100% + 0.5in)!important;
-    margin-left:-0.25in!important;
-  }
-  #formWin #admAdmissionRedesign20261011 .adm-id-tools button[onclick*="jbAdmissionDownload2026(true)"],
-  #formWin #admAdmissionRedesign20261011 .adm-id-tools button[onclick*="jbAdmissionHandwrittenUpload2026"]{
-    min-width:0!important;
-    width:100%!important;
-    min-height:54px!important;
-    margin-left:0!important;
-  }
-}
-</style>
+
 
 <style id="jb-admission-news-language-row-direction-fix-20261014">#formWin #admAdmissionRedesign20261011 .jb-admission-news-language-row-20261014{direction:ltr!important}</style>
