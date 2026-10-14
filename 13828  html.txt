@@ -14774,6 +14774,11 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 #admAdmissionRedesign20261011 .adm-id-tools button,#admAdmissionRedesign20261011 .adm-action-row button{white-space:normal;min-height:42px;font-weight:800}
 #admAdmissionRedesign20261011 .adm-section{border:1px solid #d8c47f;border-radius:12px;padding:12px;background:rgba(255,255,255,.92);box-shadow:0 3px 10px #173f2510}
 #admAdmissionRedesign20261011 .adm-section-title{margin:0 0 10px;padding:7px 12px;border-radius:999px;background:linear-gradient(90deg,#176b45,#287d53);color:#fff7dc;text-align:center;font-weight:900}
+#admAdmissionRedesign20261011 .adm-section-title{font-size:13px!important;line-height:1.25!important;padding:5px 10px!important;margin:0 auto 8px!important;width:fit-content;max-width:100%;font-weight:1000!important}
+#admAdmissionRedesign20261011 .adm-section:first-of-type .adm-section-title{font-size:18px!important;font-weight:1000!important}
+#admAdmissionRedesign20261011 button{box-sizing:border-box!important;width:100%!important;min-width:0!important;min-height:42px!important;height:auto!important;padding:8px 12px!important;border-radius:999px!important;font-weight:900!important;display:flex!important;align-items:center!important;justify-content:center!important;text-align:center!important;white-space:normal!important;line-height:1.3!important}
+#admAdmissionRedesign20261011 .adm-section{padding:10px!important}
+#admAdmissionRedesign20261011 .adm-id-tools button,#admAdmissionRedesign20261011 .adm-action-row button{min-height:42px!important}
 #admAdmissionRedesign20261011 .adm-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
 #admAdmissionRedesign20261011 .adm-grid .full{grid-column:1/-1}
 #admAdmissionRedesign20261011 .adm-address-note{font-size:12px;font-weight:700;color:#516b59;margin-top:6px}
@@ -14853,8 +14858,8 @@ function rebuild(type){
  oldGrid.classList.add('adm-redesign-root-grid');
  var originalDate=recordDate?recordDate:document.createElement('input');if(originalDate&&originalDate.id==='adRecordDate')originalDate.type='hidden';
  root.appendChild(oldGrid);
- function addSection(title,keys,extraKeys){
-   var sec=document.createElement('section');sec.className='adm-section';
+ function addSection(title,keys,extraKeys,sectionId){
+   var sec=document.createElement('section');sec.className='adm-section';if(sectionId)sec.id=sectionId;
    var h=document.createElement('h3');h.className='adm-section-title';h.textContent=title;sec.appendChild(h);
    var grid=document.createElement('div');grid.className='adm-grid';
    keys.forEach(function(k){var node=fieldLabels[k];if(node){node.classList.remove('full');grid.appendChild(node)}});
@@ -14868,11 +14873,13 @@ function rebuild(type){
  addSection('২. পিতা/অভিভাবকের তথ্য',['fatherbn','fatherar','fatheren'],['fatherdob']);
  addSection('৩. মাতার তথ্য',['motherbn','motherar','motheren'],['motherdob']);
  addSection('৪. ভর্তি সংক্রান্ত তথ্য',['class','dept','branch'],['residence','blood']);
- addSection('৫. স্থায়ী ঠিকানা — লোকেশন ডাটাবেজের ড্রপডাউন অপরিবর্তিত',['division','district','upazila','union']);
- // Post field is added by the existing location binder; it is moved after the binder finishes.
- addSection('৬. ওয়ার্ড, ডাকঘর, গ্রাম ও পরিচয়পত্র',['ward','village','birth','nid'],['postcode','copy']);
- addSection('৭. পূর্ববর্তী শিক্ষা ও যোগাযোগ',['prev','photo'],['guardianemail']);
- addSection('৮. বর্তমান ঠিকানা',['address'],['current']);
+ addSection('৫. স্থায়ী ঠিকানা',['division','district','upazila','union','ward','village'],['postcode','birth','nid','copy'],'admPermanentAddressSection2026');
+ // The existing location binder still creates and controls the post-office dropdown; only its label is placed beside the other address fields.
+ addSection('৬. পূর্ববর্তী শিক্ষা ও যোগাযোগ',['prev','photo'],['guardianemail']);
+ // Remove the visible “ঠিকানা / Address” box but retain its original field hidden for legacy save/load compatibility.
+ var addressHidden=document.createElement('div');addressHidden.className='adm-hidden-internal';addressHidden.setAttribute('aria-hidden','true');
+ if(fieldLabels.address)addressHidden.appendChild(fieldLabels.address);
+ root.insertBefore(addressHidden,oldGrid);
  // Place the existing grid inside the new root before inserting sections; this keeps every original field node and ID.
  root.appendChild(oldGrid);
  // Main grid stays in place for all existing form logic; old labels that were not mapped are retained below.
@@ -14892,7 +14899,8 @@ function rebuild(type){
  var date=el('adRecordDate');if(date&&!date.value)date.value=new Date().toISOString().slice(0,10);
  var copy=el('adIdentityCopy2026');if(copy)copy.addEventListener('change',function(){var f=copy.files&&copy.files[0],fb=el('adIdentityCopyFeedback2026'),thumb=el('adIdentityCopyThumb2026');if(!f)return;if(f.size>20*1024*1024){copy.value='';if(fb)fb.textContent='❌ ফাইল ২০ MB-এর বেশি। Crop/Compress করে পুনরায় লোড করুন।';if(thumb)thumb.style.display='none';return}if(fb)fb.textContent='✓ '+f.name+' ('+(f.size/1024/1024).toFixed(2)+' MB)';if(f.type.indexOf('image/')===0&&thumb){thumb.src=URL.createObjectURL(f);thumb.style.display='block'}else if(thumb)thumb.style.display='none'});
  // The location selector code is intentionally untouched. Add its generated post field to the same grid after it exists.
- setTimeout(function(){var post=takeLabel('adPostSelect');if(post){var g=root.querySelector('.adm-section:nth-of-type(6) .adm-grid');if(g&&!g.contains(post))g.insertBefore(post,g.firstChild)}},300);
+ function placePostField2026(){var post=takeLabel('adPostSelect');if(!post)return;var g=root.querySelector('#admPermanentAddressSection2026 .adm-grid');if(!g||g.contains(post))return;var wardLabel=takeLabel('adWardSelect');if(wardLabel&&wardLabel.parentNode===g)wardLabel.after(post);else g.appendChild(post)}
+ setTimeout(placePostField2026,300);setTimeout(placePostField2026,900);
  body.insertBefore(root,body.firstChild);
  if(typeof window.syncAdmissionBrandHeader20261010==='function'){} // The new original-logo and QR nodes use the actual source images captured above.
  if(el('admAdmissionRedesignQR2026')&&!originalQR)el('admAdmissionRedesignQR2026').src='https://quickchart.io/qr?size=180&margin=2&text='+encodeURIComponent(location.href.split('#')[0]);
