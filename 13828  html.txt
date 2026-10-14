@@ -15067,6 +15067,7 @@ window.jbNoticePrintList5b4=function(){var rows=notices.map(function(n){return '
     if(!w)return;
     var head=w.querySelector('.windowHead,.win-head');
     if(!head||head.querySelector('.jb-exam-window-tools'))return;
+    Array.prototype.slice.call(head.children).forEach(function(ch){if(ch.tagName==='BUTTON')ch.remove()});
     var tools=document.createElement('span');tools.className='jb-exam-window-tools';
     var min=document.createElement('button');min.type='button';min.title='মিনিমাইজ';min.setAttribute('aria-label','মিনিমাইজ');min.textContent='—';
     var full=document.createElement('button');full.type='button';full.title='ফুল স্ক্রিন / আগের আকার';full.setAttribute('aria-label','ফুল স্ক্রিন');full.textContent='□';
