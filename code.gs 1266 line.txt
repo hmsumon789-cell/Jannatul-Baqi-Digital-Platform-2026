@@ -812,14 +812,19 @@ function saveAdmissionDraft2026(token,data,action) {
   if(!admissionId)return {ok:false,message:'আবেদন ID তৈরি হয়নি।'};
   const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
   const values=sh.getDataRange().getValues();
-  const idCol=headers.indexOf('AdmissionID'),statusCol=headers.indexOf('Status');
+  const idCol=headers.indexOf('AdmissionID'),statusCol=headers.indexOf('Status'),studentIdCol=headers.indexOf('StudentID'),formDataCol=headers.indexOf('FormData');
   let rowNum=-1;
-  for(let i=1;i<values.length;i++)if(idCol>=0&&String(values[i][idCol]||'').trim()===admissionId){rowNum=i+1;break;}
+  for(let i=1;i<values.length;i++){
+    const storedAdmission=idCol>=0?String(values[i][idCol]||'').trim():'';
+    const storedStudent=studentIdCol>=0?String(values[i][studentIdCol]||'').trim():'';
+    let storedForm={};
+    if(formDataCol>=0&&values[i][formDataCol]){try{const raw=values[i][formDataCol];storedForm=typeof raw==='string'?JSON.parse(raw):raw||{};}catch(ignoreFormData){storedForm={};}}
+    if(storedAdmission===admissionId||storedStudent===admissionId||String(storedForm.StudentID||'').trim()===admissionId||String(storedForm.HandwrittenID||'').trim()===admissionId||String(storedForm.FormID||'').trim()===admissionId){rowNum=i+1;break;}
+  }
   if(action==='LOAD'){
     if(rowNum<2)return {ok:false,found:false,message:'এই ID-তে পুরাতন/অসম্পূর্ণ ভর্তি ফর্ম পাওয়া যায়নি।'};
-    const formCol=headers.indexOf('FormData');
     let formData={};
-    if(formCol>=0){const raw=values[rowNum-1][formCol];if(raw){try{formData=typeof raw==='string'?JSON.parse(raw):raw;}catch(parseError){return {ok:false,found:false,message:'সংরক্ষিত ফর্মের তথ্য পড়া যায়নি; প্রশাসকের সহায়তা নিন।'};}}}
+    if(formDataCol>=0){const raw=values[rowNum-1][formDataCol];if(raw){try{formData=typeof raw==='string'?JSON.parse(raw):raw;}catch(parseError){return {ok:false,found:false,message:'সংরক্ষিত ফর্মের তথ্য পড়া যায়নি; প্রশাসকের সহায়তা নিন।'};}}}
     return {ok:true,found:true,admissionId:admissionId,status:statusCol>=0?String(values[rowNum-1][statusCol]||'INCOMPLETE'):'INCOMPLETE',formData:formData,message:'সংরক্ষিত ভর্তি ফর্ম লোড হয়েছে।'};
   }
   if(action==='CANCEL'){
