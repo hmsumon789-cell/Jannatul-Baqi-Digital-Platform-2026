@@ -819,6 +819,30 @@ function saveAdmissionDraft2026(token,data,action) {
   const idCol=headers.indexOf('AdmissionID'),statusCol=headers.indexOf('Status');
   let rowNum=-1;
   for(let i=1;i<values.length;i++)if(idCol>=0&&String(values[i][idCol]||'').trim()===admissionId){rowNum=i+1;break;}
+  // A matching AdmissionID can be an existing incomplete draft being edited,
+  // but must not silently overwrite an already submitted/cancelled application.
+  if(rowNum>1 && action!=='LOAD' && action!=='CANCEL'){
+    const duplicateMessage='এই আইডিটি ইতিপূর্বে ব্যবহার হয়েছে। অনুগ্রহ করে নতুন আইডি লিখুন।';
+    const existingStatus=statusCol>=0?String(values[rowNum-1][statusCol]||'INCOMPLETE').trim().toUpperCase():'INCOMPLETE';
+    if(existingStatus!=='INCOMPLETE') return {ok:false,duplicate:true,message:duplicateMessage,duplicateIn:SHEETS.ADMISSIONS};
+    const formColForDuplicate=headers.indexOf('FormData');
+    let existingForm={};
+    if(formColForDuplicate>=0 && values[rowNum-1][formColForDuplicate]){
+      const oldPayload=values[rowNum-1][formColForDuplicate];
+      try{existingForm=typeof oldPayload==='string'?JSON.parse(oldPayload):oldPayload;}catch(e){existingForm={};}
+    }
+    let incomingForm={};
+    if(data.FormData){
+      try{incomingForm=typeof data.FormData==='string'?JSON.parse(data.FormData):data.FormData;}catch(e){incomingForm={};}
+    }
+    const identityKeys=['NameBN','DOB','Mobile','Email'];
+    const changedIdentity=identityKeys.some(function(key){
+      const oldValue=String(existingForm[key]||'').trim().toLowerCase();
+      const newValue=String(incomingForm[key]||'').trim().toLowerCase();
+      return oldValue && newValue && oldValue!==newValue;
+    });
+    if(changedIdentity) return {ok:false,duplicate:true,message:duplicateMessage,duplicateIn:SHEETS.ADMISSIONS};
+  }
   if(action==='LOAD'){
     if(rowNum<2)return {ok:false,found:false,message:'এই ID-তে পুরাতন/অসম্পূর্ণ ভর্তি ফর্ম পাওয়া যায়নি।'};
     const formCol=headers.indexOf('FormData');
