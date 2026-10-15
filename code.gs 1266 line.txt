@@ -1796,25 +1796,25 @@ function onlineServicePersonId_(data,docKey,fallback) {
 }
 function onlineServiceRemoveDivClass_(html,className) {
   let s=String(html||'');
-  const cls=String(className||'').replace(/[.*+?^${}()|[\]\\]/g,'\\function onlineServiceCleanHtml_(html) {
-  let s=String(html||'');
-  s=s.replace(/<script[\s\S]*?<\/script>/gi,'');
-  s=s.replace(/<button\b[^>]*>[\s\S]*?<\/button>/gi,'');
-  s=s.replace(/\s+on[a-z]+\s*=\s*(".*?"|'.*?'|[^\s>]+)/gi,'');
-  s=s.replace(/contenteditable\s*=\s*("true"|'true'|true)/gi,'');
-  s=s.replace(/<div[^>]*class=(["'])[^"']*jb-verification-qr[^"']*\1[^>]*>[\s\S]*?<\/div>/gi,'');
-  return s;
-}');
-  const startRe=new RegExp('<div\\b[^>]*class=(["\\'])[^"\\']*\\b'+cls+'\\b[^"\\']*\\1[^>]*>','i');
-  let guard=0,match;
-  while((match=startRe.exec(s)) && guard++<30) {
+  let guard=0;
+  while(guard++<30) {
+    const openTags=/<div\\b[^>]*class=(["'])([^"']*)\\1[^>]*>/gi;
+    let match=null, candidate;
+    while((candidate=openTags.exec(s))) {
+      if(candidate[2].split(/\\s+/).indexOf(String(className||''))>=0) {
+        match=candidate;
+        break;
+      }
+    }
+    if(!match) break;
     const start=match.index, contentStart=start+match[0].length;
-    const tags=/<\\/?div\\b[^>]*>/gi; tags.lastIndex=contentStart;
+    const tags=/<\\/?div\\b[^>]*>/gi;
+    tags.lastIndex=contentStart;
     let depth=1,tag,finish=-1;
     while((tag=tags.exec(s))) {
       if(/^<\\s*div\\b/i.test(tag[0])) depth++;
       else depth--;
-      if(depth===0){finish=tags.lastIndex;break;}
+      if(depth===0) { finish=tags.lastIndex; break; }
     }
     if(finish<0) break;
     s=s.slice(0,start)+s.slice(finish);
@@ -1823,15 +1823,16 @@ function onlineServiceRemoveDivClass_(html,className) {
 }
 function onlineServiceCleanHtml_(html) {
   let s=String(html||'');
-  s=s.replace(/<script[\s\S]*?<\/script>/gi,'');
-  s=s.replace(/<button\b[^>]*>[\s\S]*?<\/button>/gi,'');
-  s=s.replace(/\s+on[a-z]+\s*=\s*(".*?"|'.*?'|[^\s>]+)/gi,'');
-  s=s.replace(/contenteditable\s*=\s*("true"|'true'|true)/gi,'');
+  s=s.replace(/<script[\\s\\S]*?<\\/script>/gi,'');
+  s=s.replace(/<button\\b[^>]*>[\\s\\S]*?<\\/button>/gi,'');
+  s=s.replace(/\\s+on[a-z]+\\s*=\\s*(".*?"|'.*?'|[^\\s>]+)/gi,'');
+  s=s.replace(/contenteditable\\s*=\\s*("true"|'true'|true)/gi,'');
   s=onlineServiceRemoveDivClass_(s,'jb-institution-header-2026');
   s=onlineServiceRemoveDivClass_(s,'jb-institution-contact-2026');
   s=onlineServiceRemoveDivClass_(s,'jb-verification-qr');
   return s;
 }
+
 function onlineServicePdf_(title,html,serviceId) {
   try {
     const clean=onlineServiceCleanHtml_(html);
