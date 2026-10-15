@@ -34,7 +34,7 @@ const SHEETS = {
 const HEADERS = {
   ADMINS:['Serial','AdminID','NameBN','NameAR','NameEN','Username','PasswordHash','Email','Mobile','WhatsApp','Address','Photo','BirthReg','NID','ApprovalID','Role','Status','CreatedAt','Password','Permissions','ApprovedBy','ApprovedAt'],
   STUDENTS:['Serial','StudentID','FormID','MobileID','EmailID','NameBN','NameAR','NameEN','FatherBN','FatherAR','FatherEN','MotherBN','MotherAR','MotherEN','DOB','Gender','Class','Department','Branch','Residence','Mobile','WhatsApp','Email','Address','Photo','BirthReg','NID','Documents','CreatedAt','ApprovalStatus','SourceType','SourceAccount','ApprovedBy','ApprovedAt','AcademicYear'],
-  TEACHERS:['Serial','TeacherID','NameBN','NameAR','NameEN','FatherBN','FatherAR','FatherEN','Mobile','WhatsApp','Email','Department','Branch','Gender','Address','Photo','BirthReg','NID','Documents','CreatedAt'],
+  TEACHERS:['Serial','TeacherID','NameBN','NameAR','NameEN','FatherBN','FatherAR','FatherEN','Mobile','WhatsApp','Email','Department','Branch','Gender','Address','Photo','BirthReg','NID','Documents','CreatedAt','FormID'],
   DONORS:['Serial','DonorID','NameBN','NameAR','NameEN','Mobile','WhatsApp','Email','Address','Amount','Fund','Photo','CreatedAt'],
   ADMISSIONS:['Serial','AdmissionID','StudentID','Session','Class','Branch','Status','FormData','CreatedAt'],
   EXAM_REG:['Serial','ExamRegID','StudentID','Exam','Class','Branch','Status','FormData','CreatedAt'],
@@ -298,7 +298,6 @@ function registerMadrasa(data){
   log_('PUBLIC','register','MADRASA',id);
   return {ok:true,madrasaId:id,message:'নতুন মাদ্রাসা নিবন্ধন হয়েছে। প্রশাসন/সুপার অ্যাডমিন অনুমোদনের পর Username + Password দিয়ে OTP ছাড়া লগইন করতে পারবেন।'};
 }
-
 function loginNewAdmin(username,password){
   setupSystem(); username=String(username||'').trim(); password=String(password||'');
   const row=findBy_(SHEETS.ADMINS,'Username',username);
@@ -597,12 +596,11 @@ function getStats(token) {
 }
 
 function searchAll(token,signal,query) {
-  signal=String(signal||'').trim().toLowerCase();
-  query=String(query||'').trim();
+  signal=String(signal||'').trim().toLowerCase();  query=String(query||'').trim();
   if(!query) return {ok:false,message:'সার্চ ID দিন।'};
   const rules={
-    std:{sheet:SHEETS.STUDENTS,keys:['StudentID','MobileID','Mobile','WhatsApp','EmailID','Email','NameBN','NameAR','NameEN'],ids:['StudentID']},
-    thr:{sheet:SHEETS.TEACHERS,keys:['TeacherID','Mobile','Phone','WhatsApp','Email','NameBN','NameAR','NameEN','Name'],ids:['TeacherID']},
+    std:{sheet:SHEETS.STUDENTS,keys:['StudentID','FormID','MobileID','Mobile','WhatsApp','EmailID','Email','NameBN','NameAR','NameEN'],ids:['StudentID']},
+    thr:{sheet:SHEETS.TEACHERS,keys:['TeacherID','FormID','Mobile','Phone','WhatsApp','Email','NameBN','NameAR','NameEN','Name'],ids:['TeacherID']},
     olp:{sheet:SHEETS.PAYMENTS,keys:['PaymentID','StudentID','Name','Mobile','Reference','TransactionID'],ids:['PaymentID','StudentID','Reference','TransactionID']},
     mrs:{sheet:SHEETS.RESULTS,keys:['ResultID','StudentID','Name','Class','Exam'],ids:['ResultID','StudentID'],docs:['marks','result']},
     rjt:{sheet:SHEETS.RESULTS,keys:['ResultID','StudentID','Name','Class','Exam'],ids:['ResultID','StudentID'],docs:['marks','result']},
@@ -775,6 +773,8 @@ function syncAdmissionToStudent_(token,data) {
   if(idCol>=0 && src.StudentID) for(let i=1;i<vals.length;i++) if(String(vals[i][idCol]).trim()===String(src.StudentID).trim()){existing=i+1;break;}
   if(existing<0 && birthCol>=0 && src.BirthReg) for(let i=1;i<vals.length;i++) if(String(vals[i][birthCol]).trim()===String(src.BirthReg).trim()){existing=i+1;break;}
   if(existing<0 && nidCol>=0 && src.NID) for(let i=1;i<vals.length;i++) if(String(vals[i][nidCol]).trim()===String(src.NID).trim()){existing=i+1;break;}
+  const uniqueFormId=checkUniqueHandwrittenFormId_(src.FormID,existing>1?SHEETS.STUDENTS:'',existing>1?vals[existing-1][0]:'',src,data.AdmissionID||'');
+  if(!uniqueFormId.ok) return uniqueFormId;
   const info=studentSourceInfo_(token);
   const admissionStatus=String(data.Status||'PENDING').trim().toUpperCase();
   const admissionApproved=['APPROVED','ACTIVE','ADMITTED','CONFIRMED'].includes(admissionStatus);
@@ -829,6 +829,11 @@ function saveAdmissionDraft2026(token,data,action) {
     return {ok:true,cancelled:true,admissionId:admissionId,message:'আবেদন বাতিল করা হয়েছে।'};
   }
   const finalizing=action==='FINALIZE';
+  let admissionFormData=data.FormData;
+  if(typeof admissionFormData==='string'){try{admissionFormData=JSON.parse(admissionFormData);}catch(e){admissionFormData={};}}
+  const admissionPerson=buildStudentFromAdmission_(data,admissionFormData);
+  const admissionFormCheck=checkUniqueHandwrittenFormId_(admissionPerson.FormID,'','',admissionPerson,admissionId);
+  if(!admissionFormCheck.ok) return admissionFormCheck;
   data.Status=finalizing?'PENDING':'INCOMPLETE';
   data.AdmissionID=admissionId;
   const row=headers.map(function(h){return h==='Serial'?(rowNum>1?values[rowNum-1][0]:nextSerial_(sh)):h==='CreatedAt'?(rowNum>1?values[rowNum-1][headers.indexOf('CreatedAt')]:now_()):(data[h]!==undefined?data[h]:'');});
@@ -897,8 +902,7 @@ function registerExamCandidate(token,studentId,exam,className,branch) {
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.EXAM_REG);
   const serial=nextSerial_(sh), regId='EX-'+String(serial).padStart(4,'0');
   sh.appendRow([serial,regId,id,ex,className||student.Class||'',branch||student.Branch||'','ACTIVE','',now_()]);
-  return {ok:true,examRegId:regId,studentId:id,message:'পরীক্ষার্থী হিসেবে যুক্ত হয়েছে।'};
-}
+  return {ok:true,examRegId:regId,studentId:id,message:'পরীক্ষার্থী হিসেবে যুক্ত হয়েছে।'};}
 function createAdmitCardFromCandidate(token,studentId,exam) {
   auth_(token); requireFeature_(token,'admit');
   const id=String(studentId||'').trim(), ex=String(exam||'').trim();
@@ -1005,18 +1009,95 @@ function ensureAutoPersonDocuments_(personSheet, person, personId) {
 }
 /* ===== END AUTO DOCUMENT DRAFTS ===== */
 
+
+/* ===== UNIQUE HANDWRITTEN FORM ID — STUDENTS + STAFF ===== */
+function checkUniqueHandwrittenFormId_(formId, excludeSheet, excludeSerial, identity, excludeAdmissionId) {
+  const candidate=String(formId||'').trim().toLowerCase();
+  if(!candidate) return {ok:true};
+  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  const targets=[
+    {sheet:SHEETS.STUDENTS,label:'স্টুডেন্ট'},
+    {sheet:SHEETS.TEACHERS,label:'স্টাফ'}
+  ];
+  identity=identity||{};
+  for(let t=0;t<targets.length;t++){
+    const target=targets[t];
+    const sh=ensureSheet_(ss,target.sheet,HEADERS[target.sheet]||[]);
+    if(!sh||sh.getLastRow()<2) continue;
+    const values=sh.getDataRange().getValues();
+    const headers=values[0].map(String);
+    const formCol=headers.indexOf('FormID');
+    if(formCol<0) continue;
+    const serialCol=headers.indexOf('Serial');
+    const studentIdCol=headers.indexOf('StudentID');
+    const birthCol=headers.indexOf('BirthReg');
+    const nidCol=headers.indexOf('NID');
+    for(let i=1;i<values.length;i++){
+      const row=values[i];
+      if(target.sheet===excludeSheet && excludeSerial!==undefined && excludeSerial!==null && String(row[serialCol>=0?serialCol:0])===String(excludeSerial)) continue;
+      if(target.sheet===SHEETS.STUDENTS){
+        const sameStudent=(identity.StudentID&&studentIdCol>=0&&String(row[studentIdCol]||'').trim()===String(identity.StudentID).trim()) ||
+          (identity.BirthReg&&birthCol>=0&&String(row[birthCol]||'').trim()===String(identity.BirthReg).trim()) ||
+          (identity.NID&&nidCol>=0&&String(row[nidCol]||'').trim()===String(identity.NID).trim());
+        if(sameStudent) continue;
+      }
+      if(String(row[formCol]||'').trim().toLowerCase()===candidate){
+        return {ok:false,duplicate:true,message:'এই আইডিটি ইতিপূর্বে ব্যবহার হয়েছে। অনুগ্রহ করে নতুন আইডি লিখুন।',duplicateIn:target.sheet};
+      }
+    }
+  }
+  const admissions=ss.getSheetByName(SHEETS.ADMISSIONS);
+  if(admissions&&admissions.getLastRow()>1){
+    const values=admissions.getDataRange().getValues(), headers=values[0].map(String);
+    const admissionIdCol=headers.indexOf('AdmissionID'), formDataCol=headers.indexOf('FormData'), directFormCol=headers.indexOf('FormID');
+    for(let i=1;i<values.length;i++){
+      const row=values[i];
+      if(excludeAdmissionId&&admissionIdCol>=0&&String(row[admissionIdCol]||'').trim()===String(excludeAdmissionId).trim()) continue;
+      let savedFormId=directFormCol>=0?String(row[directFormCol]||'').trim():'';
+      if(formDataCol>=0&&row[formDataCol]){
+        let payload=row[formDataCol];
+        if(typeof payload==='string'){try{payload=JSON.parse(payload);}catch(e){payload={};}}
+        if(payload&&typeof payload==='object'){
+          savedFormId=savedFormId||String(payload.FormID||payload.formId||payload.HandwrittenID||payload.handwrittenId||payload.AdmissionFormID||'').trim();
+        }
+      }
+      if(savedFormId&&savedFormId.toLowerCase()===candidate){
+        return {ok:false,duplicate:true,message:'এই আইডিটি ইতিপূর্বে ব্যবহার হয়েছে। অনুগ্রহ করে নতুন আইডি লিখুন।',duplicateIn:SHEETS.ADMISSIONS};
+      }
+    }
+  }
+  return {ok:true};
+}
+/* ===== END UNIQUE HANDWRITTEN FORM ID ===== */
+
 function saveRecord(token,sheetName,data) {
   auth_(token);
   const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
   if(!HEADERS[sheetName]) throw new Error('Invalid sheet');
-  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
+  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  if(['STUDENTS','TEACHERS'].includes(sheetName)) {
+    ensureSheet_(ss,sheetName,HEADERS[sheetName]);
+    if(sheetName==='STUDENTS') ensureStudentWorkflowColumns_();
+  }
+  const sh=ss.getSheetByName(sheetName);
   data=normalizeMobileFields_(data);
-  const headers=HEADERS[sheetName];
+  const headers=['STUDENTS','TEACHERS'].includes(sheetName)?sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String):HEADERS[sheetName];
   const row=headers.map(h=>data[h] ?? '');
   row[0]=nextSerial_(sh);
   if(headers.includes('CreatedAt')) row[headers.indexOf('CreatedAt')]=now_();
   if(headers.includes('StudentID') && !data.StudentID && sheetName==='STUDENTS') {
-    const s=nextSerial_(sh); row[1]=String(s).padStart(3,'0'); row[2]='F-'+String(s).padStart(4,'0'); row[3]=data.Mobile||''; row[4]=data.Email||'';
+    const s=nextSerial_(sh);
+    const sidCol=headers.indexOf('StudentID'), formCol=headers.indexOf('FormID'), mobileIdCol=headers.indexOf('MobileID'), emailIdCol=headers.indexOf('EmailID');
+    if(sidCol>=0) row[sidCol]=String(s).padStart(3,'0');
+    if(formCol>=0) row[formCol]=String(data.FormID||'').trim()||('F-'+String(s).padStart(4,'0'));
+    if(mobileIdCol>=0) row[mobileIdCol]=data.MobileID||data.Mobile||'';
+    if(emailIdCol>=0) row[emailIdCol]=data.EmailID||data.Email||'';
+  }
+  if(['STUDENTS','TEACHERS'].includes(sheetName)) {
+    const formCol=headers.indexOf('FormID');
+    const formId=formCol>=0?row[formCol]:data.FormID;
+    const uniqueFormId=checkUniqueHandwrittenFormId_(formId,'','',null,'');
+    if(!uniqueFormId.ok) return uniqueFormId;
   }
   /* Missing person IDs are generated server-side so auto-document drafts always have a stable lookup ID. */
   const personIdSpecs={
@@ -1072,12 +1153,26 @@ function saveRecord(token,sheetName,data) {
 function updateRecord(token,sheetName,serial,data) {
   auth_(token); const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
   data=normalizeMobileFields_(data);
-  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
+  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  if(['STUDENTS','TEACHERS'].includes(sheetName)) {
+    ensureSheet_(ss,sheetName,HEADERS[sheetName]);
+    if(sheetName==='STUDENTS') ensureStudentWorkflowColumns_();
+  }
+  const sh=ss.getSheetByName(sheetName);
   const values=sh.getDataRange().getValues();
   if(values.length<2) throw new Error('No data');
-  const headers=values[0];
+  const headers=values[0].map(String);
   const idx=values.findIndex((r,i)=>i>0 && String(r[0])===String(serial));
   if(idx<1) throw new Error('Record not found');
+  if(['STUDENTS','TEACHERS'].includes(sheetName)) {
+    const formCol=headers.indexOf('FormID');
+    const oldFormId=formCol>=0?String(values[idx][formCol]||'').trim():'';
+    const newFormId=Object.prototype.hasOwnProperty.call(data,'FormID')?String(data.FormID||'').trim():oldFormId;
+    if(newFormId.toLowerCase()!==oldFormId.toLowerCase()) {
+      const uniqueFormId=checkUniqueHandwrittenFormId_(newFormId,sheetName,values[idx][0],null,'');
+      if(!uniqueFormId.ok) return uniqueFormId;
+    }
+  }
   headers.forEach((h,j)=>{if(Object.prototype.hasOwnProperty.call(data,h)) sh.getRange(idx+1,j+1).setValue(data[h]);});
   SpreadsheetApp.flush();
   let workflow=null;
@@ -1197,8 +1292,7 @@ function finishMediaUpload(token,uploadId){
   let total=0,bytes=[];
   chunks.forEach(function(f){const b=f.getBlob().getBytes();total+=b.length;bytes=bytes.concat(b);});
   if(total!==Number(meta.size||0))return {ok:false,message:'ফাইলের আকার মিলছে না। '+total+' / '+meta.size};
-  if(total>rules.maxMB*1024*1024)return {ok:false,message:'ফাইলের আকার অনুমোদিত সীমার বেশি।'};
-  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
+  if(total>rules.maxMB*1024*1024)return {ok:false,message:'ফাইলের আকার অনুমোদিত সীমার বেশি।'};  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
   const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
   if(rows.length>=rules.maxCount)return {ok:false,message:type==='image'?'সর্বোচ্চ 100টি ফটো রাখা যাবে।':'সর্বোচ্চ 50টি '+(type==='video'?'ভিডিও':'অডিও')+' রাখা যাবে।'};
   const file=mediaDriveFolder_().createFile(Utilities.newBlob(bytes,meta.mimeType||'application/octet-stream',meta.name||('media-'+Date.now())));
@@ -1497,8 +1591,7 @@ function getModules_(){
 }
 /* ===== SMS PORTAL — MASTER CONTACT DIRECTORY + QUEUE — 2026-10-08 ===== */
 function getSmsPortalContacts(token){
-  auth_(token);
-  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  auth_(token);  const ss=SpreadsheetApp.getActiveSpreadsheet();
   const out=[];
   const addSheet=function(sheetName,type,idKeys,nameKeys){
     try{
@@ -1797,8 +1890,7 @@ function getOnlineServicePublic_(code,personId) {
       if(ki<0||pi<0||di<0||String(vals[i][ki]).trim()!==docKey||String(vals[i][pi]).trim()!==pid) continue;
       let payload={};try{payload=JSON.parse(String(vals[i][di]||'{}'))}catch(e){}
       if(!payload.autoGenerated&&!payload.fields?.AutoGenerated) continue;
-      const fields=payload.fields||{}, title=onlineServiceTitle_(docKey);
-      const html=payload.html||autoDocumentPublicHtml_(docKey,pid,fields);
+      const fields=payload.fields||{}, title=onlineServiceTitle_(docKey);      const html=payload.html||autoDocumentPublicHtml_(docKey,pid,fields);
       const serviceId='ONS-AUTO-'+String(vals[i][ii>=0?ii:0]||('ROW-'+i)).replace(/[^A-Za-z0-9_-]/g,'-').slice(0,100);
       const pdf=onlineServicePdf_(docKey,html,serviceId);
       let pdfUrl=pdf.url||'', pdfFileId=pdf.fileId||'';
@@ -2097,8 +2189,7 @@ function ensureOnlinePaymentRequestSheet_(){
     });
   }
   return sh;
-}
-function getOnlinePaymentStudent(studentId){
+}function getOnlinePaymentStudent(studentId){
   const id=String(studentId||'').trim(); if(!id)return {ok:false,message:'Student ID দিন।'};
   const st=findBy_(SHEETS.STUDENTS,'StudentID',id);
   if(!st)return {ok:false,message:'এই Student ID-এর শিক্ষার্থী পাওয়া যায়নি।'};
@@ -2397,8 +2488,7 @@ function ensureAutoDocumentsForPersonId_(token, personId) {
     ['EXECUTIVES','MemberID'],['ADVISERS','MemberID'],['FOUNDERS','MemberID']
   ];
   let created=0, matched=0;
-  specs.forEach(function(spec){
-    try {
+  specs.forEach(function(spec){    try {
       const rows=listRows_(spec[0],token,10000);
       const person=rows.find(function(r){return String(r[spec[1]]||'').trim()===id;});
       if(!person) return;
@@ -2697,8 +2787,7 @@ function uploadNoticeAttachment(token, fileName, mimeType, base64Data) {
     const folderName='Jannatul Baqi Notice Attachments 2026', iter=DriveApp.getFoldersByName(folderName);
     const folder=iter.hasNext()?iter.next():DriveApp.createFolder(folderName);
     const file=folder.createFile(Utilities.newBlob(bytes,mimeType,fileName));
-    try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(shareError){}
-    return {ok:true,fileId:file.getId(),url:file.getUrl(),name:file.getName(),mime:mimeType};
+    try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(shareError){}    return {ok:true,fileId:file.getId(),url:file.getUrl(),name:file.getName(),mime:mimeType};
   } catch(e) {return {ok:false,message:'সংযুক্তি আপলোড ব্যর্থ: '+String(e&&e.message||e)};}
 }
 
