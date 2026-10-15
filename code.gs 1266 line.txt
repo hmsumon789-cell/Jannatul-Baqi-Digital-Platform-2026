@@ -2702,3 +2702,66 @@ function uploadNoticeAttachment(token, fileName, mimeType, base64Data) {
   } catch(e) {return {ok:false,message:'সংযুক্তি আপলোড ব্যর্থ: '+String(e&&e.message||e)};}
 }
 
+
+/* ===== ADMISSION + PAYMENT PDF ARCHIVE — BASED ON 20ad22b ===== */
+
+/* ===== ADMISSION + PAYMENT PDF ARCHIVE — BASED ON 20ad22b ===== */
+function saveAdmissionPdfArchive2026(token, kind, recordId, data, html) {
+  auth_(token);
+  setupSystem();
+  const type=String(kind||'').trim().toLowerCase();
+  if(type!=='admission_form' && type!=='receipt') return {ok:false,message:'PDF নথির ধরন সঠিক নয়।'};
+  const ref=String(recordId||'').trim();
+  if(!ref) return {ok:false,message:'নথির ID পাওয়া যায়নি।'};
+  data=data||{};
+  const markup=String(html||'').trim();
+  if(!markup) return {ok:false,message:'PDF তৈরির জন্য নথির বিষয়বস্তু পাওয়া যায়নি।'};
+  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  const headers=['Serial','ArchiveID','DocType','RefID','StudentID','Name','Class','PdfFileId','PdfUrl','Data','CreatedAt','UpdatedAt','Status'];
+  const sh=ensureSheet_(ss,'SAVED_PDFS',headers);
+  const all=sh.getDataRange().getValues();
+  const h=all[0].map(String);
+  let rowNum=-1, oldFileId='';
+  for(let i=1;i<all.length;i++){
+    if(String(all[i][h.indexOf('DocType')]||'')===type && String(all[i][h.indexOf('RefID')]||'')===ref){
+      rowNum=i+1; oldFileId=String(all[i][h.indexOf('PdfFileId')]||''); break;
+    }
+  }
+  const stamp=Utilities.formatDate(new Date(),APP.timezone,'yyyyMMddHHmmss');
+  const archiveId=(rowNum>1?String(all[rowNum-1][h.indexOf('ArchiveID')]||''):'') || 'PDF-'+stamp+'-'+Utilities.getUuid().slice(0,8).toUpperCase();
+  const pdf=onlineServicePdf_(type,markup,archiveId);
+  if(!pdf || !pdf.fileId || !pdf.url) return {ok:false,message:'PDF ফাইল তৈরি/সংরক্ষণ করা যায়নি।',detail:pdf&&pdf.error||''};
+  const row=headers.map(function(key){
+    const values={
+      Serial:rowNum>1?all[rowNum-1][h.indexOf('Serial')]:nextSerial_(sh),
+      ArchiveID:archiveId,DocType:type,RefID:ref,
+      StudentID:String(data.StudentID||data.StudentId||data.HandwrittenID||''),
+      Name:String(data.NameBN||data.Name||data.NameEN||''),
+      Class:String(data.Class||''),
+      PdfFileId:pdf.fileId,PdfUrl:pdf.url,Data:JSON.stringify(data),
+      CreatedAt:rowNum>1?all[rowNum-1][h.indexOf('CreatedAt')]:now_(),
+      UpdatedAt:now_(),Status:'ACTIVE'
+    };
+    return values[key]!==undefined?values[key]:'';
+  });
+  if(rowNum>1) sh.getRange(rowNum,1,1,headers.length).setValues([row]);
+  else sh.appendRow(row);
+  SpreadsheetApp.flush();
+  if(oldFileId && oldFileId!==pdf.fileId){try{DriveApp.getFileById(oldFileId).setTrashed(true);}catch(e){}}
+  return {ok:true,archiveId:archiveId,docType:type,refId:ref,pdfUrl:pdf.url,pdfFileId:pdf.fileId,message:'PDF অল ডকুমেন্টস আর্কাইভে সংরক্ষণ হয়েছে।'};
+}
+function listSavedPdfArchive2026(token, query) {
+  auth_(token);
+  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  const sh=ss.getSheetByName('SAVED_PDFS');
+  if(!sh||sh.getLastRow()<2) return {ok:true,rows:[]};
+  const values=sh.getDataRange().getValues(), headers=values[0].map(String);
+  const q=String(query||'').trim().toLowerCase();
+  const rows=values.slice(1).map(function(r){
+    const o={};headers.forEach(function(k,i){o[k]=r[i] instanceof Date?Utilities.formatDate(r[i],APP.timezone,'yyyy-MM-dd HH:mm:ss'):r[i];});return o;
+  }).filter(function(o){
+    if(String(o.Status||'ACTIVE').toUpperCase()!=='ACTIVE'||!o.PdfUrl)return false;
+    return !q || [o.ArchiveID,o.DocType,o.RefID,o.StudentID,o.Name,o.Class].join(' ').toLowerCase().indexOf(q)>=0;
+  }).reverse().slice(0,500);
+  return {ok:true,rows:rows};
+}
