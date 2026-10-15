@@ -768,7 +768,8 @@ function syncAdmissionToStudent_(token,data) {
   if(typeof form==='string'){try{form=JSON.parse(form);}catch(e){form={};}}
   const src=buildStudentFromAdmission_(data,form);
   if(!src.NameBN && !src.StudentID) return {ok:true,skipped:true,message:'ভর্তি রেকর্ডে Student তথ্য পাওয়া যায়নি।'};
-  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.STUDENTS);
+  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  const sh=ensureSheet_(ss,SHEETS.STUDENTS,HEADERS[SHEETS.STUDENTS]);
   const h=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
   const vals=sh.getDataRange().getValues();
   const idCol=h.indexOf('StudentID'), mobileCol=h.indexOf('Mobile'), birthCol=h.indexOf('BirthReg'), nidCol=h.indexOf('NID');
