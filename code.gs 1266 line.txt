@@ -808,15 +808,19 @@ function saveAdmissionDraft2026(token,data,action) {
   action=String(action||'SAVE').toUpperCase();
   const ss=SpreadsheetApp.getActiveSpreadsheet();
   const sh=ss.getSheetByName(SHEETS.ADMISSIONS)||ensureSheet_(ss,SHEETS.ADMISSIONS,HEADERS.ADMISSIONS);
-  const admissionId=String(data.AdmissionID||data.FormID||'').trim();
+  let admissionId=String(data.AdmissionID||data.FormID||'').trim();
   if(!admissionId)return {ok:false,message:'আবেদন ID তৈরি হয়নি।'};
   const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
   const values=sh.getDataRange().getValues();
   const idCol=headers.indexOf('AdmissionID'),statusCol=headers.indexOf('Status');
   let rowNum=-1;
   for(let i=1;i<values.length;i++)if(idCol>=0&&String(values[i][idCol]||'').trim()===admissionId){rowNum=i+1;break;}
+  if(action==='LOAD'&&rowNum<2){
+    const formColForLookup=headers.indexOf('FormData');
+    if(formColForLookup>=0){for(let i=1;i<values.length;i++){let fd={};try{const raw=values[i][formColForLookup];fd=typeof raw==='string'?JSON.parse(raw||'{}'):(raw||{});}catch(e){fd={};}const candidates=[fd.HandwrittenID,fd.StudentID,fd.FormID,values[i][idCol>=0?idCol:0]].map(function(v){return String(v||'').trim();});if(candidates.indexOf(admissionId)>=0){rowNum=i+1;if(idCol>=0)admissionId=String(values[i][idCol]||admissionId).trim();break;}}}
+  }
   if(action==='LOAD'){
-    if(rowNum<2)return {ok:false,found:false,message:'এই ID-তে পুরাতন/অসম্পূর্ণ ভর্তি ফর্ম পাওয়া যায়নি।'};
+    if(rowNum<2)return {ok:false,found:false,message:'এই অটো আইডি অথবা হাতে লেখা আইডিতে পুরাতন/অসম্পূর্ণ ভর্তি ফর্ম পাওয়া যায়নি।'};
     const formCol=headers.indexOf('FormData');
     let formData={};
     if(formCol>=0){const raw=values[rowNum-1][formCol];if(raw){try{formData=typeof raw==='string'?JSON.parse(raw):raw;}catch(parseError){return {ok:false,found:false,message:'সংরক্ষিত ফর্মের তথ্য পড়া যায়নি; প্রশাসকের সহায়তা নিন।'};}}}
@@ -2146,7 +2150,7 @@ function notifyOnlinePayment_(data,status,receiptId){
   const ref=String(data.Reference||'').trim();
   const subject=status==='PAID'?'অনলাইন পেমেন্ট সফল — '+studentId:'অনলাইন পেমেন্ট অনুরোধ — '+studentId;
   const statusText=status==='PAID'?'পেমেন্ট অনুমোদিত/সফল হয়েছে।':'পেমেন্ট অনুরোধ গ্রহণ হয়েছে এবং Super Admin অনুমোদনের অপেক্ষায় আছে।';
-  const body='জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা\\n\\n'+statusText+'\\nশিক্ষার্থী: '+name+'\\nStudent ID: '+studentId+'\\nপরিমাণ: '+amount+' টাকা\\nমাধ্যম: '+String(data.Method||'')+'\\nReference: '+ref+'\\nমাস: '+String(data.Month||'')+'\\nখাত: '+String(data.Category||'')+(receiptId?'\\nReceipt ID: '+receiptId:'')+'\\n\\nJannatul Baqi Digital Platform 2026';
+  const body='জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা\n\n'+statusText+'\nশিক্ষার্থী: '+name+'\nStudent ID: '+studentId+'\nপরিমাণ: '+amount+' টাকা\nমাধ্যম: '+String(data.Method||'')+'\nReference: '+ref+'\nমাস: '+String(data.Month||'')+'\nখাত: '+String(data.Category||'')+(receiptId?'\nReceipt ID: '+receiptId:'')+'\n\nJannatul Baqi Digital Platform 2026';
   if(payerEmail)sendOnlinePaymentEmail_(payerEmail,subject,body);
   if(payerMobile)queueOnlinePaymentSms_(payerMobile,statusText+' Student ID: '+studentId+' | Amount: '+amount+' টাকা'+(receiptId?' | Receipt: '+receiptId:''));
   targets.admins.forEach(function(a){
