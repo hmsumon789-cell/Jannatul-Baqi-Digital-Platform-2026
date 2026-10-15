@@ -808,8 +808,8 @@ function saveAdmissionDraft2026(token,data,action) {
   action=String(action||'SAVE').toUpperCase();
   const ss=SpreadsheetApp.getActiveSpreadsheet();
   const sh=ss.getSheetByName(SHEETS.ADMISSIONS)||ensureSheet_(ss,SHEETS.ADMISSIONS,HEADERS.ADMISSIONS);
-  const lookupId=String(data.AdmissionID||data.FormID||data.StudentID||data.HandwrittenID||'').trim();
-  if(!lookupId)return {ok:false,message:'আবেদন/শিক্ষার্থী ID লিখুন।'};
+  const lookupId=String(data.AdmissionID||data.FormID||'').trim();
+  if(!lookupId)return {ok:false,message:'আবেদন ID তৈরি হয়নি।'};
   let admissionId=lookupId;
   const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
   const values=sh.getDataRange().getValues();
