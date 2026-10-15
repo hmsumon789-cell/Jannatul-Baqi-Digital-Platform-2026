@@ -1495,7 +1495,7 @@ const LOCATION_WARDS=['১ নং ওয়ার্ড','২ নং ওয়ার�
 const LOCATION_VILLAGES=['কোনাখোলা','মডেল টাউন','জিঞ্জিরা','শুভাঢ্যা','আগানগর','বাস্তা','তেঘরিয়া'];
 function getLocationValue(id){const m=document.getElementById(id+'Manual')?.value.trim();const s=document.getElementById(id+'Select')?.value||'';return m||s||'';}
 function moduleForm(k){
-const common=`<div class="student-meta-row-2026"><label>আইডি লিখুন<input id="fStudentID" class="field"></label><label>জন্ম তারিখ লিখুন<input id="fDob" class="field" type="date"></label><label>তারিখ লিখুন<input id="fRecordDate" class="field" type="date"></label></div><div class="form-grid">
+const common=`<div class="student-meta-row-2026"><label>আইডি লিখুন<input id="fStudentID" class="field"></label>${['student','teacher'].includes(k)?'<label>হাতে লেখা ফর্ম আইডি<input id="fFormID" class="field"></label>':''}<label>জন্ম তারিখ লিখুন<input id="fDob" class="field" type="date"></label><label>তারিখ লিখুন<input id="fRecordDate" class="field" type="date"></label></div><div class="form-grid">
 <label>বাংলা নাম<input id="fNameBN" class="field"></label>
 <label>العربية الاسم<input id="fNameAR" class="field" dir="rtl"></label>
 <label>English Name<input id="fNameEN" class="field"></label>
@@ -1670,7 +1670,7 @@ async function importOldStudents2026(){
 }
 async function saveModule(k){
 const map={student:'STUDENTS',teacher:'TEACHERS',donor:'DONORS'};const s=map[k];
-const d={StudentID:$('fStudentID')?.value||'',DOB:$('fDob')?.value||'',RecordDate:$('fRecordDate')?.value||'',NameBN:$('fNameBN').value,NameAR:$('fNameAR').value,NameEN:$('fNameEN').value,
+const d={StudentID:$('fStudentID')?.value||'',FormID:$('fFormID')?.value||'',DOB:$('fDob')?.value||'',RecordDate:$('fRecordDate')?.value||'',NameBN:$('fNameBN').value,NameAR:$('fNameAR').value,NameEN:$('fNameEN').value,
 FatherNameBN:$('fFatherBN').value,FatherNameAR:$('fFatherAR').value,FatherNameEN:$('fFatherEN').value,
 MotherNameBN:$('fMotherBN').value,MotherNameAR:$('fMotherAR').value,MotherNameEN:$('fMotherEN').value,
 Mobile:$('fMobile').value,WhatsApp:$('fWhatsApp').value,Email:$('fEmail').value,Address:$('fAddress').value,
