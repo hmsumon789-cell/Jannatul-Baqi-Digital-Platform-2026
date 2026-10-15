@@ -985,11 +985,16 @@ function createAdmitCardFromCandidate(token,studentId,exam) {
 }
 function getStudent360(token,studentId) {
   auth_(token); ensureStudentWorkflowColumns_();
-  const id=String(studentId||'').trim();
-  const student=findBy_(SHEETS.STUDENTS,'StudentID',id);
-  if(!student) return {ok:false,message:'Student পাওয়া যায়নি।'};
-  const pick=function(sheet,key){return listRows_(sheet,token,10000).filter(function(r){return String(r[key]||'')===id;});};
-  return {ok:true,student:student,admissions:pick(SHEETS.ADMISSIONS,'StudentID'),exams:pick(SHEETS.EXAM_REG,'StudentID'),payments:pick(SHEETS.PAYMENTS,'StudentID'),results:pick(SHEETS.RESULTS,'StudentID'),attendance:pick(SHEETS.ATTENDANCE,'StudentID'),admitCards:pick(SHEETS.ADMIT_CARDS,'StudentID')};
+  const inputId=String(studentId||'').trim();
+  const resolved=resolveAdmissionIdentifier_(inputId);
+  const id=String(resolved.studentId||inputId).trim();
+  const student=resolved.student||findBy_(SHEETS.STUDENTS,'StudentID',id);
+  if(!student&&!resolved.admission) return {ok:false,message:'এই ID/মোবাইল/ইমেইলে শিক্ষার্থী পাওয়া যায়নি।'};
+  const merged=Object.assign({},resolved.formData||{},student||{});
+  if(!merged.StudentID)merged.StudentID=id;
+  if(resolved.admission){merged.AdmissionID=resolved.admission.AdmissionID||'';merged.FormID=merged.FormID||resolved.admission.AdmissionID||inputId;merged.AdmissionStatus=resolved.admission.Status||'';}
+  const pick=function(sheet,key){return listRows_(sheet,token,10000).filter(function(r){return String(r[key]||'').trim()===id||String(r[key]||'').trim()===inputId;});};
+  return {ok:true,student:merged,admissions:pick(SHEETS.ADMISSIONS,'StudentID'),exams:pick(SHEETS.EXAM_REG,'StudentID'),payments:pick(SHEETS.PAYMENTS,'StudentID'),results:pick(SHEETS.RESULTS,'StudentID'),attendance:pick(SHEETS.ATTENDANCE,'StudentID'),admitCards:pick(SHEETS.ADMIT_CARDS,'StudentID')};
 }
 function syncExistingAdmissionsToStudents(token) {
   if(!isSuperAdmin_(token)) return {ok:false,message:'শুধু Super Admin পুরোনো ভর্তি রেকর্ড Master Student তালিকায় যুক্ত করতে পারবেন।'};
@@ -1716,24 +1721,61 @@ function getSmsQueueHistory(token,limit){
 }
 
 /* ===== CENTRAL DOCUMENT BUILDER — ADMISSION MASTER DATA — 2026-10-06 ===== */
+/* Resolve any identifier entered during admission to the canonical student/admission record. */
+function resolveAdmissionIdentifier_(identifier) {
+  const raw=String(identifier==null?'':identifier).trim();
+  if(!raw)return {student:null,admission:null,studentId:'',formData:{}};
+  const norm=function(v){return String(v==null?'':v).trim().toLowerCase().replace(/[\\s().-]/g,'');};
+  const candidate=norm(raw);
+  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  let student=null, admission=null, formData={};
+  const stSh=ss.getSheetByName(SHEETS.STUDENTS);
+  if(stSh&&stSh.getLastRow()>1){
+    const vals=stSh.getDataRange().getValues(),heads=vals[0].map(String);
+    const idKeys=['StudentID','FormID','MobileID','Mobile','WhatsApp','EmailID','Email'];
+    for(let i=1;i<vals.length&&!student;i++){
+      const obj=objectFrom_(heads,vals[i]);
+      if(idKeys.some(k=>norm(obj[k])===candidate)){student=obj;break;}
+    }
+  }
+  const adSh=ss.getSheetByName(SHEETS.ADMISSIONS);
+  if(adSh&&adSh.getLastRow()>1){
+    const vals=adSh.getDataRange().getValues(),heads=vals[0].map(String);
+    for(let i=1;i<vals.length;i++){
+      const obj=objectFrom_(heads,vals[i]);
+      let payload=obj.FormData;
+      if(typeof payload==='string'){try{payload=JSON.parse(payload);}catch(e){payload={};}}
+      payload=payload&&typeof payload==='object'&&!Array.isArray(payload)?payload:{};
+      const flat={};
+      const merge=function(o){Object.keys(o||{}).forEach(function(k){const v=o[k];if(v&&typeof v==='object'&&!Array.isArray(v))merge(v);else if(v!==''&&v!=null)flat[k]=v;});};
+      merge(payload);
+      const keys=['AdmissionID','StudentID','FormID','HandwrittenID','handwrittenId','AdmissionFormID','MobileID','Mobile','Phone','MobileNo','WhatsApp','EmailID','Email','GuardianEmail'];
+      const match=keys.some(function(k){return norm(obj[k]||flat[k])===candidate;});
+      if(match){admission=obj;formData=flat;break;}
+    }
+  }
+  const studentId=String((student&&student.StudentID)||(admission&&admission.StudentID)||formData.StudentID||'').trim();
+  return {student:student,admission:admission,studentId:studentId,formData:formData};
+}
+
 function getStudentDocumentData(token, studentId) {
   auth_(token);
   const id = String(studentId || '').trim();
   if (!id) return {ok:false, message:'শিক্ষার্থীর ID দিন।'};
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const studentSh = ss.getSheetByName(SHEETS.STUDENTS);
-  const admissionSh = ss.getSheetByName(SHEETS.ADMISSIONS);
-  let student = null;
-  if (studentSh && studentSh.getLastRow() >= 2) {
-    const vals = studentSh.getDataRange().getValues(), h = vals[0], idCol = h.indexOf('StudentID');
-    if (idCol >= 0) for (let i=1;i<vals.length;i++) if (String(vals[i][idCol]).trim()===id) { student=objectFrom_(h,vals[i]); break; }
+  const resolved=resolveAdmissionIdentifier_(id);
+  let student=resolved.student||null;
+  let admission=resolved.admission||null;
+  const studentSh=ss.getSheetByName(SHEETS.STUDENTS);
+  const admissionSh=ss.getSheetByName(SHEETS.ADMISSIONS);
+  if(!student && studentSh && studentSh.getLastRow()>=2){
+    const vals=studentSh.getDataRange().getValues(),h=vals[0].map(String),idCol=h.indexOf('StudentID');
+    if(idCol>=0)for(let i=1;i<vals.length;i++)if(String(vals[i][idCol]||'').trim()===resolved.studentId){student=objectFrom_(h,vals[i]);break;}
   }
-  let admission = null;
-  if (admissionSh && admissionSh.getLastRow() >= 2) {
-    const vals = admissionSh.getDataRange().getValues(), h = vals[0], idCol = h.indexOf('StudentID'), createdCol = h.indexOf('CreatedAt');
-    if (idCol >= 0) for (let i=1;i<vals.length;i++) if (String(vals[i][idCol]).trim()===id) {
-      const candidate=objectFrom_(h,vals[i]);
-      if (!admission || String(candidate.CreatedAt||'') > String(admission.CreatedAt||'')) admission=candidate;
+  if(!admission && admissionSh && admissionSh.getLastRow()>=2){
+    const vals=admissionSh.getDataRange().getValues(),h=vals[0].map(String),idCol=h.indexOf('StudentID'),createdCol=h.indexOf('CreatedAt');
+    if(idCol>=0)for(let i=1;i<vals.length;i++)if(String(vals[i][idCol]||'').trim()===(resolved.studentId||id)){
+      const c=objectFrom_(h,vals[i]);if(!admission||String(c.CreatedAt||'')>String(admission.CreatedAt||''))admission=c;
     }
   }
   let otherPerson=null, personType='';
@@ -2258,12 +2300,17 @@ function ensureOnlinePaymentRequestSheet_(){
   return sh;
 }
 function getOnlinePaymentStudent(studentId){
-  const id=String(studentId||'').trim(); if(!id)return {ok:false,message:'Student ID দিন।'};
-  const st=findBy_(SHEETS.STUDENTS,'StudentID',id);
-  if(!st)return {ok:false,message:'এই Student ID-এর শিক্ষার্থী পাওয়া যায়নি।'};
+  const inputId=String(studentId||'').trim(); if(!inputId)return {ok:false,message:'ভর্তি ফর্মের যেকোনো ID, মোবাইল বা ইমেইল দিন।'};
+  const resolved=resolveAdmissionIdentifier_(inputId);
+  const id=String(resolved.studentId||inputId).trim();
+  const st=resolved.student||findBy_(SHEETS.STUDENTS,'StudentID',id);
+  if(!st&&!resolved.admission)return {ok:false,message:'এই ID/মোবাইল/ইমেইলে শিক্ষার্থীর ভর্তি তথ্য পাওয়া যায়নি।'};
+  const person=Object.assign({},resolved.formData||{},st||{});
+  if(!person.StudentID)person.StudentID=id;
+  if(resolved.admission){person.Class=person.Class||resolved.admission.Class||'';person.AdmissionID=resolved.admission.AdmissionID||'';}
   const pays=listRows_(SHEETS.PAYMENTS,'',10000).filter(r=>String(r.StudentID||'').trim()===id);
   let paid=0;pays.forEach(r=>{const n=Number(String(r.Amount||'').replace(/[^0-9.-]/g,''));if(isFinite(n))paid+=n;});
-  return {ok:true,student:{StudentID:st.StudentID||id,NameBN:st.NameBN||'',NameEN:st.NameEN||'',Class:st.Class||'',Mobile:st.Mobile||'',WhatsApp:st.WhatsApp||'',Email:st.Email||''},paid:paid};
+  return {ok:true,student:{StudentID:person.StudentID||id,NameBN:person.NameBN||person.Name||'',NameEN:person.NameEN||'',Class:person.Class||'',Mobile:person.Mobile||person.Phone||person.WhatsApp||'',WhatsApp:person.WhatsApp||person.Mobile||'',Email:person.Email||person.GuardianEmail||''},paid:paid};
 }
 function getOnlinePaymentNotifyTargets_(){
   const out={admins:[]};
