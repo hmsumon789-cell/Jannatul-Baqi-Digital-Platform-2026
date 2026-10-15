@@ -853,7 +853,21 @@ function saveAdmissionDraft2026(token,data,action) {
   const values=sh.getDataRange().getValues();
   const idCol=headers.indexOf('AdmissionID'),statusCol=headers.indexOf('Status');
   let rowNum=-1;
-  for(let i=1;i<values.length;i++)if(idCol>=0&&String(values[i][idCol]||'').trim()===admissionId){rowNum=i+1;break;}
+  const normAdmissionLookup_=function(v){return String(v==null?'':v).trim().toLowerCase().replace(/[\\s().-]/g,'');};
+  const wantedAdmissionLookup_=normAdmissionLookup_(admissionId);
+  for(let i=1;i<values.length;i++){
+    if(idCol>=0&&normAdmissionLookup_(values[i][idCol])===wantedAdmissionLookup_){rowNum=i+1;break;}
+    if(action==='LOAD'){
+      const fdCol=headers.indexOf('FormData');
+      let payload={};
+      if(fdCol>=0&&values[i][fdCol]){try{payload=typeof values[i][fdCol]==='string'?JSON.parse(values[i][fdCol]):values[i][fdCol];}catch(e){payload={};}}
+      const flat={};
+      const mergeLookup_=function(o){Object.keys(o||{}).forEach(function(k){const v=o[k];if(v&&typeof v==='object'&&!Array.isArray(v))mergeLookup_(v);else if(v!==''&&v!=null)flat[k]=v;});};
+      if(payload&&typeof payload==='object')mergeLookup_(payload);
+      const idKeys=['StudentID','FormID','HandwrittenID','handwrittenId','AdmissionFormID','MobileID','Mobile','Phone','MobileNo','WhatsApp','EmailID','Email','GuardianEmail'];
+      if(idKeys.some(function(k){return normAdmissionLookup_(flat[k])===wantedAdmissionLookup_;})){rowNum=i+1;break;}
+    }
+  }
   // A matching AdmissionID can be an existing incomplete draft being edited,
   // but must not silently overwrite an already submitted/cancelled application.
   if(rowNum>1 && action!=='LOAD' && action!=='CANCEL'){
@@ -883,7 +897,7 @@ function saveAdmissionDraft2026(token,data,action) {
     const formCol=headers.indexOf('FormData');
     let formData={};
     if(formCol>=0){const raw=values[rowNum-1][formCol];if(raw){try{formData=typeof raw==='string'?JSON.parse(raw):raw;}catch(parseError){return {ok:false,found:false,message:'সংরক্ষিত ফর্মের তথ্য পড়া যায়নি; প্রশাসকের সহায়তা নিন।'};}}}
-    return {ok:true,found:true,admissionId:admissionId,status:statusCol>=0?String(values[rowNum-1][statusCol]||'INCOMPLETE'):'INCOMPLETE',formData:formData,message:'সংরক্ষিত ভর্তি ফর্ম লোড হয়েছে।'};
+    return {ok:true,found:true,admissionId:String(idCol>=0?values[rowNum-1][idCol]:admissionId),status:statusCol>=0?String(values[rowNum-1][statusCol]||'INCOMPLETE'):'INCOMPLETE',formData:formData,message:'সংরক্ষিত ভর্তি ফর্ম লোড হয়েছে।'};
   }
   if(action==='CANCEL'){
     if(rowNum<2)return {ok:true,cancelled:true,message:'আবেদন বাতিল করা হয়েছে।'};
@@ -955,10 +969,13 @@ function getExamCandidateList(token,exam,className) {
 }
 function registerExamCandidate(token,studentId,exam,className,branch) {
   auth_(token); requireFeature_(token,'exam');
-  const id=String(studentId||'').trim(), ex=String(exam||'').trim();
-  if(!id||!ex) return {ok:false,message:'Student ID ও পরীক্ষা আবশ্যক।'};
-  const student=findBy_(SHEETS.STUDENTS,'StudentID',id);
-  if(!student) return {ok:false,message:'Student পাওয়া যায়নি।'};
+  const inputId=String(studentId||'').trim(), ex=String(exam||'').trim();
+  if(!inputId||!ex) return {ok:false,message:'ভর্তি ফর্মের যেকোনো ID, মোবাইল/ইমেইল ও পরীক্ষা আবশ্যক।'};
+  const resolved=resolveAdmissionIdentifier_(inputId);
+  const id=String(resolved.studentId||inputId).trim();
+  const student=resolved.student||findBy_(SHEETS.STUDENTS,'StudentID',id);
+  if(!student) return {ok:false,message:'এই ID/মোবাইল/ইমেইলে অনুমোদিত Student পাওয়া যায়নি।'};
+
   if(String(student.ApprovalStatus||'ACTIVE').toUpperCase()!=='ACTIVE') return {ok:false,message:'Student এখনো Super Admin অনুমোদন পায়নি।'};
   const old=listRows_(SHEETS.EXAM_REG,token,10000).find(function(r){return String(r.StudentID)===id&&String(r.Exam)===ex;});
   if(old) return {ok:true,duplicate:true,examRegId:old.ExamRegID,message:'এই Student ইতিমধ্যে পরীক্ষায় যুক্ত আছে।'};
@@ -2465,7 +2482,7 @@ function buildPublicOnlinePaymentHtml_(){
   '<div class="grid"><label>Student ID<input id="sid" autocomplete="off" onblur="lookup()"></label><label>শিক্ষার্থীর নাম<input id="name" readonly></label><label>শ্রেণি/জামাত<input id="cls" readonly></label><label>ভর্তি সময়ের মোবাইল <small>(ঐচ্ছিক)</small><input id="admissionMobile" readonly></label><label>ভর্তি সময়ের ইমেইল <small>(ঐচ্ছিক)</small><input id="admissionEmail" readonly></label><label>মোবাইল <small>(SMS যাবে)</small><input id="mobile" type="tel" placeholder="01XXXXXXXXX"></label><label>এসএমএস পেতে ইমেইল লিখুন<input id="email" type="email" placeholder="example@email.com"></label><label>মাস<select id="month">'+monthOpts+'</select></label><label>Category<select id="cat"><option>মাসিক বেতন</option><option>ভর্তি ফি</option><option>পরীক্ষার ফি</option><option>অন্যান্য</option></select></label><label>Amount<input id="amount" type="number" min="1"></label><label>মাধ্যম<select id="method"><option>bKash</option><option>Nagad</option><option>mCash</option><option>Rocket</option><option>ব্যাংকিং</option></select></label><label>Transaction / Reference ID<input id="ref"></label><label class="full">Note<textarea id="note" rows="3"></textarea></label></div>'+
   '<div id="info" class="info">Student ID দিলে শিক্ষার্থীর তথ্য আসবে। পেমেন্টের সময় বর্তমান মোবাইল অথবা ইমেইল দিলে সেখানেই পেমেন্টের মেসেজ যাবে।</div><button class="btn" onclick="submitPayment()">📤 পেমেন্ট অনুরোধ পাঠান</button><div id="msg" class="msg" style="display:none"></div>'+
   '<p style="text-align:center;font-size:13px;color:#555">বর্তমানে Payment Gateway সংযুক্ত নয়। অনুরোধ সরাসরি ইমেইলে পাঠানো হবে। Gateway সংযুক্ত হলে একই পেমেন্ট ফর্ম থেকে Gateway ব্যবহার করা যাবে।</p></div>'+
-  '<script>function g(id){return document.getElementById(id)}function show(t,ok){var m=g("msg");m.style.display="block";m.style.background=ok?"#e8f5e9":"#ffebee";m.textContent=t}function lookup(){var id=(g("sid").value||"").trim();if(!id)return;g("info").textContent="⏳ তথ্য খোঁজা হচ্ছে...";google.script.run.withSuccessHandler(function(r){if(!r||!r.ok){show((r&&r.message)||"Student পাওয়া যায়নি।",false);return}g("name").value=r.student.NameBN||r.student.NameEN||"";g("cls").value=r.student.Class||"";g("admissionMobile").value=r.student.Mobile||r.student.WhatsApp||"";g("admissionEmail").value=r.student.Email||"";g("mobile").value="";g("email").value="";g("info").textContent="✅ শিক্ষার্থীর তথ্য পাওয়া গেছে। পেমেন্টের সময় বর্তমান মোবাইল/ইমেইল দিন—সেখানেই মেসেজ যাবে।"}).withFailureHandler(function(e){show("সার্ভার ত্রুটি: "+(e&&e.message||e),false)}).getOnlinePaymentStudent(id)}function submitPayment(){var d={StudentID:(g("sid").value||"").trim(),Name:g("name").value,Month:g("month").value,Category:g("cat").value,Amount:Number(g("amount").value),Method:g("method").value,Reference:(g("ref").value||"").trim(),PayerMobile:(g("mobile").value||"").trim(),PayerEmail:(g("email").value||"").trim(),Note:g("note").value,PaymentMode:"PENDING"};if(!d.StudentID||!d.Amount||d.Amount<=0){show("Student ID ও সঠিক Amount দিন।",false);return}if(!d.Reference){show("Transaction / Reference ID দিন।",false);return}show("⏳ পেমেন্ট অনুরোধ পাঠানো হচ্ছে...",true);google.script.run.withSuccessHandler(function(r){show((r&&r.message)||"অনুরোধ সম্পন্ন হয়েছে।",!!(r&&r.ok));if(r&&r.ok){g("amount").value="";g("ref").value="";g("note").value=""}}).withFailureHandler(function(e){show("সার্ভার ত্রুটি: "+(e&&e.message||e),false)}).submitOnlinePayment(d)}</script></body></html>';
+  '<script>function g(id){return document.getElementById(id)}function show(t,ok){var m=g("msg");m.style.display="block";m.style.background=ok?"#e8f5e9":"#ffebee";m.textContent=t}function lookup(){var id=(g("sid").value||"").trim();if(!id)return;g("info").textContent="⏳ তথ্য খোঁজা হচ্ছে...";google.script.run.withSuccessHandler(function(r){if(!r||!r.ok){show((r&&r.message)||"Student পাওয়া যায়নি।",false);return}g("sid").value=r.student.StudentID||id;g("name").value=r.student.NameBN||r.student.NameEN||"";g("cls").value=r.student.Class||"";g("admissionMobile").value=r.student.Mobile||r.student.WhatsApp||"";g("admissionEmail").value=r.student.Email||"";g("mobile").value="";g("email").value="";g("info").textContent="✅ শিক্ষার্থীর তথ্য পাওয়া গেছে। পেমেন্টের সময় বর্তমান মোবাইল/ইমেইল দিন—সেখানেই মেসেজ যাবে।"}).withFailureHandler(function(e){show("সার্ভার ত্রুটি: "+(e&&e.message||e),false)}).getOnlinePaymentStudent(id)}function submitPayment(){var d={StudentID:(g("sid").value||"").trim(),Name:g("name").value,Month:g("month").value,Category:g("cat").value,Amount:Number(g("amount").value),Method:g("method").value,Reference:(g("ref").value||"").trim(),PayerMobile:(g("mobile").value||"").trim(),PayerEmail:(g("email").value||"").trim(),Note:g("note").value,PaymentMode:"PENDING"};if(!d.StudentID||!d.Amount||d.Amount<=0){show("Student ID ও সঠিক Amount দিন।",false);return}if(!d.Reference){show("Transaction / Reference ID দিন।",false);return}show("⏳ পেমেন্ট অনুরোধ পাঠানো হচ্ছে...",true);google.script.run.withSuccessHandler(function(r){show((r&&r.message)||"অনুরোধ সম্পন্ন হয়েছে।",!!(r&&r.ok));if(r&&r.ok){g("amount").value="";g("ref").value="";g("note").value=""}}).withFailureHandler(function(e){show("সার্ভার ত্রুটি: "+(e&&e.message||e),false)}).submitOnlinePayment(d)}</script></body></html>';
 }function getOnlinePaymentManagerData(token){
   try{
     if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin এই পেমেন্ট ম্যানেজমেন্ট দেখতে পারবেন।'};
