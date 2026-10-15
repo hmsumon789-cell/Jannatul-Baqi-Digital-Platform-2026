@@ -632,6 +632,7 @@ function searchAll(token,signal,query) {
   };
   const rule=rules[signal];
   if(!rule) return {ok:false,message:'সংকেত সঠিক নয়।'};
+  if(['std','thr'].includes(signal)) ensureSheet_(SpreadsheetApp.getActiveSpreadsheet(),rule.sheet,HEADERS[rule.sheet]);
   const q=query.toLowerCase();
   const matches=[];
   const seen={};
