@@ -13960,6 +13960,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     }catch(e){safeToast('পেমেন্টের অবস্থা যাচাই করা যায়নি: '+(e&&e.message||e))}
   };
   window.submitAdmissionPayment2026=async function(){
+    if(!validateRequiredAdmissionFields2026())return;
     var method=V('admPayMethod2026'),ref=V('admPayRef2026');
     if(method!=='হ্যান্ড ক্যাশ'&&!ref){safeToast('Transaction / Reference ID লিখুন।');return}
     var feeLabels={AdmissionFee:'ভর্তি ফি',RegistrationFee:'নিবন্ধন ফি',MonthlySalary:'মাসিক বেতন',ResidentialFee:'আবাসিক ফি',MonthlyFoodFee:'মাসিক খোরাকী',SessionFee:'সেশন ফি'};var selectedFees=E('admPayCategories2026')?Array.from(E('admPayCategories2026').selectedOptions).map(function(o){return {key:o.value,label:feeLabels[o.value]||o.text,amount:Number(fees[o.value])||0}}).filter(function(x){return x.amount>0}):[];var selectedTotal=selectedFees.reduce(function(n,x){return n+x.amount},0);if(!selectedFees.length||selectedTotal<=0){safeToast('পেমেন্টের জন্য এক বা একাধিক ফি খাত নির্বাচন করুন।');return}
@@ -13973,6 +13974,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     }catch(e){safeToast('পেমেন্ট প্রক্রিয়ায় ত্রুটি: '+(e&&e.message||e))}
   };
   window.chooseAdmissionPayLater2026=async function(){
+    if(!validateRequiredAdmissionFields2026())return;
     if(!feeConfirmed||!typeConfirmed||!admissionPaidConfirmed){safeToast('আগে ফি, প্রদত্ত অর্থ/বকেয়া এবং বেতন/ছাড়ের ধরন নির্ধারণ করুন।');return}
     if(!V('admEntryType2026')||!V('admStudentCategory2026')){safeToast('ভর্তির ধরন এবং শিক্ষার্থীর ধরন নির্বাচন করুন।');return}
     paymentChoice='LATER';var s=await saveAdmissionRecord();if(!s)return;
