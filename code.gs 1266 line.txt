@@ -658,6 +658,41 @@ function searchAll(token,signal,query) {
     matches.push(Object.assign({},row,{_searchExact:exact?1:0}));
   }
   listRows_(rule.sheet,token,5000).forEach(function(row){add(row,'sheet');});
+  // Include the identifiers entered on the original admission form in All Search,
+  // even when the application is still only an ADMISSIONS draft.
+  if(signal==='std'){
+    const admissionSheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ADMISSIONS);
+    if(admissionSheet && admissionSheet.getLastRow()>1){
+      const admissionValues=admissionSheet.getDataRange().getValues();
+      const admissionHeaders=admissionValues[0].map(String);
+      const admissionFormCol=admissionHeaders.indexOf('FormData');
+      const admissionIdCol=admissionHeaders.indexOf('AdmissionID');
+      const admissionStudentCol=admissionHeaders.indexOf('StudentID');
+      const admissionClassCol=admissionHeaders.indexOf('Class');
+      const admissionStatusCol=admissionHeaders.indexOf('Status');
+      admissionValues.slice(1).forEach(function(raw){
+        let payload={};
+        if(admissionFormCol>=0 && raw[admissionFormCol]){
+          try{payload=typeof raw[admissionFormCol]==='string'?JSON.parse(raw[admissionFormCol]):raw[admissionFormCol];}catch(e){payload={};}
+        }
+        payload=payload&&typeof payload==='object'?payload:{};
+        const merged=Object.assign({},payload,{
+          StudentID:String(payload.StudentID||raw[admissionStudentCol]||'').trim(),
+          FormID:String(payload.FormID||payload.HandwrittenID||payload.AdmissionFormID||raw[admissionIdCol]||'').trim(),
+          Mobile:String(payload.Mobile||payload.Phone||payload.GuardianMobile||'').trim(),
+          WhatsApp:String(payload.WhatsApp||'').trim(),
+          Email:String(payload.Email||payload.GuardianEmail||'').trim(),
+          MobileID:String(payload.MobileID||payload.Mobile||payload.Phone||'').trim(),
+          EmailID:String(payload.EmailID||payload.Email||payload.GuardianEmail||'').trim(),
+          AdmissionID:String(raw[admissionIdCol]||'').trim(),
+          Class:String(payload.Class||raw[admissionClassCol]||'').trim(),
+          AdmissionStatus:String(raw[admissionStatusCol]||'').trim(),
+          RecordSource:'ADMISSIONS'
+        });
+        add(merged,'sheet');
+      });
+    }
+  }
   if(rule.docs&&rule.docs.length){
     const gh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName('DOCUMENT_BUILDER_HISTORY');
     if(gh&&gh.getLastRow()>1){
