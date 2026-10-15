@@ -13912,7 +13912,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     var permanentAddress=[typeof getLocationValue==='function'?getLocationValue('adVillage'):'',typeof getLocationValue==='function'?getLocationValue('adUnion'):'',typeof getLocationValue==='function'?getLocationValue('adWard'):'',typeof getLocationValue==='function'?getLocationValue('adPost'):'',typeof getLocationValue==='function'?getLocationValue('adUpazila'):'',typeof getLocationValue==='function'?getLocationValue('adDistrict'):'',typeof getLocationValue==='function'?getLocationValue('adDivision'):'',V('adPostCode2026')].map(function(x){return String(x||'').trim()}).filter(Boolean).join(', ');
     var handwrittenId=String(V('admManualID2026')||'').trim();
     var d={
-      StudentID:V('adStudentID')||V('admSystemID2026'),FormID:handwrittenId||draftAdmissionId||('ADM-'+Date.now()),HandwrittenID:handwrittenId,DOB:V('adDob'),FatherDOB:V('adFatherDob2026'),MotherDOB:V('adMotherDob2026'),RecordDate:V('adRecordDate'),
+      StudentID:V('adStudentID')||V('admSystemID2026'),FormID:draftAdmissionId||handwrittenId||('ADM-'+Date.now()),HandwrittenID:handwrittenId,DOB:V('adDob'),FatherDOB:V('adFatherDob2026'),MotherDOB:V('adMotherDob2026'),RecordDate:V('adRecordDate'),
       NameBN:V('adNameBN'),NameAR:V('adNameAR'),NameEN:V('adNameEN'),
       FatherBN:V('adFatherBN'),FatherNameBN:V('adFatherBN'),FatherAR:V('adFatherAR'),FatherNameAR:V('adFatherAR'),FatherEN:V('adFatherEN'),FatherNameEN:V('adFatherEN'),
       MotherBN:V('adMotherBN'),MotherNameBN:V('adMotherBN'),MotherAR:V('adMotherAR'),MotherNameAR:V('adMotherAR'),MotherEN:V('adMotherEN'),MotherNameEN:V('adMotherEN'),
@@ -13928,13 +13928,53 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     };
     return d;
   }
-  function validateRequiredAdmissionFields2026(){
-    var manual=String(V('admManualID2026')||'').trim(),name=String(V('adNameBN')||'').trim(),dob=String(V('adDob')||'').trim(),father=String(V('adFatherBN')||'').trim(),mobile=String(V('adMobile')||'').trim(),studentClass=String(V('adClass')||'').trim(),studentType=String(V('admStudentCategory2026')||'').trim(),current=String(V('adCurrentAddress2026')||'').trim();
-    var permanent=[typeof getLocationValue==='function'?getLocationValue('adVillage'):'',typeof getLocationValue==='function'?getLocationValue('adUnion'):'',typeof getLocationValue==='function'?getLocationValue('adWard'):'',typeof getLocationValue==='function'?getLocationValue('adPost'):'',typeof getLocationValue==='function'?getLocationValue('adUpazila'):'',typeof getLocationValue==='function'?getLocationValue('adDistrict'):'',typeof getLocationValue==='function'?getLocationValue('adDivision'):'',V('adPostCode2026'),V('adAddress')].some(function(x){return String(x||'').trim()!==''});
-    var addressField=current?'adCurrentAddress2026':(E('adVillageSelect')?'adVillageSelect':(E('adVillageManual')?'adVillageManual':(E('adDistrictSelect')?'adDistrictSelect':'adCurrentAddress2026')));
-    var checks=[['admManualID2026',manual,'হাতে লেখা আইডি নং লিখুন।'],['adNameBN',name,'শিক্ষার্থীর বাংলা নাম লিখুন।'],['adDob',dob,'জন্ম তারিখ দিন।'],['adFatherBN',father,'পিতার নাম বাংলায় লিখুন।'],[addressField,current||permanent,'বর্তমান অথবা স্থায়ী ঠিকানা পূরণ করুন।'],['adMobile',mobile,'মোবাইল নম্বর লিখুন।'],['adClass',studentClass,'শ্রেণি/জামাত নির্বাচন করুন।'],['admStudentCategory2026',studentType,'শিক্ষার্থীর ধরন নির্বাচন করুন।']];
-    for(var i=0;i<checks.length;i++){var c=checks[i];if(!c[1]){var field=E(c[0]);safeToast(c[2]);if(field){try{field.scrollIntoView({behavior:'smooth',block:'center'})}catch(e){}setTimeout(function(x){return function(){try{x.focus()}catch(e){}}}(field),60)}return false}}
-    var feeSelect=E('admPayCategories2026');if(!feeSelect||!Array.from(feeSelect.selectedOptions||[]).length){safeToast('পেমেন্টের খাত নির্বাচন করুন।');if(feeSelect){try{feeSelect.scrollIntoView({behavior:'smooth',block:'center'})}catch(e){}setTimeout(function(){try{feeSelect.focus()}catch(e){}},60)}return false}
+  function validateRequiredAdmissionFields2026(requirePaymentCategory){
+    var manual=String(V('admManualID2026')||'').trim(),
+      name=String(V('adNameBN')||'').trim(),
+      dob=String(V('adDob')||'').trim(),
+      father=String(V('adFatherBN')||'').trim(),
+      mobile=String(V('adMobile')||'').trim(),
+      studentClass=String(V('adClass')||'').trim(),
+      studentType=String(V('admStudentCategory2026')||'').trim(),
+      current=String(V('adCurrentAddress2026')||'').trim();
+    var permanent=[typeof getLocationValue==='function'?getLocationValue('adVillage'):'',
+      typeof getLocationValue==='function'?getLocationValue('adUnion'):'',
+      typeof getLocationValue==='function'?getLocationValue('adWard'):'',
+      typeof getLocationValue==='function'?getLocationValue('adPost'):'',
+      typeof getLocationValue==='function'?getLocationValue('adUpazila'):'',
+      typeof getLocationValue==='function'?getLocationValue('adDistrict'):'',
+      typeof getLocationValue==='function'?getLocationValue('adDivision'):'',
+      V('adPostCode2026'),V('adAddress')].some(function(x){return String(x||'').trim()!==''});
+    var addressOK=!!(current||permanent);
+    var checks=[
+      ['admManualID2026',manual,'হাতে লেখা আইডি নং লিখুন।'],
+      ['adNameBN',name,'শিক্ষার্থীর বাংলা নাম লিখুন।'],
+      ['adDob',dob,'জন্ম তারিখ দিন।'],
+      ['adFatherBN',father,'পিতার নাম বাংলায় লিখুন।'],
+      ['adCurrentAddress2026',addressOK,'বর্তমান অথবা স্থায়ী ঠিকানার যেকোনো একটি পূরণ করুন।'],
+      ['adMobile',mobile,'মোবাইল নম্বর লিখুন।'],
+      ['adClass',studentClass,'শ্রেণি/জামাত নির্বাচন করুন।'],
+      ['admStudentCategory2026',studentType,'শিক্ষার্থীর ধরন নির্বাচন করুন।']
+    ];
+    for(var i=0;i<checks.length;i++){
+      var c=checks[i];
+      if(!c[1]){
+        var field=E(c[0]);
+        safeToast(c[2]);
+        if(field){try{field.scrollIntoView({behavior:'smooth',block:'center'})}catch(e){}setTimeout(function(x){return function(){try{x.focus()}catch(e){}}}(field),60)}
+        return false;
+      }
+    }
+    if(requirePaymentCategory!==false&&!paymentRequested){
+      var feeSelect=E('admPayCategories2026');
+      var selected=feeSelect&&Array.from(feeSelect.selectedOptions||[]).length>0;
+      if(!selected){
+        safeToast('পেমেন্টের খাত নির্বাচন করুন।');
+        var target=feeSelect||E('admPayCheck_AdmissionFee')||E('admPayCheck_RegistrationFee')||E('admFeeCategories2026');
+        if(target){try{target.scrollIntoView({behavior:'smooth',block:'center'})}catch(e){}setTimeout(function(){try{target.focus()}catch(e){}},60)}
+        return false;
+      }
+    }
     return true;
   }
   async function saveAdmissionRecord(){
@@ -13973,7 +14013,8 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   };
   window.submitAdmissionPayment2026=async function(){
     var method=V('admPayMethod2026'),ref=V('admPayRef2026');
-    if(method!=='হ্যান্ড ক্যাশ'&&!ref){safeToast('Transaction / Reference ID লিখুন।');return}
+    if(!validateRequiredAdmissionFields2026(true))return;
+    if(method!=='হ্যান্ড ক্যাশ'&&!ref{safeToast('Transaction / Reference ID লিখুন।');return}
     var feeLabels={AdmissionFee:'ভর্তি ফি',RegistrationFee:'নিবন্ধন ফি',MonthlySalary:'মাসিক বেতন',ResidentialFee:'আবাসিক ফি',MonthlyFoodFee:'মাসিক খোরাকী',SessionFee:'সেশন ফি'};var selectedFees=E('admPayCategories2026')?Array.from(E('admPayCategories2026').selectedOptions).map(function(o){return {key:o.value,label:feeLabels[o.value]||o.text,amount:Number(fees[o.value])||0}}).filter(function(x){return x.amount>0}):[];var selectedTotal=selectedFees.reduce(function(n,x){return n+x.amount},0);if(!selectedFees.length||selectedTotal<=0){safeToast('পেমেন্টের জন্য এক বা একাধিক ফি খাত নির্বাচন করুন।');return}
     try{
       paymentChoice=method==='হ্যান্ড ক্যাশ'?'CASH_RECEIVED':'ONLINE';var saved=await saveAdmissionRecord();if(!saved||!saved.studentId){safeToast('আবেদন থেকে Student ID পাওয়া যায়নি। তথ্য যাচাই করুন।');return}
@@ -13992,6 +14033,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     if(E('admInlinePayment2026'))E('admInlinePayment2026').remove();safeToast('আবেদন সংরক্ষিত হয়েছে। ফি পরে পরিশোধের জন্য চিহ্নিত; প্রশাসনের অনুমোদন অপেক্ষমাণ।');
   };
   window.previewAdmissionApplication2026=async function(){
+    if(!validateRequiredAdmissionFields2026(false))return;
     var d=studentFormData(),typeLabels={FULL:'পূর্ণ বেতন',HALF:'অর্ধেক বেতন',PARTIAL:'আংশিক ছাড়',FREE_SCHOLARSHIP:'ফ্রি স্কলারশিপ'},fields=[['শিক্ষার্থীর নাম',d.NameBN],['পিতার নাম',d.FatherBN],['জন্ম তারিখ',d.DOB],['ঠিকানা',d.Address],['শ্রেণি/জামাত',d.Class],['মোবাইল',d.Mobile],['ভর্তির ধরন',d.AdmissionEntryType],['শিক্ষার্থীর ধরন',d.StudentCategory],['নির্ধারিত মোট ফি',totalFees()+' টাকা'],['বেতন/ছাড়',typeLabels[d.AdmissionType]||d.AdmissionType||'নির্বাচন হয়নি']];
     var required=['শিক্ষার্থীর নাম','পিতার নাম','জন্ম তারিখ','ঠিকানা','শ্রেণি/জামাত','মোবাইল'];
     var missing=fields.filter(function(x){return (required.includes(x[0])||['ভর্তির ধরন','শিক্ষার্থীর ধরন','বেতন/ছাড়'].includes(x[0]))&&!String(x[1]||'').trim()});if(!feeConfirmed)missing.push(['ফি নির্ধারণ','']);if(!typeConfirmed)missing.push(['বেতন/ছাড়ের ধরন','']);
@@ -14980,7 +15022,7 @@ function rebuild(type){
 window.openAdmissionForm2026=function(type){var ret=oldOpen.apply(this,arguments);if(type==='student'){setTimeout(function(){rebuild(type)},40);setTimeout(function(){rebuild(type)},220);setTimeout(function(){rebuild(type)},650)}return ret};
 window.jbAdmissionShowRules2026=function(){var old=el('jbAdmissionRulesOverlay2026');if(old)old.remove();document.body.insertAdjacentHTML('beforeend','<div id="jbAdmissionRulesOverlay2026" style="position:fixed;inset:0;z-index:2147483647;background:#0009;display:grid;place-items:center;padding:14px"><div style="background:#fffef8;color:#183b2b;border:3px solid #c79a28;border-radius:14px;max-width:720px;max-height:85vh;overflow:auto;padding:20px"><h2 style="text-align:center;color:#125438">ভর্তির নিয়মাবলি ও শর্তাবলি</h2><ol><li>আবেদনপত্রে শিক্ষার্থী, পিতা-মাতা, জন্মতারিখ, ঠিকানা ও যোগাযোগের তথ্য সঠিকভাবে লিখতে হবে।</li><li>জন্ম নিবন্ধন/জাতীয় পরিচয়পত্রের তথ্য ও কপি সঠিক হতে হবে; ফাইল সর্বোচ্চ ২০ MB।</li><li>শ্রেণি/জামাত, শাখা, আবাসিক/অনাবাসিক এবং ফি-সংক্রান্ত নির্বাচন যাচাই করতে হবে।</li><li>ফর্ম সংরক্ষণ বা জমা দেওয়া ভর্তি অনুমোদনের নিশ্চয়তা নয়; কর্তৃপক্ষ যাচাই করে সিদ্ধান্ত দেবেন।</li><li>প্রযোজ্য ফি/পেমেন্ট যাচাই ও প্রশাসনিক অনুমোদনের পর ভর্তি চূড়ান্ত হবে।</li><li>ভুল তথ্য বা অসম্পূর্ণ আবেদন সংশোধনের জন্য ফেরত দেওয়া হতে পারে।</li></ol><div style="text-align:center"><button type="button" onclick="document.getElementById(\'jbAdmissionRulesOverlay2026\').remove()">বন্ধ করুন</button></div></div></div>')};
 window.jbAdmissionCopyAutoID2026=function(){var x=el('admSystemID2026');if(!x)return;var value=x.value||'';if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(value).then(function(){safeToast('অটো আইডি কপি হয়েছে: '+value)}).catch(function(){x.focus();x.select();try{document.execCommand('copy');safeToast('অটো আইডি কপি হয়েছে: '+value)}catch(e){safeToast('অটো আইডি নির্বাচন করা হয়েছে—Ctrl+C চাপুন')}})}else{x.focus();x.select();try{document.execCommand('copy');safeToast('অটো আইডি কপি হয়েছে: '+value)}catch(e){safeToast('অটো আইডি নির্বাচন করা হয়েছে—Ctrl+C চাপুন')}}};
-window.jbAdmissionLoadDraft2026=async function(){var id=String((el('admManualID2026')||{}).value||'').trim();if(!id){var fb=el('admAdmissionRedesignFeedback2026');if(fb)fb.textContent='আগের/অসম্পূর্ণ ফর্মের ID লিখুন।';return}var fb=el('admAdmissionRedesignFeedback2026');if(fb)fb.textContent='⏳ ফর্ম খোঁজা হচ্ছে...';try{var r=await call('saveAdmissionDraft2026',token,{AdmissionID:id},'LOAD');if(!r||!r.ok||!r.found)throw new Error((r&&r.message)||'এই ID-তে পুরাতন/অসম্পূর্ণ ফর্ম পাওয়া যায়নি।');var d=r.formData||{};var map={adStudentID:d.StudentID||d.FormID||id,adDob:d.DOB,adFatherBN:d.FatherBN||d.FatherNameBN,adFatherAR:d.FatherAR||d.FatherNameAR,adFatherEN:d.FatherEN||d.FatherNameEN,adMotherBN:d.MotherBN||d.MotherNameBN,adMotherAR:d.MotherAR||d.MotherNameAR,adMotherEN:d.MotherEN||d.MotherNameEN,adNameBN:d.NameBN,adNameAR:d.NameAR,adNameEN:d.NameEN,adMobile:d.Mobile,adWa:d.WhatsApp,adEmail:d.Email,adClass:d.Class,adDept:d.Department,adBranch:d.Branch,adBirth:d.BirthReg,adNid:d.NID,adAddress:d.Address,adFatherDob2026:d.FatherDOB,adMotherDob2026:d.MotherDOB,adResidenceType2026:d.ResidenceType,adBloodGroup2026:d.BloodGroup,adPreviousClass2026:d.PreviousClass,adGuardianEmail2026:d.GuardianEmail,adCurrentAddress2026:d.CurrentAddress,adPostCode2026:d.PostCode};savedAdmission=null;draftAdmissionId=id;Object.keys(map).forEach(function(k){var x=el(k);if(x&&map[k]!=null)x.value=map[k]});['Division','District','Upazila','Union','Ward','Village','Post'].forEach(function(k){var val=d[k]||'',manual=el('ad'+k+'Manual'),sel=el('ad'+k+'Select');if(manual)manual.value='';if(sel){var opt=Array.prototype.find.call(sel.options,function(o){return o.value===val||o.textContent===val});if(opt){sel.value=opt.value;if(manual)manual.value=''}else if(manual)manual.value=val}else if(manual)manual.value=val});if(el('admManualID2026'))el('admManualID2026').value=d.HandwrittenID||d.FormID||id;if(fb)fb.textContent='✓ পুরাতন/অসম্পূর্ণ ফর্মের তথ্য এসেছে। প্রয়োজনমতো সম্পাদনা করে সংরক্ষণ করুন।'}catch(e){if(fb)fb.textContent='❌ ফর্ম লোড হয়নি: '+(e&&e.message||e)}};
+window.jbAdmissionLoadDraft2026=async function(){var id=String((el('admManualID2026')||{}).value||'').trim();if(!id){var fb=el('admAdmissionRedesignFeedback2026');if(fb)fb.textContent='আগের/অসম্পূর্ণ ফর্মের ID লিখুন।';return}var fb=el('admAdmissionRedesignFeedback2026');if(fb)fb.textContent='⏳ ফর্ম খোঁজা হচ্ছে...';try{var r=await call('saveAdmissionDraft2026',token,{AdmissionID:id,FormID:id,StudentID:id},'LOAD');if(!r||!r.ok||!r.found)throw new Error((r&&r.message)||'এই ID-তে পুরাতন/অসম্পূর্ণ ফর্ম পাওয়া যায়নি।');var d=r.formData||{};var map={adStudentID:d.StudentID||d.FormID||id,adDob:d.DOB,adFatherBN:d.FatherBN||d.FatherNameBN,adFatherAR:d.FatherAR||d.FatherNameAR,adFatherEN:d.FatherEN||d.FatherNameEN,adMotherBN:d.MotherBN||d.MotherNameBN,adMotherAR:d.MotherAR||d.MotherNameAR,adMotherEN:d.MotherEN||d.MotherNameEN,adNameBN:d.NameBN,adNameAR:d.NameAR,adNameEN:d.NameEN,adMobile:d.Mobile,adWa:d.WhatsApp,adEmail:d.Email,adClass:d.Class,adDept:d.Department,adBranch:d.Branch,adBirth:d.BirthReg,adNid:d.NID,adAddress:d.Address,adFatherDob2026:d.FatherDOB,adMotherDob2026:d.MotherDOB,adResidenceType2026:d.ResidenceType,adBloodGroup2026:d.BloodGroup,adPreviousClass2026:d.PreviousClass,adGuardianEmail2026:d.GuardianEmail,adCurrentAddress2026:d.CurrentAddress,adPostCode2026:d.PostCode,admSystemID2026:d.StudentID||d.SystemID||d.FormID||id};savedAdmission=null;draftAdmissionId=r.admissionId||d.AdmissionID||d.FormID||id;Object.keys(map).forEach(function(k){var x=el(k);if(x&&map[k]!=null)x.value=map[k]});['Division','District','Upazila','Union','Ward','Village','Post'].forEach(function(k){var val=d[k]||'',manual=el('ad'+k+'Manual'),sel=el('ad'+k+'Select');if(manual)manual.value='';if(sel){var opt=Array.prototype.find.call(sel.options,function(o){return o.value===val||o.textContent===val});if(opt){sel.value=opt.value;if(manual)manual.value=''}else if(manual)manual.value=val}else if(manual)manual.value=val});if(el('admManualID2026'))el('admManualID2026').value=d.HandwrittenID||d.FormID||id;if(fb)fb.textContent='✓ পুরাতন/অসম্পূর্ণ ফর্মের তথ্য এসেছে। প্রয়োজনমতো সম্পাদনা করে সংরক্ষণ করুন।'}catch(e){if(fb)fb.textContent='❌ ফর্ম লোড হয়নি: '+(e&&e.message||e)}};
 window.jbAdmissionSaveDraft2026=async function(){var fb=el('admAdmissionRedesignFeedback2026');try{if(typeof window.previewAdmissionApplication2026==='function'){await window.previewAdmissionApplication2026();if(fb&&!(fb.textContent||''))fb.textContent='খসড়া সংরক্ষণের অনুরোধ পাঠানো হয়েছে।'}else if(fb)fb.textContent='সংরক্ষণ ফাংশন পাওয়া যায়নি।'}catch(e){if(fb)fb.textContent='সংরক্ষণে সমস্যা: '+(e&&e.message||e)}};
 window.jbAdmissionPrint2026=function(){var old=el('admAdmissionRedesign20261011');if(!old)return;window.print()};
 window.jbAdmissionDownload2026=function(blank){
