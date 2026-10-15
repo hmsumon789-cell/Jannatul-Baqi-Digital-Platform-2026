@@ -808,15 +808,27 @@ function saveAdmissionDraft2026(token,data,action) {
   action=String(action||'SAVE').toUpperCase();
   const ss=SpreadsheetApp.getActiveSpreadsheet();
   const sh=ss.getSheetByName(SHEETS.ADMISSIONS)||ensureSheet_(ss,SHEETS.ADMISSIONS,HEADERS.ADMISSIONS);
-  const admissionId=String(data.AdmissionID||data.FormID||'').trim();
-  if(!admissionId)return {ok:false,message:'আবেদন ID তৈরি হয়নি।'};
+  const lookupId=String(data.AdmissionID||data.FormID||data.StudentID||data.HandwrittenID||'').trim();
+  if(!lookupId)return {ok:false,message:'আবেদন/শিক্ষার্থী ID লিখুন।'};
+  let admissionId=lookupId;
   const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
   const values=sh.getDataRange().getValues();
   const idCol=headers.indexOf('AdmissionID'),statusCol=headers.indexOf('Status');
   let rowNum=-1;
-  for(let i=1;i<values.length;i++)if(idCol>=0&&String(values[i][idCol]||'').trim()===admissionId){rowNum=i+1;break;}
+  for(let i=1;i<values.length;i++)if(idCol>=0&&String(values[i][idCol]||'').trim()===lookupId){rowNum=i+1;break;}
+  if(action==='LOAD'&&rowNum<2){
+    const searchFormCol=headers.indexOf('FormData'),searchStudentCol=headers.indexOf('StudentID');
+    for(let i=1;i<values.length;i++){
+      let fd={};
+      if(searchFormCol>=0&&values[i][searchFormCol]){try{fd=typeof values[i][searchFormCol]==='string'?JSON.parse(values[i][searchFormCol]):values[i][searchFormCol];}catch(ignore){fd={};}}
+      const candidates=[searchStudentCol>=0?values[i][searchStudentCol]:'',fd.StudentID,fd.FormID,fd.HandwrittenID,fd.ManualID,fd.HandwrittenStudentID];
+      if(candidates.some(function(v){return String(v==null?'':v).trim()===lookupId;})){
+        rowNum=i+1;admissionId=String(idCol>=0?values[i][idCol]||'':'').trim();break;
+      }
+    }
+  }
   if(action==='LOAD'){
-    if(rowNum<2)return {ok:false,found:false,message:'এই ID-তে পুরাতন/অসম্পূর্ণ ভর্তি ফর্ম পাওয়া যায়নি।'};
+    if(rowNum<2)return {ok:false,found:false,message:'এই Student ID/হাতে লেখা ID-তে পুরাতন/অসম্পূর্ণ ভর্তি ফর্ম পাওয়া যায়নি।'};
     const formCol=headers.indexOf('FormData');
     let formData={};
     if(formCol>=0){const raw=values[rowNum-1][formCol];if(raw){try{formData=typeof raw==='string'?JSON.parse(raw):raw;}catch(parseError){return {ok:false,found:false,message:'সংরক্ষিত ফর্মের তথ্য পড়া যায়নি; প্রশাসকের সহায়তা নিন।'};}}}
