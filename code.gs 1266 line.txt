@@ -80,7 +80,14 @@ function doGet(e) {
     } catch(err) {
       onlineResult={ok:false,message:'অনলাইন সেবা লোড করার সময় সার্ভার ত্রুটি হয়েছে।'};
     }
-    return HtmlService.createHtmlOutput(buildPublicOnlineServiceHtml_(code,personId,onlineResult))
+    var onlineHtml='';
+    try {
+      onlineHtml=buildPublicOnlineServiceHtml_(code,personId,onlineResult);
+    } catch(renderErr) {
+      onlineHtml=buildPublicOnlineServiceFallbackHtml_(code,personId,
+        'অনলাইন সেবা পেজ তৈরি করতে সমস্যা হয়েছে। আবার চেষ্টা করুন অথবা প্রশাসকের সঙ্গে যোগাযোগ করুন।');
+    }
+    return HtmlService.createHtmlOutput(onlineHtml)
       .setTitle(APP.nameEn + ' | Online Service')
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
   }
@@ -98,6 +105,13 @@ function doGet(e) {
   return HtmlService.createHtmlOutputFromFile('Index')
     .setTitle(APP.nameEn + ' | Digital Platform 2026')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
+function buildPublicOnlineServiceFallbackHtml_(code, personId, message) {
+  var esc=function(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');};
+  var choices=[['MS','মার্কশিট'],['RS','রেজাল্ট / মার্কশিট'],['ID','আইডি কার্ড'],['AC','অ্যাডমিট কার্ড'],['CT','সার্টিফিকেট'],['RC','মানি রিসিট'],['TI','শিক্ষক/শিক্ষিকা আইডি'],['AF','ভর্তি আবেদন ফর্ম'],['LF','ছুটির আবেদন ফর্ম'],['ER','পরীক্ষার রুটিন'],['TC','টিসি / ছাড়পত্র'],['AP','প্রত্যয়ন পত্র'],['LM','আজীবন সদস্য ফর্ম'],['LC','আজীবন সদস্য সনদ'],['TR','শিক্ষক/শিক্ষিকা নিয়োগ আবেদন'],['TA','শিক্ষক/শিক্ষিকা নিয়োগ পত্র'],['EF','নির্বাহী পরিষদ ফর্ম'],['EI','নির্বাহী পরিষদ সদস্য আইডি কার্ড']];
+  var options=choices.map(function(x){return '<option value="'+x[0]+'"'+(String(code||'').toUpperCase()===x[0]?' selected':'')+'>'+x[0]+' — '+x[1]+'</option>';}).join('');
+  return '<!doctype html><html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>অনলাইন সেবা</title><style>body{font-family:Arial,sans-serif;background:#f5f0df;margin:0;padding:18px;color:#222}.panel{max-width:850px;margin:20px auto;background:white;border:3px solid #8b5e00;border-radius:16px;padding:20px;box-sizing:border-box}.head{text-align:center;border-bottom:2px solid #8b5e00;padding-bottom:14px}.head h2{margin:0 0 8px;color:#8b5e00}.search{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin:18px 0}.search select,.search input,.search button{box-sizing:border-box;min-width:0;padding:12px;border:2px solid #777;border-radius:8px;font-weight:bold}.search button{background:#8b5e00;color:white;cursor:pointer}.error{padding:14px;background:#fff3cd;border:1px solid #d6a500;border-radius:8px;font-weight:bold}@media(max-width:650px){.search{grid-template-columns:1fr}}</style></head><body><main class="panel"><header class="head"><h2>জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</h2><div>অনলাইন সেবা অনুসন্ধান</div><div>হটলাইন: 01823316630</div></header><form class="search" method="get"><input type="hidden" name="online" value="1"><select name="code">'+options+'</select><input name="id" value="'+esc(personId||'')+'" placeholder="অভিন্ন ব্যক্তি ID" required><button type="submit">🔎 খুঁজুন</button></form><div class="error">'+esc(message||'অনলাইন সেবা পেজে সমস্যা হয়েছে। আবার চেষ্টা করুন।')+'</div></main></body></html>';
 }
 
 function buildPublicVerificationHtml_(docKey, recordId, verifyResult) {
