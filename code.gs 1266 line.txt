@@ -2380,10 +2380,13 @@ function notifyOnlinePayment_(data,status,receiptId){
   });
 }
 function submitOnlinePayment(data,token){
-  data=data||{};const id=String(data.StudentID||'').trim(),ref=String(data.Reference||'').trim(),amount=Number(data.Amount||0),method=String(data.Method||'').trim(),mode=String(data.PaymentMode||'PENDING').toUpperCase();
-  if(!id||!isFinite(amount)||amount<=0||!method)return {ok:false,message:'Student ID, Amount ও পেমেন্ট মাধ্যম সঠিকভাবে দিন।'};
+  data=data||{};const inputId=String(data.StudentID||'').trim(),ref=String(data.Reference||'').trim(),amount=Number(data.Amount||0),method=String(data.Method||'').trim(),mode=String(data.PaymentMode||'PENDING').toUpperCase();
+  if(!inputId||!isFinite(amount)||amount<=0||!method)return {ok:false,message:'ভর্তি ফর্মের যেকোনো ID, মোবাইল/ইমেইল, Amount ও পেমেন্ট মাধ্যম সঠিকভাবে দিন।'};
   if(method!=='হ্যান্ড ক্যাশ'&&!ref)return {ok:false,message:'Transaction / Reference ID দিন।'};
-  const st=findBy_(SHEETS.STUDENTS,'StudentID',id);if(!st)return {ok:false,message:'Student ID সঠিক নয়।'};
+  const resolved=resolveAdmissionIdentifier_(inputId);
+  const id=String(resolved.studentId||inputId).trim();
+  const st=resolved.student||findBy_(SHEETS.STUDENTS,'StudentID',id);
+  if(!st)return {ok:false,message:'এই ID/মোবাইল/ইমেইলে অনুমোদিত Student পাওয়া যায়নি।'};
   data=normalizeMobileFields_(data);
   const payerMobile=normalizeBdMobile_(data.PayerMobile||'');
   const payerEmail=String(data.PayerEmail||'').trim();
