@@ -1833,13 +1833,15 @@ function getStudentDocumentData(token, studentId) {
       const merge=src=>Object.keys(src).forEach(k=>{const v=src[k];if(v&&typeof v==='object'&&!Array.isArray(v))merge(v);else if(v!==''&&v!=null)data[k]=v;});
       merge(form);
     }
-    data.StudentID=id;
+    data.StudentID=String(resolved.studentId||id);
+    data.LookupID=id;
+    if(!data.FormID)data.FormID=String(resolved.formData.FormID||resolved.formData.HandwrittenID||id);
     if(!data.Class&&admission.Class)data.Class=admission.Class;
     if(!data.Branch&&admission.Branch)data.Branch=admission.Branch;
   }
   const aliases={FatherNameBN:'FatherBN',FatherNameAR:'FatherAR',FatherNameEN:'FatherEN',MotherNameBN:'MotherBN',MotherNameAR:'MotherAR',MotherNameEN:'MotherEN',PostOffice:'Post',PostName:'Post',PostCodeBN:'PostCode',StudentMobile:'Mobile',Phone:'Mobile',MobileNo:'Mobile',PhotoURL:'Photo',Image:'Photo',StudentPhoto:'Photo',ClassName:'Class',Jamaat:'Class',Jamath:'Class',RollNo:'Roll',BirthRegistration:'BirthReg',BirthRegistrationNo:'BirthReg'};
   Object.keys(aliases).forEach(src=>{const dest=aliases[src];if((!data[dest]||String(data[dest]).trim()==='')&&data[src]!=null&&String(data[src]).trim()!=='')data[dest]=data[src];});
-  return {ok:true,found:true,source:admission?'ADMISSIONS':'STUDENTS',admissionFound:!!admission,studentFound:!!student,studentId:id,data:data};
+  return {ok:true,found:true,source:admission?'ADMISSIONS':'STUDENTS',admissionFound:!!admission,studentFound:!!student,studentId:String(resolved.studentId||id),lookupId:id,data:data};
 }
 
 /* ===== CENTRAL DOCUMENT BUILDER — SAVE + HISTORY — 2026-10-06 ===== */
