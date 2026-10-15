@@ -12711,36 +12711,6 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     lifetime_member_form:'LM',lifetime_member_certificate:'LC',teacher_recruitment_form:'TR',
     teacher_appointment:'TA',executive_form:'EF',executive_id:'EI'
   };
-  /* Replace only the old institution header inside the saved document; preserve the document body. */
-  function prepareOnlineServicePrintHtml2026(preview){
-    var doc=preview&&preview.cloneNode(true);
-    var source=document.getElementById('loginContactStrip20261013');
-    if(!doc||!source)return preview?preview.outerHTML:'';
-    var oldHeader=doc.querySelector('.jb-institution-header-2026');
-    if(!oldHeader)return doc.outerHTML;
-    var contact=source.cloneNode(true);
-    function inlineComputedStyles(src,dst){
-      if(!src||!dst)return;
-      try{
-        var cs=window.getComputedStyle(src);
-        for(var j=0;j<cs.length;j++){
-          var prop=cs[j];
-          dst.style.setProperty(prop,cs.getPropertyValue(prop),cs.getPropertyPriority(prop));
-        }
-      }catch(e){}
-      var a=src.children||[],z=dst.children||[];
-      for(var k=0;k<Math.min(a.length,z.length);k++)inlineComputedStyles(a[k],z[k]);
-    }
-    inlineComputedStyles(source,contact);
-    contact.style.setProperty('display','block','important');
-    contact.style.setProperty('width','100%','important');
-    contact.style.setProperty('max-width','100%','important');
-    contact.style.setProperty('margin','0 auto 3mm','important');
-    contact.style.setProperty('box-sizing','border-box','important');
-    oldHeader.replaceWith(contact);
-    doc.querySelectorAll('.jb-institution-contact-2026').forEach(function(x){x.remove()});
-    return doc.outerHTML;
-  }
   function key(){
     if(typeof window.__jbAdditionalDocKey==='string'&&CODES[window.__jbAdditionalDocKey])return window.__jbAdditionalDocKey;
     var t=(document.getElementById('jbDocBuilderTitle')||{}).textContent||'';
@@ -12768,7 +12738,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
         var k=key();
         try{
           b.disabled=true;b.textContent='⏳ অনলাইন সেবায় সংরক্ষণ হচ্ছে...';
-          var r=await call('saveOnlineServiceRecord',token,k,id,data,prepareOnlineServicePrintHtml2026(p));
+          var r=await call('saveOnlineServiceRecord',token,k,id,data,p.outerHTML);
           if(r&&r.ok){
             b.textContent='✅ অনলাইন সেবায় সংরক্ষিত';
             toast('🌐 '+r.message+' সংকেত: '+r.serviceCode+' | ID: '+r.personId);
