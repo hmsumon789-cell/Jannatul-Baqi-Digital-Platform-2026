@@ -14014,7 +14014,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   window.submitAdmissionPayment2026=async function(){
     var method=V('admPayMethod2026'),ref=V('admPayRef2026');
     if(!validateRequiredAdmissionFields2026(true))return;
-    if(method!=='হ্যান্ড ক্যাশ'&&!ref{safeToast('Transaction / Reference ID লিখুন।');return}
+    if(method!=='হ্যান্ড ক্যাশ'&&!ref){safeToast('Transaction / Reference ID লিখুন।');return}
     var feeLabels={AdmissionFee:'ভর্তি ফি',RegistrationFee:'নিবন্ধন ফি',MonthlySalary:'মাসিক বেতন',ResidentialFee:'আবাসিক ফি',MonthlyFoodFee:'মাসিক খোরাকী',SessionFee:'সেশন ফি'};var selectedFees=E('admPayCategories2026')?Array.from(E('admPayCategories2026').selectedOptions).map(function(o){return {key:o.value,label:feeLabels[o.value]||o.text,amount:Number(fees[o.value])||0}}).filter(function(x){return x.amount>0}):[];var selectedTotal=selectedFees.reduce(function(n,x){return n+x.amount},0);if(!selectedFees.length||selectedTotal<=0){safeToast('পেমেন্টের জন্য এক বা একাধিক ফি খাত নির্বাচন করুন।');return}
     try{
       paymentChoice=method==='হ্যান্ড ক্যাশ'?'CASH_RECEIVED':'ONLINE';var saved=await saveAdmissionRecord();if(!saved||!saved.studentId){safeToast('আবেদন থেকে Student ID পাওয়া যায়নি। তথ্য যাচাই করুন।');return}
