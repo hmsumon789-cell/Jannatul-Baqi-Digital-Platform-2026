@@ -1167,6 +1167,12 @@ function saveRecord(token,sheetName,data) {
   }
   const sh=ss.getSheetByName(sheetName);
   data=normalizeMobileFields_(data);
+  if(sheetName==='PAYMENTS'&&String(data.StudentID||'').trim()){
+    const resolvedPaymentPerson=resolveAdmissionIdentifier_(data.StudentID);
+    if(resolvedPaymentPerson.studentId)data.StudentID=resolvedPaymentPerson.studentId;
+    const person=Object.assign({},resolvedPaymentPerson.formData||{},resolvedPaymentPerson.student||{});
+    if(!data.Name)data.Name=person.NameBN||person.NameEN||person.Name||'';
+  }
   const headers=['STUDENTS','TEACHERS'].includes(sheetName)?sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String):HEADERS[sheetName];
   const row=headers.map(h=>data[h] ?? '');
   row[0]=nextSerial_(sh);
