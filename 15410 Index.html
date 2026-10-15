@@ -13929,12 +13929,62 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     return d;
   }
   function validateRequiredAdmissionFields2026(){
-    var manual=String(V('admManualID2026')||'').trim(),name=String(V('adNameBN')||'').trim(),dob=String(V('adDob')||'').trim(),father=String(V('adFatherBN')||'').trim(),mobile=String(V('adMobile')||'').trim(),studentClass=String(V('adClass')||'').trim(),studentType=String(V('admStudentCategory2026')||'').trim(),current=String(V('adCurrentAddress2026')||'').trim();
-    var permanent=[typeof getLocationValue==='function'?getLocationValue('adVillage'):'',typeof getLocationValue==='function'?getLocationValue('adUnion'):'',typeof getLocationValue==='function'?getLocationValue('adWard'):'',typeof getLocationValue==='function'?getLocationValue('adPost'):'',typeof getLocationValue==='function'?getLocationValue('adUpazila'):'',typeof getLocationValue==='function'?getLocationValue('adDistrict'):'',typeof getLocationValue==='function'?getLocationValue('adDivision'):'',V('adPostCode2026'),V('adAddress')].some(function(x){return String(x||'').trim()!==''});
-    var addressField=current?'adCurrentAddress2026':(E('adVillageSelect')?'adVillageSelect':(E('adVillageManual')?'adVillageManual':(E('adDistrictSelect')?'adDistrictSelect':'adCurrentAddress2026')));
-    var checks=[['admManualID2026',manual,'হাতে লেখা আইডি নং লিখুন।'],['adNameBN',name,'শিক্ষার্থীর বাংলা নাম লিখুন।'],['adDob',dob,'জন্ম তারিখ দিন।'],['adFatherBN',father,'পিতার নাম বাংলায় লিখুন।'],[addressField,current||permanent,'বর্তমান অথবা স্থায়ী ঠিকানা পূরণ করুন।'],['adMobile',mobile,'মোবাইল নম্বর লিখুন।'],['adClass',studentClass,'শ্রেণি/জামাত নির্বাচন করুন।'],['admStudentCategory2026',studentType,'শিক্ষার্থীর ধরন নির্বাচন করুন।']];
-    for(var i=0;i<checks.length;i++){var c=checks[i];if(!c[1]){var field=E(c[0]);safeToast(c[2]);if(field){try{field.scrollIntoView({behavior:'smooth',block:'center'})}catch(e){}setTimeout(function(x){return function(){try{x.focus()}catch(e){}}}(field),60)}return false}}
-    var feeSelect=E('admPayCategories2026');if(!feeSelect||!Array.from(feeSelect.selectedOptions||[]).length){safeToast('পেমেন্টের খাত নির্বাচন করুন।');if(feeSelect){try{feeSelect.scrollIntoView({behavior:'smooth',block:'center'})}catch(e){}setTimeout(function(){try{feeSelect.focus()}catch(e){}},60)}return false}
+    var manual=String(V('admManualID2026')||'').trim(),
+        name=String(V('adNameBN')||'').trim(),
+        dob=String(V('adDob')||'').trim(),
+        father=String(V('adFatherBN')||'').trim(),
+        mobile=String(V('adMobile')||'').trim(),
+        studentClass=String(V('adClass')||'').trim(),
+        studentType=String(V('admStudentCategory2026')||'').trim(),
+        current=String(V('adCurrentAddress2026')||'').trim();
+    var permanentParts=[
+      typeof getLocationValue==='function'?getLocationValue('adVillage'):'',
+      typeof getLocationValue==='function'?getLocationValue('adUnion'):'',
+      typeof getLocationValue==='function'?getLocationValue('adWard'):'',
+      typeof getLocationValue==='function'?getLocationValue('adPost'):'',
+      typeof getLocationValue==='function'?getLocationValue('adUpazila'):'',
+      typeof getLocationValue==='function'?getLocationValue('adDistrict'):'',
+      typeof getLocationValue==='function'?getLocationValue('adDivision'):'',
+      V('adAddress')
+    ].map(function(x){return String(x||'').trim()});
+    var permanent=permanentParts.some(function(x){return x!==''});
+    function focusAdmissionField(ids){
+      for(var j=0;j<ids.length;j++){
+        var field=E(ids[j]);
+        if(!field||field.disabled||field.type==='hidden')continue;
+        try{
+          if(field.getClientRects&&field.getClientRects().length===0)continue;
+          field.scrollIntoView({behavior:'smooth',block:'center'});
+        }catch(e){}
+        setTimeout(function(x){return function(){try{x.focus({preventScroll:true})}catch(e){try{x.focus()}catch(ignore){}}}}(field),70);
+        return field;
+      }
+      return null;
+    }
+    var checks=[
+      [['admManualID2026'],manual,'হাতে লেখা আইডি নং লিখুন।'],
+      [['adNameBN'],name,'শিক্ষার্থীর বাংলা নাম লিখুন।'],
+      [['adDob'],dob,'জন্ম তারিখ দিন।'],
+      [['adFatherBN'],father,'পিতার নাম বাংলায় লিখুন।'],
+      [['adCurrentAddress2026','adAddress','adDivisionSelect','adDivision','adDivisionManual','adDistrictSelect','adDistrict','adDistrictManual','adUpazilaSelect','adUpazila','adUpazilaManual','adUnionSelect','adUnion','adUnionManual','adWardSelect','adWard','adWardManual','adPostSelect','adPost','adPostManual','adVillageSelect','adVillage','adVillageManual'],current||permanent,'বর্তমান অথবা স্থায়ী ঠিকানা পূরণ করুন।'],
+      [['adMobile'],mobile,'মোবাইল নম্বর লিখুন।'],
+      [['adClass'],studentClass,'শ্রেণি/জামাত নির্বাচন করুন।'],
+      [['admStudentCategory2026'],studentType,'শিক্ষার্থীর ধরন নির্বাচন করুন।']
+    ];
+    for(var i=0;i<checks.length;i++){
+      var c=checks[i];
+      if(!c[1]){
+        safeToast(c[2]);
+        focusAdmissionField(c[0]);
+        return false;
+      }
+    }
+    var feeSelect=E('admPayCategories2026');
+    if(!feeSelect||!Array.from(feeSelect.selectedOptions||[]).length){
+      safeToast('পেমেন্টের খাত নির্বাচন করুন।');
+      focusAdmissionField(['admPayCategories2026']);
+      return false;
+    }
     return true;
   }
   async function saveAdmissionRecord(){
