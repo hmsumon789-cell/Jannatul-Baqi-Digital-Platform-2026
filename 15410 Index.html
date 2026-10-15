@@ -13952,6 +13952,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     var sid=String((r.studentWorkflow&&r.studentWorkflow.studentId)||(r.row&&r.row.StudentID)||d.StudentID||'').trim();
     if(!sid||(r.studentWorkflow&&r.studentWorkflow.skipped)){safeToast('আবেদন রেকর্ড হয়েছে, কিন্তু শিক্ষার্থী আইডি তৈরি হয়নি। ভর্তি সম্পন্ন হয়নি। '+((r.studentWorkflow&&r.studentWorkflow.message)||'Super Admin/প্রশাসকের সহায়তা নিন।'));return null}
     savedAdmission={admissionId:(r.row&&r.row.AdmissionID)||d.FormID,studentId:sid,data:d};
+    try{var pdfHtml=window.jbArchivePdfHtml2026('admission_form',d);var pdfSaved=await call('saveAdmissionPdfArchive2026',token,'admission_form',d.FormID||d.HandwrittenID,d,pdfHtml);if(!pdfSaved||!pdfSaved.ok){if(typeof window.toast==='function')window.toast('ভর্তি সেভ হয়েছে, তবে PDF আর্কাইভে সংরক্ষণ হয়নি: '+((pdfSaved&&pdfSaved.message)||'ত্রুটি'));}else if(typeof window.toast==='function')window.toast('ভর্তি ফর্মের PDF অল ডকুমেন্টসে সংরক্ষিত হয়েছে।');}catch(pdfErr){if(typeof window.toast==='function')window.toast('ভর্তি সেভ হয়েছে, কিন্তু PDF সংরক্ষণে সমস্যা: '+(pdfErr&&pdfErr.message||pdfErr));}
     return savedAdmission;
   }
   window.showAdmissionReceipt2026=function(r){
@@ -15631,3 +15632,93 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 
 <style id="jb-admission-news-language-row-direction-fix-20261014">#formWin #admAdmissionRedesign20261011 .jb-admission-news-language-row-20261014{direction:ltr!important}</style>
+
+
+<!-- ===== ADMISSION + SUCCESSFUL RECEIPT PDF ARCHIVE / ALL DOCUMENTS — 20ad22b ===== -->
+<script id="jb-admission-payment-pdf-archive-20ad22b">
+(function(){
+ 'use strict';
+ function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+ var labels={
+  HandwrittenID:'হাতে লেখা আইডি',FormID:'আবেদন আইডি',StudentID:'শিক্ষার্থী আইডি',NameBN:'শিক্ষার্থীর নাম (বাংলা)',NameAR:'শিক্ষার্থীর নাম (আরবি)',NameEN:'শিক্ষার্থীর নাম (ইংরেজি)',
+  FatherBN:'পিতার নাম',MotherBN:'মাতার নাম',DOB:'জন্ম তারিখ',Gender:'লিঙ্গ',Class:'শ্রেণি/জামাত',Department:'বিভাগ',Branch:'শাখা',StudentCategory:'শিক্ষার্থীর ধরন',AdmissionEntryType:'ভর্তির ধরন',
+  Mobile:'মোবাইল',WhatsApp:'হোয়াটসঅ্যাপ',Email:'ইমেইল',CurrentAddress:'বর্তমান ঠিকানা',Address:'ঠিকানা',PermanentAddress:'স্থায়ী ঠিকানা',Division:'বিভাগ/ডিভিশন',District:'জেলা',Upazila:'উপজেলা/থানা',Union:'ইউনিয়ন',Ward:'ওয়ার্ড',Post:'ডাকঘর',PostCode:'পোস্ট কোড',Village:'গ্রাম',
+  ReceiptID:'রসিদ নম্বর',Category:'ফি/পেমেন্টের খাত',Amount:'পরিমাণ (টাকা)',Method:'পেমেন্ট মাধ্যম',Reference:'Transaction / Reference ID',Month:'মাস',PayerMobile:'প্রদানকারীর মোবাইল',Date:'তারিখ',Note:'বিবরণ'
+ };
+ window.jbArchivePdfHtml2026=function(kind,data){
+  data=data||{};var isReceipt=kind==='receipt';
+  var preferred=isReceipt?['ReceiptID','StudentID','Name','Class','Month','Category','Amount','Method','Reference','PayerMobile','Date','Note']:
+   ['HandwrittenID','FormID','StudentID','NameBN','NameAR','NameEN','FatherBN','FatherAR','FatherEN','MotherBN','MotherAR','MotherEN','DOB','Gender','Class','Department','Branch','StudentCategory','AdmissionEntryType','Mobile','WhatsApp','Email','CurrentAddress','Address','PermanentAddress','Division','District','Upazila','Union','Ward','Post','PostCode','Village','AcademicYear'];
+  var rows=preferred.filter(function(k){return String(data[k]==null?'':data[k]).trim()!=='';}).map(function(k){
+   var value=data[k];if(k==='Amount')value=Number(value||0).toLocaleString('bn-BD')+' টাকা';
+   return '<tr><th>'+esc(labels[k]||k)+'</th><td>'+esc(value)+'</td></tr>';
+  }).join('');
+  var title=isReceipt?'মানি রিসিট — সফলভাবে সংরক্ষিত':'অনলাইন ভর্তি আবেদন ফর্ম';
+  return '<section class="jb-doc-preview" style="box-sizing:border-box;width:100%;min-height:240mm;padding:10mm;border:3px double #8b5e00;background:#fff;color:#111;font-family:Arial,\'Noto Sans Bengali\',sans-serif"><header style="text-align:center;border-bottom:2px solid #8b5e00;padding-bottom:8px;margin-bottom:14px"><div style="font-size:22px;font-weight:900">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div><div>المدرسة الجنة الباقية للبنات ودار الايتام</div><div>Jannatul Baky Mohila Madrasha &amp; Eatimkhana</div><div>উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div><div>হটলাইন: 01823316630 · ইমেইল: hmatik90@gmail.com</div><h2 style="margin:12px 0 0">'+title+'</h2></header><table style="width:100%;border-collapse:collapse"><tbody>'+rows+'</tbody></table><p style="margin-top:24px;text-align:center">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</p><style>th,td{border:1px solid #777;padding:7px;text-align:left}th{width:34%;background:#fff7df}</style></section>';
+ };
+ async function archive(kind,id,data,html){
+  if(!id||!html)return;
+  try{
+   var r=await call('saveAdmissionPdfArchive2026',token,kind,String(id),data||{},html);
+   if(!r||!r.ok){if(typeof window.toast==='function')window.toast('রসিদ দেখানো হয়েছে, কিন্তু PDF আর্কাইভে সেভ হয়নি: '+((r&&r.message)||'ত্রুটি'));return;}
+   if(typeof window.toast==='function')window.toast('PDF অল ডকুমেন্টসে জমা হয়েছে: '+String(id));
+  }catch(e){if(typeof window.toast==='function')window.toast('PDF আর্কাইভে সংরক্ষণ করা যায়নি: '+(e&&e.message||e));}
+ }
+ var oldAdmissionReceipt=window.showAdmissionReceipt2026;
+ if(typeof oldAdmissionReceipt==='function'){
+  window.showAdmissionReceipt2026=function(r){
+   var result=oldAdmissionReceipt.apply(this,arguments);
+   r=r||{};
+   archive('receipt',r.ReceiptID, r, window.jbArchivePdfHtml2026('receipt',r));
+   return result;
+  };
+ }
+ var oldOnlineReceipt=window.showOnlinePaymentReceipt;
+ if(typeof oldOnlineReceipt==='function'){
+  window.showOnlinePaymentReceipt=function(r){
+   var result=oldOnlineReceipt.apply(this,arguments);
+   r=r||{};
+   archive('receipt',r.ReceiptID, r, window.jbArchivePdfHtml2026('receipt',r));
+   return result;
+  };
+ }
+ function closeArchive(){var x=document.getElementById('jbSavedPdfArchive2026');if(x)x.remove();}
+ window.jbOpenSavedPdfArchive2026=async function(query){
+  closeArchive();
+  var box=document.createElement('div');box.id='jbSavedPdfArchive2026';
+  box.style.cssText='position:fixed;inset:0;z-index:2147483001;background:#0009;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box';
+  box.innerHTML='<section style="width:min(980px,98vw);max-height:92vh;overflow:auto;background:var(--panel,#fff);color:var(--text,#111);border:3px solid #b38a20;border-radius:14px;padding:14px"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><b style="font-size:20px">📁 অল ডকুমেন্টস — সংরক্ষিত PDF</b><button type="button" class="secondary" id="jbSavedPdfClose2026">✕ বন্ধ</button></div><div style="display:flex;gap:8px;margin:12px 0"><input id="jbSavedPdfSearch2026" placeholder="নাম / হাতে লেখা ID / শিক্ষার্থী ID / রসিদ ID দিয়ে খুঁজুন" style="flex:1;min-width:0;padding:10px;border:1px solid #aaa;border-radius:8px"><button type="button" class="primary" id="jbSavedPdfFind2026">🔎 খুঁজুন</button></div><div id="jbSavedPdfRows2026" style="overflow:auto"><p style="text-align:center;padding:20px">⏳ সংরক্ষিত PDF লোড হচ্ছে...</p></div></section>';
+  document.body.appendChild(box);
+  box.querySelector('#jbSavedPdfClose2026').onclick=closeArchive;
+  box.onclick=function(e){if(e.target===box)closeArchive();};
+  var input=box.querySelector('#jbSavedPdfSearch2026');input.value=query||'';
+  async function load(){
+   var body=box.querySelector('#jbSavedPdfRows2026');body.innerHTML='<p style="text-align:center;padding:20px">⏳ PDF তালিকা লোড হচ্ছে...</p>';
+   try{
+    var r=await call('listSavedPdfArchive2026',token,input.value.trim());
+    if(!r||!r.ok)throw new Error(r&&r.message||'তালিকা পাওয়া যায়নি');
+    var rows=r.rows||[];
+    if(!rows.length){body.innerHTML='<p style="text-align:center;padding:24px">কোনো সংরক্ষিত PDF পাওয়া যায়নি। ভর্তি ফর্ম সেভ বা পেমেন্ট সফল হলে PDF এখানে দেখা যাবে।</p>';return;}
+    body.innerHTML='<table style="width:100%;border-collapse:collapse"><thead><tr><th style="border:1px solid #aaa;padding:8px">নথি</th><th style="border:1px solid #aaa;padding:8px">ID</th><th style="border:1px solid #aaa;padding:8px">নাম</th><th style="border:1px solid #aaa;padding:8px">শ্রেণি</th><th style="border:1px solid #aaa;padding:8px">তারিখ</th><th style="border:1px solid #aaa;padding:8px">PDF</th></tr></thead><tbody>'+rows.map(function(x){return '<tr><td style="border:1px solid #aaa;padding:8px">'+(x.DocType==='receipt'?'মানি রিসিট':'ভর্তি ফর্ম')+'</td><td style="border:1px solid #aaa;padding:8px">'+esc(x.RefID||'')+'</td><td style="border:1px solid #aaa;padding:8px">'+esc(x.Name||'')+'</td><td style="border:1px solid #aaa;padding:8px">'+esc(x.Class||'')+'</td><td style="border:1px solid #aaa;padding:8px">'+esc(x.UpdatedAt||x.CreatedAt||'')+'</td><td style="border:1px solid #aaa;padding:8px"><a href="'+esc(x.PdfUrl||'')+'" target="_blank" rel="noopener">📄 PDF খুলুন</a></td></tr>';}).join('')+'</tbody></table>';
+   }catch(e){body.innerHTML='<p style="color:#b00020;padding:18px">PDF তালিকা লোড হয়নি: '+esc(e&&e.message||e)+'</p>';}
+  }
+  box.querySelector('#jbSavedPdfFind2026').onclick=load;input.addEventListener('keydown',function(e){if(e.key==='Enter')load();});load();
+ };
+ var oldList=window.jbShowCardTypeList2026;
+ if(typeof oldList==='function'){
+  window.jbShowCardTypeList2026=function(){
+   var r=oldList.apply(this,arguments);
+   setTimeout(function(){
+    var grid=document.getElementById('jbCardTypeGrid2026');
+    if(!grid||grid.querySelector('#jbSavedPdfArchiveButton2026'))return;
+    var b=document.createElement('button');b.id='jbSavedPdfArchiveButton2026';b.type='button';b.className='primary';b.textContent='📁 সংরক্ষিত PDF নথি';
+    b.onclick=function(){var modal=document.getElementById('jbCardTypeList2026');if(modal)modal.remove();window.jbOpenSavedPdfArchive2026();};
+    grid.appendChild(b);
+   },0);
+   return r;
+  };
+ }
+})();
+</script>
+<!-- ===== END ADMISSION + SUCCESSFUL RECEIPT PDF ARCHIVE ===== -->
+
