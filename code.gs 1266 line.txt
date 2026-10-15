@@ -816,11 +816,19 @@ function saveAdmissionDraft2026(token,data,action) {
   let rowNum=-1;
   for(let i=1;i<values.length;i++)if(idCol>=0&&String(values[i][idCol]||'').trim()===admissionId){rowNum=i+1;break;}
   if(action==='LOAD'){
-    if(rowNum<2)return {ok:false,found:false,message:'এই ID-তে পুরাতন/অসম্পূর্ণ ভর্তি ফর্ম পাওয়া যায়নি।'};
+    if(rowNum<2){
+      const formColSearch=headers.indexOf('FormData'),studentColSearch=headers.indexOf('StudentID');
+      for(let i=1;i<values.length;i++){
+        let candidate={};try{const raw=formColSearch>=0?values[i][formColSearch]:'';candidate=raw?(typeof raw==='string'?JSON.parse(raw):raw):{};}catch(e){}
+        const ids=[studentColSearch>=0?values[i][studentColSearch]:'',candidate.StudentID,candidate.FormID,candidate.ManualID,candidate.HandwrittenID,candidate.HandWrittenID];
+        if(ids.some(function(x){return String(x||'').trim().toLowerCase()===admissionId.toLowerCase()})){rowNum=i+1;break;}
+      }
+    }
+    if(rowNum<2)return {ok:false,found:false,message:'এই অটো/হাতে লেখা ID-তে পুরাতন বা অসম্পূর্ণ ভর্তি ফর্ম পাওয়া যায়নি।'};
     const formCol=headers.indexOf('FormData');
     let formData={};
     if(formCol>=0){const raw=values[rowNum-1][formCol];if(raw){try{formData=typeof raw==='string'?JSON.parse(raw):raw;}catch(parseError){return {ok:false,found:false,message:'সংরক্ষিত ফর্মের তথ্য পড়া যায়নি; প্রশাসকের সহায়তা নিন।'};}}}
-    return {ok:true,found:true,admissionId:admissionId,status:statusCol>=0?String(values[rowNum-1][statusCol]||'INCOMPLETE'):'INCOMPLETE',formData:formData,message:'সংরক্ষিত ভর্তি ফর্ম লোড হয়েছে।'};
+    return {ok:true,found:true,admissionId:idCol>=0?String(values[rowNum-1][idCol]||admissionId):admissionId,status:statusCol>=0?String(values[rowNum-1][statusCol]||'INCOMPLETE'):'INCOMPLETE',formData:formData,message:'সংরক্ষিত ভর্তি ফর্ম লোড হয়েছে।'};
   }
   if(action==='CANCEL'){
     if(rowNum<2)return {ok:true,cancelled:true,message:'আবেদন বাতিল করা হয়েছে।'};
