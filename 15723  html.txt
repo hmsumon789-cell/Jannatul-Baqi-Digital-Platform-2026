@@ -16098,8 +16098,12 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
    try{
     var rows=Array.isArray(window.media)?window.media:[];
     if(!rows.length){if(typeof window.openMediaLoadList20261016==='function')window.openMediaLoadList20261016();return}
-    if(typeof window.toggleMediaPlay==='function')window.toggleMediaPlay();
-    else if(typeof window.renderMedia==='function')window.renderMedia();
+    var box=document.getElementById('mediaStageContent');
+    var nativeMedia=box&&box.querySelector('video,audio');
+    var playControl=document.getElementById('mediaPlayBtn');
+    var needsPlay=nativeMedia?nativeMedia.paused:!!(playControl&&/^▶/.test((playControl.textContent||'').trim()));
+    if(needsPlay&&typeof window.toggleMediaPlay==='function')window.toggleMediaPlay();
+    else if(!nativeMedia&&!playControl&&typeof window.renderMedia==='function')window.renderMedia();
    }catch(e){}
   });
   yt.insertAdjacentElement('afterend',play);
