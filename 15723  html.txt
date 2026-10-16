@@ -15972,16 +15972,35 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
    try{if(typeof window.renderMedia==='function')window.renderMedia()}catch(e){}
    setTimeout(attachCurrent,120);
  }
- function attachCurrent(){
+ function advanceAfterEnded(){
+   if(!autoOn||mediaArray().length<2)return;
+   stopTimer();
+   setIndex((currentIndex()+1)%mediaArray().length);
+   renderAndPlay();
+  }
+  function attachCurrent(){
    if(!autoOn)return;
    var box=document.getElementById('mediaStageContent');if(!box)return;
    var el=box.querySelector('video,audio');
    if(el){
      stopTimer();lastMode='native';
-     el.onended=function(){if(autoOn&&mediaArray().length>1){setIndex((currentIndex()+1)%mediaArray().length);renderAndPlay()}};
+     if(el.dataset.jbAutoAdvanceBound!=='1'){
+       el.dataset.jbAutoAdvanceBound='1';
+       el.addEventListener('ended',function(){advanceAfterEnded()});
+     }
      el.autoplay=true;el.playsInline=true;el.preload='auto';
-     try{var p=el.play();if(p&&p.catch)p.catch(function(){updatePlayButton(false)})}catch(e){}
-     updatePlayButton(true);return;
+     try{
+       var p=el.play();
+       if(p&&p.catch)p.catch(function(){
+         if(!autoOn)return;
+         try{
+           el.muted=true;
+           var retry=el.play();
+           if(retry&&retry.catch)retry.catch(function(){updatePlayButton(false);toastMsg('পরের ভিডিও অটো প্লে ব্রাউজার আটকে দিয়েছে। প্লে বাটনে চাপ দিন।')});
+         }catch(e){updatePlayButton(false)}
+       });
+     }catch(e){updatePlayButton(false)}
+     updatePlayButton(!el.paused);return;
    }
    var frame=box.querySelector('iframe');
    var item=mediaArray()[currentIndex()];
@@ -15990,13 +16009,12 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
    }
    if(frame){
      lastMode='frame';updatePlayButton(true);
-     /* Drive preview is cross-origin, so its ended event is not exposed to the page.
-        Keep the existing preview player and use a long fallback before advancing. */
+     /* Cross-origin embedded previews do not expose ended to this page. */
      scheduleAdvance(FRAME_FALLBACK_MS);return;
    }
    updatePlayButton(true);scheduleAdvance(IMAGE_MS);
- }
- function updatePlayButton(playing){
+  }
+  function updatePlayButton(playing){
    var b=document.getElementById('mediaPlayBtn');if(!b)return;
    b.textContent=playing?'Ⅱ':'▶';b.setAttribute('aria-label',playing?'পজ':'প্লে');b.title=playing?'পজ':'প্লে';
  }
