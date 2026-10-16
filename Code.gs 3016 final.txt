@@ -870,16 +870,19 @@ function saveAdmissionDraft2026(token,data,action) {
   let rowNum=-1;
   const normAdmissionLookup_=function(v){return String(v==null?'':v).trim().toLowerCase().replace(/[\\s().-]/g,'');};
   const wantedAdmissionLookup_=normAdmissionLookup_(admissionId);
+  const directIdColumns=['HandwrittenID','StudentID','FormID','SystemID','AutoID','ID']
+    .map(function(name){return headers.indexOf(name);}).filter(function(idx){return idx>=0;});
   for(let i=1;i<values.length;i++){
     if(idCol>=0&&normAdmissionLookup_(values[i][idCol])===wantedAdmissionLookup_){rowNum=i+1;break;}
     if(action==='LOAD'){
+      if(directIdColumns.some(function(idx){return normAdmissionLookup_(values[i][idx])===wantedAdmissionLookup_;})){rowNum=i+1;break;}
       const fdCol=headers.indexOf('FormData');
       let payload={};
       if(fdCol>=0&&values[i][fdCol]){try{payload=typeof values[i][fdCol]==='string'?JSON.parse(values[i][fdCol]):values[i][fdCol];}catch(e){payload={};}}
       const flat={};
       const mergeLookup_=function(o){Object.keys(o||{}).forEach(function(k){const v=o[k];if(v&&typeof v==='object'&&!Array.isArray(v))mergeLookup_(v);else if(v!==''&&v!=null)flat[k]=v;});};
       if(payload&&typeof payload==='object')mergeLookup_(payload);
-      const idKeys=['StudentID','FormID','HandwrittenID','handwrittenId','AdmissionFormID','MobileID','Mobile','Phone','MobileNo','WhatsApp','EmailID','Email','GuardianEmail'];
+      const idKeys=['AdmissionID','StudentID','FormID','HandwrittenID','handwrittenId','AdmissionFormID','SystemID','AutoID','MobileID','Mobile','Phone','MobileNo','WhatsApp','EmailID','Email','GuardianEmail'];
       if(idKeys.some(function(k){return normAdmissionLookup_(flat[k])===wantedAdmissionLookup_;})){rowNum=i+1;break;}
     }
   }
