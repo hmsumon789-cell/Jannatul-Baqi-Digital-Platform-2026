@@ -15901,7 +15901,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
      var p=audio.play();if(p&&p.catch)p.catch(function(){var b=byId('mediaPlayBtn');if(b)b.textContent='▶ প্লে';});
      return;
    }
-   /* Keep the existing Google Drive video iframe/player untouched to protect current video playback. */
+   /* Preserve the established Drive-video action; cross-origin iframe playback remains owned by the existing player. */
+   if(type==='video'&&typeof oldToggleMediaPlay==='function'){try{oldToggleMediaPlay.call(window)}catch(e){}}
  }
  function installControls(){
    var bar=document.querySelector('#app .dashboard-slider-controls .slider-center-controls');
@@ -15934,6 +15935,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
      };
    }
  }
+ var oldToggleMediaPlay=window.toggleMediaPlay;
  var oldRender=window.renderMedia,oldNext=window.nextMedia,oldPrev=window.prevMedia;
  if(typeof oldRender==='function')window.renderMedia=function(){var r=oldRender.apply(this,arguments);installControls();if(playing){var t=seqToken;setTimeout(function(){armCurrent(t)},100)}return r};
  if(typeof oldNext==='function')window.nextMedia=function(){var r=oldNext.apply(this,arguments);installControls();if(playing){var t=seqToken;setTimeout(function(){armCurrent(t)},100)}return r};
