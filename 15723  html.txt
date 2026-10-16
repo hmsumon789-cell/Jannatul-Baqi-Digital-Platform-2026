@@ -16354,8 +16354,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
    wrappedOpen[installed]=true;window.openModule=wrappedOpen;
  }
  document.addEventListener('click',function(e){
-   var el=e.target&&e.target.closest&&e.target.closest('[onclick*="openAdmissionForm2026"],[onclick*="openModule(\\'exam\\')"]');
-   if(el)schedule();
+   var el=e.target&&e.target.closest&&e.target.closest('button');if(!el)return;
+   var oc=el.getAttribute('onclick')||'';
+   if(oc.indexOf('openAdmissionForm2026')>=0||oc.indexOf('openModule')>=0)schedule();
  },true);
 })();
 </script>
