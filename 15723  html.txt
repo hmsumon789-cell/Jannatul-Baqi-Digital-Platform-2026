@@ -16318,8 +16318,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
    return '';
  }
  function headerHtml(){
-   var logo=imageSource(['contactLoginLogo2026','loginLogo','headerLogo','jbAdmissionOriginalLogo20261010']);
-   var qr=imageSource(['contactMainQR2026','loginMainQR802268e','jbAdmissionMainQR20261010']);
+   var logo=imageSource(['contactLoginLogo2026','loginLogo','headerLogo','admAdmissionRedesignLogo2026','jbAdmissionOriginalLogo20261010']);
+   var qr=imageSource(['contactMainQR2026','loginMainQR802268e','admAdmissionRedesignQR2026','jbAdmissionMainQR20261010']);
    if(!logo)logo='data:image/svg+xml;charset=UTF-8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" rx="18" fill="#eaf4e9" stroke="#c79a28" stroke-width="4"/><text x="50" y="57" text-anchor="middle" font-size="20" fill="#176b45">JB</text></svg>');
    if(!qr)qr='https://quickchart.io/qr?size=180&margin=2&text='+encodeURIComponent(location.href.split('#')[0]);
    return '<section class="jb-shared-application-header-20261017" aria-label="মাদ্রাসার আবেদন ফর্মের হেডার">'+
