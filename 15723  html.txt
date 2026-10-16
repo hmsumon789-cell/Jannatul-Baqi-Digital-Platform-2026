@@ -11537,14 +11537,38 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     if(!p||p.dataset.jbContactHeader2026==='1')return;
     p.dataset.jbContactHeader2026='1';
 
-    var h=document.createElement('div');
-    h.className='jb-institution-header-2026';
-    h.innerHTML=
-      '<div class="jb-inst-side-2026"><img alt="মাদ্রাসার লোগো" src="'+esc(logoSrc())+'"></div>'+
-      '<div class="jb-inst-center-2026">'+
-        '<div class="jb-inst-name-2026" data-jb-keep-institution="1">'+NAME+'</div>'+
-        '<div class="jb-inst-address-2026" data-jb-keep-institution="1">'+ADDRESS+'</div>'+
-      '</div>';
+    /* Reuse the exact contact panel from below the login page. */
+    var source=document.getElementById('loginContactStrip20261013');
+    var h=source?source.cloneNode(true):document.createElement('section');
+    h.removeAttribute('id');
+    h.classList.add('jb-contact-strip-copy-2026');
+    h.querySelectorAll('[id]').forEach(function(el){el.removeAttribute('id');});
+    h.querySelectorAll('script,style').forEach(function(el){el.remove();});
+    h.style.cssText='display:block!important;width:100%!important;max-width:100%!important;box-sizing:border-box!important;margin:0 0 4mm!important;padding:2mm!important;background:#fff!important;color:#222!important;border:1px solid #c89b27!important;border-radius:2mm!important;box-shadow:none!important;text-align:center!important;position:relative!important;z-index:1!important;overflow:visible!important;break-inside:avoid!important;';
+    var title=h.querySelector('.lc-title');
+    if(title)title.style.cssText='font-size:10pt!important;font-weight:900!important;margin:0 0 2mm!important;';
+    var layout=h.querySelector('.lc-layout');
+    if(layout)layout.style.cssText='display:grid!important;grid-template-columns:16mm minmax(0,1fr) 16mm!important;align-items:center!important;gap:2mm!important;width:100%!important;';
+    var logoSide=h.querySelector('.lc-logo-side');
+    if(logoSide)logoSide.style.cssText='grid-column:1!important;grid-row:1!important;min-width:0!important;';
+    var center=h.querySelector('.lc-center');
+    if(center)center.style.cssText='grid-column:2!important;grid-row:1!important;min-width:0!important;text-align:center!important;';
+    var qrSide=h.querySelector('.lc-qr-side');
+    if(qrSide)qrSide.style.cssText='grid-column:3!important;grid-row:1!important;min-width:0!important;';
+    h.querySelectorAll('.lc-logo,.lc-qr').forEach(function(img){
+      img.style.cssText='width:15mm!important;height:15mm!important;max-width:15mm!important;max-height:15mm!important;object-fit:contain!important;display:block!important;margin:auto!important;background:#fff!important;border:1px solid #c89b27!important;border-radius:1mm!important;box-sizing:border-box!important;';
+    });
+    var name=h.querySelector('.lc-name');
+    if(name){name.dataset.jbKeepInstitution='1';name.style.cssText='font-size:11pt!important;font-weight:900!important;line-height:1.3!important;margin:0 0 1mm!important;';}
+    var address=h.querySelector('.lc-address');
+    if(address){address.dataset.jbKeepInstitution='1';address.style.cssText='font-size:8pt!important;font-weight:700!important;line-height:1.3!important;margin:0 0 1mm!important;';}
+    var hotline=h.querySelector('.lc-hotline');
+    if(hotline)hotline.style.cssText='font-size:9pt!important;font-weight:900!important;line-height:1.3!important;';
+    var qrLabel=h.querySelector('.lc-qr-label');
+    if(qrLabel)qrLabel.style.cssText='font-size:6pt!important;font-weight:800!important;margin-top:1mm!important;';
+    var srcLogo=document.getElementById('loginContactLogo20261013')||document.getElementById('loginLogo');
+    var outLogo=h.querySelector('.lc-logo');
+    if(srcLogo&&outLogo&&(!outLogo.getAttribute('src')||outLogo.getAttribute('src')===''))outLogo.src=srcLogo.getAttribute('src')||srcLogo.src;
     p.insertBefore(h,p.firstChild);
     removeOldInstitutionLines(p);
   }
