@@ -15997,19 +15997,20 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
        else if(typeof window.toast==='function')window.toast('মিডিয়া গ্যালারি খোলা যাচ্ছে না।');
      };
    }
-   play.textContent=window.dashboardMediaPlaying?'⏸':'▶';
-   play.title=window.dashboardMediaPlaying?'বিরতি দিন':'প্লে করুন';
-   play.setAttribute('aria-label',play.title);
-   play.onclick=function(){
-     if(typeof window.toggleMediaPlay==='function')window.toggleMediaPlay();
-     setTimeout(function(){
-       var v=document.querySelector('#mediaStageContent video,#mediaStageContent audio');
-       var playing=v?!v.paused:!!window.dashboardMediaPlaying;
-       play.textContent=playing?'⏸':'▶';
-       play.title=playing?'বিরতি দিন':'প্লে করুন';
-       play.setAttribute('aria-label',play.title);
-     },0);
-   };
+   if(play.dataset.jbMediaBound!=='1'){
+     play.textContent='▶';
+     play.onclick=function(){
+       if(typeof window.toggleMediaPlay==='function')window.toggleMediaPlay();
+       setTimeout(function(){
+         var v=document.querySelector('#mediaStageContent video,#mediaStageContent audio');
+         var playing=v?!v.paused:/pause|বিরতি/i.test(String(play.textContent||''));
+         play.textContent=playing?'⏸':'▶';
+         play.title=playing?'বিরতি দিন':'প্লে করুন';
+         play.setAttribute('aria-label',play.title);
+       },0);
+     };
+     play.dataset.jbMediaBound='1';
+   }
    controls.querySelectorAll('button.slider-arrow').forEach(function(b){
      b.style.borderRadius='50%';b.style.width='54px';b.style.height='54px';b.style.minWidth='54px';b.style.padding='0';
    });
