@@ -15860,3 +15860,88 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 </script>
 <!-- ===== END DASHBOARD ALL NOTICE ONLINE SERVICE SHORTCUT ===== -->
+
+
+<!-- ===== MAIN DASHBOARD MEDIA PLAYER: ROUND UPLOAD/PLAY CONTROLS + SEQUENTIAL PLAYBACK — 2026-10-16 ===== -->
+<style id="jb-main-media-controls-round-20261016">
+#app .dashboard-slider-controls .slider-center-controls{display:flex!important;align-items:center!important;justify-content:center!important;gap:12px!important;flex-wrap:wrap!important}
+#app .dashboard-slider-controls .jb-media-round-control-20261016{
+  width:66px!important;height:66px!important;min-width:66px!important;min-height:66px!important;
+  padding:7px!important;border-radius:50%!important;display:inline-flex!important;
+  align-items:center!important;justify-content:center!important;text-align:center!important;
+  white-space:normal!important;line-height:1.15!important;font-size:13px!important;font-weight:900!important;
+  border:3px solid #b8860b!important;box-shadow:0 2px 7px #0003!important;cursor:pointer!important;
+}
+#app .dashboard-slider-controls .jb-media-upload-round-20261016{background:linear-gradient(145deg,#ffe78a,#d5a400)!important;color:#181000!important}
+#app .dashboard-slider-controls #mediaPlayBtn{background:linear-gradient(145deg,#d9f7d9,#16834a)!important;color:#073b1b!important}
+#app .dashboard-slider-controls .slider-arrow{border-radius:50%!important;width:48px!important;height:48px!important}
+</style>
+<script id="jb-main-media-controls-round-20261016-js">
+(function(){
+ if(window.__jbMainMediaControlsRound20261016)return;
+ window.__jbMainMediaControlsRound20261016=true;
+ var playing=false,imageTimer=null,seqToken=0;
+ function byId(id){return document.getElementById(id)}
+ function mediaItems(){return Array.isArray(window.media)?window.media:[]}
+ function currentItem(){var a=mediaItems();if(!a.length)return null;var i=Number(window.mediaIndex||0);return a[((i%a.length)+a.length)%a.length]}
+ function stopSequence(){playing=false;seqToken++;if(imageTimer){clearTimeout(imageTimer);imageTimer=null}var b=byId('mediaPlayBtn');if(b)b.textContent='▶ প্লে';}
+ function armCurrent(token){
+   if(!playing||token!==seqToken)return;
+   var box=byId('mediaStageContent');if(!box)return;
+   var item=currentItem();if(!item){stopSequence();return}
+   var type=String(item.Type||item.type||'').toLowerCase();
+   var audio=box.querySelector('audio');
+   if(type==='image'||box.querySelector('img')){
+     if(imageTimer)clearTimeout(imageTimer);
+     imageTimer=setTimeout(function(){if(!playing||token!==seqToken)return;if(typeof window.nextMedia==='function')window.nextMedia()},6000);
+     return;
+   }
+   if(audio){
+     audio.onended=function(){if(playing&&token===seqToken&&typeof window.nextMedia==='function')window.nextMedia()};
+     var p=audio.play();if(p&&p.catch)p.catch(function(){var b=byId('mediaPlayBtn');if(b)b.textContent='▶ প্লে';});
+     return;
+   }
+   /* Keep the existing Google Drive video iframe/player untouched to protect current video playback. */
+ }
+ function installControls(){
+   var bar=document.querySelector('#app .dashboard-slider-controls .slider-center-controls');
+   if(!bar)return;
+   Array.from(bar.querySelectorAll('button')).forEach(function(b){
+     if(b.id==='mediaPlayBtn')return;
+     var t=((b.textContent||'')+' '+(b.title||'')).toLowerCase();
+     if(/load|upload|delete|ডিলেট|মুছ/.test(t))b.remove();
+   });
+   var upload=byId('jbMediaUploadRound20261016');
+   if(!upload){
+     upload=document.createElement('button');upload.type='button';upload.id='jbMediaUploadRound20261016';
+     upload.className='primary jb-media-round-control-20261016 jb-media-upload-round-20261016';
+     upload.title='মিডিয়া আপলোড ও তালিকা ব্যবস্থাপনা';upload.textContent='⬆ আপলোড';
+     upload.addEventListener('click',function(){
+       if(typeof window.openModule==='function')window.openModule('gallery');
+       setTimeout(function(){if(typeof window.loadPhotoGalleryData2026==='function')try{window.loadPhotoGalleryData2026()}catch(e){}},350);
+     });
+     bar.insertBefore(upload,bar.firstChild);
+   }
+   var play=byId('mediaPlayBtn');
+   if(play){
+     play.classList.add('jb-media-round-control-20261016');
+     play.title='প্লে / স্থির রাখুন';
+     play.textContent=playing?'⏸ স্থির রাখুন':'▶ প্লে';
+     play.onclick=function(){
+       if(playing){stopSequence();var box=byId('mediaStageContent');var el=box&&box.querySelector('audio,video');if(el&&!el.paused)el.pause();return}
+       if(!mediaItems().length){if(typeof window.toast==='function')window.toast('মিডিয়া তালিকায় কোনো ফাইল নেই।');return}
+       playing=true;seqToken++;play.textContent='⏸ স্থির রাখুন';var token=seqToken;armCurrent(token);
+     };
+   }
+ }
+ var oldRender=window.renderMedia,oldNext=window.nextMedia,oldPrev=window.prevMedia;
+ if(typeof oldRender==='function')window.renderMedia=function(){var r=oldRender.apply(this,arguments);installControls();if(playing){var t=seqToken;setTimeout(function(){armCurrent(t)},100)}return r};
+ if(typeof oldNext==='function')window.nextMedia=function(){var r=oldNext.apply(this,arguments);installControls();if(playing){var t=seqToken;setTimeout(function(){armCurrent(t)},100)}return r};
+ if(typeof oldPrev==='function')window.prevMedia=function(){var r=oldPrev.apply(this,arguments);installControls();if(playing){var t=seqToken;setTimeout(function(){armCurrent(t)},100)}return r};
+ function boot(){installControls()}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+ if(document.body)new MutationObserver(boot).observe(document.body,{childList:true,subtree:true});
+ [300,900,1800,3000].forEach(function(ms){setTimeout(boot,ms)});
+})();
+</script>
+<!-- ===== END MAIN DASHBOARD MEDIA PLAYER CONTROL PATCH ===== -->
