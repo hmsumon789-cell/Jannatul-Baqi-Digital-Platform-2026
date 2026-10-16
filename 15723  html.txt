@@ -16289,3 +16289,73 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 #admAdmissionRedesign20261011 .adm-id-fields-20261016 button[onclick*="jbAdmissionLoadDraft2026"][aria-busy="true"]{opacity:.65;cursor:wait}
 </style>
 
+
+<!-- ===== SHARED APPLICATION HEADER: TEACHER / MEMBER / EXAM — 2026-10-17 ===== -->
+
+<style id="jb-shared-application-header-20261017">
+.jb-shared-application-header-20261017{display:grid;grid-template-columns:clamp(58px,8vw,92px) minmax(0,1fr) clamp(58px,8vw,92px);gap:10px;align-items:center;margin:0 0 12px;padding:10px;border:2px solid #c79a28;border-radius:14px;background:linear-gradient(110deg,#f0f8ef,#fffdf4,#fff3cd);color:#173c2b;box-sizing:border-box;width:100%}
+.jb-shared-application-header-20261017 .jb-sah-logo,.jb-shared-application-header-20261017 .jb-sah-qr{width:100%;height:78px;object-fit:contain;display:block}
+.jb-shared-application-header-20261017 .jb-sah-title{text-align:center;min-width:0;font-weight:800;line-height:1.45}
+.jb-shared-application-header-20261017 .jb-sah-title .jb-sah-bn{font-size:clamp(14px,2vw,21px);color:#155b3c}
+.jb-shared-application-header-20261017 .jb-sah-title .jb-sah-ar{font-size:clamp(12px,1.7vw,17px);direction:rtl}
+.jb-shared-application-header-20261017 .jb-sah-title .jb-sah-en{font-size:clamp(10px,1.35vw,13px)}
+.jb-shared-application-header-20261017 .jb-sah-title .jb-sah-meta{font-size:clamp(10px,1.35vw,13px);font-weight:700}
+.jb-shared-application-header-20261017 .jb-sah-newsrow{grid-column:1/-1;display:flex;align-items:center;gap:8px;min-width:0}
+.jb-shared-application-header-20261017 .jb-sah-ticker{flex:1 1 auto;min-width:0;overflow:hidden;white-space:nowrap;padding:8px 10px;border:2px solid #b88408;border-radius:999px;background:linear-gradient(90deg,#b77b00,#f4d56b,#b77b00);color:#241800;font-weight:800;font-size:12px;box-sizing:border-box}
+.jb-shared-application-header-20261017 .jb-sah-ticker span{display:inline-block;min-width:max-content;animation:jbSahMove20261017 18s linear infinite}
+.jb-shared-application-header-20261017 .jb-sah-lang{flex:0 0 145px;width:145px;max-width:40%;height:42px;border:3px solid #c79a28;border-radius:10px;padding:4px 7px;background:#fff8df;color:#573d00;font-size:13px;font-weight:800;box-sizing:border-box}
+@keyframes jbSahMove20261017{0%{transform:translateX(100%)}100%{transform:translateX(-110%)}}
+@media(max-width:560px){.jb-shared-application-header-20261017{gap:5px;padding:7px}.jb-shared-application-header-20261017 .jb-sah-logo,.jb-shared-application-header-20261017 .jb-sah-qr{height:56px}.jb-shared-application-header-20261017 .jb-sah-newsrow{gap:5px}.jb-shared-application-header-20261017 .jb-sah-ticker{font-size:10px;padding:6px}.jb-shared-application-header-20261017 .jb-sah-lang{flex-basis:112px;width:112px;min-width:112px;font-size:11px;padding:3px}}
+@media print{.jb-shared-application-header-20261017{break-inside:avoid;box-shadow:none}}
+</style>
+<script id="jb-shared-application-header-js-20261017">
+(function(){
+ 'use strict';
+ var installed='__jbSharedApplicationHeader20261017';
+ function esc(v){return String(v||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+ function imageSource(ids){
+   for(var i=0;i<ids.length;i++){var el=document.getElementById(ids[i]);if(el){var src=el.getAttribute('src')||el.src||'';if(src&&src!=='about:blank')return src}}
+   return '';
+ }
+ function headerHtml(){
+   var logo=imageSource(['contactLoginLogo2026','loginLogo','headerLogo','jbAdmissionOriginalLogo20261010']);
+   var qr=imageSource(['contactMainQR2026','loginMainQR802268e','jbAdmissionMainQR20261010']);
+   if(!logo)logo='data:image/svg+xml;charset=UTF-8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" rx="18" fill="#eaf4e9" stroke="#c79a28" stroke-width="4"/><text x="50" y="57" text-anchor="middle" font-size="20" fill="#176b45">JB</text></svg>');
+   if(!qr)qr='https://quickchart.io/qr?size=180&margin=2&text='+encodeURIComponent(location.href.split('#')[0]);
+   return '<section class="jb-shared-application-header-20261017" aria-label="মাদ্রাসার আবেদন ফর্মের হেডার">'+
+    '<img class="jb-sah-logo" src="'+esc(logo)+'" alt="মাদ্রাসার মূল লোগো">'+
+    '<div class="jb-sah-title"><div class="jb-sah-bn">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div><div class="jb-sah-ar">المدرسة الجنة الباقية للبنات ودار الايتام</div><div class="jb-sah-en">Jannatul Baky Mohila Madrasha &amp; Eatimkhana</div><div class="jb-sah-meta">ঠিকানা: উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div><div class="jb-sah-meta">হটলাইন: 01823316630 · ইমেইল: hmatik90@gmail.com</div></div>'+
+    '<img class="jb-sah-qr" src="'+esc(qr)+'" alt="মাদ্রাসার মূল QR কোড">'+
+    '<div class="jb-sah-newsrow"><div class="jb-sah-ticker"><span>📢 চলমান সংবাদ — জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা · অনলাইন সেবা ও আবেদন কার্যক্রম · হটলাইন 01823316630 · hmatik90@gmail.com</span></div><select class="jb-sah-lang" aria-label="ভাষা নির্বাচন" onchange="window.jbSharedApplicationLanguage20261017(this.value)"><option value="bn">বাংলা</option><option value="ar">العربية</option><option value="en">English</option></select></div></section>';
+ }
+ window.jbSharedApplicationLanguage20261017=function(lang){
+   var msg=lang==='ar'?'تم اختيار اللغة العربية.':(lang==='en'?'English selected.':'বাংলা ভাষা নির্বাচন করা হয়েছে।');
+   if(typeof window.toast==='function')window.toast(msg);
+ };
+ function install(){
+   var body=document.getElementById('winBody');if(!body)return;
+   var title=document.getElementById('winTitle');var titleText=String(title&&title.textContent||'');
+   var isTeacherMember=/শিক্ষক|শিক্ষিকা|সদস্য আবেদন/.test(titleText);
+   var isExam=/পরীক্ষার্থী নিবন্ধন|পরীক্ষার্থী নিবন্ধন করুন/.test(titleText);
+   if(!isTeacherMember&&!isExam)return;
+   if(body.querySelector('.jb-shared-application-header-20261017'))return;
+   body.querySelectorAll('.jb-admission-brand-header-20261010,.form-language-fixed').forEach(function(el){el.remove()});
+   body.insertAdjacentHTML('afterbegin',headerHtml());
+ }
+ function schedule(){setTimeout(install,80);setTimeout(install,300)}
+ var oldAdmission=window.openAdmissionForm2026;
+ if(typeof oldAdmission==='function'&&!oldAdmission[installed]){
+   var wrappedAdmission=function(type){var r=oldAdmission.apply(this,arguments);if(type==='teacher'||type==='member')schedule();return r};
+   wrappedAdmission[installed]=true;window.openAdmissionForm2026=wrappedAdmission;
+ }
+ var oldOpen=window.openModule;
+ if(typeof oldOpen==='function'&&!oldOpen[installed]){
+   var wrappedOpen=function(k){var r=oldOpen.apply(this,arguments);if(k==='exam')schedule();return r};
+   wrappedOpen[installed]=true;window.openModule=wrappedOpen;
+ }
+ document.addEventListener('click',function(e){
+   var el=e.target&&e.target.closest&&e.target.closest('[onclick*="openAdmissionForm2026"],[onclick*="openModule(\\'exam\\')"]');
+   if(el)schedule();
+ },true);
+})();
+</script>
