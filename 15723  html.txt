@@ -9384,6 +9384,8 @@ window.openModule=function(k){
 <script id="media-list-final-sync-fix-js">
 (function(){
   var busy=false,tries=0;
+})();
+</script>
 
 <style id="header-top-gap-and-logo-bn-final-2026-10-04">
 /* Header-এর উপরের খালি জায়গা ও Logo-বাংলা নামের অতিরিক্ত gap বাদ */
@@ -15947,3 +15949,73 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 </script>
 <!-- ===== END MAIN DASHBOARD MEDIA PLAYER CONTROL PATCH ===== -->
+
+
+<!-- ===== SAFE MAIN MEDIA CONTROLS: UPLOAD LIST + PLAY/PAUSE, PRESERVE PLAYER — 2026-10-16 ===== -->
+<style id="jb-safe-main-media-controls-20261016">
+.dashboard-slider-controls{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important}
+.dashboard-slider-controls .slider-center-controls{display:flex!important;align-items:center!important;justify-content:center!important;gap:12px!important;flex:1!important}
+.dashboard-slider-controls button.slider-arrow,
+.dashboard-slider-controls button.slider-action{
+ width:54px!important;height:54px!important;min-width:54px!important;min-height:54px!important;
+ padding:0!important;border-radius:50%!important;display:inline-flex!important;
+ align-items:center!important;justify-content:center!important;font-size:22px!important;
+ font-weight:900!important;line-height:1!important;box-shadow:0 3px 9px #0003!important;
+}
+.dashboard-slider-controls #mediaPlayBtn{background:#16834a!important;color:#fff!important;border:2px solid #0e6337!important}
+.dashboard-slider-controls #mediaUploadBtn{background:#d4a017!important;color:#201600!important;border:2px solid #8b5e00!important}
+@media(max-width:520px){
+ .dashboard-slider-controls button.slider-arrow,
+ .dashboard-slider-controls button.slider-action{width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important}
+ .dashboard-slider-controls .slider-center-controls{gap:8px!important}
+}
+</style>
+<script id="jb-safe-main-media-controls-20261016-js">
+(function(){
+ function setup(){
+   var controls=document.querySelector('.dashboard-slider-controls');
+   var center=controls&&controls.querySelector('.slider-center-controls');
+   if(!controls||!center)return;
+   var play=document.getElementById('mediaPlayBtn');
+   var upload=document.getElementById('mediaUploadBtn');
+   var del=center.querySelector('button[onclick*="deleteCurrentMedia"]');
+   if(del)del.remove();
+   if(!play)return;
+   if(!upload){
+     upload=center.querySelector('button[onclick*="openModule"]');
+     if(upload)upload.id='mediaUploadBtn';
+   }
+   if(upload){
+     upload.id='mediaUploadBtn';
+     upload.textContent='⬆';
+     upload.title='আপলোড, মিডিয়া তালিকা দেখুন ও তালিকা থেকে মুছুন';
+     upload.setAttribute('aria-label','আপলোড, মিডিয়া তালিকা ও ডিলেট');
+     upload.onclick=function(){
+       if(typeof window.openModule==='function')window.openModule('gallery');
+       else if(typeof window.toast==='function')window.toast('মিডিয়া গ্যালারি খোলা যাচ্ছে না।');
+     };
+   }
+   play.textContent=window.dashboardMediaPlaying?'⏸':'▶';
+   play.title=window.dashboardMediaPlaying?'বিরতি দিন':'প্লে করুন';
+   play.setAttribute('aria-label',play.title);
+   play.onclick=function(){
+     if(typeof window.toggleMediaPlay==='function')window.toggleMediaPlay();
+     setTimeout(function(){
+       var v=document.querySelector('#mediaStageContent video,#mediaStageContent audio');
+       var playing=v?!v.paused:!!window.dashboardMediaPlaying;
+       play.textContent=playing?'⏸':'▶';
+       play.title=playing?'বিরতি দিন':'প্লে করুন';
+       play.setAttribute('aria-label',play.title);
+     },0);
+   };
+   controls.querySelectorAll('button.slider-arrow').forEach(function(b){
+     b.style.borderRadius='50%';b.style.width='54px';b.style.height='54px';b.style.minWidth='54px';b.style.padding='0';
+   });
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup);
+ else setup();
+ if(document.body)new MutationObserver(setup).observe(document.body,{childList:true,subtree:true});
+ [250,700,1500].forEach(function(ms){setTimeout(setup,ms)});
+})();
+</script>
+<!-- ===== END SAFE MAIN MEDIA CONTROLS ===== -->
