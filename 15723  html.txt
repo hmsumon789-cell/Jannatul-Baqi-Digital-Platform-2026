@@ -15860,3 +15860,188 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 </script>
 <!-- ===== END DASHBOARD ALL NOTICE ONLINE SERVICE SHORTCUT ===== -->
+
+
+<!-- ===== DASHBOARD MAIN MEDIA PLAYER CONTROLS — TARGET caabc9e + 78ca052 — 2026-10-16 ===== -->
+<style id="jb-main-media-round-controls-20261016">
+#mediaStage .dashboard-slider-controls{
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  gap:12px!important;flex-wrap:wrap!important;height:auto!important;min-height:66px!important;
+  padding:10px 8px!important;margin:0!important;background:transparent!important;
+}
+#mediaStage .dashboard-slider-controls .slider-center-controls{
+  display:flex!important;align-items:center!important;justify-content:center!important;gap:12px!important;
+}
+#mediaStage .dashboard-slider-controls .slider-arrow,
+#mediaStage .dashboard-slider-controls .slider-action{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  position:static!important;transform:none!important;float:none!important;
+  width:52px!important;height:52px!important;min-width:52px!important;min-height:52px!important;
+  padding:0!important;border-radius:50%!important;border:3px solid #8b6508!important;
+  background:linear-gradient(145deg,#ffe58a,#d6a51c)!important;color:#3a2600!important;
+  box-shadow:0 3px 8px #0003,inset 0 1px 2px #fff9!important;
+  font-size:23px!important;font-weight:900!important;line-height:1!important;cursor:pointer!important;
+}
+#mediaStage .dashboard-slider-controls .slider-action{font-size:20px!important}
+#mediaStage .dashboard-slider-controls [data-jb-hidden-delete="1"]{display:none!important}
+#jbMediaLoadList20261016{position:fixed;inset:0;z-index:2147483647;background:#0009;display:none;align-items:center;justify-content:center;padding:12px;box-sizing:border-box}
+#jbMediaLoadList20261016.open{display:flex}
+#jbMediaLoadList20261016 .jbml-panel{width:min(650px,96vw);max-height:86vh;overflow:auto;background:#fffdf4;border:3px solid #b58a18;border-radius:22px;padding:14px;box-sizing:border-box;box-shadow:0 18px 55px #0006;color:#241900}
+#jbMediaLoadList20261016 .jbml-head{display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;top:-14px;background:#fffdf4;padding:2px 0 10px;z-index:1}
+#jbMediaLoadList20261016 .jbml-head strong{font-size:18px}
+#jbMediaLoadList20261016 .jbml-close,#jbMediaLoadList20261016 .jbml-row button{border:2px solid #8b6508;border-radius:999px;background:linear-gradient(145deg,#ffe58a,#d6a51c);color:#3a2600;font-weight:900;padding:8px 13px;cursor:pointer}
+#jbMediaLoadList20261016 .jbml-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 2px;border-bottom:1px solid #dfd1a8}
+#jbMediaLoadList20261016 .jbml-name{min-width:0;overflow-wrap:anywhere;font-weight:800}
+#jbMediaLoadList20261016 .jbml-actions{display:flex;gap:7px;flex-shrink:0}
+#jbMediaLoadList20261016 .jbml-empty{padding:18px;text-align:center;font-weight:800}
+@media(max-width:520px){
+ #mediaStage .dashboard-slider-controls .slider-arrow,#mediaStage .dashboard-slider-controls .slider-action{width:46px!important;height:46px!important;min-width:46px!important;min-height:46px!important}
+ #jbMediaLoadList20261016 .jbml-row{align-items:flex-start;flex-direction:column}
+ #jbMediaLoadList20261016 .jbml-actions{align-self:flex-end}
+}
+</style>
+<script id="jb-main-media-round-controls-20261016-js">
+(function(){
+ 'use strict';
+ var autoOn=true, autoTimer=null, autoBusy=false, lastMode='';
+ var IMAGE_MS=5000, FRAME_FALLBACK_MS=120000;
+ function mediaArray(){return Array.isArray(window.media)?window.media:[]}
+ function currentIndex(){var a=mediaArray();if(!a.length)return 0;var i=Number(window.mediaIndex)||0;return ((i%a.length)+a.length)%a.length}
+ function setIndex(i){window.mediaIndex=i}
+ function toastMsg(s){if(typeof window.toast==='function')window.toast(s)}
+ function getListRoot(){
+   var root=document.getElementById('jbMediaLoadList20261016');if(root)return root;
+   root=document.createElement('div');root.id='jbMediaLoadList20261016';
+   root.innerHTML='<div class="jbml-panel" role="dialog" aria-modal="true" aria-label="মিডিয়া লোড তালিকা"><div class="jbml-head"><strong>মিডিয়া তালিকা — চালান অথবা ডিলেট করুন</strong><button type="button" class="jbml-close" data-jbml-close>✕ বন্ধ</button></div><div class="jbml-body"></div></div>';
+   root.addEventListener('click',function(e){if(e.target===root||e.target.closest('[data-jbml-close]'))closeList()});
+   document.body.appendChild(root);return root;
+ }
+ function closeList(){var r=document.getElementById('jbMediaLoadList20261016');if(r)r.classList.remove('open')}
+ async function refreshMedia(){
+   if(typeof window.call!=='function'||typeof window.token==='undefined')return mediaArray();
+   try{
+     var r=await window.call('listMedia',window.token);
+     var rows=Array.isArray(r)?r:(r&&Array.isArray(r.rows)?r.rows:(r&&Array.isArray(r.media)?r.media:null));
+     if(rows)window.media=rows;
+   }catch(e){}
+   if(mediaArray().length)setIndex(currentIndex());else setIndex(0);
+   return mediaArray();
+ }
+ function renderList(){
+   var root=getListRoot(),body=root.querySelector('.jbml-body'),rows=mediaArray();
+   body.textContent='';
+   if(!rows.length){var empty=document.createElement('div');empty.className='jbml-empty';empty.textContent='কোনো মিডিয়া পাওয়া যায়নি।';body.appendChild(empty);return}
+   rows.forEach(function(item,i){
+     var row=document.createElement('div');row.className='jbml-row';
+     var name=document.createElement('div');name.className='jbml-name';name.textContent=String(item.Name||item.Title||('মিডিয়া '+(i+1)));
+     var actions=document.createElement('div');actions.className='jbml-actions';
+     var play=document.createElement('button');play.type='button';play.textContent='▶ চালান';play.title='এই মিডিয়া চালান';
+     play.addEventListener('click',function(){setIndex(i);closeList();autoOn=true;renderAndPlay()});
+     var del=document.createElement('button');del.type='button';del.textContent='🗑 ডিলেট';del.title='এই মিডিয়া মুছুন';
+     del.addEventListener('click',function(){deleteFromList(i)});
+     actions.appendChild(play);actions.appendChild(del);row.appendChild(name);row.appendChild(actions);body.appendChild(row);
+   });
+ }
+ async function openList(){
+   var root=getListRoot();root.classList.add('open');
+   var body=root.querySelector('.jbml-body');body.textContent='তালিকা লোড হচ্ছে…';
+   await refreshMedia();renderList();
+ }
+ async function deleteFromList(i){
+   var rows=mediaArray(),item=rows[i];if(!item)return;
+   if(!window.confirm('“'+String(item.Name||item.Title||('মিডিয়া '+(i+1)))+'” মুছে ফেলবেন?'))return;
+   try{
+     if(typeof window.call!=='function')throw new Error('delete endpoint unavailable');
+     var result=await window.call('deleteMedia',window.token,item.Serial);
+     if(result&&result.ok){
+       if(i<Number(window.mediaIndex||0))setIndex(Math.max(0,Number(window.mediaIndex||0)-1));
+       await refreshMedia();
+       if(mediaArray().length)setIndex(currentIndex());else setIndex(0);
+       renderList();renderAndPlay();toastMsg('মিডিয়া মুছে ফেলা হয়েছে।');
+     }else toastMsg((result&&result.message)||'মিডিয়া ডিলেট করা যায়নি।');
+   }catch(e){toastMsg('মিডিয়া ডিলেট করা যায়নি।');}
+ }
+ function stopTimer(){if(autoTimer){clearTimeout(autoTimer);clearInterval(autoTimer);autoTimer=null}}
+ function scheduleAdvance(ms){
+   stopTimer();if(!autoOn||mediaArray().length<2)return;
+   autoTimer=setTimeout(function(){if(!autoOn)return;setIndex((currentIndex()+1)%mediaArray().length);renderAndPlay()},ms);
+ }
+ function renderAndPlay(){
+   var rows=mediaArray();if(!rows.length){stopTimer();updatePlayButton(false);return}
+   setIndex(currentIndex());
+   try{if(typeof window.renderMedia==='function')window.renderMedia()}catch(e){}
+   setTimeout(attachCurrent,120);
+ }
+ function attachCurrent(){
+   if(!autoOn)return;
+   var box=document.getElementById('mediaStageContent');if(!box)return;
+   var el=box.querySelector('video,audio');
+   if(el){
+     stopTimer();lastMode='native';
+     el.onended=function(){if(autoOn&&mediaArray().length>1){setIndex((currentIndex()+1)%mediaArray().length);renderAndPlay()}};
+     el.autoplay=true;el.playsInline=true;el.preload='auto';
+     try{var p=el.play();if(p&&p.catch)p.catch(function(){updatePlayButton(false)})}catch(e){}
+     updatePlayButton(true);return;
+   }
+   var frame=box.querySelector('iframe');
+   var item=mediaArray()[currentIndex()];
+   if(item&&String(item.Type||'').toLowerCase()==='image'){
+     lastMode='image';updatePlayButton(true);scheduleAdvance(IMAGE_MS);return;
+   }
+   if(frame){
+     lastMode='frame';updatePlayButton(true);
+     /* Drive preview is cross-origin, so its ended event is not exposed to the page.
+        Keep the existing preview player and use a long fallback before advancing. */
+     scheduleAdvance(FRAME_FALLBACK_MS);return;
+   }
+   updatePlayButton(true);scheduleAdvance(IMAGE_MS);
+ }
+ function updatePlayButton(playing){
+   var b=document.getElementById('mediaPlayBtn');if(!b)return;
+   b.textContent=playing?'Ⅱ':'▶';b.setAttribute('aria-label',playing?'পজ':'প্লে');b.title=playing?'পজ':'প্লে';
+ }
+ function togglePlay(){
+   var box=document.getElementById('mediaStageContent'),el=box&&box.querySelector('video,audio');
+   if(!mediaArray().length)return;
+   if(el){if(el.paused){autoOn=true;var p=el.play();if(p&&p.catch)p.catch(function(){toastMsg('মিডিয়া চালানো যাচ্ছে না।')});attachCurrent()}else{el.pause();autoOn=false;stopTimer();updatePlayButton(false)}return}
+   autoOn=!autoOn;
+   if(autoOn)attachCurrent();else{stopTimer();updatePlayButton(false)}
+ }
+ function bindControls(){
+   var controls=document.querySelector('#mediaStage .dashboard-slider-controls');if(!controls)return;
+   var arrows=controls.querySelectorAll('.slider-arrow');
+   if(arrows.length>=2){
+     arrows[0].style.display='inline-flex';arrows[0].textContent='⏮';arrows[0].title='আগের মিডিয়া';arrows[0].setAttribute('aria-label','আগের মিডিয়া');
+     arrows[0].onclick=function(){if(!mediaArray().length)return;stopTimer();setIndex((currentIndex()-1+mediaArray().length)%mediaArray().length);renderAndPlay()};
+     arrows[1].style.display='inline-flex';arrows[1].textContent='⏭';arrows[1].title='পরের মিডিয়া';arrows[1].setAttribute('aria-label','পরের মিডিয়া');
+     arrows[1].onclick=function(){if(!mediaArray().length)return;stopTimer();setIndex((currentIndex()+1)%mediaArray().length);renderAndPlay()};
+   }
+   var center=controls.querySelector('.slider-center-controls');
+   if(center){
+     var play=center.querySelector('#mediaPlayBtn')||center.querySelector('[onclick*="toggleMediaPlay"]');
+     if(play){play.id='mediaPlayBtn';play.onclick=togglePlay;play.textContent=autoOn?'Ⅱ':'▶';play.title=autoOn?'পজ':'প্লে';play.setAttribute('aria-label',play.title)}
+     var load=center.querySelector('[onclick*="openModule"]')||center.querySelector('[data-jb-load-list="1"]');
+     if(!load){load=document.createElement('button');load.type='button';load.className='secondary slider-action';center.appendChild(load)}
+     load.removeAttribute('onclick');load.dataset.jbLoadList='1';load.textContent='☷';load.title='লোড তালিকা / ডিলেট';load.setAttribute('aria-label','লোড তালিকা ও ডিলেট');load.onclick=openList;
+     center.querySelectorAll('[onclick*="deleteCurrentMedia"],[onclick*="deleteMediaByIndex"]').forEach(function(b){b.dataset.jbHiddenDelete='1';b.style.display='none';b.removeAttribute('onclick')});
+   }
+ }
+ var originalRender=window.renderMedia;
+ if(typeof originalRender==='function'&&!originalRender.__jbRoundWrapped){
+   var wrapped=function(){var r=originalRender.apply(this,arguments);setTimeout(function(){if(autoOn)attachCurrent()},80);return r};
+   wrapped.__jbRoundWrapped=true;window.renderMedia=wrapped;
+ }
+ window.openMediaLoadList20261016=openList;window.closeMediaLoadList20261016=closeList;
+ window.toggleMediaPlay=togglePlay;
+ function boot(){
+   bindControls();
+   var old=document.getElementById('mediaStageContent');
+   if(old&&window.MutationObserver){new MutationObserver(function(){bindControls();if(autoOn){stopTimer();setTimeout(attachCurrent,100)}}).observe(old,{childList:true,subtree:true})}
+   refreshMedia().then(function(){bindControls();if(mediaArray().length)renderAndPlay()});
+ }
+ document.addEventListener('keydown',function(e){if(e.key==='Escape')closeList()});
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+ [250,700,1400,2500,4000].forEach(function(ms){setTimeout(bindControls,ms)});
+})();
+</script>
+<!-- ===== END DASHBOARD MAIN MEDIA PLAYER CONTROLS ===== -->
