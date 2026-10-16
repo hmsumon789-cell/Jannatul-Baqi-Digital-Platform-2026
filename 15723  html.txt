@@ -15634,7 +15634,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
    tick.parentNode.insertBefore(row,tick);row.appendChild(tick);
   }else if(tick.parentNode!==row){row.appendChild(tick)}
   var rulesButton=root.querySelector('button[onclick*="jbAdmissionShowRules2026"]');
-  if(rulesButton&&rulesButton.parentNode!==row){row.insertBefore(rulesButton,tick)}
+  if(rulesButton&&!rulesButton.classList.contains('jb-admission-top-action-20261016')&&rulesButton.parentNode!==row){row.insertBefore(rulesButton,tick)}
   var select=row.querySelector('.jb-admission-language-dropdown-20261014');
   if(!select){
    select=document.createElement('select');select.className='jb-admission-language-dropdown-20261014';
@@ -16146,3 +16146,80 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 </script>
 <!-- ===== END YOUTUBE-ADJACENT PLAY BUTTON PATCH ===== -->
+
+
+<!-- ===== ADMISSION FORM TOP ACTION ROW + 60PX ID OFFSET — 2026-10-16 ===== -->
+<style id="jb-admission-top-action-row-20261016">
+#formWin #admAdmissionRedesign20261011 .jb-admission-top-action-row-20261016{
+ display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:9px!important;
+ width:100%!important;min-width:0!important;margin:0!important;padding:10px!important;
+ box-sizing:border-box!important;border:2px solid #c79a28!important;border-radius:12px!important;
+ background:linear-gradient(120deg,#fff8df,#f3f8ee)!important;align-items:stretch!important;
+}
+#formWin #admAdmissionRedesign20261011 .jb-admission-top-action-row-20261016>button{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ width:100%!important;min-width:0!important;min-height:58px!important;height:auto!important;
+ box-sizing:border-box!important;white-space:normal!important;text-align:center!important;
+ line-height:1.35!important;padding:9px 8px!important;margin:0!important;
+ border:2px solid #b88408!important;border-radius:10px!important;
+ background:linear-gradient(135deg,#fff0ad,#e8bd45)!important;color:#382500!important;
+ font-size:13px!important;font-weight:900!important;cursor:pointer!important;
+}
+#formWin #admAdmissionRedesign20261011 .adm-id-tools{margin-top:60px!important}
+@media(max-width:760px){
+ #formWin #admAdmissionRedesign20261011 .jb-admission-top-action-row-20261016{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;padding:8px!important}
+ #formWin #admAdmissionRedesign20261011 .jb-admission-top-action-row-20261016>button{min-height:56px!important;font-size:12px!important;padding:8px 5px!important}
+}
+@media(max-width:420px){
+ #formWin #admAdmissionRedesign20261011 .jb-admission-top-action-row-20261016{grid-template-columns:1fr 1fr!important}
+ #formWin #admAdmissionRedesign20261011 .jb-admission-top-action-row-20261016>button{font-size:11px!important}
+}
+@media print{
+ #formWin #admAdmissionRedesign20261011 .jb-admission-top-action-row-20261016{display:none!important}
+}
+</style>
+<script id="jb-admission-top-action-row-20261016-js">
+(function(){
+ 'use strict';
+ if(window.__jbAdmissionTopActionRow20261016)return;
+ window.__jbAdmissionTopActionRow20261016=true;
+ function setup(){
+  var root=document.getElementById('admAdmissionRedesign20261011');
+  if(!root)return;
+  var tools=root.querySelector('.adm-id-tools');
+  if(!tools)return;
+  var row=root.querySelector('.jb-admission-top-action-row-20261016');
+  if(!row){
+   row=document.createElement('div');
+   row.className='jb-admission-top-action-row-20261016';
+   row.setAttribute('aria-label','ভর্তি ফর্মের দ্রুত কাজ');
+   tools.parentNode.insertBefore(row,tools);
+  }
+  function moveButton(button,kind){
+   if(!button)return;
+   button.classList.add('jb-admission-top-action-20261016');
+   button.dataset.jbAdmissionTopAction=kind;
+   if(button.parentNode!==row)row.appendChild(button);
+  }
+  moveButton(root.querySelector('button[onclick*="jbAdmissionShowRules2026"]'),'rules');
+  moveButton(root.querySelector('button[onclick*="jbAdmissionHandwrittenUpload2026"]'),'upload');
+  moveButton(root.querySelector('button[onclick*="jbAdmissionDownload2026(true)"]'),'download');
+  var oldBtn=document.querySelector('#formWin button[onclick*="openOldStudentImport2026"]');
+  if(oldBtn){
+   var oldCard=oldBtn.closest('.card');
+   moveButton(oldBtn,'old-students');
+   if(oldCard&&oldCard!==row&&!oldCard.querySelector('#admAdmissionRedesign20261011'))oldCard.style.setProperty('display','none','important');
+  }
+  // Keep the requested four controls in their specified order.
+  ['rules','upload','download','old-students'].forEach(function(kind){
+   var b=row.querySelector('[data-jb-admission-top-action="'+kind+'"]');
+   if(b)row.appendChild(b);
+  });
+ }
+ function run(){try{setup()}catch(e){}}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run);else run();
+ if(window.MutationObserver)new MutationObserver(run).observe(document.documentElement,{childList:true,subtree:true});
+ [250,700,1400,2500,4000].forEach(function(ms){setTimeout(run,ms)});
+})();
+</script>
+<!-- ===== END ADMISSION FORM TOP ACTION ROW + 60PX ID OFFSET ===== -->
