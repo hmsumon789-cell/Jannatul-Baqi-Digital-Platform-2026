@@ -1022,6 +1022,13 @@ body.gold #loginPage .main-qr-802268e{background:#fff!important;border-color:#11
  #formWin .jb-admission-brand-header-20261010 .jb-adm-original-logo-20261010{transform:translate(2in,-20px)!important}
  #formWin .jb-admission-brand-header-20261010 #jbAdmissionMainQR20261010{transform:translate(-2in,-20px)!important}
 }
+/* Dashboard > Online Admission > Student Admission: actual redesigned header image positioning */
+#formWin:has(#admAdmissionRedesign20261011) #admAdmissionRedesign20261011 #admAdmissionRedesignLogo2026{transform:translate(2in,-20px)!important;position:relative!important;z-index:5!important}
+#formWin:has(#admAdmissionRedesign20261011) #admAdmissionRedesign20261011 #admAdmissionRedesignQR2026{transform:translate(-2in,-20px)!important;position:relative!important;z-index:5!important}
+@media print{
+ #formWin:has(#admAdmissionRedesign20261011) #admAdmissionRedesign20261011 #admAdmissionRedesignLogo2026{transform:translate(2in,-20px)!important}
+ #formWin:has(#admAdmissionRedesign20261011) #admAdmissionRedesign20261011 #admAdmissionRedesignQR2026{transform:translate(-2in,-20px)!important}
+}
 .jb-admission-brand-header-20261010{position:relative;z-index:2;display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:auto auto;gap:8px 12px;align-items:center;margin:0 0 18px;padding:14px 12px;border:2px solid #c79a28;border-radius:15px;background:linear-gradient(115deg,#f2faf3 0%,#fffdf5 52%,#fff6d9 100%);box-shadow:0 5px 16px rgba(16,75,50,.10);color:#183327}
 .jb-admission-brand-header-20261010 img{display:block;object-fit:contain;max-width:100%}
 .jb-adm-original-logo-20261010,.jb-adm-proposed-logo-20261010{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-width:0}
@@ -10096,10 +10103,10 @@ var cur="bn",busy=false;
 function tr(v){v=String(v==null?"":v);return (D[cur]&&D[cur][v])||v}
 function walk(root){if(!root)return;var w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),a=[];while(w.nextNode())a.push(w.currentNode);a.forEach(function(n){var p=n.parentElement;if(!p||/^(SCRIPT|STYLE)$/.test(p.tagName))return;var raw=n.__jbOrig; if(raw==null){raw=n.nodeValue;n.__jbOrig=raw}var x=raw.trim();if(!x)return;var y=tr(x);n.nodeValue=raw.replace(x,y)});root.querySelectorAll&&root.querySelectorAll("input,textarea,select,button,[title],[aria-label]").forEach(function(e){e.__jbOrigAttrs=e.__jbOrigAttrs||{};["placeholder","title","aria-label"].forEach(function(k){if(e.hasAttribute(k)){if(e.__jbOrigAttrs[k]==null)e.__jbOrigAttrs[k]=e.getAttribute(k);var y=tr(e.__jbOrigAttrs[k]);e.setAttribute(k,y)}});e.querySelectorAll&&e.querySelectorAll("option").forEach(function(o){if(o.__jbOrig==null)o.__jbOrig=o.textContent; o.textContent=tr(o.__jbOrig)})})}
 function modulesText(){if(!window.modules)return;document.querySelectorAll("#leftModules .module,#rightModules .module").forEach(function(b,i){var m=modules[i];if(m&&M[m[0]])b.textContent=M[m[0]][cur==="bn"?0:cur==="ar"?1:2]});var fs=document.getElementById("featureSelect");if(fs)fs.querySelectorAll("option").forEach(function(o){var m=modules.find(function(x){return String(x[0])===String(o.value)});if(m&&M[m[0]])o.textContent=M[m[0]][cur==="bn"?0:cur==="ar"?1:2]})}
-function sync(){["loginLang","appLang","headerCalendarSelect"].forEach(function(id){var e=document.getElementById(id);if(e)e.value=cur});document.documentElement.lang=cur;document.documentElement.dir=cur==="ar"?"rtl":"ltr"}
-function setLang(l){if(busy)return;busy=true;cur=(l==="ar"||l==="en")?l:"bn";localStorage.lang=cur;sync();walk(document.body);modulesText();busy=false}
+function sync(){["loginLang","appLang","headerCalendarSelect"].forEach(function(id){var e=document.getElementById(id);if(e)e.value=cur});document.documentElement.lang=cur;document.documentElement.dir=(cur==="ar"||cur==="ur")?"rtl":"ltr"}
+function setLang(l){if(busy)return;busy=true;cur=(l==="ar"||l==="en"||l==="ur")?l:"bn";localStorage.lang=cur;sync();walk(document.body);modulesText();busy=false}
 window.setLang=setLang;window.jbSetLang2026=setLang;
-window.tick=function(){var d=new Date(),tz="Asia/Dhaka",loc=cur==="ar"?"ar-BD":cur==="en"?"en-GB":"bn-BD",tm=d.toLocaleTimeString(loc,{timeZone:tz,hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}),dt=d.toLocaleDateString(loc,{timeZone:tz,weekday:"long",year:"numeric",month:"long",day:"numeric"});var e=document.getElementById("loginDateTime");if(e)e.textContent=tr("সময়")+" "+tm+" • "+dt;e=document.getElementById("appClock");if(e)e.textContent=tm;e=document.getElementById("appDate");if(e)e.textContent=dt};
+window.tick=function(){var d=new Date(),tz="Asia/Dhaka",loc=cur==="ar"?"ar-BD":cur==="ur"?"ur-PK":cur==="en"?"en-GB":"bn-BD",tm=d.toLocaleTimeString(loc,{timeZone:tz,hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}),dt=d.toLocaleDateString(loc,{timeZone:tz,weekday:"long",year:"numeric",month:"long",day:"numeric"});var e=document.getElementById("loginDateTime");if(e)e.textContent=tr("সময়")+" "+tm+" • "+dt;e=document.getElementById("appClock");if(e)e.textContent=tm;e=document.getElementById("appDate");if(e)e.textContent=dt};
 var obs=new MutationObserver(function(ms){if(!cur)return;ms.forEach(function(m){m.addedNodes&&m.addedNodes.forEach(function(n){if(n.nodeType===1)walk(n)})})});
 function init(){cur=localStorage.lang||"bn";obs.observe(document.body,{childList:true,subtree:true});setLang(cur);setInterval(window.tick,1000)}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
