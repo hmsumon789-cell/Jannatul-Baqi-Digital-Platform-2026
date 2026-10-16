@@ -1015,6 +1015,13 @@ body.gold #loginPage .main-qr-802268e{background:#fff!important;border-color:#11
  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 150'%3E%3Ccircle cx='90' cy='70' r='61' fill='%23f8fbf3' stroke='%23c79a28' stroke-width='5'/%3E%3Cpath d='M36 81Q42 25 90 18Q138 25 144 81L144 91H36Z' fill='%23176b45' stroke='%23c79a28' stroke-width='3'/%3E%3Cpath d='M69 44Q90 8 111 44V61H69Z' fill='%23fff7df' stroke='%23c79a28' stroke-width='3'/%3E%3Cpath d='M43 98Q67 88 90 101Q113 88 137 98V119Q113 110 90 123Q67 110 43 119Z' fill='%23fffdf3' stroke='%23176b45' stroke-width='4'/%3E%3Cpath d='M90 101V122' stroke='%23c79a28' stroke-width='3'/%3E%3C/svg%3E");
 }
 #formWin:has(.jb-admission-brand-header-20261010) .win-body>*{position:relative;z-index:1}
+/* Active online admission form positioning: original logo right/up; main QR left/up */
+#formWin .jb-admission-brand-header-20261010 .jb-adm-original-logo-20261010{transform:translate(2in,-20px)!important}
+#formWin .jb-admission-brand-header-20261010 #jbAdmissionMainQR20261010{transform:translate(-2in,-20px)!important}
+@media print{
+ #formWin .jb-admission-brand-header-20261010 .jb-adm-original-logo-20261010{transform:translate(2in,-20px)!important}
+ #formWin .jb-admission-brand-header-20261010 #jbAdmissionMainQR20261010{transform:translate(-2in,-20px)!important}
+}
 .jb-admission-brand-header-20261010{position:relative;z-index:2;display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:auto auto;gap:8px 12px;align-items:center;margin:0 0 18px;padding:14px 12px;border:2px solid #c79a28;border-radius:15px;background:linear-gradient(115deg,#f2faf3 0%,#fffdf5 52%,#fff6d9 100%);box-shadow:0 5px 16px rgba(16,75,50,.10);color:#183327}
 .jb-admission-brand-header-20261010 img{display:block;object-fit:contain;max-width:100%}
 .jb-adm-original-logo-20261010,.jb-adm-proposed-logo-20261010{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-width:0}
