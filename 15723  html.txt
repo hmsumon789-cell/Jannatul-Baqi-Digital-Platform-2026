@@ -15905,9 +15905,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  'use strict';
  var autoOn=true, autoTimer=null, autoBusy=false, lastMode='';
  var IMAGE_MS=5000, FRAME_FALLBACK_MS=120000;
- function mediaArray(){return Array.isArray(window.media)?window.media:[]}
- function currentIndex(){var a=mediaArray();if(!a.length)return 0;var i=Number(window.mediaIndex)||0;return ((i%a.length)+a.length)%a.length}
- function setIndex(i){window.mediaIndex=i}
+ function mediaArray(){var a=(typeof media!=='undefined'&&Array.isArray(media))?media:[];var b=Array.isArray(window.media)?window.media:[];return b.length&&!a.length?b:a}
+ function currentIndex(){var a=mediaArray();if(!a.length)return 0;var i=(typeof mediaIndex!=='undefined'?Number(mediaIndex):0)||Number(window.mediaIndex)||0;return ((i%a.length)+a.length)%a.length}
+ function setIndex(i){mediaIndex=i;window.mediaIndex=i}
  function toastMsg(s){if(typeof window.toast==='function')window.toast(s)}
  function getListRoot(){
    var root=document.getElementById('jbMediaLoadList20261016');if(root)return root;
@@ -15918,11 +15918,11 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  }
  function closeList(){var r=document.getElementById('jbMediaLoadList20261016');if(r)r.classList.remove('open')}
  async function refreshMedia(){
-   if(typeof window.call!=='function'||typeof window.token==='undefined')return mediaArray();
+   if(typeof call!=='function'||typeof token==='undefined')return mediaArray();
    try{
      var r=await window.call('listMedia',window.token);
      var rows=Array.isArray(r)?r:(r&&Array.isArray(r.rows)?r.rows:(r&&Array.isArray(r.media)?r.media:null));
-     if(rows)window.media=rows;
+     if(rows){media=rows;window.media=rows;}
    }catch(e){}
    if(mediaArray().length)setIndex(currentIndex());else setIndex(0);
    return mediaArray();
@@ -15951,8 +15951,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
    var rows=mediaArray(),item=rows[i];if(!item)return;
    if(!window.confirm('“'+String(item.Name||item.Title||('মিডিয়া '+(i+1)))+'” মুছে ফেলবেন?'))return;
    try{
-     if(typeof window.call!=='function')throw new Error('delete endpoint unavailable');
-     var result=await window.call('deleteMedia',window.token,item.Serial);
+     if(typeof call!=='function'||typeof token==='undefined')throw new Error('delete endpoint unavailable');
+     var result=await call('deleteMedia',token,item.Serial);
      if(result&&result.ok){
        if(i<Number(window.mediaIndex||0))setIndex(Math.max(0,Number(window.mediaIndex||0)-1));
        await refreshMedia();
