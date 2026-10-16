@@ -15899,7 +15899,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
    var center=controls.querySelector('.slider-center-controls');
    if(!center){center=document.createElement('div');center.className='slider-center-controls';controls.appendChild(center)}
    Array.from(center.querySelectorAll('button')).forEach(function(b){
-     if(b.id!=='mediaPlayBtn')b.remove();
+     if(b.id!=='mediaPlayBtn'&&b.id!=='jbMediaUploadBtn20261016')b.remove();
    });
    var up=E('jbMediaUploadBtn20261016');
    if(!up){up=document.createElement('button');up.type='button';up.id='jbMediaUploadBtn20261016';up.className='jb-media-round-btn';up.textContent='⬆';up.title='আপলোড ও মিডিয়া তালিকা';up.setAttribute('aria-label',up.title);up.addEventListener('click',openManager);center.appendChild(up)}
