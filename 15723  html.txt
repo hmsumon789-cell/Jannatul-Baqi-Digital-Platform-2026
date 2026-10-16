@@ -14942,7 +14942,7 @@ function rebuild(type){
  // If a location selector has not been added by the safe location binder yet, preserve the entire field container and bind it later.
  var root=document.createElement('div');root.id='admAdmissionRedesign20261011';
  var header='<div class="adm-redesign-head"><img id="admAdmissionRedesignLogo2026" alt="মাদ্রাসার মূল লোগো" src="'+esc(originalLogo)+'"><div><div class="adm-brand-bn">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div><div class="adm-brand-ar">المدرسة الجنة الباقية للبنات ودار الايتام</div><div class="adm-brand-en">Jannatul Baky Mohila Madrasha &amp; Eatimkhana</div><div class="adm-brand-meta">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০<br>হটলাইন: 01823316630 · ইমেইল: hmatik90@gmail.com</div></div><img id="admAdmissionRedesignQR2026" alt="মূল পেজের QR কোড" src="'+esc(originalQR)+'"></div>';
- var idTools='<div class="adm-id-tools"><div class="adm-id-action-row-20261016"><button type="button" class="secondary" onclick="jbAdmissionShowRules2026()">📜 ভর্তি নিয়মাবলি + শর্ত দেখুন</button><button type="button" class="secondary" onclick="jbAdmissionHandwrittenUpload2026()">⬆️ হাতে লেখা ফর্ম আপলোড</button><button type="button" class="secondary" onclick="jbAdmissionDownload2026(true)">⬇️ হাতে লেখা ফর্ম ডাউনলোড করুন</button><button type="button" class="secondary" onclick="openOldStudentImport2026();return false;">📚 পুরাতন ছাত্র/ছাত্রী অ্যাড করুন — ফাইল আপলোড</button></div><div class="adm-id-fields-20261016"><label>সিস্টেম অটো আইডি<input id="admSystemID2026" class="field" readonly value="'+esc(autoId)+'"></label><label>হাতে লেখা আইডি নং (আবশ্যক)<input id="admManualID2026" class="field" placeholder="হাতে লেখা আইডি লিখুন / পুরাতন ID দিয়ে খুঁজুন" required></label><div><label>&nbsp;</label><button type="button" class="secondary" onclick="jbAdmissionCopyAutoID2026()">📋 অটো আইডি কপি</button> <button type="button" class="secondary" onclick="jbAdmissionLoadDraft2026()">🔎 ID দিয়ে তথ্য খুঁজুন</button></div></div></div>';
+ var idTools='<div class="adm-id-tools"><div class="adm-id-action-row-20261016"><button type="button" class="secondary" onclick="jbAdmissionShowRules2026()">📜 ভর্তি নিয়মাবলি + শর্ত দেখুন</button><button type="button" class="secondary" onclick="jbAdmissionHandwrittenUpload2026()">⬆️ হাতে লেখা ফর্ম আপলোড</button><button type="button" class="secondary" onclick="jbAdmissionDownload2026(true)">⬇️ হাতে লেখা ফর্ম ডাউনলোড করুন</button><button type="button" class="secondary" onclick="openOldStudentImport2026();return false;">📚 পুরাতন ছাত্র/ছাত্রী অ্যাড করুন — ফাইল আপলোড</button></div><div class="adm-id-fields-20261016"><label>সিস্টেম অটো আইডি<input id="admSystemID2026" class="field" readonly value="'+esc(autoId)+'"></label><label>হাতে লেখা আইডি নং (আবশ্যক)<input id="admManualID2026" class="field" placeholder="হাতে লেখা আইডি লিখুন / পুরাতন ID দিয়ে খুঁজুন" required></label><div><label>&nbsp;</label><button type="button" class="secondary" onclick="jbAdmissionLoadDraft2026()">🔎 ID দিয়ে তথ্য খুঁজুন</button></div></div></div>';
  var letter='<div class="adm-letter"><b>বরাবর,</b><br>মাননীয় প্রিন্সিপাল/মুহতামিম সাহেব<br>জান্নাতুল বাক্বী মহিলা মাদ্রাসা লিল্লাহ বোর্ডিং ও এতিমখানা<br>উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div>';
  var rootTop=header+idTools+'<div class="adm-section"><h3 class="adm-section-title">ভর্তি ফর্ম</h3>'+letter+'</div>';
  root.innerHTML=rootTop;
@@ -16228,3 +16228,41 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  setTimeout(fix,250);setTimeout(fix,900);setTimeout(fix,1800);
 })();
 </script>
+
+
+<style id="jb-admission-copy-icons-rounded-20261016">
+.adm-id-fields-20261016 label{display:block;min-width:0}
+.adm-id-fields-20261016 .jb-id-input-copy-wrap{display:flex;align-items:stretch;gap:5px;width:100%;min-width:0}
+.adm-id-fields-20261016 .jb-id-input-copy-wrap input{flex:1;min-width:0;width:100%}
+.adm-id-fields-20261016 .jb-id-copy-icon{flex:0 0 38px;width:38px;min-width:38px;padding:0!important;border-radius:11px!important;border:2px solid #d4a017!important;background:linear-gradient(135deg,#fff8d8,#ffe08a)!important;color:#654400!important;font-size:18px!important;line-height:1!important;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.adm-id-action-row-20261016 button.secondary{border-radius:18px!important;border:2px solid #d4a017!important;overflow-wrap:anywhere;white-space:normal}
+</style>
+<script id="jb-admission-copy-icons-rounded-script-20261016">
+(function(){
+ function setupIdCopyIcons(){
+  var root=document.querySelector('.adm-id-tools');
+  if(!root)return;
+  var auto=root.querySelector('#admSystemID2026');
+  var manual=root.querySelector('#admManualID2026');
+  function addIcon(input,kind){
+   if(!input||input.parentElement.classList.contains('jb-id-input-copy-wrap'))return;
+   var wrap=document.createElement('div');wrap.className='jb-id-input-copy-wrap';
+   input.parentNode.insertBefore(wrap,input);wrap.appendChild(input);
+   var b=document.createElement('button');b.type='button';b.className='secondary jb-id-copy-icon';b.title=kind==='auto'?'অটো আইডি কপি করুন':'হাতে লেখা আইডি কপি করুন';b.setAttribute('aria-label',b.title);b.textContent='⧉';
+   b.addEventListener('click',function(){
+    var value=(input.value||'').trim();
+    if(!value){input.focus();return;}
+    function fallback(){input.focus();input.select();try{document.execCommand('copy')}catch(e){}}
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(value).catch(fallback)}else fallback();
+   });
+   wrap.appendChild(b);
+  }
+  addIcon(auto,'auto');addIcon(manual,'manual');
+  root.querySelectorAll('.adm-id-action-row-20261016 button.secondary').forEach(function(b){b.style.borderRadius='18px';});
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setupIdCopyIcons);else setupIdCopyIcons();
+ if(window.MutationObserver)new MutationObserver(setupIdCopyIcons).observe(document.documentElement,{childList:true,subtree:true});
+ setTimeout(setupIdCopyIcons,300);setTimeout(setupIdCopyIcons,1000);setTimeout(setupIdCopyIcons,2000);
+})();
+</script>
+
