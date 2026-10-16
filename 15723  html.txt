@@ -7153,7 +7153,7 @@ body.dark .dashboard-period-dot{border-color:#ffe95c!important}
     if(loadBusy||typeof window.call!=='function'||!window.token)return;
     loadBusy=true;
     try{
-      var r=await call('listMedia',token);
+      var r=await window.call('listMedia',window.token);
       var m=Array.isArray(r)?r:(r&&Array.isArray(r.media)?r.media:(r&&Array.isArray(r.rows)?r.rows:[]));
       window.media=m||[];
       normalise();
