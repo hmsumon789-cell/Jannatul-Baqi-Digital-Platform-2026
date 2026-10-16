@@ -1119,7 +1119,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     <div class="login-contact"><span>☎ হটলাইন: 01823316630</span><span>✉ hmsumon789@gmail.com</span></div>
     <div class="ticker"><div class="ticker-text">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম</div></div>
     <div class="login-tools">
-      <select id="loginLang" class="field" onchange="setLang(this.value)"><option value="bn">বাংলা</option><option value="ar">العربية</option><option value="en">English</option></select>
+      <select id="loginLang" class="field" onchange="setLang(this.value)"><option value="bn">বাংলা</option><option value="ar">العربية</option><option value="en">English</option><option value="ur">اردو</option></select>
       <span id="loginDateTime" class="loginDateTime">সময় ০০:০০:০০ • ১৬ সেপ্টেম্বর ২০২৬</span>
       <div class="tools-right"><button class="mode" onclick="setMode('dark')" title="Dark">🌙</button><button class="mode" onclick="setMode('light')" title="Light">☀️</button><button class="mode" onclick="setMode('gold')" title="Golden">🟡</button></div>
     </div>
@@ -1285,6 +1285,7 @@ body.gold #loginContactStrip20261013{background:#fff9e7!important;color:#4a3300!
           <option value="bn">বাংলা</option>
           <option value="ar">العربية</option>
           <option value="en">English</option>
+          <option value="ur">اردو</option>
         </select>
       </div>
     </div>
@@ -1974,7 +1975,7 @@ function downloadCurrentForm(){
 }
 function goHome(){window.scrollTo({top:0,behavior:'smooth'})}
 function setMode(m){document.body.classList.remove('dark','gold');if(m==='dark')document.body.classList.add('dark');if(m==='gold')document.body.classList.add('gold');localStorage.mode=m}
-function setLang(l){localStorage.lang=l;document.documentElement.dir=l==='ar'?'rtl':'ltr'}
+function setLang(l){localStorage.lang=l;document.documentElement.dir=(l==='ar'||l==='ur')?'rtl':'ltr'}
 function toast(t){const x=$('toast');x.textContent=t;x.style.display='block';clearTimeout(window._toast);window._toast=setTimeout(()=>x.style.display='none',3500)}
 function dragWindow(el){
   const head=el.querySelector('.win-head');
@@ -15812,7 +15813,17 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
    if(!p){if(typeof toast==='function')toast('আগে Document তৈরি করুন।');return}
    var fmt=getFormat(p),node=cleanClone(p);node.classList.remove('a4','half','idcard','admit','receipt','landscape');node.classList.add(fmt==='landscape'?'landscape':fmt==='admit'?'admit':fmt==='receipt'?'receipt':fmt==='idcard'?'idcard':fmt==='half'?'half':'a4');
    var title=String((document.getElementById('jbDocBuilderTitle')||{}).textContent||'Document').replace(/[<>&"]/g,'');
-   var html='<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>'+title+'</title><style>'+cssFor(fmt)+'</style></head><body>'+node.outerHTML+'</body></html>';
+   var html='<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>'+title+'</title><style>'+cssFor(fmt)+'</style>
+<style id="jb-admission-header-position-urdu-20261016">
+/* অনলাইন ভর্তি ফর্ম: মূল লোগো ২০px উপরে ও ২ ইঞ্চি ডানে; QR ২০px উপরে ও ২ ইঞ্চি বামে */
+#formWin .jb-admission-brand-header-20261010 .jb-adm-original-logo-20261010{transform:translate(2in,-20px)!important}
+#formWin .jb-admission-brand-header-20261010 #jbAdmissionMainQR20261010{transform:translate(-2in,-20px)!important}
+@media print{
+ #formWin .jb-admission-brand-header-20261010 .jb-adm-original-logo-20261010{transform:translate(2in,-20px)!important}
+ #formWin .jb-admission-brand-header-20261010 #jbAdmissionMainQR20261010{transform:translate(-2in,-20px)!important}
+}
+</style>
+</head><body>'+node.outerHTML+'</body></html>';
    var blob=new Blob([html],{type:'text/html;charset=utf-8'}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=title+'-'+((document.getElementById('jbDocId')||{}).value||'ID')+'.html';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},1000);
  }
  window.jbPrint=printDoc;window.jbDownload=downloadDoc;
