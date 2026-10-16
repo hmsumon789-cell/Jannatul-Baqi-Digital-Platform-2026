@@ -816,8 +816,24 @@ function saveAdmissionDraft2026(token,data,action) {
   let rowNum=-1;
   for(let i=1;i<values.length;i++)if(idCol>=0&&String(values[i][idCol]||'').trim()===admissionId){rowNum=i+1;break;}
   if(action==='LOAD'&&rowNum<2){
+    // ID search: match the admission row ID, dedicated ID columns, or IDs stored inside FormData.
     const formColForLookup=headers.indexOf('FormData');
-    if(formColForLookup>=0){for(let i=1;i<values.length;i++){let fd={};try{const raw=values[i][formColForLookup];fd=typeof raw==='string'?JSON.parse(raw||'{}'):(raw||{});}catch(e){fd={};}const candidates=[fd.HandwrittenID,fd.StudentID,fd.FormID,values[i][idCol>=0?idCol:0]].map(function(v){return String(v||'').trim();});if(candidates.indexOf(admissionId)>=0){rowNum=i+1;if(idCol>=0)admissionId=String(values[i][idCol]||admissionId).trim();break;}}}
+    const idHeaderNames=['AdmissionID','HandwrittenID','StudentID','FormID','SystemID','AutoID','ID'];
+    const idColumnIndexes=idHeaderNames.map(function(name){return headers.indexOf(name);}).filter(function(idx){return idx>=0;});
+    for(let i=1;i<values.length;i++){
+      let fd={};
+      if(formColForLookup>=0){try{const raw=values[i][formColForLookup];fd=typeof raw==='string'?JSON.parse(raw||'{}'):(raw||{});}catch(e){fd={};}}
+      const candidates=[fd.AdmissionID,fd.HandwrittenID,fd.StudentID,fd.FormID,fd.SystemID,fd.AutoID]
+        .concat(idColumnIndexes.map(function(idx){return values[i][idx];}))
+        .concat([values[i][idCol>=0?idCol:0]])
+        .map(function(v){return String(v==null?'':v).trim().toLowerCase();})
+        .filter(Boolean);
+      if(candidates.indexOf(admissionId.toLowerCase())>=0){
+        rowNum=i+1;
+        if(idCol>=0)admissionId=String(values[i][idCol]||admissionId).trim();
+        break;
+      }
+    }
   }
   if(action==='LOAD'){
     if(rowNum<2)return {ok:false,found:false,message:'এই অটো আইডি অথবা হাতে লেখা আইডিতে পুরাতন/অসম্পূর্ণ ভর্তি ফর্ম পাওয়া যায়নি।'};
