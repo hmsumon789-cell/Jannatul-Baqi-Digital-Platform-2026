@@ -860,13 +860,12 @@ body.dark .exam-dashboard-card,body.dark .exam-dashboard-actions button{backgrou
         <div class="media-stage" id="mediaStage">
           <div class="media-stage-content" id="mediaStageContent"><span>মিডিয়া আপলোড করে স্লাইড দেখুন</span></div>
           <div class="slider-controls dashboard-slider-controls">
-            <button class="secondary slider-arrow" onclick="prevMedia()" title="আগের স্লাইড">◀</button>
+            <button class="secondary slider-arrow" type="button" onclick="previousMedia()" title="আগের মিডিয়া" aria-label="আগের মিডিয়া">⏮</button>
             <div class="slider-center-controls">
-              <button class="secondary slider-action" onclick="toggleMediaPlay()" id="mediaPlayBtn" title="Play / Pause">▶ Play</button>
-              <button class="secondary slider-action" onclick="openModule('gallery')" title="Upload">⬆ Load</button>
-              <button class="secondary slider-action" onclick="deleteCurrentMedia()" title="Delete">🗑 Delete</button>
+              <button class="secondary slider-action" onclick="toggleMediaPlay()" id="mediaPlayBtn" title="প্লে / পজ" aria-label="প্লে / পজ">▶</button>
+              <button class="secondary slider-action" type="button" onclick="openMediaLoadList()" title="মিডিয়া তালিকা ও ডিলেট" aria-label="মিডিয়া তালিকা ও ডিলেট">☷ লোড</button>
             </div>
-            <button class="secondary slider-arrow" onclick="nextMedia()" title="পরের স্লাইড">▶</button>
+            <button class="secondary slider-arrow" type="button" onclick="nextMedia()" title="পরের মিডিয়া" aria-label="পরের মিডিয়া">⏭</button>
           </div>
         </div>
         <section class="dashboard-summary dashboard-summary-inside" id="summary"></section>
@@ -1260,7 +1259,7 @@ function downloadCurrentForm(){
         play.textContent='⏸ Pause';
       }else toast('আগে মিডিয়া আপলোড করুন।');
     };
-    load.onclick=function(e){e.preventDefault();if(typeof openModule==='function')openModule('gallery');};
+    load.onclick=function(e){e.preventDefault();if(typeof openMediaLoadList==='function')openMediaLoadList();};
     if(next)next.onclick=function(e){e.preventDefault();if(window.media&&media.length){mediaIndex=(mediaIndex+1)%media.length;window.renderMedia();}};
   }
   window.renderMedia=function(){
@@ -2643,3 +2642,77 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
  window.deleteCurrentMedia=function(){if(!media||!media.length)return toast('ডিলেট করার মিডিয়া নেই।');deleteMediaByIndex(mediaIndex)};
 })();
 </script>
+
+
+<!-- ===== SAFE MEDIA PLAYER BUTTONS + LOAD-LIST DELETE — 2026-10-16 ===== -->
+<style id="jb-media-player-round-controls-20261016">
+.dashboard-slider-controls{display:flex!important;align-items:center!important;justify-content:center!important;gap:12px!important;flex-wrap:wrap!important;padding:10px!important}
+.dashboard-slider-controls .slider-center-controls{display:flex!important;align-items:center!important;justify-content:center!important;gap:10px!important}
+.dashboard-slider-controls button{width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important;padding:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;border-radius:50%!important;border:2px solid #8b0000!important;background:linear-gradient(145deg,#fff2b8,#d8a52a)!important;color:#3b2100!important;font-size:20px!important;font-weight:900!important;box-shadow:inset 0 2px 0 #fff8d5,0 4px 8px #0004!important}
+.dashboard-slider-controls #mediaPlayBtn{width:58px!important;height:58px!important;min-width:58px!important;min-height:58px!important;font-size:24px!important}
+.dashboard-slider-controls button:hover{filter:brightness(1.06);transform:translateY(-1px)!important}
+#jbMediaLoadList20261016{position:fixed;inset:0;z-index:1000200;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;padding:16px}
+#jbMediaLoadList20261016.show{display:flex}
+#jbMediaLoadList20261016 .jbml-panel{width:min(680px,96vw);max-height:82vh;overflow:auto;background:var(--panel,#fff);color:var(--text,#171717);border:3px solid #8b5e00;border-radius:20px;padding:16px;box-shadow:0 18px 55px #0008}
+#jbMediaLoadList20261016 .jbml-head{display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;top:-16px;background:var(--panel,#fff);padding:4px 0 12px;z-index:2}
+#jbMediaLoadList20261016 .jbml-row{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px solid #c9a34c}
+#jbMediaLoadList20261016 .jbml-name{flex:1;min-width:0;overflow-wrap:anywhere;font-weight:800}
+#jbMediaLoadList20261016 .jbml-row button,#jbMediaLoadList20261016 .jbml-head button{border-radius:999px!important;border:2px solid #8b0000!important;padding:8px 13px!important;font-weight:900!important}
+#jbMediaLoadList20261016 .jbml-delete{background:#a50000!important;color:#fff!important}
+@media(max-width:600px){.dashboard-slider-controls{gap:7px!important}.dashboard-slider-controls button{width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important}.dashboard-slider-controls #mediaPlayBtn{width:50px!important;height:50px!important;min-width:50px!important;min-height:50px!important}}
+</style>
+<script id="jb-media-player-round-controls-20261016-js">
+(function(){
+  function ensureList(){
+    if(document.getElementById('jbMediaLoadList20261016'))return;
+    var overlay=document.createElement('div');overlay.id='jbMediaLoadList20261016';
+    overlay.innerHTML='<section class="jbml-panel" role="dialog" aria-modal="true" aria-label="মিডিয়া তালিকা"><div class="jbml-head"><strong>📂 মিডিয়া তালিকা</strong><button type="button" onclick="closeMediaLoadList()">✕ বন্ধ</button></div><div id="jbMediaLoadListBody20261016"></div></section>';
+    overlay.addEventListener('click',function(e){if(e.target===overlay)closeMediaLoadList()});
+    document.body.appendChild(overlay);
+  }
+  function drawList(){
+    ensureList();
+    var body=document.getElementById('jbMediaLoadListBody20261016');if(!body)return;
+    var list=window.media||[];
+    if(!list.length){body.innerHTML='<p>মিডিয়া তালিকা খালি।</p>';return}
+    body.innerHTML=list.map(function(item,i){
+      var name=String(item&&item.Name||('মিডিয়া '+(i+1))).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]});
+      var type=String(item&&item.Type||'media').replace(/[&<>"]/g,'');
+      return '<div class="jbml-row"><div class="jbml-name">'+name+'<div style="font-size:12px;opacity:.75">'+type+'</div></div><button type="button" onclick="selectMediaFromLoadList('+i+')">▶ চালান</button><button type="button" class="jbml-delete" onclick="deleteMediaFromLoadList('+i+')">🗑 ডিলেট</button></div>';
+    }).join('');
+  }
+  window.openMediaLoadList=function(){ensureList();drawList();document.getElementById('jbMediaLoadList20261016').classList.add('show')};
+  window.closeMediaLoadList=function(){var e=document.getElementById('jbMediaLoadList20261016');if(e)e.classList.remove('show')};
+  window.selectMediaFromLoadList=function(i){if(!window.media||!window.media[i])return;window.mediaIndex=i;if(typeof window.renderMedia==='function')window.renderMedia();var b=document.getElementById('mediaPlayBtn');if(b)b.textContent='▶';window.closeMediaLoadList()};
+  window.deleteMediaFromLoadList=async function(i){
+    if(!window.media||!window.media[i])return;
+    if(!confirm('এই মিডিয়াটি তালিকা থেকে স্থায়ীভাবে মুছে ফেলবেন?'))return;
+    try{
+      if(typeof window.deleteMediaByIndex!=='function'){alert('ডিলেট ব্যবস্থা পাওয়া যায়নি।');return}
+      await window.deleteMediaByIndex(i);
+      drawList();
+    }catch(e){alert('মিডিয়া ডিলেট করা যায়নি। আবার চেষ্টা করুন।')}
+  };
+  function bind(){
+    var stage=document.getElementById('mediaStage');
+    if(stage){
+      var controls=stage.querySelector('.dashboard-slider-controls');
+      if(controls){
+        var buttons=controls.querySelectorAll('button');
+        if(buttons.length>=4){
+          buttons[0].onclick=function(e){e.preventDefault();if(typeof window.previousMedia==='function')window.previousMedia();else if(typeof window.prevMedia==='function')window.prevMedia()};
+          buttons[1].onclick=function(e){e.preventDefault();if(typeof window.toggleMediaPlay==='function')window.toggleMediaPlay()};
+          buttons[2].onclick=function(e){e.preventDefault();window.openMediaLoadList()};
+          buttons[3].onclick=function(e){e.preventDefault();if(typeof window.nextMedia==='function')window.nextMedia()};
+        }
+      }
+    }
+    document.querySelectorAll('.media-player-controls').forEach(function(el){el.remove()});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){bind();ensureList()});
+  else {bind();ensureList()}
+  [250,700,1300,2200].forEach(function(ms){setTimeout(bind,ms)});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')window.closeMediaLoadList()});
+})();
+</script>
+<!-- ===== END SAFE MEDIA PLAYER BUTTONS + LOAD-LIST DELETE ===== -->
