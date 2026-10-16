@@ -9465,7 +9465,9 @@ box-sizing:border-box!important;overflow:hidden!important;
 </style>
 <script id="dashboard-summary-contact-full-page-js-2026-10-04">
 (function(){
-function placeFullWidth(){
+function placeFullWidth(){}
+})();
+</script>
 
 <!-- ===== CONTACT FOOTER: 2 ROWS + FULL WIDTH BOTTOM — 2026-10-05 ===== -->
 <style id="contact-footer-2row-full-bottom-2026-10-05">
