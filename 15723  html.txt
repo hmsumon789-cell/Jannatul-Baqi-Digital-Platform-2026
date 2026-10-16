@@ -7153,7 +7153,7 @@ body.dark .dashboard-period-dot{border-color:#ffe95c!important}
     if(loadBusy||typeof window.call!=='function'||!window.token)return;
     loadBusy=true;
     try{
-      var r=await window.call('listMedia',window.token);
+      var r=await call('listMedia',token);
       var m=Array.isArray(r)?r:(r&&Array.isArray(r.media)?r.media:(r&&Array.isArray(r.rows)?r.rows:[]));
       window.media=m||[];
       normalise();
@@ -15920,7 +15920,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  async function refreshMedia(){
    if(typeof call!=='function'||typeof token==='undefined')return mediaArray();
    try{
-     var r=await window.call('listMedia',window.token);
+     var r=await call('listMedia',token);
      var rows=Array.isArray(r)?r:(r&&Array.isArray(r.rows)?r.rows:(r&&Array.isArray(r.media)?r.media:null));
      if(rows){media=rows;window.media=rows;}
    }catch(e){}
