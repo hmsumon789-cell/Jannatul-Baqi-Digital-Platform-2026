@@ -12560,7 +12560,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     if(!lp||document.getElementById('jbLoginOnlinePayment2026'))return;
     var b=document.createElement('button');
     b.id='jbLoginOnlinePayment2026';b.type='button';
-    b.textContent='💳 অনলাইন পেমেন্ট — লগইন ছাড়াই';
+    b.textContent='💳 অনলাইন পেমেন্ট করুন ঝামেলাহিন';
     b.onclick=function(){
       var w=window.open('about:blank','_blank');
       if(!w){alert('নতুন পেমেন্ট উইন্ডো খোলা যাচ্ছে না। Browser popup অনুমতি দিন।');return;}
@@ -12782,7 +12782,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   function addLoginButton(){
     var lp=document.getElementById('loginPage');if(!lp||document.getElementById('jbLoginOnlineService2026'))return;
     var b=document.createElement('button');b.id='jbLoginOnlineService2026';b.type='button';
-    b.textContent='🌐 অনলাইন সেবা ঘরে বসেই গ্রহন করুন';
+    b.textContent='🌐 অনলাইন সেবা সবখানে সব সময়';
     b.className='primary jb-login-online-service-2026';
     b.onclick=function(){var w=window.open('about:blank','_blank');if(!w){alert('নতুন সেবা উইন্ডো খোলা যাচ্ছে না। Browser popup অনুমতি দিন।');return;}try{if(typeof google!=='undefined'&&google.script&&google.script.run){google.script.run.withSuccessHandler(function(r){var u=String(r&&r.ok&&r.url?r.url:location.href).split('#')[0].split('?')[0];w.location.href=u+'?online=1';}).withFailureHandler(function(){w.location.href=location.href.split('#')[0].split('?')[0]+'?online=1';}).getMainWebAppUrl();}else{w.location.href=location.href.split('#')[0].split('?')[0]+'?online=1';}}catch(e){w.location.href=location.href.split('#')[0].split('?')[0]+'?online=1';}};
     var q=lp.querySelector('.quick');
@@ -15818,3 +15818,45 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 </script>
 <!-- ===== END DOCUMENT BUILDER PER-DOCUMENT FORMAT PATCH ===== -->
+
+
+<!-- ===== DASHBOARD ALL NOTICE: ONLINE SERVICE SHORTCUT + LOGIN BUTTON LABELS — 2026-10-16 ===== -->
+<style id="jb-dashboard-notice-online-service-20261016">
+#jbNoticeSlider5b4 .jbn-top{align-items:center!important}
+#jbNoticeSlider5b4 .jb-notice-online-service-20261016{font-weight:900!important;white-space:normal!important;max-width:100%!important}
+#jbNoticeSlider5b4 .jbn-actions{align-items:center!important}
+</style>
+<script id="jb-dashboard-notice-online-service-20261016-js">
+(function(){
+ function openOnlineService(){
+   var w=window.open('about:blank','_blank');
+   if(!w){alert('নতুন অনলাইন সেবা উইন্ডো খোলা যাচ্ছে না। Browser popup অনুমতি দিন।');return;}
+   function go(u){w.location.href=String(u||location.href).split('#')[0].split('?')[0]+'?online=1';}
+   try{
+     if(typeof google!=='undefined'&&google.script&&google.script.run){
+       google.script.run.withSuccessHandler(function(r){go(r&&r.ok&&r.url?r.url:location.href)})
+       .withFailureHandler(function(){go(location.href)}).getMainWebAppUrl();
+     }else go(location.href);
+   }catch(e){go(location.href)}
+ }
+ function addButton(){
+   var box=document.getElementById('jbNoticeSlider5b4');
+   if(!box)return;
+   var top=box.querySelector('.jbn-top');
+   if(!top||top.querySelector('.jb-notice-online-service-20261016'))return;
+   var b=document.createElement('button');
+   b.type='button';b.className='primary jb-notice-online-service-20261016';
+   b.textContent='🌐 অনলাইন সেবা সবখানে সব সময়';
+   b.addEventListener('click',openOnlineService);
+   var actions=top.querySelector('.jbn-actions');
+   if(actions)actions.appendChild(b);
+   else {b.style.marginLeft='auto';top.appendChild(b);}
+ }
+ function boot(){addButton()}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
+ else boot();
+ if(document.body)new MutationObserver(boot).observe(document.body,{childList:true,subtree:true});
+ [300,900,1800,3000].forEach(function(ms){setTimeout(boot,ms)});
+})();
+</script>
+<!-- ===== END DASHBOARD ALL NOTICE ONLINE SERVICE SHORTCUT ===== -->
