@@ -1298,7 +1298,7 @@ body.gold #loginContactStrip20261013{background:#fff9e7!important;color:#4a3300!
             <button class="secondary slider-arrow" onclick="prevMedia()" title="আগের স্লাইড">◀</button>
             <div class="slider-center-controls">
               <button class="secondary slider-action" onclick="toggleMediaPlay()" id="mediaPlayBtn" title="Play / Pause">▶ Play</button>
-              <button class="secondary slider-action" onclick="openModule('gallery')" title="Upload">⬆ Load</button>              <button class="secondary slider-action" onclick="deleteCurrentMedia()" title="Delete">🗑 Delete</button>
+              <button class="secondary slider-action" type="button" onclick="openModule('gallery')" title="লোড তালিকা / ডিলেট" aria-label="লোড তালিকা ও ডিলেট">☷</button>
             </div>
             <button class="secondary slider-arrow" onclick="nextMedia()" title="পরের স্লাইড">▶</button>
           </div>
