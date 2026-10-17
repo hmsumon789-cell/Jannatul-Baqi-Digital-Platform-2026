@@ -16443,3 +16443,62 @@ body.gold #summary.dashboard-summary .stat{
 }
 </style>
 
+
+
+<!-- ===== VERIFIED DASHBOARD MODE SYNC + GOLD SUMMARY SQUARE FIX — 2026-10-17 ===== -->
+<style id="jb-dashboard-golden-square-cards-verified-20261017">
+/* In Golden mode, keep both live summary panels and their four summary/count boxes square.
+   CSS selectors target the stable containers, so innerHTML refreshes cannot remove this style. */
+body.gold #app #dashboardCharts,
+body.gold #app #dashboardCharts > .chart-card,
+body.gold #app #dashboardCharts .chart-card,
+body.gold #app .dashboard-slider #dashboardCharts .chart-card,
+body.gold #app #dashboardCharts .attendance-count,
+body.gold #app #summary .stat,
+body.gold #app .dashboard-summary-inside .stat {
+  border-radius:0!important;
+}
+/* Keep the four-mode selector visible and consistent in the dashboard top bar. */
+#topActionBar #dashboardMode20261017 {
+  display:inline-block!important;visibility:visible!important;pointer-events:auto!important;
+  min-width:155px!important;max-width:190px!important;width:auto!important;
+  min-height:40px!important;padding:6px 12px!important;
+  border:2px solid var(--border)!important;border-radius:12px!important;
+  background:var(--panel)!important;color:var(--text)!important;font-weight:900!important;
+}
+@media(max-width:600px){
+  #topActionBar #dashboardMode20261017{min-width:130px!important;max-width:155px!important;font-size:12px!important;padding:5px 7px!important}
+}
+</style>
+<script id="jb-dashboard-mode-sync-final-20261017">
+(function(){
+  var modes=['offwhite','dark','light','gold'];
+  function normalizeMode(m){
+    m=String(m||'light').toLowerCase();
+    return modes.indexOf(m)>=0?m:'light';
+  }
+  function syncModeSelectors(m){
+    document.querySelectorAll('#loginMode20261017,#dashboardMode20261017,.jb-mode-select-20261017').forEach(function(el){
+      if(el && el.tagName==='SELECT') el.value=m;
+    });
+  }
+  var previousSetMode=window.setMode;
+  window.setMode=function(mode){
+    mode=normalizeMode(mode);
+    if(typeof previousSetMode==='function') previousSetMode(mode);
+    document.body.classList.remove('dark','gold','offwhite');
+    if(mode==='dark') document.body.classList.add('dark');
+    if(mode==='gold') document.body.classList.add('gold');
+    if(mode==='offwhite') document.body.classList.add('offwhite');
+    try{localStorage.setItem('mode',mode)}catch(e){}
+    syncModeSelectors(mode);
+  };
+  function applySavedMode(){
+    var mode='light';
+    try{mode=normalizeMode(localStorage.getItem('mode')||'light')}catch(e){}
+    window.setMode(mode);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',applySavedMode,{once:true});
+  else applySavedMode();
+})();
+</script>
