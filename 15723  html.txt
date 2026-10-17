@@ -16410,3 +16410,47 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
 </script>
+
+
+<!-- OFF-WHITE THEME: kept inside valid style/script tags to prevent source text appearing on the login page -->
+<style id="jb-offwhite-mode-20261017">
+body.offwhite{--bg:#f8f5ec;--panel:#fffdf7;--text:#292b35;--accent:#7862b5;--border:#d58b6a;--shadow:0 10px 28px rgba(96,72,116,.14);background:var(--bg)!important;color:var(--text)!important}
+body.offwhite .card,body.offwhite .module,body.offwhite .module-box,body.offwhite .feature-box,body.offwhite .quick-box,body.offwhite .stat,body.offwhite .panel,body.offwhite .window,body.offwhite .form-window,body.offwhite .login-box,body.offwhite .login-panel,body.offwhite .control-box,body.offwhite .search-box,body.offwhite .media-window,body.offwhite .table-wrap,body.offwhite .dashboard,body.offwhite .header,body.offwhite .login-page,body.offwhite .content,body.offwhite .slider,body.offwhite .login,body.offwhite .login-wrap,.offwhite .app .module-col>*{border:2px solid transparent!important;border-radius:24px!important;background:linear-gradient(var(--panel),var(--panel)) padding-box,linear-gradient(135deg,#e68a7a,#d9a441,#70b7a1,#8c83d7) border-box!important;box-shadow:0 8px 24px rgba(110,88,120,.12)!important}
+body.offwhite button,body.offwhite .btn,body.offwhite .primary,body.offwhite .secondary,body.offwhite .action-btn,body.offwhite .mode,body.offwhite .icon-btn,body.offwhite .search-btn,body.offwhite input,body.offwhite select,body.offwhite textarea{border:2px solid #b9a4d8!important;border-radius:999px!important}
+body.offwhite button:hover,body.offwhite .btn:hover{border-color:#df8b6e!important;filter:brightness(1.02)}
+body.offwhite .primary{background:linear-gradient(120deg,#e7a58c,#e5cf8a)!important;color:#292333!important}
+body.offwhite .secondary{background:#fffaf0!important;color:#38314a!important}
+body.offwhite .field,body.offwhite input,body.offwhite select,body.offwhite textarea{background-color:#fffdf8!important;color:#292b35!important}
+.jb-offwhite-mode-btn-20261017{font-weight:900!important;min-width:36px!important;min-height:36px!important;padding:4px 9px!important}
+@media(max-width:600px){.jb-offwhite-mode-btn-20261017{min-width:32px!important;padding:3px 6px!important}}
+</style>
+<script id="jb-offwhite-mode-20261017-js">
+(function(){
+  function addOffwhiteButton(container){
+    if(!container||container.querySelector('.jb-offwhite-mode-btn-20261017'))return;
+    var dark=container.querySelector('button[onclick*="setMode(\\'dark\\')"],button[onclick*="setMode(\"dark\")"]');
+    if(!dark)return;
+    var b=document.createElement('button');b.type='button';b.className='mode jb-offwhite-mode-btn-20261017';b.textContent='🤍';b.title='Off-white mode';b.setAttribute('aria-label','Off-white mode');b.onclick=function(){window.setMode('offwhite')};container.insertBefore(b,dark);
+  }
+  var originalSetMode=window.setMode;
+  window.setMode=function(m){
+    m=(m==='dark'||m==='gold'||m==='offwhite')?m:'light';
+    document.body.classList.remove('dark','gold','offwhite');
+    if(m==='dark')document.body.classList.add('dark');
+    if(m==='gold')document.body.classList.add('gold');
+    if(m==='offwhite')document.body.classList.add('offwhite');
+    try{localStorage.setItem('mode',m)}catch(e){}
+    return m;
+  };
+  function boot(){
+    addOffwhiteButton(document.querySelector('#loginPage .tools-right'));
+    addOffwhiteButton(document.querySelector('#topActionBar .header-mode-icons'));
+    var saved='';try{saved=localStorage.getItem('mode')||''}catch(e){}
+    if(saved==='dark'||saved==='gold'||saved==='offwhite')window.setMode(saved);
+    else if(saved==='light')window.setMode('light');
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+  var obs=new MutationObserver(function(){addOffwhiteButton(document.querySelector('#loginPage .tools-right'));addOffwhiteButton(document.querySelector('#topActionBar .header-mode-icons'))});
+  if(document.documentElement)obs.observe(document.documentElement,{subtree:true,childList:true});
+})();
+</script>
