@@ -426,29 +426,65 @@ body.gold .dashboard-side .module,body.gold .dashboard-slider-title,body.gold .c
 .institution-profile-2026 .inst-photo-status{font-size:12px;color:var(--accent,#8b5e00);margin-top:3px}
 @media(max-width:650px){.institution-profile-2026 .inst-person-row{grid-template-columns:64px minmax(0,1fr);gap:8px}.institution-profile-2026 .inst-person-photo{width:60px;height:60px}.institution-profile-2026 .inst-photo-controls{grid-column:2}.institution-profile-2026 .inst-photo-input{font-size:11px}}
 
-/* ===== Institution documentary carousel — 2026 ===== */
-.institution-documentary-2026{margin:14px 0 18px!important;padding:clamp(12px,2vw,24px)!important;border:2px solid #c79a28!important;border-radius:22px!important;overflow:hidden;position:relative;background:linear-gradient(135deg,rgba(250,239,198,.92),var(--panel,#fff) 48%,rgba(225,198,120,.16))!important;box-shadow:0 10px 30px rgba(95,65,12,.14)!important}
-.institution-documentary-heading{text-align:center;margin:0 auto 14px;max-width:1000px}
-.institution-documentary-kicker{font-weight:900;color:var(--accent,#8b6500);font-size:13px;letter-spacing:.04em}
-.institution-documentary-heading h2{font-size:clamp(20px,2.8vw,31px);line-height:1.35;margin:6px 0;color:var(--text,#292b35);font-weight:950}
-.institution-documentary-heading p{margin:4px 0 0;color:var(--text,#292b35);opacity:.82;font-weight:700}
-.institution-documentary-stage{min-height:270px;display:flex;align-items:center;justify-content:center}
-.institution-documentary-slide{width:min(100%,940px);min-height:250px;display:grid;grid-template-columns:minmax(180px,38%) minmax(0,1fr);align-items:center;gap:clamp(14px,3vw,34px);padding:clamp(12px,2.4vw,25px);border:1px solid rgba(199,154,40,.65);border-radius:18px;background:linear-gradient(125deg,rgba(255,255,255,.96),rgba(255,249,224,.9));box-shadow:inset 0 0 0 1px rgba(255,255,255,.8);animation:institutionDocumentaryFade2026 .45s ease}
-.institution-documentary-photo-wrap{height:clamp(190px,27vw,310px);display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:15px;background:linear-gradient(135deg,#f5e8bd,#e4d3a2);border:3px solid #c79a28;box-shadow:0 7px 20px rgba(70,50,10,.16)}
+/* ===== Royal golden institution documentary frame — 2026 ===== */
+.institution-documentary-2026{
+  margin:16px 0 20px!important;
+  padding:clamp(12px,2.1vw,25px)!important;
+  border:5px double #e5bd55!important;
+  border-radius:26px!important;
+  overflow:hidden;
+  position:relative;
+  isolation:isolate;
+  color:#fff4c8!important;
+  background:
+    radial-gradient(ellipse at 50% 0%,rgba(219,177,66,.18),transparent 58%),
+    linear-gradient(145deg,#062f25 0%,#0b4937 48%,#05281f 100%)!important;
+  box-shadow:0 12px 34px rgba(34,25,4,.26),inset 0 0 0 2px rgba(255,220,123,.18),inset 0 0 30px rgba(0,0,0,.24)!important;
+}
+.institution-documentary-2026:before{
+  content:"";
+  position:absolute;inset:7px;
+  border:1px solid rgba(239,202,104,.62);
+  border-radius:17px;
+  pointer-events:none;z-index:-1;
+  background-image:
+    radial-gradient(circle at 12px 12px,rgba(239,202,104,.24) 1.5px,transparent 2px),
+    radial-gradient(circle at calc(100% - 12px) 12px,rgba(239,202,104,.24) 1.5px,transparent 2px),
+    radial-gradient(circle at 12px calc(100% - 12px),rgba(239,202,104,.24) 1.5px,transparent 2px),
+    radial-gradient(circle at calc(100% - 12px) calc(100% - 12px),rgba(239,202,104,.24) 1.5px,transparent 2px);
+}
+.institution-documentary-heading{text-align:center;margin:0 auto 16px;max-width:1000px;position:relative;padding:5px 10px 13px}
+.institution-documentary-kicker{font-weight:900;color:#f4d477!important;font-size:clamp(12px,1.4vw,15px);letter-spacing:.04em;text-shadow:0 2px 8px #0008}
+.institution-documentary-heading h2{font-size:clamp(20px,2.8vw,32px);line-height:1.4;margin:7px 0;color:#ffe8a0!important;font-weight:950;text-shadow:0 2px 0 #563d0c,0 4px 15px #0008}
+.institution-documentary-heading p{margin:5px 0 0;color:#fff7dd!important;opacity:.96;font-weight:750;line-height:1.7}
+.institution-documentary-stage{min-height:270px;display:flex;align-items:center;justify-content:center;position:relative}
+.institution-documentary-slide{width:min(100%,940px);min-height:250px;display:grid;grid-template-columns:minmax(180px,38%) minmax(0,1fr);align-items:center;gap:clamp(14px,3vw,34px);padding:clamp(12px,2.4vw,25px);border:3px solid #d8ae43;border-radius:18px;background:linear-gradient(135deg,rgba(8,61,46,.98),rgba(4,39,30,.98));box-shadow:inset 0 0 0 2px rgba(255,225,144,.18),0 8px 22px rgba(0,0,0,.24);animation:institutionDocumentaryFade2026 .45s ease}
+.institution-documentary-photo-wrap{height:clamp(190px,27vw,310px);display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:13px;background:linear-gradient(135deg,#f8e7ad,#b78b2e);border:4px solid #efce70;box-shadow:0 0 0 3px rgba(226,182,70,.22),0 8px 24px rgba(0,0,0,.35)}
 .institution-documentary-photo{width:100%;height:100%;object-fit:cover;display:block}
-.institution-documentary-placeholder{font-size:64px;font-weight:900;color:#8b6500;text-align:center}
-.institution-documentary-role{display:inline-flex;padding:7px 12px;border-radius:999px;background:#f5e7b6;color:#705000;border:1px solid #d3ad48;font-weight:900;font-size:13px;margin-bottom:12px}
-.institution-documentary-name{font-size:clamp(20px,2.4vw,30px);line-height:1.5;font-weight:950;color:#35280a;overflow-wrap:anywhere}
-.institution-documentary-years{margin-top:8px;color:#725b27;font-weight:800;font-size:14px}
-.institution-documentary-quote{margin-top:15px;padding-left:12px;border-left:4px solid #c79a28;color:#5d4b25;font-size:15px;line-height:1.8}
-.institution-documentary-controls{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:9px;margin:14px auto 0}
-.institution-documentary-controls button{min-height:40px;font-weight:850}
-.institution-documentary-counter{min-width:66px;text-align:center;font-weight:900;color:var(--text,#292b35)}
-.institution-documentary-footnote{text-align:center;margin-top:12px;font-weight:800;color:var(--accent,#8b6500);font-size:14px}
-.institution-documentary-loading{padding:25px;text-align:center;font-weight:800;color:var(--accent,#8b6500)}
+.institution-documentary-placeholder{font-size:64px;font-weight:900;color:#674600;text-align:center}
+.institution-documentary-role{display:inline-flex;padding:7px 13px;border-radius:999px;background:linear-gradient(135deg,#ffe8a0,#d8aa3e);color:#183729!important;border:1px solid #ffedb3;font-weight:950;font-size:13px;margin-bottom:12px;box-shadow:0 3px 10px #0003}
+.institution-documentary-name{font-size:clamp(20px,2.4vw,30px);line-height:1.55;font-weight:950;color:#fff0bd!important;overflow-wrap:anywhere;text-shadow:0 2px 7px #0006}
+.institution-documentary-years{margin-top:8px;color:#f0cf78!important;font-weight:850;font-size:14px}
+.institution-documentary-quote{margin-top:15px;padding-left:12px;border-left:4px solid #e2bb56;color:#fff5d7!important;font-size:15px;line-height:1.8}
+.institution-documentary-controls{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:9px;margin:15px auto 0;position:relative}
+.institution-documentary-controls button{min-height:40px;font-weight:900!important;border:2px solid #f0d17c!important;border-radius:999px!important;background:linear-gradient(135deg,#ffe8a0,#d6a93b)!important;color:#17392c!important;box-shadow:0 3px 9px rgba(0,0,0,.22);padding:8px 16px}
+.institution-documentary-controls button:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.institution-documentary-counter{min-width:66px;text-align:center;font-weight:950;color:#ffe7a0!important}
+.institution-documentary-footnote{text-align:center;margin:13px auto 0;padding:9px 12px;max-width:850px;border-top:1px solid rgba(235,202,112,.42);font-weight:850;color:#f6df9c!important;font-size:14px;line-height:1.7}
+.institution-documentary-loading{padding:25px;text-align:center;font-weight:850;color:#f6df9c!important}
 @keyframes institutionDocumentaryFade2026{from{opacity:.25;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
-@media(max-width:650px){.institution-documentary-stage{min-height:0}.institution-documentary-slide{grid-template-columns:1fr;gap:14px;min-height:0}.institution-documentary-photo-wrap{height:240px;max-width:100%;width:100%;margin:auto}.institution-documentary-role{margin-bottom:7px}.institution-documentary-name{text-align:center}.institution-documentary-role{display:table;margin-left:auto;margin-right:auto}.institution-documentary-years,.institution-documentary-quote{text-align:center}.institution-documentary-quote{border-left:0;border-top:2px solid #c79a28;padding:9px 0 0}.institution-documentary-controls{gap:6px}.institution-documentary-controls button{padding:8px 10px}}
-</style>
+@media(max-width:650px){
+ .institution-documentary-2026{padding:12px!important;border-width:4px!important;border-radius:20px!important}
+ .institution-documentary-2026:before{inset:5px;border-radius:12px}
+ .institution-documentary-stage{min-height:0}
+ .institution-documentary-slide{grid-template-columns:1fr;gap:14px;min-height:0;padding:13px}
+ .institution-documentary-photo-wrap{height:240px;max-width:100%;width:100%;margin:auto}
+ .institution-documentary-role{margin-bottom:7px;display:table;margin-left:auto;margin-right:auto}
+ .institution-documentary-name,.institution-documentary-years,.institution-documentary-quote{text-align:center}
+ .institution-documentary-quote{border-left:0;border-top:2px solid #d8ae43;padding:9px 0 0}
+ .institution-documentary-controls{gap:6px}
+ .institution-documentary-controls button{padding:8px 11px;font-size:13px}
+}</style>
 
 <style id="dashboard-refined-04">
 /* ===== Dashboard refined 04 ===== */
