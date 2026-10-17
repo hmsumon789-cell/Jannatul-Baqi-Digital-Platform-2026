@@ -16563,3 +16563,43 @@ body.offwhite .media-stage {
  #loginPage .login-searchbar-admission20261017 button[onclick="doSearch('login')"]{grid-column:2;grid-row:3}
 }
 </style>
+
+<!-- LOGIN SIGNAL + PASSWORD EYE POSITION — based on commit 19dd5ba -->
+<style id="login-signal-password-eye-position-20261017">
+/* সংকেত নির্বাচন বক্সটি ১০px ডানে */
+#loginPage .login-searchbar-admission20261017 #loginSignal{
+  position:relative!important;
+  left:10px!important;
+}
+/* লগইন পাসওয়ার্ড বক্সটি ৫px উপরে */
+#loginPage .login-grid > .pass-wrap{
+  position:relative!important;
+  top:-5px!important;
+  min-width:0!important;
+}
+/* চোখের আইকনটি পাসওয়ার্ড ইনপুটের ভেতরে */
+#loginPage .login-grid > .pass-wrap > #password{
+  box-sizing:border-box!important;
+  width:100%!important;
+  padding-right:46px!important;
+}
+#loginPage .login-grid > .pass-wrap > .eye{
+  position:absolute!important;
+  right:4px!important;
+  top:50%!important;
+  transform:translateY(-50%)!important;
+  width:34px!important;
+  height:34px!important;
+  padding:0!important;
+  margin:0!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  z-index:2!important;
+  border:0!important;
+  border-radius:7px!important;
+  background:transparent!important;
+  cursor:pointer!important;
+}
+</style>
+
