@@ -1146,7 +1146,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     <div class="login-tools">
       <select id="loginLang" class="field" onchange="setLang(this.value)"><option value="bn">বাংলা</option><option value="ar">العربية</option><option value="en">English</option><option value="ur">اردو</option></select>
       <span id="loginDateTime" class="loginDateTime">সময় ০০:০০:০০ • ১৬ সেপ্টেম্বর ২০২৬</span>
-      <div class="tools-right"><select id="loginMode20261017" class="field jb-mode-select-20261017" aria-label="মোড নির্বাচন" onchange="setMode(this.value)"><option value="offwhite">🤍 অফ হোয়াইট</option><option value="dark">🌙 ডার্ক</option><option value="light">☀️ লাইট</option><option value="gold">🟡 গোল্ডেন</option></select></div>
+      <div class="tools-right"></div>
     </div>
     <div class="login-auth-qr-802268e">
       <div class="login-auth-802268e">
@@ -1240,9 +1240,12 @@ body.gold #loginContactStrip20261013{background:#fff9e7!important;color:#4a3300!
   <div id="topActionBar" class="top-action-bar">
     <button class="primary header-home-final" onclick="goHome()" title="Home">🏠 হোম</button>
     <div class="header-modes header-mode-icons">
-      <button class="mode" onclick="setMode('dark')" title="Dark">🌙</button>
-      <button class="mode" onclick="setMode('light')" title="Light">☀️</button>
-      <button class="mode" onclick="setMode('gold')" title="Golden">🟡</button>
+      <select id="dashboardMode20261017" class="field jb-mode-select-20261017 dashboard-mode-select-20261017" aria-label="ড্যাশবোর্ড থিম নির্বাচন" title="থিম নির্বাচন" onchange="setMode(this.value)">
+        <option value="dark">🌙 ডার্ক</option>
+        <option value="light">☀️ লাইট</option>
+        <option value="gold">🟡 গোল্ডেন</option>
+        <option value="offwhite">🤍 অফ হোয়াইট</option>
+      </select>
     </div>
     <div class="header-signal-wrap">
       <select id="appSignal" class="field header-signal" onchange="syncSearchSignal('app')">
@@ -4107,6 +4110,11 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
 #app .top-action-bar .header-mode-icons{
   flex:0 0 auto!important;display:flex!important;gap:3px!important;
 }
+#app .top-action-bar .header-mode-icons .dashboard-mode-select-20261017{
+  width:124px!important;min-width:124px!important;max-width:124px!important;
+  height:42px!important;min-height:42px!important;padding:4px 7px!important;
+  font-size:13px!important;font-weight:900!important;border-radius:8px!important;
+}
 #app .top-action-bar .header-mode-icons .mode{
   width:38px!important;min-width:38px!important;height:38px!important;
   padding:2px!important;font-size:16px!important;border-radius:8px!important;
@@ -4236,6 +4244,7 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
   #app .header-mainline{grid-template-columns:max-content minmax(0,1fr) max-content!important}
 }
 @media(max-width:600px){
+  #app .top-action-bar .header-mode-icons .dashboard-mode-select-20261017{width:94px!important;min-width:94px!important;max-width:94px!important;height:30px!important;min-height:30px!important;padding:2px 3px!important;font-size:10px!important}
   #app .top-action-bar .header-mode-icons .mode{width:25px!important;min-width:25px!important;height:27px!important}
   #app .top-action-bar .header-signal-wrap{flex-basis:90px!important;min-width:75px!important}
   #app .top-action-bar .header-id-search-btn{min-width:45px!important;padding:2px 4px!important}
@@ -16447,3 +16456,102 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 <!-- ===== OFF-WHITE MODE PERSISTENCE — 2026-10-17 ===== -->
 <script id="jb-offwhite-mode-init-20261017">(function(){function applySavedMode(){var m="light";try{m=localStorage.mode||"light"}catch(e){}if(typeof window.setMode==="function")window.setMode(m)}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",applySavedMode);else applySavedMode()})();</script>
+
+<style id="golden-dynamic-summary-square-2026-10-17">
+/* গোল্ডেন মোডে আয়-ব্যয় ও উপস্থিতি/অনুপস্থিতির দুই ডায়নামিক বক্সের প্রকৃত chart-card স্কয়ার থাকবে; পরের CSS-ও যেন গোল করতে না পারে */
+body.gold #dashboardCharts .chart-card,
+body.gold .dashboard-slider #dashboardCharts .chart-card,
+body.gold #dashboardCharts .chart-card[style],
+body.gold .dashboard-slider #dashboardCharts .chart-card[style]{
+  border-radius:0!important;
+}
+</style>
+
+<!-- OFF-WHITE MODE: animated multicolor borders for boxes; isolated from other themes -->
+<style id="offwhite-rainbow-module-borders-2026-10-17">
+@property --jb-offwhite-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+@keyframes jbOffwhiteRainbowBorder {
+  from { --jb-offwhite-angle: 0deg; }
+  to   { --jb-offwhite-angle: 360deg; }
+}
+body.offwhite .card,
+body.offwhite .module,
+body.offwhite .module-box,
+body.offwhite .feature-box,
+body.offwhite .quick-box,
+body.offwhite .stat,
+body.offwhite .panel,
+body.offwhite .window,
+body.offwhite .form-window,
+body.offwhite .login,
+body.offwhite .login-box,
+body.offwhite .login-panel,
+body.offwhite .control-box,
+body.offwhite .search-box,
+body.offwhite .media-window,
+body.offwhite .table-wrap,
+body.offwhite .dashboard,
+body.offwhite .header,
+body.offwhite .login-page,
+body.offwhite .content,
+body.offwhite .slider,
+body.offwhite .media-stage {
+  border: 3px solid transparent !important;
+  background:
+    linear-gradient(var(--panel, #fffdf7), var(--panel, #fffdf7)) padding-box,
+    conic-gradient(from var(--jb-offwhite-angle), #ef6b73, #f3b544, #76c7a5, #55b9dc, #8d7ce8, #e978b5, #ef6b73) border-box !important;
+  animation: jbOffwhiteRainbowBorder 5s linear infinite !important;
+  box-shadow: 0 8px 24px rgba(110,88,120,.16) !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  body.offwhite .card,
+  body.offwhite .module,
+  body.offwhite .module-box,
+  body.offwhite .feature-box,
+  body.offwhite .quick-box,
+  body.offwhite .stat,
+  body.offwhite .panel,
+  body.offwhite .window,
+  body.offwhite .form-window,
+  body.offwhite .login,
+  body.offwhite .login-box,
+  body.offwhite .login-panel,
+  body.offwhite .control-box,
+  body.offwhite .search-box,
+  body.offwhite .media-window,
+  body.offwhite .table-wrap,
+  body.offwhite .dashboard,
+  body.offwhite .header,
+  body.offwhite .login-page,
+  body.offwhite .content,
+  body.offwhite .slider,
+  body.offwhite .media-stage {
+    animation-duration: 12s !important;
+  }
+}
+</style>
+
+<script id="preliminary-review-pending-payment-a0ec50d">
+(function(){
+  var previousOpenAccountReview = window.openAccountReview;
+  window.openAccountReview = async function(){
+    try {
+      if (typeof superUser === 'function' && superUser() &&
+          typeof openPendingPayments === 'function') {
+        await openPendingPayments();
+        return;
+      }
+    } catch (err) {
+      if (typeof toast === 'function') toast('Pending পেমেন্ট খোলা যায়নি: ' + (err && err.message ? err.message : err));
+      return;
+    }
+    if (typeof previousOpenAccountReview === 'function') {
+      return previousOpenAccountReview.apply(this, arguments);
+    }
+  };
+})();
+</script>
