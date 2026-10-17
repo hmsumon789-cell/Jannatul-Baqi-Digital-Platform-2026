@@ -1240,9 +1240,9 @@ body.gold #loginContactStrip20261013{background:#fff9e7!important;color:#4a3300!
   <div id="topActionBar" class="top-action-bar">
     <button class="primary header-home-final" onclick="goHome()" title="Home">🏠 হোম</button>
     <div class="header-modes header-mode-icons">
-      <button class="mode" onclick="setMode('dark')" title="Dark">🌙</button>
-      <button class="mode" onclick="setMode('light')" title="Light">☀️</button>
-      <button class="mode" onclick="setMode('gold')" title="Golden">🟡</button>
+      <select id="dashboardMode20261017" class="field jb-mode-select-20261017" aria-label="ড্যাশবোর্ড মোড নির্বাচন" onchange="setMode(this.value)">
+        <option value="dark">🌙 ডার্ক</option><option value="light">☀️ লাইট</option><option value="gold">🟡 গোল্ডেন</option><option value="offwhite">🤍 অফ হোয়াইট</option>
+      </select>
     </div>
     <div class="header-signal-wrap">
       <select id="appSignal" class="field header-signal" onchange="syncSearchSignal('app')">
@@ -2768,6 +2768,12 @@ body.gold .header-search-row-final,
 body.gold .dashboard-title-bar{
   border-color:#d40000!important;
 }
+
+/* ===== DASHBOARD FOUR-MODE DROPDOWN + GOLDEN SQUARE LIVE STATS — 2026-10-17 ===== */
+#app .header-mode-icons{display:flex!important;align-items:center!important;gap:8px!important}
+#app .header-mode-icons .jb-mode-select-20261017{min-width:155px!important;max-width:190px!important;min-height:40px!important;padding:7px 12px!important;font-weight:900!important}
+body.gold #app #summary > .jb-gold-square-stat-20261017{border-radius:0!important}
+@media(max-width:700px){#app .header-mode-icons .jb-mode-select-20261017{min-width:140px!important;max-width:170px!important}}
 </style>
 
 <script id="user-request-window-drag-all-2026-09-17">
@@ -16420,3 +16426,32 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 <!-- ===== OFF-WHITE MODE PERSISTENCE — 2026-10-17 ===== -->
 <script id="jb-offwhite-mode-init-20261017">(function(){function applySavedMode(){var m="light";try{m=localStorage.mode||"light"}catch(e){}if(typeof window.setMode==="function")window.setMode(m)}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",applySavedMode);else applySavedMode()})();</script>
+
+<!-- ===== KEEP GOLDEN INCOME/EXPENSE/ATTENDANCE STATS SQUARE — 2026-10-17 ===== -->
+<script id="jb-gold-square-live-stats-20261017">
+(function(){
+  function tagLiveStats(){
+    var summary=document.getElementById('summary');
+    if(!summary)return;
+    Array.prototype.forEach.call(summary.children,function(card){
+      if(!card.classList||!card.classList.contains('stat'))return;
+      var label=(card.textContent||'').replace(/\s+/g,' ').trim();
+      var target=/আয়|আয়|ব্যয়|ব্যয়|আজ উপস্থিত|আজ অনুপস্থিত/.test(label);
+      if(target)card.classList.add('jb-gold-square-stat-20261017');
+      else card.classList.remove('jb-gold-square-stat-20261017');
+    });
+  }
+  function boot(){
+    tagLiveStats();
+    var summary=document.getElementById('summary');
+    if(summary&&!summary.__jbGoldSquareObserver20261017){
+      var observer=new MutationObserver(tagLiveStats);
+      observer.observe(summary,{childList:true,subtree:true,characterData:true});
+      summary.__jbGoldSquareObserver20261017=observer;
+    }
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+  window.addEventListener('pageshow',tagLiveStats);
+})();
+</script>
+
