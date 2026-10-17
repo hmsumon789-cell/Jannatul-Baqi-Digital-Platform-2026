@@ -720,7 +720,7 @@ body.gold #app .header-calendar-select-v2{background:#f4d56b!important;color:#11
     };
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindMic);else bindMic();
-  setTimeout(bindMic,300);setTimeout(bindMic,1000);setInterval(bindMic,2500);
+  setTimeout(bindMic,300);setTimeout(bindMic,1000);/* Removed repetitive header mic polling; initial bind and observers remain. */
 })();
 </script>
 
@@ -4067,7 +4067,7 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
     document.querySelectorAll('#app .window,#app .form-window').forEach(bindWindow);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
-  setTimeout(init,300);setTimeout(init,1000);setInterval(init,2000);
+  setTimeout(init,300);setTimeout(init,1000);/* Removed repeated full-page UI scan; initial setup remains. */
 })();
 </script>
 <style id="consolidated-final-ui-animation-2026-09-21">
@@ -4276,7 +4276,7 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fix);
   else fix();
-  setTimeout(fix,300);setTimeout(fix,1000);setInterval(fix,2500);
+  setTimeout(fix,300);setTimeout(fix,1000);/* Removed repeated header layout rewrite; initial setup remains. */
 })();
 </script>
 
@@ -4462,7 +4462,7 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
   setTimeout(init,300);
   setTimeout(init,1000);
-  setInterval(init,2500);
+  /* Removed repeated news/window scan; initial setup remains. */
 })();
 </script>
 
@@ -4565,7 +4565,7 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
     });
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindMic);else bindMic();
-  setTimeout(bindMic,300);setTimeout(bindMic,1000);setInterval(bindMic,2000);
+  setTimeout(bindMic,300);setTimeout(bindMic,1000);/* Removed repeated microphone button polling; initial bind remains. */
 })();
 </script>
 
@@ -5568,7 +5568,7 @@ body #app .header-news *{
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);
   else scan();
   setTimeout(scan,200);setTimeout(scan,800);setTimeout(scan,1600);
-  setInterval(cleanHeaderLogo,1000);
+  /* Header logo cleanup runs on initial scan and before print only. */
   window.addEventListener('beforeprint',function(){
     scan();
     var p=document.getElementById('task7PrintLogo');
@@ -11135,7 +11135,7 @@ body.dark #jbDocumentBuilderEntry2026{background:#000;color:#ffe95c;border-color
   }
   addEntry();
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',addEntry);
-  setInterval(addEntry,1000);
+  /* Dashboard entry is added on initial load and DOMContentLoaded. */
 })();
 </script>
 <!-- ===== END DOCUMENT BUILDER DASHBOARD ENTRY ===== -->
