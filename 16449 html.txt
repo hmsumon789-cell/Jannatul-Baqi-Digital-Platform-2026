@@ -16618,3 +16618,41 @@ body.offwhite .media-stage {
   }
 }
 </style>
+
+<style id="login-signal-password-eye-final-20261017">
+/* Keep the existing login layout; adjust only signal and password controls. */
+#loginPage .login-grid .pass-wrap{
+  position:relative!important;
+  top:-5px!important;
+}
+#loginPage .login-grid .pass-wrap input#password{
+  box-sizing:border-box!important;
+  width:100%!important;
+  padding-right:48px!important;
+}
+#loginPage .login-grid .pass-wrap .eye{
+  position:absolute!important;
+  right:6px!important;
+  left:auto!important;
+  top:50%!important;
+  transform:translateY(-50%)!important;
+  z-index:5!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:36px!important;
+  height:34px!important;
+  padding:0!important;
+  margin:0!important;
+  cursor:pointer!important;
+  background:transparent!important;
+}
+#loginPage .login-searchbar-admission20261017 #loginSignal{
+  left:-10px!important;
+}
+@media(max-width:760px){
+  #loginPage .login-searchbar-admission20261017 #loginSignal{
+    left:10px!important;
+  }
+}
+</style>
