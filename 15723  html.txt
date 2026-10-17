@@ -16420,3 +16420,49 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 <!-- ===== OFF-WHITE MODE PERSISTENCE — 2026-10-17 ===== -->
 <script id="jb-offwhite-mode-init-20261017">(function(){function applySavedMode(){var m="light";try{m=localStorage.mode||"light"}catch(e){}if(typeof window.setMode==="function")window.setMode(m)}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",applySavedMode);else applySavedMode()})();</script>
+
+
+<!-- ===== RESTORE ALL MODULE WINDOW CONTROLS — 2026-10-17 ===== -->
+<style id="jb-restore-window-controls-20261017">
+.window .jb-restored-window-controls-20261017{display:flex!important;align-items:center!important;gap:6px!important;margin-inline-start:auto!important;position:relative!important;z-index:9999!important;flex:0 0 auto!important}
+.window .jb-restored-window-controls-20261017 button{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:34px!important;min-width:34px!important;height:32px!important;padding:0!important;border:2px solid var(--border,#b99)!important;border-radius:9px!important;background:var(--panel,#fff)!important;color:var(--text,inherit)!important;font-size:18px!important;font-weight:900!important;line-height:1!important;cursor:pointer!important;visibility:visible!important;opacity:1!important}
+.window .jb-restored-window-controls-20261017 .jb-rwc-min{border-color:#d49b22!important}
+.window .jb-restored-window-controls-20261017 .jb-rwc-full{border-color:#168a78!important}
+.window .jb-restored-window-controls-20261017 .jb-rwc-close{border-color:#d94848!important;color:#b42323!important}
+.window .jb-restored-window-controls-20261017 button:hover{filter:brightness(.96)!important;transform:translateY(-1px)}
+.window.jb-rwc-minimized-20261017{display:none!important}
+#jb-rwc-taskbar-20261017{position:fixed!important;bottom:8px!important;left:8px!important;z-index:2147483000!important;display:flex!important;gap:6px!important;flex-wrap:wrap!important;max-width:90vw!important}
+#jb-rwc-taskbar-20261017 button{border:2px solid #168a78!important;border-radius:999px!important;padding:8px 14px!important;background:#fffdf4!important;color:#243b35!important;font-weight:800!important;cursor:pointer!important;box-shadow:0 3px 10px #0002!important}
+</style>
+<script id="jb-restore-window-controls-20261017-js">
+(function(){
+  if(window.__jbRestoreWindowControls20261017)return;
+  window.__jbRestoreWindowControls20261017=true;
+  var taskId='jb-rwc-taskbar-20261017';
+  function taskbar(){var t=document.getElementById(taskId);if(!t){t=document.createElement('div');t.id=taskId;document.body.appendChild(t)}return t}
+  function labelFor(w){var h=w.querySelector('.win-head');var t=h&&(h.querySelector('h1,h2,h3,.win-title,[data-title]'));return ((t&&(t.textContent||t.getAttribute('data-title')))||w.getAttribute('aria-label')||w.id||'মডিউল').trim().slice(0,48)}
+  function restore(w){if(!w)return;w.classList.remove('jb-rwc-minimized-20261017');w.style.removeProperty('display');w.classList.add('show');var t=document.getElementById(taskId);if(t){var b=t.querySelector('[data-window-id="'+w.id+'"]');if(b)b.remove();if(!t.children.length)t.remove()}}
+  function minimize(w){if(!w)return;w.classList.add('jb-rwc-minimized-20261017');var t=taskbar(),b=t.querySelector('[data-window-id="'+w.id+'"]');if(!b){b=document.createElement('button');b.type='button';b.dataset.windowId=w.id;b.textContent='▣ '+labelFor(w);b.title='মডিউল আবার খুলুন';b.addEventListener('click',function(){restore(w)});t.appendChild(b)}}
+  function fullscreen(w){if(!w)return;if(!w.dataset.jbRwcSaved){var r=w.getBoundingClientRect();w.dataset.jbRwcSaved=JSON.stringify({position:w.style.position,left:w.style.left,top:w.style.top,width:w.style.width,height:w.style.height,maxWidth:w.style.maxWidth,maxHeight:w.style.maxHeight,transform:w.style.transform,borderRadius:w.style.borderRadius});w.dataset.jbRwcSavedRect=JSON.stringify({left:r.left,top:r.top,width:r.width,height:r.height})}
+    if(w.classList.contains('jb-rwc-fullscreen-20261017')){w.classList.remove('jb-rwc-fullscreen-20261017');try{var s=JSON.parse(w.dataset.jbRwcSaved||'{}');['position','left','top','width','height','maxWidth','maxHeight','transform','borderRadius'].forEach(function(k){w.style[k]=s[k]||''})}catch(e){}delete w.dataset.jbRwcSaved;delete w.dataset.jbRwcSavedRect}
+    else{w.classList.add('jb-rwc-fullscreen-20261017');w.style.setProperty('position','fixed','important');w.style.setProperty('left','0','important');w.style.setProperty('top','0','important');w.style.setProperty('width','100vw','important');w.style.setProperty('height','100vh','important');w.style.setProperty('max-width','100vw','important');w.style.setProperty('max-height','100vh','important');w.style.setProperty('transform','none','important');w.style.setProperty('z-index','2147482000','important')}
+  }
+  function close(w){if(!w)return;
+    var special=w.querySelector('.jb-adm-close-window');
+    if(special){special.click();w.classList.remove('show');w.classList.remove('jb-rwc-minimized-20261017');return}
+    if(typeof window.closeWindow==='function'&&w.id){try{window.closeWindow(w.id)}catch(e){w.classList.remove('show')}}
+    else{w.classList.remove('show');w.classList.remove('minimized');w.classList.remove('jb-rwc-fullscreen-20261017');w.style.removeProperty('display')}
+    w.classList.remove('jb-rwc-fullscreen-20261017');delete w.dataset.jbRwcSaved;
+    var t=document.getElementById(taskId);if(t){var b=t.querySelector('[data-window-id="'+w.id+'"]');if(b)b.remove();if(!t.children.length)t.remove()}
+  }
+  function install(w){if(!w||!w.classList||!w.classList.contains('window'))return;var head=w.querySelector(':scope > .win-head')||w.querySelector('.win-head');if(!head)return;
+    var box=head.querySelector('.jb-restored-window-controls-20261017');if(!box){box=document.createElement('span');box.className='jb-restored-window-controls-20261017';box.setAttribute('aria-label','মডিউল উইন্ডো নিয়ন্ত্রণ');head.appendChild(box)}
+    function btn(cls,txt,title,fn){var b=box.querySelector('.'+cls);if(!b){b=document.createElement('button');b.type='button';b.className=cls;b.textContent=txt;b.title=title;b.setAttribute('aria-label',title);b.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();fn(w)});box.appendChild(b)}}
+    btn('jb-rwc-min','—','মিনিমাইজ',minimize);btn('jb-rwc-full','⛶','ফুল স্ক্রিন / স্বাভাবিক',fullscreen);btn('jb-rwc-close','✕','বন্ধ করুন',close);
+  }
+  function scan(root){(root||document).querySelectorAll&&root.querySelectorAll('.window').forEach(install);if(root&&root.matches&&root.matches('.window'))install(root)}
+  function boot(){scan(document);var mo=new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes&&m.addedNodes.forEach(function(n){if(n.nodeType===1)scan(n)})})});if(document.body)mo.observe(document.body,{childList:true,subtree:true})}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+})();
+</script>
+<!-- ===== END RESTORE ALL MODULE WINDOW CONTROLS ===== -->
