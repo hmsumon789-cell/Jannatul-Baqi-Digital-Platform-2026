@@ -15621,3 +15621,98 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 
 <style id="jb-admission-news-language-row-direction-fix-20261014">#formWin #admAdmissionRedesign20261011 .jb-admission-news-language-row-20261014{direction:ltr!important}</style>
+
+
+<!-- REVIEW HUB: SUPER ADMIN STUDENT + PAYMENT PENDING — 2026-10-17 -->
+<script>
+(function(){
+  var oldOpenReview=window.openAccountReview;
+  var oldRefreshReview=window.refreshAccountReview;
+  var reviewHubTab='payments', reviewHubPayments=[], reviewHubStudents=[];
+  function isReviewSuper(){
+    if(typeof superUser==='function')return !!superUser();
+    var u=window.currentUser||window.currentUserData||window.currentUserInfo||{};
+    var role=String(u.Role||u.role||'').toUpperCase().replace(/\s+/g,'_');
+    return role==='SUPER_ADMIN'||role==='SUPERADMIN';
+  }
+  function safeText(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+  function jsArg(v){return String(v==null?'':v).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,' ');}
+  function hubBody(){return document.getElementById('accountReviewBody');}
+  function hubShell(){
+    var body=hubBody(); if(!body)return;
+    var head=document.querySelector('#accountReviewWin .win-head b');
+    if(head)head.textContent='🕵️ প্রাথমিক যাচাই — আবেদন ও পেমেন্ট Pending';
+    body.innerHTML='<div class="account-manager-note" style="margin-bottom:12px"><b>যাচাই কেন্দ্র</b><br>এখানে Pending শিক্ষার্থী এবং অনলাইন পেমেন্ট যাচাই করুন। “Account অনুমোদন” বাটনের Admin/মাদ্রাসা অনুমোদন ব্যবস্থা আলাদা ও অপরিবর্তিত থাকবে।</div>'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0">'+
+      '<button type="button" class="primary" onclick="reviewHubTab(\'payments\')">💳 পেমেন্ট Pending <span id="reviewHubPaymentCount">…</span></button>'+
+      '<button type="button" class="secondary" onclick="reviewHubTab(\'students\')">🎓 শিক্ষার্থী Pending <span id="reviewHubStudentCount">…</span></button></div>'+
+      '<div id="reviewHubContent" class="account-list"><p>⏳ যাচাইয়ের তালিকা লোড হচ্ছে…</p></div>'+
+      '<div class="account-manager-note" style="margin-top:12px">নোট: নির্বাচিত Code.gs-এ শিক্ষক/কর্মচারী আবেদনের জন্য আলাদা Pending approval endpoint পাওয়া যায়নি; তাই এই অংশে অনুমান করে কোনো অনুমোদন যুক্ত করা হয়নি।</div>';
+  }
+  window.openAccountReview=async function(){
+    if(!isReviewSuper())return typeof oldOpenReview==='function'?oldOpenReview():undefined;
+    if(typeof openWindow==='function')openWindow('accountReviewWin');
+    else {var win=document.getElementById('accountReviewWin');if(win)win.classList.add('show');}
+    hubShell();
+    await window.refreshAccountReview();
+  };
+  window.refreshAccountReview=async function(){
+    if(!isReviewSuper())return typeof oldRefreshReview==='function'?oldRefreshReview():undefined;
+    var content=document.getElementById('reviewHubContent');
+    if(content)content.innerHTML='<p>⏳ Pending তালিকা আপডেট হচ্ছে…</p>';
+    try{
+      var results=await Promise.all([
+        call('getOnlinePaymentManagerData',token),
+        call('getPendingStudents',token)
+      ]);
+      var p=results[0], st=results[1];
+      reviewHubPayments=p&&p.ok?(p.pending||[]).filter(function(x){return String(x.Status||'').toUpperCase()==='PENDING';}):[];
+      reviewHubStudents=st&&st.ok?(st.rows||[]):[];
+      var pc=document.getElementById('reviewHubPaymentCount'),sc=document.getElementById('reviewHubStudentCount');
+      if(pc)pc.textContent='('+reviewHubPayments.length+')';if(sc)sc.textContent='('+reviewHubStudents.length+')';
+      if((!p||!p.ok)&&(!st||!st.ok)){
+        if(content)content.innerHTML='<div class="account-card">তালিকা পাওয়া যায়নি। '+safeText((p&&p.message)||(st&&st.message)||'সার্ভার ত্রুটি')+'</div>';return;
+      }
+      window.reviewHubTab(reviewHubTab);
+    }catch(err){if(content)content.innerHTML='<div class="account-card">সার্ভার ত্রুটি: '+safeText(err&&err.message||err)+'</div>';}
+  };
+  window.reviewHubTab=function(tab){
+    reviewHubTab=tab==='students'?'students':'payments';
+    var box=document.getElementById('reviewHubContent');if(!box)return;
+    var paymentBtn=box.parentElement&&box.parentElement.querySelector('button[onclick*="payments"]');
+    if(reviewHubTab==='payments'){
+      if(!reviewHubPayments.length){box.innerHTML='<div class="account-card">💳 কোনো Pending অনলাইন পেমেন্ট নেই।</div>';return;}
+      box.innerHTML=reviewHubPayments.map(function(x){
+        var id=String(x.RequestID||'');
+        return '<div class="account-card pending" style="margin:10px 0;padding:14px"><div class="account-card-head"><b>'+safeText(x.Name||'নাম নেই')+'</b><span>💳 পেমেন্ট Pending</span></div>'+
+          '<div class="account-meta"><b>Request ID:</b> '+safeText(id)+'<br><b>Student ID:</b> '+safeText(x.StudentID||'')+'<br><b>পরিমাণ:</b> '+Number(x.Amount||0).toLocaleString('bn-BD')+' টাকা<br><b>খাত/মাস:</b> '+safeText(x.Category||'')+' / '+safeText(x.Month||'')+'<br><b>মাধ্যম:</b> '+safeText(x.Method||'')+'<br><b>Transaction Reference:</b> '+safeText(x.Reference||'')+'<br><b>প্রদানকারীর মোবাইল:</b> '+safeText(x.PayerMobile||'')+'</div>'+
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="primary" type="button" onclick="reviewHubApprovePayment(\''+jsArg(id)+'\')">✓ যাচাই করে অনুমোদন</button><button class="secondary" type="button" onclick="reviewHubRejectPayment(\''+jsArg(id)+'\')">✕ নামঞ্জুর</button></div></div>';
+      }).join('');
+    }else{
+      if(!reviewHubStudents.length){box.innerHTML='<div class="account-card">🎓 কোনো Pending শিক্ষার্থী নেই।</div>';return;}
+      box.innerHTML=reviewHubStudents.map(function(x){
+        var id=String(x.StudentID||'');
+        return '<div class="account-card pending" style="margin:10px 0;padding:14px"><div class="account-card-head"><b>'+safeText(x.NameBN||x.Name||x.NameBangla||'শিক্ষার্থী')+'</b><span>🎓 শিক্ষার্থী Pending</span></div>'+
+          '<div class="account-meta"><b>Student ID:</b> '+safeText(id)+'<br><b>শ্রেণি/জামাত:</b> '+safeText(x.Class||x.Jamaat||'')+'<br><b>মোবাইল:</b> '+safeText(x.Mobile||x.Phone||'')+'<br><b>অবস্থা:</b> '+safeText(x.ApprovalStatus||'PENDING')+'</div>'+
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="primary" type="button" onclick="reviewHubSetStudent(\''+jsArg(id)+'\',\'ACTIVE\')">✓ মঞ্জুর</button><button class="secondary" type="button" onclick="reviewHubSetStudent(\''+jsArg(id)+'\',\'REJECTED\')">✕ নামঞ্জুর</button></div></div>';
+      }).join('');
+    }
+  };
+  window.reviewHubApprovePayment=async function(id){
+    if(!confirm('এই পেমেন্টের তথ্য যাচাই করে অনুমোদন করবেন? অনুমোদনের পর রসিদ তৈরি হতে পারে।'))return;
+    try{var r=await call('approveOnlinePayment',token,id);if(typeof toast==='function')toast((r&&r.message)||(r&&r.ok?'পেমেন্ট অনুমোদিত হয়েছে।':'অনুমোদন ব্যর্থ।'));if(r&&r.ok&&r.receipt&&typeof showOnlinePaymentReceipt==='function')showOnlinePaymentReceipt(r.receipt);await window.refreshAccountReview();}
+    catch(err){if(typeof toast==='function')toast('পেমেন্ট অনুমোদনে ত্রুটি: '+(err&&err.message||err));}
+  };
+  window.reviewHubRejectPayment=async function(id){
+    var reason=prompt('পেমেন্ট নামঞ্জুর করার কারণ লিখুন:','Transaction যাচাই হয়নি');if(reason===null)return;
+    try{var r=await call('rejectOnlinePayment',token,id,reason);if(typeof toast==='function')toast((r&&r.message)||(r&&r.ok?'পেমেন্ট নামঞ্জুর হয়েছে।':'নামঞ্জুর করা যায়নি।'));await window.refreshAccountReview();}
+    catch(err){if(typeof toast==='function')toast('পেমেন্ট নামঞ্জুর করতে ত্রুটি: '+(err&&err.message||err));}
+  };
+  window.reviewHubSetStudent=async function(id,status){
+    var msg=status==='ACTIVE'?'এই শিক্ষার্থীকে মঞ্জুর করবেন?':'এই শিক্ষার্থীর আবেদন নামঞ্জুর করবেন?';
+    if(!confirm(msg))return;
+    try{var r=await call('approveStudent',token,id,status);if(typeof toast==='function')toast((r&&r.message)||(r&&r.ok?'অবস্থা সংরক্ষিত হয়েছে।':'সিদ্ধান্ত সংরক্ষণ হয়নি।'));await window.refreshAccountReview();}
+    catch(err){if(typeof toast==='function')toast('শিক্ষার্থীর আবেদন আপডেট করতে ত্রুটি: '+(err&&err.message||err));}
+  };
+})();
+</script>

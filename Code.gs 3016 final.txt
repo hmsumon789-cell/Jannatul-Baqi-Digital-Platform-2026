@@ -965,15 +965,18 @@ function approveStudent(token,studentId,status) {
   const idx=vals.findIndex(function(r,i){return i>0 && String(r[idCol])===String(studentId);});
   if(idx<1) return {ok:false,message:'Student পাওয়া যায়নি।'};
   const finalStatus=String(status||'ACTIVE').toUpperCase();
+  if(!['ACTIVE','REJECTED','PENDING'].includes(finalStatus)) return {ok:false,message:'Student status সঠিক নয়।'};
   if(h.indexOf('ApprovalStatus')>=0) sh.getRange(idx+1,h.indexOf('ApprovalStatus')+1).setValue(finalStatus);
   if(h.indexOf('ApprovedBy')>=0) sh.getRange(idx+1,h.indexOf('ApprovedBy')+1).setValue(sessionUser_(token));
   if(h.indexOf('ApprovedAt')>=0) sh.getRange(idx+1,h.indexOf('ApprovedAt')+1).setValue(now_());
   SpreadsheetApp.flush();
   let autoDocuments=null;
-  try{
-    const approvedPerson=objectFrom_(h,sh.getRange(idx+1,1,1,h.length).getValues()[0]);
-    autoDocuments=ensureAutoPersonDocuments_('STUDENTS',approvedPerson,String(studentId));
-  }catch(e){autoDocuments={ok:false,message:String(e&&e.message||e)};}
+  if(finalStatus==='ACTIVE'){
+    try{
+      const approvedPerson=objectFrom_(h,sh.getRange(idx+1,1,1,h.length).getValues()[0]);
+      autoDocuments=ensureAutoPersonDocuments_('STUDENTS',approvedPerson,String(studentId));
+    }catch(e){autoDocuments={ok:false,message:String(e&&e.message||e)};}
+  }
   log_(sessionUser_(token),'approve','STUDENT',String(studentId)+' | '+finalStatus);
   return {ok:true,message:'Student '+studentId+' '+finalStatus+' করা হয়েছে।',studentId:String(studentId),status:finalStatus,autoDocuments:autoDocuments};
 }
