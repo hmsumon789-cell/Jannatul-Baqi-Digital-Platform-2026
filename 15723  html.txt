@@ -16428,29 +16428,13 @@ body.offwhite .field,body.offwhite input,body.offwhite select,body.offwhite text
 (function(){
   function addOffwhiteButton(container){
     if(!container||container.querySelector('.jb-offwhite-mode-btn-20261017'))return;
-    var dark=container.querySelector('button[onclick*="setMode(\\'dark\\')"],button[onclick*="setMode(\"dark\")"]');
+    var dark=Array.prototype.slice.call(container.querySelectorAll('button')).find(function(x){return (x.getAttribute('onclick')||'').indexOf("setMode('dark')")>=0;});
     if(!dark)return;
     var b=document.createElement('button');b.type='button';b.className='mode jb-offwhite-mode-btn-20261017';b.textContent='🤍';b.title='Off-white mode';b.setAttribute('aria-label','Off-white mode');b.onclick=function(){window.setMode('offwhite')};container.insertBefore(b,dark);
   }
-  var originalSetMode=window.setMode;
-  window.setMode=function(m){
-    m=(m==='dark'||m==='gold'||m==='offwhite')?m:'light';
-    document.body.classList.remove('dark','gold','offwhite');
-    if(m==='dark')document.body.classList.add('dark');
-    if(m==='gold')document.body.classList.add('gold');
-    if(m==='offwhite')document.body.classList.add('offwhite');
-    try{localStorage.setItem('mode',m)}catch(e){}
-    return m;
-  };
-  function boot(){
-    addOffwhiteButton(document.querySelector('#loginPage .tools-right'));
-    addOffwhiteButton(document.querySelector('#topActionBar .header-mode-icons'));
-    var saved='';try{saved=localStorage.getItem('mode')||''}catch(e){}
-    if(saved==='dark'||saved==='gold'||saved==='offwhite')window.setMode(saved);
-    else if(saved==='light')window.setMode('light');
-  }
+  window.setMode=function(m){m=(m==='dark'||m==='gold'||m==='offwhite')?m:'light';document.body.classList.remove('dark','gold','offwhite');if(m==='dark')document.body.classList.add('dark');if(m==='gold')document.body.classList.add('gold');if(m==='offwhite')document.body.classList.add('offwhite');try{localStorage.setItem('mode',m)}catch(e){}return m;};
+  function boot(){addOffwhiteButton(document.querySelector('#loginPage .tools-right'));addOffwhiteButton(document.querySelector('#topActionBar .header-mode-icons'));var saved='';try{saved=localStorage.getItem('mode')||''}catch(e){}if(saved==='dark'||saved==='gold'||saved==='offwhite')window.setMode(saved);else if(saved==='light')window.setMode('light');}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
-  var obs=new MutationObserver(function(){addOffwhiteButton(document.querySelector('#loginPage .tools-right'));addOffwhiteButton(document.querySelector('#topActionBar .header-mode-icons'))});
-  if(document.documentElement)obs.observe(document.documentElement,{subtree:true,childList:true});
+  var obs=new MutationObserver(function(){addOffwhiteButton(document.querySelector('#loginPage .tools-right'));addOffwhiteButton(document.querySelector('#topActionBar .header-mode-icons'))});if(document.documentElement)obs.observe(document.documentElement,{subtree:true,childList:true});
 })();
 </script>
