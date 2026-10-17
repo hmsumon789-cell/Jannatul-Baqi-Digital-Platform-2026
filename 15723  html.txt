@@ -2012,7 +2012,7 @@ function downloadCurrentForm(){
   toast('ফর্ম ডাউনলোড করা হয়েছে');
 }
 function goHome(){window.scrollTo({top:0,behavior:'smooth'})}
-function setMode(m){document.body.classList.remove('dark','gold','offwhite');if(m==='dark')document.body.classList.add('dark');if(m==='gold')document.body.classList.add('gold');if(m==='offwhite')document.body.classList.add('offwhite');localStorage.mode=m;document.querySelectorAll('.jb-mode-select-20261017').forEach(function(el){el.value=m});var d=document.getElementById('dashboardMode20261017');if(d)d.value=m}
+function setMode(m){m=['dark','light','gold','offwhite'].indexOf(m)>=0?m:'light';document.body.classList.remove('dark','gold','offwhite');if(m==='dark')document.body.classList.add('dark');if(m==='gold')document.body.classList.add('gold');if(m==='offwhite')document.body.classList.add('offwhite');try{localStorage.mode=m}catch(e){}document.querySelectorAll('#loginMode20261017,#dashboardMode20261017,.jb-mode-select-20261017').forEach(function(el){el.value=m});if(window.jbTagGoldenSummaryStats20261017)window.jbTagGoldenSummaryStats20261017();}
 function setLang(l){localStorage.lang=l;document.documentElement.dir=(l==='ar'||l==='ur')?'rtl':'ltr'}
 function toast(t){const x=$('toast');x.textContent=t;x.style.display='block';clearTimeout(window._toast);window._toast=setTimeout(()=>x.style.display='none',3500)}
 function dragWindow(el){
@@ -16468,3 +16468,59 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </script>
 <!-- ===== END DASHBOARD MODE SYNC + GOLDEN SQUARE LIVE STATS ===== -->
 
+
+
+<!-- ===== FINAL GUARANTEE: SYNCED MODE SELECTORS + LIVE GOLD SQUARE STATS — 2026-10-17 ===== -->
+<style id="jb-mode-square-guarantee-20261017">
+body.gold #app #summary .stat.jb-gold-square-stat-income,
+body.gold #app #summary .stat.jb-gold-square-stat-expense,
+body.gold #app #summary .stat.jb-gold-square-stat-present,
+body.gold #app #summary .stat.jb-gold-square-stat-absent{
+  border-radius:0!important;
+}
+#loginPage .tools-right .jb-mode-select-20261017,
+#topActionBar .jb-mode-select-20261017{
+  min-height:38px!important;max-width:190px!important;font-weight:900!important;
+}
+body.offwhite #loginPage .tools-right .jb-mode-select-20261017,
+body.offwhite #topActionBar .jb-mode-select-20261017{
+  background:#fffdf7!important;color:#292b35!important;border:2px solid #b9a4d8!important;
+}
+@media(max-width:600px){
+  #loginPage .tools-right .jb-mode-select-20261017{min-width:112px!important;max-width:138px!important;font-size:12px!important;padding:5px 7px!important}
+  #topActionBar .jb-mode-select-20261017{min-width:112px!important;max-width:138px!important;font-size:12px!important;padding:5px 7px!important}
+}
+</style>
+<script id="jb-mode-square-guarantee-20261017-js">
+(function(){
+  function tagLiveSummary(){
+    var sum=document.getElementById('summary');if(!sum)return;
+    sum.querySelectorAll('.stat').forEach(function(el){
+      var label=(el.textContent||'').replace(/\\s+/g,' ').trim();
+      el.classList.remove('jb-gold-square-stat-income','jb-gold-square-stat-expense','jb-gold-square-stat-present','jb-gold-square-stat-absent');
+      if(label.indexOf('আয়')>=0 && label.indexOf('ব্যয়')<0)el.classList.add('jb-gold-square-stat-income');
+      if(label.indexOf('ব্যয়')>=0)el.classList.add('jb-gold-square-stat-expense');
+      if(label.indexOf('আজ উপস্থিত')>=0)el.classList.add('jb-gold-square-stat-present');
+      if(label.indexOf('আজ অনুপস্থিত')>=0)el.classList.add('jb-gold-square-stat-absent');
+    });
+  }
+  window.jbTagGoldenSummaryStats20261017=tagLiveSummary;
+  function boot(){
+    tagLiveSummary();
+    var sum=document.getElementById('summary');
+    if(sum&&!sum.__jbSquareStatObserver20261017){
+      var observer=new MutationObserver(function(){tagLiveSummary()});
+      observer.observe(sum,{childList:true,subtree:true,characterData:true});
+      sum.__jbSquareStatObserver20261017=observer;
+    }
+    var mode='light';try{mode=localStorage.mode||'light'}catch(e){}
+    if(typeof window.setMode==='function')window.setMode(mode);
+    else {
+      document.querySelectorAll('#loginMode20261017,#dashboardMode20261017,.jb-mode-select-20261017').forEach(function(el){el.value=mode});
+    }
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+  window.addEventListener('storage',function(e){if(e.key==='mode'&&typeof window.setMode==='function')window.setMode(e.newValue||'light')});
+})();
+</script>
+<!-- ===== END FINAL MODE/SQUARE GUARANTEE ===== -->
