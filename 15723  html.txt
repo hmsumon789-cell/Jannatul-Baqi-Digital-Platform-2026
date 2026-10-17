@@ -13,6 +13,17 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}
 .shell{max-width:1450px;margin:auto;padding:12px}
 .card{background:var(--panel);border:3px solid var(--border);box-shadow:var(--shadow);border-radius:18px}
 body.gold .card,body.gold .module,body.gold .stat{border-radius:35px}
+body.offwhite{--bg:#f8f5ec;--panel:#fffdf7;--text:#292b35;--accent:#7862b5;--border:#d58b6a;--shadow:0 10px 28px rgba(96,72,116,.14)}
+body.offwhite .card,body.offwhite .module,body.offwhite .module-box,body.offwhite .feature-box,body.offwhite .quick-box,body.offwhite .stat,body.offwhite .panel,body.offwhite .window,body.offwhite .form-window,body.offwhite .login,body.offwhite .login-box,body.offwhite .login-panel,body.offwhite .control-box,body.offwhite .search-box,body.offwhite .media-window,body.offwhite .table-wrap,body.offwhite .dashboard,body.offwhite .header,body.offwhite .login-page,body.offwhite .content,body.offwhite .slider,body.offwhite .media-stage{border:2px solid transparent!important;border-radius:24px!important;background:linear-gradient(var(--panel),var(--panel)) padding-box,linear-gradient(135deg,#e68a7a,#d9a441,#70b7a1,#8c83d7) border-box!important;box-shadow:0 8px 24px rgba(110,88,120,.12)!important}
+body.offwhite .login{border:2px solid transparent!important}
+body.offwhite button,body.offwhite .btn,body.offwhite .primary,body.offwhite .secondary,body.offwhite .action-btn,body.offwhite .mode,body.offwhite .icon-btn,body.offwhite .search-btn,body.offwhite input,body.offwhite select,body.offwhite textarea{border:2px solid #b9a4d8!important;border-radius:999px!important}
+body.offwhite button:hover,body.offwhite .btn:hover{border-color:#df8b6e!important;filter:brightness(1.02)}
+body.offwhite .primary{background:linear-gradient(120deg,#e7a58c,#e5cf8a)!important;color:#292333!important}
+body.offwhite .secondary{background:#fffaf0!important;color:#38314a!important}
+.jb-mode-select-20261017{max-width:190px;min-width:145px;font-weight:800}
+.jb-global-prefs-20261017{display:flex;justify-content:flex-end;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0;position:relative;z-index:5}
+.jb-global-prefs-20261017 select{max-width:190px;min-width:135px;font-weight:800}
+@media(max-width:600px){.jb-mode-select-20261017{min-width:120px;max-width:145px;font-size:12px}.jb-global-prefs-20261017 select{min-width:115px;max-width:145px;font-size:12px}}
 .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:15px}
 .login{width:min(920px,96vw);padding:18px;border:0;text-align:center;box-shadow:none}
 .logo{width:88px;height:88px;object-fit:contain;border-radius:50%;border:3px solid var(--border);background:transparent}
@@ -1135,7 +1146,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     <div class="login-tools">
       <select id="loginLang" class="field" onchange="setLang(this.value)"><option value="bn">বাংলা</option><option value="ar">العربية</option><option value="en">English</option><option value="ur">اردو</option></select>
       <span id="loginDateTime" class="loginDateTime">সময় ০০:০০:০০ • ১৬ সেপ্টেম্বর ২০২৬</span>
-      <div class="tools-right"><button class="mode" onclick="setMode('dark')" title="Dark">🌙</button><button class="mode" onclick="setMode('light')" title="Light">☀️</button><button class="mode" onclick="setMode('gold')" title="Golden">🟡</button></div>
+      <div class="tools-right"><select id="loginMode20261017" class="field jb-mode-select-20261017" aria-label="মোড নির্বাচন" onchange="setMode(this.value)"><option value="offwhite">🤍 অফ হোয়াইট</option><option value="dark">🌙 ডার্ক</option><option value="light">☀️ লাইট</option><option value="gold">🟡 গোল্ডেন</option></select></div>
     </div>
     <div class="login-auth-qr-802268e">
       <div class="login-auth-802268e">
@@ -1988,8 +1999,8 @@ function downloadCurrentForm(){
   toast('ফর্ম ডাউনলোড করা হয়েছে');
 }
 function goHome(){window.scrollTo({top:0,behavior:'smooth'})}
-function setMode(m){document.body.classList.remove('dark','gold');if(m==='dark')document.body.classList.add('dark');if(m==='gold')document.body.classList.add('gold');localStorage.mode=m}
-function setLang(l){localStorage.lang=l;document.documentElement.dir=(l==='ar'||l==='ur')?'rtl':'ltr'}
+function setMode(m){document.body.classList.remove('dark','gold','offwhite');if(m==='dark')document.body.classList.add('dark');if(m==='gold')document.body.classList.add('gold');if(m==='offwhite')document.body.classList.add('offwhite');localStorage.mode=m;document.querySelectorAll('.jb-mode-select-20261017').forEach(function(el){el.value=m});var d=document.getElementById('dashboardMode20261017');if(d)d.value=m}
+function setLang(l){localStorage.lang=l;document.documentElement.lang=l;document.documentElement.dir=(l==='ar'||l==='ur')?'rtl':'ltr';document.querySelectorAll('#loginLang,#dashboardLang20261017').forEach(function(el){el.value=l});if(typeof window.jbApplySystemLanguage20261017==='function')window.jbApplySystemLanguage20261017(l)}
 function toast(t){const x=$('toast');x.textContent=t;x.style.display='block';clearTimeout(window._toast);window._toast=setTimeout(()=>x.style.display='none',3500)}
 function dragWindow(el){
   const head=el.querySelector('.win-head');
@@ -15827,17 +15838,12 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
    if(!p){if(typeof toast==='function')toast('আগে Document তৈরি করুন।');return}
    var fmt=getFormat(p),node=cleanClone(p);node.classList.remove('a4','half','idcard','admit','receipt','landscape');node.classList.add(fmt==='landscape'?'landscape':fmt==='admit'?'admit':fmt==='receipt'?'receipt':fmt==='idcard'?'idcard':fmt==='half'?'half':'a4');
    var title=String((document.getElementById('jbDocBuilderTitle')||{}).textContent||'Document').replace(/[<>&"]/g,'');
-   var html='<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>'+title+'</title><style>'+cssFor(fmt)+'</style>
-<style id="jb-admission-header-position-urdu-20261016">
-/* অনলাইন ভর্তি ফর্ম: মূল লোগো ২০px উপরে ও ২ ইঞ্চি ডানে; QR ২০px উপরে ও ২ ইঞ্চি বামে */
-#formWin .jb-admission-brand-header-20261010 .jb-adm-original-logo-20261010{transform:translate(2in,-20px)!important}
-#formWin .jb-admission-brand-header-20261010 #jbAdmissionMainQR20261010{transform:translate(-2in,-20px)!important}
-@media print{
- #formWin .jb-admission-brand-header-20261010 .jb-adm-original-logo-20261010{transform:translate(2in,-20px)!important}
- #formWin .jb-admission-brand-header-20261010 #jbAdmissionMainQR20261010{transform:translate(-2in,-20px)!important}
-}
-</style>
-</head><body>'+node.outerHTML+'</body></html>';
+   var html='<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>'+title+'</title><style>'+cssFor(fmt)+'</style>'+
+'<style id="jb-admission-header-position-urdu-20261016">/* অনলাইন ভর্তি ফর্মের লোগো ও QR অবস্থান */'+
+'#formWin .jb-admission-brand-header-20261010 .jb-adm-original-logo-20261010{transform:translate(2in,-20px)!important}'+
+'#formWin .jb-admission-brand-header-20261010 #jbAdmissionMainQR20261010{transform:translate(-2in,-20px)!important}'+
+'@media print{#formWin .jb-admission-brand-header-20261010 .jb-adm-original-logo-20261010{transform:translate(2in,-20px)!important}#formWin .jb-admission-brand-header-20261010 #jbAdmissionMainQR20261010{transform:translate(-2in,-20px)!important}}</style>'+
+'</head><body>'+node.outerHTML+'</body></html>';
    var blob=new Blob([html],{type:'text/html;charset=utf-8'}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=title+'-'+((document.getElementById('jbDocId')||{}).value||'ID')+'.html';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},1000);
  }
  window.jbPrint=printDoc;window.jbDownload=downloadDoc;
@@ -16410,3 +16416,110 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
 </script>
+
+
+<!-- ===== OFF-WHITE THEME + GLOBAL FOUR-LANGUAGE CONTROLS — 2026-10-17 ===== -->
+<script id="jb-offwhite-four-language-20261017">
+(function(){
+ 'use strict';
+ var dict={
+  'সুপার অ্যাডমিন':{ar:'المسؤول الأعلى',en:'Super Admin',ur:'سپر ایڈمن'},
+  'অনুমোদিত অ্যাডমিন':{ar:'المسؤول المعتمد',en:'Approved Admin',ur:'منظور شدہ ایڈمن'},
+  'ইউজার নেম':{ar:'اسم المستخدم',en:'Username',ur:'صارف نام'},
+  'পাসওয়ার্ড':{ar:'كلمة المرور',en:'Password',ur:'پاس ورڈ'},
+  'লগইন':{ar:'تسجيل الدخول',en:'Log In',ur:'لاگ اِن'},
+  'ড্যাশবোর্ড':{ar:'لوحة التحكم',en:'Dashboard',ur:'ڈیش بورڈ'},
+  'শিক্ষার্থী':{ar:'الطلاب',en:'Students',ur:'طلبہ'},
+  'শিক্ষক':{ar:'المعلمون',en:'Teachers',ur:'اساتذہ'},
+  'পরীক্ষার্থী':{ar:'الممتحنون',en:'Examinees',ur:'امتحانی طلبہ'},
+  'দাতা':{ar:'المتبرعون',en:'Donors',ur:'عطیہ دہندگان'},
+  'নোটিশ বোর্ড':{ar:'لوحة الإعلانات',en:'Notice Board',ur:'نوٹس بورڈ'},
+  'আয়-ব্যয়':{ar:'الإيرادات والمصروفات',en:'Income & Expenses',ur:'آمدن و اخراجات'},
+  'উপস্থিতি-অনুপস্থিতি':{ar:'الحضور والغياب',en:'Attendance & Absence',ur:'حاضری و غیر حاضری'},
+  'অনলাইন ভর্তি':{ar:'القبول الإلكتروني',en:'Online Admission',ur:'آن لائن داخلہ'},
+  'অনলাইন পেমেন্ট':{ar:'الدفع الإلكتروني',en:'Online Payment',ur:'آن لائن ادائیگی'},
+  'সংরক্ষণ':{ar:'حفظ',en:'Save',ur:'محفوظ کریں'},
+  'সংরক্ষণ করুন':{ar:'احفظ',en:'Save',ur:'محفوظ کریں'},
+  'সম্পাদনা':{ar:'تعديل',en:'Edit',ur:'ترمیم'},
+  'মুছুন':{ar:'حذف',en:'Delete',ur:'حذف کریں'},
+  'বন্ধ':{ar:'إغلاق',en:'Close',ur:'بند کریں'},
+  'প্রিন্ট':{ar:'طباعة',en:'Print',ur:'پرنٹ'},
+  'ডাউনলোড':{ar:'تنزيل',en:'Download',ur:'ڈاؤن لوڈ'},
+  'রিপোর্ট':{ar:'تقرير',en:'Report',ur:'رپورٹ'},
+  'ফলাফল':{ar:'النتائج',en:'Results',ur:'نتائج'},
+  'মার্কশিট':{ar:'كشف الدرجات',en:'Marksheet',ur:'مارک شیٹ'},
+  'সনদপত্র':{ar:'الشهادة',en:'Certificate',ur:'سرٹیفکیٹ'},
+  'আইডি কার্ড':{ar:'بطاقة الهوية',en:'ID Card',ur:'شناختی کارڈ'},
+  'অ্যাডমিট কার্ড':{ar:'بطاقة دخول الامتحان',en:'Admit Card',ur:'ایڈمٹ کارڈ'},
+  'প্রশ্নপত্র':{ar:'ورقة الأسئلة',en:'Question Paper',ur:'سوالیہ پرچہ'},
+  'মিডিয়া':{ar:'الوسائط',en:'Media',ur:'میڈیا'},
+  'ফাইল':{ar:'ملف',en:'File',ur:'فائل'},
+  'হোম':{ar:'الرئيسية',en:'Home',ur:'ہوم'},
+  'লগআউট':{ar:'تسجيل الخروج',en:'Log Out',ur:'لاگ آؤٹ'},
+  'পূর্ববর্তী':{ar:'السابق',en:'Previous',ur:'پچھلا'},
+  'পরবর্তী':{ar:'التالي',en:'Next',ur:'اگلا'},
+  'বাতিল':{ar:'إلغاء',en:'Cancel',ur:'منسوخ کریں'},
+  'নাম':{ar:'الاسم',en:'Name',ur:'نام'},
+  'ঠিকানা':{ar:'العنوان',en:'Address',ur:'پتہ'},
+  'মোবাইল':{ar:'الهاتف المحمول',en:'Mobile',ur:'موبائل'},
+  'ইমেইল':{ar:'البريد الإلكتروني',en:'Email',ur:'ای میل'},
+  'জন্ম তারিখ':{ar:'تاريخ الميلاد',en:'Date of Birth',ur:'تاریخ پیدائش'},
+  'শ্রেণি':{ar:'الصف',en:'Class',ur:'جماعت'},
+  'শিক্ষাবর্ষ':{ar:'العام الدراسي',en:'Academic Year',ur:'تعلیمی سال'},
+  'বেতন':{ar:'الراتب',en:'Salary',ur:'تنخواہ'},
+  'ফি':{ar:'الرسوم',en:'Fee',ur:'فیس'},
+  'পেমেন্ট':{ar:'الدفع',en:'Payment',ur:'ادائیگی'},
+  'বকেয়া':{ar:'المستحقات',en:'Due',ur:'بقایا'},
+  'সফল':{ar:'ناجح',en:'Success',ur:'کامیاب'},
+  'ব্যর্থ':{ar:'فشل',en:'Failed',ur:'ناکام'},
+  'বাছাই করুন':{ar:'اختر',en:'Select',ur:'منتخب کریں'},
+  'ভাষা নির্বাচন':{ar:'اختيار اللغة',en:'Select Language',ur:'زبان منتخب کریں'},
+  'মোড নির্বাচন':{ar:'اختيار الوضع',en:'Select Mode',ur:'موڈ منتخب کریں'},
+  'সিস্টেম অটো আইডি':{ar:'معرّف النظام التلقائي',en:'System Auto ID',ur:'سسٹم آٹو آئی ڈی'},
+  'হাতে লেখা আইডি':{ar:'المعرّف المكتوب يدويًا',en:'Handwritten ID',ur:'ہاتھ سے لکھا آئی ڈی'},
+  'আইডি দিয়ে তথ্য খুজুন':{ar:'البحث بالمعرّف',en:'Search by ID',ur:'آئی ڈی سے تلاش کریں'},
+  'ভর্তি নিয়মাবলি+শর্ত দেখুন':{ar:'عرض قواعد وشروط القبول',en:'View Admission Rules & Conditions',ur:'داخلے کے قواعد و شرائط دیکھیں'}
+ };
+ var lang='bn',busy=false;
+ function translated(original){var v=dict[original];return v&&lang!=='bn'&&v[lang]?v[lang]:original}
+ function walk(root){
+  if(!root||busy)return;busy=true;
+  try{
+   var w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),nodes=[],n;
+   while((n=w.nextNode()))nodes.push(n);
+   nodes.forEach(function(node){
+    var p=node.parentElement;if(!p||/^(SCRIPT|STYLE|NOSCRIPT|TEXTAREA)$/i.test(p.tagName))return;
+    var raw=node.__jbI18nOriginal20261017;
+    if(raw===undefined){raw=node.nodeValue.trim();if(!raw)return;try{Object.defineProperty(node,'__jbI18nOriginal20261017',{value:raw,writable:true,configurable:true})}catch(e){node.__jbI18nOriginal20261017=raw}}
+    var out=translated(raw);
+    if(node.nodeValue.trim()!==out)node.nodeValue=node.nodeValue.replace(node.nodeValue.trim(),out);
+   });
+   root.querySelectorAll('input[placeholder],input[title],button[title],select[aria-label],button[aria-label],img[alt]').forEach(function(el){
+    ['placeholder','title','aria-label','alt'].forEach(function(a){if(!el.hasAttribute(a))return;var key='data-jb-i18n-'+a;if(!el.hasAttribute(key))el.setAttribute(key,el.getAttribute(a));var orig=el.getAttribute(key),out=translated(orig);if(el.getAttribute(a)!==out)el.setAttribute(a,out)});
+   });
+  }finally{busy=false}
+ }
+ window.jbApplySystemLanguage20261017=function(l){lang=['bn','ar','en','ur'].indexOf(l)>=0?l:'bn';walk(document.body);document.documentElement.lang=lang;document.documentElement.dir=(lang==='ar'||lang==='ur')?'rtl':'ltr';};
+ function makeSelect(id,kind){
+  var el=document.createElement('select');el.id=id;el.className='field jb-mode-select-20261017';el.setAttribute('aria-label',kind==='lang'?'ভাষা নির্বাচন':'মোড নির্বাচন');
+  if(kind==='lang'){el.innerHTML='<option value="bn">বাংলা</option><option value="ar">العربية</option><option value="en">English</option><option value="ur">اردو</option>';el.value=localStorage.lang||'bn';el.addEventListener('change',function(){setLang(el.value)})}
+  else{el.innerHTML='<option value="offwhite">🤍 অফ হোয়াইট</option><option value="dark">🌙 ডার্ক</option><option value="light">☀️ লাইট</option><option value="gold">🟡 গোল্ডেন</option>';el.value=localStorage.mode||'light';el.addEventListener('change',function(){setMode(el.value)})}
+  return el;
+ }
+ function dashboardControls(){
+  var h=document.querySelector('.app .header-tools');if(!h||document.getElementById('jbGlobalPrefs20261017'))return;
+  var row=document.createElement('div');row.id='jbGlobalPrefs20261017';row.className='jb-global-prefs-20261017';
+  row.appendChild(makeSelect('dashboardLang20261017','lang'));row.appendChild(makeSelect('dashboardMode20261017','mode'));
+  h.insertAdjacentElement('afterend',row);
+ }
+ function init(){
+  var mode=localStorage.mode||'light';setMode(mode);
+  var l=localStorage.lang||'bn';window.jbApplySystemLanguage20261017(l);
+  var loginLang=document.getElementById('loginLang');if(loginLang){loginLang.value=l;loginLang.addEventListener('change',function(){setLang(loginLang.value)})}
+  dashboardControls();
+  if(window.MutationObserver)new MutationObserver(function(){dashboardControls();if(!busy)walk(document.body)}).observe(document.body,{childList:true,subtree:true,characterData:true});
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
+<!-- ===== END OFF-WHITE THEME + GLOBAL FOUR-LANGUAGE CONTROLS ===== -->
