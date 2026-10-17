@@ -1240,9 +1240,12 @@ body.gold #loginContactStrip20261013{background:#fff9e7!important;color:#4a3300!
   <div id="topActionBar" class="top-action-bar">
     <button class="primary header-home-final" onclick="goHome()" title="Home">🏠 হোম</button>
     <div class="header-modes header-mode-icons">
-      <button class="mode" onclick="setMode('dark')" title="Dark">🌙</button>
-      <button class="mode" onclick="setMode('light')" title="Light">☀️</button>
-      <button class="mode" onclick="setMode('gold')" title="Golden">🟡</button>
+      <select id="dashboardMode20261017" class="field jb-mode-select-20261017 dashboard-mode-select-20261017" aria-label="ড্যাশবোর্ড মোড নির্বাচন" title="ড্যাশবোর্ড মোড পরিবর্তন" onchange="setMode(this.value)">
+        <option value="dark">🌙 ডার্ক</option>
+        <option value="light">☀️ লাইট</option>
+        <option value="gold">🟡 গোল্ডেন</option>
+        <option value="offwhite">🤍 অফ হোয়াইট</option>
+      </select>
     </div>
     <div class="header-signal-wrap">
       <select id="appSignal" class="field header-signal" onchange="syncSearchSignal('app')">
@@ -16420,3 +16423,23 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 <!-- ===== OFF-WHITE MODE PERSISTENCE — 2026-10-17 ===== -->
 <script id="jb-offwhite-mode-init-20261017">(function(){function applySavedMode(){var m="light";try{m=localStorage.mode||"light"}catch(e){}if(typeof window.setMode==="function")window.setMode(m)}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",applySavedMode);else applySavedMode()})();</script>
+
+
+<style id="jb-dashboard-mode-square-summary-fix-20261017">
+/* Dashboard mode selector mirrors login mode; keep it compact in the top bar. */
+#topActionBar .dashboard-mode-select-20261017{
+  display:inline-block!important;min-width:155px!important;max-width:190px!important;
+  width:auto!important;min-height:40px!important;padding:6px 12px!important;
+  border:2px solid var(--border)!important;border-radius:12px!important;
+  background:var(--panel)!important;color:var(--text)!important;font-weight:900!important;
+}
+body.gold #summary.dashboard-slider-summary .stat,
+body.gold .dashboard-summary#summary .stat,
+body.gold #summary.dashboard-summary .stat{
+  border-radius:0!important;
+}
+@media(max-width:600px){
+  #topActionBar .dashboard-mode-select-20261017{min-width:130px!important;max-width:155px!important;font-size:12px!important;padding:5px 7px!important}
+}
+</style>
+
