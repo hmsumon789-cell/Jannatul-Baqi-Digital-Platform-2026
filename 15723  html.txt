@@ -4571,260 +4571,13 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
 
 
 <!-- ===== USER TASK 2: ALL WINDOWS FULLSCREEN + FOUR-SIDE RESIZE ARROWS — 2026-09-22 ===== -->
-<style id="all-window-fullscreen-resize-2026-09-22">
-/* Every application window gets a fullscreen control in the header and four edge shrink/expand controls. */
-.window{position:fixed!important;box-sizing:border-box!important}
-.window .win-head{position:sticky!important;top:0!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important}
-.window .win-head .win-tools-2026{display:flex!important;align-items:center!important;gap:4px!important;margin-left:auto!important}
-.window .win-head .win-fullscreen-2026{
-  min-width:34px!important;width:34px!important;height:30px!important;padding:0!important;
-  display:inline-flex!important;align-items:center!important;justify-content:center!important;
-  border:2px solid var(--border)!important;border-radius:7px!important;
-  background:var(--panel)!important;color:inherit!important;font-weight:900!important;cursor:pointer!important;
-}
-.window .win-edge-arrow-2026{
-  position:absolute!important;z-index:20!important;width:26px!important;height:26px!important;
-  padding:0!important;display:flex!important;align-items:center!important;justify-content:center!important;
-  border:2px solid var(--border)!important;border-radius:7px!important;
-  background:var(--panel)!important;color:inherit!important;font-weight:900!important;
-  line-height:1!important;cursor:pointer!important;opacity:.9!important;
-}
-.window .win-edge-arrow-2026:hover{opacity:1!important;transform:scale(1.05)}
-.window .win-edge-left-2026{left:2px!important;top:50%!important;transform:translateY(-50%)!important}
-.window .win-edge-right-2026{right:2px!important;top:50%!important;transform:translateY(-50%)!important}
-.window .win-edge-up-2026{top:2px!important;left:50%!important;transform:translateX(-50%)!important}
-.window .win-edge-down-2026{bottom:2px!important;left:50%!important;transform:translateX(-50%)!important}
-.window.win-fullscreen-2026{
-  left:0!important;top:0!important;width:100vw!important;height:100vh!important;
-  max-width:none!important;max-height:none!important;transform:none!important;
-  border-radius:0!important;
-}
-.window.win-fullscreen-2026 .win-body{max-height:calc(100vh - 55px)!important;overflow:auto!important}
-.window.win-fullscreen-2026 .win-edge-arrow-2026{display:none!important}
-@media(max-width:700px){
-  .window .win-edge-arrow-2026{width:24px!important;height:24px!important}
-  .window .win-head .win-fullscreen-2026{width:32px!important;min-width:32px!important}
-}
-</style>
-<script id="all-window-fullscreen-resize-js-2026-09-22">
-(function(){
-  var MIN_W=320, MIN_H=180, STEP=80, initialized=new WeakSet();
-
-  function isWindow(el){
-    return el && el.classList && el.classList.contains('window');
-  }
-  function ensureControls(w){
-    if(!isWindow(w))return;
-    var head=w.querySelector(':scope > .win-head') || w.querySelector('.win-head');
-    if(!head)return;
-
-    /* Convert the existing top-right close control into fullscreen, without deleting it. */
-    var oldFs=w.querySelector('.win-fullscreen-2026');
-    if(!oldFs){
-      oldFs=document.createElement('button');
-      oldFs.type='button';
-      oldFs.className='win-fullscreen-2026';
-      oldFs.title='ফুল স্ক্রিন / স্বাভাবিক';
-      oldFs.setAttribute('aria-label','ফুল স্ক্রিন / স্বাভাবিক');
-      oldFs.textContent='⛶';
-      var tools=head.querySelector('.win-tools-2026');
-      if(!tools){
-        tools=document.createElement('span');
-        tools.className='win-tools-2026';
-        head.appendChild(tools);
-      }
-      var close=head.querySelector('button');
-      if(close && !close.classList.contains('win-fullscreen-2026')){        /* The first header button is the previous close button in the existing windows. */
-        close.textContent='⛶';
-        close.title='ফুল স্ক্রিন / স্বাভাবিক';
-        close.setAttribute('aria-label','ফুল স্ক্রিন / স্বাভাবিক');
-        close.classList.add('win-fullscreen-2026');
-        oldFs=close;
-      }else{
-        tools.appendChild(oldFs);
-      }
-    }
-    if(!oldFs.dataset.fsBound){
-      oldFs.dataset.fsBound='1';
-      oldFs.addEventListener('click',function(e){
-        e.preventDefault();e.stopPropagation();
-        toggleFullscreen(w);
-      });
-    }
-
-    var specs=[
-      ['left','‹','বাম দিক থেকে ছোট / বড়','win-edge-left-2026'],
-      ['right','›','ডান দিক থেকে ছোট / বড়','win-edge-right-2026'],
-      ['up','⌃','উপর থেকে ছোট / বড়','win-edge-up-2026'],
-      ['down','⌄','নিচ থেকে ছোট / বড়','win-edge-down-2026']
-    ];
-    specs.forEach(function(s){
-      if(w.querySelector('.'+s[3]))return;
-      var b=document.createElement('button');
-      b.type='button';b.className='win-edge-arrow-2026 '+s[3];
-      b.textContent=s[1];b.title=s[2];b.setAttribute('aria-label',s[2]);
-      b.addEventListener('click',function(e){
-        e.preventDefault();e.stopPropagation();
-        resizeFromEdge(w,s[0]);
-      });
-      w.appendChild(b);
-    });
-
-    if(!w.dataset.edgeState){
-      w.dataset.edgeState='1';
-      w.dataset.edgeW=Math.round(w.getBoundingClientRect().width||700);
-      w.dataset.edgeH=Math.round(w.getBoundingClientRect().height||450);
-    }
-  }
-
-  function clamp(v,min,max){return Math.max(min,Math.min(max,v));}
-  function resizeFromEdge(w,side){
-    if(w.classList.contains('win-fullscreen-2026'))return;
-    var r=w.getBoundingClientRect();
-    var vw=window.innerWidth, vh=window.innerHeight;
-    var w0=r.width, h0=r.height, l=r.left, t=r.top;
-    if(side==='left'){
-      var nw=clamp(w0-STEP,MIN_W,vw-20);
-      w.style.width=nw+'px';
-      w.style.left=clamp(l+STEP,0,vw-nw)+'px';
-      w.style.transform='none';
-    }else if(side==='right'){
-      w.style.width=clamp(w0-STEP,MIN_W,vw-20)+'px';
-      w.style.transform='none';
-      w.style.left=clamp(l,0,vw-w.offsetWidth)+'px';
-    }else if(side==='up'){
-      var nh=clamp(h0-STEP,MIN_H,vh-20);
-      w.style.height=nh+'px';w.style.maxHeight=nh+'px';
-      w.style.top=clamp(t+STEP,0,vh-nh)+'px';w.style.transform='none';
-    }else if(side==='down'){
-      var nh2=clamp(h0-STEP,MIN_H,vh-20);
-      w.style.height=nh2+'px';w.style.maxHeight=nh2+'px';
-      w.style.top=clamp(t,0,vh-nh2)+'px';w.style.transform='none';
-    }
-  }
-
-  function toggleFullscreen(w){
-    if(!w)return;
-    if(w.classList.contains('win-fullscreen-2026')){
-      w.classList.remove('win-fullscreen-2026');
-      w.style.width=w.dataset.prevWidth||'';
-      w.style.height=w.dataset.prevHeight||'';
-      w.style.maxHeight=w.dataset.prevMaxHeight||'82vh';
-      w.style.left=w.dataset.prevLeft||'50%';
-      w.style.top=w.dataset.prevTop||'90px';
-      w.style.transform=w.dataset.prevTransform||'translateX(-50%)';    }else{
-      var r=w.getBoundingClientRect();
-      w.dataset.prevWidth=r.width+'px';
-      w.dataset.prevHeight=r.height+'px';      w.dataset.prevMaxHeight=w.style.maxHeight||'82vh';
-      w.dataset.prevLeft=r.left+'px';
-      w.dataset.prevTop=r.top+'px';
-      w.dataset.prevTransform=w.style.transform||'none';
-      w.classList.add('win-fullscreen-2026');
-    }
-  }
-
-  function scan(){
-    document.querySelectorAll('.window').forEach(ensureControls);
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
-  setTimeout(scan,300);setTimeout(scan,1000);/* Removed redundant polling; DOM observer handles new UI. */
-
-  /* Newly-created form windows are covered automatically. */
-  var mo=new MutationObserver(function(list){
-    list.forEach(function(m){
-      m.addedNodes&&m.addedNodes.forEach(function(n){
-        if(n.nodeType!==1)return;
-        if(isWindow(n))ensureControls(n);
-        n.querySelectorAll&&n.querySelectorAll('.window').forEach(ensureControls);
-      });
-    });
-  });
-  if(document.body)mo.observe(document.body,{childList:true,subtree:true});
-})();
-</script>
+<!-- Legacy window-control styles removed for unified control system 2026-10-17: all-window-fullscreen-resize-2026-09-22 -->
+<!-- Legacy window-control script removed for unified control system 2026-10-17: all-window-fullscreen-resize-js-2026-09-22 -->
 
 
 <!-- ===== USER TASK 2 CORRECTION: FULLSCREEN AT CLEAR BUTTON, KEEP CLOSE — 2026-09-22 ===== -->
-<style id="fullscreen-at-clear-correction-2026-09-22">
-.window .win-head .win-fullscreen-2026{display:none!important}
-.window .win-head .win-clear-fullscreen-2026{
-  min-width:34px!important;width:34px!important;height:30px!important;padding:0!important;
-  display:inline-flex!important;align-items:center!important;justify-content:center!important;
-  border:2px solid var(--border)!important;border-radius:7px!important;
-  background:var(--panel)!important;color:inherit!important;font-weight:900!important;cursor:pointer!important;
-}
-</style>
-<script id="fullscreen-at-clear-correction-js-2026-09-22">
-(function(){
-  function add(w){
-    if(!w||!w.classList||!w.classList.contains('window'))return;
-    var head=w.querySelector('.win-head'); if(!head)return;
-    /* Restore the real Close button if the previous patch changed it. */
-    var oldFs=head.querySelector('.win-fullscreen-2026');
-    if(oldFs){
-      oldFs.textContent='✕';
-      oldFs.title='বন্ধ করুন';
-      oldFs.setAttribute('aria-label','বন্ধ করুন');
-      oldFs.classList.remove('win-fullscreen-2026');
-      oldFs.classList.remove('win-clear-fullscreen-2026');
-      oldFs.removeAttribute('data-fs-bound');
-    }
-    /* Remove any previous correction button before rebuilding. */
-    var existing=head.querySelector('.win-clear-fullscreen-2026');
-    if(existing)existing.remove();
-
-    var clear=null;
-    var buttons=head.querySelectorAll('button');
-    buttons.forEach(function(b){
-      var txt=(b.textContent||'').trim().toLowerCase();
-      var title=(b.title||'').trim().toLowerCase();
-      if(!clear && (txt==='clear'||txt==='ক্লিয়ার'||txt==='ক্লিয়ার'||txt==='পরিষ্কার'||title.indexOf('clear')>=0||title.indexOf('ক্লিয়ার')>=0||title.indexOf('ক্লিয়ার')>=0)) clear=b;
-    });
-    /* If Clear is in the body/footer, use the existing clear button there. */
-    if(!clear){
-      w.querySelectorAll('button').forEach(function(b){
-        var txt=(b.textContent||'').trim().toLowerCase();
-        var title=(b.title||'').trim().toLowerCase();
-        if(!clear && (txt==='clear'||txt==='ক্লিয়ার'||txt==='ক্লিয়ার'||txt==='পরিষ্কার'||title.indexOf('clear')>=0||title.indexOf('ক্লিয়ার')>=0||title.indexOf('ক্লিয়ার')>=0)) clear=b;
-      });
-    }
-    if(clear){
-      clear.textContent='⛶';
-      clear.title='ফুল স্ক্রিন / স্বাভাবিক';
-      clear.setAttribute('aria-label','ফুল স্ক্রিন / স্বাভাবিক');
-      clear.classList.add('win-clear-fullscreen-2026');
-      clear.dataset.clearReplacedForFullscreen='1';
-      clear.onclick=function(e){
-        e.preventDefault();e.stopPropagation();
-        if(typeof window.toggleWindowFullscreen2026==='function')window.toggleWindowFullscreen2026(w);
-      };
-    }
-  }
-  window.toggleWindowFullscreen2026=function(w){
-    if(!w)return;
-    if(w.classList.contains('win-fullscreen-2026')){
-      w.classList.remove('win-fullscreen-2026');
-      w.style.width=w.dataset.prevWidth||'';
-      w.style.height=w.dataset.prevHeight||'';
-      w.style.maxHeight=w.dataset.prevMaxHeight||'82vh';
-      w.style.left=w.dataset.prevLeft||'50%';
-      w.style.top=w.dataset.prevTop||'90px';
-      w.style.transform=w.dataset.prevTransform||'translateX(-50%)';
-    }else{
-      var r=w.getBoundingClientRect();
-      w.dataset.prevWidth=r.width+'px';w.dataset.prevHeight=r.height+'px';
-      w.dataset.prevMaxHeight=w.style.maxHeight||'82vh';
-      w.dataset.prevLeft=r.left+'px';w.dataset.prevTop=r.top+'px';
-      w.dataset.prevTransform=w.style.transform||'none';
-      w.classList.add('win-fullscreen-2026');
-    }
-  };
-  function scan(){document.querySelectorAll('.window').forEach(add)}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
-  setTimeout(scan,300);setTimeout(scan,1000);/* Removed redundant polling; DOM observer handles new UI. */
-  new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes&&m.addedNodes.forEach(function(n){if(n.nodeType===1){if(n.matches&&n.matches('.window'))add(n);n.querySelectorAll&&n.querySelectorAll('.window').forEach(add)}})})}).observe(document.body,{childList:true,subtree:true});
-})();
-</script>
+<!-- Legacy window-control styles removed for unified control system 2026-10-17: fullscreen-at-clear-correction-2026-09-22 -->
+<!-- Legacy window-control script removed for unified control system 2026-10-17: fullscreen-at-clear-correction-js-2026-09-22 -->
 
 
 <!-- ===== USER TASK 3 — RUNNING NEWS + UNIVERSAL 3 WINDOW BUTTONS — 2026-09-22 ===== -->
@@ -4910,134 +4663,7 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
   cursor:pointer!important;
 }
 </style>
-<script id="user-task3-news-window-controls-js-2026-09-22">
-(function(){
-  function getTitle(w){
-    var b=w.querySelector('.win-head b');
-    return b ? (b.textContent||'উইন্ডো').trim() : 'উইন্ডো';
-  }
-  function taskbar(){
-    var bar=document.getElementById('task3WinTaskbar');
-    if(!bar){
-      bar=document.createElement('div');
-      bar.id='task3WinTaskbar';
-      document.body.appendChild(bar);
-    }
-    return bar;
-  }
-  function addTaskbarItem(w){
-    var bar=taskbar();
-    var id='task3Restore_'+Math.random().toString(36).slice(2);
-    var btn=document.createElement('button');
-    btn.type='button';
-    btn.id=id;
-    btn.textContent='▣ '+getTitle(w);
-    btn.onclick=function(){
-      w.classList.remove('task3-minimized-2026');
-      btn.remove();
-    };
-    bar.appendChild(btn);
-    w.dataset.task3BarId=id;
-  }
-  function removeTaskbarItem(w){
-    var id=w.dataset.task3BarId;
-    if(id){
-      var b=document.getElementById(id);
-      if(b)b.remove();
-      delete w.dataset.task3BarId;
-    }
-  }
-  function minimize(w){
-    if(!w)return;
-    if(w.classList.contains('win-fullscreen-2026')){
-      w.classList.remove('win-fullscreen-2026');
-    }
-    removeTaskbarItem(w);
-    addTaskbarItem(w);
-    w.classList.add('task3-minimized-2026');
-  }
-  function fullscreen(w){
-    if(!w)return;
-    if(w.classList.contains('win-fullscreen-2026')){
-      w.classList.remove('win-fullscreen-2026');
-      w.style.width=w.dataset.task3PrevWidth||'';
-      w.style.height=w.dataset.task3PrevHeight||'';
-      w.style.maxHeight=w.dataset.task3PrevMaxHeight||'82vh';
-      w.style.left=w.dataset.task3PrevLeft||'50%';
-      w.style.top=w.dataset.task3PrevTop||'90px';
-      w.style.transform=w.dataset.task3PrevTransform||'translateX(-50%)';
-    }else{
-      var r=w.getBoundingClientRect();
-      w.dataset.task3PrevWidth=r.width+'px';
-      w.dataset.task3PrevHeight=r.height+'px';
-      w.dataset.task3PrevMaxHeight=w.style.maxHeight||'82vh';
-      w.dataset.task3PrevLeft=r.left+'px';
-      w.dataset.task3PrevTop=r.top+'px';
-      w.dataset.task3PrevTransform=w.style.transform||'none';
-      w.classList.add('win-fullscreen-2026');
-    }
-  }
-  function closeExisting(w){
-    var close=w.querySelector('.win-head button[onclick*="closeWindow"]');
-    if(!close)close=w.querySelector('.win-head button[title="Close"]');
-    if(!close && w.id==='runningNewsEditorWin')close=w.querySelector('#closeRunningNewsEditor');
-    if(close){ close.click(); return; }
-    w.classList.remove('show');
-    w.style.display='none';
-    removeTaskbarItem(w);
-  }
-  function hideOldWindowControls(w){
-    w.querySelectorAll('.win-head button').forEach(function(b){
-      if(b.closest('.task3-window-controls'))return;
-      var oc=(b.getAttribute('onclick')||'').toLowerCase();
-      var tx=(b.textContent||'').trim();
-      var title=(b.getAttribute('title')||'').toLowerCase();
-      /* Hide only old window-management buttons; keep useful buttons like refresh/print/download. */
-      if(oc.indexOf('closewindow')>=0 || title==='close' || tx==='✕' || tx==='—' || tx==='🧹' ||
-         title==='minimize' || title==='clear' || title.indexOf('fullscreen')>=0){
-        b.style.display='none';
-      }
-    });
-  }
-  function addControls(w){
-    if(!w || !w.classList.contains('window'))return;
-    var head=w.querySelector('.win-head');
-    if(!head)return;
-    hideOldWindowControls(w);
-    var old=head.querySelector('.task3-window-controls');
-    if(old)return;
-    var box=document.createElement('span');
-    box.className='task3-window-controls';
-    var min=document.createElement('button');
-    min.type='button';min.textContent='—';min.title='মিনিমাইজ';min.setAttribute('aria-label','মিনিমাইজ');
-    min.onclick=function(e){e.preventDefault();e.stopPropagation();minimize(w);};
-    var fs=document.createElement('button');
-    fs.type='button';fs.textContent='⛶';fs.title='ফুল স্ক্রিন / স্বাভাবিক';fs.setAttribute('aria-label','ফুল স্ক্রিন / স্বাভাবিক');
-    fs.onclick=function(e){e.preventDefault();e.stopPropagation();fullscreen(w);};
-    var cl=document.createElement('button');
-    cl.type='button';cl.textContent='✕';cl.title='বন্ধ করুন';cl.setAttribute('aria-label','বন্ধ করুন');
-    cl.onclick=function(e){e.preventDefault();e.stopPropagation();closeExisting(w);};
-    box.appendChild(min);box.appendChild(fs);box.appendChild(cl);
-    head.appendChild(box);
-  }
-  function scan(){
-    document.querySelectorAll('.window').forEach(addControls);
-  }
-  window.task3MinimizeWindow=minimize;
-  window.task3FullscreenWindow=fullscreen;
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
-  setTimeout(scan,300);setTimeout(scan,1000);/* Removed redundant polling; DOM observer handles new UI. */
-  new MutationObserver(function(ms){
-    ms.forEach(function(m){
-      m.addedNodes&&m.addedNodes.forEach(function(n){
-        if(n.nodeType!==1)return;
-        if(n.matches&&n.matches('.window'))addControls(n);
-        if(n.querySelectorAll)n.querySelectorAll('.window').forEach(addControls);
-      });
-    });
-  }).observe(document.body,{childList:true,subtree:true});
-})();
-</script>
+<!-- Legacy window-control script removed for unified control system 2026-10-17: user-task3-news-window-controls-js-2026-09-22 -->
 \n
 <!-- ===== USER TASK 4 — ROUNDED RUNNING BOX + LARGE CLOCK + LOGIN LOGO REUSE — 2026-09-22 ===== -->
 <style id="user-task4-logo-clock-news-2026-09-22">
@@ -9531,47 +9157,8 @@ function placeFullWidth(){
 </style>
 
 <!-- ===== FINAL UNIVERSAL FORM + WINDOW FULLSCREEN BUTTON — 2026-10-05 ===== -->
-<style id="jb-universal-fullscreen-2026">
-.jb-universal-fs-2026{width:34px!important;min-width:34px!important;height:30px!important;padding:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;border:2px solid var(--border)!important;border-radius:7px!important;background:var(--panel)!important;color:inherit!important;font-weight:900!important;cursor:pointer!important}
-.jb-universal-fs-2026:hover{transform:scale(1.04)!important}
-.window.jb-universal-fullscreen-2026,#formWin.jb-universal-fullscreen-2026{position:fixed!important;left:0!important;top:0!important;width:100vw!important;height:100vh!important;max-width:none!important;max-height:none!important;min-width:0!important;min-height:0!important;margin:0!important;transform:none!important;border-radius:0!important;z-index:2147483000!important;overflow:hidden!important}
-.window.jb-universal-fullscreen-2026 .win-body,#formWin.jb-universal-fullscreen-2026 .win-body{height:calc(100vh - 52px)!important;max-height:none!important;overflow:auto!important}
-</style>
-<script id="jb-universal-fullscreen-js-2026">
-(function(){
-  function isTarget(w){return w&&((w.classList&&(w.classList.contains('window')||w.classList.contains('form-window')))||w.id==='formWin')}
-  function toggle(w){
-    if(!isTarget(w))return;
-    if(w.classList.contains('jb-universal-fullscreen-2026')){
-      w.classList.remove('jb-universal-fullscreen-2026');
-      w.style.width=w.dataset.jbFsWidth||'';w.style.height=w.dataset.jbFsHeight||'';w.style.maxHeight=w.dataset.jbFsMaxHeight||'';
-      w.style.left=w.dataset.jbFsLeft||'';w.style.top=w.dataset.jbFsTop||'';w.style.transform=w.dataset.jbFsTransform||'';
-    }else{
-      var r=w.getBoundingClientRect();
-      w.dataset.jbFsWidth=w.style.width||r.width+'px';w.dataset.jbFsHeight=w.style.height||r.height+'px';w.dataset.jbFsMaxHeight=w.style.maxHeight||'';
-      w.dataset.jbFsLeft=w.style.left||r.left+'px';w.dataset.jbFsTop=w.style.top||r.top+'px';w.dataset.jbFsTransform=w.style.transform||'';
-      w.classList.add('jb-universal-fullscreen-2026');
-    }
-  }
-  function add(w){
-    if(!isTarget(w))return;
-    var head=w.querySelector('.win-head');if(!head)return;
-    var b=head.querySelector('.jb-universal-fs-2026');
-    if(!b){
-      b=document.createElement('button');b.type='button';b.className='jb-universal-fs-2026';b.textContent='⛶';b.title='ফুল স্ক্রিন / স্বাভাবিক';b.setAttribute('aria-label','ফুল স্ক্রিন / স্বাভাবিক');
-      var controls=head.querySelector('.task3-window-controls');
-      if(controls)controls.insertBefore(b,controls.lastElementChild||null);else head.appendChild(b);
-    }
-    if(b.dataset.jbBound==='1')return;b.dataset.jbBound='1';
-    b.onclick=function(e){e.preventDefault();e.stopPropagation();toggle(w)};
-  }
-  function scan(){document.querySelectorAll('.window,.form-window').forEach(add);var f=document.getElementById('formWin');if(f)add(f)}
-  window.jbUniversalFullscreen2026=toggle;
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
-  setTimeout(scan,300);setTimeout(scan,1000);/* Removed redundant polling; DOM observer handles new UI. */
-  new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes&&m.addedNodes.forEach(function(n){if(n.nodeType===1){if(n.matches&&n.matches('.window,.form-window,#formWin'))add(n);n.querySelectorAll&&n.querySelectorAll('.window').forEach(add)}})})}).observe(document.body,{childList:true,subtree:true});
-})();
-</script>
+<!-- Legacy window-control styles removed for unified control system 2026-10-17: jb-universal-fullscreen-2026 -->
+<!-- Legacy window-control script removed for unified control system 2026-10-17: jb-universal-fullscreen-js-2026 -->
 
 <!-- ===== CONTACT FOOTER POSITION FIX: BELOW SUMMARY/CHARTS — 2026-10-05 ===== -->
 <style id="contact-footer-no-overlap-final-2026-10-05">
@@ -11349,106 +10936,8 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 
 
 <!-- ===== MARKSHEET WINDOW — FULLSCREEN / MINIMIZE / DRAG FIX — 2026-10-07 ===== -->
-<style id="marksheet-window-controls-2026-10-07">
-#jbDocBuilderWin.jb-window-full{
-  inset:0!important;left:0!important;top:0!important;right:0!important;bottom:0!important;
-  width:100vw!important;height:100vh!important;max-width:none!important;max-height:none!important;
-  border-radius:0!important;transform:none!important;overflow:auto!important;
-}
-#jbDocBuilderWin.jb-window-min{
-  top:auto!important;left:10px!important;right:auto!important;bottom:8px!important;
-  width:360px!important;height:48px!important;min-height:48px!important;max-height:48px!important;
-  inset:auto auto 8px 10px!important;transform:none!important;overflow:hidden!important;
-  border-radius:14px!important;box-shadow:0 8px 30px #0008!important;
-}
-#jbDocBuilderWin.jb-window-min #jbDocBuilderTools,
-#jbDocBuilderWin.jb-window-min #jbDocBuilderBody{display:none!important}
-#jbDocBuilderWin.jb-window-min #jbDocBuilderHead{height:48px!important;min-height:48px!important;padding:6px 8px!important;border-bottom:0!important}
-#jbDocBuilderWin.jb-window-min #jbDocBuilderHead>b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#jbDocBuilderHead .jb-win-controls-2026{display:flex!important;align-items:center!important;gap:5px!important;margin-left:auto!important}
-#jbDocBuilderHead .jb-win-control-2026{
-  width:36px!important;height:32px!important;min-width:36px!important;padding:0!important;
-  border:2px solid var(--border)!important;border-radius:9px!important;
-  background:var(--panel)!important;color:var(--text)!important;font-weight:900!important;
-}
-#jbDocBuilderHead .jb-win-control-2026:hover{filter:brightness(1.08)!important;transform:translateY(-1px)!important}
-#jbDocBuilderWin.jb-window-min #jbDocBuilderHead{cursor:pointer!important}
-#jbDocBuilderWin.jb-window-full #jbDocBuilderHead{cursor:move!important}
-#jbDocBuilderWin.jb-window-dragging{user-select:none!important}
-@media(max-width:600px){
-  #jbDocBuilderWin.jb-window-min{left:5px!important;right:5px!important;width:auto!important;bottom:5px!important}
-  #jbDocBuilderHead .jb-win-control-2026{width:34px!important;min-width:34px!important}
-}
-</style>
-<script id="marksheet-window-controls-2026-10-07-js">
-(function(){
-  var state={x:null,y:null,full:false,min:false,drag:false,sx:0,sy:0,ox:0,oy:0};
-  function get(){return document.getElementById('jbDocBuilderWin')}
-  function controls(w){
-    if(!w||document.getElementById('jbDocWindowControls2026'))return;
-    var head=document.getElementById('jbDocBuilderHead');if(!head)return;
-    var close=head.querySelector('button');
-    var box=document.createElement('div');box.id='jbDocWindowControls2026';box.className='jb-win-controls-2026';
-    var min=document.createElement('button');min.type='button';min.className='jb-win-control-2026';min.title='মিনিমাইজ';min.textContent='—';
-    var full=document.createElement('button');full.type='button';full.className='jb-win-control-2026';full.title='ফুল স্ক্রিন';full.textContent='⛶';
-    box.appendChild(min);box.appendChild(full);
-    if(close){head.insertBefore(box,close);close.title='বন্ধ'}else head.appendChild(box);
-    min.onclick=function(e){e.preventDefault();e.stopPropagation();toggleMin(w)};
-    full.onclick=function(e){e.preventDefault();e.stopPropagation();toggleFull(w)};
-  }
-  function savePos(w){
-    var r=w.getBoundingClientRect();state.x=r.left;state.y=r.top;
-  }
-  function clamp(w,x,y){
-    var maxX=Math.max(0,window.innerWidth-w.offsetWidth),maxY=Math.max(0,window.innerHeight-w.offsetHeight);
-    return {x:Math.min(Math.max(0,x),maxX),y:Math.min(Math.max(0,y),maxY)};
-  }
-  function restorePosition(w){
-    if(state.x==null||state.y==null)return;
-    w.style.left=state.x+'px';w.style.top=state.y+'px';w.style.right='auto';w.style.bottom='auto';w.style.inset='auto';w.style.transform='none';
-    var p=clamp(w,state.x,state.y);w.style.left=p.x+'px';w.style.top=p.y+'px';state.x=p.x;state.y=p.y;
-  }
-  function toggleMin(w){
-    if(state.min){state.min=false;w.classList.remove('jb-window-min');if(state.full){w.classList.add('jb-window-full')}else restorePosition(w);return;}
-    if(state.full){state.full=false;w.classList.remove('jb-window-full')}
-    savePos(w);state.min=true;w.classList.add('jb-window-min');
-  }
-  function toggleFull(w){
-    if(state.min){state.min=false;w.classList.remove('jb-window-min')}
-    state.full=!state.full;
-    w.classList.toggle('jb-window-full',state.full);
-    if(!state.full)restorePosition(w);
-  }
-  function bindDrag(w){
-    if(w.dataset.jbDragBound==='1')return;w.dataset.jbDragBound='1';
-    var head=document.getElementById('jbDocBuilderHead');if(!head)return;
-    head.addEventListener('pointerdown',function(e){
-      if(e.button!==0)return;
-      if(e.target.closest('button,input,select,textarea,a'))return;
-      if(state.min){state.min=false;w.classList.remove('jb-window-min');state.full=false;w.classList.remove('jb-window-full')}
-      if(state.full)return;
-      var r=w.getBoundingClientRect();state.drag=true;state.sx=e.clientX;state.sy=e.clientY;state.ox=r.left;state.oy=r.top;
-      w.classList.add('jb-window-dragging');w.setPointerCapture&&w.setPointerCapture(e.pointerId);e.preventDefault();
-    });
-    head.addEventListener('pointermove',function(e){
-      if(!state.drag)return;
-      var p=clamp(w,state.ox+(e.clientX-state.sx),state.oy+(e.clientY-state.sy));
-      w.style.left=p.x+'px';w.style.top=p.y+'px';w.style.right='auto';w.style.bottom='auto';w.style.inset='auto';w.style.transform='none';state.x=p.x;state.y=p.y;
-    });
-    function up(){state.drag=false;w.classList.remove('jb-window-dragging')}
-    head.addEventListener('pointerup',up);head.addEventListener('pointercancel',up);
-  }
-  function ensure(){var w=get();if(!w)return;controls(w);bindDrag(w)}
-  var oldOpen=window.jbOpenDocumentType2026;
-  if(typeof oldOpen==='function')window.jbOpenDocumentType2026=function(){var r=oldOpen.apply(this,arguments);setTimeout(ensure,30);return r};
-  var oldModule=window.openModule;
-  if(typeof oldModule==='function')window.openModule=function(k){var r=oldModule.apply(this,arguments);setTimeout(ensure,30);return r};
-  var oldCreate=window.jbCreatePreview;
-  if(typeof oldCreate==='function')window.jbCreatePreview=function(){var r=oldCreate.apply(this,arguments);setTimeout(ensure,30);return r};
-  window.addEventListener('resize',function(){var w=get();if(!w||!w.classList.contains('show')||state.full)return;if(state.min)return;var p=clamp(w,state.x==null?w.getBoundingClientRect().left:state.x,state.y==null?w.getBoundingClientRect().top:state.y);w.style.left=p.x+'px';w.style.top=p.y+'px';w.style.right='auto';w.style.bottom='auto';w.style.inset='auto';w.style.transform='none';state.x=p.x;state.y=p.y});
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ensure);else ensure();
-})();
-</script>
+<!-- Legacy window-control styles removed for unified control system 2026-10-17: marksheet-window-controls-2026-10-07 -->
+<!-- Legacy window-control script removed for unified control system 2026-10-17: marksheet-window-controls-2026-10-07-js -->
 <!-- ===== END MARKSHEET WINDOW CONTROLS ===== -->
 
 
@@ -14159,62 +13648,8 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 <style id="jb-hide-legacy-admission-header-20261010">#formWin #winBody .admission-form-header-only{display:none!important;visibility:hidden!important;height:0!important;min-height:0!important;max-height:0!important;margin:0!important;padding:0!important;border:0!important;overflow:hidden!important}</style>
 
 <!-- JB QUESTION PAPER WINDOW CONTROLS: FULLSCREEN / MINIMIZE / CLOSE / DRAG-TO-TASKBAR -->
-<style id="jb-question-paper-window-controls-20261011">
-#jbQuestionPaperWin2026{box-sizing:border-box}
-#jbQuestionPaperWin2026.jb-qp-fullscreen-2026{position:fixed!important;inset:0!important;left:0!important;top:0!important;width:100vw!important;height:100vh!important;max-width:none!important;max-height:none!important;transform:none!important;border-radius:0!important;z-index:1000000!important;overflow:hidden!important}
-#jbQuestionPaperWin2026.jb-qp-fullscreen-2026 .windowBody{height:calc(100vh - 48px)!important;max-height:calc(100vh - 48px)!important;overflow:auto!important}
-#jbQuestionPaperWin2026 .jb-qp-window-tools-20261011{display:flex;align-items:center;gap:5px;margin-left:auto;flex-shrink:0}
-#jbQuestionPaperWin2026 .jb-qp-window-tools-20261011 button{min-width:32px;height:30px;padding:2px 8px;border:1px solid currentColor;border-radius:6px;font-weight:800;cursor:pointer}
-#jbQuestionPaperWin2026 .windowHead{display:flex;align-items:center;gap:8px;position:sticky;top:0;z-index:5;cursor:move;user-select:none}
-#jbQpTaskbar20261011{position:fixed;left:8px;right:8px;bottom:5px;min-height:38px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;z-index:2147483000;pointer-events:none}
-#jbQpTaskbar20261011 button{pointer-events:auto;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:7px 12px;border:2px solid var(--border,#333);border-radius:8px;background:var(--panel,#fff);color:var(--text,#111);font-weight:800;cursor:pointer;box-shadow:0 2px 10px #0003}
-#jbQuestionPaperWin2026.jb-qp-minimized-20261011{display:none!important}
-</style>
-<script id="jb-question-paper-window-controls-js-20261011">
-(function(){
-  function init(){
-    var w=document.getElementById('jbQuestionPaperWin2026');
-    if(!w||w.dataset.jbQpWindowControls20261011)return;
-    var head=w.querySelector(':scope > .windowHead')||w.querySelector('.windowHead');
-    if(!head)return;
-    w.dataset.jbQpWindowControls20261011='1';
-    var tools=document.createElement('span');tools.className='jb-qp-window-tools-20261011';
-    function button(label,title,fn){var b=document.createElement('button');b.type='button';b.textContent=label;b.title=title;b.setAttribute('aria-label',title);b.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();fn()});tools.appendChild(b);return b}
-    var taskbar=document.getElementById('jbQpTaskbar20261011');
-    if(!taskbar){taskbar=document.createElement('div');taskbar.id='jbQpTaskbar20261011';document.body.appendChild(taskbar)}
-    function clearTaskItem(){var id=w.dataset.jbQpTaskItem20261011;if(id){var b=document.getElementById(id);if(b)b.remove();delete w.dataset.jbQpTaskItem20261011}}
-    function restore(){clearTaskItem();w.classList.remove('jb-qp-minimized-20261011');w.style.display='block';w.classList.add('show');w.style.zIndex='1000000'}
-    function minimize(){w.classList.remove('jb-qp-fullscreen-2026');w.classList.add('jb-qp-minimized-20261011');clearTaskItem();var b=document.createElement('button');b.type='button';b.id='jbQpRestore20261011';b.textContent='▣ 📄 প্রশ্নপত্র তৈরি';b.title='প্রশ্নপত্র উইন্ডো ফিরিয়ে আনুন';b.onclick=restore;taskbar.appendChild(b);w.dataset.jbQpTaskItem20261011=b.id}
-    function close(){clearTaskItem();w.classList.remove('show','jb-qp-fullscreen-2026','jb-qp-minimized-20261011');w.style.display='none'}
-    function fullscreen(){w.classList.remove('jb-qp-minimized-20261011');clearTaskItem();if(w.classList.contains('jb-qp-fullscreen-2026')){w.classList.remove('jb-qp-fullscreen-2026')}else{w.classList.add('jb-qp-fullscreen-2026')}w.style.display='block';w.classList.add('show')}
-    button('—','মিনিমাইজ করে taskbar-এ রাখুন',minimize);
-    button('⛶','ফুল স্ক্রিন / স্বাভাবিক আকার',fullscreen);
-    button('✕','উইন্ডো বন্ধ করুন',close);
-    head.appendChild(tools);
-    var drag=null;
-    head.addEventListener('pointerdown',function(e){
-      if(e.button!==0||e.target.closest('button,input,select,textarea,a,.jb-qp-window-tools-20261011')||w.classList.contains('jb-qp-fullscreen-2026'))return;
-      var r=w.getBoundingClientRect();drag={x:e.clientX,y:e.clientY,left:r.left,top:r.top,moved:false};
-      try{head.setPointerCapture(e.pointerId)}catch(_){}
-      e.preventDefault();
-    });
-    head.addEventListener('pointermove',function(e){
-      if(!drag)return;
-      if(Math.abs(e.clientX-drag.x)>3||Math.abs(e.clientY-drag.y)>3)drag.moved=true;
-      if(!drag.moved)return;
-      var maxLeft=Math.max(0,window.innerWidth-w.offsetWidth);
-      var maxTop=Math.max(0,window.innerHeight-42);
-      w.style.left=Math.max(0,Math.min(maxLeft,drag.left+e.clientX-drag.x))+'px';
-      w.style.top=Math.max(0,Math.min(maxTop,drag.top+e.clientY-drag.y))+'px';
-      w.style.transform='none';
-    });
-    function endDrag(e){if(!drag)return;var moved=drag.moved;drag=null;if(moved&&e.clientY>=window.innerHeight-28)minimize()}
-    head.addEventListener('pointerup',endDrag);head.addEventListener('pointercancel',function(){drag=null});
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
-  setTimeout(init,250);setTimeout(init,1000);
-})();
-</script>
+<!-- Legacy window-control styles removed for unified control system 2026-10-17: jb-question-paper-window-controls-20261011 -->
+<!-- Legacy window-control script removed for unified control system 2026-10-17: jb-question-paper-window-controls-js-20261011 -->
 
 
 <!-- ===== jb-youtube-inline-media-20261011: embedded YouTube panel; no new tab and no sheet writes ===== -->
@@ -16420,3 +15855,134 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 <!-- ===== OFF-WHITE MODE PERSISTENCE — 2026-10-17 ===== -->
 <script id="jb-offwhite-mode-init-20261017">(function(){function applySavedMode(){var m="light";try{m=localStorage.mode||"light"}catch(e){}if(typeof window.setMode==="function")window.setMode(m)}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",applySavedMode);else applySavedMode()})();</script>
+
+
+
+<!-- ===== NEW UNIFIED MODULE WINDOW CONTROLS — 2026-10-17 ===== -->
+<style id="jb-unified-module-window-controls-20261017-css">
+.window.jb-unified-window-fullscreen,.form-window.jb-unified-window-fullscreen,#jbDocBuilderWin.jb-unified-window-fullscreen,#jbQuestionPaperWin2026.jb-unified-window-fullscreen{
+ position:fixed!important;inset:0!important;left:0!important;top:0!important;right:0!important;bottom:0!important;
+ width:100vw!important;height:100vh!important;min-width:0!important;min-height:0!important;
+ max-width:none!important;max-height:none!important;margin:0!important;transform:none!important;
+ border-radius:0!important;z-index:2147483000!important;overflow:auto!important;box-sizing:border-box!important;
+}
+.jb-unified-window-minimized{display:none!important}
+.jb-unified-window-taskbar{position:fixed!important;left:8px!important;right:8px!important;bottom:8px!important;z-index:2147483647!important;display:flex!important;gap:6px!important;flex-wrap:wrap!important;pointer-events:none!important}
+.jb-unified-window-taskbar button{pointer-events:auto!important;max-width:260px!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;border:2px solid var(--border,#b99b52)!important;border-radius:9px!important;background:var(--panel,#fff)!important;color:var(--text,#222)!important;padding:7px 12px!important;font-weight:900!important;cursor:pointer!important}
+.jb-unified-window-tools{display:flex!important;align-items:center!important;gap:5px!important;margin-left:auto!important;flex-shrink:0!important}
+.jb-unified-window-tools button{width:34px!important;min-width:34px!important;height:30px!important;padding:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;border:2px solid var(--border,#b99b52)!important;border-radius:8px!important;background:var(--panel,#fff)!important;color:var(--text,inherit)!important;font-weight:900!important;cursor:pointer!important;line-height:1!important}
+.jb-unified-window-tools button:hover{filter:brightness(1.08)!important}
+.window .win-head,.window .windowHead,.form-window .win-head,#jbDocBuilderHead{display:flex!important;align-items:center!important;gap:8px!important}
+</style>
+<script id="jb-unified-module-window-controls-20261017-js">
+(function(){
+ 'use strict';
+ var selector='.window,.form-window,#jbDocBuilderWin,#jbQuestionPaperWin2026';
+ var taskbarId='jbUnifiedWindowTaskbar20261017';
+ var targets=new WeakSet();
+ function titleOf(w){
+   var h=w.querySelector('.win-head b,.windowHead b,#jbDocBuilderHead b,.win-head strong,.windowHead strong');
+   return (h&&(h.textContent||'').trim())||w.getAttribute('aria-label')||w.id||'মডিউল';
+ }
+ function bar(){
+   var b=document.getElementById(taskbarId);
+   if(!b){b=document.createElement('div');b.id=taskbarId;b.className='jb-unified-window-taskbar';document.body.appendChild(b);}
+   return b;
+ }
+ function removeTask(w){
+   var id=w.dataset.jbUnifiedTaskId;
+   if(id){var b=document.getElementById(id);if(b)b.remove();delete w.dataset.jbUnifiedTaskId;}
+ }
+ function setShown(w,shown){
+   if(w.classList.contains('window')||w.classList.contains('form-window')){
+     if(shown){w.classList.add('show');if(w.dataset.jbUnifiedInlineDisplay)w.style.display=w.dataset.jbUnifiedInlineDisplay;}
+     else w.classList.remove('show');
+   }else{
+     w.style.display=shown?(w.dataset.jbUnifiedInlineDisplay||'block'):'none';
+     if(shown)w.classList.add('show');else w.classList.remove('show');
+   }
+ }
+ function minimize(w){
+   if(w.classList.contains('jb-unified-window-minimized'))return;
+   w.dataset.jbUnifiedWasShown='1';
+   w.dataset.jbUnifiedInlineDisplay=w.style.display||'';
+   w.dataset.jbUnifiedWasShowClass=w.classList.contains('show')?'1':'0';
+   w.classList.remove('jb-unified-window-fullscreen');
+   w.classList.add('jb-unified-window-minimized');
+   removeTask(w);
+   var b=document.createElement('button');
+   b.type='button';b.id='jbUnifiedRestore_'+Math.random().toString(36).slice(2);
+   b.textContent='▣ '+titleOf(w);b.title='মডিউল ফিরিয়ে আনুন';
+   b.addEventListener('click',function(){restore(w);});
+   bar().appendChild(b);w.dataset.jbUnifiedTaskId=b.id;
+ }
+ function restore(w){
+   removeTask(w);w.classList.remove('jb-unified-window-minimized');
+   if(w.dataset.jbUnifiedWasShowClass==='0'&&!w.classList.contains('window')&&!w.classList.contains('form-window'))w.classList.add('show');
+   if(w.classList.contains('window')||w.classList.contains('form-window'))w.classList.add('show');
+   else w.style.display=w.dataset.jbUnifiedInlineDisplay||'block';
+   delete w.dataset.jbUnifiedWasShown;
+ }
+ function fullscreen(w){
+   if(w.classList.contains('jb-unified-window-fullscreen')){
+     w.classList.remove('jb-unified-window-fullscreen');
+     ['width','height','minWidth','minHeight','maxWidth','maxHeight','left','top','right','bottom','transform','margin','borderRadius','zIndex','overflow'].forEach(function(k){
+       w.style[k]=w.dataset['jbUnifiedPrev_'+k]||'';
+       delete w.dataset['jbUnifiedPrev_'+k];
+     });
+   }else{
+     ['width','height','minWidth','minHeight','maxWidth','maxHeight','left','top','right','bottom','transform','margin','borderRadius','zIndex','overflow'].forEach(function(k){w.dataset['jbUnifiedPrev_'+k]=w.style[k]||'';});
+     w.classList.remove('jb-unified-window-minimized');removeTask(w);
+     w.classList.add('jb-unified-window-fullscreen');
+   }
+ }
+ function close(w){
+   removeTask(w);w.classList.remove('jb-unified-window-minimized','jb-unified-window-fullscreen','task3-minimized-2026','win-fullscreen-2026','jb-universal-fullscreen-2026','jb-window-full','jb-window-min','jb-qp-fullscreen-2026','jb-qp-minimized-20261011');
+   if(w.id==='formWin'&&typeof window.closeWindow==='function'){window.closeWindow('formWin');return;}
+   if(w.classList.contains('window')&&typeof window.closeWindow==='function'){
+     try{window.closeWindow(w.id);return;}catch(e){}
+   }
+   if(w.classList.contains('window')||w.classList.contains('form-window'))w.classList.remove('show');
+   else w.style.display='none';
+ }
+ function makeButton(label,tip,fn){
+   var b=document.createElement('button');b.type='button';b.textContent=label;b.title=tip;b.setAttribute('aria-label',tip);
+   b.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();fn();});return b;
+ }
+ function init(w){
+   if(!w||!w.matches||!w.matches(selector))return;
+   var head=w.querySelector(':scope > .win-head,:scope > .windowHead,:scope > #jbDocBuilderHead,.win-head,.windowHead,#jbDocBuilderHead');
+   if(!head||targets.has(w))return;
+   targets.add(w);
+   /* Remove every legacy generated control group and edge arrow before adding one clean set. */
+   w.querySelectorAll('.win-tools-2026,.task3-window-controls,.jb-universal-fs-2026,.jb-win-controls-2026,.jb-qp-window-tools-20261011,.win-edge-arrow-2026,.win-fullscreen-2026,.win-clear-fullscreen-2026').forEach(function(n){n.remove();});
+   /* Remove old native header close/minimize/fullscreen buttons only; keep other functional actions such as refresh. */
+   Array.from(head.querySelectorAll('button')).forEach(function(b){
+     var t=((b.textContent||'')+' '+(b.title||'')+' '+(b.getAttribute('aria-label')||'')+' '+(b.getAttribute('onclick')||'')).toLowerCase();
+     if(/closewindow|minimizewin|বন্ধ|close|fullscreen|full screen|ফুল স্ক্রিন|মিনিমাইজ|jb-qp|task3|minimize/.test(t)||/^[\s✕×x⛶—▁▣⌄⌃‹›-]+$/.test((b.textContent||'').trim()))b.remove();
+   });
+   var old=w.querySelector('.jb-unified-window-tools');if(old)old.remove();
+   var tools=document.createElement('span');tools.className='jb-unified-window-tools';
+   tools.appendChild(makeButton('—','মিনিমাইজ',function(){minimize(w);}));
+   tools.appendChild(makeButton('⛶','ফুল স্ক্রিন / স্বাভাবিক',function(){fullscreen(w);}));
+   tools.appendChild(makeButton('✕','বন্ধ করুন',function(){close(w);}));
+   head.appendChild(tools);
+ }
+ function scan(root){
+   if(!root)return;
+   if(root.matches&&root.matches(selector))init(root);
+   root.querySelectorAll&&root.querySelectorAll(selector).forEach(init);
+ }
+ function boot(){
+   scan(document);
+   if(document.body&&!document.body.dataset.jbUnifiedWindowObserver){
+     document.body.dataset.jbUnifiedWindowObserver='1';
+     new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes&&m.addedNodes.forEach(function(n){if(n.nodeType===1)scan(n);});});}).observe(document.body,{childList:true,subtree:true});
+   }
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+ setTimeout(boot,300);setTimeout(boot,1000);
+ window.jbUnifiedModuleWindowControls20261017={close:close,minimize:minimize,restore:restore,fullscreen:fullscreen};
+})();
+</script>
+<!-- ===== END NEW UNIFIED MODULE WINDOW CONTROLS — 2026-10-17 ===== -->
