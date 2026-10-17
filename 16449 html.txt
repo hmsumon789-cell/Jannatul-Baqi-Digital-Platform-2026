@@ -1513,6 +1513,61 @@ openWindow('formWin');
 if(key==='gallery')setTimeout(function(){loadPhotoGalleryData2026();},60);
 setTimeout(function(){clearFormWindow(false);},0);
 }
+/* ONLINE PAYMENT INSTITUTION HEADER — based only on commit 8b3a597 */
+(function(){
+  var originalOpenModule = window.openModule;
+  if(typeof originalOpenModule !== 'function') return;
+  window.openModule = function(key){
+    var result = originalOpenModule.apply(this, arguments);
+    if(key === 'payment' || key === 'fees') setTimeout(renderPaymentInstitutionHeader20261017, 0);
+    return result;
+  };
+  function renderPaymentInstitutionHeader20261017(){
+    var body = document.getElementById('winBody');
+    if(!body) return;
+    var old = document.getElementById('paymentInstitutionHeader20261017');
+    if(old) old.remove();
+    var header = document.createElement('section');
+    header.id = 'paymentInstitutionHeader20261017';
+    header.innerHTML =
+      '<div class="pih-main">' +
+        '<div class="pih-logo-wrap"><img class="pih-logo" id="paymentInstitutionLogo20261017" alt="মাদ্রাসার লোগো"></div>' +
+        '<div class="pih-details">' +
+          '<div class="pih-name">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div>' +
+          '<div class="pih-address">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div>' +
+          '<div class="pih-hotline">☎ হটলাইন: 01823316630</div>' +
+        '</div>' +
+        '<div class="pih-qr-wrap"><img class="pih-qr" id="paymentInstitutionQR20261017" alt="মূল পেজের QR কোড"><div class="pih-qr-label">মূল পেজ</div></div>' +
+      '</div>';
+    var logoSource = document.getElementById('loginContactLogo20261013') || document.getElementById('loginLogo') || document.getElementById('headerLogo');
+    var logo = header.querySelector('#paymentInstitutionLogo20261017');
+    if(logoSource && (logoSource.getAttribute('src') || logoSource.src)) logo.src = logoSource.getAttribute('src') || logoSource.src;
+    var qr = header.querySelector('#paymentInstitutionQR20261017');
+    var sourceQR = document.getElementById('loginContactQR20261013');
+    if(sourceQR && sourceQR.src && sourceQR.src !== location.href) qr.src = sourceQR.src;
+    try {
+      if((!qr.src || qr.src === location.href) && typeof call === 'function') {
+        Promise.resolve(call('getMainWebAppUrl')).then(function(r){
+          var url = r && r.url ? r.url : (typeof r === 'string' ? r : '');
+          if(url) qr.src = 'https://quickchart.io/qr?size=220&margin=2&text=' + encodeURIComponent(String(url).trim());
+        }).catch(function(){});
+      }
+    } catch(e) {}
+    var news = document.querySelector('#loginPage .ticker') || document.querySelector('.ticker');
+    if(news) {
+      var ticker = news.cloneNode(true);
+      ticker.removeAttribute('id');
+      ticker.classList.add('pih-news');
+      header.appendChild(ticker);
+    } else {
+      var fallback = document.createElement('div');
+      fallback.className = 'pih-news';
+      fallback.innerHTML = '<div class="ticker-text">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার অনলাইন সেবা কার্যক্রম চলমান</div>';
+      header.appendChild(fallback);
+    }
+    body.insertBefore(header, body.firstChild);
+  }
+})();
 function locationField(id,label,options){
   return `<label>${label} / Dropdown<select id="${id}Select" class="field"><option value="">নির্বাচন করুন</option>${options.map(x=>`<option>${x}</option>`).join('')}</select><input id="${id}Manual" class="field" placeholder="হাতে লিখুন"></label>`;
 }
@@ -16618,3 +16673,21 @@ body.offwhite .media-stage {
   }
 }
 </style>
+
+
+<style id="payment-institution-header-20261017-css">
+#paymentInstitutionHeader20261017{display:block;width:100%;box-sizing:border-box;margin:0 0 12px;padding:12px 14px;border:2px solid var(--border,#c89b27);border-radius:14px;background:var(--panel,#fff);color:var(--text,#222);box-shadow:0 4px 14px #0002}
+#paymentInstitutionHeader20261017 .pih-main{display:grid;grid-template-columns:76px minmax(0,1fr) 76px;align-items:center;gap:12px}
+#paymentInstitutionHeader20261017 .pih-logo,#paymentInstitutionHeader20261017 .pih-qr{width:70px;height:70px;object-fit:contain;display:block;margin:auto;background:#fff;border:2px solid var(--border,#c89b27);border-radius:10px;box-sizing:border-box}
+#paymentInstitutionHeader20261017 .pih-name{font-size:clamp(18px,2vw,25px);font-weight:1000;line-height:1.35;text-align:center}
+#paymentInstitutionHeader20261017 .pih-address{font-size:15px;font-weight:800;text-align:center;line-height:1.45;margin-top:3px}
+#paymentInstitutionHeader20261017 .pih-hotline{font-size:16px;font-weight:1000;text-align:center;margin-top:4px}
+#paymentInstitutionHeader20261017 .pih-qr-label{font-size:12px;font-weight:900;text-align:center;margin-top:3px}
+#paymentInstitutionHeader20261017 .pih-news{margin:10px 0 0!important;width:100%;box-sizing:border-box}
+#paymentInstitutionHeader20261017 .pih-news .ticker-text{white-space:nowrap}
+body.dark #paymentInstitutionHeader20261017{background:#111!important;color:#fff!important;border-color:#ffcc33!important}
+body.gold #paymentInstitutionHeader20261017{background:#fff9e7!important;color:#4a3300!important;border-color:#b88408!important}
+body.offwhite #paymentInstitutionHeader20261017{background:#fffdf7!important;color:#332b25!important}
+@media(max-width:600px){#paymentInstitutionHeader20261017{padding:9px}#paymentInstitutionHeader20261017 .pih-main{grid-template-columns:58px minmax(0,1fr) 58px;gap:6px}#paymentInstitutionHeader20261017 .pih-logo,#paymentInstitutionHeader20261017 .pih-qr{width:54px;height:54px}#paymentInstitutionHeader20261017 .pih-address{font-size:12px}#paymentInstitutionHeader20261017 .pih-hotline{font-size:13px}}
+</style>
+
