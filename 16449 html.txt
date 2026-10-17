@@ -15866,27 +15866,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 '#formWin .jb-admission-brand-header-20261010 .jb-adm-original-logo-20261010{transform:translate(2in,-20px)!important}'+
 '#formWin .jb-admission-brand-header-20261010 #jbAdmissionMainQR20261010{transform:translate(-2in,-20px)!important}'+
 '@media print{#formWin .jb-admission-brand-header-20261010 .jb-adm-original-logo-20261010{transform:translate(2in,-20px)!important}#formWin .jb-admission-brand-header-20261010 #jbAdmissionMainQR20261010{transform:translate(-2in,-20px)!important}}</style>'+
-'</head><body>'+node.outerHTML+'<script id="preliminary-review-pending-payment-a0ec50d">
-(function(){
-  var previousOpenAccountReview = window.openAccountReview;
-  window.openAccountReview = async function(){
-    try {
-      if (typeof superUser === 'function' && superUser() &&
-          typeof openPendingPayments === 'function') {
-        await openPendingPayments();
-        return;
-      }
-    } catch (err) {
-      if (typeof toast === 'function') toast('Pending পেমেন্ট খোলা যায়নি: ' + (err && err.message ? err.message : err));
-      return;
-    }
-    if (typeof previousOpenAccountReview === 'function') {
-      return previousOpenAccountReview.apply(this, arguments);
-    }
-  };
-})();
-</script>
-</body></html>';
+'</head><body>'+node.outerHTML+'</body></html>';
    var blob=new Blob([html],{type:'text/html;charset=utf-8'}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=title+'-'+((document.getElementById('jbDocId')||{}).value||'ID')+'.html';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},1000);
  }
  window.jbPrint=printDoc;window.jbDownload=downloadDoc;
@@ -16554,3 +16534,24 @@ body.offwhite .media-stage {
   }
 }
 </style>
+
+<script id="preliminary-review-pending-payment-a0ec50d">
+(function(){
+  var previousOpenAccountReview = window.openAccountReview;
+  window.openAccountReview = async function(){
+    try {
+      if (typeof superUser === 'function' && superUser() &&
+          typeof openPendingPayments === 'function') {
+        await openPendingPayments();
+        return;
+      }
+    } catch (err) {
+      if (typeof toast === 'function') toast('Pending পেমেন্ট খোলা যায়নি: ' + (err && err.message ? err.message : err));
+      return;
+    }
+    if (typeof previousOpenAccountReview === 'function') {
+      return previousOpenAccountReview.apply(this, arguments);
+    }
+  };
+})();
+</script>
