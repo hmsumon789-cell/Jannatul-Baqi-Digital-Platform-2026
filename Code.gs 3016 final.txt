@@ -3100,7 +3100,7 @@ function saveInstitutionPhoto2026(token,personId,dataUrl,fileName,mimeType){
   if(!personId||!match)return {ok:false,message:'ছবির তথ্য সঠিক নয়।'};
   const bytes=Utilities.base64Decode(match[2]);if(bytes.length>2*1024*1024)return {ok:false,message:'ছবিটি 2 MB-এর বেশি; ছোট ছবি নির্বাচন করুন।'};
   const ext=(match[1].split('/')[1]||'jpeg').replace(/[^a-zA-Z0-9]/g,'').toLowerCase();
-  const safeName=String(fileName||personId).replace(/[\\/:*?"<>|]/g,'_').slice(0,90);
+  const safeName=String(fileName||personId).replace(/\\/g,'_').replace(/[\/:*?"<>|]/g,'_').slice(0,90);
   const blob=Utilities.newBlob(bytes,match[1],safeName+'-'+Date.now()+'.'+ext);
   const file=institutionPhotoFolder2026_().createFile(blob);try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
   return {ok:true,url:'https://drive.google.com/uc?export=view&id='+encodeURIComponent(file.getId()),fileId:file.getId()};
