@@ -1146,7 +1146,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     <div class="login-tools">
       <select id="loginLang" class="field" onchange="setLang(this.value)"><option value="bn">বাংলা</option><option value="ar">العربية</option><option value="en">English</option><option value="ur">اردو</option></select>
       <span id="loginDateTime" class="loginDateTime">সময় ০০:০০:০০ • ১৬ সেপ্টেম্বর ২০২৬</span>
-      <div class="tools-right"><select id="loginMode20261017" class="field jb-mode-select-20261017" aria-label="মোড নির্বাচন" onchange="setMode(this.value)"><option value="offwhite">🤍 অফ হোয়াইট</option><option value="dark">🌙 ডার্ক</option><option value="light">☀️ লাইট</option><option value="gold">🟡 গোল্ডেন</option></select></div>
+      <div class="tools-right"></div>
     </div>
     <div class="login-auth-qr-802268e">
       <div class="login-auth-802268e">
@@ -1240,9 +1240,12 @@ body.gold #loginContactStrip20261013{background:#fff9e7!important;color:#4a3300!
   <div id="topActionBar" class="top-action-bar">
     <button class="primary header-home-final" onclick="goHome()" title="Home">🏠 হোম</button>
     <div class="header-modes header-mode-icons">
-      <button class="mode" onclick="setMode('dark')" title="Dark">🌙</button>
-      <button class="mode" onclick="setMode('light')" title="Light">☀️</button>
-      <button class="mode" onclick="setMode('gold')" title="Golden">🟡</button>
+      <select id="dashboardMode20261017" class="field jb-mode-select-20261017 dashboard-mode-select-20261017" aria-label="ড্যাশবোর্ড থিম নির্বাচন" title="থিম নির্বাচন" onchange="setMode(this.value)">
+        <option value="dark">🌙 ডার্ক</option>
+        <option value="light">☀️ লাইট</option>
+        <option value="gold">🟡 গোল্ডেন</option>
+        <option value="offwhite">🤍 অফ হোয়াইট</option>
+      </select>
     </div>
     <div class="header-signal-wrap">
       <select id="appSignal" class="field header-signal" onchange="syncSearchSignal('app')">
@@ -4107,6 +4110,11 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
 #app .top-action-bar .header-mode-icons{
   flex:0 0 auto!important;display:flex!important;gap:3px!important;
 }
+#app .top-action-bar .header-mode-icons .dashboard-mode-select-20261017{
+  width:124px!important;min-width:124px!important;max-width:124px!important;
+  height:42px!important;min-height:42px!important;padding:4px 7px!important;
+  font-size:13px!important;font-weight:900!important;border-radius:8px!important;
+}
 #app .top-action-bar .header-mode-icons .mode{
   width:38px!important;min-width:38px!important;height:38px!important;
   padding:2px!important;font-size:16px!important;border-radius:8px!important;
@@ -4236,6 +4244,7 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
   #app .header-mainline{grid-template-columns:max-content minmax(0,1fr) max-content!important}
 }
 @media(max-width:600px){
+  #app .top-action-bar .header-mode-icons .dashboard-mode-select-20261017{width:94px!important;min-width:94px!important;max-width:94px!important;height:30px!important;min-height:30px!important;padding:2px 3px!important;font-size:10px!important}
   #app .top-action-bar .header-mode-icons .mode{width:25px!important;min-width:25px!important;height:27px!important}
   #app .top-action-bar .header-signal-wrap{flex-basis:90px!important;min-width:75px!important}
   #app .top-action-bar .header-id-search-btn{min-width:45px!important;padding:2px 4px!important}
