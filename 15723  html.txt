@@ -15241,10 +15241,23 @@ window.jbAdmissionImportFile2026=async function(file){var fb=el('admAdmissionRed
   var w=el(winId),head=w&&w.querySelector('.win-head'),body=el(bodyId);if(!w||!head||!body||!isAdmission())return;
   var bar=el(tabsId);
   if(!bar){bar=document.createElement('div');bar.id=tabsId;bar.setAttribute('role','tablist');head.insertBefore(bar,head.firstChild)}
-  // Remove the old fullscreen/minimize/clear/close controls and legacy taskbar items for this form only.
-  head.querySelectorAll('.win-actions,.task3-window-controls,#jbAdmissionWindowControls20261012').forEach(function(x){x.remove()});
+  // Remove legacy/duplicate window controls only from the admission form window.
+  head.querySelectorAll('.win-actions,.task3-window-controls,.win-tools-2026,.win-clear-fullscreen-2026,.win-fullscreen-2026,.win-edge-arrow-2026,#jbAdmissionWindowControls20261012').forEach(function(x){x.remove()});
+  bar.querySelectorAll('.jb-adm-fullscreen,.jb-adm-minimize,.jb-adm-close-window').forEach(function(x){x.remove()});
   if(!bar.querySelector('.jb-adm-newtab')){var plus=document.createElement('button');plus.type='button';plus.className='jb-adm-newtab';plus.textContent='+ নতুন ট্যাব';plus.title='একই বারে আরেকটি স্বাধীন ভর্তি ফর্ম খুলুন';plus.onclick=addIndependentTab;bar.appendChild(plus)}
-  if(!bar.querySelector('.jb-adm-fullscreen')){var fs=document.createElement('button');fs.type='button';fs.className='jb-adm-winbtn jb-adm-fullscreen';fs.textContent='⛶';fs.title='ফুলস্ক্রিন চালু/বন্ধ';fs.onclick=fullscreen;bar.appendChild(fs)}if(!bar.querySelector('.jb-adm-minimize')){var mn=document.createElement('button');mn.type='button';mn.className='jb-adm-winbtn jb-adm-minimize';mn.textContent='—';mn.title='মিনিমাইজ';mn.onclick=minimize;bar.appendChild(mn)}if(!bar.querySelector('.jb-adm-close-window')){var close=document.createElement('button');close.type='button';close.className='jb-adm-winbtn jb-adm-close-window';close.textContent='✕';close.title='ভর্তি ফর্ম বন্ধ করুন';close.onclick=closeForm;bar.appendChild(close)}
+  // Fresh, centered toolbar. Idempotent so the observer cannot create duplicate controls.
+  var controls=head.querySelector('#jbAdmissionWindowControls20261017');
+  if(!controls){controls=document.createElement('div');controls.id='jbAdmissionWindowControls20261017';controls.setAttribute('aria-label','ভর্তি ফর্ম উইন্ডো কন্ট্রোল');head.appendChild(controls)}
+  function ensureControl(cls,label,title,action){
+    var found=controls.querySelectorAll('.'+cls);
+    for(var i=1;i<found.length;i++)found[i].remove();
+    var btn=found[0];
+    if(!btn){btn=document.createElement('button');btn.type='button';btn.className=cls;controls.appendChild(btn)}
+    btn.textContent=label;btn.title=title;btn.setAttribute('aria-label',title);btn.onclick=function(e){e.preventDefault();e.stopPropagation();action()};
+  }
+  ensureControl('jb-adm-control-min-20261017','—','মিনিমাইজ',minimize);
+  ensureControl('jb-adm-control-full-20261017','⛶','ফুল স্ক্রিন / স্বাভাবিক',fullscreen);
+  ensureControl('jb-adm-control-close-20261017','✕','ভর্তি ফর্ম বন্ধ করুন',closeForm);
   if(!wrapped){
    var pane=document.createElement('div');pane.className='jb-adm-internal-pane-20261012';pane.dataset.tabPane='admission-1';
    while(body.firstChild)pane.appendChild(body.firstChild);
@@ -16417,6 +16430,20 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
 </script>
+
+
+
+<!-- ===== FRESH CENTERED ADMISSION WINDOW CONTROLS — 2026-10-17 ===== -->
+<style id="jb-admission-centered-controls-20261017">
+#formWin:has(#admAdmissionRedesign20261011)>.win-head{position:relative!important;display:flex!important;flex-wrap:wrap!important;align-content:flex-start!important;justify-content:center!important;gap:5px!important;min-height:82px!important;padding:5px 8px!important;box-sizing:border-box!important}
+#jbAdmissionWindowControls20261017{order:1!important;flex:0 0 100%!important;width:100%!important;display:flex!important;justify-content:center!important;align-items:center!important;gap:9px!important;min-height:36px!important;margin:0 auto!important;position:relative!important;z-index:2147483647!important}
+#jbAdmissionChromeTabs20261012{order:2!important;flex:1 0 100%!important;width:100%!important;max-width:100%!important;min-height:34px!important;padding:0!important;box-sizing:border-box!important}
+#jbAdmissionWindowControls20261017 button{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:42px!important;min-width:42px!important;height:34px!important;padding:0!important;border:2px solid #d0ad43!important;border-radius:9px!important;background:#fff7dc!important;color:#17432e!important;font-weight:1000!important;cursor:pointer!important;box-shadow:0 2px 7px #0002!important}
+#jbAdmissionWindowControls20261017 .jb-adm-control-close-20261017{background:#a62929!important;color:#fff!important;border-color:#a62929!important}
+#jbAdmissionWindowControls20261017 button:hover{filter:brightness(1.05);transform:translateY(-1px)}
+@media(max-width:600px){#formWin:has(#admAdmissionRedesign20261011)>.win-head{min-height:78px!important;padding:4px!important}#jbAdmissionWindowControls20261017{gap:6px!important}}
+</style>
+<!-- ===== END FRESH CENTERED ADMISSION WINDOW CONTROLS ===== -->
 
 <!-- ===== OFF-WHITE MODE PERSISTENCE — 2026-10-17 ===== -->
 <script id="jb-offwhite-mode-init-20261017">(function(){function applySavedMode(){var m="light";try{m=localStorage.mode||"light"}catch(e){}if(typeof window.setMode==="function")window.setMode(m)}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",applySavedMode);else applySavedMode()})();</script>
