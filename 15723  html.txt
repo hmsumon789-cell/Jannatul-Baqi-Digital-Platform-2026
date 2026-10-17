@@ -16496,7 +16496,7 @@ body.offwhite #topActionBar .jb-mode-select-20261017{
   function tagLiveSummary(){
     var sum=document.getElementById('summary');if(!sum)return;
     sum.querySelectorAll('.stat').forEach(function(el){
-      var label=(el.textContent||'').replace(/\\s+/g,' ').trim();
+      var label=(el.textContent||'').replace(/\s+/g,' ').trim();
       el.classList.remove('jb-gold-square-stat-income','jb-gold-square-stat-expense','jb-gold-square-stat-present','jb-gold-square-stat-absent');
       if(label.indexOf('আয়')>=0 && label.indexOf('ব্যয়')<0)el.classList.add('jb-gold-square-stat-income');
       if(label.indexOf('ব্যয়')>=0)el.classList.add('jb-gold-square-stat-expense');
