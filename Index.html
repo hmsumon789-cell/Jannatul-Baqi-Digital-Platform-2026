@@ -15292,8 +15292,9 @@ window.jbNoticePrintList5b4=function(){var rows=notices.map(function(n){return '
   var oldRefreshReview=window.refreshAccountReview;
   var reviewHubTab='payments', reviewHubPayments=[], reviewHubStudents=[];
   function isReviewSuper(){
-    var u=window.currentUser||window.currentUserData||{};
-    var role=String(u.Role||u.role||'').toUpperCase().replace(/\\s+/g,'_');
+    if(typeof superUser==='function')return !!superUser();
+    var u=window.currentUser||window.currentUserData||window.currentUserInfo||{};
+    var role=String(u.Role||u.role||'').toUpperCase().replace(/\s+/g,'_');
     return role==='SUPER_ADMIN'||role==='SUPERADMIN';
   }
   function safeText(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
