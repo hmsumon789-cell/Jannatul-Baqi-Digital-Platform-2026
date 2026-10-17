@@ -411,9 +411,11 @@ function getOwnAccountReviewStatus(token){
     const session=auth_(token);
     const type=session.accountType==='madrasa'?'madrasa':'admin';
     const sheetName=type==='madrasa'?SHEETS.MADRASAS:SHEETS.ADMINS;
+    // Ensure review headers exist BEFORE reading the row so ReviewStatus/ReviewNote
+    // are included in the returned object even on the first click.
+    ensureAccountReviewColumns_();
     const row=findBy_(sheetName,'Username',session.username)||{};
     if(!row.Username)return {ok:false,message:'নিজের Account তথ্য পাওয়া যায়নি।'};
-    ensureAccountReviewColumns_();
     return {ok:true,type:type,id:type==='madrasa'?row.MadrasaID:row.AdminID,name:row.Name||row.NameBN||'',status:String(row.Status||'PENDING').toUpperCase(),reviewStatus:String(row.ReviewStatus||''),reviewNote:String(row.ReviewNote||''),mobile:row.Mobile||'',address:row.Address||'',username:row.Username};
   }catch(e){return {ok:false,message:'নিজের Account অবস্থা পাওয়া যায়নি: '+String(e&&e.message||e)};}
 }
