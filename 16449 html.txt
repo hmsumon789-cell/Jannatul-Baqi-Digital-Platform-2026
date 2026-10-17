@@ -1526,7 +1526,8 @@ $('formWin').classList.remove('minimized');
 $('formWin').style.height='';
 openWindow('formWin');
 if(key==='gallery')setTimeout(function(){loadPhotoGalleryData2026();},60);
-setTimeout(function(){clearFormWindow(false);},0);
+if(key==='institution')setTimeout(function(){loadInstitutionProfile2026();},60);
+if(key!=='institution')setTimeout(function(){clearFormWindow(false);},0);
 }
 function locationField(id,label,options){
   return `<label>${label} / Dropdown<select id="${id}Select" class="field"><option value="">নির্বাচন করুন</option>${options.map(x=>`<option>${x}</option>`).join('')}</select><input id="${id}Manual" class="field" placeholder="হাতে লিখুন"></label>`;
