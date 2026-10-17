@@ -410,6 +410,21 @@ body.gold .dashboard-side .module,body.gold .dashboard-slider-title,body.gold .c
 .dashboard-charts{grid-template-columns:repeat(2,1fr)!important;gap:8px!important;margin-top:8px!important;}
 @media(max-width:800px){.dashboard-side{grid-template-columns:1fr!important;grid-auto-rows:56px!important}.dashboard-side .module{height:56px!important;min-height:56px!important;max-height:56px!important}.dashboard-slider .media-stage{height:250px!important;min-height:250px!important;max-height:250px!important}.dashboard-summary{grid-template-columns:repeat(2,1fr)!important}.dashboard-charts{grid-template-columns:1fr!important}}
 
+
+/* Institution profile & per-person photo controls — 2026 */
+.institution-profile-2026{display:flex;flex-direction:column;gap:14px}
+.institution-profile-2026 .inst-history-card,.institution-profile-2026 .inst-group{background:var(--panel,#fff);border:2px solid #c79a28;border-radius:14px;padding:12px}
+.institution-profile-2026 .inst-history-card textarea{width:100%;min-height:115px;resize:vertical}
+.institution-profile-2026 .inst-group h4{margin:0 0 10px;color:var(--accent,#8b5e00)}
+.institution-profile-2026 .inst-person-row{display:grid;grid-template-columns:86px minmax(180px,1fr) minmax(150px,220px);align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #d6bd78}
+.institution-profile-2026 .inst-person-row:last-child{border-bottom:0}
+.institution-profile-2026 .inst-person-photo{width:78px;height:78px;border:2px solid #c79a28;border-radius:10px;object-fit:cover;background:#fff8df}
+.institution-profile-2026 .inst-person-name{width:100%;min-width:0}
+.institution-profile-2026 .inst-photo-input{width:100%;font-size:12px}
+.institution-profile-2026 .inst-actions{display:flex;gap:8px;flex-wrap:wrap}
+.institution-profile-2026 .inst-actions button{border:2px solid #c79a28;border-radius:9px;padding:9px 13px;font-weight:800}
+.institution-profile-2026 .inst-photo-status{font-size:12px;color:var(--accent,#8b5e00);margin-top:3px}
+@media(max-width:650px){.institution-profile-2026 .inst-person-row{grid-template-columns:64px minmax(0,1fr);gap:8px}.institution-profile-2026 .inst-person-photo{width:60px;height:60px}.institution-profile-2026 .inst-photo-controls{grid-column:2}.institution-profile-2026 .inst-photo-input{font-size:11px}}
 </style>
 
 <style id="dashboard-refined-04">
@@ -1549,7 +1564,7 @@ if(k==='admin')return `<div class="form-grid"><label>Username<input id="aUser" c
 if(k==='madrasa')return `<div class="form-grid"><label>Username<input id="mUser" class="field" required></label><label>Password<input id="mPass" class="field" type="password" required></label><label>Email<input id="mEmail" class="field" type="email" required></label><label>Mobile<input id="mMobile" class="field" required></label><label class="full">মাদ্রাসার নাম<input id="mName" class="field" required></label><label>প্রতিষ্ঠা সন<input id="mYear" class="field" required></label><label class="full">ঠিকানা<textarea id="mAddress" class="field" required></textarea></label><label class="full">মাদ্রাসার ফটো<input id="mPhoto" class="field" type="file" accept="image/*" required></label></div><button class="primary" type="button" onclick="saveMadrasaRegistration()">📄 পেজ তৈরি করুন</button>`;
 if(k==='gallery')return `<div class="media-upload-note"><b>ফটো:</b> সর্বোচ্চ 20 MB, 100টি। <b>ভিডিও:</b> সর্বোচ্চ 50 MB, 20টি। <b>অডিও:</b> সর্বোচ্চ 50 MB, 50টি।<br><b>ছবির গোপনীয়তা:</b> পাবলিক ছবি সবাই দেখবে; অ্যাডমিন-শুধু ছবি কেবল গ্যালারী-অনুমোদিত অ্যাডমিন দেখবে। ভিডিও/অডিওর বর্তমান ব্যবস্থা অপরিবর্তিত।</div><div class="form-grid"><label>নতুন ফটোর অনুমতি<select id="mediaVisibility" class="field"><option value="public">🌐 পাবলিক — সবাই দেখতে পারবে</option><option value="admin">🔒 অ্যাডমিন-শুধু</option></select></label><label>ফটো/ভিডিও/অডিও নির্বাচন<input id="mediaFiles" class="field" type="file" multiple accept="image/*,video/*,audio/*"></label></div><div class="photo-gallery-tools-2026"><button class="primary" type="button" onclick="uploadMedia()">⬆ আপলোড</button><button class="secondary" type="button" onclick="openPublicPhotoGallery2026()">🌐 পাবলিক গ্যালারী খুলুন</button></div><h3>📸 ফটো গ্যালারী — গ্রিড</h3><label>ছবি ফিল্টার <select id="photoGalleryFilter2026" class="field" onchange="renderPhotoGalleryGrid2026()"><option value="all">সব অনুমোদিত ছবি</option><option value="public">পাবলিক ছবি</option><option value="admin">অ্যাডমিন-শুধু ছবি</option></select></label><div id="photoGalleryGrid2026" class="photo-gallery-grid-2026"></div><h3>📂 মিডিয়া তালিকা</h3><div id="mediaList"></div>`;
 if(k==='help')return `<button class="primary" onclick="openWindow('quickWin')">দ্রুত সেবা / হেল্প</button>`;
-if(k==='institution')return `<h3>প্রতিষ্ঠানের সংক্ষিপ্ত ইতিহাস</h3><p>সালাতুল এস্তেখারার মাধ্যমে মহান আল্লাহ তায়ালার উপর পূর্ণ আস্থা রেখে খালেছ নিয়তে মানব জাতিকে অন্ধকার থেকে আলোর পথে আনার জন্য এবং সহি দ্বিনি ইলম শিক্ষা দেয়ার উদ্দেশ্যে 10-10-2005 ইংরেজী সনে প্রতিষ্ঠিত হয়।</p><p><b>প্রতিষ্ঠাতা-প্রিন্সিপাল/মুহতামিম:</b> জনাব হাফেজ হযরত মাওলানা মু. আতিকুর রহমান (ফরিদপুরী), ২০০৫ হতে ২০২৬ চলমান।</p>`;
+if(k==='institution')return institutionProfileFormHtml2026();
 if(k==='finance')return window.financeFormHtml2026();
  if(['payment','fees'].includes(k))return `<div class="payment-online-head"><b>🌐 অনলাইন পেমেন্ট</b><span>ডিজিটাল প্লাটফর্ম / সার্ভারে পেমেন্ট কার্যক্রম চলমান</span></div><div class="form-grid"><label>Student ID<input id="pStudent" class="field" onblur="lookupOnlinePaymentStudent()"></label><label>নাম<input id="pName" class="field" readonly></label><label>শ্রেণি/জামাত<input id="pClass" class="field" readonly></label><label>মোবাইল<input id="pMobile" class="field" readonly></label><label>মাস<select id="pMonth" class="field"><option>জানুয়ারি</option><option>ফেব্রুয়ারি</option><option>মার্চ</option><option>এপ্রিল</option><option>মে</option><option>জুন</option><option>জুলাই</option><option>আগস্ট</option><option>সেপ্টেম্বর</option><option>অক্টোবর</option><option>নভেম্বর</option><option>ডিসেম্বর</option></select></label><label>Category<select id="pCat" class="field"><option>মাসিক বেতন</option><option>ভর্তি ফি</option><option>পরীক্ষার ফি</option><option>অন্যান্য</option></select></label><label>Amount<input id="pAmount" class="field" type="number" min="1"></label><label>পেমেন্টের ধরন<select id="pMode" class="field" onchange="updatePaymentModeUI()"><option value="QUICK">দ্রুত পেমেন্ট</option><option value="PENDING">Pending + অনুমোদন</option></select></label><label>মাধ্যম<select id="pMethod" class="field" onchange="updatePaymentMethodLogo()"><option>bKash</option><option>Nagad</option><option>mCash</option><option>Rocket</option><option>ব্যাংকিং</option><option>হ্যান্ড ক্যাশ</option></select></label><label>Transaction / Reference ID<input id="pReference" class="field"></label><label>প্রদানকারীর মোবাইল<input id="pPayerMobile" class="field"></label><label class="full">Note<textarea id="pNote" class="field"></textarea></label></div><div id="paymentMethodLogo" class="payment-method-box"><div class="payment-method-logo payment-logo-bk">bK</div><div class="payment-method-name">bKash</div></div><div id="paymentFeedback" class="payment-feedback">মাধ্যম নির্বাচন করলে সংশ্লিষ্ট পেমেন্ট মাধ্যমের পরিচিতি দেখাবে।</div><div id="onlinePaymentStudentInfo" class="card" style="padding:9px;margin:8px 0;display:none"></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="primary" type="button" onclick="savePayment()">📤 পেমেন্ট দিন</button><button class="secondary" type="button" onclick="openPendingPayments()">📋 Pending পেমেন্ট / লেনদেন</button></div><div class="card" style="margin-top:12px;padding:12px"><b>🧾 আগের মানি রসিদ খুঁজুন</b><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><input id="onlinePaymentReceiptSearchId" class="field" style="flex:1;min-width:220px" placeholder="Receipt ID (RCT-OP-...) অথবা Student ID (যেমন 7777)"><button class="secondary" type="button" onclick="searchOnlinePaymentReceipt()">🔎 সার্চ</button></div><div id="onlinePaymentReceiptSearchMessage" class="small" style="margin-top:6px"></div></div>`;
 if(k==='admission')return `<div class="card" style="margin:0 0 12px;padding:12px;border:1px solid #c8b27b"><button type="button" class="secondary" onclick="openOldStudentImport2026();return false;">📚 ছাত্র/ছাত্রী অ্যাড করুন</button><div id="oldStudentImportPanel2026" style="display:none;margin-top:12px"><p class="small">পুরাতন শিক্ষার্থীদের Excel, CSV, TXT বা DOCX ফাইল থেকে যোগ করুন। একই নাম/মোবাইল থাকলেও রেকর্ড বাদ দেওয়া হবে না।</p><div class="form-grid"><label>শিক্ষাবর্ষ<select id="oldStudentYear2026" class="field" required onchange="oldStudentImportSelectionChanged2026()"><option value="">শিক্ষাবর্ষ নির্বাচন করুন</option>`+Array.from({length:46},(_,i)=>{const y=2005+i;return `<option value="${y}/${y+1}">${y}/${y+1}</option>`}).join('')+`</select></label><label>শ্রেণি/জামাত<select id="oldStudentClass2026" class="field" required onchange="oldStudentImportSelectionChanged2026()"><option value="">শ্রেণি/জামাত নির্বাচন করুন</option><option>প্লে শ্রেনি</option><option>শিশু শ্রেনি</option><option>আউয়াল জামাত</option><option>ছানী জামাত</option><option>ছালেছ জামাত</option><option>রাবে জামাত</option><option>পঞ্চম জামাত</option><option>মিজান জামাত</option><option>নাহবেমীর জামাত</option><option>কুদুরী জামাত</option><option>শরহে বেকায়া জামাত</option><option>হেদায়া জামাত</option><option>মিশকাত জামাত</option><option>দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)</option></select></label><label class="full" style="display:block!important;color:#171717!important;font-weight:700">কম্পিউটার থেকে Excel / CSV / TXT / DOCX ফাইল নির্বাচন করুন<input id="oldStudentFile2026" class="field" style="display:block!important;visibility:visible!important;opacity:1!important;width:100%!important;min-height:48px!important;margin-top:8px;padding:10px!important;background:#fff!important;color:#111!important;border:2px solid #8b6b19!important" type="file" accept=".xlsx,.xls,.csv,.txt,.docx" required onchange="previewOldStudentFile2026(this)"></label></div><button type="button" class="primary" onclick="importOldStudents2026()">⬆️ পুরাতন শিক্ষার্থী যোগ করুন</button><div id="oldStudentImportStatus2026" class="small" style="margin-top:8px;white-space:pre-wrap" aria-live="polite"></div><div id="oldStudentPreviewWrap2026" style="margin-top:12px;max-width:100%;overflow:auto"></div></div></div><div class="student-meta-row-2026">`+''+`<label>আইডি লিখুন<input id="adStudentID" class="field"></label><label>তারিখ লিখুন<input id="adRecordDate" class="field" type="date"></label></div><div class="form-grid">
@@ -16720,5 +16735,68 @@ body.offwhite .media-stage {
   wrappedOpenModule.__jbPaymentHeaderWrapped=true;
   window.openModule=wrappedOpenModule;
 })();
+
+const INSTITUTION_HISTORY_DEFAULT_2026 = 'প্রতিষ্ঠানটি সালাতুল এস্তেখারার মাধ্যমে মহান আল্লাহ তায়ালার উপর পূর্ণ আস্থা রেখে খালেছ নিয়তে মানব জাতিকে অন্ধকার থেকে আলোর পথে আনার জন্য এবং সহি দ্বিনি ইলম শিক্ষা দেয়ার উদ্দেশ্যে 10-10-2005 ইংরেজী সনে প্রতিষ্ঠিত হয়।';
+const INSTITUTION_PEOPLE_2026 = [
+ {id:'founder1',group:'প্রতিষ্ঠাতা সদস্য',name:'হাফেজ মাওলানা মু. আতিকুর রহমান (ফরিদপুরী)'},
+ {id:'founder2',group:'প্রতিষ্ঠাতা সদস্য',name:'হাফেজ মাওলানা হেদায়েত উল্লাহ (মানিকগঞ্জি)'},
+ {id:'founder3',group:'প্রতিষ্ঠাতা সদস্য',name:'আলেমা মোসা: মুসলিমা আক্তার শাহিনুর'},
+ {id:'founder4',group:'প্রতিষ্ঠাতা সদস্য',name:'আলেমা মোসা: তাসলিমা আক্তার'},
+ {id:'adviser1',group:'উপদেষ্টা মণ্ডলী',name:'মুজাহিদে মিল্লাত আলহাজ্ব হাফেজ মাওলানা আল্লামা মুফতি ফজলুল হক আমিনি দা:বা:'},
+ {id:'adviser2',group:'উপদেষ্টা মণ্ডলী',name:'নিরব বযুর্গ আলহাজ হযরত মাওলানা আব্দুর রব (মদিনা হুজুর)'},
+ {id:'adviser3',group:'উপদেষ্টা মণ্ডলী',name:'আলহাজ্ব হযরত মাওলানা আব্দুল গফুর (ফরিদপুরী)'},
+ {id:'adviser4',group:'উপদেষ্টা মণ্ডলী',name:'আলহাজ্ব হাফেজ হযরত মাওলানা সানাউল্লাহ সাহেব'},
+ {id:'principal1',group:'প্রতিষ্ঠাতা-প্রিন্সিপাল / মুহতামিম',name:'জনাব হাফেজ হযরত মাওলানা মু. আতিকুর রহমান (ফরিদপুরী) — ২০০৫ থেকে বর্তমান ২০২৬'},
+ {id:'headteacher1',group:'প্রধান শিক্ষিকা',name:'আলেমা মোসা: রোকেয়া রহমান, পিতা: হাফেজ মো: তোফাজ্জল হোসেন — ২০০৮ থেকে বর্তমান ২০২৬'},
+ {id:'donor1',group:'দাতা সদস্য',name:'আলহাজ্ব হযরত মাওলানা আব্দুল গফুর (ফরিদপুরী)'},
+ {id:'donor2',group:'দাতা সদস্য',name:'মোসা: সাহিদা বেগম'},
+ {id:'donor3',group:'দাতা সদস্য',name:'মাওলানা আনোয়ারুল করিম'},
+ {id:'donor4',group:'দাতা সদস্য',name:'হাফেজ মিজানুর রহমান সিদ্দিকি'}
+];
+function institutionHtmlEscape2026(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function institutionProfileFormHtml2026(){
+ const groups=[...new Set(INSTITUTION_PEOPLE_2026.map(p=>p.group))];
+ return `<div class="institution-profile-2026">
+  <div class="inst-history-card"><h3>🏫 প্রতিষ্ঠান পরিচিতি + মাদ্রাসার সংক্ষিপ্ত ইতিহাস</h3>
+   <label>প্রতিষ্ঠানের ইতিহাস<textarea id="institutionHistory2026" class="field">${institutionHtmlEscape2026(INSTITUTION_HISTORY_DEFAULT_2026)}</textarea></label>
+   <p class="small">প্রত্যেক ব্যক্তির নামের বামে নিজস্ব ছবি নির্বাচন করুন; এরপর সংরক্ষণ বাটনে চাপুন।</p>
+  </div>
+  ${groups.map(g=>`<section class="inst-group"><h4>${institutionHtmlEscape2026(g)}</h4><div>${INSTITUTION_PEOPLE_2026.filter(p=>p.group===g).map(p=>`<div class="inst-person-row" data-inst-person="${p.id}">
+   <img id="instPhoto-${p.id}" class="inst-person-photo" alt="ব্যক্তির ছবি" src="" onerror="this.style.visibility='hidden'">
+   <label>নাম / পরিচিতি<input class="field inst-person-name" id="instName-${p.id}" value="${institutionHtmlEscape2026(p.name)}"></label>
+   <div class="inst-photo-controls"><label>নিজস্ব ছবি নির্বাচন<input class="field inst-photo-input" type="file" accept="image/*" id="instFile-${p.id}" onchange="previewInstitutionPhoto2026('${p.id}',this)"></label><div class="inst-photo-status" id="instStatus-${p.id}">ছবি নির্বাচন করা হয়নি</div></div>
+  </div>`).join('')}</div></section>`).join('')}
+  <div class="inst-actions"><button class="primary" type="button" onclick="loadInstitutionProfile2026()">↻ সংরক্ষিত তথ্য/ছবি দেখুন</button><button class="primary" type="button" onclick="saveInstitutionProfile2026()">💾 সব তথ্য ও ছবি সংরক্ষণ করুন</button></div>
+  <div id="institutionProfileMessage2026" class="small" role="status"></div>
+ </div>`;
+}
+function compressInstitutionPhoto2026(file){
+ return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onerror=()=>reject(new Error('ছবিটি পড়া যায়নি'));reader.onload=()=>{const img=new Image();img.onerror=()=>reject(new Error('ছবির ফরম্যাট পড়া যায়নি'));img.onload=()=>{const max=640,scale=Math.min(1,max/Math.max(img.width,img.height));const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0,canvas.width,canvas.height);resolve(canvas.toDataURL('image/jpeg',0.76));};img.src=reader.result;};reader.readAsDataURL(file);});
+}
+async function previewInstitutionPhoto2026(id,input){
+ const file=input&&input.files&&input.files[0],status=$('instStatus-'+id),img=$('instPhoto-'+id);if(!file)return;
+ if(!/^image\//i.test(file.type)){if(status)status.textContent='শুধু ছবি নির্বাচন করুন';input.value='';return;}
+ try{const data=await compressInstitutionPhoto2026(file);input.dataset.photoDataUrl=data;if(img){img.src=data;img.style.visibility='visible';}if(status)status.textContent='ছবি প্রস্তুত — সংরক্ষণ বাটনে চাপুন';}catch(e){if(status)status.textContent='ছবি প্রস্তুত করা যায়নি: '+(e.message||e);}
+}
+async function loadInstitutionProfile2026(){
+ const msg=$('institutionProfileMessage2026');if(msg)msg.textContent='তথ্য লোড হচ্ছে…';
+ try{const r=await call('getInstitutionProfile2026',token);if(!r||!r.ok)throw new Error(r&&r.message||'তথ্য লোড হয়নি');
+  if($('institutionHistory2026')&&r.history)$('institutionHistory2026').value=r.history;
+  (r.people||[]).forEach(p=>{const n=$('instName-'+p.id),im=$('instPhoto-'+p.id),st=$('instStatus-'+p.id);if(n&&p.name)n.value=p.name;if(im&&p.photoUrl){im.src=p.photoUrl;im.dataset.savedUrl=p.photoUrl;im.style.visibility='visible';}if(st&&p.photoUrl)st.textContent='সংরক্ষিত ছবি';});
+  if(msg)msg.textContent='সংরক্ষিত তথ্য ও ছবি লোড হয়েছে।';
+ }catch(e){if(msg)msg.textContent='লোড করা যায়নি: '+(e.message||e);}
+}
+async function saveInstitutionProfile2026(){
+ const msg=$('institutionProfileMessage2026');if(msg)msg.textContent='তথ্য ও ছবি সংরক্ষণ হচ্ছে…';
+ try{const people=[];
+  for(const p of INSTITUTION_PEOPLE_2026){const n=$('instName-'+p.id),input=$('instFile-'+p.id),status=$('instStatus-'+p.id),img=$('instPhoto-'+p.id);let photoUrl=img&&img.dataset.savedUrl?img.dataset.savedUrl:'';
+   if(input&&input.dataset.photoDataUrl){if(status)status.textContent='ছবি আপলোড হচ্ছে…';const r=await call('saveInstitutionPhoto2026',token,p.id,input.dataset.photoDataUrl,(input.files[0]&&input.files[0].name)||p.id+'.jpg','image/jpeg');if(!r||!r.ok)throw new Error((n&&n.value||p.name)+' ছবিটি সংরক্ষণ হয়নি: '+(r&&r.message||'অজানা ত্রুটি'));photoUrl=r.url||'';if(img){img.dataset.savedUrl=photoUrl;img.src=photoUrl;img.style.visibility='visible';}input.dataset.photoDataUrl='';if(status)status.textContent='ছবি সংরক্ষিত';}
+   people.push({id:p.id,group:p.group,name:n?n.value:p.name,photoUrl:photoUrl});
+  }
+  const r=await call('saveInstitutionProfile2026',token,{history:$('institutionHistory2026')?$('institutionHistory2026').value:INSTITUTION_HISTORY_DEFAULT_2026,people:people});
+  if(!r||!r.ok)throw new Error(r&&r.message||'তথ্য সংরক্ষণ হয়নি');if(msg)msg.textContent='প্রতিষ্ঠান পরিচিতি, সকল নাম ও ছবি সংরক্ষিত হয়েছে।';if(typeof toast==='function')toast('প্রতিষ্ঠান পরিচিতি সংরক্ষণ হয়েছে');
+ }catch(e){if(msg)msg.textContent='সংরক্ষণ সম্পূর্ণ হয়নি: '+(e.message||e);}
+}
+
 </script>
 
