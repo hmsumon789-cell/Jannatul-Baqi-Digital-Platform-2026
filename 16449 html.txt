@@ -16466,3 +16466,71 @@ body.gold .dashboard-slider #dashboardCharts .chart-card[style]{
   border-radius:0!important;
 }
 </style>
+
+<!-- OFF-WHITE MODE: animated multicolor borders for boxes; isolated from other themes -->
+<style id="offwhite-rainbow-module-borders-2026-10-17">
+@property --jb-offwhite-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+@keyframes jbOffwhiteRainbowBorder {
+  from { --jb-offwhite-angle: 0deg; }
+  to   { --jb-offwhite-angle: 360deg; }
+}
+body.offwhite .card,
+body.offwhite .module,
+body.offwhite .module-box,
+body.offwhite .feature-box,
+body.offwhite .quick-box,
+body.offwhite .stat,
+body.offwhite .panel,
+body.offwhite .window,
+body.offwhite .form-window,
+body.offwhite .login,
+body.offwhite .login-box,
+body.offwhite .login-panel,
+body.offwhite .control-box,
+body.offwhite .search-box,
+body.offwhite .media-window,
+body.offwhite .table-wrap,
+body.offwhite .dashboard,
+body.offwhite .header,
+body.offwhite .login-page,
+body.offwhite .content,
+body.offwhite .slider,
+body.offwhite .media-stage {
+  border: 3px solid transparent !important;
+  background:
+    linear-gradient(var(--panel, #fffdf7), var(--panel, #fffdf7)) padding-box,
+    conic-gradient(from var(--jb-offwhite-angle), #ef6b73, #f3b544, #76c7a5, #55b9dc, #8d7ce8, #e978b5, #ef6b73) border-box !important;
+  animation: jbOffwhiteRainbowBorder 5s linear infinite !important;
+  box-shadow: 0 8px 24px rgba(110,88,120,.16) !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  body.offwhite .card,
+  body.offwhite .module,
+  body.offwhite .module-box,
+  body.offwhite .feature-box,
+  body.offwhite .quick-box,
+  body.offwhite .stat,
+  body.offwhite .panel,
+  body.offwhite .window,
+  body.offwhite .form-window,
+  body.offwhite .login,
+  body.offwhite .login-box,
+  body.offwhite .login-panel,
+  body.offwhite .control-box,
+  body.offwhite .search-box,
+  body.offwhite .media-window,
+  body.offwhite .table-wrap,
+  body.offwhite .dashboard,
+  body.offwhite .header,
+  body.offwhite .login-page,
+  body.offwhite .content,
+  body.offwhite .slider,
+  body.offwhite .media-stage {
+    animation-duration: 12s !important;
+  }
+}
+</style>
