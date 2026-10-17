@@ -16656,3 +16656,67 @@ body.offwhite .media-stage {
   }
 }
 </style>
+
+
+<!-- ONLINE PAYMENT FORM: INSTITUTION HEADER + MAIN QR + RUNNING NEWS -->
+<style id="online-payment-institution-header-css-20261017">
+#winBody .online-payment-institution-header-20261017{display:grid;grid-template-columns:86px minmax(0,1fr) 86px;gap:12px;align-items:center;padding:12px;margin:0 0 12px;border:2px solid var(--border,#b88408);border-radius:14px;background:var(--panel,#fff);color:var(--text,#222);box-sizing:border-box}
+#winBody .online-payment-institution-header-20261017 .opih-logo,#winBody .online-payment-institution-header-20261017 .opih-qr{display:block;width:82px;height:82px;object-fit:contain;background:#fff;border:2px solid #b88408;border-radius:10px;box-sizing:border-box}
+#winBody .online-payment-institution-header-20261017 .opih-center{text-align:center;min-width:0}
+#winBody .online-payment-institution-header-20261017 .opih-bn{font-size:clamp(17px,2vw,24px);font-weight:1000;line-height:1.35}
+#winBody .online-payment-institution-header-20261017 .opih-ar{font-size:clamp(17px,1.9vw,23px);font-weight:900;line-height:1.5;direction:rtl}
+#winBody .online-payment-institution-header-20261017 .opih-en{font-size:clamp(13px,1.5vw,18px);font-weight:900;line-height:1.4}
+#winBody .online-payment-institution-header-20261017 .opih-address{font-size:14px;font-weight:800;line-height:1.5;margin-top:4px}
+#winBody .online-payment-institution-header-20261017 .opih-hotline{font-size:15px;font-weight:1000;margin-top:3px}
+#winBody .online-payment-institution-header-20261017 .opih-qr-label{text-align:center;font-size:12px;font-weight:900;margin-top:3px}
+#winBody .online-payment-news-20261017{margin:0 0 12px;padding:9px 12px;min-height:40px;overflow:hidden;border:2px solid #b88408;border-radius:999px;background:linear-gradient(90deg,#b77b00,#f4d56b,#b77b00);color:#201500;font-weight:900;white-space:nowrap}
+#winBody .online-payment-news-20261017 .opih-news-text{display:inline-block;min-width:100%;animation:opihNewsRun20261017 20s linear infinite}
+@keyframes opihNewsRun20261017{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
+body.dark #winBody .online-payment-institution-header-20261017{background:#211818;color:#fff;border-color:#ffcc33}
+body.gold #winBody .online-payment-institution-header-20261017{background:#fff7d8;color:#4a3300;border-color:#b88408}
+@media(max-width:620px){#winBody .online-payment-institution-header-20261017{grid-template-columns:58px minmax(0,1fr) 58px;gap:6px;padding:8px}#winBody .online-payment-institution-header-20261017 .opih-logo,#winBody .online-payment-institution-header-20261017 .opih-qr{width:56px;height:56px}#winBody .online-payment-institution-header-20261017 .opih-address{font-size:12px}#winBody .online-payment-institution-header-20261017 .opih-hotline{font-size:13px}}
+</style>
+<script id="online-payment-institution-header-js-20261017">
+(function(){
+  if(window.__onlinePaymentHeaderPatch20261017)return;
+  window.__onlinePaymentHeaderPatch20261017=true;
+  var originalOpenModule=window.openModule;
+  if(typeof originalOpenModule!=='function')return;
+  function safeText(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function addPaymentHeader(){
+    var body=document.getElementById('winBody');
+    if(!body||body.querySelector('#online-payment-institution-header-20261017'))return;
+    var logoSource=document.getElementById('loginContactLogo20261013')||document.getElementById('loginLogo')||document.getElementById('headerLogo');
+    var qrSource=document.getElementById('loginContactQR20261013');
+    var logoSrc=logoSource?(logoSource.getAttribute('src')||logoSource.src||''):'';
+    var qrSrc=qrSource?(qrSource.getAttribute('src')||qrSource.src||''):'';
+    if(!logoSrc||logoSrc==='about:blank')logoSrc='';
+    if(!qrSrc||qrSrc==='about:blank'||qrSrc.indexOf('data:,')===0)qrSrc='';
+    var newsSource=document.querySelector('#loginPage .ticker-text')||document.querySelector('#app .ticker-text');
+    var newsText=newsSource?(newsSource.textContent||'').trim():'জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম';
+    var header=document.createElement('section');
+    header.id='online-payment-institution-header-20261017';
+    header.className='online-payment-institution-header-20261017';
+    header.innerHTML='<div><img class="opih-logo" alt="মাদ্রাসার লোগো" '+(logoSrc?'src="'+safeText(logoSrc)+'"':'')+'></div>'+
+      '<div class="opih-center"><div class="opih-bn">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div><div class="opih-ar">المدرسة الجنة الباقية للبنات ودار الايتام</div><div class="opih-en">Jannatul Baky Mohila Madrasha &amp; Eatimkhana</div><div class="opih-address">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div><div class="opih-hotline">☎ হটলাইন: 01823316630</div></div>'+
+      '<div><img class="opih-qr" alt="মূল পেজের QR কোড" '+(qrSrc?'src="'+safeText(qrSrc)+'"':'')+'><div class="opih-qr-label">মূল পেজ QR</div></div>';
+    var news=document.createElement('div');
+    news.className='online-payment-news-20261017';
+    news.innerHTML='<span class="opih-news-text">📢 '+safeText(newsText)+'</span>';
+    body.insertBefore(news,body.firstChild);
+    body.insertBefore(header,body.firstChild);
+    if(!qrSrc&&typeof call==='function'){
+      Promise.resolve().then(function(){return call('getMainWebAppUrl');}).then(function(r){
+        var url=r&&r.url?r.url:(typeof r==='string'?r:'');
+        var img=header.querySelector('.opih-qr');
+        if(url&&img)img.src='https://quickchart.io/qr?size=220&margin=2&text='+encodeURIComponent(String(url).trim());
+      }).catch(function(){});
+    }
+  }
+  window.openModule=function(key){
+    var result=originalOpenModule.apply(this,arguments);
+    if(key==='payment'||key==='fees')setTimeout(addPaymentHeader,0);
+    return result;
+  };
+})();
+</script>
