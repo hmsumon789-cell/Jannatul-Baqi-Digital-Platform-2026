@@ -1240,9 +1240,12 @@ body.gold #loginContactStrip20261013{background:#fff9e7!important;color:#4a3300!
   <div id="topActionBar" class="top-action-bar">
     <button class="primary header-home-final" onclick="goHome()" title="Home">🏠 হোম</button>
     <div class="header-modes header-mode-icons">
-      <button class="mode" onclick="setMode('dark')" title="Dark">🌙</button>
-      <button class="mode" onclick="setMode('light')" title="Light">☀️</button>
-      <button class="mode" onclick="setMode('gold')" title="Golden">🟡</button>
+      <select id="dashboardMode20261017" class="field jb-mode-select-20261017" aria-label="মোড নির্বাচন" onchange="setMode(this.value)">
+        <option value="offwhite">🤍 অফ হোয়াইট</option>
+        <option value="dark">🌙 ডার্ক</option>
+        <option value="light">☀️ লাইট</option>
+        <option value="gold">🟡 গোল্ডেন</option>
+      </select>
     </div>
     <div class="header-signal-wrap">
       <select id="appSignal" class="field header-signal" onchange="syncSearchSignal('app')">
@@ -1453,7 +1456,17 @@ function fillFeatureSelect(){const s=$('featureSelect');modules.forEach(m=>{cons
 function renderStats(x){
   const arr=[['আয়',x.income],['ব্যয়',x.expense],['মোট ক্যাশ',x.cash],['মোট বকেয়া',x.due],['মোট ছাত্র/ছাত্রী',x.students],['মোট শিক্ষক/শিক্ষিকা',x.teachers],['নির্বাহী পরিষদ সদস্য',x.executives],['নিবন্ধিত মহিলা মাদ্রাসা',x.femaleMadrasa],['নিবন্ধিত পুরুষ মাদ্রাসা',x.maleMadrasa],['আজ উপস্থিত',x.attendanceToday.present],['আজ অনুপস্থিত',x.attendanceToday.absent]];
   $('summary').innerHTML=arr.map(a=>`<div class="stat"><b>${a[1]??0}</b>${a[0]}</div>`).join('');
-var sum=$('summary'); if(sum) sum.classList.add('dashboard-slider-summary');
+var sum=$('summary'); if(sum) {
+  sum.classList.add('dashboard-slider-summary');
+  /* Re-tag the four live boxes on every render so Golden square styling survives refreshes. */
+  sum.querySelectorAll('.stat').forEach(function(el){
+    var label=(el.textContent||'').replace(/\s+/g,' ').trim();
+    if(label.indexOf('আয়')>=0 && label.indexOf('ব্যয়')<0) el.classList.add('jb-gold-square-stat-income');
+    if(label.indexOf('ব্যয়')>=0) el.classList.add('jb-gold-square-stat-expense');
+    if(label.indexOf('আজ উপস্থিত')>=0) el.classList.add('jb-gold-square-stat-present');
+    if(label.indexOf('আজ অনুপস্থিত')>=0) el.classList.add('jb-gold-square-stat-absent');
+  });
+}
 var attendanceBox=[...sum.querySelectorAll('.stat')].find(function(el){return el.textContent.indexOf('আজ উপস্থিত')>=0;});
 if(attendanceBox){
   var exam=document.createElement('div');exam.className='stat';exam.innerHTML='<b>0</b>পরীক্ষার্থী';attendanceBox.insertAdjacentElement('afterend',exam);
@@ -16420,3 +16433,38 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 <!-- ===== OFF-WHITE MODE PERSISTENCE — 2026-10-17 ===== -->
 <script id="jb-offwhite-mode-init-20261017">(function(){function applySavedMode(){var m="light";try{m=localStorage.mode||"light"}catch(e){}if(typeof window.setMode==="function")window.setMode(m)}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",applySavedMode);else applySavedMode()})();</script>
+
+
+<!-- ===== DASHBOARD MODE SYNC + GOLDEN SQUARE LIVE STATS — 2026-10-17 ===== -->
+<style id="jb-dashboard-mode-and-gold-square-20261017">
+  #topActionBar .header-mode-icons{display:flex!important;align-items:center!important;justify-content:center!important}
+  #topActionBar #dashboardMode20261017{height:38px!important;min-width:150px!important;max-width:190px!important;margin:0!important}
+  body.gold #app #summary .stat.jb-gold-square-stat-income,
+  body.gold #app #summary .stat.jb-gold-square-stat-expense,
+  body.gold #app #summary .stat.jb-gold-square-stat-present,
+  body.gold #app #summary .stat.jb-gold-square-stat-absent{border-radius:0!important}
+  @media(max-width:600px){#topActionBar #dashboardMode20261017{min-width:118px!important;max-width:140px!important;font-size:12px!important}}
+</style>
+<script id="jb-dashboard-mode-sync-20261017">
+(function(){
+  function syncDashboardMode(){
+    var login=document.getElementById('loginMode20261017');
+    var dash=document.getElementById('dashboardMode20261017');
+    var mode=document.body.classList.contains('offwhite')?'offwhite':
+      document.body.classList.contains('gold')?'gold':
+      document.body.classList.contains('dark')?'dark':'light';
+    if(login) login.value=mode;
+    if(dash) dash.value=mode;
+  }
+  if(typeof window.setMode==='function' && !window.setMode.__jbDashboardSync20261017){
+    var original=window.setMode;
+    var wrapped=function(mode){original(mode);syncDashboardMode();};
+    wrapped.__jbDashboardSync20261017=true;
+    window.setMode=wrapped;
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',syncDashboardMode);
+  else syncDashboardMode();
+})();
+</script>
+<!-- ===== END DASHBOARD MODE SYNC + GOLDEN SQUARE LIVE STATS ===== -->
+
