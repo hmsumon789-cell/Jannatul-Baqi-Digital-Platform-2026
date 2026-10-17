@@ -16656,3 +16656,69 @@ body.offwhite .media-stage {
   }
 }
 </style>
+
+
+<!-- Payment form institutional header: isolated addition on the payment form only -->
+<style id="jb-payment-institution-header-css-20261017">
+#jbPaymentInstitutionHeader20261017{display:grid;grid-template-columns:82px minmax(0,1fr) 82px;align-items:center;gap:12px;padding:12px;margin:0 0 12px;border:2px solid var(--border,#c89b27);border-radius:14px;background:var(--panel,#fff);color:var(--text,#222);box-sizing:border-box;text-align:center}
+#jbPaymentInstitutionHeader20261017 .jb-pih-logo,#jbPaymentInstitutionHeader20261017 .jb-pih-qr{width:76px;height:76px;object-fit:contain;display:block;margin:auto;background:#fff;border:1px solid #ddd;border-radius:8px}
+#jbPaymentInstitutionHeader20261017 .jb-pih-bn{font-size:clamp(18px,2vw,26px);font-weight:1000;line-height:1.25}
+#jbPaymentInstitutionHeader20261017 .jb-pih-ar{font-size:clamp(18px,2vw,25px);font-weight:900;line-height:1.4;direction:rtl}
+#jbPaymentInstitutionHeader20261017 .jb-pih-en{font-size:clamp(14px,1.5vw,19px);font-weight:900;line-height:1.3}
+#jbPaymentInstitutionHeader20261017 .jb-pih-address{font-size:14px;font-weight:800;margin-top:4px}
+#jbPaymentInstitutionHeader20261017 .jb-pih-hotline{font-size:15px;font-weight:1000;margin-top:3px}
+#jbPaymentInstitutionHeader20261017 .jb-pih-qr-label{font-size:11px;font-weight:900;margin-top:3px}
+#jbPaymentInstitutionHeader20261017 .jb-pih-news{grid-column:1/-1;overflow:hidden;white-space:nowrap;border:2px solid #b88408;border-radius:999px;padding:8px 12px;background:linear-gradient(90deg,#b77b00,#f4d56b,#b77b00);color:#201500;font-weight:1000}
+#jbPaymentInstitutionHeader20261017 .jb-pih-news span{display:inline-block;min-width:100%;animation:jbPihNewsRun20261017 18s linear infinite}
+#jbPaymentInstitutionHeader20261017 .jb-pih-news:hover span{animation-play-state:paused}
+@keyframes jbPihNewsRun20261017{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
+@media(max-width:600px){#jbPaymentInstitutionHeader20261017{grid-template-columns:58px minmax(0,1fr) 58px;gap:6px;padding:8px}#jbPaymentInstitutionHeader20261017 .jb-pih-logo,#jbPaymentInstitutionHeader20261017 .jb-pih-qr{width:54px;height:54px}#jbPaymentInstitutionHeader20261017 .jb-pih-address{font-size:12px}#jbPaymentInstitutionHeader20261017 .jb-pih-hotline{font-size:13px}}
+</style>
+<script id="jb-payment-institution-header-js-20261017">
+(function(){
+  var oldOpenModule=window.openModule;
+  if(typeof oldOpenModule!=='function'||oldOpenModule.__jbPaymentHeaderWrapped)return;
+  function el(tag,cls,txt){var n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n;}
+  function addHeader(){
+    var body=document.getElementById('winBody');
+    if(!body||!document.getElementById('formWin'))return;
+    var old=document.getElementById('jbPaymentInstitutionHeader20261017');
+    if(old)old.remove();
+    var head=el('section','');head.id='jbPaymentInstitutionHeader20261017';
+    var logo=el('img','jb-pih-logo');logo.alt='মাদ্রাসার লোগো';
+    var logoSource=document.getElementById('loginContactLogo20261013')||document.getElementById('loginLogo')||document.getElementById('headerLogo');
+    if(logoSource)logo.src=logoSource.getAttribute('src')||logoSource.src||'';
+    var center=el('div','jb-pih-center');
+    center.appendChild(el('div','jb-pih-bn','জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা'));
+    center.appendChild(el('div','jb-pih-ar','المدرسة الجنة الباقية للبنات ودار الايتام'));
+    center.appendChild(el('div','jb-pih-en','Jannatul Baky Mohila Madrasha & Eatimkhana'));
+    center.appendChild(el('div','jb-pih-address','উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০'));
+    center.appendChild(el('div','jb-pih-hotline','☎ হটলাইন: 01823316630'));
+    var qrBox=el('div','jb-pih-qr-box');
+    var qr=el('img','jb-pih-qr');qr.alt='মূল পেজের QR কোড';
+    var qrSource=document.getElementById('loginContactQR20261013');
+    if(qrSource){var qsrc=qrSource.getAttribute('src')||'';if(qsrc&&qsrc!=='about:blank')qr.src=qsrc;}
+    qrBox.appendChild(qr);qrBox.appendChild(el('div','jb-pih-qr-label','মূল পেজের QR কোড'));
+    var news=el('div','jb-pih-news');
+    var sourceNews=document.querySelector('#loginPage .ticker-text');
+    news.appendChild(el('span','',sourceNews&&sourceNews.textContent.trim()?sourceNews.textContent.trim():'জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম'));
+    head.appendChild(logo);head.appendChild(center);head.appendChild(qrBox);head.appendChild(news);
+    body.insertBefore(head,body.firstChild);
+    function syncImages(){
+      var ls=document.getElementById('loginContactLogo20261013')||document.getElementById('loginLogo')||document.getElementById('headerLogo');
+      if(ls){var src=ls.getAttribute('src')||ls.src||'';if(src&&logo.getAttribute('src')!==src)logo.src=src;}
+      var qs=document.getElementById('loginContactQR20261013');
+      if(qs){var srcq=qs.getAttribute('src')||'';if(srcq&&srcq!=='about:blank'&&qr.getAttribute('src')!==srcq)qr.src=srcq;}
+    }
+    setTimeout(syncImages,500);setTimeout(syncImages,1400);
+  }
+  function wrappedOpenModule(key){
+    var result=oldOpenModule.apply(this,arguments);
+    if(String(key)==='payment'||String(key)==='fees')setTimeout(addHeader,0);
+    return result;
+  }
+  wrappedOpenModule.__jbPaymentHeaderWrapped=true;
+  window.openModule=wrappedOpenModule;
+})();
+</script>
+
