@@ -4570,263 +4570,6 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
 </script>
 
 
-<!-- ===== USER TASK 2: ALL WINDOWS FULLSCREEN + FOUR-SIDE RESIZE ARROWS — 2026-09-22 ===== -->
-<style id="all-window-fullscreen-resize-2026-09-22">
-/* Every application window gets a fullscreen control in the header and four edge shrink/expand controls. */
-.window{position:fixed!important;box-sizing:border-box!important}
-.window .win-head{position:sticky!important;top:0!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important}
-.window .win-head .win-tools-2026{display:flex!important;align-items:center!important;gap:4px!important;margin-left:auto!important}
-.window .win-head .win-fullscreen-2026{
-  min-width:34px!important;width:34px!important;height:30px!important;padding:0!important;
-  display:inline-flex!important;align-items:center!important;justify-content:center!important;
-  border:2px solid var(--border)!important;border-radius:7px!important;
-  background:var(--panel)!important;color:inherit!important;font-weight:900!important;cursor:pointer!important;
-}
-.window .win-edge-arrow-2026{
-  position:absolute!important;z-index:20!important;width:26px!important;height:26px!important;
-  padding:0!important;display:flex!important;align-items:center!important;justify-content:center!important;
-  border:2px solid var(--border)!important;border-radius:7px!important;
-  background:var(--panel)!important;color:inherit!important;font-weight:900!important;
-  line-height:1!important;cursor:pointer!important;opacity:.9!important;
-}
-.window .win-edge-arrow-2026:hover{opacity:1!important;transform:scale(1.05)}
-.window .win-edge-left-2026{left:2px!important;top:50%!important;transform:translateY(-50%)!important}
-.window .win-edge-right-2026{right:2px!important;top:50%!important;transform:translateY(-50%)!important}
-.window .win-edge-up-2026{top:2px!important;left:50%!important;transform:translateX(-50%)!important}
-.window .win-edge-down-2026{bottom:2px!important;left:50%!important;transform:translateX(-50%)!important}
-.window.win-fullscreen-2026{
-  left:0!important;top:0!important;width:100vw!important;height:100vh!important;
-  max-width:none!important;max-height:none!important;transform:none!important;
-  border-radius:0!important;
-}
-.window.win-fullscreen-2026 .win-body{max-height:calc(100vh - 55px)!important;overflow:auto!important}
-.window.win-fullscreen-2026 .win-edge-arrow-2026{display:none!important}
-@media(max-width:700px){
-  .window .win-edge-arrow-2026{width:24px!important;height:24px!important}
-  .window .win-head .win-fullscreen-2026{width:32px!important;min-width:32px!important}
-}
-</style>
-<script id="all-window-fullscreen-resize-js-2026-09-22">
-(function(){
-  var MIN_W=320, MIN_H=180, STEP=80, initialized=new WeakSet();
-
-  function isWindow(el){
-    return el && el.classList && el.classList.contains('window');
-  }
-  function ensureControls(w){
-    if(!isWindow(w))return;
-    var head=w.querySelector(':scope > .win-head') || w.querySelector('.win-head');
-    if(!head)return;
-
-    /* Convert the existing top-right close control into fullscreen, without deleting it. */
-    var oldFs=w.querySelector('.win-fullscreen-2026');
-    if(!oldFs){
-      oldFs=document.createElement('button');
-      oldFs.type='button';
-      oldFs.className='win-fullscreen-2026';
-      oldFs.title='ফুল স্ক্রিন / স্বাভাবিক';
-      oldFs.setAttribute('aria-label','ফুল স্ক্রিন / স্বাভাবিক');
-      oldFs.textContent='⛶';
-      var tools=head.querySelector('.win-tools-2026');
-      if(!tools){
-        tools=document.createElement('span');
-        tools.className='win-tools-2026';
-        head.appendChild(tools);
-      }
-      var close=head.querySelector('button');
-      if(close && !close.classList.contains('win-fullscreen-2026')){        /* The first header button is the previous close button in the existing windows. */
-        close.textContent='⛶';
-        close.title='ফুল স্ক্রিন / স্বাভাবিক';
-        close.setAttribute('aria-label','ফুল স্ক্রিন / স্বাভাবিক');
-        close.classList.add('win-fullscreen-2026');
-        oldFs=close;
-      }else{
-        tools.appendChild(oldFs);
-      }
-    }
-    if(!oldFs.dataset.fsBound){
-      oldFs.dataset.fsBound='1';
-      oldFs.addEventListener('click',function(e){
-        e.preventDefault();e.stopPropagation();
-        toggleFullscreen(w);
-      });
-    }
-
-    var specs=[
-      ['left','‹','বাম দিক থেকে ছোট / বড়','win-edge-left-2026'],
-      ['right','›','ডান দিক থেকে ছোট / বড়','win-edge-right-2026'],
-      ['up','⌃','উপর থেকে ছোট / বড়','win-edge-up-2026'],
-      ['down','⌄','নিচ থেকে ছোট / বড়','win-edge-down-2026']
-    ];
-    specs.forEach(function(s){
-      if(w.querySelector('.'+s[3]))return;
-      var b=document.createElement('button');
-      b.type='button';b.className='win-edge-arrow-2026 '+s[3];
-      b.textContent=s[1];b.title=s[2];b.setAttribute('aria-label',s[2]);
-      b.addEventListener('click',function(e){
-        e.preventDefault();e.stopPropagation();
-        resizeFromEdge(w,s[0]);
-      });
-      w.appendChild(b);
-    });
-
-    if(!w.dataset.edgeState){
-      w.dataset.edgeState='1';
-      w.dataset.edgeW=Math.round(w.getBoundingClientRect().width||700);
-      w.dataset.edgeH=Math.round(w.getBoundingClientRect().height||450);
-    }
-  }
-
-  function clamp(v,min,max){return Math.max(min,Math.min(max,v));}
-  function resizeFromEdge(w,side){
-    if(w.classList.contains('win-fullscreen-2026'))return;
-    var r=w.getBoundingClientRect();
-    var vw=window.innerWidth, vh=window.innerHeight;
-    var w0=r.width, h0=r.height, l=r.left, t=r.top;
-    if(side==='left'){
-      var nw=clamp(w0-STEP,MIN_W,vw-20);
-      w.style.width=nw+'px';
-      w.style.left=clamp(l+STEP,0,vw-nw)+'px';
-      w.style.transform='none';
-    }else if(side==='right'){
-      w.style.width=clamp(w0-STEP,MIN_W,vw-20)+'px';
-      w.style.transform='none';
-      w.style.left=clamp(l,0,vw-w.offsetWidth)+'px';
-    }else if(side==='up'){
-      var nh=clamp(h0-STEP,MIN_H,vh-20);
-      w.style.height=nh+'px';w.style.maxHeight=nh+'px';
-      w.style.top=clamp(t+STEP,0,vh-nh)+'px';w.style.transform='none';
-    }else if(side==='down'){
-      var nh2=clamp(h0-STEP,MIN_H,vh-20);
-      w.style.height=nh2+'px';w.style.maxHeight=nh2+'px';
-      w.style.top=clamp(t,0,vh-nh2)+'px';w.style.transform='none';
-    }
-  }
-
-  function toggleFullscreen(w){
-    if(!w)return;
-    if(w.classList.contains('win-fullscreen-2026')){
-      w.classList.remove('win-fullscreen-2026');
-      w.style.width=w.dataset.prevWidth||'';
-      w.style.height=w.dataset.prevHeight||'';
-      w.style.maxHeight=w.dataset.prevMaxHeight||'82vh';
-      w.style.left=w.dataset.prevLeft||'50%';
-      w.style.top=w.dataset.prevTop||'90px';
-      w.style.transform=w.dataset.prevTransform||'translateX(-50%)';    }else{
-      var r=w.getBoundingClientRect();
-      w.dataset.prevWidth=r.width+'px';
-      w.dataset.prevHeight=r.height+'px';      w.dataset.prevMaxHeight=w.style.maxHeight||'82vh';
-      w.dataset.prevLeft=r.left+'px';
-      w.dataset.prevTop=r.top+'px';
-      w.dataset.prevTransform=w.style.transform||'none';
-      w.classList.add('win-fullscreen-2026');
-    }
-  }
-
-  function scan(){
-    document.querySelectorAll('.window').forEach(ensureControls);
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
-  setTimeout(scan,300);setTimeout(scan,1000);/* Removed redundant polling; DOM observer handles new UI. */
-
-  /* Newly-created form windows are covered automatically. */
-  var mo=new MutationObserver(function(list){
-    list.forEach(function(m){
-      m.addedNodes&&m.addedNodes.forEach(function(n){
-        if(n.nodeType!==1)return;
-        if(isWindow(n))ensureControls(n);
-        n.querySelectorAll&&n.querySelectorAll('.window').forEach(ensureControls);
-      });
-    });
-  });
-  if(document.body)mo.observe(document.body,{childList:true,subtree:true});
-})();
-</script>
-
-
-<!-- ===== USER TASK 2 CORRECTION: FULLSCREEN AT CLEAR BUTTON, KEEP CLOSE — 2026-09-22 ===== -->
-<style id="fullscreen-at-clear-correction-2026-09-22">
-.window .win-head .win-fullscreen-2026{display:none!important}
-.window .win-head .win-clear-fullscreen-2026{
-  min-width:34px!important;width:34px!important;height:30px!important;padding:0!important;
-  display:inline-flex!important;align-items:center!important;justify-content:center!important;
-  border:2px solid var(--border)!important;border-radius:7px!important;
-  background:var(--panel)!important;color:inherit!important;font-weight:900!important;cursor:pointer!important;
-}
-</style>
-<script id="fullscreen-at-clear-correction-js-2026-09-22">
-(function(){
-  function add(w){
-    if(!w||!w.classList||!w.classList.contains('window'))return;
-    var head=w.querySelector('.win-head'); if(!head)return;
-    /* Restore the real Close button if the previous patch changed it. */
-    var oldFs=head.querySelector('.win-fullscreen-2026');
-    if(oldFs){
-      oldFs.textContent='✕';
-      oldFs.title='বন্ধ করুন';
-      oldFs.setAttribute('aria-label','বন্ধ করুন');
-      oldFs.classList.remove('win-fullscreen-2026');
-      oldFs.classList.remove('win-clear-fullscreen-2026');
-      oldFs.removeAttribute('data-fs-bound');
-    }
-    /* Remove any previous correction button before rebuilding. */
-    var existing=head.querySelector('.win-clear-fullscreen-2026');
-    if(existing)existing.remove();
-
-    var clear=null;
-    var buttons=head.querySelectorAll('button');
-    buttons.forEach(function(b){
-      var txt=(b.textContent||'').trim().toLowerCase();
-      var title=(b.title||'').trim().toLowerCase();
-      if(!clear && (txt==='clear'||txt==='ক্লিয়ার'||txt==='ক্লিয়ার'||txt==='পরিষ্কার'||title.indexOf('clear')>=0||title.indexOf('ক্লিয়ার')>=0||title.indexOf('ক্লিয়ার')>=0)) clear=b;
-    });
-    /* If Clear is in the body/footer, use the existing clear button there. */
-    if(!clear){
-      w.querySelectorAll('button').forEach(function(b){
-        var txt=(b.textContent||'').trim().toLowerCase();
-        var title=(b.title||'').trim().toLowerCase();
-        if(!clear && (txt==='clear'||txt==='ক্লিয়ার'||txt==='ক্লিয়ার'||txt==='পরিষ্কার'||title.indexOf('clear')>=0||title.indexOf('ক্লিয়ার')>=0||title.indexOf('ক্লিয়ার')>=0)) clear=b;
-      });
-    }
-    if(clear){
-      clear.textContent='⛶';
-      clear.title='ফুল স্ক্রিন / স্বাভাবিক';
-      clear.setAttribute('aria-label','ফুল স্ক্রিন / স্বাভাবিক');
-      clear.classList.add('win-clear-fullscreen-2026');
-      clear.dataset.clearReplacedForFullscreen='1';
-      clear.onclick=function(e){
-        e.preventDefault();e.stopPropagation();
-        if(typeof window.toggleWindowFullscreen2026==='function')window.toggleWindowFullscreen2026(w);
-      };
-    }
-  }
-  window.toggleWindowFullscreen2026=function(w){
-    if(!w)return;
-    if(w.classList.contains('win-fullscreen-2026')){
-      w.classList.remove('win-fullscreen-2026');
-      w.style.width=w.dataset.prevWidth||'';
-      w.style.height=w.dataset.prevHeight||'';
-      w.style.maxHeight=w.dataset.prevMaxHeight||'82vh';
-      w.style.left=w.dataset.prevLeft||'50%';
-      w.style.top=w.dataset.prevTop||'90px';
-      w.style.transform=w.dataset.prevTransform||'translateX(-50%)';
-    }else{
-      var r=w.getBoundingClientRect();
-      w.dataset.prevWidth=r.width+'px';w.dataset.prevHeight=r.height+'px';
-      w.dataset.prevMaxHeight=w.style.maxHeight||'82vh';
-      w.dataset.prevLeft=r.left+'px';w.dataset.prevTop=r.top+'px';
-      w.dataset.prevTransform=w.style.transform||'none';
-      w.classList.add('win-fullscreen-2026');
-    }
-  };
-  function scan(){document.querySelectorAll('.window').forEach(add)}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
-  setTimeout(scan,300);setTimeout(scan,1000);/* Removed redundant polling; DOM observer handles new UI. */
-  new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes&&m.addedNodes.forEach(function(n){if(n.nodeType===1){if(n.matches&&n.matches('.window'))add(n);n.querySelectorAll&&n.querySelectorAll('.window').forEach(add)}})})}).observe(document.body,{childList:true,subtree:true});
-})();
-</script>
-
-
 <!-- ===== USER TASK 3 — RUNNING NEWS + UNIVERSAL 3 WINDOW BUTTONS — 2026-09-22 ===== -->
 <style id="user-task3-news-window-controls-2026-09-22">
 /* চলমান নিউজ: আরও লম্বা/চওড়া, কালো লেখা, মাঝ থেকে চলা */
@@ -4859,185 +4602,7 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
   color:#000!important;
 }
 
-/* সব Form + Search Profile + Window-এর উপরে একই ৩টি control */
-.window .win-head{
-  display:flex!important;
-  align-items:center!important;
-  justify-content:space-between!important;
-}
-.window .win-head .task3-window-controls{
-  display:flex!important;
-  align-items:center!important;
-  gap:4px!important;
-  margin-left:auto!important;
-}
-.window .win-head .task3-window-controls button{
-  width:34px!important;
-  min-width:34px!important;
-  height:30px!important;
-  padding:0!important;
-  display:inline-flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  border:2px solid var(--border)!important;
-  border-radius:7px!important;
-  background:var(--panel)!important;
-  color:inherit!important;
-  font-weight:900!important;
-  cursor:pointer!important;
-}
-.window.task3-minimized-2026{display:none!important}
-#task3WinTaskbar{
-  position:fixed!important;
-  left:8px!important;
-  right:8px!important;
-  bottom:8px!important;
-  z-index:1000000!important;
-  display:flex!important;
-  gap:6px!important;
-  align-items:center!important;
-  flex-wrap:wrap!important;
-  pointer-events:none!important;
-}
-#task3WinTaskbar button{
-  pointer-events:auto!important;
-  border:2px solid var(--border)!important;
-  background:var(--panel)!important;
-  color:inherit!important;
-  border-radius:8px!important;
-  padding:5px 10px!important;
-  font-weight:900!important;
-  cursor:pointer!important;
-}
-</style>
-<script id="user-task3-news-window-controls-js-2026-09-22">
-(function(){
-  function getTitle(w){
-    var b=w.querySelector('.win-head b');
-    return b ? (b.textContent||'উইন্ডো').trim() : 'উইন্ডো';
-  }
-  function taskbar(){
-    var bar=document.getElementById('task3WinTaskbar');
-    if(!bar){
-      bar=document.createElement('div');
-      bar.id='task3WinTaskbar';
-      document.body.appendChild(bar);
-    }
-    return bar;
-  }
-  function addTaskbarItem(w){
-    var bar=taskbar();
-    var id='task3Restore_'+Math.random().toString(36).slice(2);
-    var btn=document.createElement('button');
-    btn.type='button';
-    btn.id=id;
-    btn.textContent='▣ '+getTitle(w);
-    btn.onclick=function(){
-      w.classList.remove('task3-minimized-2026');
-      btn.remove();
-    };
-    bar.appendChild(btn);
-    w.dataset.task3BarId=id;
-  }
-  function removeTaskbarItem(w){
-    var id=w.dataset.task3BarId;
-    if(id){
-      var b=document.getElementById(id);
-      if(b)b.remove();
-      delete w.dataset.task3BarId;
-    }
-  }
-  function minimize(w){
-    if(!w)return;
-    if(w.classList.contains('win-fullscreen-2026')){
-      w.classList.remove('win-fullscreen-2026');
-    }
-    removeTaskbarItem(w);
-    addTaskbarItem(w);
-    w.classList.add('task3-minimized-2026');
-  }
-  function fullscreen(w){
-    if(!w)return;
-    if(w.classList.contains('win-fullscreen-2026')){
-      w.classList.remove('win-fullscreen-2026');
-      w.style.width=w.dataset.task3PrevWidth||'';
-      w.style.height=w.dataset.task3PrevHeight||'';
-      w.style.maxHeight=w.dataset.task3PrevMaxHeight||'82vh';
-      w.style.left=w.dataset.task3PrevLeft||'50%';
-      w.style.top=w.dataset.task3PrevTop||'90px';
-      w.style.transform=w.dataset.task3PrevTransform||'translateX(-50%)';
-    }else{
-      var r=w.getBoundingClientRect();
-      w.dataset.task3PrevWidth=r.width+'px';
-      w.dataset.task3PrevHeight=r.height+'px';
-      w.dataset.task3PrevMaxHeight=w.style.maxHeight||'82vh';
-      w.dataset.task3PrevLeft=r.left+'px';
-      w.dataset.task3PrevTop=r.top+'px';
-      w.dataset.task3PrevTransform=w.style.transform||'none';
-      w.classList.add('win-fullscreen-2026');
-    }
-  }
-  function closeExisting(w){
-    var close=w.querySelector('.win-head button[onclick*="closeWindow"]');
-    if(!close)close=w.querySelector('.win-head button[title="Close"]');
-    if(!close && w.id==='runningNewsEditorWin')close=w.querySelector('#closeRunningNewsEditor');
-    if(close){ close.click(); return; }
-    w.classList.remove('show');
-    w.style.display='none';
-    removeTaskbarItem(w);
-  }
-  function hideOldWindowControls(w){
-    w.querySelectorAll('.win-head button').forEach(function(b){
-      if(b.closest('.task3-window-controls'))return;
-      var oc=(b.getAttribute('onclick')||'').toLowerCase();
-      var tx=(b.textContent||'').trim();
-      var title=(b.getAttribute('title')||'').toLowerCase();
-      /* Hide only old window-management buttons; keep useful buttons like refresh/print/download. */
-      if(oc.indexOf('closewindow')>=0 || title==='close' || tx==='✕' || tx==='—' || tx==='🧹' ||
-         title==='minimize' || title==='clear' || title.indexOf('fullscreen')>=0){
-        b.style.display='none';
-      }
-    });
-  }
-  function addControls(w){
-    if(!w || !w.classList.contains('window'))return;
-    var head=w.querySelector('.win-head');
-    if(!head)return;
-    hideOldWindowControls(w);
-    var old=head.querySelector('.task3-window-controls');
-    if(old)return;
-    var box=document.createElement('span');
-    box.className='task3-window-controls';
-    var min=document.createElement('button');
-    min.type='button';min.textContent='—';min.title='মিনিমাইজ';min.setAttribute('aria-label','মিনিমাইজ');
-    min.onclick=function(e){e.preventDefault();e.stopPropagation();minimize(w);};
-    var fs=document.createElement('button');
-    fs.type='button';fs.textContent='⛶';fs.title='ফুল স্ক্রিন / স্বাভাবিক';fs.setAttribute('aria-label','ফুল স্ক্রিন / স্বাভাবিক');
-    fs.onclick=function(e){e.preventDefault();e.stopPropagation();fullscreen(w);};
-    var cl=document.createElement('button');
-    cl.type='button';cl.textContent='✕';cl.title='বন্ধ করুন';cl.setAttribute('aria-label','বন্ধ করুন');
-    cl.onclick=function(e){e.preventDefault();e.stopPropagation();closeExisting(w);};
-    box.appendChild(min);box.appendChild(fs);box.appendChild(cl);
-    head.appendChild(box);
-  }
-  function scan(){
-    document.querySelectorAll('.window').forEach(addControls);
-  }
-  window.task3MinimizeWindow=minimize;
-  window.task3FullscreenWindow=fullscreen;
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
-  setTimeout(scan,300);setTimeout(scan,1000);/* Removed redundant polling; DOM observer handles new UI. */
-  new MutationObserver(function(ms){
-    ms.forEach(function(m){
-      m.addedNodes&&m.addedNodes.forEach(function(n){
-        if(n.nodeType!==1)return;
-        if(n.matches&&n.matches('.window'))addControls(n);
-        if(n.querySelectorAll)n.querySelectorAll('.window').forEach(addControls);
-      });
-    });
-  }).observe(document.body,{childList:true,subtree:true});
-})();
-</script>
+
 \n
 <!-- ===== USER TASK 4 — ROUNDED RUNNING BOX + LARGE CLOCK + LOGIN LOGO REUSE — 2026-09-22 ===== -->
 <style id="user-task4-logo-clock-news-2026-09-22">
@@ -16421,48 +15986,48 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <!-- ===== OFF-WHITE MODE PERSISTENCE — 2026-10-17 ===== -->
 <script id="jb-offwhite-mode-init-20261017">(function(){function applySavedMode(){var m="light";try{m=localStorage.mode||"light"}catch(e){}if(typeof window.setMode==="function")window.setMode(m)}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",applySavedMode);else applySavedMode()})();</script>
 
-
-<!-- ===== RESTORE ALL MODULE WINDOW CONTROLS — 2026-10-17 ===== -->
-<style id="jb-restore-window-controls-20261017">
-.window .jb-restored-window-controls-20261017{display:flex!important;align-items:center!important;gap:6px!important;margin-inline-start:auto!important;position:relative!important;z-index:9999!important;flex:0 0 auto!important}
-.window .jb-restored-window-controls-20261017 button{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:34px!important;min-width:34px!important;height:32px!important;padding:0!important;border:2px solid var(--border,#b99)!important;border-radius:9px!important;background:var(--panel,#fff)!important;color:var(--text,inherit)!important;font-size:18px!important;font-weight:900!important;line-height:1!important;cursor:pointer!important;visibility:visible!important;opacity:1!important}
-.window .jb-restored-window-controls-20261017 .jb-rwc-min{border-color:#d49b22!important}
-.window .jb-restored-window-controls-20261017 .jb-rwc-full{border-color:#168a78!important}
-.window .jb-restored-window-controls-20261017 .jb-rwc-close{border-color:#d94848!important;color:#b42323!important}
-.window .jb-restored-window-controls-20261017 button:hover{filter:brightness(.96)!important;transform:translateY(-1px)}
-.window.jb-rwc-minimized-20261017{display:none!important}
-#jb-rwc-taskbar-20261017{position:fixed!important;bottom:8px!important;left:8px!important;z-index:2147483000!important;display:flex!important;gap:6px!important;flex-wrap:wrap!important;max-width:90vw!important}
-#jb-rwc-taskbar-20261017 button{border:2px solid #168a78!important;border-radius:999px!important;padding:8px 14px!important;background:#fffdf4!important;color:#243b35!important;font-weight:800!important;cursor:pointer!important;box-shadow:0 3px 10px #0002!important}
+<!-- ===== SINGLE CLEAN MODULE WINDOW CONTROLS — 2026-10-17 ===== -->
+<style id="jb-single-window-controls-20261017-css">
+.window .jb-single-window-controls-20261017{display:flex!important;align-items:center!important;gap:5px!important;margin-inline-start:auto!important;flex:0 0 auto!important;position:relative!important;z-index:2147483002!important}
+.window .jb-single-window-controls-20261017 button{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:34px!important;min-width:34px!important;height:31px!important;padding:0!important;border:2px solid var(--border,#b99)!important;border-radius:9px!important;background:var(--panel,#fff)!important;color:var(--text,inherit)!important;font-size:18px!important;font-weight:900!important;line-height:1!important;cursor:pointer!important;visibility:visible!important;opacity:1!important}
+.window .jb-single-window-controls-20261017 .jb-single-min{border-color:#d49b22!important}
+.window .jb-single-window-controls-20261017 .jb-single-full{border-color:#168a78!important}
+.window .jb-single-window-controls-20261017 .jb-single-close{border-color:#d94848!important;color:#b42323!important}
+.window .jb-single-window-controls-20261017 button:hover{filter:brightness(.96)!important}
+.window.jb-single-minimized-20261017{display:none!important}
+.window.jb-single-fullscreen-20261017{position:fixed!important;left:0!important;top:0!important;width:100vw!important;height:100vh!important;max-width:100vw!important;max-height:100vh!important;transform:none!important;border-radius:0!important;z-index:2147482000!important}
+.window.jb-single-fullscreen-20261017 .win-body,.window.jb-single-fullscreen-20261017 .windowBody{max-height:calc(100vh - 48px)!important;overflow:auto!important}
+#jb-single-window-taskbar-20261017{position:fixed!important;left:8px!important;right:8px!important;bottom:8px!important;z-index:2147483001!important;display:flex!important;gap:6px!important;align-items:center!important;flex-wrap:wrap!important;pointer-events:none!important;max-width:94vw!important}
+#jb-single-window-taskbar-20261017 button{pointer-events:auto!important;border:2px solid #168a78!important;background:#fffdf4!important;color:#243b35!important;border-radius:999px!important;padding:7px 12px!important;font-weight:900!important;cursor:pointer!important;box-shadow:0 3px 10px #0002!important}
 </style>
-<script id="jb-restore-window-controls-20261017-js">
+<script id="jb-single-window-controls-20261017-js">
 (function(){
-  if(window.__jbRestoreWindowControls20261017)return;
-  window.__jbRestoreWindowControls20261017=true;
-  var taskId='jb-rwc-taskbar-20261017';
-  function taskbar(){var t=document.getElementById(taskId);if(!t){t=document.createElement('div');t.id=taskId;document.body.appendChild(t)}return t}
-  function labelFor(w){var h=w.querySelector('.win-head');var t=h&&(h.querySelector('h1,h2,h3,.win-title,[data-title]'));return ((t&&(t.textContent||t.getAttribute('data-title')))||w.getAttribute('aria-label')||w.id||'মডিউল').trim().slice(0,48)}
-  function restore(w){if(!w)return;w.classList.remove('jb-rwc-minimized-20261017');w.style.removeProperty('display');w.classList.add('show');var t=document.getElementById(taskId);if(t){var b=t.querySelector('[data-window-id="'+w.id+'"]');if(b)b.remove();if(!t.children.length)t.remove()}}
-  function minimize(w){if(!w)return;w.classList.add('jb-rwc-minimized-20261017');var t=taskbar(),b=t.querySelector('[data-window-id="'+w.id+'"]');if(!b){b=document.createElement('button');b.type='button';b.dataset.windowId=w.id;b.textContent='▣ '+labelFor(w);b.title='মডিউল আবার খুলুন';b.addEventListener('click',function(){restore(w)});t.appendChild(b)}}
-  function fullscreen(w){if(!w)return;if(!w.dataset.jbRwcSaved){var r=w.getBoundingClientRect();w.dataset.jbRwcSaved=JSON.stringify({position:w.style.position,left:w.style.left,top:w.style.top,width:w.style.width,height:w.style.height,maxWidth:w.style.maxWidth,maxHeight:w.style.maxHeight,transform:w.style.transform,borderRadius:w.style.borderRadius});w.dataset.jbRwcSavedRect=JSON.stringify({left:r.left,top:r.top,width:r.width,height:r.height})}
-    if(w.classList.contains('jb-rwc-fullscreen-20261017')){w.classList.remove('jb-rwc-fullscreen-20261017');try{var s=JSON.parse(w.dataset.jbRwcSaved||'{}');['position','left','top','width','height','maxWidth','maxHeight','transform','borderRadius'].forEach(function(k){w.style[k]=s[k]||''})}catch(e){}delete w.dataset.jbRwcSaved;delete w.dataset.jbRwcSavedRect}
-    else{w.classList.add('jb-rwc-fullscreen-20261017');w.style.setProperty('position','fixed','important');w.style.setProperty('left','0','important');w.style.setProperty('top','0','important');w.style.setProperty('width','100vw','important');w.style.setProperty('height','100vh','important');w.style.setProperty('max-width','100vw','important');w.style.setProperty('max-height','100vh','important');w.style.setProperty('transform','none','important');w.style.setProperty('z-index','2147482000','important')}
+  if(window.__jbSingleWindowControls20261017)return;
+  window.__jbSingleWindowControls20261017=true;
+  var taskbarId='jb-single-window-taskbar-20261017';
+  function getHead(w){return w.querySelector(':scope > .win-head,:scope > .windowHead')||w.querySelector('.win-head,.windowHead');}
+  function titleOf(w){var h=getHead(w),b=h&&h.querySelector('b,h1,h2,h3,.win-title');return ((b&&b.textContent)||w.getAttribute('aria-label')||w.id||'মডিউল').trim().slice(0,55);}
+  function getTaskbar(){var t=document.getElementById(taskbarId);if(!t){t=document.createElement('div');t.id=taskbarId;document.body.appendChild(t);}return t;}
+  function removeTaskItem(w){var t=document.getElementById(taskbarId);if(!t)return;var b=t.querySelector('[data-window-id="'+w.id+'"]');if(b)b.remove();if(!t.children.length)t.remove();}
+  function restore(w){if(!w)return;w.classList.remove('jb-single-minimized-20261017');w.style.removeProperty('display');w.classList.add('show');removeTaskItem(w);}
+  function minimize(w){if(!w)return;w.classList.remove('jb-single-fullscreen-20261017');w.classList.add('jb-single-minimized-20261017');var t=getTaskbar(),b=t.querySelector('[data-window-id="'+w.id+'"]');if(!b){b=document.createElement('button');b.type='button';b.dataset.windowId=w.id;b.textContent='▣ '+titleOf(w);b.title='মডিউল আবার খুলুন';b.addEventListener('click',function(){restore(w);});t.appendChild(b);}}
+  function fullscreen(w){if(!w)return;if(w.classList.contains('jb-single-fullscreen-20261017')){w.classList.remove('jb-single-fullscreen-20261017');try{var s=JSON.parse(w.dataset.jbSingleSavedStyle||'{}');['position','left','top','width','height','maxWidth','maxHeight','transform','borderRadius','zIndex'].forEach(function(k){w.style[k]=s[k]||'';});}catch(e){}delete w.dataset.jbSingleSavedStyle;}else{var s={};['position','left','top','width','height','maxWidth','maxHeight','transform','borderRadius','zIndex'].forEach(function(k){s[k]=w.style[k]||'';});w.dataset.jbSingleSavedStyle=JSON.stringify(s);w.classList.add('jb-single-fullscreen-20261017');}}
+  function close(w){if(!w)return;var old=w.__jbSingleOriginalClose;try{if(old&&old.isConnected)old.click();}catch(e){}
+    w.classList.remove('show','minimized','jb-single-minimized-20261017','jb-single-fullscreen-20261017','win-fullscreen-2026','task3-minimized-2026');
+    w.style.removeProperty('display');if(w.id==='formWin'){w.style.height='';w.classList.remove('minimized');}
+    delete w.dataset.jbSingleSavedStyle;removeTaskItem(w);
   }
-  function close(w){if(!w)return;
-    var special=w.querySelector('.jb-adm-close-window');
-    if(special){special.click();w.classList.remove('show');w.classList.remove('jb-rwc-minimized-20261017');return}
-    if(typeof window.closeWindow==='function'&&w.id){try{window.closeWindow(w.id)}catch(e){w.classList.remove('show')}}
-    else{w.classList.remove('show');w.classList.remove('minimized');w.classList.remove('jb-rwc-fullscreen-20261017');w.style.removeProperty('display')}
-    w.classList.remove('jb-rwc-fullscreen-20261017');delete w.dataset.jbRwcSaved;
-    var t=document.getElementById(taskId);if(t){var b=t.querySelector('[data-window-id="'+w.id+'"]');if(b)b.remove();if(!t.children.length)t.remove()}
+  function isOldManagementButton(b){if(b.closest('.jb-single-window-controls-20261017'))return false;var oc=(b.getAttribute('onclick')||'').toLowerCase(),tx=(b.textContent||'').trim(),title=(b.getAttribute('title')||'').toLowerCase();return /closewindow\s*\(/.test(oc)||/minimizewin\s*\(/.test(oc)||b.classList.contains('win-fullscreen-2026')||b.classList.contains('win-clear-fullscreen-2026')||title==='close'||title.indexOf('বন্ধ')>=0||title.indexOf('minimize')>=0||tx==='✕'||tx==='×'||(tx==='—'&&/minimize|মিনিমাইজ/.test(title));}
+  function install(w){if(!w||!w.classList||!w.classList.contains('window'))return;var head=getHead(w);if(!head)return;
+    head.querySelectorAll('.task3-window-controls,.jb-restored-window-controls-20261017,.win-tools-2026').forEach(function(n){n.remove();});
+    head.querySelectorAll('button').forEach(function(b){if(isOldManagementButton(b)){if(/closewindow\s*\(/i.test(b.getAttribute('onclick')||''))w.__jbSingleOriginalClose=b;b.style.setProperty('display','none','important');}});
+    var box=head.querySelector('.jb-single-window-controls-20261017');if(!box){box=document.createElement('span');box.className='jb-single-window-controls-20261017';box.setAttribute('aria-label','মডিউল উইন্ডো নিয়ন্ত্রণ');head.appendChild(box);}
+    function ensure(cls,txt,title,fn){var b=box.querySelector('.'+cls);if(!b){b=document.createElement('button');b.type='button';b.className=cls;b.textContent=txt;b.title=title;b.setAttribute('aria-label',title);b.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();fn(w);});box.appendChild(b);}}
+    ensure('jb-single-min','—','মিনিমাইজ',minimize);ensure('jb-single-full','⛶','ফুল স্ক্রিন / স্বাভাবিক',fullscreen);ensure('jb-single-close','✕','বন্ধ করুন',close);
   }
-  function install(w){if(!w||!w.classList||!w.classList.contains('window'))return;var head=w.querySelector(':scope > .win-head')||w.querySelector('.win-head');if(!head)return;
-    var box=head.querySelector('.jb-restored-window-controls-20261017');if(!box){box=document.createElement('span');box.className='jb-restored-window-controls-20261017';box.setAttribute('aria-label','মডিউল উইন্ডো নিয়ন্ত্রণ');head.appendChild(box)}
-    function btn(cls,txt,title,fn){var b=box.querySelector('.'+cls);if(!b){b=document.createElement('button');b.type='button';b.className=cls;b.textContent=txt;b.title=title;b.setAttribute('aria-label',title);b.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();fn(w)});box.appendChild(b)}}
-    btn('jb-rwc-min','—','মিনিমাইজ',minimize);btn('jb-rwc-full','⛶','ফুল স্ক্রিন / স্বাভাবিক',fullscreen);btn('jb-rwc-close','✕','বন্ধ করুন',close);
-  }
-  function scan(root){(root||document).querySelectorAll&&root.querySelectorAll('.window').forEach(install);if(root&&root.matches&&root.matches('.window'))install(root)}
-  function boot(){scan(document);var mo=new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes&&m.addedNodes.forEach(function(n){if(n.nodeType===1)scan(n)})})});if(document.body)mo.observe(document.body,{childList:true,subtree:true})}
+  function scan(root){if(!root)return;if(root.matches&&root.matches('.window'))install(root);if(root.querySelectorAll)root.querySelectorAll('.window').forEach(install);}
+  function boot(){scan(document);var mo=new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes&&m.addedNodes.forEach(function(n){if(n.nodeType===1)scan(n);});});});if(document.body)mo.observe(document.body,{childList:true,subtree:true});}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();
 </script>
-<!-- ===== END RESTORE ALL MODULE WINDOW CONTROLS ===== -->
+<!-- ===== END SINGLE CLEAN MODULE WINDOW CONTROLS ===== -->
