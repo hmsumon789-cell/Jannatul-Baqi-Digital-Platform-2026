@@ -1119,9 +1119,17 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     <div class="login-contact"><span>☎ হটলাইন: 01823316630</span><span>✉ hmsumon789@gmail.com</span></div>
     <div class="ticker"><div class="ticker-text">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম</div></div>
     <div class="login-tools">
-      <select id="loginLang" class="field" onchange="setLang(this.value)"><option value="bn">বাংলা</option><option value="ar">العربية</option><option value="en">English</option></select>
-      <span id="loginDateTime" class="loginDateTime">সময় ০০:০০:০০ • ১৬ সেপ্টেম্বর ২০২৬</span>
-      <div class="tools-right"><button class="mode" onclick="setMode('dark')" title="Dark">🌙</button><button class="mode" onclick="setMode('light')" title="Light">☀️</button><button class="mode" onclick="setMode('gold')" title="Golden">🟡</button></div>
+      <select id="loginLang" class="field" aria-label="ভাষা নির্বাচন" onchange="setLang(this.value)"><option value="bn">বাংলা</option><option value="ar">العربية</option><option value="en">English</option></select>
+      <button type="button" id="loginDateTime" class="loginDateTime" aria-label="বাংলাদেশের সময় ও তারিখ">সময় ০০:০০:০০ • ১৬ অক্টোবর ২০২৬</button>
+      <div class="tools-right mode-picker">
+        <button type="button" id="loginModeButton" class="mode mode-round" aria-label="মোড নির্বাচন" aria-haspopup="true" aria-expanded="false" onclick="toggleLoginModeMenu()">🎨</button>
+        <div id="loginModeMenu" class="login-mode-menu" hidden>
+          <button type="button" onclick="chooseLoginMode('dark')">🌙 ডার্ক</button>
+          <button type="button" onclick="chooseLoginMode('light')">☀️ লাইট</button>
+          <button type="button" onclick="chooseLoginMode('gold')">🟡 গোল্ডেন</button>
+          <button type="button" onclick="chooseLoginMode('offwhite')">🤍 অফ হোয়াইট</button>
+        </div>
+      </div>
     </div>
     <div class="login-auth-qr-802268e">
       <div class="login-auth-802268e">
@@ -1973,7 +1981,27 @@ function downloadCurrentForm(){
   toast('ফর্ম ডাউনলোড করা হয়েছে');
 }
 function goHome(){window.scrollTo({top:0,behavior:'smooth'})}
-function setMode(m){document.body.classList.remove('dark','gold');if(m==='dark')document.body.classList.add('dark');if(m==='gold')document.body.classList.add('gold');localStorage.mode=m}
+function setMode(m){
+  document.body.classList.remove('dark','gold','offwhite');
+  if(m==='dark')document.body.classList.add('dark');
+  if(m==='gold')document.body.classList.add('gold');
+  if(m==='offwhite')document.body.classList.add('offwhite');
+  try{localStorage.mode=m}catch(e){}
+  var b=document.getElementById('loginModeButton');
+  if(b){b.textContent=({dark:'🌙',light:'☀️',gold:'🟡',offwhite:'🤍'})[m]||'🎨';b.title=({dark:'ডার্ক মোড',light:'লাইট মোড',gold:'গোল্ডেন মোড',offwhite:'অফ হোয়াইট মোড'})[m]||'মোড নির্বাচন';}
+}
+function toggleLoginModeMenu(){
+  var menu=document.getElementById('loginModeMenu'),b=document.getElementById('loginModeButton');
+  if(!menu)return;
+  menu.hidden=!menu.hidden;
+  if(b)b.setAttribute('aria-expanded',String(!menu.hidden));
+}
+function chooseLoginMode(m){
+  setMode(m);
+  var menu=document.getElementById('loginModeMenu'),b=document.getElementById('loginModeButton');
+  if(menu)menu.hidden=true;
+  if(b)b.setAttribute('aria-expanded','false');
+}
 function setLang(l){localStorage.lang=l;document.documentElement.dir=l==='ar'?'rtl':'ltr'}
 function toast(t){const x=$('toast');x.textContent=t;x.style.display='block';clearTimeout(window._toast);window._toast=setTimeout(()=>x.style.display='none',3500)}
 function dragWindow(el){
@@ -15621,3 +15649,24 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 
 <style id="jb-admission-news-language-row-direction-fix-20261014">#formWin #admAdmissionRedesign20261011 .jb-admission-news-language-row-20261014{direction:ltr!important}</style>
+
+<style id="login-language-clock-round-mode-2026-10-17">
+#loginPage .login-tools{display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:8px!important;white-space:nowrap!important}
+#loginPage #loginLang{flex:0 0 auto!important;min-width:82px!important;width:auto!important;max-width:110px!important}
+#loginPage .loginDateTime{display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:1 1 auto!important;min-width:0!important;max-width:100%!important;min-height:34px!important;padding:4px 9px!important;border:2px solid var(--border,#222)!important;border-radius:999px!important;background:var(--panel,#fff)!important;color:var(--text,#171717)!important;font-size:clamp(10px,1.1vw,14px)!important;font-weight:900!important;line-height:1.2!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;cursor:default!important;box-shadow:inset 0 0 0 1px #ffd21a!important}
+#loginPage .mode-picker{position:relative!important;display:flex!important;align-items:center!important;justify-content:flex-end!important;flex:0 0 auto!important;margin-left:auto!important}
+#loginPage .mode-round{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:38px!important;min-width:38px!important;height:38px!important;padding:0!important;border-radius:50%!important;font-size:19px!important;border:2px solid var(--border,#222)!important;background:var(--panel,#fff)!important;color:var(--text,#171717)!important;box-shadow:0 2px 6px #0002!important}
+#loginPage .login-mode-menu{position:absolute!important;right:0!important;top:calc(100% + 7px)!important;z-index:99999!important;min-width:155px!important;padding:5px!important;border:2px solid var(--border,#222)!important;border-radius:12px!important;background:var(--panel,#fff)!important;color:var(--text,#171717)!important;box-shadow:0 8px 22px #0004!important}
+#loginPage .login-mode-menu[hidden]{display:none!important}
+#loginPage .login-mode-menu button{display:block!important;width:100%!important;padding:8px 10px!important;text-align:left!important;border:0!important;border-radius:8px!important;background:transparent!important;color:inherit!important;font-weight:800!important}
+#loginPage .login-mode-menu button:hover{background:var(--bg,#f4f6f8)!important}
+body.offwhite{--bg:#fffaf2;--panel:#fffdf7;--text:#34313a;--accent:#c6a35c;--border:#c8b7ce;--shadow:0 10px 28px #8c7a9a22}
+body.offwhite .login,body.offwhite .card,body.offwhite .module,body.offwhite .window,body.offwhite .form-window,body.offwhite .login-tools{background:var(--panel)!important;color:var(--text)!important;border-color:var(--border)!important}
+body.offwhite .login{box-shadow:0 12px 35px #8c7a9a22!important}
+@media(max-width:520px){
+ #loginPage .login-tools{gap:4px!important;padding:4px!important}
+ #loginPage #loginLang{min-width:65px!important;max-width:84px!important;font-size:11px!important;padding:5px!important}
+ #loginPage .loginDateTime{padding:3px 5px!important;font-size:9px!important;min-height:30px!important}
+ #loginPage .mode-round{width:31px!important;min-width:31px!important;height:31px!important;font-size:16px!important}
+}
+</style>
