@@ -15253,7 +15253,7 @@ window.jbAdmissionImportFile2026=async function(file){var fb=el('admAdmissionRed
     for(var i=1;i<found.length;i++)found[i].remove();
     var btn=found[0];
     if(!btn){btn=document.createElement('button');btn.type='button';btn.className=cls;controls.appendChild(btn)}
-    btn.textContent=label;btn.title=title;btn.setAttribute('aria-label',title);btn.onclick=function(e){e.preventDefault();e.stopPropagation();action()};
+    if(btn.textContent!==label)btn.textContent=label;btn.title=title;btn.setAttribute('aria-label',title);btn.onclick=function(e){e.preventDefault();e.stopPropagation();action()};
   }
   ensureControl('jb-adm-control-min-20261017','—','মিনিমাইজ',minimize);
   ensureControl('jb-adm-control-full-20261017','⛶','ফুল স্ক্রিন / স্বাভাবিক',fullscreen);
