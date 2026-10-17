@@ -16563,3 +16563,36 @@ body.offwhite .media-stage {
  #loginPage .login-searchbar-admission20261017 button[onclick="doSearch('login')"]{grid-column:2;grid-row:3}
 }
 </style>
+
+
+<style id="login-mode-final-position-19dd5ba">
+/* Login: hide the clock/date box and move the mode selector 4.5 inches right. */
+#loginPage #loginDateTime{display:none!important}
+#loginPage #loginToolsLine20261017{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:12px!important;
+  overflow:visible!important;
+}
+#loginPage #loginToolsLine20261017 .tools-right{
+  flex:0 0 170px!important;
+  width:170px!important;
+  min-width:170px!important;
+  margin-left:432px!important;
+}
+#loginPage #loginMode20261017{
+  width:170px!important;
+  min-width:170px!important;
+  border-radius:999px!important;
+  overflow:hidden!important;
+}
+@media(max-width:760px){
+  #loginPage #loginToolsLine20261017{display:flex!important;flex-wrap:wrap!important}
+  #loginPage #loginToolsLine20261017 .tools-right{
+    margin-left:0!important;
+    flex:1 1 170px!important;
+    width:100%!important;
+  }
+}
+</style>
