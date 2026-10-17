@@ -1241,10 +1241,10 @@ body.gold #loginContactStrip20261013{background:#fff9e7!important;color:#4a3300!
     <button class="primary header-home-final" onclick="goHome()" title="Home">🏠 হোম</button>
     <div class="header-modes header-mode-icons">
       <select id="dashboardMode20261017" class="field jb-mode-select-20261017 dashboard-mode-select-20261017" aria-label="ড্যাশবোর্ড মোড নির্বাচন" title="ড্যাশবোর্ড মোড পরিবর্তন" onchange="setMode(this.value)">
+        <option value="offwhite">🤍 অফ হোয়াইট</option>
         <option value="dark">🌙 ডার্ক</option>
         <option value="light">☀️ লাইট</option>
         <option value="gold">🟡 গোল্ডেন</option>
-        <option value="offwhite">🤍 অফ হোয়াইট</option>
       </select>
     </div>
     <div class="header-signal-wrap">
