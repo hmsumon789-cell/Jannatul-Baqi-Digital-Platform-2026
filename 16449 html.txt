@@ -1192,6 +1192,24 @@ span.addEventListener('click',choose);span.addEventListener('keydown',function(e
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();if(window.MutationObserver)new MutationObserver(bind).observe(document.documentElement,{childList:true,subtree:true})})();
 </script>
 
+
+<style id="dashboard-media-boxes-and-compact-documentary-20261018">
+/* মিডিয়া প্লেয়ারের কন্ট্রোলের ঠিক নিচে সব ড্যাশবোর্ড বক্স; এরপর পরিচিতি স্লাইড */
+#summary.dashboard-summary-inside{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:7px!important;width:100%!important;margin:8px 0 10px!important;transform:none!important;}
+#summary.dashboard-summary-inside .stat{min-width:0!important;min-height:54px!important;height:auto!important;padding:6px 5px!important;margin:0!important;transform:none!important;overflow-wrap:anywhere!important;font-size:12px!important;}
+#summary.dashboard-summary-inside .stat b{display:block!important;font-size:19px!important;line-height:1.2!important;margin-bottom:3px!important;}
+#institutionDocumentary2026{margin:8px 0 10px!important;padding:7px 9px!important;}
+#institutionDocumentary2026 .institution-documentary-heading{margin:0 auto 4px!important;padding:1px 4px 3px!important;}
+#institutionDocumentary2026 .institution-documentary-heading h2{font-size:clamp(15px,1.8vw,21px)!important;line-height:1.2!important;margin:2px 0!important;}
+#institutionDocumentary2026 .institution-documentary-heading p{font-size:11px!important;line-height:1.2!important;margin:2px 0!important;}
+#institutionDocumentary2026 .institution-documentary-stage{height:90px!important;min-height:90px!important;max-height:90px!important;overflow:hidden!important;}
+#institutionDocumentary2026 .institution-documentary-slide{height:84px!important;min-height:84px!important;max-height:84px!important;padding:4px 7px!important;gap:7px!important;grid-template-columns:minmax(70px,22%) minmax(0,1fr)!important;}
+#institutionDocumentary2026 .institution-documentary-photo-wrap{height:72px!important;min-height:72px!important;max-height:72px!important;}
+#institutionDocumentary2026 .institution-documentary-controls{margin-top:3px!important;gap:3px!important;}
+#institutionDocumentary2026 .institution-documentary-controls button{padding:3px 6px!important;font-size:10px!important;}
+#institutionDocumentary2026 .institution-documentary-footnote{font-size:9px!important;margin-top:2px!important;}
+@media(max-width:700px){#summary.dashboard-summary-inside{grid-template-columns:repeat(2,minmax(0,1fr))!important;}#institutionDocumentary2026 .institution-documentary-stage{height:82px!important;min-height:82px!important;max-height:82px!important;}#institutionDocumentary2026 .institution-documentary-slide{height:76px!important;min-height:76px!important;max-height:76px!important;grid-template-columns:65px minmax(0,1fr)!important;padding:3px!important;gap:5px!important;}#institutionDocumentary2026 .institution-documentary-photo-wrap{height:66px!important;min-height:66px!important;max-height:66px!important;}}
+</style>
 </head>
 <body>
 <div id="welcomeScreen">
@@ -1549,54 +1567,28 @@ async function loadApp(){const r=await call('getBootstrap',token);if(!r||!r.ok)r
 function renderModules(){const l=$('leftModules'),r=$('rightModules');l.innerHTML='';r.innerHTML='';modules.forEach((m,i)=>{const b=document.createElement('button');b.className='module';b.textContent=m[1];b.onclick=()=>openModule(m[0]);(i<Math.ceil(modules.length/2)?l:r).appendChild(b)});window.openAllSettings=function(){var w=$('allSettingsWin');if(!w){w=document.createElement('div');w.id='allSettingsWin';w.className='window';w.style.cssText='width:min(900px,94vw);z-index:1000100;';w.innerHTML='<div class="win-head"><b>⚙️ অল সেটিংস</b><button class="secondary" type="button" onclick="closeWindow(\'allSettingsWin\')">✕</button></div><div class="win-body"><h3>সকল সেটিংস</h3><div class="form-grid"><div><b>🎨 থিম</b><p><select class="field jb-mode-select-20261017" aria-label="মোড নির্বাচন" onchange="setMode(this.value)"><option value="offwhite">🤍 Off-White</option><option value="dark">🌙 Dark</option><option value="light">☀️ Light</option><option value="gold">🟡 Golden</option></select></p></div><div><b>🌐 ভাষা</b><select class="field" onchange="setLang(this.value)"><option value="bn">বাংলা</option><option value="ar">العربية</option><option value="en">English</option><option value="ur">اردو</option></select></div><div><b>🔎 সংকেত / All Search</b><p>উপরের সংকেত নির্বাচন করে ID / মোবাইল / ইমেইল দিয়ে All Search ব্যবহার করুন।</p><button class="secondary" onclick="document.getElementById(\'appSignal\').focus();closeWindow(\'allSettingsWin\')">🔎 Search Settings</button></div><div><b>📊 সরাসরি শিট</b><p><button class="secondary" onclick="openWindow(\'sheetWin\')">📊 সরাসরি শিট</button></p></div><div><b>🔐 Account অনুমোদন</b><p><button class="secondary" onclick="openAccountManager()">🔐 Account Approval</button></p></div><div><b>🖥️ Header / Taskbar</b><p>হোম + ৩ মোড + সংকেত + All Search + লগআউট লাইনটি Taskbar-এর ঠিক উপরে থাকবে।</p></div><div><b>🎬 Media</b><p>ভিডিও 50 MB/50টি · ফটো 20 MB/100টি · অডিও 50 MB/50টি।</p></div><div><b>🇧🇩 সময়</b><p>বাংলাদেশ সময় (Asia/Dhaka) অনুযায়ী ঘড়ি ও তারিখ দেখানো হবে।</p></div></div></div>';document.body.appendChild(w)}openWindow('allSettingsWin')};var bs=[...document.querySelectorAll('#leftModules .module,#rightModules .module')],target=bs.find(function(x){var t=(x.textContent||'').replace(/\s+/g,'');return t.indexOf('পরামর্শ')>=0&&(t.indexOf('অভিযোগ')>=0||t.indexOf('যোগ')>=0)});if(!target)target=bs.find(function(x){return (x.textContent||'').indexOf('পরামর্শ')>=0});if(target&&!document.getElementById('allSettingsBtn')){var z=document.createElement('button');z.id='allSettingsBtn';z.className='module';z.type='button';z.textContent='⚙️ অল সেটিংস';z.onclick=window.openAllSettings;target.insertAdjacentElement('afterend',z)}else if(!target&&!document.getElementById('allSettingsBtn')){var z2=document.createElement('button');z2.id='allSettingsBtn';z2.className='module';z2.type='button';z2.textContent='⚙️ অল সেটিংস';z2.onclick=window.openAllSettings;l.appendChild(z2)}if(typeof window.jbSetLang2026==="function")window.jbSetLang2026(localStorage.lang||"bn")}
 function fillFeatureSelect(){const s=$('featureSelect');modules.forEach(m=>{const o=document.createElement('option');o.value=m[0];o.textContent=m[1];s.appendChild(o)})}
 function removeRequestedDashboardTiles2026(){
-  // Remove only the named statistic tiles in the dashboard area; leave feature buttons and other modules untouched.
-  const labels=[
-    'নির্বাহী পরিষদ সদস্য','নিবন্ধিত মহিলা মাদ্রাসা','নিবন্ধিত পুরুষ মাদ্রাসা',
-    'আজ উপস্থিত','আজ অনুপস্থিত','পরীক্ষার্থী','মোট একটিভ/অনলাইন অ্যাডমিন সংখ্যা',
-    'Executive Members','Registered Female Madrasas','Registered Male Madrasas',
-    'Present Today','Absent Today','Examinees','Total Active/Online Admins',
-    'أعضاء المجلس التنفيذي','المدارس النسائية المسجلة','المدارس الرجالية المسجلة',
-    'الحاضرون اليوم','الغائبون اليوم','الممتحنون','إجمالي المسؤولين النشطين/المتصلين',
-    'انتظامی کونسل کے اراکین','رجسٹرڈ خواتین کے مدارس','رجسٹرڈ مردوں کے مدارس',
-    'آج حاضر','آج غیر حاضر','فعال/آن لائن ایڈمنز کی کل تعداد'
-  ];
-  const roots=[];
-  const slider=document.querySelector('.dashboard-slider');
-  const summary=document.getElementById('summary');
-  const charts=document.getElementById('dashboardCharts');
-  if(slider) roots.push(slider);
-  if(summary && !roots.includes(summary)) roots.push(summary);
-  if(charts) roots.push(charts);
-  roots.forEach(root=>{
-    root.querySelectorAll('.stat,.attendance-count').forEach(tile=>{
-      const label=String(tile.innerText||tile.textContent||'').replace(/\s+/g,' ').trim().toLocaleLowerCase();
-      if(labels.some(name=>label.includes(name.toLocaleLowerCase()))) tile.remove();
-    });
-  });
+  // The requested dashboard tiles are now intentionally displayed below the media controls.
+  // Do not remove them; this function remains for compatibility with existing callers.
 }
 function watchRequestedDashboardTiles2026(){
-  removeRequestedDashboardTiles2026();
-  if(window.__jbRequestedTileObserver2026 || !document.body || !window.MutationObserver) return;
-  window.__jbRequestedTileObserver2026=new MutationObserver(()=>removeRequestedDashboardTiles2026());
-  const targets=[document.querySelector('.dashboard-slider'),document.getElementById('dashboardCharts')].filter(Boolean);
-  targets.forEach(target=>window.__jbRequestedTileObserver2026.observe(target,{childList:true,subtree:true}));
+  // Keep compatibility with the existing dashboard initialization without deleting tiles.
 }
 function renderStats(x){
-  // Keep the financial and total student/teacher summaries; the eight requested
-  // dashboard tiles are replaced by the royal-golden institution documentary.
+  const attendance=x.attendanceToday||{};
   const arr=[
-    ['আয়',x.income],
-    ['ব্যয়',x.expense],
-    ['মোট ক্যাশ',x.cash],
-    ['মোট বকেয়া',x.due],
-    ['মোট ছাত্র/ছাত্রী',x.students],
-    ['মোট শিক্ষক/শিক্ষিকা',x.teachers]
+    ['আয়',x.income],['ব্যয়',x.expense],['মোট ক্যাশ',x.cash],['মোট বকেয়া',x.due],
+    ['মোট ছাত্র/ছাত্রী',x.students],['মোট শিক্ষক/শিক্ষিকা',x.teachers],
+    ['নির্বাহী পরিষদ সদস্য',x.executiveMembers??x.executives],
+    ['নিবন্ধিত মহিলা মাদ্রাসা',x.femaleMadrasas],
+    ['নিবন্ধিত পুরুষ মাদ্রাসা',x.maleMadrasas],
+    ['আজ উপস্থিত',attendance.present],['আজ অনুপস্থিত',attendance.absent],
+    ['পরীক্ষার্থী',x.examinees??x.examCandidates],
+    ['মোট একটিভ/অনলাইন অ্যাডমিন সংখ্যা',x.activeAdmins??x.onlineAdmins]
   ];
   const sum=$('summary');
   if(sum){
     sum.innerHTML=arr.map(a=>'<div class="stat"><b>'+((a[1]??0))+'</b>'+a[0]+'</div>').join('');
     sum.classList.add('dashboard-slider-summary');
-    // Keep the unrelated quick-help shortcut available.
     const helpBox=document.createElement('div');
     helpBox.className='stat quick-help-stat';
     helpBox.innerHTML='<button class="quick-help-dashboard-btn" onclick="openWindow(\'quickWin\')">🆘 দ্রুত সেবা / হেল্প</button>';
@@ -1604,7 +1596,6 @@ function renderStats(x){
   }
   renderDashboardCharts(x);
   loadInstitutionDocumentary2026();
-  watchRequestedDashboardTiles2026();
 }
 function renderDashboardCharts(x){
   const income=Number(x.income)||0, expense=Number(x.expense)||0, cash=Number(x.cash)||0, due=Number(x.due)||0;
