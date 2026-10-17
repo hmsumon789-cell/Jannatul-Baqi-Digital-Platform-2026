@@ -1406,6 +1406,7 @@ body.gold #loginContactStrip20261013{background:#fff9e7!important;color:#4a3300!
             <button class="secondary slider-arrow" onclick="nextMedia()" title="পরের স্লাইড">▶</button>
           </div>
         </div>
+                <section class="dashboard-summary dashboard-summary-inside" id="summary"></section>
     <!-- ===== Royal golden documentary replaces selected stat boxes under main media player ===== -->
     <section id="institutionDocumentary2026" class="institution-documentary-2026 card" aria-label="প্রতিষ্ঠানের গৌরবময় যাত্রার প্রামাণ্যচিত্র">
       <div class="institution-documentary-heading">
@@ -1424,7 +1425,6 @@ body.gold #loginContactStrip20261013{background:#fff9e7!important;color:#4a3300!
       </div>
       <div class="institution-documentary-footnote">আল্লাহ তাআলা তাঁদের সকলের খেদমত, দোয়া ও ত্যাগ কবুল করুন। আমিন।</div>
     </section>
-                <section class="dashboard-summary dashboard-summary-inside" id="summary"></section>
       </section>
       <aside class="module-col dashboard-side" id="rightModules"></aside>
     </section>
@@ -16007,7 +16007,27 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 '#formWin .jb-admission-brand-header-20261010 .jb-adm-original-logo-20261010{transform:translate(2in,-20px)!important}'+
 '#formWin .jb-admission-brand-header-20261010 #jbAdmissionMainQR20261010{transform:translate(-2in,-20px)!important}'+
 '@media print{#formWin .jb-admission-brand-header-20261010 .jb-adm-original-logo-20261010{transform:translate(2in,-20px)!important}#formWin .jb-admission-brand-header-20261010 #jbAdmissionMainQR20261010{transform:translate(-2in,-20px)!important}}</style>'+
-'</head><body>'+node.outerHTML+'</body></html>';
+'</head><body>'+node.outerHTML+'</body>
+<!-- ===== FINAL PLACEMENT: player controls → dashboard boxes → institution slideshow; compact slideshow by ~3 inches ===== -->
+<style id="dashboard-boxes-before-institution-slideshow-20261018">
+#app .dashboard-slider #summary.dashboard-summary-inside{order:2!important;transform:none!important;margin:8px 0 10px!important;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:7px!important;width:100%!important;box-sizing:border-box!important}
+#app .dashboard-slider #summary.dashboard-summary-inside .stat{min-width:0!important;min-height:56px!important;height:auto!important;padding:7px 5px!important;margin:0!important;transform:none!important}
+#app .dashboard-slider #institutionDocumentary2026{order:3!important;margin:8px 0 10px!important;padding:8px 10px!important}
+#app .dashboard-slider .institution-documentary-heading{margin:0 auto 5px!important;padding:2px 5px 4px!important}
+#app .dashboard-slider .institution-documentary-heading h2{font-size:clamp(16px,2vw,23px)!important;line-height:1.25!important;margin:3px 0!important}
+#app .dashboard-slider .institution-documentary-heading p{font-size:12px!important;line-height:1.3!important;margin:2px 0!important}
+#app .dashboard-slider .institution-documentary-stage{min-height:0!important;height:130px!important;max-height:130px!important;overflow:hidden!important}
+#app .dashboard-slider .institution-documentary-slide{min-height:0!important;height:124px!important;max-height:124px!important;padding:7px 10px!important;gap:10px!important;grid-template-columns:minmax(90px,25%) minmax(0,1fr)!important}
+#app .dashboard-slider .institution-documentary-photo-wrap{height:100px!important;min-height:100px!important;max-height:100px!important}
+#app .dashboard-slider .institution-documentary-photo{max-height:100px!important;max-width:100%!important;object-fit:contain!important}
+#app .dashboard-slider .institution-documentary-name{font-size:clamp(14px,1.8vw,20px)!important;line-height:1.25!important}
+#app .dashboard-slider .institution-documentary-quote{font-size:11px!important;line-height:1.3!important;margin-top:3px!important}
+#app .dashboard-slider .institution-documentary-controls{margin-top:4px!important;gap:4px!important}
+#app .dashboard-slider .institution-documentary-controls button{padding:4px 7px!important;font-size:11px!important}
+#app .dashboard-slider .institution-documentary-footnote{font-size:10px!important;margin-top:3px!important}
+@media(max-width:700px){#app .dashboard-slider #summary.dashboard-summary-inside{grid-template-columns:repeat(2,minmax(0,1fr))!important}#app .dashboard-slider .institution-documentary-stage{height:118px!important;max-height:118px!important}#app .dashboard-slider .institution-documentary-slide{height:112px!important;max-height:112px!important;grid-template-columns:90px minmax(0,1fr)!important;padding:5px!important;gap:7px!important}#app .dashboard-slider .institution-documentary-photo-wrap{height:88px!important;min-height:88px!important;max-height:88px!important}}
+</style>
+</html>';
    var blob=new Blob([html],{type:'text/html;charset=utf-8'}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=title+'-'+((document.getElementById('jbDocId')||{}).value||'ID')+'.html';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},1000);
  }
  window.jbPrint=printDoc;window.jbDownload=downloadDoc;
