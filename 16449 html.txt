@@ -738,11 +738,11 @@ body.gold #app .header-calendar-select-v2{background:#f4d56b!important;color:#11
 (function(){
   function bdTime(){
     var d=new Date(),tz='Asia/Dhaka';
-    var t=d.toLocaleTimeString('bn-BD',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false});
+    var t=d.toLocaleTimeString('bn-BD',{timeZone:tz,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
     var dt=d.toLocaleDateString('bn-BD',{timeZone:tz,weekday:'long',year:'numeric',month:'long',day:'numeric'});
     var ld=d.toLocaleDateString('bn-BD',{timeZone:tz,day:'numeric',month:'long',year:'numeric'});
     var a=document.getElementById('appClock'),b=document.getElementById('appDate'),l=document.getElementById('loginDateTime');
-    if(a)a.textContent=t;if(b)b.textContent=dt;if(l)l.textContent='সময় '+t+' • '+ld;
+    if(a)a.textContent=t;if(b)b.textContent=dt;if(l)l.innerHTML='<span class="login-clock-digits">সময় '+t+'</span><span class="login-date-digits">'+ld+'</span>';
   }
   bdTime();setInterval(bdTime,1000);
 })();
@@ -1143,10 +1143,10 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     <div class="login-address">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div>
     <div class="login-contact"><span>☎ হটলাইন: 01823316630</span><span>✉ hmsumon789@gmail.com</span></div>
     <div class="ticker"><div class="ticker-text">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম</div></div>
-    <div class="login-tools">
-      <select id="loginLang" class="field" onchange="setLang(this.value)"><option value="bn">বাংলা</option><option value="ar">العربية</option><option value="en">English</option><option value="ur">اردو</option></select>
-      <span id="loginDateTime" class="loginDateTime">সময় ০০:০০:০০ • ১৬ সেপ্টেম্বর ২০২৬</span>
-      <div class="tools-right"></div>
+    <div class="login-tools" id="loginToolsLine20261017">
+      <select id="loginLang" class="field" aria-label="ভাষা নির্বাচন" onchange="setLang(this.value)"><option value="bn">বাংলা</option><option value="ar">العربية</option><option value="en">English</option><option value="ur">اردو</option></select>
+      <span id="loginDateTime" class="loginDateTime"><span class="login-clock-digits">সময় ০০:০০:০০</span><span class="login-date-digits">১৬ সেপ্টেম্বর ২০২৬</span></span>
+      <div class="tools-right"><select id="loginMode20261017" class="field jb-mode-select-20261017" aria-label="রং / মোড নির্বাচন" onchange="setMode(this.value)"><option value="light">☀️ লাইট মোড</option><option value="dark">🌙 ডার্ক মোড</option><option value="gold">🌟 গোল্ডেন মোড</option><option value="offwhite">🤍 অফ হোয়াইট মোড</option></select></div>
     </div>
     <div class="login-auth-qr-802268e">
       <div class="login-auth-802268e">
@@ -1168,8 +1168,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       <button class="secondary" onclick="resendOtp()">আবার OTP পাঠান</button>
       <button class="secondary" onclick="clearOtp()">Clear</button>
     </div>
-    <div class="searchbar">
-      <select id="loginSignal" class="field" onchange="syncSearchSignal('login')"><option value="">সংকেত নির্বাচন করুন</option></select><input id="loginSearch" class="field" placeholder="সংকেত নির্বাচন করে ID / মোবাইল / ইমেইল লিখুন" onkeydown="if(event.key==='Enter')doSearch('login')"><button class="primary" onclick="doSearch('login')">🔎</button>
+    <div class="searchbar login-searchbar-admission20261017">
+      <button type="button" class="primary login-online-admission20261017" onclick="openModule('admission')">📝 অনলাইন ভর্তি ফর্ম</button><select id="loginSignal" class="field" onchange="syncSearchSignal('login')"><option value="">সংকেত নির্বাচন করুন</option></select><input id="loginSearch" class="field" placeholder="সংকেত নির্বাচন করে ID / মোবাইল / ইমেইল লিখুন" onkeydown="if(event.key==='Enter')doSearch('login')"><button class="primary" onclick="doSearch('login')">🔎</button>
     </div>
     <div class="quick">
       <button onclick="openModule('payment')">অনলাইন পেমেন্ট</button><button onclick="openModule('result')">অনলাইন রেজাল্ট</button><button onclick="openModule('exam')">পরীক্ষার্থী নিবন্ধন</button><button onclick="openModule('admin')">নতুন অ্যাডমিন একাউন্ট</button><button onclick="openModule('madrasa')">নতুন মাদ্রাসা নিবন্ধন</button><button onclick="openWindow('quickWin')">দ্রুত সেবা</button>
@@ -16532,5 +16532,34 @@ body.offwhite .media-stage {
   body.offwhite .media-stage {
     animation-duration: 12s !important;
   }
+}
+</style>
+
+
+<style id="login-tools-line-layout-20261017">
+#loginPage #loginToolsLine20261017{
+  display:grid!important;grid-template-columns:minmax(112px,auto) minmax(0,1fr) minmax(170px,auto)!important;
+  align-items:center!important;gap:12px!important;width:100%!important;box-sizing:border-box!important;
+  padding:7px 10px!important;white-space:normal!important;
+}
+#loginPage #loginLang{min-width:112px!important;width:100%!important;min-height:42px!important;font-size:17px!important;font-weight:900!important}
+#loginPage #loginDateTime{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:2px!important;min-width:0!important;text-align:center!important;white-space:normal!important;color:var(--text)!important;font-variant-numeric:tabular-nums!important}
+#loginPage #loginDateTime .login-clock-digits{font-size:clamp(23px,2.1vw,34px)!important;line-height:1.08!important;font-weight:1000!important;letter-spacing:.6px!important;white-space:nowrap!important}
+#loginPage #loginDateTime .login-date-digits{font-size:clamp(18px,1.6vw,26px)!important;line-height:1.15!important;font-weight:1000!important;white-space:nowrap!important}
+#loginPage #loginToolsLine20261017 .tools-right{width:100%!important;min-width:0!important;margin:0!important}
+#loginPage #loginMode20261017{width:100%!important;min-width:170px!important;min-height:42px!important;font-size:16px!important;font-weight:900!important;border:2px solid var(--border)!important;border-radius:10px!important;background:var(--panel)!important;color:var(--text)!important}
+#loginPage .login-searchbar-admission20261017{display:grid!important;grid-template-columns:minmax(165px,auto) minmax(155px,.8fr) minmax(180px,1.4fr) 48px!important;gap:7px!important;align-items:stretch!important}
+#loginPage .login-online-admission20261017{min-height:44px!important;padding:8px 12px!important;font-weight:1000!important;white-space:normal!important;line-height:1.2!important}
+#loginPage .login-searchbar-admission20261017 .field{min-width:0!important;width:100%!important}
+@media(max-width:760px){
+ #loginPage #loginToolsLine20261017{grid-template-columns:1fr!important;gap:7px!important}
+ #loginPage #loginLang,#loginPage #loginMode20261017{width:100%!important}
+ #loginPage #loginDateTime .login-clock-digits{font-size:26px!important}
+ #loginPage #loginDateTime .login-date-digits{font-size:20px!important;white-space:normal!important}
+ #loginPage .login-searchbar-admission20261017{grid-template-columns:1fr 48px!important}
+ #loginPage .login-searchbar-admission20261017 .login-online-admission20261017{grid-column:1/-1}
+ #loginPage .login-searchbar-admission20261017 #loginSignal{grid-column:1}
+ #loginPage .login-searchbar-admission20261017 #loginSearch{grid-column:1}
+ #loginPage .login-searchbar-admission20261017 button[onclick="doSearch('login')"]{grid-column:2;grid-row:3}
 }
 </style>
