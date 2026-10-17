@@ -16456,3 +16456,10 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 <!-- ===== OFF-WHITE MODE PERSISTENCE — 2026-10-17 ===== -->
 <script id="jb-offwhite-mode-init-20261017">(function(){function applySavedMode(){var m="light";try{m=localStorage.mode||"light"}catch(e){}if(typeof window.setMode==="function")window.setMode(m)}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",applySavedMode);else applySavedMode()})();</script>
+
+<style id="golden-dynamic-summary-square-2026-10-17">
+/* গোল্ডেন মোডে আয়-ব্যয় ও উপস্থিতি/অনুপস্থিতির দুই ডায়নামিক সামারি বক্সের কোণা সবসময় স্কয়ার */
+body.gold #dashboardCharts > .chart-card{
+  border-radius:0!important;
+}
+</style>
