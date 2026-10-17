@@ -16563,3 +16563,17 @@ body.offwhite .media-stage {
  #loginPage .login-searchbar-admission20261017 button[onclick="doSearch('login')"]{grid-column:2;grid-row:3}
 }
 </style>
+
+<style id="login-clock-remove-mode-shift-4in-20261017">
+/* Requested: remove the login clock/date and move the mode selector 4 inches right */
+#loginPage #loginDateTime{display:none!important}
+#loginPage #loginToolsLine20261017{
+  grid-template-columns:minmax(112px,auto) minmax(0,1fr) minmax(170px,auto)!important;
+}
+#loginPage #loginToolsLine20261017 .tools-right{
+  transform:translateX(4in)!important;
+}
+@media(max-width:760px){
+  #loginPage #loginToolsLine20261017 .tools-right{transform:none!important}
+}
+</style>
