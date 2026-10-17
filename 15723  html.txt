@@ -4727,7 +4727,7 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
     document.querySelectorAll('.window').forEach(ensureControls);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
-  setTimeout(scan,300);setTimeout(scan,1000);setInterval(scan,2000);
+  setTimeout(scan,300);setTimeout(scan,1000);/* Removed redundant polling; DOM observer handles new UI. */
 
   /* Newly-created form windows are covered automatically. */
   var mo=new MutationObserver(function(list){
@@ -4821,7 +4821,7 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
   };
   function scan(){document.querySelectorAll('.window').forEach(add)}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
-  setTimeout(scan,300);setTimeout(scan,1000);setInterval(scan,2000);
+  setTimeout(scan,300);setTimeout(scan,1000);/* Removed redundant polling; DOM observer handles new UI. */
   new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes&&m.addedNodes.forEach(function(n){if(n.nodeType===1){if(n.matches&&n.matches('.window'))add(n);n.querySelectorAll&&n.querySelectorAll('.window').forEach(add)}})})}).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
@@ -5026,7 +5026,7 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
   window.task3MinimizeWindow=minimize;
   window.task3FullscreenWindow=fullscreen;
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
-  setTimeout(scan,300);setTimeout(scan,1000);setInterval(scan,1500);
+  setTimeout(scan,300);setTimeout(scan,1000);/* Removed redundant polling; DOM observer handles new UI. */
   new MutationObserver(function(ms){
     ms.forEach(function(m){
       m.addedNodes&&m.addedNodes.forEach(function(n){
@@ -5352,7 +5352,7 @@ body #app .header-news *{
   window.addEventListener('beforeprint',function(){scan();});
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
   setTimeout(scan,300);setTimeout(scan,1000);setTimeout(scan,2000);
-  setInterval(scan,1500);
+  /* Removed redundant polling; DOM observer handles new UI. */
 
   new MutationObserver(function(ms){
     var changed=false;
@@ -5456,7 +5456,7 @@ body #app .header-news *{
     document.querySelectorAll('.task6-print-logo').forEach(function(x){x.style.display='block';});
   });
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
-  setTimeout(scan,500);setTimeout(scan,1500);setInterval(scan,2000);
+  setTimeout(scan,500);setTimeout(scan,1500);/* Removed redundant polling; DOM observer handles new UI. */
   new MutationObserver(function(ms){
     var changed=false;
     ms.forEach(function(m){if(m.addedNodes&&m.addedNodes.length)changed=true;});
@@ -8206,7 +8206,7 @@ body.dark #searchProfilePrint .sp-bottom-actions button{
   function hook(){
     var b=document.getElementById('headerSlideDeleteBtn');
     if(b)b.onclick=function(e){e.preventDefault();e.stopImmediatePropagation();openList();};  }
-  hook();setInterval(hook,300);
+  /* Removed redundant polling; DOM observer handles new UI. */
   document.addEventListener('click',function(e){
     var b=e.target.closest&&e.target.closest('#headerSlideDeleteBtn');
     if(b){e.preventDefault();e.stopImmediatePropagation();openList();}
@@ -9568,7 +9568,7 @@ function placeFullWidth(){
   function scan(){document.querySelectorAll('.window,.form-window').forEach(add);var f=document.getElementById('formWin');if(f)add(f)}
   window.jbUniversalFullscreen2026=toggle;
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
-  setTimeout(scan,300);setTimeout(scan,1000);setInterval(scan,1500);
+  setTimeout(scan,300);setTimeout(scan,1000);/* Removed redundant polling; DOM observer handles new UI. */
   new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes&&m.addedNodes.forEach(function(n){if(n.nodeType===1){if(n.matches&&n.matches('.window,.form-window,#formWin'))add(n);n.querySelectorAll&&n.querySelectorAll('.window').forEach(add)}})})}).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
