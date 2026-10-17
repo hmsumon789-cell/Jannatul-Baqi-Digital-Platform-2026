@@ -1061,6 +1061,7 @@ function openModule(key){
 const labels=Object.fromEntries(modules.map(x=>[x[0],x[1]]));
 $('winTitle').textContent=labels[key]||key;
 $('winBody').innerHTML='<div class="form-language-fixed"><span>বাংলা</span><span>العربية</span><span>English</span></div>'+moduleForm(key)+'<div class="form-signatures"><div class="signature-box"><div>আবেদনকারীর স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>অভিভাবকের স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>প্রধান শিক্ষিকার স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>প্রিন্সিপাল/মুহতামিম এর স্বাক্ষর</div><div class="signature-line"></div></div></div><div class="form-action-bar"><button type="button" class="primary" onclick="saveCurrentForm()">💾 সেভ</button><button type="button" class="secondary" onclick="printCurrentForm()">🖨️ প্রিন্ট</button><button type="button" class="secondary" onclick="enableFormEdit()">✏️ এডিট</button><button type="button" class="secondary" onclick="downloadCurrentForm()">⬇️ ডাউনলোড</button><button type="button" class="secondary" onclick="clearFormWindow()">🧹 ক্লিয়ার</button></div>';
+if(key==='institution')renderInstitutionProfile2026();
 $('formWin').classList.remove('minimized');
 $('formWin').style.height='';
 openWindow('formWin');
