@@ -16596,3 +16596,25 @@ body.offwhite .media-stage {
   }
 }
 </style>
+
+<style id="login-password-signal-small-adjust-20261017">
+/* Small, isolated login alignment adjustments */
+#loginPage .login-grid .pass-wrap{
+  position:relative!important;
+  top:-5px!important;
+}
+#loginPage .login-searchbar-admission20261017 #loginSignal{
+  width:calc(100% - 20px)!important;
+  max-width:calc(100% - 20px)!important;
+  justify-self:start!important;
+  position:relative!important;
+  left:-20px!important;
+}
+@media(max-width:760px){
+  #loginPage .login-searchbar-admission20261017 #loginSignal{
+    width:calc(100% - 20px)!important;
+    max-width:calc(100% - 20px)!important;
+    left:0!important;
+  }
+}
+</style>
