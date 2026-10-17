@@ -1240,9 +1240,12 @@ body.gold #loginContactStrip20261013{background:#fff9e7!important;color:#4a3300!
   <div id="topActionBar" class="top-action-bar">
     <button class="primary header-home-final" onclick="goHome()" title="Home">🏠 হোম</button>
     <div class="header-modes header-mode-icons">
-      <button class="mode" onclick="setMode('dark')" title="Dark">🌙</button>
-      <button class="mode" onclick="setMode('light')" title="Light">☀️</button>
-      <button class="mode" onclick="setMode('gold')" title="Golden">🟡</button>
+      <select id="dashboardMode20261017" class="field jb-mode-select-20261017 dashboard-mode-select-20261017" aria-label="ড্যাশবোর্ড মোড নির্বাচন" title="ড্যাশবোর্ড মোড পরিবর্তন" onchange="setMode(this.value)">
+        <option value="offwhite">🤍 অফ হোয়াইট</option>
+        <option value="dark">🌙 ডার্ক</option>
+        <option value="light">☀️ লাইট</option>
+        <option value="gold">🟡 গোল্ডেন</option>
+      </select>
     </div>
     <div class="header-signal-wrap">
       <select id="appSignal" class="field header-signal" onchange="syncSearchSignal('app')">
@@ -16420,3 +16423,71 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 <!-- ===== OFF-WHITE MODE PERSISTENCE — 2026-10-17 ===== -->
 <script id="jb-offwhite-mode-init-20261017">(function(){function applySavedMode(){var m="light";try{m=localStorage.mode||"light"}catch(e){}if(typeof window.setMode==="function")window.setMode(m)}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",applySavedMode);else applySavedMode()})();</script>
+
+
+<!-- ===== DASHBOARD MODE SYNC + GOLDEN SQUARE LIVE SUMMARY FIX — 2026-10-17 ===== -->
+<style id="jb-dashboard-mode-square-livefix-20261017-css">
+#app .header-mode-icons{display:flex!important;align-items:center!important;gap:8px!important}
+#app .header-mode-icons .dashboard-mode-select-20261017{display:block!important;min-width:155px!important;max-width:190px!important;min-height:40px!important;padding:7px 12px!important;font-weight:900!important}
+body.gold #app #summary .jb-gold-square-income-20261017,
+body.gold #app #summary .jb-gold-square-expense-20261017,
+body.gold #app #summary .jb-gold-square-present-20261017,
+body.gold #app #summary .jb-gold-square-absent-20261017,
+body.gold #app .dashboard-summary .jb-gold-square-income-20261017,
+body.gold #app .dashboard-summary .jb-gold-square-expense-20261017,
+body.gold #app .dashboard-summary .jb-gold-square-present-20261017,
+body.gold #app .dashboard-summary .jb-gold-square-absent-20261017{border-radius:0!important}
+@media(max-width:700px){#app .header-mode-icons .dashboard-mode-select-20261017{min-width:135px!important;max-width:165px!important}}
+</style>
+<script id="jb-dashboard-mode-square-livefix-20261017">
+(function(){
+  'use strict';
+  function tagSummaryCards(){
+    var roots=[];
+    var a=document.getElementById('summary');if(a)roots.push(a);
+    document.querySelectorAll('#app .dashboard-summary').forEach(function(e){if(roots.indexOf(e)<0)roots.push(e)});
+    roots.forEach(function(root){
+      root.querySelectorAll('.stat').forEach(function(card){
+        var label=(card.textContent||'').replace(/\s+/g,' ').trim();
+        card.classList.remove('jb-gold-square-income-20261017','jb-gold-square-expense-20261017','jb-gold-square-present-20261017','jb-gold-square-absent-20261017');
+        if(/ব্যয়|ব্যয়/.test(label)){card.classList.add('jb-gold-square-expense-20261017');return;}
+        if(/অনুপস্থিত/.test(label)){card.classList.add('jb-gold-square-absent-20261017');return;}
+        if(/আজ\s*উপস্থিত|উপস্থিত/.test(label)){card.classList.add('jb-gold-square-present-20261017');return;}
+        if(/আয়|আয়/.test(label)){card.classList.add('jb-gold-square-income-20261017');}
+      });
+    });
+  }
+  function syncModeSelects(){
+    var mode='light';
+    try{mode=localStorage.getItem('mode')||'light'}catch(e){}
+    document.querySelectorAll('.jb-mode-select-20261017').forEach(function(el){el.value=mode});
+    var dashboard=document.getElementById('dashboardMode20261017');
+    if(dashboard)dashboard.value=mode;
+  }
+  function init(){
+    syncModeSelects();
+    tagSummaryCards();
+    var summary=document.getElementById('summary');
+    if(summary&&!summary.__jbSquareObserver20261017&&window.MutationObserver){
+      var observer=new MutationObserver(function(){tagSummaryCards()});
+      observer.observe(summary,{childList:true,subtree:true,characterData:true});
+      summary.__jbSquareObserver20261017=true;
+    }
+    document.querySelectorAll('#app .dashboard-summary').forEach(function(root){
+      if(!root.__jbSquareObserver20261017&&window.MutationObserver){
+        var observer=new MutationObserver(function(){tagSummaryCards()});
+        observer.observe(root,{childList:true,subtree:true,characterData:true});
+        root.__jbSquareObserver20261017=true;
+      }
+    });
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+  window.addEventListener('storage',function(e){if(e.key==='mode')syncModeSelects()});
+  document.addEventListener('change',function(e){
+    if(e.target&&e.target.classList&&e.target.classList.contains('jb-mode-select-20261017')){
+      var value=e.target.value;
+      document.querySelectorAll('.jb-mode-select-20261017').forEach(function(el){el.value=value});
+    }
+  });
+})();
+</script>
