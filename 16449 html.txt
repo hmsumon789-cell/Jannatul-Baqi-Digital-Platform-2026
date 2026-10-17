@@ -16563,3 +16563,28 @@ body.offwhite .media-stage {
  #loginPage .login-searchbar-admission20261017 button[onclick="doSearch('login')"]{grid-column:2;grid-row:3}
 }
 </style>
+
+<style id="login-clock-adjacent-to-mode-20261017">
+@media (min-width:761px){
+  #loginPage #loginDateTime{
+    grid-column:2!important;
+    justify-self:end!important;
+    width:max-content!important;
+    max-width:100%!important;
+    margin-left:auto!important;
+    box-sizing:border-box!important;
+    padding:6px 10px!important;
+    border:1px solid var(--border)!important;
+    border-radius:12px!important;
+    background:var(--panel)!important;
+  }
+}
+@media (max-width:760px){
+  #loginPage #loginDateTime{
+    justify-self:center!important;
+    width:auto!important;
+    max-width:100%!important;
+    margin:0 auto!important;
+  }
+}
+</style>
