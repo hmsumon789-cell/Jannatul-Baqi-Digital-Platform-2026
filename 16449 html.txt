@@ -16563,3 +16563,43 @@ body.offwhite .media-stage {
  #loginPage .login-searchbar-admission20261017 button[onclick="doSearch('login')"]{grid-column:2;grid-row:3}
 }
 </style>
+
+<style id="login-tools-round-mode-clock-19dd5ba">
+/* Login top line: language, large clock/date capsule, round mode dropdown */
+#loginPage #loginToolsLine20261017{
+  grid-template-columns:minmax(112px,auto) minmax(0,1fr) minmax(175px,auto)!important;
+  align-items:center!important;
+}
+#loginPage #loginDateTime{
+  min-height:54px!important;
+  padding:6px 18px!important;
+  border:2px solid var(--border)!important;
+  border-radius:999px!important;
+  background:var(--panel)!important;
+  box-shadow:0 3px 12px rgba(0,0,0,.12)!important;
+}
+#loginPage #loginDateTime .login-clock-digits{
+  font-size:clamp(24px,2.25vw,36px)!important;
+  font-weight:1000!important;
+}
+#loginPage #loginDateTime .login-date-digits{
+  font-size:clamp(18px,1.65vw,27px)!important;
+  font-weight:1000!important;
+}
+#loginPage #loginToolsLine20261017 #loginMode20261017{
+  min-width:175px!important;
+  min-height:54px!important;
+  padding:8px 18px!important;
+  border-radius:999px!important;
+  text-align:center!important;
+  cursor:pointer!important;
+  box-shadow:0 3px 12px rgba(0,0,0,.12)!important;
+}
+#loginPage .login-searchbar-admission20261017 .login-online-admission20261017{
+  order:0!important;
+}
+@media(max-width:760px){
+  #loginPage #loginDateTime{width:100%!important;box-sizing:border-box!important}
+  #loginPage #loginToolsLine20261017 #loginMode20261017{width:100%!important}
+}
+</style>
