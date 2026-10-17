@@ -16458,8 +16458,11 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <script id="jb-offwhite-mode-init-20261017">(function(){function applySavedMode(){var m="light";try{m=localStorage.mode||"light"}catch(e){}if(typeof window.setMode==="function")window.setMode(m)}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",applySavedMode);else applySavedMode()})();</script>
 
 <style id="golden-dynamic-summary-square-2026-10-17">
-/* গোল্ডেন মোডে আয়-ব্যয় ও উপস্থিতি/অনুপস্থিতির দুই ডায়নামিক সামারি বক্সের কোণা সবসময় স্কয়ার */
-body.gold #dashboardCharts > .chart-card{
+/* গোল্ডেন মোডে আয়-ব্যয় ও উপস্থিতি/অনুপস্থিতির দুই ডায়নামিক বক্সের প্রকৃত chart-card স্কয়ার থাকবে; পরের CSS-ও যেন গোল করতে না পারে */
+body.gold #dashboardCharts .chart-card,
+body.gold .dashboard-slider #dashboardCharts .chart-card,
+body.gold #dashboardCharts .chart-card[style],
+body.gold .dashboard-slider #dashboardCharts .chart-card[style]{
   border-radius:0!important;
 }
 </style>
