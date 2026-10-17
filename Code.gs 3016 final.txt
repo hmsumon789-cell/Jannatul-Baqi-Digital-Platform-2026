@@ -3093,6 +3093,20 @@ function getInstitutionProfile2026(token){
   for(let i=1;i<rows.length;i++){const row=rows[i],key=String(row[0]||'');if(key==='HISTORY')history=String(row[5]||'');else if(key)people.push({id:key,name:String(row[1]||''),group:String(row[2]||''),photoUrl:String(row[3]||'')});}
   return {ok:true,history:history,people:people};
 }
+
+function getInstitutionDocumentary2026(token){
+  auth_(token);
+  const sh=institutionProfileSheet2026_();
+  const rows=sh.getDataRange().getValues();
+  const people=[];
+  for(let i=1;i<rows.length;i++){
+    const row=rows[i],key=String(row[0]||'');
+    if(key&&key!=='HISTORY'&&String(row[1]||'').trim()){
+      people.push({id:key,name:String(row[1]||''),group:String(row[2]||''),photoUrl:String(row[3]||'')});
+    }
+  }
+  return {ok:true,people:people};
+}
 function saveInstitutionPhoto2026(token,personId,dataUrl,fileName,mimeType){
   auth_(token);if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin ছবি সংরক্ষণ করতে পারবেন。'};
   personId=String(personId||'').replace(/[^a-zA-Z0-9_-]/g,'');dataUrl=String(dataUrl||'');
