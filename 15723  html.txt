@@ -16420,3 +16420,67 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 <!-- ===== OFF-WHITE MODE PERSISTENCE — 2026-10-17 ===== -->
 <script id="jb-offwhite-mode-init-20261017">(function(){function applySavedMode(){var m="light";try{m=localStorage.mode||"light"}catch(e){}if(typeof window.setMode==="function")window.setMode(m)}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",applySavedMode);else applySavedMode()})();</script>
+
+
+<!-- ===== ADMISSION WINDOW HARD CLOSE / DASHBOARD CLICK RECOVERY — 2026-10-17 ===== -->
+<style id="jb-admission-hard-close-20261017-css">
+#formWin.jb-admission-hard-closed-20261017{display:none!important;visibility:hidden!important;pointer-events:none!important}
+</style>
+<script id="jb-admission-hard-close-20261017-js">
+(function(){
+  'use strict';
+  var id='formWin',closed='jb-admission-hard-closed-20261017',busy=false;
+  function win(){return document.getElementById(id)}
+  function hardHide(){
+    var w=win();if(!w)return;
+    w.classList.remove('show','minimized','jb-adm-win-fullscreen-20261012','jb-adm-win-minimized-20261012','user-fullscreen-2026');
+    w.classList.add(closed);
+    w.style.setProperty('display','none','important');
+    w.style.setProperty('visibility','hidden','important');
+    w.style.setProperty('pointer-events','none','important');
+    w.removeAttribute('aria-modal');
+    w.setAttribute('aria-hidden','true');
+    try{w.inert=true}catch(e){}
+    var bar=document.getElementById('jbAdmissionChromeTabs20261012');if(bar)bar.remove();
+    var task=document.getElementById('jbAdmTaskbar20261012');if(task)task.remove();
+  }
+  function showAgain(){
+    var w=win();if(!w)return;
+    w.classList.remove(closed,'minimized','jb-adm-win-minimized-20261012');
+    w.style.removeProperty('display');w.style.removeProperty('visibility');w.style.removeProperty('pointer-events');
+    w.setAttribute('aria-hidden','false');
+    try{w.inert=false}catch(e){}
+  }
+  var oldClose=window.closeWindow;
+  if(typeof oldClose==='function'&&!oldClose.__jbHardClose20261017){
+    var wrappedClose=function(which){
+      var result=oldClose.apply(this,arguments);
+      if(which===id)hardHide();
+      return result;
+    };
+    wrappedClose.__jbHardClose20261017=true;window.closeWindow=wrappedClose;
+  }
+  var oldOpen=window.openWindow;
+  if(typeof oldOpen==='function'&&!oldOpen.__jbHardOpen20261017){
+    var wrappedOpen=function(which){
+      if(which===id)showAgain();
+      var result=oldOpen.apply(this,arguments);
+      return result;
+    };
+    wrappedOpen.__jbHardOpen20261017=true;window.openWindow=wrappedOpen;
+  }
+  document.addEventListener('click',function(e){
+    var target=e.target;if(!target||!target.closest)return;
+    if(target.closest('#jbAdmissionChromeTabs20261012 .jb-adm-close-window')){
+      setTimeout(hardHide,0);setTimeout(hardHide,60);
+    }
+  },true);
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape'){
+      var w=win();if(w&&w.classList.contains('jb-adm-win-fullscreen-20261012'))hardHide();
+    }
+  },true);
+  window.addEventListener('pageshow',function(){var w=win();if(w&&w.classList.contains(closed))hardHide()});
+})();
+</script>
+<!-- ===== END ADMISSION WINDOW HARD CLOSE / DASHBOARD CLICK RECOVERY ===== -->
