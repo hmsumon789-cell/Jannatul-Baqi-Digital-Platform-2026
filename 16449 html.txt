@@ -17012,9 +17012,36 @@ function institutionDocumentaryRender2026(){
  var years=institutionHtmlEscape2026(institutionDocumentaryYears2026(p));
  var personName=String(p.name||'').toLowerCase();
  var groupText=String(p.gender||p.sex||p.group||p.role||'').toLowerCase();
- var namedFlowerPerson=/(শাহিদা|সাহিদা|মুসলিমা|তাসলিমা|রোকেয়া|রোকেয়া)/i.test(personName);
- var isFemale=namedFlowerPerson||/(মহিলা|শিক্ষিকা|নারী|মেয়ে|মেয়|female|woman|girl)/i.test(groupText);
- var defaultPhotoUrl=isFemale?'https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=700&q=85':'https://commons.wikimedia.org/wiki/Special:FilePath/Muslim%20scholar2%20in%20kurta1860eastbengal.jpg?width=700';
+ // প্রতিষ্ঠান পরিচিতির নির্বাচিত ছবির তালিকা: ব্যক্তিগত আপলোড করা ছবি থাকলে সেটিই অগ্রাধিকার পাবে।
+ var photoCatalog2026={
+  1:'https://commons.wikimedia.org/wiki/Special:FilePath/Muslim%20scholar2%20in%20kurta1860eastbengal.jpg?width=700',
+  2:'https://images.unsplash.com/photo-1496857239036-1fb137683000?auto=format&fit=crop&w=700&q=85',
+  3:'https://ustadhbaajour.org/wp-content/uploads/2024/12/usatad-pic-logo-1.webp',
+  4:'https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=700&q=85',
+  5:'https://onstorage.s3.eu-west-1.amazonaws.com/uploads/public/608/0aa/827/thumb_270785_1200_1200_0_0_auto.jpg',
+  6:'https://images.unsplash.com/photo-1757515761859-d7256baee7e3?auto=format&fit=crop&w=700&q=85',
+  8:'https://images.unsplash.com/photo-1698242082711-e11d3870a843?auto=format&fit=crop&w=700&q=85',
+  9:'https://commons.wikimedia.org/wiki/Special:FilePath/A%20Muslim%20Scholar%20posed%20with%20a%20Book%20-%20Eastern%20Bengal%201860%27s.jpg?width=700',
+  11:'https://commons.wikimedia.org/wiki/Special:FilePath/Muslim%20scholar2%20in%20kurta1860eastbengal.jpg?width=700',
+  12:'https://images.unsplash.com/photo-1757515761859-d7256baee7e3?auto=format&fit=crop&w=700&q=85',
+  14:'https://images.unsplash.com/photo-1777316856016-d0838d124e5a?auto=format&fit=crop&w=700&q=85',
+  15:'https://ustadhbaajour.org/wp-content/uploads/2024/12/usatad-pic-logo-1.webp',
+  16:'https://images.unsplash.com/photo-1496857239036-1fb137683000?auto=format&fit=crop&w=700&q=85',
+  17:'https://commons.wikimedia.org/wiki/Special:FilePath/Muslim%20scholar2%20in%20kurta1860eastbengal.jpg?width=700',
+  19:'https://commons.wikimedia.org/wiki/Special:FilePath/-Ammar%20Nakshawani%20Portrait.jpg?width=700'
+ };
+ var namedPhotoNo=/(রোকেয়া|রোকেয়া)/i.test(personName)?2:
+  /(শাহিদা|সাহিদা)/i.test(personName)?4:
+  /মুসলিমা/i.test(personName)?6:
+  /তাসলিমা/i.test(personName)?8:0;
+ var rolePhotoNo=/(প্রিন্সিপাল|অধ্যক্ষ|principal)/i.test(groupText)?17:
+  /(উপদেষ্টা|adviser|advisor)/i.test(groupText)?3:
+  /(প্রতিষ্ঠাতা|founder)/i.test(groupText)?5:
+  /(দাতা|donor)/i.test(groupText)?9:0;
+ var memberPhotoNos=[11,12,14,15,16,17,19];
+ var isMember=/(সদস্য|member)/i.test(groupText);
+ var defaultPhotoNo=namedPhotoNo||rolePhotoNo||(isMember?memberPhotoNos[Math.abs(institutionDocumentaryIndex2026)%memberPhotoNos.length]:0);
+ var defaultPhotoUrl=photoCatalog2026[defaultPhotoNo]||photoCatalog2026[1];
  var selectedPhotoUrl=p.photoUrl||defaultPhotoUrl;
  var photo='<img class="institution-documentary-photo" src="'+institutionHtmlEscape2026(selectedPhotoUrl)+'" alt="'+name+'" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\'">';
  var fallback='<div class="institution-documentary-placeholder" style="display:none">✦</div>';
