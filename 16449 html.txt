@@ -16989,7 +16989,7 @@ function institutionDocumentaryToggle2026(){
     #app .dashboard-media-layout .dashboard-slider #summary.dashboard-summary-inside{
       display:grid!important;visibility:visible!important;position:relative!important;
       grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:7px!important;
-      width:100%!important;margin:8px 0 10px!important;padding:0!important;
+      width:100%!important;margin:30px 0 10px!important;padding:0!important;
       transform:none!important;box-sizing:border-box!important;order:2!important;
     }
     #app .dashboard-media-layout .dashboard-slider #summary.dashboard-summary-inside .stat{
