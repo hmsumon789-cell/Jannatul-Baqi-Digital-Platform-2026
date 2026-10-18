@@ -2045,54 +2045,7 @@ async function searchOnlinePaymentReceipt(){
 function printOnlineReceipt(){
   const b=$('onlineReceiptBody');if(!b)return;
   const w=window.open('','_blank','width=850,height=750');if(!w)return;
-  w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>মানি রসিদ</title><style>@page{size:A4 portrait;margin:14mm}body{font-family:Arial,"Noto Sans Bengali",sans-serif;padding:0;color:#111}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:9px;text-align:left}h2,h3{text-align:center}</style></head><body>'+b.outerHTML+'
-<!-- ===== FINAL INSTITUTION PROFILE LAYOUT FIX — 2026-10-18 ===== -->
-<style id="institution-profile-layout-final-20261018">
-/* Main media-player control row first; requested dashboard boxes immediately below it. */
-#app .dashboard-media-layout .dashboard-slider #mediaStage{order:1!important}
-#app .dashboard-media-layout .dashboard-slider #summary.dashboard-summary-inside{
-  display:grid!important;visibility:visible!important;position:relative!important;
-  order:2!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
-  gap:7px!important;width:100%!important;margin:8px 0 10px!important;
-  padding:0!important;transform:none!important;box-sizing:border-box!important;
-}
-#app .dashboard-media-layout .dashboard-slider #summary.dashboard-summary-inside .stat{
-  display:flex!important;visibility:visible!important;min-width:0!important;
-  min-height:56px!important;height:auto!important;padding:7px 5px!important;
-  margin:0!important;box-sizing:border-box!important;overflow-wrap:anywhere!important;
-}
-/* Documentary slideshow must sit directly below the dashboard boxes and stay compact. */
-#app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026{
-  display:block!important;visibility:visible!important;position:relative!important;
-  order:3!important;width:100%!important;box-sizing:border-box!important;
-  margin:8px 0 10px!important;padding:7px 9px!important;
-}
-#app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026 .institution-documentary-stage{
-  height:90px!important;min-height:90px!important;max-height:90px!important;overflow:hidden!important;
-}
-#app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026 .institution-documentary-slide{
-  height:84px!important;min-height:84px!important;max-height:84px!important;
-  grid-template-columns:72px minmax(0,1fr)!important;gap:6px!important;padding:4px!important;
-}
-#app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026 .institution-documentary-photo-wrap{
-  height:72px!important;min-height:72px!important;max-height:72px!important;width:100%!important;
-}
-#app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026 .institution-documentary-controls{
-  margin-top:3px!important;gap:4px!important;
-}
-@media(max-width:700px){
-  #app .dashboard-media-layout .dashboard-slider #summary.dashboard-summary-inside{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-  #app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026 .institution-documentary-stage{height:82px!important;min-height:82px!important;max-height:82px!important}
-  #app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026 .institution-documentary-slide{
-    height:76px!important;min-height:76px!important;max-height:76px!important;
-    grid-template-columns:62px minmax(0,1fr)!important;gap:5px!important;padding:3px!important;
-  }
-  #app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026 .institution-documentary-photo-wrap{
-    height:66px!important;min-height:66px!important;max-height:66px!important;
-  }
-}
-</style>
-</body></html>');
+  w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>মানি রসিদ</title><style>@page{size:A4 portrait;margin:14mm}body{font-family:Arial,"Noto Sans Bengali",sans-serif;padding:0;color:#111}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:9px;text-align:left}h2,h3{text-align:center}</style></head><body>'+b.outerHTML+'</body></html>');
   w.document.close();w.focus();setTimeout(function(){w.print()},250);
 }
 
