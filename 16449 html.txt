@@ -1194,21 +1194,74 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 
 <style id="dashboard-media-boxes-and-compact-documentary-20261018">
-/* মিডিয়া প্লেয়ারের কন্ট্রোলের ঠিক নিচে সব ড্যাশবোর্ড বক্স; এরপর পরিচিতি স্লাইড */
-#summary.dashboard-summary-inside{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:7px!important;width:100%!important;margin:8px 0 10px!important;transform:none!important;}
-#summary.dashboard-summary-inside .stat{min-width:0!important;min-height:54px!important;height:auto!important;padding:6px 5px!important;margin:0!important;transform:none!important;overflow-wrap:anywhere!important;font-size:12px!important;}
-#summary.dashboard-summary-inside .stat b{display:block!important;font-size:19px!important;line-height:1.2!important;margin-bottom:3px!important;}
-#institutionDocumentary2026{margin:8px 0 10px!important;padding:7px 9px!important;}
-#institutionDocumentary2026 .institution-documentary-heading{margin:0 auto 4px!important;padding:1px 4px 3px!important;}
-#institutionDocumentary2026 .institution-documentary-heading h2{font-size:clamp(15px,1.8vw,21px)!important;line-height:1.2!important;margin:2px 0!important;}
-#institutionDocumentary2026 .institution-documentary-heading p{font-size:11px!important;line-height:1.2!important;margin:2px 0!important;}
-#institutionDocumentary2026 .institution-documentary-stage{height:90px!important;min-height:90px!important;max-height:90px!important;overflow:hidden!important;}
-#institutionDocumentary2026 .institution-documentary-slide{height:84px!important;min-height:84px!important;max-height:84px!important;padding:4px 7px!important;gap:7px!important;grid-template-columns:minmax(70px,22%) minmax(0,1fr)!important;}
-#institutionDocumentary2026 .institution-documentary-photo-wrap{height:72px!important;min-height:72px!important;max-height:72px!important;}
-#institutionDocumentary2026 .institution-documentary-controls{margin-top:3px!important;gap:3px!important;}
-#institutionDocumentary2026 .institution-documentary-controls button{padding:3px 6px!important;font-size:10px!important;}
-#institutionDocumentary2026 .institution-documentary-footnote{font-size:9px!important;margin-top:2px!important;}
-@media(max-width:700px){#summary.dashboard-summary-inside{grid-template-columns:repeat(2,minmax(0,1fr))!important;}#institutionDocumentary2026 .institution-documentary-stage{height:82px!important;min-height:82px!important;max-height:82px!important;}#institutionDocumentary2026 .institution-documentary-slide{height:76px!important;min-height:76px!important;max-height:76px!important;grid-template-columns:65px minmax(0,1fr)!important;padding:3px!important;gap:5px!important;}#institutionDocumentary2026 .institution-documentary-photo-wrap{height:66px!important;min-height:66px!important;max-height:66px!important;}}
+/* Four requested summary tiles: immediately below the main media-player controls. */
+#summary.dashboard-summary-inside{
+  display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:10px!important;width:100%!important;margin:12px 0 14px!important;
+  padding:0!important;box-sizing:border-box!important;transform:none!important;
+}
+#summary.dashboard-summary-inside .stat{
+  display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;
+  min-width:0!important;min-height:76px!important;height:auto!important;padding:10px 7px!important;
+  margin:0!important;border:2px solid #d6ad46!important;border-radius:13px!important;
+  background:linear-gradient(135deg,#fff7d7 0%,#f4d56b 52%,#fff0b2 100%)!important;
+  color:#3a2a05!important;box-shadow:0 4px 12px #5e430e24!important;
+  text-align:center!important;overflow-wrap:anywhere!important;box-sizing:border-box!important;
+  font-size:13px!important;font-weight:850!important;line-height:1.35!important;
+}
+#summary.dashboard-summary-inside .stat b{
+  display:block!important;font-size:23px!important;line-height:1.2!important;
+  margin:0 0 5px!important;color:#15583d!important;font-weight:1000!important;
+}
+#summary.dashboard-summary-inside .stat span{display:block!important}
+/* The documentary card follows the four tiles. Increase its total visual height by about 3 inches. */
+#institutionDocumentary2026{
+  display:block!important;width:100%!important;margin:12px 0 12px!important;padding:14px 16px!important;
+  min-height:600px!important;box-sizing:border-box!important;
+  border:2px solid #d6ad46!important;border-radius:18px!important;
+  box-shadow:0 8px 24px #102b1d22!important;
+}
+#institutionDocumentary2026 .institution-documentary-heading{margin:0 auto 12px!important;padding:6px 8px 10px!important}
+#institutionDocumentary2026 .institution-documentary-heading h2{
+  font-size:clamp(19px,2.3vw,28px)!important;line-height:1.4!important;margin:6px 0!important;
+}
+#institutionDocumentary2026 .institution-documentary-heading p{font-size:14px!important;line-height:1.6!important;margin:5px 0!important}
+#institutionDocumentary2026 .institution-documentary-stage{
+  height:390px!important;min-height:390px!important;max-height:390px!important;
+  overflow:hidden!important;display:flex!important;align-items:center!important;justify-content:center!important;
+}
+#institutionDocumentary2026 .institution-documentary-slide{
+  height:360px!important;min-height:360px!important;max-height:360px!important;
+  grid-template-columns:minmax(180px,32%) minmax(0,1fr)!important;gap:18px!important;padding:16px!important;
+}
+#institutionDocumentary2026 .institution-documentary-photo-wrap{
+  height:310px!important;min-height:310px!important;max-height:310px!important;width:100%!important;
+}
+#institutionDocumentary2026 .institution-documentary-placeholder{font-size:54px!important}
+#institutionDocumentary2026 .institution-documentary-role{margin-bottom:8px!important}
+#institutionDocumentary2026 .institution-documentary-name{font-size:clamp(18px,2vw,26px)!important;line-height:1.5!important}
+#institutionDocumentary2026 .institution-documentary-quote{margin-top:10px!important;font-size:14px!important;line-height:1.7!important}
+#institutionDocumentary2026 .institution-documentary-controls{margin-top:10px!important;gap:8px!important;flex-wrap:wrap!important}
+#institutionDocumentary2026 .institution-documentary-controls button{padding:7px 11px!important;font-size:12px!important}
+#institutionDocumentary2026 .institution-documentary-footnote{font-size:11px!important;margin-top:8px!important}
+@media(max-width:700px){
+  #summary.dashboard-summary-inside{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}
+  #summary.dashboard-summary-inside .stat{min-height:68px!important;padding:8px 5px!important;font-size:12px!important}
+  #summary.dashboard-summary-inside .stat b{font-size:20px!important}
+  #institutionDocumentary2026{min-height:0!important;padding:9px!important}
+  #institutionDocumentary2026 .institution-documentary-heading h2{font-size:17px!important}
+  #institutionDocumentary2026 .institution-documentary-heading p{font-size:11px!important}
+  #institutionDocumentary2026 .institution-documentary-stage{height:300px!important;min-height:300px!important;max-height:300px!important}
+  #institutionDocumentary2026 .institution-documentary-slide{
+    height:280px!important;min-height:280px!important;max-height:280px!important;
+    grid-template-columns:95px minmax(0,1fr)!important;gap:8px!important;padding:8px!important;
+  }
+  #institutionDocumentary2026 .institution-documentary-photo-wrap{height:120px!important;min-height:120px!important;max-height:120px!important}
+  #institutionDocumentary2026 .institution-documentary-name{font-size:16px!important;line-height:1.35!important}
+  #institutionDocumentary2026 .institution-documentary-quote{font-size:11px!important;line-height:1.45!important;margin-top:6px!important}
+  #institutionDocumentary2026 .institution-documentary-controls{gap:4px!important}
+  #institutionDocumentary2026 .institution-documentary-controls button{font-size:10px!important;padding:5px 6px!important}
+}
 </style>
 </head>
 <body>
@@ -1574,25 +1627,16 @@ function watchRequestedDashboardTiles2026(){
   // Keep compatibility with the existing dashboard initialization without deleting tiles.
 }
 function renderStats(x){
-  const attendance=x.attendanceToday||{};
   const arr=[
-    ['আয়',x.income],['ব্যয়',x.expense],['মোট ক্যাশ',x.cash],['মোট বকেয়া',x.due],
-    ['মোট ছাত্র/ছাত্রী',x.students],['মোট শিক্ষক/শিক্ষিকা',x.teachers],
-    ['নির্বাহী পরিষদ সদস্য',x.executiveMembers??x.executives],
-    ['নিবন্ধিত মহিলা মাদ্রাসা',x.femaleMadrasas],
-    ['নিবন্ধিত পুরুষ মাদ্রাসা',x.maleMadrasas],
-    ['আজ উপস্থিত',attendance.present],['আজ অনুপস্থিত',attendance.absent],
-    ['পরীক্ষার্থী',x.examinees??x.examCandidates],
-    ['মোট একটিভ/অনলাইন অ্যাডমিন সংখ্যা',x.activeAdmins??x.onlineAdmins]
+    ['আয়',x.income],
+    ['ব্যয়',x.expense],
+    ['মোট ছাত্র-ছাত্রী সংখ্যা',x.students],
+    ['মোট পরীক্ষার্থী সংখ্যা',x.examinees??x.examCandidates]
   ];
   const sum=$('summary');
   if(sum){
-    sum.innerHTML=arr.map(a=>'<div class="stat"><b>'+((a[1]??0))+'</b>'+a[0]+'</div>').join('');
+    sum.innerHTML=arr.map(a=>'<div class="stat"><b>'+((a[1]??0))+'</b><span>'+a[0]+'</span></div>').join('');
     sum.classList.add('dashboard-slider-summary');
-    const helpBox=document.createElement('div');
-    helpBox.className='stat quick-help-stat';
-    helpBox.innerHTML='<button class="quick-help-dashboard-btn" onclick="openWindow(\'quickWin\')">🆘 দ্রুত সেবা / হেল্প</button>';
-    sum.appendChild(helpBox);
   }
   renderDashboardCharts(x);
   loadInstitutionDocumentary2026();
@@ -1975,16 +2019,8 @@ async function searchOnlinePaymentReceipt(){
 function printOnlineReceipt(){
   const b=$('onlineReceiptBody');if(!b)return;
   const w=window.open('','_blank','width=850,height=750');if(!w)return;
-  w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>মানি রসিদ</title><style>@page{size:A4 portrait;margin:14mm}body{font-family:Arial,"Noto Sans Bengali",sans-serif;padding:0;color:#111}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:9px;text-align:left}h2,h3{text-align:center}</style></head><body>'+b.outerHTML+'
-<!-- ===== FINAL INSTITUTION PROFILE LAYOUT FIX — 2026-10-18 ===== -->
-<style id="institution-profile-layout-final-20261018">
-/* Main media-player control row first; requested dashboard boxes immediately below it. */
-#app .dashboard-media-layout .dashboard-slider #mediaStage{order:1!important}
-#app .dashboard-media-layout .dashboard-slider #summary.dashboard-summary-inside{
-  display:grid!important;visibility:visible!important;position:relative!important;
-  order:2!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
-  gap:7px!important;width:100%!important;margin:8px 0 10px!important;
-  padding:0!important;transform:none!important;box-sizing:border-box!important;
+  w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>মানি রসিদ</title><style>@page{size:A4 portrait;margin:14mm}body{font-family:Arial,"Noto Sans Bengali",sans-serif;padding:0;color:#111}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:9px;text-align:left}h2,h3{text-align:center}</style></head><body>'+b.outerHTML+'</body></html>');
+  w.document.close();w.focus();setTimeout(function(){w.print()},250);
 }
 #app .dashboard-media-layout .dashboard-slider #summary.dashboard-summary-inside .stat{
   display:flex!important;visibility:visible!important;min-width:0!important;
