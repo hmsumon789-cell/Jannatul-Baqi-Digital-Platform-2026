@@ -1210,6 +1210,61 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 #institutionDocumentary2026 .institution-documentary-footnote{font-size:9px!important;margin-top:2px!important;}
 @media(max-width:700px){#summary.dashboard-summary-inside{grid-template-columns:repeat(2,minmax(0,1fr))!important;}#institutionDocumentary2026 .institution-documentary-stage{height:82px!important;min-height:82px!important;max-height:82px!important;}#institutionDocumentary2026 .institution-documentary-slide{height:76px!important;min-height:76px!important;max-height:76px!important;grid-template-columns:65px minmax(0,1fr)!important;padding:3px!important;gap:5px!important;}#institutionDocumentary2026 .institution-documentary-photo-wrap{height:66px!important;min-height:66px!important;max-height:66px!important;}}
 </style>
+
+<style id="dashboard-support-and-institution-profile-layout-20261018">
+/* Four requested dashboard boxes directly below the main media-player controls. */
+#app .dashboard-slider #summary.dashboard-summary-inside.dashboard-slider-summary{
+ display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+ gap:8px!important;width:100%!important;margin:9px 0 8px!important;padding:0!important;
+}
+#app .dashboard-slider #summary.dashboard-summary-inside.dashboard-slider-summary .stat{
+ display:flex!important;visibility:visible!important;min-width:0!important;min-height:62px!important;
+ height:auto!important;margin:0!important;padding:7px 5px!important;box-sizing:border-box!important;
+ flex-direction:column!important;justify-content:center!important;align-items:center!important;
+ text-align:center!important;overflow-wrap:anywhere!important;
+}
+#app .dashboard-slider #summary.dashboard-summary-inside.dashboard-slider-summary .stat b{
+ font-size:20px!important;line-height:1.1!important;
+}
+#dashboardSupportActions2026{
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ align-items:stretch!important;gap:8px!important;width:100%!important;
+ margin:4px 0 12px!important;padding:0!important;box-sizing:border-box!important;
+}
+#dashboardSupportActions2026 .dashboard-support-card-2026{
+ display:flex!important;align-items:stretch!important;justify-content:center!important;
+ min-width:0!important;min-height:56px!important;padding:5px!important;box-sizing:border-box!important;
+ border:2px solid #d8ae43!important;border-radius:12px!important;
+ background:linear-gradient(135deg,#fff4c8,#e5bd55)!important;color:#173b2c!important;
+ font-weight:900!important;text-align:center!important;
+}
+#dashboardSupportActions2026 .dashboard-support-card-2026 button{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ width:100%!important;min-width:0!important;min-height:44px!important;padding:7px 8px!important;
+ border:0!important;border-radius:8px!important;background:transparent!important;
+ color:#173b2c!important;font-weight:1000!important;font-size:14px!important;
+ line-height:1.3!important;white-space:normal!important;overflow-wrap:anywhere!important;cursor:pointer!important;
+}
+#dashboardSupportActions2026 .teacher-support-card-2026{flex-direction:column!important;gap:3px!important}
+#dashboardSupportActions2026 .teacher-support-card-2026 b{font-size:22px!important;line-height:1.1!important}
+#dashboardSupportActions2026 .teacher-support-card-2026 span{font-size:13px!important}
+#app #institutionDocumentary2026{
+ min-height:calc(100% + 288px)!important;padding-bottom:18px!important;
+}
+#app #institutionDocumentary2026 .institution-documentary-stage{min-height:558px!important}
+#app #institutionDocumentary2026 .institution-documentary-slide{min-height:538px!important}
+#app #institutionDocumentary2026 .institution-documentary-photo-wrap{height:clamp(350px,35vw,450px)!important}
+@media(max-width:700px){
+ #app .dashboard-slider #summary.dashboard-summary-inside.dashboard-slider-summary{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ #dashboardSupportActions2026{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:4px!important}
+ #dashboardSupportActions2026 .dashboard-support-card-2026{padding:3px!important;min-height:58px!important}
+ #dashboardSupportActions2026 .dashboard-support-card-2026 button{font-size:11px!important;padding:4px!important}
+ #dashboardSupportActions2026 .teacher-support-card-2026 span{font-size:10px!important}
+ #app #institutionDocumentary2026 .institution-documentary-stage{min-height:420px!important}
+ #app #institutionDocumentary2026 .institution-documentary-slide{min-height:400px!important;grid-template-columns:minmax(0,1fr)!important}
+ #app #institutionDocumentary2026 .institution-documentary-photo-wrap{height:300px!important}
+}
+</style>
 </head>
 <body>
 <div id="welcomeScreen">
@@ -1425,6 +1480,7 @@ body.gold #loginContactStrip20261013{background:#fff9e7!important;color:#4a3300!
           </div>
         </div>
                 <section class="dashboard-summary dashboard-summary-inside" id="summary"></section>
+        <div id="dashboardSupportActions2026" class="dashboard-support-actions-2026" aria-label="দ্রুত সেবা ও শিক্ষক তথ্য"></div>
     <!-- ===== Royal golden documentary replaces selected stat boxes under main media player ===== -->
     <section id="institutionDocumentary2026" class="institution-documentary-2026 card" aria-label="প্রতিষ্ঠানের গৌরবময় যাত্রার প্রামাণ্যচিত্র">
       <div class="institution-documentary-heading">
@@ -1573,26 +1629,40 @@ function removeRequestedDashboardTiles2026(){
 function watchRequestedDashboardTiles2026(){
   // Keep compatibility with the existing dashboard initialization without deleting tiles.
 }
+function openOnlineServiceEverywhere2026(){
+  var w=window.open('about:blank','_blank');
+  if(!w){toast('সেবা উইন্ডো খুলতে Browser popup অনুমতি দিন।');return;}
+  try{
+    if(typeof google!=='undefined'&&google.script&&google.script.run){
+      google.script.run.withSuccessHandler(function(r){
+        var u=String(r&&r.ok&&r.url?r.url:location.href).split('#')[0].split('?')[0];
+        w.location.href=u+'?online=1';
+      }).withFailureHandler(function(){
+        w.location.href=location.href.split('#')[0].split('?')[0]+'?online=1';
+      }).getMainWebAppUrl();
+    }else{
+      w.location.href=location.href.split('#')[0].split('?')[0]+'?online=1';
+    }
+  }catch(e){w.location.href=location.href.split('#')[0].split('?')[0]+'?online=1';}
+}
 function renderStats(x){
-  const attendance=x.attendanceToday||{};
   const arr=[
-    ['আয়',x.income],['ব্যয়',x.expense],['মোট ক্যাশ',x.cash],['মোট বকেয়া',x.due],
-    ['মোট ছাত্র/ছাত্রী',x.students],['মোট শিক্ষক/শিক্ষিকা',x.teachers],
-    ['নির্বাহী পরিষদ সদস্য',x.executiveMembers??x.executives],
-    ['নিবন্ধিত মহিলা মাদ্রাসা',x.femaleMadrasas],
-    ['নিবন্ধিত পুরুষ মাদ্রাসা',x.maleMadrasas],
-    ['আজ উপস্থিত',attendance.present],['আজ অনুপস্থিত',attendance.absent],
-    ['পরীক্ষার্থী',x.examinees??x.examCandidates],
-    ['মোট একটিভ/অনলাইন অ্যাডমিন সংখ্যা',x.activeAdmins??x.onlineAdmins]
+    ['আয়',x.income],
+    ['ব্যয়',x.expense],
+    ['মোট ছাত্র-ছাত্রী সংখ্যা',x.students],
+    ['মোট পরীক্ষার্থী সংখ্যা',x.examinees??x.examCandidates]
   ];
   const sum=$('summary');
   if(sum){
     sum.innerHTML=arr.map(a=>'<div class="stat"><b>'+((a[1]??0))+'</b>'+a[0]+'</div>').join('');
     sum.classList.add('dashboard-slider-summary');
-    const helpBox=document.createElement('div');
-    helpBox.className='stat quick-help-stat';
-    helpBox.innerHTML='<button class="quick-help-dashboard-btn" onclick="openWindow(\'quickWin\')">🆘 দ্রুত সেবা / হেল্প</button>';
-    sum.appendChild(helpBox);
+  }
+  const support=$('dashboardSupportActions2026');
+  if(support){
+    support.innerHTML=
+      '<div class="dashboard-support-card-2026 quick-support-card-2026"><button type="button" onclick="openWindow(\\'quickWin\\')">🆘 দ্রুত সেবা</button></div>'+
+      '<div class="dashboard-support-card-2026 teacher-support-card-2026"><b>'+((x.teachers??0))+'</b><span>মোট শিক্ষক/শিক্ষিকা</span></div>'+
+      '<div class="dashboard-support-card-2026 online-support-card-2026"><button type="button" onclick="openOnlineServiceEverywhere2026()">🌐 অনলাইন সেবা সবখানে সব সময়</button></div>';
   }
   renderDashboardCharts(x);
   loadInstitutionDocumentary2026();
