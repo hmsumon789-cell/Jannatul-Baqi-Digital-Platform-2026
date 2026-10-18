@@ -1194,21 +1194,26 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 
 <style id="dashboard-media-boxes-and-compact-documentary-20261018">
-/* মিডিয়া প্লেয়ারের কন্ট্রোলের ঠিক নিচে সব ড্যাশবোর্ড বক্স; এরপর পরিচিতি স্লাইড */
-#summary.dashboard-summary-inside{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:7px!important;width:100%!important;margin:8px 0 10px!important;transform:none!important;}
-#summary.dashboard-summary-inside .stat{min-width:0!important;min-height:54px!important;height:auto!important;padding:6px 5px!important;margin:0!important;transform:none!important;overflow-wrap:anywhere!important;font-size:12px!important;}
+/* মিডিয়া কন্ট্রোলের নিচে ২ ইঞ্চি ফাঁক রেখে চারটি নির্দিষ্ট বক্স; এরপর বড় পরিচিতি স্লাইড */
+#summary.dashboard-summary-inside{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:7px!important;width:100%!important;margin:192px 0 10px!important;transform:none!important;position:relative!important;visibility:visible!important;}
+#summary.dashboard-summary-inside .stat{display:flex!important;min-width:0!important;min-height:54px!important;height:auto!important;padding:6px 5px!important;margin:0!important;transform:none!important;overflow-wrap:anywhere!important;font-size:12px!important;box-sizing:border-box!important;}
 #summary.dashboard-summary-inside .stat b{display:block!important;font-size:19px!important;line-height:1.2!important;margin-bottom:3px!important;}
-#institutionDocumentary2026{margin:8px 0 10px!important;padding:7px 9px!important;}
+#institutionDocumentary2026{display:block!important;margin:8px 0 10px!important;padding:7px 9px 12px!important;min-height:0!important;box-sizing:border-box!important;}
 #institutionDocumentary2026 .institution-documentary-heading{margin:0 auto 4px!important;padding:1px 4px 3px!important;}
 #institutionDocumentary2026 .institution-documentary-heading h2{font-size:clamp(15px,1.8vw,21px)!important;line-height:1.2!important;margin:2px 0!important;}
 #institutionDocumentary2026 .institution-documentary-heading p{font-size:11px!important;line-height:1.2!important;margin:2px 0!important;}
-#institutionDocumentary2026 .institution-documentary-stage{height:90px!important;min-height:90px!important;max-height:90px!important;overflow:hidden!important;}
-#institutionDocumentary2026 .institution-documentary-slide{height:84px!important;min-height:84px!important;max-height:84px!important;padding:4px 7px!important;gap:7px!important;grid-template-columns:minmax(70px,22%) minmax(0,1fr)!important;}
-#institutionDocumentary2026 .institution-documentary-photo-wrap{height:72px!important;min-height:72px!important;max-height:72px!important;}
-#institutionDocumentary2026 .institution-documentary-controls{margin-top:3px!important;gap:3px!important;}
-#institutionDocumentary2026 .institution-documentary-controls button{padding:3px 6px!important;font-size:10px!important;}
-#institutionDocumentary2026 .institution-documentary-footnote{font-size:9px!important;margin-top:2px!important;}
-@media(max-width:700px){#summary.dashboard-summary-inside{grid-template-columns:repeat(2,minmax(0,1fr))!important;}#institutionDocumentary2026 .institution-documentary-stage{height:82px!important;min-height:82px!important;max-height:82px!important;}#institutionDocumentary2026 .institution-documentary-slide{height:76px!important;min-height:76px!important;max-height:76px!important;grid-template-columns:65px minmax(0,1fr)!important;padding:3px!important;gap:5px!important;}#institutionDocumentary2026 .institution-documentary-photo-wrap{height:66px!important;min-height:66px!important;max-height:66px!important;}}
+#institutionDocumentary2026 .institution-documentary-stage{height:378px!important;min-height:378px!important;max-height:378px!important;overflow:auto!important;box-sizing:border-box!important;}
+#institutionDocumentary2026 .institution-documentary-slide{height:370px!important;min-height:370px!important;max-height:370px!important;padding:8px!important;gap:10px!important;grid-template-columns:minmax(100px,25%) minmax(0,1fr)!important;box-sizing:border-box!important;}
+#institutionDocumentary2026 .institution-documentary-photo-wrap{height:350px!important;min-height:350px!important;max-height:350px!important;width:100%!important;}
+#institutionDocumentary2026 .institution-documentary-controls{margin-top:5px!important;gap:4px!important;}
+#institutionDocumentary2026 .institution-documentary-controls button{padding:5px 8px!important;font-size:11px!important;}
+#institutionDocumentary2026 .institution-documentary-footnote{font-size:9px!important;margin-top:3px!important;}
+@media(max-width:700px){
+ #summary.dashboard-summary-inside{grid-template-columns:repeat(2,minmax(0,1fr))!important;margin-top:192px!important;}
+ #institutionDocumentary2026 .institution-documentary-stage{height:378px!important;min-height:378px!important;max-height:378px!important;}
+ #institutionDocumentary2026 .institution-documentary-slide{height:370px!important;min-height:370px!important;max-height:370px!important;grid-template-columns:90px minmax(0,1fr)!important;padding:5px!important;gap:6px!important;}
+ #institutionDocumentary2026 .institution-documentary-photo-wrap{height:350px!important;min-height:350px!important;max-height:350px!important;}
+}
 </style>
 </head>
 <body>
@@ -1975,54 +1980,7 @@ async function searchOnlinePaymentReceipt(){
 function printOnlineReceipt(){
   const b=$('onlineReceiptBody');if(!b)return;
   const w=window.open('','_blank','width=850,height=750');if(!w)return;
-  w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>মানি রসিদ</title><style>@page{size:A4 portrait;margin:14mm}body{font-family:Arial,"Noto Sans Bengali",sans-serif;padding:0;color:#111}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:9px;text-align:left}h2,h3{text-align:center}</style></head><body>'+b.outerHTML+'
-<!-- ===== FINAL INSTITUTION PROFILE LAYOUT FIX — 2026-10-18 ===== -->
-<style id="institution-profile-layout-final-20261018">
-/* Main media-player control row first; requested dashboard boxes immediately below it. */
-#app .dashboard-media-layout .dashboard-slider #mediaStage{order:1!important}
-#app .dashboard-media-layout .dashboard-slider #summary.dashboard-summary-inside{
-  display:grid!important;visibility:visible!important;position:relative!important;
-  order:2!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
-  gap:7px!important;width:100%!important;margin:8px 0 10px!important;
-  padding:0!important;transform:none!important;box-sizing:border-box!important;
-}
-#app .dashboard-media-layout .dashboard-slider #summary.dashboard-summary-inside .stat{
-  display:flex!important;visibility:visible!important;min-width:0!important;
-  min-height:56px!important;height:auto!important;padding:7px 5px!important;
-  margin:0!important;box-sizing:border-box!important;overflow-wrap:anywhere!important;
-}
-/* Documentary slideshow must sit directly below the dashboard boxes and stay compact. */
-#app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026{
-  display:block!important;visibility:visible!important;position:relative!important;
-  order:3!important;width:100%!important;box-sizing:border-box!important;
-  margin:8px 0 10px!important;padding:7px 9px!important;
-}
-#app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026 .institution-documentary-stage{
-  height:90px!important;min-height:90px!important;max-height:90px!important;overflow:hidden!important;
-}
-#app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026 .institution-documentary-slide{
-  height:84px!important;min-height:84px!important;max-height:84px!important;
-  grid-template-columns:72px minmax(0,1fr)!important;gap:6px!important;padding:4px!important;
-}
-#app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026 .institution-documentary-photo-wrap{
-  height:72px!important;min-height:72px!important;max-height:72px!important;width:100%!important;
-}
-#app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026 .institution-documentary-controls{
-  margin-top:3px!important;gap:4px!important;
-}
-@media(max-width:700px){
-  #app .dashboard-media-layout .dashboard-slider #summary.dashboard-summary-inside{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-  #app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026 .institution-documentary-stage{height:82px!important;min-height:82px!important;max-height:82px!important}
-  #app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026 .institution-documentary-slide{
-    height:76px!important;min-height:76px!important;max-height:76px!important;
-    grid-template-columns:62px minmax(0,1fr)!important;gap:5px!important;padding:3px!important;
-  }
-  #app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026 .institution-documentary-photo-wrap{
-    height:66px!important;min-height:66px!important;max-height:66px!important;
-  }
-}
-</style>
-</body></html>');
+  w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>মানি রসিদ</title><style>@page{size:A4 portrait;margin:14mm}body{font-family:Arial,"Noto Sans Bengali",sans-serif;padding:0;color:#111}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:9px;text-align:left}h2,h3{text-align:center}</style></head><body>'+b.outerHTML+'</body></html>');
   w.document.close();w.focus();setTimeout(function(){w.print()},250);
 }
 
