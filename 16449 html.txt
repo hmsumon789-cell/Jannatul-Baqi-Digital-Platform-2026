@@ -1243,6 +1243,27 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   box-sizing:border-box!important;
 }
 </style>
+
+<style id="institution-intro-name-photo-quote-vertical-20261018">
+/* পরিচিতি স্লাইড: উপরে নাম, মাঝখানে ছবি, নিচে স্মরণীয় বাণী */
+#institutionDocumentary2026 .institution-documentary-slide{
+  display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:flex-start!important;
+  gap:12px!important;height:calc(84px + 3in)!important;min-height:calc(84px + 3in)!important;max-height:calc(84px + 3in)!important;
+  overflow:hidden!important;padding:14px 18px!important;box-sizing:border-box!important;
+}
+#institutionDocumentary2026 .institution-documentary-person-info{display:contents!important}
+#institutionDocumentary2026 .institution-documentary-name{order:1!important;text-align:center!important;width:100%!important;margin:0!important;font-size:clamp(20px,2.4vw,30px)!important;line-height:1.35!important}
+#institutionDocumentary2026 .institution-documentary-photo-wrap{order:2!important;flex:0 0 auto!important;width:min(100%,320px)!important;height:clamp(170px,24vw,250px)!important;min-height:170px!important;max-height:250px!important;margin:0 auto!important}
+#institutionDocumentary2026 .institution-documentary-photo{width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important}
+#institutionDocumentary2026 .institution-documentary-quote{order:3!important;display:block!important;width:100%!important;text-align:center!important;border-left:0!important;border-top:2px solid #d8ae43!important;padding:10px 4px 0!important;margin:0!important;font-size:clamp(14px,1.5vw,19px)!important;line-height:1.6!important;white-space:normal!important}
+#institutionDocumentary2026 .institution-documentary-role,#institutionDocumentary2026 .institution-documentary-years{display:none!important}
+@media(max-width:700px){
+ #institutionDocumentary2026 .institution-documentary-slide{gap:9px!important;padding:10px 8px!important}
+ #institutionDocumentary2026 .institution-documentary-photo-wrap{width:min(100%,280px)!important;height:190px!important;min-height:190px!important;max-height:190px!important}
+ #institutionDocumentary2026 .institution-documentary-quote{font-size:14px!important;padding-top:8px!important}
+}
+</style>
+
 </head>
 <body>
 <div id="welcomeScreen">
