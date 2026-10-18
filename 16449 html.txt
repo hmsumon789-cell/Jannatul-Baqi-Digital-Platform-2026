@@ -17040,7 +17040,7 @@ function institutionDocumentaryRender2026(){
   /তাসলিমা/i.test(personName)?8:0;
  var defaultPhotoNo=profileMeta&&profileMeta.photoNo?profileMeta.photoNo:namedPhotoNo;
  var defaultPhotoUrl=photoCatalog2026[defaultPhotoNo]||photoCatalog2026[1];
- var selectedPhotoUrl=p.photoUrl||defaultPhotoUrl;
+ var selectedPhotoUrl=profileMeta&&profileMeta.photoNo?defaultPhotoUrl:(p.photoUrl||defaultPhotoUrl);
  var photo='<img class="institution-documentary-photo" src="'+institutionHtmlEscape2026(selectedPhotoUrl)+'" alt="'+name+'" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\'">';
  var fallback='<div class="institution-documentary-placeholder" style="display:none">✦</div>';
  stage.innerHTML='<article class="institution-documentary-slide"><div class="institution-documentary-photo-wrap">'+photo+fallback+'</div><div class="institution-documentary-person-info"><div class="institution-documentary-role">'+role+'</div><div class="institution-documentary-name">'+name+'</div>'+(years?'<div class="institution-documentary-years">খেদমতের সময়: '+years+'</div>':'')+'<div class="institution-documentary-quote">অত্র প্রতিষ্ঠানের দ্বীনি শিক্ষা ও মানবসেবার পথচলায় তাঁর অবদান শ্রদ্ধার সঙ্গে স্মরণ করা হয়।</div></div></article>';
