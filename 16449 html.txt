@@ -1231,6 +1231,11 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  #app .dashboard-media-layout .dashboard-slider #summary.dashboard-summary-inside{grid-template-columns:repeat(2,minmax(0,1fr))!important;margin-top:2in!important}
 }
 </style>
+
+<style id="institution-intro-box-3in-taller-bace3bd">
+/* শুধু প্রতিষ্ঠান পরিচিতি স্লাইডের পুরো বক্সটি নিচের দিকে অতিরিক্ত ৩ ইঞ্চি বড় */
+#institutionDocumentary2026{padding-bottom:calc(7px + 3in)!important;}
+</style>
 </head>
 <body>
 <div id="welcomeScreen">
