@@ -1232,9 +1232,16 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 }
 </style>
 
-<style id="institution-intro-box-3in-taller-bace3bd">
-/* শুধু প্রতিষ্ঠান পরিচিতি স্লাইডের পুরো বক্সটি নিচের দিকে অতিরিক্ত ৩ ইঞ্চি বড় */
-#institutionDocumentary2026{padding-bottom:calc(7px + 3in)!important;}
+<style id="institution-intro-slide-stage-3in-taller-bace3bd">
+/* নাম ও ফটো স্লাইড হওয়ার ভেতরের বক্সটি নিচের দিকে ৩ ইঞ্চি বড় */
+#institutionDocumentary2026 .institution-documentary-stage{
+  height:calc(90px + 3in)!important;min-height:calc(90px + 3in)!important;max-height:calc(90px + 3in)!important;
+  overflow:hidden!important;box-sizing:border-box!important;
+}
+#institutionDocumentary2026 .institution-documentary-slide{
+  height:calc(84px + 3in)!important;min-height:calc(84px + 3in)!important;max-height:calc(84px + 3in)!important;
+  box-sizing:border-box!important;
+}
 </style>
 </head>
 <body>
