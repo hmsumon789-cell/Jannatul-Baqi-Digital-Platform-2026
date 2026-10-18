@@ -1581,14 +1581,10 @@ function watchRequestedDashboardTiles2026(){
 function renderStats(x){
   const attendance=x.attendanceToday||{};
   const arr=[
-    ['আয়',x.income],['ব্যয়',x.expense],['মোট ক্যাশ',x.cash],['মোট বকেয়া',x.due],
-    ['মোট ছাত্র/ছাত্রী',x.students],['মোট শিক্ষক/শিক্ষিকা',x.teachers],
-    ['নির্বাহী পরিষদ সদস্য',x.executiveMembers??x.executives],
-    ['নিবন্ধিত মহিলা মাদ্রাসা',x.femaleMadrasas],
-    ['নিবন্ধিত পুরুষ মাদ্রাসা',x.maleMadrasas],
-    ['আজ উপস্থিত',attendance.present],['আজ অনুপস্থিত',attendance.absent],
-    ['পরীক্ষার্থী',x.examinees??x.examCandidates],
-    ['মোট একটিভ/অনলাইন অ্যাডমিন সংখ্যা',x.activeAdmins??x.onlineAdmins]
+    ['আয়',x.income],
+    ['ব্যয়',x.expense],
+    ['মোট ছাত্র-ছাত্রী সংখ্যা',x.students],
+    ['মোট পরীক্ষার্থী সংখ্যা',x.examinees??x.examCandidates]
   ];
   const sum=$('summary');
   if(sum){
@@ -16993,4 +16989,53 @@ function institutionDocumentaryToggle2026(){
 }
 
 </script>
+
+<style id="dashboard-profile-layout-final-22cd01f">
+/* Exactly four requested boxes, lowered by two inches beneath the media-player controls. */
+#app .dashboard-media-layout .dashboard-slider #summary.dashboard-summary-inside{
+ display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+ gap:7px!important;width:100%!important;margin:192px 0 10px!important;
+ padding:0!important;position:relative!important;transform:none!important;
+ visibility:visible!important;box-sizing:border-box!important;
+}
+#app .dashboard-media-layout .dashboard-slider #summary.dashboard-summary-inside .stat{
+ display:flex!important;visibility:visible!important;min-width:0!important;
+ min-height:54px!important;height:auto!important;padding:6px 5px!important;
+ margin:0!important;transform:none!important;overflow-wrap:anywhere!important;
+ box-sizing:border-box!important;font-size:12px!important;
+}
+#app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026{
+ display:block!important;visibility:visible!important;position:relative!important;
+ width:100%!important;margin:8px 0 10px!important;padding:7px 9px 12px!important;
+ box-sizing:border-box!important;
+}
+#app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026 .institution-documentary-stage{
+ height:378px!important;min-height:378px!important;max-height:378px!important;
+ overflow:auto!important;box-sizing:border-box!important;
+}
+#app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026 .institution-documentary-slide{
+ height:370px!important;min-height:370px!important;max-height:370px!important;
+ grid-template-columns:minmax(100px,25%) minmax(0,1fr)!important;
+ gap:10px!important;padding:8px!important;box-sizing:border-box!important;
+}
+#app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026 .institution-documentary-photo-wrap{
+ width:100%!important;height:350px!important;min-height:350px!important;
+ max-height:350px!important;box-sizing:border-box!important;
+}
+@media(max-width:700px){
+ #app .dashboard-media-layout .dashboard-slider #summary.dashboard-summary-inside{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;margin-top:192px!important;
+ }
+ #app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026 .institution-documentary-stage{
+  height:378px!important;min-height:378px!important;max-height:378px!important;
+ }
+ #app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026 .institution-documentary-slide{
+  height:370px!important;min-height:370px!important;max-height:370px!important;
+  grid-template-columns:90px minmax(0,1fr)!important;gap:6px!important;padding:5px!important;
+ }
+ #app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026 .institution-documentary-photo-wrap{
+  height:350px!important;min-height:350px!important;max-height:350px!important;
+ }
+}
+</style>
 
