@@ -1215,6 +1215,14 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 /* Keep the four income/expense/student/examinee boxes 30px below the main media-player control row. */
 .dashboard-slider #summary.dashboard-summary-inside{margin-top:30px!important;}
 </style>
+
+<style id="institution-documentary-position-height-20261018">
+/* শুধু পরিচিতি স্লাইড বক্স: 2 inch নিচে, নিচের দিকে 3 inch অতিরিক্ত উচ্চতা */
+#institutionDocumentary2026{
+  margin-top:calc(16px + 2in)!important;
+  padding-bottom:calc(clamp(12px,2.1vw,25px) + 3in)!important;
+}
+</style>
 </head>
 <body>
 <div id="welcomeScreen">
