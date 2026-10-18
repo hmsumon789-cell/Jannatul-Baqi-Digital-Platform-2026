@@ -1574,25 +1574,17 @@ function watchRequestedDashboardTiles2026(){
   // Keep compatibility with the existing dashboard initialization without deleting tiles.
 }
 function renderStats(x){
-  const attendance=x.attendanceToday||{};
+  // Keep only the four dashboard boxes requested below the main media-player controls.
   const arr=[
-    ['আয়',x.income],['ব্যয়',x.expense],['মোট ক্যাশ',x.cash],['মোট বকেয়া',x.due],
-    ['মোট ছাত্র/ছাত্রী',x.students],['মোট শিক্ষক/শিক্ষিকা',x.teachers],
-    ['নির্বাহী পরিষদ সদস্য',x.executiveMembers??x.executives],
-    ['নিবন্ধিত মহিলা মাদ্রাসা',x.femaleMadrasas],
-    ['নিবন্ধিত পুরুষ মাদ্রাসা',x.maleMadrasas],
-    ['আজ উপস্থিত',attendance.present],['আজ অনুপস্থিত',attendance.absent],
-    ['পরীক্ষার্থী',x.examinees??x.examCandidates],
-    ['মোট একটিভ/অনলাইন অ্যাডমিন সংখ্যা',x.activeAdmins??x.onlineAdmins]
+    ['আয়',x.income],
+    ['ব্যয়',x.expense],
+    ['মোট ছাত্র-ছাত্রী সংখ্যা',x.students],
+    ['মোট পরীক্ষার্থী সংখ্যা',x.examinees??x.examCandidates]
   ];
   const sum=$('summary');
   if(sum){
     sum.innerHTML=arr.map(a=>'<div class="stat"><b>'+((a[1]??0))+'</b>'+a[0]+'</div>').join('');
     sum.classList.add('dashboard-slider-summary');
-    const helpBox=document.createElement('div');
-    helpBox.className='stat quick-help-stat';
-    helpBox.innerHTML='<button class="quick-help-dashboard-btn" onclick="openWindow(\'quickWin\')">🆘 দ্রুত সেবা / হেল্প</button>';
-    sum.appendChild(helpBox);
   }
   renderDashboardCharts(x);
   loadInstitutionDocumentary2026();
@@ -17034,5 +17026,51 @@ function institutionDocumentaryToggle2026(){
  if(b)b.textContent=institutionDocumentaryPaused2026?'▶ চালু করুন':'⏸ বিরতি';
 }
 
+
+/* ===== FINAL REQUESTED ORDER: player controls → four boxes → institution profile slideshow ===== */
+(function(){
+  var style=document.createElement('style');
+  style.id='institution-profile-four-boxes-final-20261018';
+  style.textContent=`
+    #app .dashboard-media-layout .dashboard-slider #summary.dashboard-summary-inside{
+      display:grid!important;visibility:visible!important;position:relative!important;
+      grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:7px!important;
+      width:100%!important;margin:8px 0 10px!important;padding:0!important;
+      transform:none!important;box-sizing:border-box!important;order:2!important;
+    }
+    #app .dashboard-media-layout .dashboard-slider #summary.dashboard-summary-inside .stat{
+      display:flex!important;visibility:visible!important;min-width:0!important;
+      min-height:54px!important;height:auto!important;padding:7px 5px!important;
+      margin:0!important;transform:none!important;box-sizing:border-box!important;
+      align-items:center!important;justify-content:center!important;text-align:center!important;
+      overflow-wrap:anywhere!important;
+    }
+    #app .dashboard-media-layout .dashboard-slider #summary.dashboard-summary-inside .stat b{
+      display:block!important;font-size:19px!important;line-height:1.15!important;margin-bottom:3px!important;
+    }
+    #app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026{
+      display:block!important;visibility:visible!important;position:relative!important;
+      order:3!important;width:100%!important;box-sizing:border-box!important;
+      margin:6px 0 8px!important;padding:6px 8px!important;
+    }
+    #app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026 .institution-documentary-heading{margin:0 auto 3px!important;padding:0 3px 2px!important}
+    #app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026 .institution-documentary-heading h2{font-size:clamp(15px,1.8vw,20px)!important;line-height:1.15!important;margin:1px 0!important}
+    #app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026 .institution-documentary-heading p{font-size:10px!important;line-height:1.15!important;margin:1px 0!important}
+    #app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026 .institution-documentary-stage{height:82px!important;min-height:82px!important;max-height:82px!important;overflow:hidden!important}
+    #app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026 .institution-documentary-slide{height:76px!important;min-height:76px!important;max-height:76px!important;grid-template-columns:64px minmax(0,1fr)!important;gap:5px!important;padding:3px!important}
+    #app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026 .institution-documentary-photo-wrap{height:66px!important;min-height:66px!important;max-height:66px!important;width:100%!important}
+    #app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026 .institution-documentary-photo{max-height:64px!important;max-width:100%!important;object-fit:contain!important}
+    #app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026 .institution-documentary-controls{margin-top:2px!important;gap:3px!important}
+    #app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026 .institution-documentary-controls button{padding:2px 5px!important;font-size:10px!important}
+    #app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026 .institution-documentary-footnote{font-size:9px!important;margin-top:1px!important}
+    @media(max-width:700px){
+      #app .dashboard-media-layout .dashboard-slider #summary.dashboard-summary-inside{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+      #app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026 .institution-documentary-stage{height:76px!important;min-height:76px!important;max-height:76px!important}
+      #app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026 .institution-documentary-slide{height:70px!important;min-height:70px!important;max-height:70px!important;grid-template-columns:58px minmax(0,1fr)!important}
+      #app .dashboard-media-layout .dashboard-slider #institutionDocumentary2026 .institution-documentary-photo-wrap{height:60px!important;min-height:60px!important;max-height:60px!important}
+    }
+  `;
+  document.head.appendChild(style);
+})();
 </script>
 
