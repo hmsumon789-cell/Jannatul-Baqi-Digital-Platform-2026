@@ -1210,6 +1210,11 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 #institutionDocumentary2026 .institution-documentary-footnote{font-size:9px!important;margin-top:2px!important;}
 @media(max-width:700px){#summary.dashboard-summary-inside{grid-template-columns:repeat(2,minmax(0,1fr))!important;}#institutionDocumentary2026 .institution-documentary-stage{height:82px!important;min-height:82px!important;max-height:82px!important;}#institutionDocumentary2026 .institution-documentary-slide{height:76px!important;min-height:76px!important;max-height:76px!important;grid-template-columns:65px minmax(0,1fr)!important;padding:3px!important;gap:5px!important;}#institutionDocumentary2026 .institution-documentary-photo-wrap{height:66px!important;min-height:66px!important;max-height:66px!important;}}
 </style>
+
+<style id="summary-boxes-30px-below-player-controls-20261018">
+/* Keep the four income/expense/student/examinee boxes 30px below the main media-player control row. */
+.dashboard-slider #summary.dashboard-summary-inside{margin-top:30px!important;}
+</style>
 </head>
 <body>
 <div id="welcomeScreen">
