@@ -968,6 +968,7 @@ function saveAdmissionDraft2026(token,data,action) {
     let mergedStudentFound=false;
     if(studentSheetForMerge && studentSheetForMerge.getLastRow()>1){
       const sv=studentSheetForMerge.getDataRange().getValues();
+      const sdv=studentSheetForMerge.getDataRange().getDisplayValues();
       const shd=sv[0].map(String);
       const directStudentCol=headers.indexOf('StudentID');
       const directFormCol=headers.indexOf('FormID');
@@ -982,9 +983,10 @@ function saveAdmissionDraft2026(token,data,action) {
       const studentKeys=['StudentID','studentId','FormID','formId','HandwrittenID','handwrittenId','AdmissionFormID','SystemID','AutoID','ID'];
       for(let si=1;si<sv.length && !mergedStudentFound;si++){
         const sr=sv[si];
+        const sdr=sdv[si];
         const matched=studentKeys.some(function(key){
           const col=shd.indexOf(key);
-          return col>=0 && normAdmissionLookup_(sr[col])!=='' && idCandidates.indexOf(normAdmissionLookup_(sr[col]))>=0;
+          return col>=0 && normAdmissionLookup_(sdr[col])!=='' && idCandidates.indexOf(normAdmissionLookup_(sdr[col]))>=0;
         });
         if(matched){
           shd.forEach(function(key,col){mergedFormData[key]=sr[col];});
@@ -1020,13 +1022,15 @@ function saveAdmissionDraft2026(token,data,action) {
   const existingStudentSheet=ss.getSheetByName(SHEETS.STUDENTS);
   if(existingStudentSheet && existingStudentSheet.getLastRow()>1 && rowNum<2){
     existingStudentValues=existingStudentSheet.getDataRange().getValues();
+    var existingStudentDisplayValues=existingStudentSheet.getDataRange().getDisplayValues();
     existingStudentHeaders=existingStudentValues[0].map(String);
     const studentLookupColumns=['StudentID','FormID','HandwrittenID','handwrittenId','AdmissionFormID','SystemID','AutoID','ID'];
     for(let si=1;si<existingStudentValues.length && existingStudentRow<0;si++){
       const sr=existingStudentValues[si];
+      const sdr=existingStudentDisplayValues[si];
       const hit=studentLookupColumns.some(function(key){
         const col=existingStudentHeaders.indexOf(key);
-        return col>=0 && editCandidates.indexOf(normAdmissionLookup_(sr[col]))>=0 && normAdmissionLookup_(sr[col])!=='';
+        return col>=0 && editCandidates.indexOf(normAdmissionLookup_(sdr[col]))>=0 && normAdmissionLookup_(sdr[col])!=='';
       });
       if(hit){existingStudentRow=si+1;const sidCol=existingStudentHeaders.indexOf('StudentID');existingStudentId=sidCol>=0?String(sr[sidCol]||'').trim():'';}
     }
