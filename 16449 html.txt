@@ -17000,7 +17000,7 @@ async function saveInstitutionProfile2026(){
    people.push({id:p.id,group:p.group,name:n?n.value:p.name,photoUrl:photoUrl});
   }
   const r=await call('saveInstitutionProfile2026',token,{history:$('institutionHistory2026')?$('institutionHistory2026').value:INSTITUTION_HISTORY_DEFAULT_2026,people:people});
-  if(!r||!r.ok)throw new Error(r&&r.message||'তথ্য সংরক্ষণ হয়নি');if(msg)msg.textContent='প্রতিষ্ঠান পরিচিতি, সকল নাম ও ছবি সংরক্ষিত হয়েছে।';if(typeof toast==='function')toast('প্রতিষ্ঠান পরিচিতি সংরক্ষণ হয়েছে');
+  if(!r||!r.ok)throw new Error(r&&r.message||'তথ্য সংরক্ষণ হয়নি');if(msg)msg.textContent='প্রতিষ্ঠান পরিচিতি, সকল নাম ও ছবি সংরক্ষিত হয়েছে।';if(typeof toast==='function')toast('প্রতিষ্ঠান পরিচিতি সংরক্ষণ হয়েছে');await loadInstitutionDocumentary2026();
  }catch(e){if(msg)msg.textContent='সংরক্ষণ সম্পূর্ণ হয়নি: '+(e.message||e);}
 }
 
