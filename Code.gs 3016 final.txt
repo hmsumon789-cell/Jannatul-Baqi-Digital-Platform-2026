@@ -831,13 +831,13 @@ function syncAdmissionToStudent_(token,data) {
   const formLookupKeys=['FormID','HandwrittenID','handwrittenId','AdmissionFormID','SystemID','AutoID','ID'];
   const formLookupCandidates=[src.FormID,data.AdmissionID,data.FormID,data.HandwrittenID,data.SystemID,data.AutoID]
     .filter(function(v){return String(v==null?'':v).trim()!=='';})
-    .map(function(v){return String(v).trim().toLowerCase().replace(/[\\s().-]/g,'');});
+    .map(function(v){return String(v).trim().toLowerCase().replace(/[\s().-]/g,'');});
   if(existing<0 && formLookupCandidates.length){
     for(let i=1;i<vals.length && existing<0;i++){
       const matches=formLookupKeys.some(function(key){
         const col=h.indexOf(key);
         if(col<0)return false;
-        const saved=String(vals[i][col]||'').trim().toLowerCase().replace(/[\\s().-]/g,'');
+        const saved=String(vals[i][col]||'').trim().toLowerCase().replace(/[\s().-]/g,'');
         return saved!=='' && formLookupCandidates.indexOf(saved)>=0;
       });
       if(matches)existing=i+1;
