@@ -868,7 +868,7 @@ function saveAdmissionDraft2026(token,data,action) {
   const values=sh.getDataRange().getValues();
   const idCol=headers.indexOf('AdmissionID'),statusCol=headers.indexOf('Status');
   let rowNum=-1;
-  const normAdmissionLookup_=function(v){return String(v==null?'':v).trim().toLowerCase().replace(/[\\s().-]/g,'');};
+  const normAdmissionLookup_=function(v){return String(v==null?'':v).trim().toLowerCase().replace(/[\s().-]/g,'');};
   const wantedAdmissionLookup_=normAdmissionLookup_(admissionId);
   const directIdColumns=['HandwrittenID','StudentID','FormID','SystemID','AutoID','ID']
     .map(function(name){return headers.indexOf(name);}).filter(function(idx){return idx>=0;});
@@ -911,7 +911,32 @@ function saveAdmissionDraft2026(token,data,action) {
     if(changedIdentity) return {ok:false,duplicate:true,message:duplicateMessage,duplicateIn:SHEETS.ADMISSIONS};
   }
   if(action==='LOAD'){
-    if(rowNum<2)return {ok:false,found:false,message:'এই ID-তে পুরাতন/অসম্পূর্ণ ভর্তি ফর্ম পাওয়া যায়নি।'};
+    if(rowNum<2){
+      // Search the student master as well as admission drafts so existing students can be loaded by ID.
+      const studentSheet=ss.getSheetByName(SHEETS.STUDENTS);
+      if(studentSheet && studentSheet.getLastRow()>1){
+        const studentValues=studentSheet.getDataRange().getValues();
+        const studentHeaders=studentValues[0].map(String);
+        const studentLookupKeys=['StudentID','FormID','HandwrittenID','handwrittenId','AdmissionFormID','SystemID','AutoID','ID','MobileID','EmailID'];
+        for(let si=1;si<studentValues.length;si++){
+          const studentRow=studentValues[si];
+          const matched=studentLookupKeys.some(function(key){
+            const col=studentHeaders.indexOf(key);
+            return col>=0 && normAdmissionLookup_(studentRow[col])===wantedAdmissionLookup_;
+          });
+          if(matched){
+            const studentData={};
+            studentHeaders.forEach(function(key,col){studentData[key]=studentRow[col];});
+            studentData.HandwrittenID=studentData.HandwrittenID||studentData.FormID||'';
+            studentData.AdmissionEntryType=studentData.AdmissionEntryType||studentData.AdmissionType||'';
+            studentData.StudentCategory=studentData.StudentCategory||studentData.StudentType||'';
+            studentData.Address=studentData.Address||studentData.CurrentAddress||studentData.PermanentAddress||'';
+            return {ok:true,found:true,admissionId:String(studentData.FormID||studentData.StudentID||admissionId),status:String(studentData.ApprovalStatus||'EXISTING'),formData:studentData,source:'STUDENTS',message:'পুরাতন শিক্ষার্থী রেকর্ড লোড হয়েছে। সম্পাদনা করে সংরক্ষণ করুন।'};
+          }
+        }
+      }
+      return {ok:false,found:false,message:'এই ID-তে পুরাতন ভর্তি ফর্ম বা শিক্ষার্থী রেকর্ড পাওয়া যায়নি।'};
+    }
     const formCol=headers.indexOf('FormData');
     let formData={};
     if(formCol>=0){const raw=values[rowNum-1][formCol];if(raw){try{formData=typeof raw==='string'?JSON.parse(raw):raw;}catch(parseError){return {ok:false,found:false,message:'সংরক্ষিত ফর্মের তথ্য পড়া যায়নি; প্রশাসকের সহায়তা নিন।'};}}}
