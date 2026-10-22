@@ -883,15 +883,16 @@ function saveAdmissionDraft2026(token,data,action) {
   if(!admissionId)return {ok:false,message:'আবেদন ID তৈরি হয়নি।'};
   const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
   const values=sh.getDataRange().getValues();
+  const displayValues=sh.getDataRange().getDisplayValues();
   const idCol=headers.indexOf('AdmissionID'),statusCol=headers.indexOf('Status');
   let rowNum=-1;
-  const normAdmissionLookup_=function(v){return String(v==null?'':v).trim().toLowerCase().replace(/[\s().-]/g,'');};
+  const normAdmissionLookup_=function(v){return String(v==null?'':v).trim().toLowerCase();};
   const wantedAdmissionLookup_=normAdmissionLookup_(admissionId);
   for(let i=1;i<values.length;i++){
-    if(idCol>=0&&normAdmissionLookup_(values[i][idCol])===wantedAdmissionLookup_){rowNum=i+1;break;}
+    if(idCol>=0&&normAdmissionLookup_(displayValues[i][idCol])===wantedAdmissionLookup_){rowNum=i+1;break;}
     if(action==='LOAD'){
       const directIdKeys=['StudentID','FormID','HandwrittenID','handwrittenId','AdmissionFormID','SystemID','AutoID','ID','MobileID','Mobile','EmailID','Email'];
-      if(directIdKeys.some(function(key){const col=headers.indexOf(key);return col>=0&&normAdmissionLookup_(values[i][col])===wantedAdmissionLookup_;})){rowNum=i+1;break;}
+      if(directIdKeys.some(function(key){const col=headers.indexOf(key);return col>=0&&normAdmissionLookup_(displayValues[i][col])===wantedAdmissionLookup_;})){rowNum=i+1;break;}
 
       const fdCol=headers.indexOf('FormData');
       let payload={};
@@ -933,13 +934,15 @@ function saveAdmissionDraft2026(token,data,action) {
       const studentSheet=ss.getSheetByName(SHEETS.STUDENTS);
       if(studentSheet && studentSheet.getLastRow()>1){
         const studentValues=studentSheet.getDataRange().getValues();
+        const studentDisplayValues=studentSheet.getDataRange().getDisplayValues();
         const studentHeaders=studentValues[0].map(String);
         const studentLookupKeys=['StudentID','studentId','FormID','formId','HandwrittenID','handwrittenId','AdmissionFormID','SystemID','systemId','AutoID','autoId','ID','MobileID','Mobile','mobile','EmailID','Email','email'];
         for(let si=1;si<studentValues.length;si++){
           const studentRow=studentValues[si];
+          const studentDisplayRow=studentDisplayValues[si];
           const matched=studentLookupKeys.some(function(key){
             const col=studentHeaders.indexOf(key);
-            return col>=0 && normAdmissionLookup_(studentRow[col])===wantedAdmissionLookup_;
+            return col>=0 && normAdmissionLookup_(studentDisplayRow[col])===wantedAdmissionLookup_;
           });
           if(matched){
             const studentData={};
