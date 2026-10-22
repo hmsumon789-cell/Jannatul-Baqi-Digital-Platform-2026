@@ -953,7 +953,41 @@ function saveAdmissionDraft2026(token,data,action) {
     const formCol=headers.indexOf('FormData');
     let formData={};
     if(formCol>=0){const raw=values[rowNum-1][formCol];if(raw){try{formData=typeof raw==='string'?JSON.parse(raw):raw;}catch(parseError){return {ok:false,found:false,message:'সংরক্ষিত ফর্মের তথ্য পড়া যায়নি; প্রশাসকের সহায়তা নিন।'};}}}
-    return {ok:true,found:true,admissionId:String(idCol>=0?values[rowNum-1][idCol]:admissionId),status:statusCol>=0?String(values[rowNum-1][statusCol]||'INCOMPLETE'):'INCOMPLETE',formData:formData,message:'সংরক্ষিত ভর্তি ফর্ম লোড হয়েছে।'};
+    if(!formData || typeof formData!=='object' || Array.isArray(formData)) formData={};
+    // Merge the student master with the admission form so a partial/empty old FormData
+    // cannot cause the search window to open an otherwise blank form.
+    let mergedFormData={};
+    const studentSheetForMerge=ss.getSheetByName(SHEETS.STUDENTS);
+    let mergedStudentFound=false;
+    if(studentSheetForMerge && studentSheetForMerge.getLastRow()>1){
+      const sv=studentSheetForMerge.getDataRange().getValues();
+      const shd=sv[0].map(String);
+      const directStudentCol=headers.indexOf('StudentID');
+      const directFormCol=headers.indexOf('FormID');
+      const idCandidates=[admissionId,
+        directStudentCol>=0?values[rowNum-1][directStudentCol]:'',
+        directFormCol>=0?values[rowNum-1][directFormCol]:'',
+        formData.StudentID,formData.studentId,formData.FormID,formData.formId,
+        formData.HandwrittenID,formData.handwrittenId,formData.AdmissionFormID,
+        formData.SystemID,formData.AutoID,formData.ID]
+        .filter(function(v){return String(v==null?'':v).trim()!=='';})
+        .map(normAdmissionLookup_);
+      const studentKeys=['StudentID','studentId','FormID','formId','HandwrittenID','handwrittenId','AdmissionFormID','SystemID','AutoID','ID'];
+      for(let si=1;si<sv.length && !mergedStudentFound;si++){
+        const sr=sv[si];
+        const matched=studentKeys.some(function(key){
+          const col=shd.indexOf(key);
+          return col>=0 && normAdmissionLookup_(sr[col])!=='' && idCandidates.indexOf(normAdmissionLookup_(sr[col]))>=0;
+        });
+        if(matched){
+          shd.forEach(function(key,col){mergedFormData[key]=sr[col];});
+          mergedStudentFound=true;
+        }
+      }
+    }
+    Object.keys(formData).forEach(function(key){if(formData[key]!==''&&formData[key]!=null)mergedFormData[key]=formData[key];});
+    if(!Object.keys(mergedFormData).length) mergedFormData=formData;
+    return {ok:true,found:true,admissionId:String(idCol>=0?values[rowNum-1][idCol]:admissionId),status:statusCol>=0?String(values[rowNum-1][statusCol]||'INCOMPLETE'):'INCOMPLETE',formData:mergedFormData,source:mergedStudentFound?'ADMISSIONS+STUDENTS':'ADMISSIONS',message:mergedStudentFound?'ভর্তি ও শিক্ষার্থী মাস্টারের তথ্য মিলিয়ে ফর্ম লোড হয়েছে।':'সংরক্ষিত ভর্তি ফর্ম লোড হয়েছে।'};
   }
   if(action==='CANCEL'){
     if(rowNum<2)return {ok:true,cancelled:true,message:'আবেদন বাতিল করা হয়েছে।'};
