@@ -827,6 +827,23 @@ function syncAdmissionToStudent_(token,data) {
   if(idCol>=0 && src.StudentID) for(let i=1;i<vals.length;i++) if(String(vals[i][idCol]).trim()===String(src.StudentID).trim()){existing=i+1;break;}
   if(existing<0 && birthCol>=0 && src.BirthReg) for(let i=1;i<vals.length;i++) if(String(vals[i][birthCol]).trim()===String(src.BirthReg).trim()){existing=i+1;break;}
   if(existing<0 && nidCol>=0 && src.NID) for(let i=1;i<vals.length;i++) if(String(vals[i][nidCol]).trim()===String(src.NID).trim()){existing=i+1;break;}
+  // Match legacy records by their saved form/system IDs before appending any row.
+  const formLookupKeys=['FormID','HandwrittenID','handwrittenId','AdmissionFormID','SystemID','AutoID','ID'];
+  const formLookupCandidates=[src.FormID,data.AdmissionID,data.FormID,data.HandwrittenID,data.SystemID,data.AutoID]
+    .filter(function(v){return String(v==null?'':v).trim()!=='';})
+    .map(function(v){return String(v).trim().toLowerCase().replace(/[\\s().-]/g,'');});
+  if(existing<0 && formLookupCandidates.length){
+    for(let i=1;i<vals.length && existing<0;i++){
+      const matches=formLookupKeys.some(function(key){
+        const col=h.indexOf(key);
+        if(col<0)return false;
+        const saved=String(vals[i][col]||'').trim().toLowerCase().replace(/[\\s().-]/g,'');
+        return saved!=='' && formLookupCandidates.indexOf(saved)>=0;
+      });
+      if(matches)existing=i+1;
+    }
+  }
+  if(existing>1 && idCol>=0 && !String(src.StudentID||'').trim()) src.StudentID=String(vals[existing-1][idCol]||'').trim();
   const uniqueFormId=checkUniqueHandwrittenFormId_(src.FormID,existing>1?SHEETS.STUDENTS:'',existing>1?vals[existing-1][0]:'',src,data.AdmissionID||'');
   if(!uniqueFormId.ok) return uniqueFormId;
   const info=studentSourceInfo_(token);
