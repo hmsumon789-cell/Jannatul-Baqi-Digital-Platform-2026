@@ -2401,7 +2401,8 @@ function notifyOnlinePayment_(data,status,receiptId){
   });
 }
 function submitOnlinePayment(data,token){
-  data=data||{};const inputId=String(data.StudentID||'').trim(),ref=String(data.Reference||'').trim(),amount=Number(data.Amount||0),method=String(data.Method||'').trim(),mode=String(data.PaymentMode||'PENDING').toUpperCase();
+  data=data||{};const inputId=String(data.StudentID||'').trim(),ref=String(data.Reference||'').trim(),amount=Number(data.Amount||0),method=String(data.Method||'').trim(),mode=String(data.PaymentMode||'PRINCIPAL_APPROVAL').toUpperCase();
+  const allowedModes=['QUICK','PRINCIPAL_APPROVAL','AUTO_12H','AUTO_24H','AUTO_48H','AUTO_72H','PENDING'];if(allowedModes.indexOf(mode)<0)return {ok:false,message:'পেমেন্টের ধরন সঠিক নয়।'};
   if(!inputId||!isFinite(amount)||amount<=0||!method)return {ok:false,message:'ভর্তি ফর্মের যেকোনো ID, মোবাইল/ইমেইল, Amount ও পেমেন্ট মাধ্যম সঠিকভাবে দিন।'};
   if(method!=='হ্যান্ড ক্যাশ'&&!ref)return {ok:false,message:'Transaction / Reference ID দিন।'};
   const resolved=resolveAdmissionIdentifier_(inputId);
@@ -2430,7 +2431,7 @@ function submitOnlinePayment(data,token){
     }catch(e){return {ok:false,message:'সরাসরি পেমেন্টে সার্ভার ত্রুটি: '+(e&&e.message?e.message:e)};}
   }
   const req='OPR-'+Utilities.formatDate(new Date(),APP.timezone||'Asia/Dhaka','yyyyMMddHHmmss')+'-'+Math.floor(Math.random()*900+100),now=now_();
-  const paymentReq={Serial:nextSerial_(sh),RequestID:req,StudentID:id,Name:data.Name,Class:st.Class||'',Month:String(data.Month||'').trim(),Category:String(data.Category||'').trim(),Amount:amount,Method:method,Reference:ref,PayerMobile:payerMobile,PayerEmail:payerEmail,Note:String(data.Note||'').trim(),Status:'PENDING',SubmittedAt:now,ApprovedBy:'',ApprovedAt:'',FailureReason:'',ReceiptID:'',CreatedAt:now,PaymentMode:mode};
+  const paymentReq={Serial:nextSerial_(sh),RequestID:req,StudentID:id,Name:data.Name,Class:st.Class||'',Month:String((Array.isArray(data.Months)&&data.Months.length?data.Months.join(', '):data.Month)||'').trim(),Category:String((Array.isArray(data.Categories)&&data.Categories.length?data.Categories.join(', '):data.Category)||'').trim(),Amount:amount,Method:method,Reference:ref,PayerMobile:payerMobile,PayerEmail:payerEmail,Note:String(data.Note||'').trim(),Status:'PENDING',SubmittedAt:now,ApprovedBy:'',ApprovedAt:'',FailureReason:'',ReceiptID:'',CreatedAt:now,PaymentMode:mode};
   const reqHeaders=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
   sh.appendRow(reqHeaders.map(function(h){return paymentReq[h]!==undefined?paymentReq[h]:'';}));
   notifyOnlinePayment_(data,'PENDING','');
@@ -2590,6 +2591,31 @@ function getOnlinePaymentManagerData(token){
 
 
 /* ===== END ONLINE PAYMENT ===== */
+
+function getPublicOnlinePaymentList(studentId,contact){
+  try{
+    const input=String(studentId||'').trim(),proof=String(contact||'').trim();
+    if(!input||!proof)return {ok:false,message:'Student ID ও ভর্তি সময়ের মোবাইল/ইমেইল দিন।'};
+    const resolved=resolveAdmissionIdentifier_(input),id=String(resolved.studentId||input).trim();
+    const st=resolved.student||findBy_(SHEETS.STUDENTS,'StudentID',id);
+    if(!st)return {ok:false,message:'শিক্ষার্থী পাওয়া যায়নি।'};
+    const proofMobile=normalizeBdMobile_(proof),registeredMobile=normalizeBdMobile_(st.Mobile||st.WhatsApp||'');
+    const proofEmail=proof.toLowerCase(),registeredEmail=String(st.Email||'').trim().toLowerCase();
+    if(!(proofMobile&&registeredMobile&&proofMobile===registeredMobile)&&!(proofEmail&&registeredEmail&&proofEmail===registeredEmail))return {ok:false,message:'ভর্তি সময়ের নিবন্ধিত মোবাইল অথবা ইমেইল সঠিক নয়।'};
+    const out=[],ss=SpreadsheetApp.getActiveSpreadsheet(),paySh=ss.getSheetByName(SHEETS.PAYMENTS);
+    if(paySh&&paySh.getLastRow()>1){
+      const vals=paySh.getDataRange().getValues(),heads=vals[0].map(function(x){return String(x||'').trim();});
+      vals.slice(1).forEach(function(row){const o=objectFrom_(heads,row);if(String(o.StudentID||'').trim()===id)out.push({Date:o.Date||'',Month:o.Month||'',Category:o.Category||'',Amount:o.Amount||'',Status:'PAID'});});
+    }
+    const reqSh=ss.getSheetByName(ONLINE_PAYMENT_REQUEST_SHEET);
+    if(reqSh&&reqSh.getLastRow()>1){
+      const vals=reqSh.getDataRange().getValues(),heads=vals[0].map(function(x){return String(x||'').trim();});
+      vals.slice(1).forEach(function(row){const o=objectFrom_(heads,row);if(String(o.StudentID||'').trim()===id)out.push({Date:o.SubmittedAt||o.CreatedAt||'',Month:o.Month||'',Category:o.Category||'',Amount:o.Amount||'',Status:String(o.Status||'PENDING').toUpperCase()});});
+    }
+    out.sort(function(a,b){return String(b.Date||'').localeCompare(String(a.Date||''));});
+    return {ok:true,rows:out.slice(0,100)};
+  }catch(e){return {ok:false,message:'পেমেন্ট তালিকা আনতে ত্রুটি: '+String(e&&e.message||e)};}
+}
 
 /* ===== FINANCE MONTH + RECEIPT SUPPORT — 2026-10-09 ===== */
 function saveFinanceEntry(token,data){
