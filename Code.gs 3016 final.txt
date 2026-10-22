@@ -941,6 +941,50 @@ function saveAdmissionDraft2026(token,data,action) {
     SpreadsheetApp.flush();
     return {ok:true,cancelled:true,admissionId:admissionId,message:'আবেদন বাতিল করা হয়েছে।'};
   }
+  // If an old STUDENTS record was loaded by StudentID/handwritten ID and there is no
+  // corresponding ADMISSIONS row, update that exact student instead of appending a duplicate.
+  let incomingFormForExisting=data.FormData;
+  if(typeof incomingFormForExisting==='string'){try{incomingFormForExisting=JSON.parse(incomingFormForExisting);}catch(e){incomingFormForExisting={};}}
+  if(!incomingFormForExisting || typeof incomingFormForExisting!=='object') incomingFormForExisting={};
+  const editCandidates=[admissionId,data.StudentID,data.FormID,data.HandwrittenID,data.handwrittenId,data.AutoID,data.SystemID,
+    incomingFormForExisting.StudentID,incomingFormForExisting.studentId,incomingFormForExisting.FormID,incomingFormForExisting.formId,
+    incomingFormForExisting.HandwrittenID,incomingFormForExisting.handwrittenId,incomingFormForExisting.AdmissionFormID,
+    incomingFormForExisting.AutoID,incomingFormForExisting.SystemID].filter(function(v){return String(v==null?'':v).trim()!=='';})
+    .map(normAdmissionLookup_);
+  let existingStudentRow=-1, existingStudentHeaders=[], existingStudentValues=[], existingStudentId='';
+  const existingStudentSheet=ss.getSheetByName(SHEETS.STUDENTS);
+  if(existingStudentSheet && existingStudentSheet.getLastRow()>1 && rowNum<2){
+    existingStudentValues=existingStudentSheet.getDataRange().getValues();
+    existingStudentHeaders=existingStudentValues[0].map(String);
+    const studentLookupColumns=['StudentID','FormID','HandwrittenID','handwrittenId','AdmissionFormID','SystemID','AutoID','ID'];
+    for(let si=1;si<existingStudentValues.length && existingStudentRow<0;si++){
+      const sr=existingStudentValues[si];
+      const hit=studentLookupColumns.some(function(key){
+        const col=existingStudentHeaders.indexOf(key);
+        return col>=0 && editCandidates.indexOf(normAdmissionLookup_(sr[col]))>=0 && normAdmissionLookup_(sr[col])!=='';
+      });
+      if(hit){existingStudentRow=si+1;const sidCol=existingStudentHeaders.indexOf('StudentID');existingStudentId=sidCol>=0?String(sr[sidCol]||'').trim():'';}
+    }
+  }
+  if(rowNum<2 && existingStudentRow>1 && (data.EditExisting===true || action!=='LOAD')){
+    if(existingStudentId) data.StudentID=existingStudentId;
+    if(!data.FormID) data.FormID=String(incomingFormForExisting.FormID||incomingFormForExisting.HandwrittenID||admissionId).trim();
+    if(!data.AdmissionID) data.AdmissionID=admissionId;
+    incomingFormForExisting.StudentID=existingStudentId||incomingFormForExisting.StudentID||'';
+    if(!incomingFormForExisting.FormID) incomingFormForExisting.FormID=data.FormID;
+    data.FormData=incomingFormForExisting;
+    const existingIdentity=buildStudentFromAdmission_(data,incomingFormForExisting);
+    const existingFormCheck=checkUniqueHandwrittenFormId_(existingIdentity.FormID,SHEETS.STUDENTS,
+      existingStudentValues[existingStudentRow-1][existingStudentHeaders.indexOf('Serial')>=0?existingStudentHeaders.indexOf('Serial'):0],
+      existingIdentity,admissionId);
+    if(!existingFormCheck.ok) return existingFormCheck;
+    const updateResult=syncAdmissionToStudent_(token,data);
+    if(!updateResult || updateResult.ok!==true || updateResult.created===true){
+      return {ok:false,message:'পুরাতন শিক্ষার্থীর রেকর্ড আপডেট করা যায়নি; নতুন ডুপ্লিকেট তৈরি করা হয়নি।',details:updateResult||null};
+    }
+    return {ok:true,updatedExistingStudent:true,created:false,studentId:String(updateResult.studentId||existingStudentId),
+      admissionId:admissionId,message:'পুরাতন শিক্ষার্থীর একই রেকর্ডে পরিবর্তিত তথ্য সংরক্ষিত হয়েছে; নতুন ডুপ্লিকেট তৈরি হয়নি।'};
+  }
   const finalizing=action==='FINALIZE';
   let admissionFormData=data.FormData;
   if(typeof admissionFormData==='string'){try{admissionFormData=JSON.parse(admissionFormData);}catch(e){admissionFormData={};}}
