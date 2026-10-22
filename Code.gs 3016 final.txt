@@ -944,6 +944,10 @@ function saveAdmissionDraft2026(token,data,action) {
           if(matched){
             const studentData={};
             studentHeaders.forEach(function(key,col){studentData[key]=studentRow[col];});
+            const normalizedStudentData=buildStudentFromAdmission_({},studentData);
+            Object.keys(normalizedStudentData).forEach(function(key){if(normalizedStudentData[key]!==''&&normalizedStudentData[key]!=null)studentData[key]=normalizedStudentData[key];});
+            const hasStudentDetails=['NameBN','StudentNameBN','Name','DOB','BirthDate','FatherBN','FatherName','Mobile','Class','Address'].some(function(key){return String(studentData[key]||'').trim()!=='';});
+            if(!hasStudentDetails)return {ok:false,found:false,message:'আইডি দিয়ে STUDENTS রেকর্ড পাওয়া গেছে, কিন্তু নাম/জন্মতারিখ/অভিভাবক/যোগাযোগ/শ্রেণির তথ্য ফাঁকা। সংশ্লিষ্ট রেকর্ডের কলাম যাচাই করতে হবে।'};
             return {ok:true,found:true,admissionId:String(studentData.FormID||studentData.StudentID||admissionId),status:String(studentData.ApprovalStatus||'EXISTING'),formData:studentData,source:'STUDENTS',message:'পুরাতন শিক্ষার্থী রেকর্ড লোড হয়েছে। সম্পাদনা করে সংরক্ষণ করুন।'};
           }
         }
@@ -981,12 +985,16 @@ function saveAdmissionDraft2026(token,data,action) {
         });
         if(matched){
           shd.forEach(function(key,col){mergedFormData[key]=sr[col];});
+          const normalizedStudentFields=buildStudentFromAdmission_({},mergedFormData);
+          Object.keys(normalizedStudentFields).forEach(function(key){if(normalizedStudentFields[key]!==''&&normalizedStudentFields[key]!=null)mergedFormData[key]=normalizedStudentFields[key];});
           mergedStudentFound=true;
         }
       }
     }
     Object.keys(formData).forEach(function(key){if(formData[key]!==''&&formData[key]!=null)mergedFormData[key]=formData[key];});
     if(!Object.keys(mergedFormData).length) mergedFormData=formData;
+    const hasAdmissionDetails=['NameBN','StudentNameBN','Name','DOB','BirthDate','FatherBN','FatherName','Mobile','Class','Address'].some(function(key){return String(mergedFormData[key]||'').trim()!=='';});
+    if(!hasAdmissionDetails)return {ok:false,found:false,message:'আইডি মিলে একটি ভর্তি রেকর্ড পাওয়া গেছে, কিন্তু তাতে ব্যবহারযোগ্য শিক্ষার্থী তথ্য নেই এবং STUDENTS তালিকাতেও মেলানো যায়নি। রেকর্ডের FormData/আইডি কলাম যাচাই করতে হবে।'};
     return {ok:true,found:true,admissionId:String(idCol>=0?values[rowNum-1][idCol]:admissionId),status:statusCol>=0?String(values[rowNum-1][statusCol]||'INCOMPLETE'):'INCOMPLETE',formData:mergedFormData,source:mergedStudentFound?'ADMISSIONS+STUDENTS':'ADMISSIONS',message:mergedStudentFound?'ভর্তি ও শিক্ষার্থী মাস্টারের তথ্য মিলিয়ে ফর্ম লোড হয়েছে।':'সংরক্ষিত ভর্তি ফর্ম লোড হয়েছে।'};
   }
   if(action==='CANCEL'){
