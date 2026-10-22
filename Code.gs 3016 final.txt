@@ -822,9 +822,11 @@ function syncAdmissionToStudent_(token,data) {
   const sh=ensureSheet_(ss,SHEETS.STUDENTS,HEADERS[SHEETS.STUDENTS]);
   const h=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
   const vals=sh.getDataRange().getValues();
-  const idCol=h.indexOf('StudentID'), mobileCol=h.indexOf('Mobile'), birthCol=h.indexOf('BirthReg'), nidCol=h.indexOf('NID');
+  const idCol=h.indexOf('StudentID'), formCol=h.indexOf('FormID'), mobileCol=h.indexOf('Mobile'), birthCol=h.indexOf('BirthReg'), nidCol=h.indexOf('NID');
   let existing=-1;
   if(idCol>=0 && src.StudentID) for(let i=1;i<vals.length;i++) if(String(vals[i][idCol]).trim()===String(src.StudentID).trim()){existing=i+1;break;}
+  // Match the handwritten FormID when an edit payload has no StudentID, preventing a duplicate student row.
+  if(existing<0 && formCol>=0 && src.FormID) for(let i=1;i<vals.length;i++) if(String(vals[i][formCol]).trim().toLowerCase()===String(src.FormID).trim().toLowerCase()){existing=i+1;break;}
   if(existing<0 && birthCol>=0 && src.BirthReg) for(let i=1;i<vals.length;i++) if(String(vals[i][birthCol]).trim()===String(src.BirthReg).trim()){existing=i+1;break;}
   if(existing<0 && nidCol>=0 && src.NID) for(let i=1;i<vals.length;i++) if(String(vals[i][nidCol]).trim()===String(src.NID).trim()){existing=i+1;break;}
   const uniqueFormId=checkUniqueHandwrittenFormId_(src.FormID,existing>1?SHEETS.STUDENTS:'',existing>1?vals[existing-1][0]:'',src,data.AdmissionID||'');
@@ -1158,7 +1160,9 @@ function checkUniqueHandwrittenFormId_(formId, excludeSheet, excludeSerial, iden
       const row=values[i];
       if(target.sheet===excludeSheet && excludeSerial!==undefined && excludeSerial!==null && String(row[serialCol>=0?serialCol:0])===String(excludeSerial)) continue;
       if(target.sheet===SHEETS.STUDENTS){
+        const studentFormCol=headers.indexOf('FormID');
         const sameStudent=(identity.StudentID&&studentIdCol>=0&&String(row[studentIdCol]||'').trim()===String(identity.StudentID).trim()) ||
+          (identity.FormID&&studentFormCol>=0&&String(row[studentFormCol]||'').trim().toLowerCase()===String(identity.FormID).trim().toLowerCase()) ||
           (identity.BirthReg&&birthCol>=0&&String(row[birthCol]||'').trim()===String(identity.BirthReg).trim()) ||
           (identity.NID&&nidCol>=0&&String(row[nidCol]||'').trim()===String(identity.NID).trim());
         if(sameStudent) continue;
