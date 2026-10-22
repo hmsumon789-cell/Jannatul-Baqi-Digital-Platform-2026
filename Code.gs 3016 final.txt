@@ -2402,7 +2402,7 @@ function notifyOnlinePayment_(data,status,receiptId){
 }
 function submitOnlinePayment(data,token){
   data=data||{};const inputId=String(data.StudentID||'').trim(),ref=String(data.Reference||'').trim(),amount=Number(data.Amount||0),method=String(data.Method||'').trim(),mode=String(data.PaymentMode||'PRINCIPAL_APPROVAL').toUpperCase();
-  const allowedModes=['QUICK','PRINCIPAL_APPROVAL','AUTO_12H','AUTO_24H','AUTO_48H','AUTO_72H','PENDING'];if(allowedModes.indexOf(mode)<0)return {ok:false,message:'পেমেন্টের ধরন সঠিক নয়।'};
+  const allowedModes=['QUICK','QUICK_REQUEST','PRINCIPAL_APPROVAL','AUTO_12H','AUTO_24H','AUTO_48H','AUTO_72H','PENDING'];if(allowedModes.indexOf(mode)<0)return {ok:false,message:'পেমেন্টের ধরন সঠিক নয়।'};
   if(!inputId||!isFinite(amount)||amount<=0||!method)return {ok:false,message:'ভর্তি ফর্মের যেকোনো ID, মোবাইল/ইমেইল, Amount ও পেমেন্ট মাধ্যম সঠিকভাবে দিন।'};
   if(method!=='হ্যান্ড ক্যাশ'&&!ref)return {ok:false,message:'Transaction / Reference ID দিন।'};
   const resolved=resolveAdmissionIdentifier_(inputId);
