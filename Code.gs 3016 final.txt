@@ -888,7 +888,7 @@ function saveAdmissionDraft2026(token,data,action) {
   }
   // A matching AdmissionID can be an existing incomplete draft being edited,
   // but must not silently overwrite an already submitted/cancelled application.
-  if(rowNum>1 && action!=='LOAD' && action!=='CANCEL'){
+  if(rowNum>1 && action!=='LOAD' && action!=='CANCEL' && data.EditExisting!==true){
     const duplicateMessage='এই আইডিটি ইতিপূর্বে ব্যবহার হয়েছে। অনুগ্রহ করে নতুন আইডি লিখুন।';
     const existingStatus=statusCol>=0?String(values[rowNum-1][statusCol]||'INCOMPLETE').trim().toUpperCase():'INCOMPLETE';
     if(existingStatus!=='INCOMPLETE') return {ok:false,duplicate:true,message:duplicateMessage,duplicateIn:SHEETS.ADMISSIONS};
@@ -951,9 +951,45 @@ function saveAdmissionDraft2026(token,data,action) {
   const finalizing=action==='FINALIZE';
   let admissionFormData=data.FormData;
   if(typeof admissionFormData==='string'){try{admissionFormData=JSON.parse(admissionFormData);}catch(e){admissionFormData={};}}
+  // When an existing STUDENTS record was loaded by any legacy ID, update that row directly.
+  // Never append a new ADMISSIONS row for an existing student-only record.
+  let existingStudentRow=-1, existingStudentSheet=null, existingStudentHeaders=[], existingStudentValues=[];
+  if(rowNum<2 && data.EditExisting===true){
+    existingStudentSheet=ss.getSheetByName(SHEETS.STUDENTS);
+    if(existingStudentSheet && existingStudentSheet.getLastRow()>1){
+      existingStudentValues=existingStudentSheet.getDataRange().getValues();
+      existingStudentHeaders=existingStudentValues[0].map(String);
+      const lookupValues=[admissionId,data.StudentID,data.FormID,data.HandwrittenID,data.AutoID,data.SystemID]
+        .concat(['StudentID','FormID','HandwrittenID','handwrittenId','AdmissionFormID','SystemID','AutoID','ID'].map(function(k){return data[k];}));
+      const lookupSet={};
+      lookupValues.forEach(function(v){const n=normAdmissionLookup_(v);if(n)lookupSet[n]=true;});
+      const lookupCols=['StudentID','FormID','HandwrittenID','handwrittenId','AdmissionFormID','SystemID','AutoID','ID']
+        .map(function(k){return existingStudentHeaders.indexOf(k);}).filter(function(c){return c>=0;});
+      for(let si=1;si<existingStudentValues.length;si++){
+        if(lookupCols.some(function(c){return !!lookupSet[normAdmissionLookup_(existingStudentValues[si][c])];})){
+          existingStudentRow=si+1;break;
+        }
+      }
+    }
+    if(existingStudentRow<2){
+      return {ok:false,found:false,message:'সম্পাদনার জন্য পুরাতন শিক্ষার্থী রেকর্ডটি আর পাওয়া যাচ্ছে না। ডুপ্লিকেট রেকর্ড তৈরি করা হয়নি।'};
+    }
+    const existingStudentIdCol=existingStudentHeaders.indexOf('StudentID');
+    if(existingStudentIdCol>=0 && existingStudentValues[existingStudentRow-1][existingStudentIdCol]){
+      data.StudentID=String(existingStudentValues[existingStudentRow-1][existingStudentIdCol]);
+      if(admissionFormData && typeof admissionFormData==='object') admissionFormData.StudentID=data.StudentID;
+      data.FormData=JSON.stringify(admissionFormData||{});
+    }
+  }
   const admissionPerson=buildStudentFromAdmission_(data,admissionFormData);
-  const admissionFormCheck=checkUniqueHandwrittenFormId_(admissionPerson.FormID,'','',admissionPerson,admissionId);
+  const admissionFormCheck=checkUniqueHandwrittenFormId_(admissionPerson.FormID,existingStudentRow>1?SHEETS.STUDENTS:'',existingStudentRow>1?existingStudentValues[existingStudentRow-1][existingStudentHeaders.indexOf('Serial')>=0?existingStudentHeaders.indexOf('Serial'):0]:'',admissionPerson,admissionId);
   if(!admissionFormCheck.ok) return admissionFormCheck;
+  if(rowNum<2 && existingStudentRow>1 && data.EditExisting===true){
+    data.Status='PENDING';
+    const studentWorkflow=syncAdmissionToStudent_(token,data);
+    if(!studentWorkflow || studentWorkflow.ok===false) return studentWorkflow||{ok:false,message:'পুরাতন শিক্ষার্থীর তথ্য সংরক্ষণ করা যায়নি।'};
+    return {ok:true,updatedExistingStudent:true,created:false,admissionId:admissionId,studentId:String(studentWorkflow.studentId||data.StudentID||''),status:studentWorkflow.status||'EXISTING',studentWorkflow:studentWorkflow,message:'পুরাতন শিক্ষার্থীর একই রেকর্ডে পরিবর্তিত তথ্য সংরক্ষিত হয়েছে; নতুন ডুপ্লিকেট রেকর্ড তৈরি হয়নি。'};
+  }
   data.Status=finalizing?'PENDING':'INCOMPLETE';
   data.AdmissionID=admissionId;
   const row=headers.map(function(h){return h==='Serial'?(rowNum>1?values[rowNum-1][0]:nextSerial_(sh)):h==='CreatedAt'?(rowNum>1?values[rowNum-1][headers.indexOf('CreatedAt')]:now_()):(data[h]!==undefined?data[h]:'');});
