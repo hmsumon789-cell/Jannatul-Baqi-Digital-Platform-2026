@@ -2061,10 +2061,13 @@ function saveDocumentBuilderRecord(token, docKey, studentId, data, html) {
     const sh=documentBuilderGenericSheet_();
     const docId='DOC-'+key+'-'+stamp+'-'+sid;
     sh.appendRow([docId,key,sid,data.IssueDate||data.Date||now,payload]);
+    if(String(html||'').trim()){try{saveAdmissionPdfArchive2026(token,key,docId,data,html);}catch(archiveError){}}
     return {ok:true,sheet:sh.getName(),record:{DocumentID:docId,DocKey:key,StudentID:sid,IssueDate:data.IssueDate||data.Date||now},documentId:docId,message:'Document + Preview History-তে সংরক্ষণ হয়েছে।'};
   }
   const saved=saveRecord(token,sheetName,row);
-  return {ok:true,sheet:sheetName,record:saved.row,documentId:row.ResultID||row.CardID||row.AdmitID||row.CertificateID||row.ReceiptID,message:'Document History-তে সংরক্ষণ হয়েছে।'};
+  const savedDocId=row.ResultID||row.CardID||row.AdmitID||row.CertificateID||row.ReceiptID;
+  if(String(html||'').trim()){try{saveAdmissionPdfArchive2026(token,key,savedDocId||sid,data,html);}catch(archiveError){}}
+  return {ok:true,sheet:sheetName,record:saved.row,documentId:savedDocId,message:'Document History-তে সংরক্ষণ হয়েছে।'};
 }
 
 
@@ -3204,7 +3207,7 @@ function saveAdmissionPdfArchive2026(token, kind, recordId, data, html) {
   auth_(token);
   setupSystem();
   const type=String(kind||'').trim().toLowerCase();
-  if(type!=='admission_form' && type!=='receipt') return {ok:false,message:'PDF নথির ধরন সঠিক নয়।'};
+  if(!type) return {ok:false,message:'PDF নথির ধরন সঠিক নয়।'};
   const ref=String(recordId||'').trim();
   if(!ref) return {ok:false,message:'নথির ID পাওয়া যায়নি।'};
   data=data||{};
