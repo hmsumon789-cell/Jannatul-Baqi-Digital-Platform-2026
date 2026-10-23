@@ -716,6 +716,14 @@ body.gold #loginPage .login-main-qr-box{
 @media(max-width:560px){.exam-dashboard-grid,.exam-dashboard-actions{grid-template-columns:1fr}}
 body.dark .exam-dashboard-card,body.dark .exam-dashboard-actions button{background:#000;color:#ffe95c;border-color:#ff1f2f}
 </style>
+
+<style id="all-documents-module-style">
+.all-documents-module{border:1px solid #d8b45b!important;background:linear-gradient(135deg,#fff8dc,#f0d27a,#fffdf2)!important;color:#5c3b00!important;font-weight:800!important;box-shadow:0 2px 9px #c99a3040!important}
+.documents-toolbar{display:grid;grid-template-columns:minmax(160px,1fr) minmax(180px,1fr) auto auto;gap:8px;align-items:center;margin-bottom:12px}
+.document-status{font-size:13px;color:#755400;margin:7px 0}
+@media(max-width:700px){.documents-toolbar{grid-template-columns:1fr}.documents-toolbar button{width:100%}}
+</style>
+
 </head>
 <body>
 <div id="welcomeScreen">
@@ -994,7 +1002,21 @@ function clearOtp(){document.querySelectorAll('.otp-box').forEach(x=>x.value='')
 async function resetOtp(){const r=await call('requestOtp',$('resetUser').value.trim());toast(r.message)}
 async function logout(){await call('logout',token);location.reload()}
 async function loadApp(){const r=await call('getBootstrap',token);if(!r||!r.ok)return;var ub=currentUser||r.currentAdmin||{};var rr=String(ub.Role||ub.role||'').toUpperCase().replace(/\s+/g,'_');var isSuper=(rr==='SUPER_ADMIN'||rr==='SUPERADMIN');if($('accountManagerBtn'))$('accountManagerBtn').style.display=isSuper?'inline-block':'none';if($('sheetWin'))$('sheetWin').dataset.allowed=isSuper?'yes':'no';var sheetBtn=document.querySelector('.sheet-btn');if(sheetBtn)sheetBtn.style.display=isSuper?'inline-block':'none';modules=r.modules||[];renderModules();renderStats(r.stats||{});renderNotices(r.notices||[]);media=r.media||[];renderMedia();fillFeatureSelect();if(isSuper)fillSheets();else if($('sheetSelect'))$('sheetSelect').innerHTML='';dragWindow($('formWin'))}
-function renderModules(){const l=$('leftModules'),r=$('rightModules');l.innerHTML='';r.innerHTML='';modules.forEach((m,i)=>{const b=document.createElement('button');b.className='module';b.textContent=m[1];b.onclick=()=>openModule(m[0]);(i<Math.ceil(modules.length/2)?l:r).appendChild(b)})}
+function renderModules(){
+  const l=$('leftModules'),r=$('rightModules');l.innerHTML='';r.innerHTML='';
+  const visible=modules.filter(m=>m[0]!=='files');
+  visible.forEach((m,i)=>{
+    const b=document.createElement('button');b.className='module';b.textContent=m[1];b.onclick=()=>openModule(m[0]);
+    (i<Math.ceil(visible.length/2)?l:r).appendChild(b);
+    if(m[0]==='gallery'){
+      const d=document.createElement('button');d.className='module all-documents-module';d.textContent='📚 অল ডকুমেন্ট';d.onclick=()=>openModule('files');
+      b.insertAdjacentElement('afterend',d);
+    }
+  });
+  if(!visible.some(m=>m[0]==='gallery')){
+    const d=document.createElement('button');d.className='module all-documents-module';d.textContent='📚 অল ডকুমেন্ট';d.onclick=()=>openModule('files');l.appendChild(d);
+  }
+}
 function fillFeatureSelect(){const s=$('featureSelect');modules.forEach(m=>{const o=document.createElement('option');o.value=m[0];o.textContent=m[1];s.appendChild(o)})}
 function renderStats(x){
   const arr=[['আয়',x.income],['ব্যয়',x.expense],['মোট ক্যাশ',x.cash],['মোট বকেয়া',x.due],['মোট ছাত্র/ছাত্রী',x.students],['মোট শিক্ষক/শিক্ষিকা',x.teachers],['নির্বাহী পরিষদ সদস্য',x.executives],['নিবন্ধিত মহিলা মাদ্রাসা',x.femaleMadrasa],['নিবন্ধিত পুরুষ মাদ্রাসা',x.maleMadrasa],['আজ উপস্থিত',x.attendanceToday.present],['আজ অনুপস্থিত',x.attendanceToday.absent]];
@@ -1046,6 +1068,62 @@ function renderMedia(){
 function nextMedia(){if(media.length){mediaIndex=(mediaIndex+1)%media.length;renderMedia()}}
 function prevMedia(){if(media.length){mediaIndex=(mediaIndex-1+media.length)%media.length;renderMedia()}}
 async function deleteCurrentMedia(){if(!media.length)return;const current=media[mediaIndex%media.length],r=await call('deleteMedia',token,current.Serial);toast(r.ok?'মুছে ফেলা হয়েছে':'ব্যর্থ');if(r.ok){media.splice(mediaIndex,1);mediaIndex=media.length?mediaIndex%media.length:0;renderMedia();}}
+
+let allDocuments=[],displayedDocuments=[];
+async function loadDocuments(){
+  const box=$('documentList'),status=$('documentStatus');if(box)box.innerHTML='<p>ডকুমেন্ট তালিকা লোড হচ্ছে...</p>';
+  try{
+    const r=await call('listFiles',token);
+    if(!r||!r.ok){if(box)box.innerHTML='<p>ডকুমেন্ট তালিকা পাওয়া যায়নি।</p>';if(status)status.textContent=(r&&r.message)||'অনুমতি বা সার্ভার সংযোগ যাচাই করুন।';return;}
+    allDocuments=Array.isArray(r.rows)?r.rows:[];
+    renderDocumentList(allDocuments);
+    if(status)status.textContent='মোট ডকুমেন্ট: '+allDocuments.length+'টি';
+  }catch(e){if(box)box.innerHTML='<p>ডকুমেন্ট লোড করা যায়নি।</p>';if(status)status.textContent=String(e&&e.message||e);}
+}
+function renderDocumentList(rows){
+  displayedDocuments=rows||[];const box=$('documentList');if(!box)return;
+  if(!displayedDocuments.length){box.innerHTML='<p>কোনো ডকুমেন্ট পাওয়া যায়নি।</p>';return;}
+  box.innerHTML='<table class="data-table"><thead><tr><th>ক্রম</th><th>ডকুমেন্টের নাম</th><th>ধরন</th><th>তারিখ</th><th>কাজ</th></tr></thead><tbody>'+displayedDocuments.map((d,i)=>{
+    const name=String(d.Name||d.name||'নামহীন ডকুমেন্ট'),type=String(d.Type||d.type||d.MimeType||''),date=String(d.CreatedAt||d.createdAt||'');
+    return '<tr><td>'+(i+1)+'</td><td>'+escapeDocumentText(name)+'</td><td>'+escapeDocumentText(type)+'</td><td>'+escapeDocumentText(date)+'</td><td><button class="secondary" onclick="downloadDocument('+i+')">⬇ ডাউনলোড</button> <button class="secondary" onclick="printDocumentRow('+i+')">🖨 প্রিন্ট</button></td></tr>';
+  }).join('')+'</tbody></table>';
+}
+function escapeDocumentText(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function filterDocumentList(){
+  const q=String($('documentSearch')?.value||'').trim().toLowerCase();
+  renderDocumentList(allDocuments.filter(d=>[d.Name,d.name,d.Type,d.type,d.MimeType,d.Folder,d.folder].some(v=>String(v||'').toLowerCase().includes(q))));
+}
+function documentDataUrl(d){return String(d.DataURL||d.dataUrl||'');}
+function downloadDocument(i){
+  const d=displayedDocuments[i];if(!d)return;
+  const url=documentDataUrl(d);if(!url){toast('ডাউনলোড লিংক পাওয়া যায়নি।');return;}
+  const a=document.createElement('a');a.href=url;a.download=String(d.Name||d.name||'document');a.target='_blank';document.body.appendChild(a);a.click();a.remove();
+}
+function printDocumentRow(i){
+  const d=displayedDocuments[i];if(!d)return;
+  const url=documentDataUrl(d);if(!url){toast('প্রিন্ট করার ফাইল পাওয়া যায়নি।');return;}
+  const mime=String(d.MimeType||d.mimeType||'').toLowerCase();
+  if(mime.includes('pdf')||mime.startsWith('image/')){
+    const w=window.open(url,'_blank');if(!w){toast('পপ-আপ অনুমতি দিন, তারপর আবার চেষ্টা করুন।');return;}
+    if(mime.startsWith('image/'))setTimeout(()=>{try{w.print();}catch(e){}},700);
+  }else{downloadDocument(i);toast('এই ফাইলের ধরন সরাসরি প্রিন্ট সমর্থন নাও করতে পারে; ডাউনলোড করে প্রিন্ট করুন।');}
+}
+async function uploadDocuments(){
+  const input=$('documentFiles'),status=$('documentStatus'),files=Array.from(input&&input.files||[]);
+  if(!files.length){toast('প্রথমে ডকুমেন্ট নির্বাচন করুন।');return;}
+  for(const f of files){
+    if(f.size>20*1024*1024){toast(f.name+' ২০ MB-এর বেশি, আপলোড বাদ দেওয়া হয়েছে।');continue;}
+    try{
+      const dataUrl=await readFile(f);
+      const r=await call('uploadFile',token,{name:f.name,type:(f.type||'application/octet-stream'),mimeType:f.type||'application/octet-stream',dataUrl:dataUrl,size:f.size,folder:'GENERAL'});
+      if(!r||!r.ok){if(status)status.textContent=(r&&r.message)||'আপলোড ব্যর্থ: '+f.name;continue;}
+      if(status)status.textContent='আপলোড হয়েছে: '+f.name;
+    }catch(e){if(status)status.textContent='আপলোড ব্যর্থ: '+f.name+' — '+String(e&&e.message||e);}
+  }
+  if(input)input.value='';
+  await loadDocuments();
+}
+
 function openModule(key){
 const labels=Object.fromEntries(modules.map(x=>[x[0],x[1]]));
 $('winTitle').textContent=labels[key]||key;
@@ -1054,6 +1132,7 @@ $('formWin').classList.remove('minimized');
 $('formWin').style.height='';
 openWindow('formWin');
 setTimeout(function(){clearFormWindow(false);},0);
+if(key==='files')setTimeout(loadDocuments,50);
 }
 function locationField(id,label,options){
   return `<label>${label} / Dropdown<select id="${id}Select" class="field"><option value="">নির্বাচন করুন</option>${options.map(x=>`<option>${x}</option>`).join('')}</select><input id="${id}Manual" class="field" placeholder="হাতে লিখুন"></label>`;
@@ -1089,6 +1168,7 @@ ${locationField('fVillage','গ্রাম',['কোনাখোলা','মড
 if(['student','teacher','donor'].includes(k))return common+`<div class="form-grid"><label>শ্রেনি/জামাত<select id="fClass" class="field">${['প্লে শ্রেনি','শিশু শ্রেনি','আউয়াল জামাত','ছানী জামাত','ছালেছ জামাত','রাবে জামাত','পঞ্চম জামাত','মিজান জামাত','নাহবেমীর জামাত','কুদুরী জামাত','শরহে বেকায়া জামাত','হেদায়া জামাত','মিশকাত জামাত','দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)'].map(x=>`<option>${x}</option>`).join('')}</select></label><label>বিভাগ<select id="fDept" class="field"><option>কিতাব বিভাগ</option><option>হিফজুল কুরআন বিভাগ</option><option>নুরানী বিভাগ</option><option>গণিত বিভাগ</option><option>ইংলিশ বিভাগ</option><option>বাংলা বিভাগ</option><option>বোর্ডিং বিভাগ</option><option>হিসাব বিভাগ</option></select></label><label>শাখা<select id="fBranch" class="field"><option>প্রধান শাখা</option><option>২য় শাখা</option><option>৩য় শাখা</option><option>বালক শাখা</option><option>বালিকা শাখা</option></select></label><label>ছবি<input id="fPhoto" class="field" type="file" accept="image/*"></label><label>জন্ম নিবন্ধন<input id="fBirth" class="field"></label><label>জাতীয় ১৭ ডিজিট NID<input id="fNid" class="field"></label></div><button class="primary" onclick="saveModule('${k}')">Save</button>`;
 if(k==='admin')return `<div class="form-grid"><label>বাংলা নাম<input id="aName" class="field"></label><label>العربية<input id="aAr" class="field"></label><label>English<input id="aEn" class="field"></label><label>Username<input id="aUser" class="field"></label><label>Password<input id="aPass" class="field" type="password"></label><label>Email<input id="aEmail" class="field"></label><label>Mobile<input id="aMobile" class="field" required></label><label>WhatsApp<input id="aWa" class="field"></label><label>Approval ID<input id="aApproval" class="field"></label><label class="full">Address<textarea id="aAddress" class="field"></textarea></label><label class="full">Photo (required)<input id="aPhoto" class="field" type="file" accept="image/*"></label><label>Birth Registration<input id="aBirth" class="field"></label><label>১৭ ডিজিট NID<input id="aNid" class="field"></label></div><button class="primary" onclick="saveAdmin()">Create Admin</button>`;
 if(k==='gallery')return `<div class="media-upload-note"><b>ফটো:</b> সর্বোচ্চ 20 MB, 100টি। <b>ভিডিও:</b> সর্বোচ্চ 50 MB, 50টি। <b>অডিও:</b> সর্বোচ্চ 50 MB, 50টি।</div><input id="mediaFiles" class="field" type="file" multiple accept="image/*,video/*,audio/*"><button class="primary" onclick="uploadMedia()">⬆ আপলোড</button><div id="mediaList"></div>`;
+if(k==='files')return `<div class="documents-toolbar"><input id="documentSearch" class="field" placeholder="ডকুমেন্টের নাম / ধরন দিয়ে খুঁজুন" oninput="filterDocumentList()"><input id="documentFiles" class="field" type="file" multiple><button class="primary" onclick="uploadDocuments()">⬆ ডকুমেন্ট আপলোড</button><button class="secondary" onclick="loadDocuments()">↻ রিফ্রেশ</button></div><div id="documentStatus" class="document-status"></div><div id="documentList" class="table-wrap"><p>ডকুমেন্ট তালিকা লোড হচ্ছে...</p></div>`;
 if(k==='help')return `<button class="primary" onclick="openWindow('quickWin')">দ্রুত সেবা / হেল্প</button>`;
 if(k==='institution')return `<h3>প্রতিষ্ঠানের সংক্ষিপ্ত ইতিহাস</h3><p>সালাতুল এস্তেখারার মাধ্যমে মহান আল্লাহ তায়ালার উপর পূর্ণ আস্থা রেখে খালেছ নিয়তে মানব জাতিকে অন্ধকার থেকে আলোর পথে আনার জন্য এবং সহি দ্বিনি ইলম শিক্ষা দেয়ার উদ্দেশ্যে 10-10-2005 ইংরেজী সনে প্রতিষ্ঠিত হয়।</p><p><b>প্রতিষ্ঠাতা-প্রিন্সিপাল/মুহতামিম:</b> জনাব হাফেজ হযরত মাওলানা মু. আতিকুর রহমান (ফরিদপুরী), ২০০৫ হতে ২০২৬ চলমান।</p>`;
 if(['payment','fees','finance'].includes(k))return `<div class="form-grid"><label>Student ID<input id="pStudent" class="field"></label><label>নাম<input id="pName" class="field"></label><label>মাস / পূর্বের বকেয়া মাস — একাধিক নির্বাচন<div id="pMonth" class="field" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:9px;min-height:0"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 8px;border:1px solid #d6b65c;border-radius:8px"><span>জানুয়ারি</span><input type="checkbox" name="pMonth" value="জানুয়ারি" style="width:18px;height:18px;accent-color:#b8860b;flex-shrink:0"></div><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 8px;border:1px solid #d6b65c;border-radius:8px"><span>ফেব্রুয়ারি</span><input type="checkbox" name="pMonth" value="ফেব্রুয়ারি" style="width:18px;height:18px;accent-color:#b8860b;flex-shrink:0"></div><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 8px;border:1px solid #d6b65c;border-radius:8px"><span>মার্চ</span><input type="checkbox" name="pMonth" value="মার্চ" style="width:18px;height:18px;accent-color:#b8860b;flex-shrink:0"></div><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 8px;border:1px solid #d6b65c;border-radius:8px"><span>এপ্রিল</span><input type="checkbox" name="pMonth" value="এপ্রিল" style="width:18px;height:18px;accent-color:#b8860b;flex-shrink:0"></div><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 8px;border:1px solid #d6b65c;border-radius:8px"><span>মে</span><input type="checkbox" name="pMonth" value="মে" style="width:18px;height:18px;accent-color:#b8860b;flex-shrink:0"></div><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 8px;border:1px solid #d6b65c;border-radius:8px"><span>জুন</span><input type="checkbox" name="pMonth" value="জুন" style="width:18px;height:18px;accent-color:#b8860b;flex-shrink:0"></div><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 8px;border:1px solid #d6b65c;border-radius:8px"><span>জুলাই</span><input type="checkbox" name="pMonth" value="জুলাই" style="width:18px;height:18px;accent-color:#b8860b;flex-shrink:0"></div><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 8px;border:1px solid #d6b65c;border-radius:8px"><span>আগস্ট</span><input type="checkbox" name="pMonth" value="আগস্ট" style="width:18px;height:18px;accent-color:#b8860b;flex-shrink:0"></div><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 8px;border:1px solid #d6b65c;border-radius:8px"><span>সেপ্টেম্বর</span><input type="checkbox" name="pMonth" value="সেপ্টেম্বর" style="width:18px;height:18px;accent-color:#b8860b;flex-shrink:0"></div><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 8px;border:1px solid #d6b65c;border-radius:8px"><span>অক্টোবর</span><input type="checkbox" name="pMonth" value="অক্টোবর" style="width:18px;height:18px;accent-color:#b8860b;flex-shrink:0"></div><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 8px;border:1px solid #d6b65c;border-radius:8px"><span>নভেম্বর</span><input type="checkbox" name="pMonth" value="নভেম্বর" style="width:18px;height:18px;accent-color:#b8860b;flex-shrink:0"></div><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 8px;border:1px solid #d6b65c;border-radius:8px"><span>ডিসেম্বর</span><input type="checkbox" name="pMonth" value="ডিসেম্বর" style="width:18px;height:18px;accent-color:#b8860b;flex-shrink:0"></div></div><small>প্রতিটি মাসের ডান পাশে টিক দিয়ে একাধিক মাস নির্বাচন করুন।</small></label><label>বিষয় / ফি খাত — একাধিক নির্বাচন<div id="pCat" class="field" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:9px;min-height:0"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 8px;border:1px solid #d6b65c;border-radius:8px"><span>ভর্তি ফি</span><input type="checkbox" name="pCat" value="ভর্তি ফি" style="width:18px;height:18px;accent-color:#b8860b;flex-shrink:0"></div><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 8px;border:1px solid #d6b65c;border-radius:8px"><span>মাসিক বেতন</span><input type="checkbox" name="pCat" value="মাসিক বেতন" style="width:18px;height:18px;accent-color:#b8860b;flex-shrink:0"></div><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 8px;border:1px solid #d6b65c;border-radius:8px"><span>মাসিক খোরাকী</span><input type="checkbox" name="pCat" value="মাসিক খোরাকী" style="width:18px;height:18px;accent-color:#b8860b;flex-shrink:0"></div><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 8px;border:1px solid #d6b65c;border-radius:8px"><span>মাসিক আবাসিক ফি</span><input type="checkbox" name="pCat" value="মাসিক আবাসিক ফি" style="width:18px;height:18px;accent-color:#b8860b;flex-shrink:0"></div><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 8px;border:1px solid #d6b65c;border-radius:8px"><span>পরীক্ষার ফি</span><input type="checkbox" name="pCat" value="পরীক্ষার ফি" style="width:18px;height:18px;accent-color:#b8860b;flex-shrink:0"></div><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 8px;border:1px solid #d6b65c;border-radius:8px"><span>নিব্ন্ধন ফি</span><input type="checkbox" name="pCat" value="নিব্ন্ধন ফি" style="width:18px;height:18px;accent-color:#b8860b;flex-shrink:0"></div><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 8px;border:1px solid #d6b65c;border-radius:8px"><span>সেশন ফি</span><input type="checkbox" name="pCat" value="সেশন ফি" style="width:18px;height:18px;accent-color:#b8860b;flex-shrink:0"></div><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 8px;border:1px solid #d6b65c;border-radius:8px"><span>সভা-সেমিনার ফি</span><input type="checkbox" name="pCat" value="সভা-সেমিনার ফি" style="width:18px;height:18px;accent-color:#b8860b;flex-shrink:0"></div><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 8px;border:1px solid #d6b65c;border-radius:8px"><span>জেনারেটর/আইপিএস বিল</span><input type="checkbox" name="pCat" value="জেনারেটর/আইপিএস বিল" style="width:18px;height:18px;accent-color:#b8860b;flex-shrink:0"></div><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 8px;border:1px solid #d6b65c;border-radius:8px"><span>সনদপত্র</span><input type="checkbox" name="pCat" value="সনদপত্র" style="width:18px;height:18px;accent-color:#b8860b;flex-shrink:0"></div><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 8px;border:1px solid #d6b65c;border-radius:8px"><span>আইডি কার্ড</span><input type="checkbox" name="pCat" value="আইডি কার্ড" style="width:18px;height:18px;accent-color:#b8860b;flex-shrink:0"></div><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 8px;border:1px solid #d6b65c;border-radius:8px"><span>মার্কশীট</span><input type="checkbox" name="pCat" value="মার্কশীট" style="width:18px;height:18px;accent-color:#b8860b;flex-shrink:0"></div><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 8px;border:1px solid #d6b65c;border-radius:8px"><span>অনলাইন সেবা</span><input type="checkbox" name="pCat" value="অনলাইন সেবা" style="width:18px;height:18px;accent-color:#b8860b;flex-shrink:0"></div><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 8px;border:1px solid #d6b65c;border-radius:8px"><span>বিবিধ</span><input type="checkbox" name="pCat" value="বিবিধ" style="width:18px;height:18px;accent-color:#b8860b;flex-shrink:0"></div></div><small>প্রতিটি বিষয়/ফি খাতের ডান পাশে টিক দিন।</small></label><label>Amount<input id="pAmount" class="field" type="number"></label><label>Method<select id="pMethod" class="field"><option>বিকাশ</option><option>নগদ</option><option>রকেট</option><option>ব্যাংকিং</option><option>ক্যাশ</option></select></label><label class="full">Note<textarea id="pNote" class="field"></textarea></label></div><button class="primary" onclick="savePayment()">Save Payment</button>`;
