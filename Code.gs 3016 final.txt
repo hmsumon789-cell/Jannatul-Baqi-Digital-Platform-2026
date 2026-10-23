@@ -1640,8 +1640,9 @@ function uploadFile(token,item) {
   const ss=SpreadsheetApp.getActiveSpreadsheet();
   const sh=ensureSheet_(ss,SHEETS.FILES,HEADERS.FILES.concat(['DriveFileId','DriveUrl','DriveDownloadUrl']));
   const dataUrl=String(item.dataUrl||''),stored=allDocumentsStoreDriveFile2026_(dataUrl,item.name||'document',item.mimeType||'');
+  if(dataUrl.indexOf('data:')===0&&!stored.ok)return {ok:false,message:stored.message||'ফাইলটি Drive-এ সংরক্ষণ করা যায়নি।'};
   const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
-  const rowData={Serial:nextSerial_(sh),FileID:'FIL-'+Date.now(),Name:item.name||'',Type:item.type||'',MimeType:item.mimeType||'',DataURL:dataUrl,Size:item.size||0,Folder:item.folder||'GENERAL',Status:'ACTIVE',CreatedAt:now_(),DriveFileId:stored.fileId||'',DriveUrl:stored.url||'',DriveDownloadUrl:stored.downloadUrl||''};
+  const rowData={Serial:nextSerial_(sh),FileID:'FIL-'+Date.now(),Name:item.name||'',Type:item.type||'',MimeType:item.mimeType||'',DataURL:dataUrl.length<=40000?dataUrl:'',Size:item.size||0,Folder:item.folder||'GENERAL',Status:'ACTIVE',CreatedAt:now_(),DriveFileId:stored.fileId||'',DriveUrl:stored.url||'',DriveDownloadUrl:stored.downloadUrl||''};
   sh.appendRow(headers.map(function(h){return rowData[h]===undefined?'':rowData[h];}));
   return {ok:true,fileId:rowData.FileID,driveUrl:rowData.DriveUrl,message:rowData.DriveUrl?'ফাইল Drive-এ সংরক্ষণ হয়েছে।':'ফাইলের রেকর্ড সংরক্ষিত হয়েছে; Drive কপি তৈরি হয়নি।'};
 }
