@@ -739,6 +739,12 @@ function uploadFile(token,item) {
   return {ok:true};
 }
 
+function listFiles(token){
+  auth_(token); requireFeature_(token,'files');
+  const rows=listRows_(SHEETS.FILES,token,2000).filter(function(x){return String(x.Status||'').toUpperCase()==='ACTIVE';});
+  return {ok:true,rows:rows};
+}
+
 function getSheetData(token,sheetName,limit) {
   auth_(token); if(!isSuperAdmin_(token)) requireFeature_(token,'excel');
   return {ok:true,headers:HEADERS[sheetName],rows:listRows_(sheetName,token,limit||1000)};
