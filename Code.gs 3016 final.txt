@@ -3285,6 +3285,27 @@ function archiveExistingDocumentBuilderHistory2026_(token){
       if(result&&result.ok){seen[key+'|'+docId]=true;created++;}
     }catch(e){}
   }
+  const legacySpecs=[
+    {sheet:SHEETS.ID_CARDS,id:'CardID',key:'id_cards'},
+    {sheet:SHEETS.ADMIT_CARDS,id:'AdmitID',key:'admit_cards'},
+    {sheet:SHEETS.CERTIFICATES,id:'CertificateID',key:'certificates'},
+    {sheet:SHEETS.RECEIPTS,id:'ReceiptID',key:'receipts'}
+  ];
+  legacySpecs.forEach(function(spec){
+    const sh=ss.getSheetByName(spec.sheet);if(!sh||sh.getLastRow()<2)return;
+    const vals=sh.getDataRange().getValues(),heads=vals[0].map(String),ix={};heads.forEach(function(k,j){ix[k]=j;});
+    for(let ri=vals.length-1;ri>=1&&created<20;ri--){
+      const row=vals[ri],docId=String(row[ix[spec.id]]||'');if(!docId||ix.Data==null)continue;
+      let payload={};try{payload=JSON.parse(row[ix.Data]||'{}');}catch(e){}
+      const key=String(payload.docKey||spec.key),unique=key+'|'+docId;if(seen[unique])continue;
+      const html=String(payload.html||'');if(!html.trim())continue;
+      const fields=payload.fields||{},sid=String(fields.StudentID||row[ix.StudentID]||row[ix.RefID]||docId);
+      try{
+        const result=saveAdmissionPdfArchive2026(token,key,docId,Object.assign({},fields,{StudentID:sid}),html);
+        if(result&&result.ok){seen[unique]=true;created++;}
+      }catch(e){}
+    }
+  });
 }
 function listAllDocuments2026(token,query){
   auth_(token);setupSystem();
