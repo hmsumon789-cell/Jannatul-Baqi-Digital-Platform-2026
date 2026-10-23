@@ -1615,11 +1615,35 @@ function deleteMedia(token,serial) {
   sh.deleteRow(idx+2); return {ok:true};
 }
 
+function allDocumentsFileFolder2026_(){
+  const props=PropertiesService.getScriptProperties(),key='ALL_DOCUMENTS_FILE_FOLDER_ID_2026',saved=props.getProperty(key);
+  if(saved){try{return DriveApp.getFolderById(saved);}catch(e){}}
+  const it=DriveApp.getFoldersByName('Jannatul Baqi — All Documents Files');
+  const folder=it.hasNext()?it.next():DriveApp.createFolder('Jannatul Baqi — All Documents Files');
+  props.setProperty(key,folder.getId());return folder;
+}
+function allDocumentsStoreDriveFile2026_(dataUrl,name,mimeType){
+  const raw=String(dataUrl||''),match=raw.match(/^data:([^;,]+);base64,([A-Za-z0-9+/=\r\n]+)$/);
+  if(!match)return {ok:false};
+  try{
+    const mime=String(mimeType||match[1]||'application/octet-stream');
+    const bytes=Utilities.base64Decode(match[2].replace(/\s/g,''));
+    if(!bytes.length||bytes.length>8*1024*1024)return {ok:false,message:'ফাইলটি 8 MB সীমার বাইরে।'};
+    const safe=String(name||'document').replace(/[\\/:*?"<>|]/g,'_').slice(0,100)||'document';
+    const file=allDocumentsFileFolder2026_().createFile(Utilities.newBlob(bytes,mime,safe));
+    try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
+    return {ok:true,fileId:file.getId(),url:file.getUrl(),downloadUrl:file.getDownloadUrl()};
+  }catch(e){return {ok:false,message:String(e&&e.message||e)};}
+}
 function uploadFile(token,item) {
-  auth_(token); requireFeature_(token,'files');
-  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.FILES);
-  sh.appendRow([nextSerial_(sh),'FIL-'+Date.now(),item.name||'',item.type||'',item.mimeType||'',item.dataUrl||'',item.size||0,item.folder||'GENERAL','ACTIVE',now_()]);
-  return {ok:true};
+  auth_(token); requireFeature_(token,'files'); item=item||{};
+  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  const sh=ensureSheet_(ss,SHEETS.FILES,HEADERS.FILES.concat(['DriveFileId','DriveUrl','DriveDownloadUrl']));
+  const dataUrl=String(item.dataUrl||''),stored=allDocumentsStoreDriveFile2026_(dataUrl,item.name||'document',item.mimeType||'');
+  const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
+  const rowData={Serial:nextSerial_(sh),FileID:'FIL-'+Date.now(),Name:item.name||'',Type:item.type||'',MimeType:item.mimeType||'',DataURL:dataUrl,Size:item.size||0,Folder:item.folder||'GENERAL',Status:'ACTIVE',CreatedAt:now_(),DriveFileId:stored.fileId||'',DriveUrl:stored.url||'',DriveDownloadUrl:stored.downloadUrl||''};
+  sh.appendRow(headers.map(function(h){return rowData[h]===undefined?'':rowData[h];}));
+  return {ok:true,fileId:rowData.FileID,driveUrl:rowData.DriveUrl,message:rowData.DriveUrl?'ফাইল Drive-এ সংরক্ষণ হয়েছে।':'ফাইলের রেকর্ড সংরক্ষিত হয়েছে; Drive কপি তৈরি হয়নি।'};
 }
 
 function getSheetData(token,sheetName,limit) {
@@ -3236,6 +3260,39 @@ function listSavedPdfArchive2026(token, query) {
   return {ok:true,rows:rows};
 }
 
+
+/* ===== UNIFIED ALL DOCUMENTS SERVER STORAGE — 2026-10-23 ===== */
+function listAllDocuments2026(token,query){
+  auth_(token);setupSystem();
+  const ss=SpreadsheetApp.getActiveSpreadsheet(),q=String(query||'').trim().toLowerCase(),out=[],seen={};
+  const push=function(o){
+    o=o||{};const url=String(o.PdfUrl||o.DriveUrl||o.Url||'').trim();if(!url)return;
+    const key=String(o.PdfFileId||o.DriveFileId||url);if(seen[key])return;seen[key]=true;
+    const item={ArchiveID:String(o.ArchiveID||o.FileID||o.ServiceID||o.DocumentID||''),DocType:String(o.DocType||o.Title||o.Type||'ডকুমেন্ট'),RefID:String(o.RefID||o.PersonID||o.StudentID||o.FileID||o.ServiceID||o.DocumentID||''),StudentID:String(o.StudentID||o.PersonID||''),Name:String(o.Name||o.NameBN||o.Title||''),Class:String(o.Class||''),CreatedAt:String(o.CreatedAt||o.IssueDate||o.Date||''),UpdatedAt:String(o.UpdatedAt||o.CreatedAt||o.IssueDate||o.Date||''),PdfUrl:url,DownloadUrl:String(o.DownloadUrl||o.DriveDownloadUrl||url),SourceType:String(o.SourceType||'')};
+    if(q&&[item.ArchiveID,item.DocType,item.RefID,item.StudentID,item.Name,item.Class,item.SourceType].join(' ').toLowerCase().indexOf(q)<0)return;
+    out.push(item);
+  };
+  const pdfSh=ss.getSheetByName('SAVED_PDFS');
+  if(pdfSh&&pdfSh.getLastRow()>1){const v=pdfSh.getDataRange().getValues(),h=v[0].map(String);v.slice(1).forEach(function(r){const o={};h.forEach(function(k,i){o[k]=r[i] instanceof Date?Utilities.formatDate(r[i],APP.timezone,'yyyy-MM-dd HH:mm:ss'):r[i];});if(String(o.Status||'ACTIVE').toUpperCase()==='ACTIVE')push(Object.assign({},o,{SourceType:'SAVED_PDFS'}));});}
+  const onlineSh=ss.getSheetByName(SHEETS.ONLINE_SERVICES);
+  if(onlineSh&&onlineSh.getLastRow()>1){const v=onlineSh.getDataRange().getValues(),h=v[0].map(String);v.slice(1).forEach(function(r){const o={};h.forEach(function(k,i){o[k]=r[i] instanceof Date?Utilities.formatDate(r[i],APP.timezone,'yyyy-MM-dd HH:mm:ss'):r[i];});if(String(o.Status||'ACTIVE').toUpperCase()!=='ACTIVE'||!o.PdfUrl)return;let data={};try{data=JSON.parse(o.Data||'{}');}catch(e){}push({ArchiveID:o.ServiceID,DocType:o.Title||o.DocKey,RefID:o.PersonID||o.ServiceID,StudentID:o.PersonID,Name:o.Name||data.NameBN||data.NameEN,Class:data.Class,PdfFileId:o.PdfFileId,PdfUrl:o.PdfUrl,DownloadUrl:o.PdfUrl,CreatedAt:o.CreatedAt||o.IssueDate,UpdatedAt:o.CreatedAt||o.IssueDate,SourceType:'ONLINE_SERVICES'});});}
+  const filesSh=ensureSheet_(ss,SHEETS.FILES,HEADERS.FILES.concat(['DriveFileId','DriveUrl','DriveDownloadUrl']));
+  if(filesSh.getLastRow()>1){
+    const v=filesSh.getDataRange().getValues(),h=v[0].map(String),idx={};h.forEach(function(k,i){idx[k]=i;});
+    v.slice(1).reverse().slice(0,500).forEach(function(r,ri){
+      const get=function(k){return idx[k]==null?'':r[idx[k]];};
+      if(String(get('Status')||'ACTIVE').toUpperCase()!=='ACTIVE')return;
+      const name=String(get('Name')||''),fid=String(get('FileID')||''),type=String(get('Type')||'ফাইল');
+      let url=String(get('DriveUrl')||''),download=String(get('DriveDownloadUrl')||''),driveId=String(get('DriveFileId')||''),raw=String(get('DataURL')||'');
+      if(!url&&/^https?:\/\//i.test(raw)){url=raw;download=raw;}
+      if(!url&&raw.indexOf('data:')===0){const stored=allDocumentsStoreDriveFile2026_(raw,name||fid,String(get('MimeType')||''));if(stored.ok){url=stored.url;download=stored.downloadUrl;driveId=stored.fileId;const rowNum=v.length-ri;if(idx.DriveFileId!=null)filesSh.getRange(rowNum,idx.DriveFileId+1).setValue(driveId);if(idx.DriveUrl!=null)filesSh.getRange(rowNum,idx.DriveUrl+1).setValue(url);if(idx.DriveDownloadUrl!=null)filesSh.getRange(rowNum,idx.DriveDownloadUrl+1).setValue(download);}}
+      push({ArchiveID:fid,DocType:type||'ফাইল',RefID:fid,Name:name,Class:String(get('Folder')||''),CreatedAt:get('CreatedAt'),UpdatedAt:get('CreatedAt'),DriveFileId:driveId,DriveUrl:url,DriveDownloadUrl:download,SourceType:'FILES'});
+    });
+  }
+  out.sort(function(a,b){return String(b.UpdatedAt||b.CreatedAt||'').localeCompare(String(a.UpdatedAt||a.CreatedAt||''));});
+  return {ok:true,rows:out.slice(0,500),count:out.length};
+}
+/* ===== END UNIFIED ALL DOCUMENTS SERVER STORAGE ===== */
 
 /* ===== Institution introduction, committee and per-person photos — 2026 ===== */
 function institutionProfileSheet2026_(){
