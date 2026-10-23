@@ -17084,3 +17084,42 @@ function institutionDocumentaryToggle2026(){
 
 </script>
 
+
+<!-- ===== RESTORE DASHBOARD ALL DOCUMENTS BUTTON UNDER GALLERY — 2026-10-23 ===== -->
+<script id="jbRestoreAllDocumentsDashboardButton2026">
+(function(){
+  function addAllDocumentsButton2026(){
+    if(document.getElementById('jbAllDocumentsDashboardButton2026'))return true;
+    var candidates=Array.from(document.querySelectorAll('button,[role="button"],a,.module,.module-box,.feature-box,.quick-box'));
+    var gallery=candidates.find(function(el){
+      if(!el||el.closest('#formWin,.photo-gallery-tools-2026,.photo-gallery-grid-2026'))return false;
+      var text=String(el.innerText||el.textContent||el.getAttribute('aria-label')||'').replace(/\s+/g,' ').trim();
+      return /^(?:📸\s*)?(?:ফটো\s*)?গ্যালারী?$|^(?:📸\s*)?(?:photo\s*)?gallery$/i.test(text);
+    });
+    if(!gallery)return false;
+    var b=document.createElement('button');
+    b.type='button';b.id='jbAllDocumentsDashboardButton2026';
+    b.className=gallery.className||'module';
+    b.setAttribute('aria-label','অল ডকুমেন্টস');
+    b.innerHTML='📚 অল ডকুমেন্টস';
+    b.style.cssText='display:block;';
+    b.addEventListener('click',function(){
+      if(typeof window.jbShowCardTypeList2026==='function'){window.jbShowCardTypeList2026();return;}
+      if(typeof window.jbOpenDocumentType2026==='function'){window.jbOpenDocumentType2026('marks');return;}
+      if(typeof window.toast==='function')window.toast('অল ডকুমেন্টস মডিউল লোড হয়নি। পেজ রিফ্রেশ করে আবার চেষ্টা করুন।');
+    });
+    gallery.insertAdjacentElement('afterend',b);
+    return true;
+  }
+  function start(){
+    if(addAllDocumentsButton2026())return;
+    var root=document.body||document.documentElement;
+    if(!root||typeof MutationObserver==='undefined')return;
+    var observer=new MutationObserver(function(){if(addAllDocumentsButton2026())observer.disconnect();});
+    observer.observe(root,{childList:true,subtree:true});
+    setTimeout(function(){observer.disconnect();},15000);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
+</script>
+<!-- ===== END RESTORE ALL DOCUMENTS BUTTON ===== -->
