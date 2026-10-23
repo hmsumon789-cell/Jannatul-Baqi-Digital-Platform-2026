@@ -17085,41 +17085,92 @@ function institutionDocumentaryToggle2026(){
 </script>
 
 
-<!-- ===== RESTORE DASHBOARD ALL DOCUMENTS BUTTON UNDER GALLERY — 2026-10-23 ===== -->
+<!-- ===== REPURPOSE EXISTING FILES BUTTON AS ALL DOCUMENTS — 2026-10-23 ===== -->
 <script id="jbRestoreAllDocumentsDashboardButton2026">
 (function(){
-  function addAllDocumentsButton2026(){
-    if(document.getElementById('jbAllDocumentsDashboardButton2026'))return true;
-    var candidates=Array.from(document.querySelectorAll('button,[role="button"],a,.module,.module-box,.feature-box,.quick-box'));
-    var gallery=candidates.find(function(el){
-      if(!el||el.closest('#formWin,.photo-gallery-tools-2026,.photo-gallery-grid-2026'))return false;
-      var text=String(el.innerText||el.textContent||el.getAttribute('aria-label')||'').replace(/\s+/g,' ').trim();
-      return /^(?:📸\s*)?(?:ফটো\s*)?গ্যালার[িী]?$|^(?:📸\s*)?(?:photo\s*)?gallery$/i.test(text);
-    });
-    if(!gallery)return false;
-    var b=document.createElement('button');
-    b.type='button';b.id='jbAllDocumentsDashboardButton2026';
-    b.className=gallery.className||'module';
+  function findFilesButton(){
+    var roots=[document.getElementById('leftModules'),document.getElementById('rightModules')].filter(Boolean);
+    for(var i=0;i<roots.length;i++){
+      var btns=roots[i].querySelectorAll('button.module');
+      for(var j=0;j<btns.length;j++){
+        var t=String(btns[j].innerText||btns[j].textContent||'').replace(/\s+/g,' ').trim();
+        if(/^(?:📁\s*)?(?:ফাইলস?|files|الملفات|فائلیں)$/i.test(t))return btns[j];
+      }
+    }
+    return null;
+  }
+  function convertButton(){
+    var b=findFilesButton();
+    if(!b)return false;
+    b.id='jbAllDocumentsDashboardButton2026';
+    b.textContent='📚 অল ডকুমেন্টস';
+    b.title='মানি রিসিট, অনলাইন ভর্তি ফর্ম, PDF ও অন্যান্য নথি';
     b.setAttribute('aria-label','অল ডকুমেন্টস');
-    b.innerHTML='📚 অল ডকুমেন্টস';
-    b.style.cssText='display:block;';
-    b.addEventListener('click',function(){
-      if(typeof window.jbShowCardTypeList2026==='function'){window.jbShowCardTypeList2026();return;}
-      if(typeof window.jbOpenDocumentType2026==='function'){window.jbOpenDocumentType2026('marks');return;}
-      if(typeof window.toast==='function')window.toast('অল ডকুমেন্টস মডিউল লোড হয়নি। পেজ রিফ্রেশ করে আবার চেষ্টা করুন।');
-    });
-    gallery.insertAdjacentElement('afterend',b);
+    b.onclick=function(ev){
+      if(ev){ev.preventDefault();ev.stopPropagation();}
+      if(typeof window.jbOpenAllDocuments2026==='function')window.jbOpenAllDocuments2026();
+      else if(typeof window.jbOpenSavedPdfArchive2026==='function')window.jbOpenSavedPdfArchive2026();
+      else if(typeof window.jbShowCardTypeList2026==='function')window.jbShowCardTypeList2026();
+    };
     return true;
   }
-  function start(){
-    if(addAllDocumentsButton2026())return;
-    var root=document.body||document.documentElement;
-    if(!root||typeof MutationObserver==='undefined')return;
-    var observer=new MutationObserver(function(){if(addAllDocumentsButton2026())observer.disconnect();});
-    observer.observe(root,{childList:true,subtree:true});
-    setTimeout(function(){observer.disconnect();},15000);
+  function bind(){
+    convertButton();
+    var roots=[document.getElementById('leftModules'),document.getElementById('rightModules')].filter(Boolean);
+    roots.forEach(function(root){
+      if(root.dataset.jbAllDocsObserver)return;
+      root.dataset.jbAllDocsObserver='1';
+      if(typeof MutationObserver!=='undefined'){
+        new MutationObserver(function(){convertButton();}).observe(root,{childList:true,subtree:true,characterData:true});
+      }
+    });
   }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+  window.jbOpenAllDocuments2026=function(){
+    if(typeof window.jbOpenSavedPdfArchive2026==='function')window.jbOpenSavedPdfArchive2026();
+    else if(typeof window.jbShowCardTypeList2026==='function')window.jbShowCardTypeList2026();
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();
+  window.addEventListener('load',bind);
+  setTimeout(bind,500);setTimeout(bind,1500);setTimeout(bind,3500);
 })();
 </script>
-<!-- ===== END RESTORE ALL DOCUMENTS BUTTON ===== -->
+<!-- ===== END REPURPOSE EXISTING FILES BUTTON ===== -->
+
+<!-- ===== ALL DOCUMENTS ARCHIVE ACTIONS + CREATE DOCUMENTS — 2026-10-23 ===== -->
+<script id="jbAllDocumentsArchiveActions2026">
+(function(){
+ function escHtml(v){if(typeof window.esc==='function')return window.esc(v==null?'':String(v));return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+ window.jbOpenAllDocuments2026=function(query){
+  if(typeof window.jbOpenSavedPdfArchive2026!=='function'){if(typeof window.jbShowCardTypeList2026==='function')window.jbShowCardTypeList2026();return;}
+  window.jbOpenSavedPdfArchive2026(query||'');
+  setTimeout(function(){
+   var box=document.getElementById('jbSavedPdfArchive2026');if(!box)return;
+   var section=box.querySelector('section');if(!section)return;
+   if(!box.querySelector('#jbAllDocumentsCreateBtn2026')){
+    var actions=document.createElement('div');actions.id='jbAllDocumentsHeaderActions2026';actions.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin:10px 0';
+    actions.innerHTML='<button type="button" class="primary" id="jbAllDocumentsCreateBtn2026">📝 নতুন ডকুমেন্ট তৈরি / সম্পাদনা</button><button type="button" class="secondary" id="jbAllDocumentsRefreshBtn2026">↻ তালিকা রিফ্রেশ</button>';
+    var search=box.querySelector('#jbSavedPdfSearch2026');if(search&&search.parentElement)search.parentElement.insertAdjacentElement('afterend',actions);else section.appendChild(actions);
+    actions.querySelector('#jbAllDocumentsCreateBtn2026').onclick=function(){if(typeof window.jbShowCardTypeList2026==='function')window.jbShowCardTypeList2026();else if(typeof window.toast==='function')window.toast('ডকুমেন্ট তৈরির তালিকা পাওয়া যায়নি।');};
+    actions.querySelector('#jbAllDocumentsRefreshBtn2026').onclick=function(){var b=box.querySelector('#jbSavedPdfFind2026');if(b)b.click();};
+   }
+   var body=box.querySelector('#jbSavedPdfRows2026');if(!body||body.dataset.jbActionsBound)return;
+   body.dataset.jbActionsBound='1';
+   var observer=new MutationObserver(function(){
+    body.querySelectorAll('tbody tr').forEach(function(tr){
+     if(tr.dataset.jbRowActions)return;tr.dataset.jbRowActions='1';
+     var cells=tr.querySelectorAll('td');if(cells.length<6)return;
+     var link=cells[5].querySelector('a');if(!link)return;
+     var url=link.href;link.textContent='📄 খুলুন / প্রিন্ট';link.target='_blank';link.rel='noopener';
+     var wrap=document.createElement('div');wrap.style.cssText='display:flex;flex-direction:column;gap:5px;min-width:110px';
+     wrap.appendChild(link);
+     var dl=document.createElement('a');dl.href=url;dl.target='_blank';dl.rel='noopener';dl.download='';dl.className='secondary';dl.style.cssText='display:inline-block;text-align:center;padding:6px;border-radius:8px;text-decoration:none';dl.textContent='⬇ ডাউনলোড';wrap.appendChild(dl);
+     var share=document.createElement('button');share.type='button';share.className='secondary';share.textContent='↗ শেয়ার / Send';share.onclick=async function(){try{if(navigator.share)await navigator.share({title:'মাদ্রাসার নথি',url:url});else if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(url);if(typeof window.toast==='function')window.toast('নথির লিংক কপি হয়েছে; এখন শেয়ার/সেন্ড করুন।');}else{window.prompt('নথির লিংক কপি করুন',url);}}catch(e){if(e&&e.name!=='AbortError'&&typeof window.toast==='function')window.toast('শেয়ার করা যায়নি; নথির লিংক খুলে কপি করুন।');}};wrap.appendChild(share);
+     cells[5].innerHTML='';cells[5].appendChild(wrap);
+    });
+   });observer.observe(body,{childList:true,subtree:true});
+   body.querySelectorAll('tbody tr').forEach(function(tr){if(tr.dataset.jbRowActions)return;tr.dataset.jbRowActions='';});
+  },0);
+ };
+})();
+</script>
+<!-- ===== END ALL DOCUMENTS ARCHIVE ACTIONS ===== -->
