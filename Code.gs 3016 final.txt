@@ -3265,8 +3265,29 @@ function listSavedPdfArchive2026(token, query) {
 
 
 /* ===== UNIFIED ALL DOCUMENTS SERVER STORAGE — 2026-10-23 ===== */
+function archiveExistingDocumentBuilderHistory2026_(token){
+  const ss=SpreadsheetApp.getActiveSpreadsheet(),history=ss.getSheetByName('DOCUMENT_BUILDER_HISTORY');
+  if(!history||history.getLastRow()<2)return;
+  const pdf=ensureSheet_(ss,'SAVED_PDFS',['Serial','ArchiveID','DocType','RefID','StudentID','Name','Class','PdfFileId','PdfUrl','Data','CreatedAt','UpdatedAt','Status']);
+  const pv=pdf.getDataRange().getValues(),ph=pv[0].map(String),seen={};
+  pv.slice(1).forEach(function(r){seen[String(r[ph.indexOf('DocType')]||'')+'|'+String(r[ph.indexOf('RefID')]||'')]=true;});
+  const hv=history.getDataRange().getValues(),hh=hv[0].map(String),hi={};hh.forEach(function(k,i){hi[k]=i;});
+  let created=0;
+  for(let i=hv.length-1;i>=1&&created<20;i--){
+    const docId=String(hv[i][hi.DocumentID]||''),key=String(hv[i][hi.DocKey]||''),sid=String(hv[i][hi.StudentID]||docId);
+    if(!docId||!key||seen[key+'|'+docId])continue;
+    let payload={};try{payload=JSON.parse(hv[i][hi.Data]||'{}');}catch(e){}
+    const html=String(payload.html||'');if(!html.trim())continue;
+    const fields=payload.fields||{};
+    try{
+      const result=saveAdmissionPdfArchive2026(token,key,docId,Object.assign({},fields,{StudentID:sid}),html);
+      if(result&&result.ok){seen[key+'|'+docId]=true;created++;}
+    }catch(e){}
+  }
+}
 function listAllDocuments2026(token,query){
   auth_(token);setupSystem();
+  try{archiveExistingDocumentBuilderHistory2026_(token);}catch(archiveHistoryError){}
   const ss=SpreadsheetApp.getActiveSpreadsheet(),q=String(query||'').trim().toLowerCase(),out=[],seen={};
   const push=function(o){
     o=o||{};const url=String(o.PdfUrl||o.DriveUrl||o.Url||'').trim();if(!url)return;
