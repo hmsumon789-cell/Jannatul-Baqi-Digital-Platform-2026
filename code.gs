@@ -732,6 +732,11 @@ function deleteMedia(token,serial) {
   sh.deleteRow(idx+2); return {ok:true};
 }
 
+function listFiles(token) {
+  auth_(token); requireFeature_(token,'files');
+  return listRows_(SHEETS.FILES,token,2000).filter(function(x){return String(x.Status||'ACTIVE').toUpperCase()==='ACTIVE';});
+}
+
 function uploadFile(token,item) {
   auth_(token); requireFeature_(token,'files');
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.FILES);
