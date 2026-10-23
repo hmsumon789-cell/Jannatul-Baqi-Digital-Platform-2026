@@ -15976,14 +15976,14 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   box.onclick=function(e){if(e.target===box)closeArchive();};
   var input=box.querySelector('#jbSavedPdfSearch2026');input.value=query||'';
   async function load(){
-   var body=box.querySelector('#jbSavedPdfRows2026');body.innerHTML='<p style="text-align:center;padding:20px">⏳ PDF তালিকা লোড হচ্ছে...</p>';
+   var body=box.querySelector('#jbSavedPdfRows2026');body.innerHTML='<p style="text-align:center;padding:20px">⏳ নথির তালিকা লোড হচ্ছে...</p>';
    try{
-    var r=await call('listSavedPdfArchive2026',token,input.value.trim());
+    var r=await call('listAllDocuments2026',token,input.value.trim());
     if(!r||!r.ok)throw new Error(r&&r.message||'তালিকা পাওয়া যায়নি');
     var rows=r.rows||[];
-    if(!rows.length){body.innerHTML='<p style="text-align:center;padding:24px">কোনো সংরক্ষিত PDF পাওয়া যায়নি। ভর্তি ফর্ম সেভ বা পেমেন্ট সফল হলে PDF এখানে দেখা যাবে।</p>';return;}
-    body.innerHTML='<table style="width:100%;border-collapse:collapse"><thead><tr><th style="border:1px solid #aaa;padding:8px">নথি</th><th style="border:1px solid #aaa;padding:8px">ID</th><th style="border:1px solid #aaa;padding:8px">নাম</th><th style="border:1px solid #aaa;padding:8px">শ্রেণি</th><th style="border:1px solid #aaa;padding:8px">তারিখ</th><th style="border:1px solid #aaa;padding:8px">PDF</th></tr></thead><tbody>'+rows.map(function(x){return '<tr><td style="border:1px solid #aaa;padding:8px">'+(x.DocType==='receipt'?'মানি রিসিট':'ভর্তি ফর্ম')+'</td><td style="border:1px solid #aaa;padding:8px">'+esc(x.RefID||'')+'</td><td style="border:1px solid #aaa;padding:8px">'+esc(x.Name||'')+'</td><td style="border:1px solid #aaa;padding:8px">'+esc(x.Class||'')+'</td><td style="border:1px solid #aaa;padding:8px">'+esc(x.UpdatedAt||x.CreatedAt||'')+'</td><td style="border:1px solid #aaa;padding:8px"><a href="'+esc(x.PdfUrl||'')+'" target="_blank" rel="noopener">📄 PDF খুলুন</a></td></tr>';}).join('')+'</tbody></table>';
-   }catch(e){body.innerHTML='<p style="color:#b00020;padding:18px">PDF তালিকা লোড হয়নি: '+esc(e&&e.message||e)+'</p>';}
+    if(!rows.length){body.innerHTML='<p style="text-align:center;padding:24px">কোনো সংরক্ষিত নথি বা আপলোড করা ফাইল পাওয়া যায়নি।</p>';return;}
+    body.innerHTML='<table style="width:100%;border-collapse:collapse"><thead><tr><th style="border:1px solid #aaa;padding:8px">নথি</th><th style="border:1px solid #aaa;padding:8px">ID</th><th style="border:1px solid #aaa;padding:8px">নাম</th><th style="border:1px solid #aaa;padding:8px">শ্রেণি</th><th style="border:1px solid #aaa;padding:8px">তারিখ</th><th style="border:1px solid #aaa;padding:8px">PDF</th></tr></thead><tbody>'+rows.map(function(x){var t=String(x.DocType||'ডকুমেন্ট'),label=/receipt|receipts|মানি/i.test(t)?'মানি রিসিট':/admission_form|ভর্তি/i.test(t)?'অনলাইন ভর্তি ফর্ম':t;return '<tr><td style="border:1px solid #aaa;padding:8px">'+esc(label)+'</td><td style="border:1px solid #aaa;padding:8px">'+esc(x.RefID||'')+'</td><td style="border:1px solid #aaa;padding:8px">'+esc(x.Name||'')+'</td><td style="border:1px solid #aaa;padding:8px">'+esc(x.Class||'')+'</td><td style="border:1px solid #aaa;padding:8px">'+esc(x.UpdatedAt||x.CreatedAt||'')+'</td><td style="border:1px solid #aaa;padding:8px"><a href="'+esc(x.PdfUrl||'')+'" data-download-url="'+esc(x.DownloadUrl||x.PdfUrl||'')+'" target="_blank" rel="noopener">📄 ফাইল খুলুন</a></td></tr>';}).join('')+'</tbody></table>';
+   }catch(e){body.innerHTML='<p style="color:#b00020;padding:18px">নথির তালিকা লোড হয়নি: '+esc(e&&e.message||e)+'</p>';}
   }
   box.querySelector('#jbSavedPdfFind2026').onclick=load;input.addEventListener('keydown',function(e){if(e.key==='Enter')load();});load();
  };
@@ -17160,11 +17160,12 @@ function institutionDocumentaryToggle2026(){
      if(tr.dataset.jbRowActions)return;tr.dataset.jbRowActions='1';
      var cells=tr.querySelectorAll('td');if(cells.length<6)return;
      var link=cells[5].querySelector('a');if(!link)return;
-     var url=link.href;link.textContent='📄 খুলুন / প্রিন্ট';link.target='_blank';link.rel='noopener';
+     var url=link.href,downloadUrl=link.getAttribute('data-download-url')||url;link.textContent='📄 খুলুন / প্রিন্ট';link.target='_blank';link.rel='noopener';
      var wrap=document.createElement('div');wrap.style.cssText='display:flex;flex-direction:column;gap:5px;min-width:110px';
      wrap.appendChild(link);
-     var dl=document.createElement('a');dl.href=url;dl.target='_blank';dl.rel='noopener';dl.download='';dl.className='secondary';dl.style.cssText='display:inline-block;text-align:center;padding:6px;border-radius:8px;text-decoration:none';dl.textContent='⬇ ডাউনলোড';wrap.appendChild(dl);
-     var share=document.createElement('button');share.type='button';share.className='secondary';share.textContent='↗ শেয়ার / Send';share.onclick=async function(){try{if(navigator.share)await navigator.share({title:'মাদ্রাসার নথি',url:url});else if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(url);if(typeof window.toast==='function')window.toast('নথির লিংক কপি হয়েছে; এখন শেয়ার/সেন্ড করুন।');}else{window.prompt('নথির লিংক কপি করুন',url);}}catch(e){if(e&&e.name!=='AbortError'&&typeof window.toast==='function')window.toast('শেয়ার করা যায়নি; নথির লিংক খুলে কপি করুন।');}};wrap.appendChild(share);
+     var dl=document.createElement('a');dl.href=downloadUrl;dl.target='_blank';dl.rel='noopener';dl.download='';dl.className='secondary';dl.style.cssText='display:inline-block;text-align:center;padding:6px;border-radius:8px;text-decoration:none';dl.textContent='⬇ ডাউনলোড';wrap.appendChild(dl);
+     var share=document.createElement('button');share.type='button';share.className='secondary';share.textContent='↗ শেয়ার + সেন্ড';share.onclick=async function(){try{if(navigator.share)await navigator.share({title:'মাদ্রাসার নথি',text:'জান্নাতুল বাক্বী ডিজিটাল প্লাটফর্মের নথি',url:url});else if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(url);if(typeof window.toast==='function')window.toast('নথির লিংক কপি হয়েছে; এখন WhatsApp, ইমেইল বা অন্য মাধ্যমে পাঠাতে পারবেন।');}else{window.prompt('নথির লিংক কপি করুন',url);}}catch(e){if(e&&e.name!=='AbortError'&&typeof window.toast==='function')window.toast('শেয়ার করা যায়নি; নথির লিংক খুলে কপি করুন।');}};wrap.appendChild(share);
+     var send=document.createElement('button');send.type='button';send.className='secondary';send.textContent='✉ সেন্ড';send.onclick=function(){window.open('https://wa.me/?text='+encodeURIComponent('জান্নাতুল বাক্বী মাদ্রাসার নথি: '+url),'_blank','noopener');};wrap.appendChild(send);
      cells[5].innerHTML='';cells[5].appendChild(wrap);
     });
    });observer.observe(body,{childList:true,subtree:true});
