@@ -17094,7 +17094,7 @@ function institutionDocumentaryToggle2026(){
     var gallery=candidates.find(function(el){
       if(!el||el.closest('#formWin,.photo-gallery-tools-2026,.photo-gallery-grid-2026'))return false;
       var text=String(el.innerText||el.textContent||el.getAttribute('aria-label')||'').replace(/\s+/g,' ').trim();
-      return /^(?:📸\s*)?(?:ফটো\s*)?গ্যালারী?$|^(?:📸\s*)?(?:photo\s*)?gallery$/i.test(text);
+      return /^(?:📸\s*)?(?:ফটো\s*)?গ্যালার[িী]?$|^(?:📸\s*)?(?:photo\s*)?gallery$/i.test(text);
     });
     if(!gallery)return false;
     var b=document.createElement('button');
