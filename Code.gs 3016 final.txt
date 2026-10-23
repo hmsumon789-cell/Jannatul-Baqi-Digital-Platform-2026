@@ -1628,7 +1628,7 @@ function allDocumentsStoreDriveFile2026_(dataUrl,name,mimeType){
   try{
     const mime=String(mimeType||match[1]||'application/octet-stream');
     const bytes=Utilities.base64Decode(match[2].replace(/\s/g,''));
-    if(!bytes.length||bytes.length>8*1024*1024)return {ok:false,message:'ফাইলটি 8 MB সীমার বাইরে।'};
+    if(!bytes.length||bytes.length>20*1024*1024)return {ok:false,message:'ফাইলটি 20 MB-এর বেশি; ছোট ফাইল নির্বাচন করুন।'};
     const safe=String(name||'document').replace(/[\\/:*?"<>|]/g,'_').slice(0,100)||'document';
     const file=allDocumentsFileFolder2026_().createFile(Utilities.newBlob(bytes,mime,safe));
     try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
