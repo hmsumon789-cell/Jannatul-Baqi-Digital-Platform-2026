@@ -500,7 +500,7 @@ function submitAccountReview(token,type,id,note){
 function getAccountControlData(token){
   ensureAccountReviewColumns_();
   if(!isSuperAdmin_(token)) return {ok:false,message:'শুধু Super Admin অনুমোদন ও পারমিশন পরিবর্তন করতে পারবেন।'};
-  return {ok:true,admins:listRows_(SHEETS.ADMINS,token,500),madrasas:listRows_(SHEETS.MADRASAS,token,500),admissions:listRows_(SHEETS.ADMISSIONS,token,500).filter(function(r){return ['PENDING','SUBMITTED','SUBMITTED_TO_SUPER_ADMIN','PENDING_PAYMENT'].indexOf(String(r.Status||r.ApprovalStatus||'').trim().toUpperCase())>=0;}),modules:getModules_()};
+  return {ok:true,admins:listRows_(SHEETS.ADMINS,token,500),madrasas:listRows_(SHEETS.MADRASAS,token,500),modules:getModules_()};
 }
 function approveAccount(token,type,id,status,permissions){
   try{
@@ -1083,27 +1083,6 @@ function getStudentMasterList(token,status) {
   }
   if(status) rows=rows.filter(function(r){return String(r.ApprovalStatus||'ACTIVE').toUpperCase()===String(status).toUpperCase();});
   return {ok:true,rows:rows,count:rows.length};
-}
-function approveStudentAdmission(token, admissionId) {
-  if (!isSuperAdmin_(token)) return {ok:false,message:'শুধু Super Admin ভর্তি আবেদন অনুমোদন করতে পারবেন।'};
-  admissionId = String(admissionId || '').trim();
-  const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ADMISSIONS);
-  if (!admissionId || !sh || sh.getLastRow() < 2) return {ok:false,message:'ভর্তি আবেদন পাওয়া যায়নি।'};
-  const values = sh.getDataRange().getValues();
-  const headers = values[0].map(String);
-  const idCol = headers.indexOf('AdmissionID'), studentCol = headers.indexOf('StudentID'), statusCol = headers.indexOf('Status');
-  if (idCol < 0 || studentCol < 0) return {ok:false,message:'AdmissionID/StudentID কলাম পাওয়া যায়নি।'};
-  for (let i=1; i<values.length; i++) {
-    if (String(values[i][idCol] || '').trim() !== admissionId) continue;
-    const studentId = String(values[i][studentCol] || '').trim();
-    if (!studentId) return {ok:false,message:'এই আবেদনে StudentID নেই; অনুমোদন করা যায়নি।'};
-    const result = approveStudent(token, studentId, 'ACTIVE');
-    if (!result || !result.ok) return result || {ok:false,message:'অনুমোদন ব্যর্থ হয়েছে।'};
-    if (statusCol >= 0) sh.getRange(i+1, statusCol+1).setValue('APPROVED');
-    SpreadsheetApp.flush();
-    return {ok:true,message:'ভর্তি আবেদন অনুমোদিত হয়েছে।',admissionId:admissionId,studentId:studentId};
-  }
-  return {ok:false,message:'এই ID-তে আবেদন পাওয়া যায়নি।'};
 }
 function getPendingStudents(token) {
   if(!isSuperAdmin_(token)) return {ok:false,message:'শুধু Super Admin Pending Student অনুমোদন করতে পারবেন।'};
