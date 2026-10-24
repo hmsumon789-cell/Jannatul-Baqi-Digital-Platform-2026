@@ -17336,17 +17336,8 @@ function institutionDocumentaryToggle2026(){
 <script id="jb-exam-new-tab-routing-20261024">
 (function(){
   var routeKey='jb-exam-tab-action=';
-  function appUrl(){
-    try{
-      var topUrl=window.top.location.href;
-      if(topUrl && /^https?:/i.test(topUrl) && topUrl.indexOf('googleusercontent.com')<0) return topUrl.split('#')[0];
-    }catch(_){}
-    try{
-      var ref=document.referrer;
-      if(ref && /^https?:/i.test(ref) && ref.indexOf('googleusercontent.com')<0) return ref.split('#')[0];
-    }catch(_){}
-    return location.href.split('#')[0];
-  }
+  /* Use the published Apps Script web-app URL, not the googleusercontent iframe URL. */
+  var appUrl='https://script.google.com/macros/s/AKfycbyIVW_cHirfAABDN9zZbiYbGooD0sTLKCNnG7MR5iNImC5cGbHNh8WKUhjAwUTrhoVy/exec';
   function routeAction(){
     if(!location.hash || location.hash.indexOf(routeKey)<0)return;
     var raw=location.hash.slice(location.hash.indexOf(routeKey)+routeKey.length), action='';
@@ -17357,8 +17348,8 @@ function institutionDocumentaryToggle2026(){
       if(target){target.click();return true}
       return false;
     }
-    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(launch,500)});
-    else setTimeout(launch,500);
+    var attempts=0;
+    var timer=setInterval(function(){attempts++;if(launch()||attempts>=20)clearInterval(timer)},500);
   }
   function isExamWindowAction(button){
     var action=button.getAttribute('onclick')||'';
@@ -17370,9 +17361,9 @@ function institutionDocumentaryToggle2026(){
     if(location.hash&&location.hash.indexOf(routeKey)>=0)return;
     e.preventDefault();e.stopPropagation();
     if(e.stopImmediatePropagation)e.stopImmediatePropagation();
-    var url=appUrl()+'#'+routeKey+encodeURIComponent(button.getAttribute('onclick'));
+    var url=appUrl+'#'+routeKey+encodeURIComponent(button.getAttribute('onclick'));
     var tab=window.open(url,'_blank');
-    if(!tab) alert('নতুন ট্যাবটি ব্রাউজার ব্লক করেছে। পপ-আপ অনুমতি দিন।');
+    if(!tab)alert('নতুন ট্যাবটি ব্রাউজার ব্লক করেছে। পপ-আপ অনুমতি দিন।');
   },true);
   routeAction();
 })();
