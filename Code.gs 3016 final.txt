@@ -2972,8 +2972,10 @@ function getExamDashboardOptions(token) {
   auth_(token); requireFeature_(token,'exam');
   const regs=listRows_(SHEETS.EXAM_REG,token,10000),results=listRows_(SHEETS.RESULTS,token,10000),students=listRows_(SHEETS.STUDENTS,token,10000),admissions=listRows_(SHEETS.ADMISSIONS,token,10000);
   const unique=function(a){const seen={};return a.map(function(x){return String(x||'').trim();}).filter(function(x){if(!x||seen[x])return false;seen[x]=true;return true;}).sort(function(a,b){return a.localeCompare(b,'bn');});};
-  const exams=unique(regs.map(function(x){return x.Exam;}).concat(results.map(function(x){return x.Exam;})));
-  const classes=unique(students.map(function(x){return x.Class;}).concat(regs.map(function(x){return x.Class;})));
+  const examChoices=['১ম সাময়িক','২য় সাময়িক','বার্ষিক','অর্ধ বার্ষিক','মাসিক','টিউটোরিয়াল','ক্লাশ টেস্ট'];
+  const classChoices=['প্লে শ্রেনী','শিশু শ্রেনী','আউয়াল জামাত','ছানী জামাত','ছালেছ জামাত','রাবে জামাত','পঞ্চম জামাত','মিজান জামাত','নাহবেমীর জামাত','কুদুরী জামাত','শরহে বেকায়া জামাত','হেদায়া জামাত','মিশকাত জামাত','দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)'];
+  const exams=unique(regs.map(function(x){return x.Exam;}).concat(results.map(function(x){return x.Exam;}),examChoices));
+  const classes=unique(students.map(function(x){return x.Class;}).concat(regs.map(function(x){return x.Class;}),classChoices));
   let subjects=[];results.forEach(function(x){try{const a=typeof x.SubjectData==='string'?JSON.parse(x.SubjectData||'[]'):x.SubjectData;if(Array.isArray(a))a.forEach(function(y){subjects.push(y.subject||y.Subject||y.name);});}catch(e){}});
   subjects=unique(subjects.concat(['কুরআন মাজীদ','হাদিস শরীফ','ফিকহ','আকাইদ','আরবি','বাংলা','ইংরেজি','গণিত','তাজবিদ','নাহু','সরফ']));
   const years=Array.from({length:46},function(_,i){return String(2005+i);});
