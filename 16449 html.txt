@@ -13022,7 +13022,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     var b=document.createElement('button');b.id='jbLoginOnlineService2026';b.type='button';
     b.textContent='🌐 অনলাইন সেবা সবখানে সব সময়';
     b.className='primary jb-login-online-service-2026';
-    b.onclick=function(){var w=window.open('about:blank','_blank');if(!w){alert('নতুন সেবা উইন্ডো খোলা যাচ্ছে না। Browser popup অনুমতি দিন।');return;}try{if(typeof google!=='undefined'&&google.script&&google.script.run){google.script.run.withSuccessHandler(function(r){var u=String(r&&r.ok&&r.url?r.url:location.href).split('#')[0].split('?')[0];w.location.href=u+'?online=1';}).withFailureHandler(function(){w.location.href=location.href.split('#')[0].split('?')[0]+'?online=1';}).getMainWebAppUrl();}else{w.location.href=location.href.split('#')[0].split('?')[0]+'?online=1';}}catch(e){w.location.href=location.href.split('#')[0].split('?')[0]+'?online=1';}};
+    b.onclick=function(){var w=window.open('about:blank','_blank');if(!w){alert('নতুন সেবা উইন্ডো খোলা যাচ্ছে না। Browser popup অনুমতি দিন।');return;}try{if(typeof google!=='undefined'&&google.script&&google.script.run){google.script.run.withSuccessHandler(function(r){var u=String(r&&r.ok&&r.url?r.url:location.href).split('#')[0].split('?')[0];w.location.href=u+'?online=1&showResult=1';}).withFailureHandler(function(){w.location.href=location.href.split('#')[0].split('?')[0]+'?online=1';}).getMainWebAppUrl();}else{w.location.href=location.href.split('#')[0].split('?')[0]+'?online=1';}}catch(e){w.location.href=location.href.split('#')[0].split('?')[0]+'?online=1';}};
     var q=lp.querySelector('.quick');
     if(q)q.insertAdjacentElement('afterend',b);else lp.appendChild(b);
   }
@@ -17336,3 +17336,22 @@ function institutionDocumentaryToggle2026(){
 })();
 </script>
 <!-- ===== END COMMON EXAM WINDOW CONTROLS ===== -->
+
+<!-- ===== LOGIN + ONLINE SERVICE RESULT ENTRY BRIDGE — 2026-10-24 ===== -->
+<script id="jb-login-online-result-entry-bridge-20261024">
+(function(){
+  function openResult(){
+    if(typeof window.openOnlineExamResult2026==='function')window.openOnlineExamResult2026();
+    else if(typeof window.openOnlineResult2026==='function')window.openOnlineResult2026();
+    else if(typeof window.openModule==='function')window.openModule('result');
+  }
+  function bind(){
+    var lp=document.getElementById('loginPage');
+    if(lp){var buttons=lp.querySelectorAll('.quick button');buttons.forEach(function(b){if(/অনলাইন রেজাল্ট/.test(b.textContent||'')){b.onclick=function(e){if(e){e.preventDefault();e.stopPropagation();}openResult();};}});}
+    try{var p=new URLSearchParams(window.location.search);if(p.get('showResult')==='1'&&!window.__jbAutoResultOpened20261024){window.__jbAutoResultOpened20261024=true;setTimeout(openResult,900);}}catch(e){}
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();
+  if(document.body)new MutationObserver(bind).observe(document.body,{childList:true,subtree:true});
+})();
+</script>
+<!-- ===== END LOGIN + ONLINE SERVICE RESULT ENTRY BRIDGE ===== -->
