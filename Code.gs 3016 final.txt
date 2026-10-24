@@ -3045,7 +3045,7 @@ function getPublicExamResult(query) {
   const student=students.find(function(x){return String(x.StudentID||'').trim()===q||String(x.Mobile||'').trim()===q||String(x.MobileID||'').trim()===q;});
   if(!student)return {ok:false,message:'শিক্ষার্থী পাওয়া যায়নি।'};
   const rows=listRows_(SHEETS.RESULTS,'',10000).filter(function(x){
-    return String(x.StudentID||'').trim()===String(student.StudentID||'').trim() && /^(YES|TRUE|PUBLISHED|প্রকাশিত)$/i.test(String(x.Published||''));
+    return String(x.StudentID||'').trim()===String(student.StudentID||'').trim() && /^(YES|TRUE|1|PUBLISHED|প্রকাশিত)$/i.test(String(x.Published||'').trim());
   });
   if(!rows.length)return {ok:false,message:'এই শিক্ষার্থীর প্রকাশিত ফলাফল পাওয়া যায়নি।'};
   return {ok:true,student:{studentId:student.StudentID,nameBN:student.NameBN||'',nameAR:student.NameAR||'',className:student.Class||'',mobile:student.Mobile||''},results:rows.map(function(x){
