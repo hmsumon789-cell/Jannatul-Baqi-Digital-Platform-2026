@@ -277,34 +277,89 @@ function getModulesForSession_(token){
   return all.filter(x=>allowed.includes(x[0]) || x[0]==='institution' || x[0]==='help');
 }
 function getPublicExamResult(query){
-  try{
-    query=String(query||'').trim();
-    if(!query) return {ok:false,message:'Student ID / মোবাইল নম্বর দিন।'};
-    const ss=SpreadsheetApp.getActiveSpreadsheet();
-    const resultRows=listRows_(SHEETS.RESULTS,null,10000);
-    const studentRows=listRows_(SHEETS.STUDENTS,null,10000);
-    const q=query.toLowerCase();
-    const students=studentRows.filter(function(s){
-      return [s.StudentID,s.MobileID,s.Mobile,s.WhatsApp,s.FormID].some(function(v){
-        return String(v||'').trim().toLowerCase()===q;
+  // Public read-only endpoint used by the login-page online result button.
+  try {
+    var q = String(query == null ? '' : query).trim().toLowerCase();
+    if (!q) return {ok:false, message:'Student ID / মোবাইল নম্বর দিন।'};
+
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    if (!ss) return {ok:false, message:'মাদ্রাসার ডাটাবেজ সংযুক্ত পাওয়া যায়নি। অ্যাডমিনকে জানান।'};
+
+    function readPublicRows_(sheetName) {
+      var sh = ss.getSheetByName(sheetName);
+      if (!sh || sh.getLastRow() < 2) return [];
+      var values = sh.getDataRange().getValues();
+      var headers = values[0].map(function(h){ return String(h == null ? '' : h).trim(); });
+      return values.slice(1).map(function(row) {
+        var obj = {};
+        headers.forEach(function(h, i) {
+          if (h) obj[h] = row[i] instanceof Date
+            ? Utilities.formatDate(row[i], APP.timezone, 'yyyy-MM-dd HH:mm:ss')
+            : row[i];
+        });
+        return obj;
+      });
+    }
+
+    var studentRows = readPublicRows_(SHEETS.STUDENTS);
+    var resultRows = readPublicRows_(SHEETS.RESULTS);
+    var students = studentRows.filter(function(s) {
+      return [s.StudentID, s.MobileID, s.Mobile, s.WhatsApp, s.FormID].some(function(v) {
+        return String(v == null ? '' : v).trim().toLowerCase() === q;
       });
     });
-    const studentIds=students.map(function(s){return String(s.StudentID||'').trim();}).filter(Boolean);
-    let rows=resultRows.filter(function(r){
-      if(!/^(YES|TRUE|1|PUBLISHED|প্রকাশিত)$/i.test(String(r.Published||'').trim())) return false;
-      const sid=String(r.StudentID||'').trim().toLowerCase();
-      return sid===q || studentIds.some(function(id){return id.toLowerCase()===sid;});
+    var studentIds = students.map(function(s) {
+      return String(s.StudentID == null ? '' : s.StudentID).trim().toLowerCase();
+    }).filter(Boolean);
+
+    var rows = resultRows.filter(function(r) {
+      if (!/^(YES|TRUE|1|PUBLISHED|প্রকাশিত)$/i.test(String(r.Published == null ? '' : r.Published).trim())) return false;
+      var sid = String(r.StudentID == null ? '' : r.StudentID).trim().toLowerCase();
+      return sid === q || studentIds.indexOf(sid) !== -1;
     });
-    if(!rows.length) return {ok:false,message:'প্রকাশিত কোনো ফলাফল পাওয়া যায়নি।'};
-    const student=students[0]||{};
-    rows=rows.map(function(r){
-      let subjects=[];
-      try{subjects=typeof r.SubjectData==='string'?JSON.parse(r.SubjectData||'[]'):(r.SubjectData||[]);}catch(e){subjects=[];}
-      if(!Array.isArray(subjects) && subjects && typeof subjects==='object') subjects=Object.keys(subjects).map(function(k){return {subject:k,marks:subjects[k]};});
-      return {resultId:r.ResultID||'',studentId:r.StudentID||'',name:r.Name||student.NameBN||'',className:r.Class||student.Class||'',exam:r.Exam||'',subjects:subjects,total:r.Total||'',gpa:r.GPA||'',grade:r.Grade||'',date:r.Date||''};
+
+    if (!rows.length) return {ok:false, message:'এই শিক্ষার্থীর প্রকাশিত ফলাফল পাওয়া যায়নি।'};
+
+    var student = students[0] || {};
+    rows = rows.map(function(r) {
+      var subjects = [];
+      try {
+        subjects = typeof r.SubjectData === 'string'
+          ? JSON.parse(r.SubjectData || '[]')
+          : (r.SubjectData || []);
+      } catch (parseError) { subjects = []; }
+      if (!Array.isArray(subjects) && subjects && typeof subjects === 'object') {
+        subjects = Object.keys(subjects).map(function(k) { return {subject:k, marks:subjects[k]}; });
+      }
+      return {
+        resultId:r.ResultID || '',
+        studentId:r.StudentID || '',
+        name:r.Name || student.NameBN || '',
+        className:r.Class || student.Class || '',
+        exam:r.Exam || '',
+        subjects:subjects,
+        total:r.Total == null ? '' : r.Total,
+        gpa:r.GPA == null ? '' : r.GPA,
+        grade:r.Grade || '',
+        date:r.Date || ''
+      };
     });
-    return {ok:true,student:{studentId:student.StudentID||rows[0].studentId||'',nameBN:student.NameBN||rows[0].name||'',nameAR:student.NameAR||'',nameEN:student.NameEN||'',className:student.Class||rows[0].className||'',mobile:student.Mobile||''},results:rows};
-  }catch(e){return {ok:false,message:'ফলাফল খুঁজতে সার্ভার ত্রুটি: '+e.message};}
+
+    return {
+      ok:true,
+      student:{
+        studentId:student.StudentID || rows[0].studentId || '',
+        nameBN:student.NameBN || rows[0].name || '',
+        nameAR:student.NameAR || '',
+        nameEN:student.NameEN || '',
+        className:student.Class || rows[0].className || '',
+        mobile:student.Mobile || ''
+      },
+      results:rows
+    };
+  } catch (e) {
+    return {ok:false, message:'ফলাফল খুঁজতে সার্ভার ত্রুটি: ' + String(e && e.message ? e.message : e)};
+  }
 }
 
 function getModuleList(token,key){
