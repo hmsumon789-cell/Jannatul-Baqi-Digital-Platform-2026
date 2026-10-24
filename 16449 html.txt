@@ -12570,7 +12570,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 <!-- ===== EXAM SYSTEM — ALL MODULES FUNCTIONAL — 2026-10-08 ===== -->
 <style id="jb-exam-all-2026">.jb-em{display:none;position:fixed;z-index:60;top:70px;left:50%;transform:translateX(-50%);width:min(1100px,96vw);max-height:88vh;overflow:auto;background:var(--panel);color:var(--text);border:4px solid var(--border);border-radius:16px;box-shadow:0 25px 80px #0008}.jb-em.show{display:block}.jb-emh{position:sticky;top:0;z-index:2;padding:10px;background:var(--panel);border-bottom:2px solid var(--border);display:flex;justify-content:space-between}.jb-emb{padding:12px}.jb-eg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.jb-eg label{display:flex;flex-direction:column;gap:4px;font-weight:800}.jb-eg input,.jb-eg select,.jb-eg textarea{padding:8px;border:2px solid var(--border);background:var(--panel);color:var(--text);border-radius:8px}.jb-full{grid-column:1/-1}.jb-ea{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}.jb-et{width:100%;border-collapse:collapse}.jb-et th,.jb-et td{border:1px solid #777;padding:6px;text-align:center}.jb-et input{width:100%;box-sizing:border-box;padding:5px}@media(max-width:800px){.jb-eg{grid-template-columns:1fr}.jb-full{grid-column:auto}}</style>
 <div id="jbExamCandidateWin2026" class="jb-em"><div class="jb-emh"><b>👩‍🎓 পরীক্ষার্থী নিবন্ধন</b><button onclick="jbEClose('jbExamCandidateWin2026')">✕</button></div><div class="jb-emb"><div class="jb-eg"><label>পরীক্ষা<input id="jbEcExam"></label><label>শ্রেণি/জামাত<select id="jbEcClass"><option value="">নির্বাচন করুন</option><option>প্লে শ্রেনি</option><option>শিশু শ্রেনি</option><option>আউয়াল জামাত</option><option>ছানী জামাত</option><option>ছালেছ জামাত</option><option>রাবে জামাত</option><option>পঞ্চম জামাত</option><option>মিজান জামাত</option><option>নাহবেমীর জামাত</option><option>কুদুরী জামাত</option><option>শরহে বেকায়া জামাত</option><option>হেদায়া জামাত</option><option>মিশকাত জামাত</option><option>দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)</option></select></label><label>ID<input id="jbEcId"></label><label>শিক্ষার্থীর নাম<input id="jbEcName"></label><label>অভিভাবক<input id="jbEcGuardian"></label><label>ঠিকানা<input id="jbEcAddress"></label><label>মোবাইল<input id="jbEcMobile"></label></div><div class="jb-ea"><button class="primary" onclick="jbEcSave()">💾 নিবন্ধন</button><button class="secondary" onclick="jbEcClear()">♻️ পরিষ্কার</button></div><div id="jbEcList"></div></div></div>
-<div id="jbExamMarksWin2026" class="jb-em"><div class="jb-emh"><b>📝 ফলাফল তৈরি — নম্বর প্রদান</b><button onclick="jbEClose('jbExamMarksWin2026')">✕</button></div><div class="jb-emb"><div class="jb-eg"><label>সিস্টেম আইডি / ভর্তি আইডি<input id="jbMkStudentId" placeholder="আইডি লিখুন"></label><button class="primary" type="button" onclick="jbMkFindStudent()">🔎 শিক্ষার্থীর তথ্য খুঁজুন</button><label>পরীক্ষা<select id="jbMkExam"><option value="">পরীক্ষা নির্বাচন</option></select></label><label>শ্রেণি/জামাত<select id="jbMkClass"><option value="">শ্রেণি/জামাত নির্বাচন</option></select></label><label>বিষয়/সাবজেক্ট<select id="jbMkSubject"><option value="">বিষয় নির্বাচন</option></select></label><label>নম্বরের ঘর / পূর্ণমান<select id="jbMkMaxMark"><option value="100">১০০</option><option value="50">৫০</option><option value="25">২৫</option></select></label><label>শিক্ষাবর্ষ<select id="jbMkYear"><option value="">শিক্ষাবর্ষ নির্বাচন</option></select></label></div><div id="jbMkStudentLookup"></div><div id="jbMkProfileFields" class="jb-eg" style="margin-top:10px"><label>নাম<input id="jbMkPName"></label><label>জন্ম তারিখ<input id="jbMkPDob" placeholder="YYYY-MM-DD"></label><label>ভর্তি তারিখ<input id="jbMkPAdmissionDate" placeholder="YYYY-MM-DD"></label><label>পিতার নাম<input id="jbMkPFather"></label><label>ঠিকানা<input id="jbMkPAddress"></label><label>মোবাইল<input id="jbMkPMobile"></label><label>ইমেইল<input id="jbMkPEmail"></label><label>শ্রেণি/জামাত<input id="jbMkPClass"></label><label>অটো রোল নং<input id="jbMkPRoll" readonly placeholder="ফাইনাল করলে তৈরি হবে"></label></div><div class="jb-ea"><button class="primary" onclick="jbMkLoad()">📋 পরীক্ষার্থী লোড</button><button class="secondary" onclick="jbMkSave()">💾 সেভ / সংরক্ষণ</button></div><div id="jbMkTable"></div><div class="jb-ea"><button class="primary" type="button" onclick="jbMkOpenResult()">🏆 ফলাফল তৈরি / মেধাক্রম</button><button class="secondary" type="button" onclick="jbMkOpenOnline()">📱 অনলাইন ফলাফল</button></div><p class="jb-em-note">বি.দ্র.: নম্বর চূড়ান্ত হলে প্রথমে ফলাফল ও মেধাক্রম তৈরি/যাচাই করুন, তারপর অনলাইন ফলাফল প্রকাশ করুন।</p></div></div>
+<div id="jbExamMarksWin2026" class="jb-em"><div class="jb-emh"><b>📝 ফলাফল তৈরি — নম্বর প্রদান</b><button onclick="jbEClose('jbExamMarksWin2026')">✕</button></div><div class="jb-emb"><div class="jb-eg"><label>সিস্টেম আইডি / ভর্তি আইডি<input id="jbMkStudentId" placeholder="আইডি লিখুন"></label><button class="primary" type="button" onclick="jbMkFindStudent()">🔎 শিক্ষার্থীর তথ্য খুঁজুন</button><label>পরীক্ষা<select id="jbMkExam"><option value="">পরীক্ষা নির্বাচন</option></select></label><label>শ্রেণি/জামাত<select id="jbMkClass"><option value="">শ্রেণি/জামাত নির্বাচন</option></select></label><label>বিষয়/সাবজেক্ট<details id="jbMkSubjectDropdown" style="position:relative"><summary id="jbMkSubjectSummary" style="cursor:pointer;padding:8px;border:1px solid #aaa;border-radius:8px;background:#fff">বিষয় নির্বাচন করুন (টিক দিন)</summary><div id="jbMkSubjectChecks" style="position:absolute;z-index:9999;top:100%;left:0;min-width:260px;max-height:280px;overflow:auto;background:#fff;color:#222;border:1px solid #aaa;border-radius:8px;padding:10px;box-shadow:0 8px 22px #0003"></div></details><select id="jbMkSubject" style="display:none" aria-hidden="true"><option value="">বিষয় নির্বাচন</option></select></label><label>নম্বরের ঘর / পূর্ণমান<select id="jbMkMaxMark"><option value="100">১০০</option><option value="50">৫০</option><option value="25">২৫</option></select></label><label>শিক্ষাবর্ষ<select id="jbMkYear"><option value="">শিক্ষাবর্ষ নির্বাচন</option></select></label></div><div id="jbMkStudentLookup"></div><div id="jbMkProfileFields" class="jb-eg" style="margin-top:10px"><label>নাম<input id="jbMkPName"></label><label>জন্ম তারিখ<input id="jbMkPDob" placeholder="YYYY-MM-DD"></label><label>ভর্তি তারিখ<input id="jbMkPAdmissionDate" placeholder="YYYY-MM-DD"></label><label>পিতার নাম<input id="jbMkPFather"></label><label>ঠিকানা<input id="jbMkPAddress"></label><label>মোবাইল<input id="jbMkPMobile"></label><label>ইমেইল<input id="jbMkPEmail"></label><label>শ্রেণি/জামাত<input id="jbMkPClass"></label><label>অটো রোল নং<input id="jbMkPRoll" readonly placeholder="ফাইনাল করলে তৈরি হবে"></label></div><div class="jb-ea"><button class="primary" onclick="jbMkLoad()">📋 পরীক্ষার্থী লোড</button><button class="secondary" onclick="jbMkSave()">💾 সেভ / সংরক্ষণ</button></div><div id="jbMkTable"></div><div class="jb-ea"><button class="primary" type="button" onclick="jbMkOpenResult()">🏆 ফলাফল তৈরি / মেধাক্রম</button><button class="secondary" type="button" onclick="jbMkOpenOnline()">📱 অনলাইন ফলাফল</button></div><p class="jb-em-note">বি.দ্র.: নম্বর চূড়ান্ত হলে প্রথমে ফলাফল ও মেধাক্রম তৈরি/যাচাই করুন, তারপর অনলাইন ফলাফল প্রকাশ করুন।</p></div></div>
 <div id="jbExamResultWin2026" class="jb-em"><div class="jb-emh"><b>🏆 ফলাফল ও মেধাক্রম</b><button onclick="jbEClose('jbExamResultWin2026')">✕</button></div><div class="jb-emb"><div class="jb-eg"><label>পরীক্ষা<select id="jbRsExam"><option value="">পরীক্ষা নির্বাচন</option></select></label><label>শ্রেণি/জামাত<select id="jbRsClass"><option value="">শ্রেণি/জামাত নির্বাচন</option></select></label><label>শিক্ষাবর্ষ<select id="jbRsYear"><option value="">শিক্ষাবর্ষ নির্বাচন</option></select></label></div><div class="jb-ea"><button class="primary" onclick="jbRsBuild()">🏆 ফলাফল তৈরি</button><button class="secondary" onclick="jbRsPublish()">📢 ফলাফল ফাইনাল</button><button class="secondary" onclick="jbRsShowList(false)">📋 ফলাফল তালিকা পেন্ডিং</button><button class="secondary" onclick="jbRsShowList(true)">✅ ফলাফল তালিকা ফাইনাল</button><button class="secondary" onclick="jbRsPrint()">🖨️ প্রিন্ট</button></div><div id="jbRsTable"></div><div id="jbRsList"></div></div></div>
 <div id="jbExamOnlineWin2026" class="jb-em"><div class="jb-emh"><b>📱 অনলাইন ফলাফল</b><button onclick="jbEClose('jbExamOnlineWin2026')">✕</button></div><div class="jb-emb"><p>শিক্ষার্থী ID দিয়ে প্রকাশিত ফলাফল দেখুন।</p><div class="jb-ea"><input id="jbOnId" placeholder="শিক্ষার্থী ID"><button class="primary" onclick="jbOnSearch()">🔎 ফলাফল দেখুন</button></div><div id="jbOnView"></div></div></div>
 <div id="jbExamAdmitWin2026" class="jb-em"><div class="jb-emh"><b>🎫 Admit Card / Seat Plan</b><button onclick="jbEClose('jbExamAdmitWin2026')">✕</button></div><div class="jb-emb"><div class="jb-eg"><label>পরীক্ষা<input id="jbAdExam"></label><label>কক্ষ/কেন্দ্র<input id="jbAdRoom"></label><label>সিট শুরু<input id="jbAdStart" type="number" value="1"></label></div><div class="jb-ea"><button class="primary" onclick="jbAdBuild()">🎫 তৈরি</button><button class="secondary" onclick="jbAdPrint()">🖨️ প্রিন্ট</button></div><div id="jbAdView"></div></div></div>
@@ -13751,6 +13751,100 @@ window.jbRsBuild=async function(){
   window.jbQpClear=function(){['jbQpExam','jbQpClass','jbQpSubject','jbQpDate','jbQpMarks','jbQpTime','jbQpQuestions'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='' });document.getElementById('jbQpPreview').innerHTML='প্রশ্নপত্রের পূর্বরূপ এখানে দেখা যাবে'};
   window.jbQpPrint=function(){window.jbQpPreview();var x=document.getElementById('jbQpPreview');if(!x||!x.innerHTML)return;var w=window.open('','_blank');if(!w){msg('প্রিন্ট উইন্ডো খুলতে ব্রাউজার popup অনুমতি দিন।');return}w.document.write('<!doctype html><html lang="bn"><meta charset="utf-8"><title>প্রশ্নপত্র</title><style>body{font-family:Arial,sans-serif;padding:18mm}.jb-em-note{border:1px solid #333;padding:12mm}p{line-height:1.7}</style><body>'+x.innerHTML+'</body></html>');w.document.close();setTimeout(function(){w.print()},250)};
   window.jbEClose=window.jbEClose||function(id){var x=document.getElementById(id);if(x){x.style.display='none';x.classList.remove('show')}};
+
+  // Multi-subject marks entry: checkbox dropdown, per-subject marks and live statistics.
+  window._jbMkSelectedSubjects = window._jbMkSelectedSubjects || [];
+  window.jbMkClassSubjects = function(){
+    var cl=V('jbMkClass'), el=document.getElementById('jbMkSubject'), box=document.getElementById('jbMkSubjectChecks');
+    if(!el||!box)return;
+    var map={
+      'ইসলামিক কিন্ডার গার্টেন বিভাগ':['নুরানী কায়দা','নুরানী নিসাব','ইসলামী ও আরবী শিক্ষা','বাংলা','অংক','ইংরেজী','হাতের লেখা','ছবি অংকন'],
+      'আদর্শ নুরানী বিভাগ':['নুরানী কায়দা','নুরানী নিসাব','ইসলামী ও আরবী শিক্ষা','বাংলা','অংক','ইংরেজী','হাতের লেখা','ছবি অংকন','ইসলামি তাহজিব','হাম্দ-নাত-গজল'],
+      'হিফজুল কুরআন বিভাগ':['কুরআন শরিফ ১-১০ পারা','কুরআন শরিফ ১১-২০ পারা','কুরআন শরিফ ১-৩০ পারা','কুরআন শরিফ পূর্ণ ৩০ পারা মুখস্ত','হাদিস-দোয়া মাসআলা','তাজবিদ'],
+      'প্লে শ্রেনী':['নুরানী কায়দা','নুরানী নিসাব','ইসলামী ও আরবী শিক্ষা','বাংলা','অংক','ইংরেজী','হাতের লেখা'],
+      'শিশু শ্রেনী':['নুরানী কায়দা','নুরানী নিসাব','ছড়া ছবি','বাংলা','অংক','ইংরেজী','হাতের লেখা'],
+      'আউয়াল জামাত':['নুরানী কায়দা ও নুরানী নিসাব','আদ্দুরুসুল আরাবিয়া ১ম','আলকেরাআতুল আরাবিয়া','আকাইদ ফিকাহ','বাংলা','অংক','ইংরেজী'],
+      'ছানী জামাত':['আমপারা ও নুরানী নিসাব','আদ্দুরুসুল আরাবিয়া ২য়','আলকেরাআতুল আরাবিয়া ১ম খন্ড','আকাইদ ফিকাহ','বাংলা','অংক','ইংরেজী- গ্রামার ও ওয়ার্ড বুক'],
+      'ছালেছ জামাত':['কুরআন শরিফ ও তাজবীদ','উর্দু কায়দা ও তালিমুল ইসলাম ১ম','আদ্দুরুসুল আরাবিয়া ৩য়','আলকেরাআতুল ও আকাইদ ফিকাহ','বাংলা','অংক','ইংরেজী - গ্রামার ও ওয়ার্ড বুক'],
+      'রাবে জামাত':['কুরআন শরীফ নজরানা, প্রথম ১০ পারা','উর্দু পহেলী ও দোসরী','তালিমুল ইসলাম ১ম ২য় ও ৩য়','এসো আরবী সিখি ১ম','বাংলা','অংক','ইংরেজী- গ্রামার ও ওয়ার্ড বুক'],
+      'পঞ্চম জামাত':['তেলাওয়াত ও তাজবিদ পুর্ন কুরআান শরীফ','নুজহাতুল কারী','তালিমুল ইসলাম ৪র্থ খন্ড','এসো আরবী সিখি ১ম','বাংলা ও ব্যাকরন ৫ম','অংক ৫ম','ইংরেজী ও গ্রামার ৫ম','ইতিহাস পাঠ - ভূগোল ও সমাজ ৫ম'],
+      'মিজান জামাত':['কুরআন শরীফ নাজেরা ১১-২০ পারা','মিজান মুনশাইব','সফওয়াতুল মাছাদির','বাকুরাতুল আদব','এসো আরবী শিখি ২য়','বেহেস্তী জেওর ১ম ২য় ও উর্দু দোসরী','বাংলা সাহিত্য সওগাত ৬ষ্ট ও ব্যাকরন ৬ষ্ট','গনিত ৬ষ্ট','ইংলিশ ও গ্রামার ৬ষ্ট','ইতিহাস পাঠ - ভূগোল ও সমাজ পরিচিতি ৬ষ্ট'],
+      'নাহবেমীর জামাত':['নাহবেমীর','শরহু মিয়াতে আমিল','রওজাতুল আদব','আল ফিকহুল মুয়াস্সার/ নুরুল ইযাহ','ইলমুচ্ছরফ ৩য় ৪র্থ খন্ড','সিরাতে খাতেমুল আম্বিয়া','বাংলা ও ব্যাকরন ৭ম শ্রেণি'],
+      'কুদুরী জামাত':['কুরআন তরজমা ২৬-৩০ পারা','মুখতাছারুল কুদুরী কিতাবুল ইমান','মুখতাছারুল কুদুরী কিতাবুল বুয়ূ','হেদায়াতুন্নাহু','উছুলুশ শ্বাশী','ইলমুচ্ছিগাহ','যাদুত ত্বলিবিন','বাংলা ৮ম শ্রেণি'],
+      'শরহে বেকায়া জামাত':['কুরআন তরজমা ১-১৫ পারা','শরহে বেকায়া ১ম ও ২য়','দুরুসুল বালাগাত/মুখতাসারুল মায়ানী','নুরুল আনোয়ার কিতাবুল্লাহ','কাফিয়া','আত্বরীকু ইলাল ইনশা ৩য়','মাকামাতে হারীরী/ মুখতারাত'],
+      'হেদায়া জামাত':['কুরআন তরজমা ১৬-২৫ পারা','হেদায়া ১ম','হেদায়া ২য়','نুরুল আনোয়ার সুন্নাহ','ফয়জুল কালাম','সিরাজী','রিয়াজুস ছলিহিন'],
+      'মিশকাত জামাত':['মিশকাত শরিফ ১ম','মিশকাত শরিফ ২য়','জালালাইন শরিফ ১ম','জালালাইন শরিফ ২য়','আকীদাতুত তাহাবী','হেদায়া ৩য়','হেদায়া ৪র্থ'],
+      'দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)':['বুখারী শরিফ ১ম','বুখারী শরিফ ২য়','মুসলিম শরিফ ১ম','মুসলিম শরিফ ২য়','তিরমিযী শরীফ ১ম','তিরমিযী শরীফ ২য়','আবু দাউদ শরিফ পুর্ন','তাহাবী শরীফ পূর্ন','নাসায়ী ও ইবনু মাজাহ পুন','মুয়াত্তা ইমাম মালেক ও মুহাম্মদ পূর্ন','তেলাওয়াত ও তাজবিদ পুর্ন কুরআান শরীফ']
+    };
+    var items=map[cl]||[];
+    var previous=window._jbMkSelectedSubjects.slice();
+    if(!items.length)items=Array.prototype.map.call(el.options,function(o){return o.value}).filter(Boolean);
+    window._jbMkSelectedSubjects=previous.filter(function(x){return items.indexOf(x)>=0});
+    el.innerHTML='<option value="">বিষয় নির্বাচন</option>'+items.map(function(x){return '<option value="'+E(x)+'">'+E(x)+'</option>'}).join('');
+    box.innerHTML=items.map(function(x,i){return '<label style="display:flex;gap:8px;align-items:center;padding:5px 2px;white-space:normal"><input type="checkbox" value="'+E(x)+'" '+(window._jbMkSelectedSubjects.indexOf(x)>=0?'checked':'')+' onchange="jbMkSubjectToggle(this)"> '+E(x)+'</label>'}).join('');
+    window.jbMkUpdateSubjectSummary();
+  };
+  window.jbMkSubjectToggle=function(ch){
+    var x=ch.value,a=window._jbMkSelectedSubjects||[];
+    if(ch.checked){if(a.indexOf(x)<0)a.push(x)}else{a=a.filter(function(y){return y!==x})}
+    window._jbMkSelectedSubjects=a;
+    var sel=document.getElementById('jbMkSubject');if(sel)sel.value=a[0]||'';
+    window.jbMkUpdateSubjectSummary();
+    if((window._jbMkRows||[]).length)window.jbMkRenderRows();
+  };
+  window.jbMkUpdateSubjectSummary=function(){
+    var el=document.getElementById('jbMkSubjectSummary'),a=window._jbMkSelectedSubjects||[];
+    if(el)el.textContent=a.length?'নির্বাচিত বিষয়: '+a.length+'টি':'বিষয় নির্বাচন করুন (টিক দিন)';
+  };
+  window.jbMkCalcRow=function(i){
+    var row=(window._jbMkRows||[])[i];if(!row)return;
+    var subs=window._jbMkSelectedSubjects||[],max=Number(V('jbMkMaxMark')||100),total=0,count=0,fail=false;
+    subs.forEach(function(sub,j){var input=document.querySelector('[data-jbmk-row="'+i+'"][data-jbmk-sub="'+j+'"]');if(!input||String(input.value).trim()==='')return;var n=Number(input.value);if(!Number.isFinite(n))return;row.marks=row.marks||{};row.marks[sub]=n;total+=n;count++;if(n<Math.ceil(max*.33))fail=true;});
+    var avg=count?total/count:0,pct=count?avg/max*100:0,grade=fail?'F':pct>=80?'A+':pct>=70?'A':pct>=60?'A-':pct>=50?'B':pct>=40?'C':pct>=33?'D':'F',gpa=fail?0:pct>=80?5:pct>=70?4:pct>=60?3.5:pct>=50?3:pct>=40?2:pct>=33?1:0;
+    var cells=document.querySelectorAll('[data-jbmk-stat="'+i+'"]');if(cells.length>=4){cells[0].textContent=count?total:'—';cells[1].textContent=count?avg.toFixed(2):'—';cells[2].textContent=count?grade:'—';cells[3].textContent=count?gpa.toFixed(2):'—';}
+    subs.forEach(function(sub,j){var input=document.querySelector('[data-jbmk-row="'+i+'"][data-jbmk-sub="'+j+'"]');if(input){input.style.background=(String(input.value).trim()!==''&&Number(input.value)<Math.ceil(max*.33))?'#ffd6d6':'';input.style.color=(String(input.value).trim()!==''&&Number(input.value)<Math.ceil(max*.33))?'#a00000':'';}});
+  };
+  window.jbMkRenderRows=function(){
+    var rows=window._jbMkRows||[],subs=window._jbMkSelectedSubjects||[],max=Number(V('jbMkMaxMark')||100),head='<tr><th>নির্বাচন</th><th>সিস্টেম আইডি</th><th>নাম</th>'+subs.map(function(x){return '<th>'+E(x)+'<br><small>প্রাপ্ত নম্বর</small></th>'}).join('')+'<th>মোট নম্বর</th><th>গড় নম্বর</th><th>গ্রেড</th><th>GPA</th></tr>';
+    if(!rows.length){document.getElementById('jbMkTable').innerHTML='<p>বিষয় টিক দিয়ে পরীক্ষার্থী লোড করুন।';return}
+    document.getElementById('jbMkTable').innerHTML='<div style="overflow:auto"><table class="jb-et">'+head+rows.map(function(x,i){x.marks=x.marks||{};return '<tr><td><input type="checkbox" data-jbmkselect="'+i+'" '+(x.selected?'checked':'')+' onchange="jbMkToggleRow('+i+',this.checked)"></td><td>'+E(x.studentId)+'</td><td>'+E(x.name)+'</td>'+subs.map(function(sub,j){var val=x.marks[sub];var fail=val!==undefined&&val!==''&&Number(val)<Math.ceil(max*.33);return '<td><input type="number" min="0" max="'+max+'" data-jbmk-row="'+i+'" data-jbmk-sub="'+j+'" value="'+E(val==null?'':val)+'" oninput="jbMkCalcRow('+i+')" style="width:84px;'+(fail?'background:#ffd6d6;color:#a00000;':'')+'"></td>'}).join('')+'<td data-jbmk-stat="'+i+'">—</td><td data-jbmk-stat="'+i+'">—</td><td data-jbmk-stat="'+i+'">—</td><td data-jbmk-stat="'+i+'">—</td></tr>'}).join('')+'</table></div>';
+    rows.forEach(function(x,i){window.jbMkCalcRow(i)});
+  };
+  window.jbMkToggleRow=function(i,checked){if(window._jbMkRows[i])window._jbMkRows[i].selected=!!checked;};
+  window.jbMkLoad=async function(){
+    var ex=V('jbMkExam'),cl=V('jbMkClass'),subs=window._jbMkSelectedSubjects||[],year=V('jbMkYear');
+    if(!ex||!cl||!subs.length||!year){msg('পরীক্ষা, শ্রেণি, অন্তত একটি বিষয় ও শিক্ষাবর্ষ নির্বাচন করুন।');return}
+    try{
+      var r=await data(ex,cl);if(!r||!r.ok)throw new Error(r&&r.message||'তালিকা পাওয়া যায়নি');
+      var results=r.results||[],students=(r.students||[]).filter(function(x){return x.registered});
+      window._jbMkRows=students.map(function(x){
+        var s=x.student||{},rec=results.find(function(z){return String(z.StudentID)===String(s.StudentID)&&String(z.Exam)===ex&&String(z.Class)===cl&&String(z.AcademicYear||'')===year});
+        var marks={};getSubjectArray(rec).forEach(function(z){var k=z.subject||z.Subject||z.name;if(k)marks[k]=z.marks!=null?z.marks:(z.mark!=null?z.mark:'')});
+        return {studentId:s.StudentID,name:s.NameBN||'',marks:marks,selected:false};
+      });
+      window.jbMkRenderRows();if(!window._jbMkRows.length)document.getElementById('jbMkTable').innerHTML='<p>এই পরীক্ষা/শ্রেণিতে কোনো নিবন্ধিত পরীক্ষার্থী নেই।';
+    }catch(e){msg('পরীক্ষার্থী লোড হয়নি: '+E(e.message||e))}
+  };
+  window.jbMkSave=async function(){
+    if(!ensureToken())return;
+    var rows=window._jbMkRows||[],ex=V('jbMkExam'),cl=V('jbMkClass'),subs=window._jbMkSelectedSubjects||[],year=V('jbMkYear'),max=Number(V('jbMkMaxMark')||100);
+    if(!rows.length||!ex||!cl||!subs.length||!year){msg('পরীক্ষা, শ্রেণি, বিষয় ও শিক্ষাবর্ষ নির্বাচন করে শিক্ষার্থী লোড করুন।');return}
+    var selected=rows.filter(function(x){return x.selected});if(!selected.length){msg('নম্বর সংরক্ষণের জন্য অন্তত একজন শিক্ষার্থীর পাশে টিক দিন।');return}
+    try{
+      for(var j=0;j<subs.length;j++){
+        var sub=subs[j],marks=[];
+        for(var i=0;i<selected.length;i++){
+          var row=selected[i],input=document.querySelector('[data-jbmk-row="'+rows.indexOf(row)+'"][data-jbmk-sub="'+j+'"]'),raw=String(input&&input.value||'').trim();
+          if(raw===''){msg('টিক দেওয়া প্রত্যেক শিক্ষার্থীর জন্য "'+sub+'" নম্বর লিখুন।');return}
+          var n=Number(raw);if(!Number.isFinite(n)||n<0||n>max){msg('"'+sub+'" নম্বর ০ থেকে '+max+'-এর মধ্যে দিন।');return}
+          marks.push({studentId:row.studentId,name:row.name,mark:n,maxMark:max,academicYear:year});
+        }
+        var result=await call('saveExamDashboardMarks',token,ex,cl,sub,marks);
+        if(!result||!result.ok)throw new Error((result&&result.message)||sub+' সংরক্ষণ হয়নি');
+      }
+      msg('নির্বাচিত বিষয়গুলোর নম্বর সংরক্ষণ হয়েছে। মোট, গড়, গ্রেড ও GPA ঘরে অটো হিসাব দেখানো হচ্ছে।');
+    }catch(e){msg('নম্বর সংরক্ষণ ব্যর্থ: '+E(e.message||e))}
+  };
 })();
 </script>
 
