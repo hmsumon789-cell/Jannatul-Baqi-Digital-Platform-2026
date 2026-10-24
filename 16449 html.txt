@@ -17208,4 +17208,64 @@ function institutionDocumentaryToggle2026(){
  };
 })();
 </script>
+
+<!-- ===== EXAM RESULT HEADER + WINDOW CONTROLS — AF43691 BASE ===== -->
+<style id="jb-result-header-window-controls-af43691">
+#jb-result-institution-header-af43691{display:grid;grid-template-columns:90px minmax(0,1fr) 90px;align-items:center;gap:12px;padding:12px;margin:0 0 12px;border:3px solid #c69b2b;border-radius:14px;background:linear-gradient(135deg,#fffdf2,#fff);color:#222;text-align:center;box-shadow:0 5px 16px #0002}
+#jb-result-institution-header-af43691 .jbrh-logo,#jb-result-institution-header-af43691 .jbrh-qr{width:82px;height:82px;object-fit:contain;display:block;margin:auto}
+#jb-result-institution-header-af43691 .jbrh-bn{font-size:clamp(17px,2.1vw,25px);font-weight:1000;color:#765000}
+#jb-result-institution-header-af43691 .jbrh-ar{font-size:17px;font-weight:800}
+#jb-result-institution-header-af43691 .jbrh-en{font-size:14px;font-weight:800}
+#jb-result-institution-header-af43691 .jbrh-address,#jb-result-institution-header-af43691 .jbrh-hotline{font-size:13px;font-weight:800;margin-top:3px}
+.jb-em.jb-window-minimized-af43691{height:auto!important;max-height:none!important;overflow:hidden!important}
+.jb-em.jb-window-minimized-af43691 .jb-emb,.jb-em.jb-window-minimized-af43691 #jb-result-institution-header-af43691{display:none!important}
+.jb-em.jb-window-fullscreen-af43691{top:8px!important;left:8px!important;right:8px!important;bottom:8px!important;width:auto!important;max-height:none!important;height:auto!important;transform:none!important;border-radius:10px!important;z-index:99999!important}
+.jb-em.jb-window-fullscreen-af43691 .jb-emb{max-height:calc(100vh - 100px);overflow:auto}
+.jb-emh{cursor:move;touch-action:none;align-items:center;gap:8px}
+.jb-emh .jb-window-controls-af43691{display:flex;align-items:center;gap:5px;margin-left:auto;flex-wrap:wrap}
+.jb-emh .jb-window-controls-af43691 button{min-width:34px;padding:5px 9px;border-radius:8px;border:1px solid #888;cursor:pointer;font-weight:900}
+.jb-emh .jb-window-controls-af43691 .jbew-close{background:#b91c1c;color:#fff}
+@media(max-width:600px){#jb-result-institution-header-af43691{grid-template-columns:52px minmax(0,1fr) 52px;gap:5px;padding:7px}#jb-result-institution-header-af43691 .jbrh-logo,#jb-result-institution-header-af43691 .jbrh-qr{width:48px;height:48px}#jb-result-institution-header-af43691 .jbrh-ar{font-size:12px}#jb-result-institution-header-af43691 .jbrh-address,#jb-result-institution-header-af43691 .jbrh-hotline{font-size:11px}}
+</style>
+<script id="jb-result-header-window-controls-af43691-script">
+(function(){
+ function setup(){
+  var result=document.getElementById('jbExamResultWin2026');
+  if(result&&!document.getElementById('jb-result-institution-header-af43691')){
+   var body=result.querySelector('.jb-emb'),head=result.querySelector('.jb-emh');
+   if(body&&head){
+    var banner=document.createElement('section');banner.id='jb-result-institution-header-af43691';
+    banner.innerHTML='<div><img class="jbrh-logo" id="jbResultLogoAf43691" alt="মাদ্রাসার লোগো"></div><div><div class="jbrh-bn">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div><div class="jbrh-ar">المدرسة الجنة الباقية للبنات ودار الايتام</div><div class="jbrh-en">Jannatul Baky Mohila Madrasha &amp; Eatimkhana</div><div class="jbrh-address">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div><div class="jbrh-hotline">☎ হটলাইন: 01823316630</div></div><div><img class="jbrh-qr" id="jbResultQRAf43691" alt="মূল পেজের QR কোড"></div>';
+    body.insertBefore(banner,body.firstChild);
+    var srcLogo=document.getElementById('loginContactLogo20261013'),srcQR=document.getElementById('loginContactQR20261013');
+    var logo=document.getElementById('jbResultLogoAf43691'),qr=document.getElementById('jbResultQRAf43691');
+    if(srcLogo&&logo)logo.src=srcLogo.currentSrc||srcLogo.src||'';
+    if(srcQR&&qr)qr.src=srcQR.currentSrc||srcQR.src||'';
+   }
+  }
+  document.querySelectorAll('.jb-em').forEach(function(win){
+   var h=win.querySelector('.jb-emh');if(!h||h.querySelector('.jb-window-controls-af43691'))return;
+   var controls=document.createElement('span');controls.className='jb-window-controls-af43691';
+   controls.innerHTML='<button type="button" title="মিনিমাইজ/পুনরায় খুলুন" class="jbew-min">—</button><button type="button" title="ফুল স্ক্রিন" class="jbew-full">⛶</button><button type="button" title="বন্ধ করুন" class="jbew-close">✕</button>';
+   h.appendChild(controls);
+   controls.querySelector('.jbew-min').addEventListener('click',function(e){e.stopPropagation();win.classList.toggle('jb-window-minimized-af43691');this.textContent=win.classList.contains('jb-window-minimized-af43691')?'▢':'—';});
+   controls.querySelector('.jbew-full').addEventListener('click',function(e){e.stopPropagation();win.classList.toggle('jb-window-fullscreen-af43691');this.textContent=win.classList.contains('jb-window-fullscreen-af43691')?'❐':'⛶';});
+   controls.querySelector('.jbew-close').addEventListener('click',function(e){e.stopPropagation();if(typeof window.jbEClose==='function'&&win.id)window.jbEClose(win.id);else{win.classList.remove('show');win.style.display='none';}});
+   h.addEventListener('pointerdown',function(e){
+    if(e.target.closest('button,select,input,a,.jb-window-controls-af43691'))return;
+    if(win.classList.contains('jb-window-fullscreen-af43691'))return;
+    var rect=win.getBoundingClientRect(),startX=e.clientX,startY=e.clientY,left=rect.left,top=rect.top;
+    win.style.left=left+'px';win.style.top=top+'px';win.style.transform='none';
+    function move(ev){win.style.left=Math.max(0,left+ev.clientX-startX)+'px';win.style.top=Math.max(0,top+ev.clientY-startY)+'px';}
+    function up(){document.removeEventListener('pointermove',move);document.removeEventListener('pointerup',up);}
+    document.addEventListener('pointermove',move);document.addEventListener('pointerup',up,{once:true});
+   });
+  });
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup);else setup();
+ setTimeout(setup,300);setTimeout(setup,1200);
+})();
+</script>
+<!-- ===== END EXAM RESULT HEADER + WINDOW CONTROLS — AF43691 BASE ===== -->
+
 <!-- ===== END ALL DOCUMENTS ARCHIVE ACTIONS ===== -->
