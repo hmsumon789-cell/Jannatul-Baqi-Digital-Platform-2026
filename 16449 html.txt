@@ -17331,3 +17331,135 @@ function institutionDocumentaryToggle2026(){
 })();
 </script>
 <!-- ===== END COMMON EXAM WINDOW CONTROLS ===== -->
+
+
+
+<!-- ===== EXAM DASHBOARD MULTI-SUBJECT MARKS + AUTO GRADE — 2026-10-24 ===== -->
+<style id="jb-exam-multi-subject-grade-20261024">
+#jbMkSubjectChecks .jb-subject-option{display:flex;gap:8px;align-items:center;padding:5px 3px;border-bottom:1px solid #e5e7eb}
+#jbMkSubjectChecks .jb-subject-option input{width:18px;height:18px;accent-color:#087f5b}
+#jbMkSubjectSummary{display:block;min-width:240px;max-width:100%;white-space:normal}
+.jb-mark-fail{background:#ffe0e0!important;color:#a40000!important;font-weight:900!important;border:2px solid #d00000!important}
+.jb-mark-pass{background:#e8f8ed!important;color:#14532d!important}
+.jb-mark-auto{font-weight:900;text-align:center;white-space:nowrap}
+#jbMkTable .jb-et input[type=number]{min-width:78px;width:84px}
+</style>
+<script id="jb-exam-multi-subject-grade-20261024-js">
+(function(){
+ 'use strict';
+ var custom={
+  'ইসলামিক কিন্ডার গার্টেন বিভাগ':['নুরানী কায়দা','নুরানী নিসাব','ইসলামী ও আরবী শিক্ষা','বাংলা','অংক','ইংরেজী','হাতের লেখা','ছবি অংকন'],
+  'আদর্শ নুরানী বিভাগ':['নুরানী কায়দা','নুরানী নিসাব','ইসলামী ও আরবী শিক্ষা','বাংলা','অংক','ইংরেজী','হাতের লেখা','ছবি অংকন','ইসলামি তাহজিব','হাম্দ-নাত-গজল'],
+  'হিফজুল কুরআন বিভাগ':['কুরআন শরিফ ১-১০ পারা','কুরআন শরিফ ১১-২০ পারা','কুরআন শরিফ ১-৩০ পারা','কুরআন শরিফ পূর্ণ ৩০ পারা মুখস্ত','হাদিস-দোয়া মাসআলা','তাজবিদ']
+ };
+ var baseSubjects=window.jbMkClassSubjects;
+ function el(id){return document.getElementById(id)}
+ function val(id){return el(id)?String(el(id).value||''):''}
+ function esc(x){return typeof E==='function'?E(x):String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+ function chosen(){return Array.prototype.slice.call(document.querySelectorAll('#jbMkSubjectChecks input[type=checkbox]:checked')).map(function(x){return x.value})}
+ function summary(){var a=chosen(),s=el('jbMkSubjectSummary');if(s)s.textContent=a.length?a.length+'টি বিষয় নির্বাচিত: '+a.join(', '):'বিষয় নির্বাচন করুন (টিক দিন)';var h=el('jbMkSubject');if(h){h.innerHTML='<option value="">বিষয় নির্বাচন</option>'+a.map(function(x){return '<option selected value="'+esc(x)+'">'+esc(x)+'</option>'}).join('');h.multiple=true;}}
+ function listForClass(cl){
+  if(custom[cl])return custom[cl].slice();
+  if(typeof baseSubjects==='function'&&el('jbMkClass')){var before=el('jbMkClass').value;el('jbMkClass').value=cl;try{baseSubjects()}catch(e){}var a=el('jbMkSubject');var out=a?Array.prototype.slice.call(a.options).map(function(o){return o.value}).filter(Boolean):[];el('jbMkClass').value=before;return out}
+  return [];
+ }
+ window.jbMkClassSubjects=function(){
+  var cl=val('jbMkClass'),box=el('jbMkSubjectChecks');if(!box)return;
+  var keep=chosen(),items=listForClass(cl);
+  box.innerHTML=items.map(function(x){return '<label class="jb-subject-option"><input type="checkbox" value="'+esc(x)+'" '+(keep.indexOf(x)>=0?'checked':'')+'><span>'+esc(x)+'</span></label>'}).join('')||'<p>আগে শ্রেণি/জামাত নির্বাচন করুন।</p>';
+  box.querySelectorAll('input[type=checkbox]').forEach(function(c){c.addEventListener('change',summary)});
+  summary();
+ };
+ function addOption(select,txt){if(!select||Array.prototype.some.call(select.options,function(o){return o.value===txt}))return;var o=document.createElement('option');o.value=txt;o.textContent=txt;select.appendChild(o)}
+ var baseInit=window.jbMkInit;
+ if(typeof baseInit==='function')window.jbMkInit=async function(){
+  await baseInit();
+  ['jbMkClass','jbRsClass'].forEach(function(id){var s=el(id);Object.keys(custom).forEach(function(x){addOption(s,x)})});
+  if(el('jbMkClass'))window.jbMkClassSubjects();
+ };
+ function gradeInfo(subjectMarks){
+  var total=0,maxTotal=0,failed=false,count=0;
+  subjectMarks.forEach(function(x){if(x.mark===''||x.mark==null||!isFinite(Number(x.mark)))return;var m=Number(x.mark),mx=Math.max(1,Number(x.maxMark||100));total+=m;maxTotal+=mx;count++;if(m/mx*100<33)failed=true});
+  var avg=maxTotal?total/maxTotal*100:0,grade=failed?'F':avg>=80?'A+':avg>=70?'A':avg>=60?'A-':avg>=50?'B':avg>=40?'C':avg>=33?'D':'F',gpa=failed?0:avg>=80?5:avg>=70?4:avg>=60?3.5:avg>=50?3:avg>=40?2:avg>=33?1:0;
+  return {total:total,average:count?total/count:0,percent:avg,grade:grade,gpa:gpa,failed:failed,count:count};
+ }
+ function recSubject(rec,sub,year){
+  var a=[];try{a=typeof getSubjectArray==='function'?getSubjectArray(rec):JSON.parse(rec.SubjectData||'[]')}catch(e){}
+  if(!Array.isArray(a))return '';
+  var x=a.find(function(z){return String(z.subject||z.Subject||z.name||'')===sub&&(!String(z.academicYear||'')||String(z.academicYear)===year)});
+  return x?(x.marks!=null?x.marks:(x.mark!=null?x.mark:(x.score!=null?x.score:''))):'';
+ }
+ function updateRow(i){
+  var row=(window._jbMkRows||[])[i];if(!row)return;
+  var subs=window._jbMkChosenSubjects||[],max=Number(val('jbMkMaxMark')||100),marks=subs.map(function(s){var x=document.querySelector('[data-jbmk-row="'+i+'"][data-jbmk-sub="'+esc(s)+'"]');return {subject:s,mark:x?x.value:'',maxMark:max}});
+  var g=gradeInfo(marks),total=el('jbMkTotal'+i),avg=el('jbMkAverage'+i),grade=el('jbMkGrade'+i),gpa=el('jbMkGpa'+i);
+  if(total)total.textContent=g.total; if(avg)avg.textContent=g.count?g.average.toFixed(2):'—';if(grade)grade.textContent=g.count?g.grade:'—';if(gpa)gpa.textContent=g.count?g.gpa:'—';
+  marks.forEach(function(m){var x=document.querySelector('[data-jbmk-row="'+i+'"][data-jbmk-sub="'+esc(m.subject)+'"]');if(x){x.classList.toggle('jb-mark-fail',m.mark!==''&&Number(m.mark)/max*100<33);x.classList.toggle('jb-mark-pass',m.mark!==''&&Number(m.mark)/max*100>=33)}});
+  var cell=el('jbMkGrade'+i);if(cell)cell.className='jb-mark-auto '+(g.failed?'jb-mark-fail':g.count?'jb-mark-pass':'');
+ }
+ window.jbMkRenderRows=function(){
+  var rows=window._jbMkRows||[],subs=window._jbMkChosenSubjects||[],max=Number(val('jbMkMaxMark')||100),box=el('jbMkTable');if(!box)return;
+  if(!rows.length){box.innerHTML='<p>আইডি দিয়ে শিক্ষার্থী খুঁজুন অথবা পরীক্ষা ও শ্রেণি নির্বাচন করে পরীক্ষার্থী লোড করুন।</p>';return}
+  var head='<tr><th>নির্বাচন</th><th>সিস্টেম আইডি</th><th>নাম</th>'+subs.map(function(s){return '<th>'+esc(s)+'<br><small>পূর্ণমান '+max+'</small></th>'}).join('')+'<th>মোট নম্বর</th><th>গড় নম্বর</th><th>গ্রেড</th><th>GPA</th></tr>';
+  var body=rows.map(function(x,i){return '<tr><td><input type="checkbox" data-jbmkselect="'+i+'" '+(x.selected?'checked':'')+' onchange="jbMkToggleRow('+i+',this.checked)"></td><td>'+esc(x.studentId)+'</td><td>'+esc(x.name)+'</td>'+subs.map(function(s){var v=x.subjectMarks&&x.subjectMarks[s]!=null?x.subjectMarks[s]:'';return '<td><input type="number" min="0" max="'+max+'" data-jbmk-row="'+i+'" data-jbmk-sub="'+esc(s)+'" value="'+esc(v)+'" oninput="jbMkAutoRow('+i+')"></td>'}).join('')+'<td id="jbMkTotal'+i+'" class="jb-mark-auto">—</td><td id="jbMkAverage'+i+'" class="jb-mark-auto">—</td><td id="jbMkGrade'+i+'" class="jb-mark-auto">—</td><td id="jbMkGpa'+i+'" class="jb-mark-auto">—</td></tr>'}).join('');
+  box.innerHTML='<div style="overflow:auto"><table class="jb-et">'+head+body+'</table></div>';
+  rows.forEach(function(_,i){updateRow(i)});
+ };
+ window.jbMkAutoRow=updateRow;
+ window.jbMkToggleRow=function(i,checked){if(window._jbMkRows[i])window._jbMkRows[i].selected=!!checked};
+ window.jbMkLoad=async function(){
+  if(typeof ensureToken==='function'&&!ensureToken())return;
+  var ex=val('jbMkExam'),cl=val('jbMkClass'),year=val('jbMkYear'),subs=chosen();
+  if(!ex||!cl||!year||!subs.length){if(typeof msg==='function')msg('পরীক্ষা, শ্রেণি, শিক্ষাবর্ষ নির্বাচন করুন এবং ড্রপডাউন থেকে বিষয়গুলোতে টিক দিন।');return}
+  window._jbMkChosenSubjects=subs;
+  try{
+   var r=await data(ex,cl);if(!r||!r.ok)throw new Error(r&&r.message||'তালিকা পাওয়া যায়নি');
+   var students=(r.students||[]).filter(function(x){return x.registered}),results=r.results||[];
+   window._jbMkRows=students.map(function(x){
+    var s=x.student||{},rec=results.find(function(z){return String(z.StudentID)===String(s.StudentID)&&String(z.Exam)===ex&&String(z.Class)===cl&&(!String(z.AcademicYear||'')||String(z.AcademicYear)===year)});
+    var subjectMarks={};subs.forEach(function(sub){subjectMarks[sub]=rec?recSubject(rec,sub,year):''});
+    return {studentId:s.StudentID,name:s.NameBN||'',selected:false,subjectMarks:subjectMarks};
+   });
+   window.jbMkRenderRows();
+   if(!window._jbMkRows.length&&el('jbMkTable'))el('jbMkTable').innerHTML='<p>এই পরীক্ষা/শ্রেণিতে কোনো নিবন্ধিত পরীক্ষার্থী নেই।</p>';
+  }catch(e){if(typeof msg==='function')msg('পরীক্ষার্থী লোড হয়নি: '+esc(e.message||e))}
+ };
+ window.jbMkSave=async function(){
+  if(typeof ensureToken==='function'&&!ensureToken())return;
+  var rows=window._jbMkRows||[],subs=window._jbMkChosenSubjects||[],ex=val('jbMkExam'),cl=val('jbMkClass'),year=val('jbMkYear'),max=Number(val('jbMkMaxMark')||100);
+  if(!rows.length||!subs.length||!ex||!cl||!year){if(typeof msg==='function')msg('পরীক্ষা, শ্রেণি, শিক্ষাবর্ষ ও বিষয় নির্বাচন করে পরীক্ষার্থী লোড করুন।');return}
+  var chosenRows=rows.map(function(x,i){return {x:x,i:i}}).filter(function(z){return z.x.selected});
+  if(!chosenRows.length){if(typeof msg==='function')msg('নম্বর সংরক্ষণের জন্য অন্তত একজন শিক্ষার্থীর পাশে টিক দিন।');return}
+  var marksBySubject=subs.map(function(sub){return {subject:sub,marks:chosenRows.map(function(z){
+   var inp=document.querySelector('[data-jbmk-row="'+z.i+'"][data-jbmk-sub="'+sub.replace(/"/g,'&quot;')+'"]'),raw=String(inp?inp.value:'').trim();
+   if(raw===''||!isFinite(Number(raw))||Number(raw)<0||Number(raw)>max)throw new Error('প্রত্যেক টিক দেওয়া শিক্ষার্থীর '+sub+' নম্বর ০ থেকে '+max+'-এর মধ্যে লিখুন।');
+   var item={studentId:z.x.studentId,name:z.x.name,mark:Number(raw),maxMark:max,academicYear:year};
+   if(window._jbMkFoundStudent&&String(window._jbMkFoundStudent.StudentID)===String(z.x.studentId))item.profile={NameBN:val('jbMkPName'),DOB:val('jbMkPDob'),AdmissionDate:val('jbMkPAdmissionDate'),FatherBN:val('jbMkPFather'),Address:val('jbMkPAddress'),Mobile:val('jbMkPMobile'),Email:val('jbMkPEmail'),Class:val('jbMkPClass')};
+   return item;
+  })}});
+  try{
+   for(var j=0;j<marksBySubject.length;j++){var z=marksBySubject[j],r=await call('saveExamDashboardMarks',token,ex,cl,z.subject,z.marks);if(!r||!r.ok)throw new Error(r&&r.message||z.subject+' সংরক্ষণ হয়নি')}
+   if(typeof msg==='function')msg('সব '+subs.length+'টি বিষয়ের নম্বর সংরক্ষণ হয়েছে। মোট, গড়, গ্রেড ও GPA স্বয়ংক্রিয়ভাবে হিসাব করা হয়েছে।');
+  }catch(e){if(typeof msg==='function')msg('নম্বর সংরক্ষণ ব্যর্থ: '+esc(e.message||e))}
+ };
+ var oldResultBuild=window.jbRsBuild;
+ window.jbRsBuild=async function(){
+  var ex=val('jbRsExam'),cl=val('jbRsClass'),year=val('jbRsYear');if(!ex||!cl||!year){if(typeof msg==='function')msg('পরীক্ষা, শ্রেণি ও শিক্ষাবর্ষ নির্বাচন করুন।');return}
+  try{
+   var r=await data(ex,cl);if(!r||!r.ok)throw new Error(r&&r.message||'ফলাফল পাওয়া যায়নি');
+   var registered=(r.students||[]).filter(function(x){return x.registered}),results=r.results||[],out=[];
+   registered.forEach(function(x){var s=x.student||{},rec=results.find(function(z){return String(z.StudentID)===String(s.StudentID)&&String(z.Exam)===ex&&String(z.Class)===cl&&String(z.AcademicYear||'')===year});if(!rec)return;
+    var subs=[];try{subs=typeof getSubjectArray==='function'?getSubjectArray(rec):JSON.parse(rec.SubjectData||'[]')}catch(e){}if(!Array.isArray(subs))subs=[];
+    subs=subs.filter(function(z){return !String(z.academicYear||'')||String(z.academicYear)===year});
+    var marks=subs.map(function(z){return {mark:z.marks!=null?z.marks:(z.mark!=null?z.mark:''),maxMark:z.maxMark||100}}),g=gradeInfo(marks);
+    out.push({id:s.StudentID,name:s.NameBN||rec.Name||'',total:g.total,average:g.count?g.total/g.count:0,percent:g.percent,gpa:g.gpa,grade:g.grade,failed:g.failed,rank:0,published:/^(YES|TRUE|PUBLISHED|প্রকাশিত)$/i.test(String(rec.Published||''))});
+   });
+   out.sort(function(a,b){return b.total-a.total});var rank=0,last=null;out.forEach(function(x,i){if(last===null||x.total!==last)rank=i+1;last=x.total;x.rank=rank});
+   window._jbServerExamResults={exam:ex,className:cl,rows:out};
+   var box=el('jbRsTable');if(box)box.innerHTML=out.length?'<div style="overflow:auto"><table class="jb-et"><tr><th>মেধাস্থান</th><th>শিক্ষার্থী ID</th><th>নাম</th><th>মোট নম্বর</th><th>গড় নম্বর (%)</th><th>গ্রেড</th><th>GPA</th><th>অবস্থা</th><th>প্রকাশ</th></tr>'+out.map(function(x){return '<tr><td>'+x.rank+'</td><td>'+esc(x.id)+'</td><td>'+esc(x.name)+'</td><td class="'+(x.failed?'jb-mark-fail':'')+'">'+x.total+'</td><td>'+x.percent.toFixed(2)+'%</td><td class="'+(x.failed?'jb-mark-fail':'')+'">'+x.grade+'</td><td class="'+(x.failed?'jb-mark-fail':'')+'">'+x.gpa+'</td><td class="'+(x.failed?'jb-mark-fail':'jb-mark-pass')+'">'+(x.failed?'ফেল':'পাস')+'</td><td>'+(x.published?'প্রকাশিত':'ড্রাফট')+'</td></tr>'}).join('')+'</table></div>':'<p>এই পরীক্ষা/শ্রেণির সংরক্ষিত নম্বর পাওয়া যায়নি।</p>';
+  }catch(e){if(typeof msg==='function')msg('ফলাফল তৈরি হয়নি: '+esc(e.message||e))}
+ };
+ document.addEventListener('change',function(e){if(e.target&&e.target.id==='jbMkClass')window.jbMkClassSubjects();if(e.target&&e.target.id==='jbMkMaxMark')window.jbMkRenderRows&&window.jbMkRenderRows()});
+})();
+</script>
+<!-- ===== END EXAM DASHBOARD MULTI-SUBJECT MARKS + AUTO GRADE ===== -->
