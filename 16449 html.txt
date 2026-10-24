@@ -13683,8 +13683,13 @@ window.jbMkSave=async function(){if(!ensureToken())return;var rows=window._jbMkR
 window.jbRsBuild=async function(){
     var ex=V('jbRsExam'),cl=V('jbRsClass'),year=V('jbRsYear');if(!ex||!cl||!year){msg('পরীক্ষা, শ্রেণি ও শিক্ষাবর্ষ নির্বাচন করুন।');return}
     try{var r=await data(ex,cl);if(!r||!r.ok)throw new Error(r&&r.message||'ফলাফল পাওয়া যায়নি');
-      var registered=(r.students||[]).filter(function(x){return x.registered}),results=r.results||[];
-      var out=registered.map(function(x){var s=x.student||{},rec=results.find(function(z){return String(z.StudentID)===String(s.StudentID)&&String(z.Exam)===ex&&String(z.Class)===cl&&(!String(z.AcademicYear||'')||String(z.AcademicYear)===year)});if(!rec)return null;return {id:s.StudentID,name:s.NameBN||rec.Name||'',total:Number(rec.Total||0),gpa:rec.GPA||'',grade:rec.Grade||'',subjects:getSubjectArray(rec),published:/^(YES|TRUE|PUBLISHED|প্রকাশিত)$/i.test(String(rec.Published||''))}}).filter(Boolean).sort(function(a,b){return b.total-a.total});
+      var results=r.results||[],studentsById={};
+      (r.students||[]).forEach(function(x){var s=x.student||{};if(s.StudentID!=null)studentsById[String(s.StudentID)]=s;});
+      /* Build from saved RESULTS rows, not only exam-registration rows. */
+      var out=results.filter(function(rec){return String(rec.Exam||'')===ex&&String(rec.Class||'')===cl&&String(rec.AcademicYear||'')===year;}).map(function(rec){
+        var s=studentsById[String(rec.StudentID)]||{};
+        return {id:rec.StudentID,name:s.NameBN||rec.Name||'',total:Number(rec.Total||0),gpa:rec.GPA||'',grade:rec.Grade||'',subjects:getSubjectArray(rec),published:/^(YES|TRUE|PUBLISHED|প্রকাশিত)$/i.test(String(rec.Published||''))};
+      }).sort(function(a,b){return b.total-a.total});
       var rank=0,last=null;out.forEach(function(x,i){if(last===null||x.total!==last)rank=i+1;last=x.total;x.rank=rank});
       window._jbServerExamResults={exam:ex,className:cl,rows:out};
       document.getElementById('jbRsTable').innerHTML=out.length?'<div style="overflow:auto"><table class="jb-et"><tr><th>মেধা</th><th>ID</th><th>নাম</th><th>মোট</th><th>GPA</th><th>Grade</th><th>প্রকাশ</th></tr>'+out.map(function(x){return '<tr><td>'+x.rank+'</td><td>'+E(x.id)+'</td><td>'+E(x.name)+'</td><td>'+x.total+'</td><td>'+E(x.gpa)+'</td><td>'+E(x.grade)+'</td><td>'+(x.published?'প্রকাশিত':'ড্রাফট')+'</td></tr>'}).join('')+'</table></div>':'<p>এই পরীক্ষা/শ্রেণির সংরক্ষিত নম্বর পাওয়া যায়নি।';
