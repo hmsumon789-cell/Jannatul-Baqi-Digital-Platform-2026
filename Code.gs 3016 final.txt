@@ -2976,7 +2976,7 @@ function getExamDashboardOptions(token) {
   const classes=unique(students.map(function(x){return x.Class;}).concat(regs.map(function(x){return x.Class;})));
   let subjects=[];results.forEach(function(x){try{const a=typeof x.SubjectData==='string'?JSON.parse(x.SubjectData||'[]'):x.SubjectData;if(Array.isArray(a))a.forEach(function(y){subjects.push(y.subject||y.Subject||y.name);});}catch(e){}});
   subjects=unique(subjects.concat(['কুরআন মাজীদ','হাদিস শরীফ','ফিকহ','আকাইদ','আরবি','বাংলা','ইংরেজি','গণিত','তাজবিদ','নাহু','সরফ']));
-  const now=String(new Date().getFullYear()),years=unique(students.map(function(x){return x.AcademicYear;}).concat(admissions.map(function(x){return x.Session;}),results.map(function(x){return x.AcademicYear;}),[now,String(Number(now)-1),String(Number(now)+1)]));
+  const years=Array.from({length:46},function(_,i){return String(2005+i);});
   return {ok:true,exams:exams,classes:classes,subjects:subjects,years:years};
 }
 function findExamDashboardStudent(token, query) {
@@ -2986,7 +2986,7 @@ function findExamDashboardStudent(token, query) {
   let student=students.find(function(s){return [s.StudentID,s.FormID,s.AdmissionID,s.MobileID].some(function(v){return String(v||'').trim()===q;});});
   if(!student){const admissions=listRows_(SHEETS.ADMISSIONS,token,10000);const a=admissions.find(function(x){if([x.AdmissionID,x.StudentID].some(function(v){return String(v||'').trim()===q;}))return true;try{const d=typeof x.FormData==='string'?JSON.parse(x.FormData||'{}'):x.FormData||{};return [d.StudentID,d.FormID,d.AdmissionID,d.HandwrittenID].some(function(v){return String(v||'').trim()===q;});}catch(e){return false;}});if(a&&a.StudentID)student=students.find(function(s){return String(s.StudentID||'').trim()===String(a.StudentID).trim();});}
   if(!student)return {ok:false,message:'এই সিস্টেম আইডি/ভর্তি আইডিতে শিক্ষার্থী পাওয়া যায়নি।'};
-  return {ok:true,student:{StudentID:String(student.StudentID||''),FormID:String(student.FormID||''),AdmissionID:String(student.AdmissionID||''),NameBN:String(student.NameBN||''),NameEN:String(student.NameEN||''),Class:String(student.Class||''),AcademicYear:String(student.AcademicYear||''),Session:String(student.Session||''),Mobile:String(student.Mobile||''),FatherBN:String(student.FatherBN||''),ApprovalStatus:String(student.ApprovalStatus||'')}};
+  const admissionRows=listRows_(SHEETS.ADMISSIONS,token,10000);let admission=admissionRows.find(function(a){return String(a.StudentID||'').trim()===String(student.StudentID||'').trim()||String(a.AdmissionID||'').trim()===String(student.AdmissionID||'').trim();})||{};let fd={};try{fd=typeof admission.FormData==='string'?JSON.parse(admission.FormData||'{}'):(admission.FormData||{});}catch(e){};return {ok:true,student:{StudentID:String(student.StudentID||''),FormID:String(student.FormID||''),AdmissionID:String(student.AdmissionID||''),NameBN:String(student.NameBN||fd.NameBN||fd.Name||''),NameEN:String(student.NameEN||''),DOB:String(student.DOB||student.DateOfBirth||fd.DOB||fd.DateOfBirth||''),AdmissionDate:String(student.AdmissionDate||admission.AdmissionDate||admission.CreatedAt||''),Class:String(student.Class||fd.Class||''),AcademicYear:String(student.AcademicYear||''),Session:String(student.Session||''),Mobile:String(student.Mobile||fd.Mobile||''),Email:String(student.Email||fd.Email||''),FatherBN:String(student.FatherBN||fd.FatherBN||fd.FatherName||''),Address:String(student.Address||student.CurrentAddress||student.PermanentAddress||fd.Address||fd.CurrentAddress||fd.PermanentAddress||''),Roll:String(student.Roll||student.RollNo||''),ApprovalStatus:String(student.ApprovalStatus||'')}};
 }
 function saveExamDashboardCandidate(token, studentId, exam, className) {
   const reg=registerExamCandidate(token,studentId,exam,className,'');
@@ -3026,14 +3026,14 @@ function publishExamDashboardResults(token, exam, className, academicYear) {
   auth_(token); requireFeature_(token,'result');
   const ex=String(exam||'').trim(),cl=String(className||'').trim(),year=String(academicYear||'').trim();
   if(!ex||!cl||!year)return {ok:false,message:'পরীক্ষা, শ্রেণি ও শিক্ষাবর্ষ আবশ্যক।'};
-  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.RESULTS),h=ensureExamAcademicYearColumn_(sh),vals=sh.getDataRange().getValues(),ix={};h.forEach(function(k,i){ix[k]=i;});
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.RESULTS),h=ensureExamAcademicYearColumn_(sh);['RollNo','MeritRank'].forEach(function(k){if(h.indexOf(k)<0){sh.getRange(1,h.length+1).setValue(k);h.push(k);}});const vals=sh.getDataRange().getValues(),ix={};h.forEach(function(k,i){ix[k]=i;});
   let rows=[];
   for(let i=1;i<vals.length;i++){
     if(String(vals[i][ix.Exam]||'').trim()===ex&&String(vals[i][ix.Class]||'').trim()===cl&&String(vals[i][ix.AcademicYear]||'').trim()===year)rows.push({row:i+1,id:String(vals[i][ix.StudentID]||''),total:Number(vals[i][ix.Total]||0)});
   }
   rows.sort(function(a,b){return b.total-a.total;});
   let rank=0,last=null;
-  rows.forEach(function(x,i){if(last===null||x.total!==last)rank=i+1;last=x.total;sh.getRange(x.row,ix.Published+1).setValue('YES');});
+  rows.forEach(function(x,i){if(last===null||x.total!==last)rank=i+1;last=x.total;sh.getRange(x.row,ix.Published+1).setValue('YES');sh.getRange(x.row,ix.MeritRank+1).setValue(rank);if(!String(vals[x.row-1][ix.RollNo]||'').trim())sh.getRange(x.row,ix.RollNo+1).setValue(year+String(i+1).padStart(7,'0'));});
   SpreadsheetApp.flush();
   return {ok:true,published:rows.length,message:rows.length+' জনের ফলাফল প্রকাশ করা হয়েছে।'};
 }
