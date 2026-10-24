@@ -13686,7 +13686,7 @@ window.jbRsBuild=async function(){
       var results=r.results||[],studentsById={};
       (r.students||[]).forEach(function(x){var s=x.student||{};if(s.StudentID!=null)studentsById[String(s.StudentID)]=s;});
       /* Build from saved RESULTS rows, not only exam-registration rows. */
-      var out=results.filter(function(rec){return String(rec.Exam||'')===ex&&String(rec.Class||'')===cl&&String(rec.AcademicYear||'')===year;}).map(function(rec){
+      var out=results.filter(function(rec){return String(rec.Exam||'')===ex&&String(rec.Class||'')===cl&&(!String(rec.AcademicYear||'')||String(rec.AcademicYear)===year);}).map(function(rec){
         var s=studentsById[String(rec.StudentID)]||{};
         return {id:rec.StudentID,name:s.NameBN||rec.Name||'',total:Number(rec.Total||0),gpa:rec.GPA||'',grade:rec.Grade||'',subjects:getSubjectArray(rec),published:/^(YES|TRUE|PUBLISHED|প্রকাশিত)$/i.test(String(rec.Published||''))};
       }).sort(function(a,b){return b.total-a.total});
