@@ -291,7 +291,7 @@ function getPublicExamResult(query){
     });
     const studentIds=students.map(function(s){return String(s.StudentID||'').trim();}).filter(Boolean);
     let rows=resultRows.filter(function(r){
-      if(String(r.Published||'').toUpperCase()!=='TRUE' && String(r.Published||'')!=='1' && String(r.Published||'').toLowerCase()!=='yes') return false;
+      if(!/^(YES|TRUE|1|PUBLISHED|প্রকাশিত)$/i.test(String(r.Published||'').trim())) return false;
       const sid=String(r.StudentID||'').trim().toLowerCase();
       return sid===q || studentIds.some(function(id){return id.toLowerCase()===sid;});
     });
