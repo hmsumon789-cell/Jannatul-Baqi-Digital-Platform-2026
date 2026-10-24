@@ -3016,8 +3016,10 @@ function saveExamDashboardMarks(token, exam, className, subject, marks) {
     const ys=subjects.filter(function(x){return String(x.academicYear||year)===year;});
     const total=ys.reduce(function(a,x){return a+Number(x.marks!=null?x.marks:(x.mark||0));},0);
     const average=ys.length?ys.reduce(function(a,x){return a+Number(x.marks!=null?x.marks:(x.mark||0))/Math.max(1,Number(x.maxMark||100))*100;},0)/ys.length:0;
-    const grade=average>=80?'A+':average>=70?'A':average>=60?'A-':average>=50?'B':average>=40?'C':average>=33?'D':'F';
-    const data={StudentID:id,Name:student.NameBN||m.name||'',Class:cl,Exam:ex,SubjectData:JSON.stringify(subjects),Total:total,GPA:Math.min(5,Math.round((average/20)*100)/100),Grade:grade,Published:'NO',Date:now_(),AcademicYear:year};
+    const failed=ys.some(function(x){return Number(x.marks!=null?x.marks:(x.mark||0))/Math.max(1,Number(x.maxMark||100))*100<33;});
+    const grade=failed?'F':average>=80?'A+':average>=70?'A':average>=60?'A-':average>=50?'B':average>=40?'C':average>=33?'D':'F';
+    const gpa=failed?0:average>=80?5:average>=70?4:average>=60?3.5:average>=50?3:average>=40?2:average>=33?1:0;
+    const data={StudentID:id,Name:student.NameBN||m.name||'',Class:cl,Exam:ex,SubjectData:JSON.stringify(subjects),Total:total,GPA:gpa,Grade:grade,Published:'NO',Date:now_(),AcademicYear:year};
     if(rowIndex>0){['Name','SubjectData','Total','GPA','Grade','Published','Date','AcademicYear'].forEach(function(k){if(ix[k]!=null)sh.getRange(rowIndex,ix[k]+1).setValue(data[k]);});}
     else{const row=headers.map(function(k){return data[k]===undefined?'':data[k];});if(ix.Serial!=null)row[ix.Serial]=nextSerial_(sh);if(ix.ResultID!=null)row[ix.ResultID]='RES-'+String(row[ix.Serial]||saved+1).padStart(5,'0');if(ix.CreatedAt!=null)row[ix.CreatedAt]=now_();sh.appendRow(row);}
     saved++;
