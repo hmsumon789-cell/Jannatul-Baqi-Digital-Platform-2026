@@ -16206,18 +16206,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 '#formWin .jb-admission-brand-header-20261010 .jb-adm-original-logo-20261010{transform:translate(2in,-20px)!important}'+
 '#formWin .jb-admission-brand-header-20261010 #jbAdmissionMainQR20261010{transform:translate(-2in,-20px)!important}'+
 '@media print{#formWin .jb-admission-brand-header-20261010 .jb-adm-original-logo-20261010{transform:translate(2in,-20px)!important}#formWin .jb-admission-brand-header-20261010 #jbAdmissionMainQR20261010{transform:translate(-2in,-20px)!important}}</style>'+
-'</head><body>'+node.outerHTML+'
-
-<style id="jb-top-action-bar-shift-left-20261024">
-/* Requested: shift the complete dashboard Home/Signal/Search/Logout line left by 1 inch on desktop only. */
-@media(min-width:901px){
-  #app > #topActionBar{
-    transform:translateX(-1in)!important;
-    width:calc(100% + 1in)!important;
-  }
-}
-</style>
-</body>
+'</head><body>'+node.outerHTML+'</body>
 <!-- ===== FINAL PLACEMENT: player controls → dashboard boxes → institution slideshow; compact slideshow by ~3 inches ===== -->
 <style id="dashboard-boxes-before-institution-slideshow-20261018">
 #app .dashboard-slider #summary.dashboard-summary-inside{order:2!important;transform:none!important;margin:8px 0 10px!important;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:7px!important;width:100%!important;box-sizing:border-box!important}
@@ -17342,3 +17331,14 @@ function institutionDocumentaryToggle2026(){
 })();
 </script>
 <!-- ===== END COMMON EXAM WINDOW CONTROLS ===== -->
+
+
+<style id="jb-top-action-bar-shift-left-20261024">
+/* Requested: shift the complete dashboard Home/Signal/Search/Logout line left by 1 inch on desktop only. */
+@media(min-width:901px){
+  #app > #topActionBar{
+    transform:translateX(-1in)!important;
+    width:calc(100% + 1in)!important;
+  }
+}
+</style>
