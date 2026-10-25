@@ -12568,10 +12568,10 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 </script>
 <!-- ===== END DOCUMENT BUILDER — UNIFIED ACTION BAR FOR ALL CARDS — 2026-10-07 ===== -->
 <!-- ===== EXAM SYSTEM — ALL MODULES FUNCTIONAL — 2026-10-08 ===== -->
-<style id="jb-exam-all-2026">.jb-em{display:none;position:fixed;z-index:60;top:70px;left:50%;transform:translateX(-50%);width:min(1100px,96vw);max-height:88vh;overflow:auto;background:var(--panel);color:var(--text);border:4px solid var(--border);border-radius:16px;box-shadow:0 25px 80px #0008}.jb-em.show{display:block}.jb-emh{position:sticky;top:0;z-index:2;padding:10px;background:var(--panel);border-bottom:2px solid var(--border);display:flex;justify-content:space-between}.jb-emb{padding:12px}.jb-eg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.jb-eg label{display:flex;flex-direction:column;gap:4px;font-weight:800}.jb-eg input,.jb-eg select,.jb-eg textarea{padding:8px;border:2px solid var(--border);background:var(--panel);color:var(--text);border-radius:8px}.jb-full{grid-column:1/-1}.jb-ea{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}.jb-et{width:100%;border-collapse:collapse}.jb-et th,.jb-et td{border:1px solid #777;padding:6px;text-align:center}.jb-et input{width:100%;box-sizing:border-box;padding:5px}@media(max-width:800px){.jb-eg{grid-template-columns:1fr}.jb-full{grid-column:auto}}</style>
+<style id="jb-exam-all-2026">.jb-em{display:none;position:fixed;z-index:2147483001!important;top:70px;left:50%;transform:translateX(-50%);width:min(1100px,96vw);max-height:88vh;overflow:auto;background:var(--panel);color:var(--text);border:4px solid var(--border);border-radius:16px;box-shadow:0 25px 80px #0008}.jb-em.show{display:block}.jb-emh{position:sticky;top:0;z-index:2;padding:10px;background:var(--panel);border-bottom:2px solid var(--border);display:flex;justify-content:space-between}.jb-emb{padding:12px}.jb-eg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.jb-eg label{display:flex;flex-direction:column;gap:4px;font-weight:800}.jb-eg input,.jb-eg select,.jb-eg textarea{padding:8px;border:2px solid var(--border);background:var(--panel);color:var(--text);border-radius:8px}.jb-full{grid-column:1/-1}.jb-ea{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}.jb-et{width:100%;border-collapse:collapse}.jb-et th,.jb-et td{border:1px solid #777;padding:6px;text-align:center}.jb-et input{width:100%;box-sizing:border-box;padding:5px}@media(max-width:800px){.jb-eg{grid-template-columns:1fr}.jb-full{grid-column:auto}}</style>
 <div id="jbExamCandidateWin2026" class="jb-em"><div class="jb-emh"><b>👩‍🎓 পরীক্ষার্থী নিবন্ধন</b><button onclick="jbEClose('jbExamCandidateWin2026')">✕</button></div><div class="jb-emb"><div class="jb-eg"><label>পরীক্ষা<input id="jbEcExam"></label><label>শ্রেণি/জামাত<select id="jbEcClass"><option value="">নির্বাচন করুন</option><option>প্লে শ্রেনি</option><option>শিশু শ্রেনি</option><option>আউয়াল জামাত</option><option>ছানী জামাত</option><option>ছালেছ জামাত</option><option>রাবে জামাত</option><option>পঞ্চম জামাত</option><option>মিজান জামাত</option><option>নাহবেমীর জামাত</option><option>কুদুরী জামাত</option><option>শরহে বেকায়া জামাত</option><option>হেদায়া জামাত</option><option>মিশকাত জামাত</option><option>দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)</option></select></label><label>ID<input id="jbEcId"></label><label>শিক্ষার্থীর নাম<input id="jbEcName"></label><label>অভিভাবক<input id="jbEcGuardian"></label><label>ঠিকানা<input id="jbEcAddress"></label><label>মোবাইল<input id="jbEcMobile"></label></div><div class="jb-ea"><button class="primary" onclick="jbEcSave()">💾 নিবন্ধন</button><button class="secondary" onclick="jbEcClear()">♻️ পরিষ্কার</button></div><div id="jbEcList"></div></div></div>
 <div id="jbExamMarksWin2026" class="jb-em"><div class="jb-emh"><b>📝 ফলাফল তৈরি — নম্বর প্রদান</b><button onclick="jbEClose('jbExamMarksWin2026')">✕</button></div><div class="jb-emb"><div class="jb-eg"><label>সিস্টেম আইডি / ভর্তি আইডি<input id="jbMkStudentId" placeholder="আইডি লিখুন"></label><button class="primary" type="button" onclick="jbMkFindStudent()">🔎 শিক্ষার্থীর তথ্য খুঁজুন</button><label>পরীক্ষা<select id="jbMkExam"><option value="">পরীক্ষা নির্বাচন</option></select></label><label>শ্রেণি/জামাত<select id="jbMkClass"><option value="">শ্রেণি/জামাত নির্বাচন</option></select></label><label>বিষয়/সাবজেক্ট<details id="jbMkSubjectDropdown" style="position:relative"><summary id="jbMkSubjectSummary" style="cursor:pointer;padding:8px;border:1px solid #aaa;border-radius:8px;background:#fff">বিষয় নির্বাচন করুন (টিক দিন)</summary><div id="jbMkSubjectChecks" style="position:absolute;z-index:9999;top:100%;left:0;min-width:260px;max-height:280px;overflow:auto;background:#fff;color:#222;border:1px solid #aaa;border-radius:8px;padding:10px;box-shadow:0 8px 22px #0003"></div></details><select id="jbMkSubject" style="display:none" aria-hidden="true"><option value="">বিষয় নির্বাচন</option></select></label><label>নম্বরের ঘর / পূর্ণমান<select id="jbMkMaxMark"><option value="100">১০০</option><option value="50">৫০</option><option value="25">২৫</option></select></label><label>শিক্ষাবর্ষ<select id="jbMkYear"><option value="">শিক্ষাবর্ষ নির্বাচন</option></select></label></div><div id="jbMkStudentLookup"></div><div id="jbMkProfileFields" class="jb-eg" style="margin-top:10px"><label>নাম<input id="jbMkPName"></label><label>জন্ম তারিখ<input id="jbMkPDob" placeholder="YYYY-MM-DD"></label><label>ভর্তি তারিখ<input id="jbMkPAdmissionDate" placeholder="YYYY-MM-DD"></label><label>পিতার নাম<input id="jbMkPFather"></label><label>ঠিকানা<input id="jbMkPAddress"></label><label>মোবাইল<input id="jbMkPMobile"></label><label>ইমেইল<input id="jbMkPEmail"></label><label>শ্রেণি/জামাত<input id="jbMkPClass"></label><label>অটো রোল নং<input id="jbMkPRoll" readonly placeholder="ফাইনাল করলে তৈরি হবে"></label></div><div class="jb-ea"><button class="primary" onclick="jbMkLoad()">📋 পরীক্ষার্থী লোড</button><button class="secondary" onclick="jbMkSave()">💾 সেভ / সংরক্ষণ</button></div><div id="jbMkTable"></div><div class="jb-ea"><button class="primary" type="button" onclick="jbMkOpenResult()">🏆 ফলাফল তৈরি / মেধাক্রম</button><button class="secondary" type="button" onclick="jbMkOpenOnline()">📱 অনলাইন ফলাফল</button></div><p class="jb-em-note">বি.দ্র.: নম্বর চূড়ান্ত হলে প্রথমে ফলাফল ও মেধাক্রম তৈরি/যাচাই করুন, তারপর অনলাইন ফলাফল প্রকাশ করুন।</p></div></div>
-<style id="jb-result-window-identity-20261024">#jbExamResultWin2026.jb-result-window{position:fixed!important;z-index:100000!important;top:1vh!important;left:1vw!important;transform:none!important;width:98vw!important;height:98vh!important;max-height:98vh!important;overflow:auto!important;border-radius:12px!important;resize:both!important}#jbExamResultWin2026.jb-result-window.jb-result-minimized{height:auto!important;max-height:58px!important;min-height:0!important;resize:none!important;overflow:hidden!important}#jbExamResultWin2026.jb-result-window.jb-result-minimized .jb-result-identity,#jbExamResultWin2026.jb-result-window.jb-result-minimized .jb-result-news,#jbExamResultWin2026.jb-result-window.jb-result-minimized .jb-result-body{display:none!important}.jb-result-window-head{cursor:move!important;user-select:none!important;align-items:center!important}.jb-result-window-actions{display:flex;gap:6px}.jb-result-window-actions button{min-width:38px;border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-weight:900}.jb-result-identity{display:grid;grid-template-columns:90px minmax(0,1fr) 76px;align-items:center;gap:12px;padding:10px 14px;background:var(--panel);border-bottom:2px solid var(--border);text-align:center}.jb-result-identity>img:first-child{width:82px;height:82px;object-fit:contain;justify-self:center}.jb-result-identity>img#jbRsQR{width:70px;height:70px;object-fit:contain;justify-self:center}.jb-result-identity-text{display:flex;flex-direction:column;gap:3px;align-items:center}.jb-result-identity-text strong{font-size:clamp(18px,2vw,28px);font-weight:1000}.jb-result-identity-text span:first-of-type{font-size:clamp(14px,1.4vw,20px)}.jb-result-identity-text span:nth-of-type(2){font-size:clamp(12px,1.2vw,17px);font-weight:800}.jb-result-identity-text small{font-size:clamp(11px,1vw,14px);font-weight:800}.jb-result-qr-label{grid-column:3;grid-row:2;font-size:11px;font-weight:900;margin-top:-10px}.jb-result-news{padding:7px 12px;white-space:nowrap;overflow:hidden;text-align:center;font-weight:900;background:var(--accent,#8b5e00);color:#fff;animation:jbRsNewsPulse 2.4s ease-in-out infinite alternate}.jb-result-body{overflow:visible!important}@keyframes jbRsNewsPulse{from{opacity:.82}to{opacity:1}}@media(max-width:650px){.jb-result-identity{grid-template-columns:54px minmax(0,1fr) 48px;gap:5px;padding:7px}.jb-result-identity>img:first-child{width:50px;height:50px}.jb-result-identity>img#jbRsQR{width:45px;height:45px}.jb-result-qr-label{font-size:9px}}</style>
+<style id="jb-result-window-identity-20261024">#jbExamResultWin2026.jb-result-window{position:fixed!important;z-index:2147483002!important;top:1vh!important;left:1vw!important;transform:none!important;width:98vw!important;height:98vh!important;max-height:98vh!important;overflow:auto!important;border-radius:12px!important;resize:both!important}#jbExamResultWin2026.jb-result-window.jb-result-minimized{height:auto!important;max-height:58px!important;min-height:0!important;resize:none!important;overflow:hidden!important}#jbExamResultWin2026.jb-result-window.jb-result-minimized .jb-result-identity,#jbExamResultWin2026.jb-result-window.jb-result-minimized .jb-result-news,#jbExamResultWin2026.jb-result-window.jb-result-minimized .jb-result-body{display:none!important}.jb-result-window-head{cursor:move!important;user-select:none!important;align-items:center!important}.jb-result-window-actions{display:flex;gap:6px}.jb-result-window-actions button{min-width:38px;border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-weight:900}.jb-result-identity{display:grid;grid-template-columns:90px minmax(0,1fr) 76px;align-items:center;gap:12px;padding:10px 14px;background:var(--panel);border-bottom:2px solid var(--border);text-align:center}.jb-result-identity>img:first-child{width:82px;height:82px;object-fit:contain;justify-self:center}.jb-result-identity>img#jbRsQR{width:70px;height:70px;object-fit:contain;justify-self:center}.jb-result-identity-text{display:flex;flex-direction:column;gap:3px;align-items:center}.jb-result-identity-text strong{font-size:clamp(18px,2vw,28px);font-weight:1000}.jb-result-identity-text span:first-of-type{font-size:clamp(14px,1.4vw,20px)}.jb-result-identity-text span:nth-of-type(2){font-size:clamp(12px,1.2vw,17px);font-weight:800}.jb-result-identity-text small{font-size:clamp(11px,1vw,14px);font-weight:800}.jb-result-qr-label{grid-column:3;grid-row:2;font-size:11px;font-weight:900;margin-top:-10px}.jb-result-news{padding:7px 12px;white-space:nowrap;overflow:hidden;text-align:center;font-weight:900;background:var(--accent,#8b5e00);color:#fff;animation:jbRsNewsPulse 2.4s ease-in-out infinite alternate}.jb-result-body{overflow:visible!important}@keyframes jbRsNewsPulse{from{opacity:.82}to{opacity:1}}@media(max-width:650px){.jb-result-identity{grid-template-columns:54px minmax(0,1fr) 48px;gap:5px;padding:7px}.jb-result-identity>img:first-child{width:50px;height:50px}.jb-result-identity>img#jbRsQR{width:45px;height:45px}.jb-result-qr-label{font-size:9px}}</style>
 <div id="jbExamResultWin2026" class="jb-em jb-result-window"><div class="jb-emh jb-result-window-head" id="jbRsDragHead"><b>🏆 ফলাফল তৈরি / ফলাফল ও মেধাক্রম</b><div class="jb-result-window-actions"><button type="button" onclick="jbRsMinimize()" title="মিনিমাইজ">—</button><button type="button" onclick="jbEClose('jbExamResultWin2026')" title="বন্ধ">✕</button></div></div><div class="jb-result-identity" id="jbRsIdentity"><img id="jbRsLogo" alt="মাদ্রাসার লোগো"><div class="jb-result-identity-text"><strong>জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</strong><span>المدرسة الجنة الباقية للبنات ودار الايتام</span><span>Jannatul Baky Mohila Madrasha &amp; Eatimkhana</span><small>ঠিকানা: উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</small><small>☎ হটলাইন: 01823316630</small></div><img id="jbRsQR" alt="মূল পেজের QR কোড"><div class="jb-result-qr-label">মূল পেজের QR কোড</div></div><div class="jb-result-news" id="jbRsNews">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম</div><div class="jb-emb jb-result-body"><div class="jb-eg"><label>পরীক্ষা<select id="jbRsExam"><option value="">পরীক্ষা নির্বাচন</option></select></label><label>শ্রেণি/জামাত<select id="jbRsClass"><option value="">শ্রেণি/জামাত নির্বাচন</option></select></label><label>শিক্ষাবর্ষ<select id="jbRsYear"><option value="">শিক্ষাবর্ষ নির্বাচন</option></select></label></div><div class="jb-ea"><button class="primary" onclick="jbRsBuild()">🏆 ফলাফল তৈরি</button><button class="secondary" onclick="jbRsPublish()">📢 ফলাফল ফাইনাল</button><button class="secondary" onclick="jbRsShowList(false)">📋 ফলাফল তালিকা পেন্ডিং</button><button class="secondary" onclick="jbRsShowList(true)">✅ ফলাফল তালিকা ফাইনাল</button><button class="secondary" onclick="jbRsPrint()">🖨️ প্রিন্ট</button></div><div id="jbRsTable"></div><div id="jbRsList"></div></div></div>
 <div id="jbExamOnlineWin2026" class="jb-em"><div class="jb-emh"><b>📱 অনলাইন ফলাফল</b><button onclick="jbEClose('jbExamOnlineWin2026')">✕</button></div><div class="jb-emb"><p>শিক্ষার্থী ID দিয়ে প্রকাশিত ফলাফল দেখুন।</p><div class="jb-ea"><input id="jbOnId" placeholder="শিক্ষার্থী ID"><button class="primary" onclick="jbOnSearch()">🔎 ফলাফল দেখুন</button></div><div id="jbOnView"></div></div></div>
 <div id="jbExamAdmitWin2026" class="jb-em"><div class="jb-emh"><b>🎫 Admit Card / Seat Plan</b><button onclick="jbEClose('jbExamAdmitWin2026')">✕</button></div><div class="jb-emb"><div class="jb-eg"><label>পরীক্ষা<input id="jbAdExam"></label><label>কক্ষ/কেন্দ্র<input id="jbAdRoom"></label><label>সিট শুরু<input id="jbAdStart" type="number" value="1"></label></div><div class="jb-ea"><button class="primary" onclick="jbAdBuild()">🎫 তৈরি</button><button class="secondary" onclick="jbAdPrint()">🖨️ প্রিন্ট</button></div><div id="jbAdView"></div></div></div>
@@ -12624,14 +12624,36 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   window.searchOnlineResult2026=async function(){
     var q=String(E('jbOnlineResultQuery2026')&&E('jbOnlineResultQuery2026').value||'').trim();
     if(!q)return toast('Student ID / মোবাইল নম্বর দিন।');
-    var box=E('jbOnlineResultBody2026');if(box)box.innerHTML='<p>⏳ ফলাফল খোঁজা হচ্ছে...</p>';
+    var box=E('jbOnlineResultBody2026');
+    if(box)box.innerHTML='<p>⏳ ফলাফল খোঁজা হচ্ছে...</p>';
     try{
-      var cfg=await call('getPublicConfig');
-      var sig=findSignal(cfg&&cfg.signals);
-      var r=await call('searchAll','',sig,q);
-      if(!r||!r.ok){if(box)box.innerHTML='<p>❌ '+esc(r&&r.message||'ফলাফল পাওয়া যায়নি।')+'</p>';return}
-      renderRows(r.matches||[],q);
-    }catch(e){if(box)box.innerHTML='<p>❌ সার্ভার ত্রুটি: '+esc(e&&e.message||e)+'</p>'}
+      /* Use the public-results endpoint already used by the online-result module. */
+      var r=await call('getPublicExamResult',q);
+      if(!r||!r.ok){
+        if(box)box.innerHTML='<p>❌ '+esc(r&&r.message||'এই ID-তে প্রকাশিত ফলাফল পাওয়া যায়নি।')+'</p>';
+        return;
+      }
+      var student=r.student||{};
+      var rows=r.results||[];
+      if(!rows.length){
+        if(box)box.innerHTML='<p>এই শিক্ষার্থীর কোনো প্রকাশিত ফলাফল পাওয়া যায়নি।</p>';
+        return;
+      }
+      var html='<div class="jb-or-card"><div class="jb-or-title">'+esc(student.nameBN||student.name||'শিক্ষার্থীর ফলাফল')+'</div><div class="jb-or-student"><b>ID: '+esc(student.studentId||q)+'</b><span>শ্রেণি: '+esc(student.className||'—')+'</span></div>';
+      rows.forEach(function(x){
+        html+='<section class="jb-or-card"><h3>'+esc(x.exam||x.examName||'পরীক্ষার ফলাফল')+'</h3><div class="jb-or-subjects"><div class="jb-or-head"><b>বিষয়</b><b>নম্বর</b></div>';
+        (x.subjects||[]).forEach(function(y){
+          var mark=y.marks!=null?y.marks:(y.mark!=null?y.mark:'—');
+          var fail=Number.isFinite(Number(mark))&&Number(mark)<33;
+          html+='<div><span>'+esc(y.subject||y.name||'')+'</span><b'+(fail?' style="color:#b00020;background:#ffe1e1"':'')+'>'+esc(mark)+(fail?' — ফেল':'')+'</b></div>';
+        });
+        html+='</div><div class="jb-or-total"><span>মোট নম্বর</span><b>'+esc(x.total==null?'—':x.total)+'</b><span>Grade / GPA</span><b>'+esc(x.grade||'—')+' / '+esc(x.gpa==null?'—':x.gpa)+'</b></div></section>';
+      });
+      html+='</div>';
+      if(box)box.innerHTML=html;
+    }catch(e){
+      if(box)box.innerHTML='<p>❌ সার্ভার ত্রুটি: '+esc(e&&e.message||e)+'</p>';
+    }
   };
 })();
 </script>
@@ -12721,7 +12743,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     w=document.createElement('div');w.id='jbOnlineExamResultWin2026';w.className='window';
     w.innerHTML='<div class="win-head"><b>📱 অনলাইন ফলাফল</b><button class="secondary" type="button" id="jbOnlineExamResultClose2026">✕</button></div>'+
       '<div class="win-body"><p style="text-align:center;font-weight:800">Student ID / মোবাইল নম্বর দিয়ে প্রকাশিত ফলাফল দেখুন</p>'+
-      '<div class="jb-or-search"><input id="jbOnlineExamResultQuery2026" class="field" placeholder="Student ID / মোবাইল নম্বর"><button id="jbOnlineExamResultSearch2026" class="primary" type="button">🔎 ফলাফল দেখুন</button></div>'+
+      '<div class="jb-or-search"><input id="jbOnlineExamResultQuery2026" class="field" placeholder="Student ID / মোবাইল নম্বর"><button id="jbOnlineExamResultSearch2026" class="primary" type="button">শিক্ষার্থী আইডি দিয়ে ফলাফল দেখুন</button></div>'+
       '<div id="jbOnlineExamResultBody2026"><div style="text-align:center;padding:20px">উপরের ঘরে তথ্য দিয়ে ফলাফল দেখুন।</div></div></div>';
     document.body.appendChild(w);
     document.getElementById('jbOnlineExamResultClose2026').onclick=function(){w.classList.remove('show');w.style.display='none';};
@@ -12745,7 +12767,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       (x.subjects||[]).forEach(function(z){var n=z.subject||z.name||z.Subject||z.SubjectName||z.label||'';var m=z.marks!=null?z.marks:(z.mark!=null?z.mark:(z.Marks!=null?z.Marks:z.value));out+='<tr><td>'+esc(n)+'</td><td>'+esc(m)+'</td></tr>';});
       out+='</tbody></table></div>';
     });
-    out+='<div class="jb-or-actions"><button class="primary" type="button" onclick="window.printOnlineExamResult2026()">🖨️ প্রিন্ট</button><button class="secondary" type="button" onclick="window.shareOnlineExamResult2026()">📤 শেয়ার</button></div></div>';
+    out+='</div>';
     body.innerHTML=out;window.__jbOnlineResultData=r;
   }
   function search(){
@@ -12769,11 +12791,28 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     else if(navigator.clipboard)navigator.clipboard.writeText(txt).then(function(){if(typeof toast==='function')toast('ফলাফলের শেয়ার তথ্য কপি হয়েছে।');});
   };
   function addEntry(){
+    /* Login page and examination dashboard share one public viewer.
+       getPublicExamResult(query) is intentionally called without an admin token. */
     var lp=document.getElementById('loginPage');
+    if(lp){
+      Array.prototype.forEach.call(lp.querySelectorAll('button'),function(b){
+        if(!/অনলাইন ফলাফল/.test(String(b.textContent||''))||b.id==='jbExamOnlineResult2026')return;
+        if(b.dataset.jbPublicResultBound==='1')return;
+        b.dataset.jbPublicResultBound='1';b.type='button';
+        b.addEventListener('click',function(ev){ev.preventDefault();open();});
+      });
+    }
     var d=document.getElementById('examDashboardWin');
-    if(d&&!document.getElementById('jbExamOnlineResult2026')){
-      var b2=document.createElement('button');b2.id='jbExamOnlineResult2026';b2.type='button';b2.className='secondary';b2.textContent='📱 অনলাইন ফলাফল';b2.onclick=open;
-      var a=d.querySelector('.jb-exam-actions');if(a)a.appendChild(b2);
+    if(d){
+      var b2=document.getElementById('jbExamOnlineResult2026');
+      if(!b2){
+        b2=document.createElement('button');b2.id='jbExamOnlineResult2026';b2.type='button';b2.className='secondary';b2.textContent='📱 অনলাইন ফলাফল';
+        var a=d.querySelector('.jb-exam-actions');if(a)a.appendChild(b2);
+      }
+      if(b2.dataset.jbPublicResultBound!=='1'){
+        b2.dataset.jbPublicResultBound='1';
+        b2.addEventListener('click',function(ev){ev.preventDefault();open();});
+      }
     }
   }
   addEntry();if(document.body)new MutationObserver(addEntry).observe(document.body,{childList:true,subtree:true});
@@ -17338,3 +17377,345 @@ function institutionDocumentaryToggle2026(){
 })();
 </script>
 <!-- ===== END COMMON EXAM WINDOW CONTROLS ===== -->
+
+<!-- ===== EXAM RESULT WINDOW DRAG + FULLSCREEN + RUNNING NEWS FIX — 2026-10-25 ===== -->
+<style id="jbExamResultMoveFullscreenNewsFix20261025">
+#jbExamResultWin2026.jb-result-window.jb-common-fullscreen{left:0!important;top:0!important;width:100vw!important;height:100vh!important;max-width:100vw!important;max-height:100vh!important;border-radius:0!important;transform:none!important}
+#jbExamResultWin2026 .jb-result-window-head{cursor:move!important;touch-action:none!important;user-select:none!important}
+#jbExamResultWin2026 .jb-result-window-actions{align-items:center!important;flex-wrap:wrap!important}
+#jbExamResultWin2026 .jb-result-window-actions button{cursor:pointer!important}
+#jbRsNews{position:relative!important;display:block!important;white-space:nowrap!important;overflow:hidden!important;text-align:left!important}
+#jbRsNews .jbRsNewsMovingText20261025{display:inline-block!important;min-width:max-content!important;padding-left:100%!important;animation:jbRsNewsScroll20261025 22s linear infinite!important;will-change:transform}
+#jbRsNews:hover .jbRsNewsMovingText20261025{animation-play-state:paused!important}
+@keyframes jbRsNewsScroll20261025{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
+.ticker-text,.news-full-run,.header-news{animation:jbHeaderNewsScroll20261025 24s linear infinite!important;white-space:nowrap!important;will-change:transform}
+@keyframes jbHeaderNewsScroll20261025{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
+@media(prefers-reduced-motion:reduce){#jbRsNews .jbRsNewsMovingText20261025,.ticker-text,.news-full-run,.header-news{animation-duration:60s!important}}
+</style>
+<script id="jbExamResultMoveFullscreenNewsFix20261025JS">
+(function(){
+ function installResultControls(){
+  var w=document.getElementById('jbExamResultWin2026');
+  if(!w)return;
+  var h=document.getElementById('jbRsDragHead')||w.querySelector('.jb-result-window-head');
+  var actions=w.querySelector('.jb-result-window-actions');
+  if(actions&&!actions.querySelector('[data-jb-rs-fullscreen="1"]')){
+   var fs=document.createElement('button');fs.type='button';fs.title='ফুল স্ক্রিন চালু/বন্ধ';fs.setAttribute('aria-label','ফুল স্ক্রিন');fs.textContent='⛶';fs.dataset.jbRsFullscreen='1';
+   fs.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();w.classList.toggle('jb-common-fullscreen');w.classList.remove('jb-result-minimized');if(w.classList.contains('jb-common-fullscreen')){w.style.left='0';w.style.top='0';w.style.right='auto';w.style.bottom='auto';w.style.transform='none';}else{w.style.left='1vw';w.style.top='1vh';w.style.right='';w.style.bottom='';w.style.width='';w.style.height='';w.style.transform='none';}});
+   actions.insertBefore(fs,actions.lastElementChild||null);
+  }
+  if(h&&!h.dataset.jbRobustDrag20261025){
+   h.dataset.jbRobustDrag20261025='1';
+   var drag=null;
+   h.addEventListener('pointerdown',function(e){
+    if(e.target.closest('button')||w.classList.contains('jb-common-fullscreen')||e.button!==0)return;
+    var r=w.getBoundingClientRect();drag={id:e.pointerId,x:e.clientX,y:e.clientY,left:r.left,top:r.top};
+    w.style.left=r.left+'px';w.style.top=r.top+'px';w.style.right='auto';w.style.bottom='auto';w.style.transform='none';
+    w.style.zIndex='2147483002';
+    e.preventDefault();e.stopImmediatePropagation();
+    try{h.setPointerCapture(e.pointerId)}catch(_){}
+   },true);
+   h.addEventListener('pointermove',function(e){if(!drag||drag.id!==e.pointerId)return;var nx=Math.max(0,Math.min(window.innerWidth-w.offsetWidth,drag.left+e.clientX-drag.x));var ny=Math.max(0,Math.min(window.innerHeight-45,drag.top+e.clientY-drag.y));w.style.left=nx+'px';w.style.top=ny+'px';e.preventDefault();},true);
+   function end(e){if(drag&&(!e||drag.id===e.pointerId))drag=null;}
+   h.addEventListener('pointerup',end,true);h.addEventListener('pointercancel',end,true);h.addEventListener('lostpointercapture',end,true);
+  }
+  var news=document.getElementById('jbRsNews');
+  if(news&&!news.querySelector('.jbRsNewsMovingText20261025')){
+   var txt=(news.textContent||'').trim();
+   if(txt){news.textContent='';var span=document.createElement('span');span.className='jbRsNewsMovingText20261025';span.textContent=txt;news.appendChild(span);}
+  }
+ }
+ function makeHeaderNewsRun(){
+  document.querySelectorAll('.ticker-text,.news-full-run,.header-news').forEach(function(el){
+   if(el.closest('#jbExamResultWin2026'))return;
+   if(!el.dataset.jbHeaderNewsRun20261025){el.dataset.jbHeaderNewsRun20261025='1';el.style.display='inline-block';el.style.whiteSpace='nowrap';}
+  });
+ }
+ function run(){installResultControls();makeHeaderNewsRun();}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run);else run();
+ new MutationObserver(run).observe(document.documentElement,{childList:true,subtree:true});
+ window.addEventListener('resize',run);
+})();
+</script>
+<!-- ===== END EXAM RESULT WINDOW DRAG + FULLSCREEN + RUNNING NEWS FIX ===== -->
+
+
+<!-- ===== RESULT WINDOW DOCUMENT-LEVEL DRAG OVERRIDE — 2026-10-25 ===== -->
+<style id="jbRsDocumentDragOverride20261025">
+#jbExamResultWin2026 #jbRsDragHead{cursor:move!important;touch-action:none!important;user-select:none!important;-webkit-user-select:none!important}
+#jbExamResultWin2026 #jbRsDragHead *{user-select:none!important;-webkit-user-select:none!important}
+</style>
+<script id="jbRsDocumentDragOverride20261025JS">
+(function(){
+ if(window.__jbRsDocumentDragOverride20261025)return;
+ window.__jbRsDocumentDragOverride20261025=true;
+ var drag=null;
+ function isResultHeader(target){
+  if(!target||!target.closest)return false;
+  var h=target.closest('#jbRsDragHead');
+  return !!(h&&h.closest('#jbExamResultWin2026'));
+ }
+ document.addEventListener('pointerdown',function(e){
+  if(!isResultHeader(e.target)||e.target.closest('#jbRsDragHead button')||e.button!==0)return;
+  var w=document.getElementById('jbExamResultWin2026');
+  if(!w||w.classList.contains('jb-common-fullscreen'))return;
+  var r=w.getBoundingClientRect();
+  drag={id:e.pointerId,x:e.clientX,y:e.clientY,left:r.left,top:r.top,w:w};
+  w.style.left=r.left+'px';w.style.top=r.top+'px';w.style.right='auto';w.style.bottom='auto';w.style.transform='none';
+  w.style.zIndex='2147483002';
+  e.preventDefault();e.stopImmediatePropagation();
+ },true);
+ document.addEventListener('pointermove',function(e){
+  if(!drag||drag.id!==e.pointerId)return;
+  var w=drag.w;
+  var maxX=Math.max(0,window.innerWidth-w.offsetWidth);
+  var maxY=Math.max(0,window.innerHeight-45);
+  w.style.left=Math.max(0,Math.min(maxX,drag.left+e.clientX-drag.x))+'px';
+  w.style.top=Math.max(0,Math.min(maxY,drag.top+e.clientY-drag.y))+'px';
+  e.preventDefault();e.stopImmediatePropagation();
+ },true);
+ function finish(e){if(drag&&(!e||e.pointerId===undefined||drag.id===e.pointerId))drag=null;}
+ document.addEventListener('pointerup',finish,true);
+ document.addEventListener('pointercancel',finish,true);
+ document.addEventListener('mouseup',finish,true);
+})();
+</script>
+<!-- ===== END RESULT WINDOW DOCUMENT-LEVEL DRAG OVERRIDE ===== -->
+
+
+<!-- ===== EXAM CANDIDATE PENDING / EDIT / REGISTER WORKFLOW 2026-10-25 ===== -->
+<style id="jb-exam-candidate-pending-style-20261025">
+#jbEcList .jb-ec-status{font-weight:900;white-space:nowrap}
+#jbEcList .jb-ec-pending{color:#9a5700;background:#fff2cc;border-radius:6px;padding:4px 7px;display:inline-block}
+#jbEcList .jb-ec-registered{color:#176b37;background:#e1f5e7;border-radius:6px;padding:4px 7px;display:inline-block}
+#jbEcList .jb-ec-actions{display:flex;gap:5px;justify-content:center;flex-wrap:wrap}
+#jbEcList .jb-ec-actions button{padding:6px 9px;white-space:nowrap}
+#jbEcList .jb-ec-table-wrap{width:100%;overflow:auto}
+#jbEcList .jb-ec-table{width:100%;border-collapse:collapse;min-width:760px}
+#jbEcList .jb-ec-table th,#jbEcList .jb-ec-table td{border:1px solid #999;padding:7px;text-align:center}
+#jbEcList .jb-ec-table th{background:var(--accent);color:#fff}
+</style>
+<script id="jb-exam-candidate-pending-workflow-20261025">
+(function(){
+  var studentRows=[], examRows=[], loading=false, loadedAt=0, editingIndex=-1, savingIndex=-1;
+  function el(id){return document.getElementById(id)}
+  function val(v){return String(v==null?'':v).trim()}
+  function h(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function sid(r){return val(r.StudentID||r.StudentId||r.ID||r.Id||r.FormID||r.HandwrittenID)}
+  function name(r){return val(r.NameBN||r.Name||r.StudentName||r.NameEN)}
+  function cls(r){return val(r.Class||r.Jamaat||r.Jamat||r.ClassName)}
+  function examName(){return val(el('jbEcExam')&&el('jbEcExam').value)}
+  function sheetRows(r){return r&&r.ok&&Array.isArray(r.rows)?r.rows:[]}
+  async function loadSheet(sheet){
+    var r=await call('getSheetData',token,sheet,1000);
+    if(!r||!r.ok)throw new Error((r&&r.message)||sheet+' তালিকা পাওয়া যায়নি');
+    return sheetRows(r);
+  }
+  function registered(r,ex){
+    var id=sid(r), cl=cls(r);
+    return examRows.some(function(q){
+      return val(q.Exam||q.exam)===ex &&
+        val(q.StudentID||q.StudentId||q.ID||q.Id)===id &&
+        (!val(q.Class||q.Jamaat||q.class)||!cl||val(q.Class||q.Jamaat||q.class)===cl);
+    });
+  }
+  function renderRows(){
+    var box=el('jbEcList'); if(!box)return;
+    var ex=examName();
+    if(!ex){box.innerHTML='<p style="font-weight:800">প্রথমে উপরের “পরীক্ষা” ঘরে পরীক্ষার নাম লিখুন। ভর্তি/অ্যাড হওয়া শিক্ষার্থীরা নিচে নিবন্ধিত নয় / পেন্ডিং অবস্থায় দেখা যাবে।</p>';return}
+    if(!studentRows.length){box.innerHTML='<p>ছাত্র/ছাত্রীর তালিকা পাওয়া যায়নি।</p>';return}
+    var rows=studentRows.filter(function(r){return sid(r)});
+    var out='<div class="jb-ec-table-wrap"><table class="jb-ec-table"><thead><tr><th>Student ID</th><th>শিক্ষার্থীর নাম</th><th>শ্রেণি/জামাত</th><th>মোবাইল</th><th>নিবন্ধন অবস্থা</th><th>এডিট</th><th>কার্যক্রম</th></tr></thead><tbody>';
+    rows.forEach(function(r,i){
+      var done=registered(r,ex), edit=editingIndex===i, busy=savingIndex===i;
+      var cell=function(v,key,locked){return edit?'<input class="jb-ec-edit-field" data-field="'+key+'" '+(locked?'readonly title="Student ID অপরিবর্তনীয়"':'')+' value="'+h(v)+'" style="width:100%;min-width:90px;box-sizing:border-box;padding:6px;border:1px solid #888;border-radius:5px">':h(v)};
+      out+='<tr data-ec-row="'+i+'"><td>'+cell(sid(r),'StudentID',true)+'</td><td>'+cell(name(r),'NameBN',false)+'</td><td>'+cell(cls(r),'Class',false)+'</td><td>'+cell(r.Mobile||r.Phone||'','Mobile',false)+'</td><td><span class="jb-ec-status '+(done?'jb-ec-registered':'jb-ec-pending')+'">'+(done?'নিবন্ধিত':'নিবন্ধিত নয় / পেন্ডিং')+'</span></td><td><div class="jb-ec-actions"><button type="button" class="secondary" title="শিক্ষার্থীর তথ্য সম্পাদনা" '+(busy?'disabled':'')+' onclick="jbEcEditStudent2026('+i+')">✏️ এডিট</button>'+(edit?'<button type="button" class="primary" '+(busy?'disabled':'')+' onclick="jbEcSaveInlineStudent2026('+i+')">💾 সেভ</button>':'')+'</div></td><td><div class="jb-ec-actions"><button type="button" class="'+(done?'secondary':'primary')+'" '+((done||edit||busy)?'disabled':'')+' onclick="jbEcRegisterStudent2026('+i+')">'+(done?'✓ নিবন্ধিত':'📝 পরীক্ষার্থী নিবন্ধন করুন')+'</button></div></td></tr>';
+    });
+    out+='</tbody></table></div><p style="font-weight:800;margin-top:8px">মোট শিক্ষার্থী: '+rows.length+' | নিবন্ধিত: '+rows.filter(function(r){return registered(r,ex)}).length+' | পেন্ডিং: '+rows.filter(function(r){return !registered(r,ex)}).length+'</p>';
+    box.innerHTML=out;
+    window._jbEcVisibleRows2026=rows;
+  }
+  async function refresh(){
+    var box=el('jbEcList');if(!box)return;
+    if(loading)return;
+    loading=true;box.innerHTML='<p>ছাত্র/ছাত্রী ও পরীক্ষার্থী নিবন্ধনের তালিকা লোড হচ্ছে…</p>';
+    try{
+      var results=await Promise.all([loadSheet('STUDENTS'),loadSheet('EXAM_REG')]);
+      studentRows=results[0];examRows=results[1];loadedAt=Date.now();renderRows();
+    }catch(e){
+      box.innerHTML='<p style="color:#a00;font-weight:800">সার্ভার থেকে শিক্ষার্থী তালিকা আনা যায়নি: '+h(e&&e.message||e)+'</p><p>দয়া করে লগইন/সার্ভার সংযোগ পরীক্ষা করুন।</p>';
+    }finally{loading=false}
+  }
+  window.jbEcRefresh2026=refresh;
+  window.jbEcEditStudent2026=function(i){
+    if(savingIndex!==-1)return;
+    editingIndex=(editingIndex===i?-1:i);
+    renderRows();
+  };
+  window.jbEcSaveInlineStudent2026=async function(i){
+    var rows=window._jbEcVisibleRows2026||[],old=rows[i],tr=document.querySelector('#jbEcList tr[data-ec-row="'+i+'"]');
+    if(!old||!tr)return;
+    if(savingIndex!==-1)return;
+    var d=Object.assign({},old);
+    tr.querySelectorAll('.jb-ec-edit-field').forEach(function(input){
+      var key=input.getAttribute('data-field');
+      if(key==='NameBN')d.NameBN=val(input.value);
+      else if(key==='Class')d.Class=val(input.value);
+      else if(key==='Mobile'){d.Mobile=val(input.value);if(Object.prototype.hasOwnProperty.call(d,'Phone'))d.Phone=val(input.value)}
+    });
+    if(!val(d.NameBN)){toast('শিক্ষার্থীর নাম খালি রাখা যাবে না।');return}
+    savingIndex=i;
+    var btns=tr.querySelectorAll('button');btns.forEach(function(b){b.disabled=true});
+    try{
+      var serial=old.Serial;
+      if(serial===undefined||serial===null||String(serial).trim()===''){toast('এই শিক্ষার্থীর Serial পাওয়া যায়নি; নিরাপদে সেভ করা হয়নি।');return}
+      var res=await call('updateRecord',token,'STUDENTS',serial,d);
+      if(!res||!res.ok){toast((res&&res.message)||'তথ্য সংরক্ষণ হয়নি।');return}
+      var ix=studentRows.findIndex(function(x){return sid(x)===sid(old)});
+      if(ix>=0)studentRows[ix]=Object.assign({},studentRows[ix],d);
+      editingIndex=-1;
+      toast('শিক্ষার্থীর সব সম্পাদিত তথ্য সংরক্ষণ হয়েছে।');
+    }catch(e){toast('তথ্য সংরক্ষণে সার্ভার ত্রুটি হয়েছে।')}
+    finally{savingIndex=-1;renderRows()}
+  };
+  window.jbEcUpdateStudent2026=async function(){
+    var old=window._jbEcEditingStudent2026;if(!old)return;
+    var d=Object.assign({},old,{
+      StudentID:sid(old),NameBN:val(el('jbEcName').value),
+      FatherNameBN:val(el('jbEcGuardian').value),Address:val(el('jbEcAddress').value),
+      Mobile:val(el('jbEcMobile').value),Class:val(el('jbEcClass').value)
+    });
+    if(!d.StudentID||!d.NameBN){toast('Student ID ও শিক্ষার্থীর নাম আবশ্যক।');return}
+    try{
+      var res=await call('saveRecord',token,'STUDENTS',d);
+      if(!res||!res.ok){toast((res&&res.message)||'তথ্য সংরক্ষণ হয়নি।');return}
+      window._jbEcEditingStudent2026=null;
+      var hint=el('jbEcEditHint2026');if(hint)hint.remove();
+      var btn=el('jbEcUpdateBtn2026');if(btn)btn.remove();
+      toast('শিক্ষার্থীর তথ্য আপডেট হয়েছে।');
+      await refresh();
+    }catch(e){toast('তথ্য সংরক্ষণে সার্ভার ত্রুটি হয়েছে।')}
+  };
+  window.jbEcRegisterStudent2026=async function(i){
+    var r=(window._jbEcVisibleRows2026||[])[i];if(!r)return;
+    var ex=examName(),id=sid(r),cl=cls(r);
+    if(!ex){toast('প্রথমে পরীক্ষার নাম লিখুন।');return}
+    if(!id){toast('শিক্ষার্থীর Student ID পাওয়া যায়নি।');return}
+    if(registered(r,ex)){toast('এই শিক্ষার্থী ইতিমধ্যে এই পরীক্ষায় নিবন্ধিত।');renderRows();return}
+    var d={StudentID:id,NameBN:name(r),NameEN:val(r.NameEN),Class:cl,Branch:val(r.Branch),Exam:ex,SubjectData:'',Published:'NO',Date:new Date().toISOString(),Status:'REGISTERED'};
+    try{
+      var res=await call('saveRecord',token,'EXAM_REG',d);
+      if(!res||!res.ok){toast((res&&res.message)||'পরীক্ষার্থী নিবন্ধন করা যায়নি।');return}
+      var local=JSON.parse(localStorage.getItem('jb_exam_candidates_2026')||'[]');
+      if(!local.some(function(x){return x.exam===ex&&x.id===id})){
+        local.push({exam:ex,cls:cl,id:id,name:name(r),guardian:val(r.FatherNameBN||r.Guardian),address:val(r.Address),mobile:val(r.Mobile)});
+        localStorage.setItem('jb_exam_candidates_2026',JSON.stringify(local));
+      }
+      toast('পরীক্ষার্থী নিবন্ধন সফল হয়েছে।');
+      await refresh();
+      if(typeof window.jbMkInit==='function')window.jbMkInit();
+    }catch(e){toast('পরীক্ষার্থী নিবন্ধনে সার্ভার ত্রুটি হয়েছে।')}
+  };
+  var oldOpen=window.jbEcRender;
+  window.jbEcRender=function(){
+    var ex=el('jbEcExam');
+    if(ex&&!ex.dataset.pendingBound){ex.dataset.pendingBound='1';ex.addEventListener('change',renderRows);ex.addEventListener('input',function(){renderRows()})}
+    refresh();
+  };
+  document.addEventListener('DOMContentLoaded',function(){
+    var w=el('jbExamCandidateWin2026');
+    if(w&&!w.dataset.pendingBound){w.dataset.pendingBound='1';}
+  });
+})();
+</script>
+<!-- ===== END EXAM CANDIDATE PENDING / EDIT / REGISTER WORKFLOW 2026-10-25 ===== -->
+
+
+
+<!-- ===== EXAM RESULT PENDING LIST + PER-STUDENT ONLINE PUBLISH 2026-10-25 ===== -->
+<style id="jb-result-entry-pending-style-20261025">
+#jbResultEntryWin20261025{display:none;position:fixed;z-index:2147483000;inset:4vh 3vw auto;width:94vw;max-height:92vh;overflow:auto;background:var(--panel,#fff);color:var(--text,#222);border:3px solid var(--border,#8b5e00);border-radius:16px;box-shadow:0 20px 70px #0008}
+#jbResultEntryWin20261025.show{display:block}
+#jbResultEntryWin20261025.jb-re-fullscreen{inset:0!important;left:0!important;top:0!important;width:100vw!important;height:100vh!important;max-height:100vh!important;border-radius:0;box-sizing:border-box}
+#jbResultEntryWin20261025 .jb-re-head{position:sticky;top:0;z-index:4;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px;background:var(--panel,#fff);border-bottom:2px solid var(--border,#8b5e00);font-weight:900;cursor:move;user-select:none}
+#jbResultEntryWin20261025 .jb-re-head button{cursor:pointer}
+#jbResultEntryWin20261025 .jb-re-head-tools{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+#jbResultEntryWin20261025 .jb-re-body{padding:12px}
+#jbResultEntryWin20261025 .jb-re-controls{display:grid;grid-template-columns:repeat(3,minmax(140px,1fr));gap:8px;align-items:start}
+#jbResultEntryWin20261025 label{display:flex;flex-direction:column;gap:4px;font-weight:800}
+#jbResultEntryWin20261025 input,#jbResultEntryWin20261025 select{width:100%;min-width:0;padding:8px;border:1px solid #999;border-radius:7px;background:#fff;color:#222;box-sizing:border-box}
+#jbResultEntryWin20261025 .jb-re-subject-box{border:1px solid #999;border-radius:8px;padding:8px;max-height:150px;overflow:auto;background:var(--panel,#fff)}
+#jbResultEntryWin20261025 .jb-re-subject-box label{display:flex;flex-direction:row;align-items:center;gap:7px;padding:3px 0}
+#jbResultEntryWin20261025 .jb-re-subject-box input{width:auto}
+#jbResultEntryWin20261025 .jb-re-tablewrap{overflow:auto;margin-top:12px}
+#jbResultEntryWin20261025 table{width:100%;border-collapse:collapse;min-width:800px}
+#jbResultEntryWin20261025 th,#jbResultEntryWin20261025 td{border:1px solid #999;padding:7px;text-align:center}
+#jbResultEntryWin20261025 th{background:var(--accent,#8b5e00);color:#fff}
+#jbResultEntryWin20261025 .jb-re-actions{display:flex;gap:5px;justify-content:center;flex-wrap:wrap}
+#jbResultEntryWin20261025 .jb-re-pending{color:#8b4b00;background:#fff0c2;font-weight:900;padding:4px 7px;border-radius:6px}
+#jbResultEntryWin20261025 .jb-re-saved{color:#176b37;background:#e0f5e7;font-weight:900;padding:4px 7px;border-radius:6px}
+#jbResultEntryWin20261025 .jb-re-submark{width:95px!important;max-width:95px}
+@media(max-width:760px){#jbResultEntryWin20261025 .jb-re-controls{grid-template-columns:1fr 1fr}#jbResultEntryWin20261025 .jb-re-head{align-items:flex-start;flex-wrap:wrap}}
+</style>
+<script id="jb-result-entry-pending-js-20261025">
+(function(){
+ 'use strict';
+ var winId='jbResultEntryWin20261025', rows=[], busy=false, options=null, subjectValues=[], dragging=null;
+ function el(id){return document.getElementById(id)}
+ function V(id){return String((el(id)||{}).value||'').trim()}
+ function E(v){return String(v==null?'':v).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+ function msg(t){if(typeof toast==='function')toast(t);else alert(t)}
+ function tokenOK(){if(typeof token==='undefined'||!token){msg('ফলাফল তৈরির আগে অনুমোদিত অ্যাডমিন হিসেবে লগইন করুন।');return false}return true}
+ function selectedSubjects(){return Array.prototype.slice.call(document.querySelectorAll('#jbReSubjectList20261025 input[type="checkbox"]:checked')).map(function(x){return x.value})}
+ function ensure(){
+  if(el(winId))return;
+  var w=document.createElement('section');w.id=winId;
+  w.innerHTML='<div class="jb-re-head" id="jbReDragHead20261025"><span>📝 ফলাফল তৈরি তালিকা — পেন্ডিং নম্বর ও অনলাইন প্রকাশ</span><div class="jb-re-head-tools"><button type="button" onclick="jbToggleResultEntryFullscreen20261025()">⛶ পূর্ণপর্দা</button><button type="button" onclick="jbCloseResultEntry20261025()">✕ বন্ধ</button></div></div>'+
+   '<div class="jb-re-body"><div class="jb-re-controls">'+
+   '<label>পরীক্ষা<select id="jbReExam20261025"><option value="">পরীক্ষা নির্বাচন</option></select></label>'+
+   '<label>শ্রেণি/জামাত<select id="jbReClass20261025"><option value="">শ্রেণি নির্বাচন</option></select></label>'+
+   '<label>শিক্ষাবর্ষ<select id="jbReYear20261025"></select></label>'+
+   '<label style="grid-column:1/-1">বিষয় নির্বাচন — এক বা একাধিক বিষয়ে টিক দিন<div id="jbReSubjectList20261025" class="jb-re-subject-box">আগে শ্রেণি/জামাত নির্বাচন করুন</div></label></div>'+
+   '<div class="jb-re-actions" style="margin-top:10px"><button type="button" class="primary" onclick="jbLoadResultEntry20261025()">📋 ফলাফল তৈরি তালিকা খুলুন</button><button type="button" class="secondary" onclick="jbRefreshResultEntry20261025()">↻ রিফ্রেশ</button></div>'+
+   '<p id="jbReStatus20261025" role="status">পরীক্ষা, শ্রেণি/জামাত, বিষয় ও শিক্ষাবর্ষ নির্বাচন করুন। নিবন্ধিত পরীক্ষার্থীরা স্বয়ংক্রিয়ভাবে তালিকায় আসবে।</p><div id="jbReList20261025"></div></div>';
+  document.body.appendChild(w);
+  var head=el('jbReDragHead20261025');
+  head.addEventListener('pointerdown',function(ev){if(ev.target&&ev.target.closest&&ev.target.closest('button'))return;if(w.classList.contains('jb-re-fullscreen'))return;var r=w.getBoundingClientRect();dragging={x:ev.clientX-r.left,y:ev.clientY-r.top};w.style.inset='auto';w.style.left=r.left+'px';w.style.top=r.top+'px';try{head.setPointerCapture(ev.pointerId)}catch(_e){}});
+  head.addEventListener('pointermove',function(ev){if(!dragging)return;w.style.left=Math.max(0,Math.min(window.innerWidth-w.offsetWidth,ev.clientX-dragging.x))+'px';w.style.top=Math.max(0,Math.min(window.innerHeight-45,ev.clientY-dragging.y))+'px'});
+  function stopDrag(){dragging=null}head.addEventListener('pointerup',stopDrag);head.addEventListener('pointercancel',stopDrag);
+  el('jbReClass20261025').addEventListener('change',function(){syncSubjects();if(V('jbReExam20261025')&&V('jbReYear20261025')&&selectedSubjects().length)window.jbLoadResultEntry20261025()});
+  el('jbReExam20261025').addEventListener('change',function(){if(V('jbReClass20261025')&&V('jbReYear20261025')&&selectedSubjects().length)window.jbLoadResultEntry20261025()});
+  el('jbReYear20261025').addEventListener('change',function(){if(V('jbReExam20261025')&&V('jbReClass20261025')&&selectedSubjects().length)window.jbLoadResultEntry20261025()});
+ }
+ window.jbToggleResultEntryFullscreen20261025=function(){var w=el(winId);if(!w)return;w.classList.toggle('jb-re-fullscreen');if(w.classList.contains('jb-re-fullscreen')){w.style.left='0';w.style.top='0';w.style.inset='0'}else{w.style.inset='4vh 3vw auto';w.style.left='';w.style.top='';w.style.width='';w.style.height=''}};
+ window.jbCloseResultEntry20261025=function(){var w=el(winId);if(w){w.classList.remove('show');w.style.display='none'}};
+ function fill(id,values,placeholder){var q=el(id);if(!q)return;var old=q.value;q.innerHTML='<option value="">'+E(placeholder)+'</option>'+(values||[]).map(function(v){return '<option value="'+E(v)+'">'+E(v)+'</option>'}).join('');if(old&&Array.prototype.some.call(q.options,function(o){return o.value===old}))q.value=old}
+ function renderSubjectChecks(values){var box=el('jbReSubjectList20261025');if(!box)return;var old=selectedSubjects();subjectValues=(values||[]).filter(Boolean);box.innerHTML=subjectValues.length?subjectValues.map(function(v){return '<label><input type="checkbox" value="'+E(v)+'" '+(old.indexOf(String(v))>=0?'checked':'')+'> '+E(v)+'</label>'}).join(''):'এই শ্রেণির বিষয় পাওয়া যায়নি';box.querySelectorAll('input[type="checkbox"]').forEach(function(q){q.addEventListener('change',function(){if(V('jbReExam20261025')&&V('jbReClass20261025')&&V('jbReYear20261025')&&selectedSubjects().length)window.jbLoadResultEntry20261025();else{rows=[];el('jbReList20261025').innerHTML='';el('jbReStatus20261025').textContent='বিষয় নির্বাচন করে ফলাফল তালিকা খুলুন।'}})})}
+ function syncSubjects(){var cl=V('jbReClass20261025'),legacyClass=el('jbMkClass'),legacySubject=el('jbMkSubject');if(legacyClass&&legacySubject&&typeof window.jbMkClassSubjects==='function'){legacyClass.value=cl;window.jbMkClassSubjects();var vals=Array.prototype.slice.call(legacySubject.options).map(function(o){return o.value}).filter(Boolean);if(vals.length){renderSubjectChecks(vals);return}}if(options)renderSubjectChecks(options.subjects||[])}
+ window.jbRefreshResultEntry20261025=async function(){
+  if(!tokenOK())return;ensure();var status=el('jbReStatus20261025');status.textContent='⏳ পরীক্ষা ও শ্রেণির তালিকা লোড হচ্ছে…';
+  try{var r=await call('getExamDashboardOptions',token);if(!r||!r.ok)throw new Error(r&&r.message||'তালিকা পাওয়া যায়নি');options=r;
+   fill('jbReExam20261025',r.exams,'পরীক্ষা নির্বাচন');fill('jbReClass20261025',r.classes,'শ্রেণি নির্বাচন');if(!V('jbReClass20261025'))renderSubjectChecks([]);syncSubjects();
+   fill('jbReYear20261025',Array.from({length:46},function(_,i){return String(2005+i)}),'শিক্ষাবর্ষ');if(!V('jbReYear20261025'))el('jbReYear20261025').value=String(new Date().getFullYear());
+   status.textContent='শ্রেণি/জামাত নির্বাচন করে বিষয় টিক দিন। নম্বর সংরক্ষণ ও অনলাইন প্রকাশ আলাদা ধাপে হবে।';
+  }catch(e){status.textContent='তালিকা লোড হয়নি: '+E(e.message||e)}
+ };
+ window.jbLoadResultEntry20261025=async function(){
+  if(!tokenOK())return;var ex=V('jbReExam20261025'),cl=V('jbReClass20261025'),subs=selectedSubjects(),year=V('jbReYear20261025'),box=el('jbReList20261025'),status=el('jbReStatus20261025');
+  if(!ex||!cl||!subs.length||!year){msg('পরীক্ষা, শ্রেণি/জামাত, অন্তত একটি বিষয় ও শিক্ষাবর্ষ নির্বাচন করুন।');return}
+  status.textContent='⏳ নিবন্ধিত পরীক্ষার্থী ও সংরক্ষিত নম্বর লোড হচ্ছে…';box.innerHTML='';
+  try{var r=await call('getExamDashboardData',token,ex,cl);if(!r||!r.ok)throw new Error(r&&r.message||'তালিকা পাওয়া যায়নি');
+   var res=r.results||[], candidates=(r.students||[]).filter(function(x){return x.registered});
+   rows=candidates.map(function(x){var st=x.student||{},rec=res.find(function(z){return String(z.StudentID||'')===String(st.StudentID||'')&&String(z.Exam||'')===ex&&String(z.Class||'')===cl}),savedSubjects=[];try{savedSubjects=JSON.parse(String(rec&&rec.SubjectData||'[]'))}catch(e){}if(!Array.isArray(savedSubjects))savedSubjects=[];var marks={};subs.forEach(function(sub){var m=savedSubjects.find(function(z){return String(z.subject||z.Subject||z.name||'')===sub&&String(z.academicYear||'')===year});marks[sub]={mark:m?String(m.marks!=null?m.marks:m.mark):'',saved:!!m,published:!!(rec&&/^(TRUE|YES|1|PUBLISHED|প্রকাশিত)$/i.test(String(rec.Published||''))&&m),maxMark:Number(m&&m.maxMark||100)}});return {id:String(st.StudentID||''),name:st.NameBN||st.NameEN||'',className:st.Class||cl,marks:marks}});
+   render();status.textContent='মোট নিবন্ধিত পরীক্ষার্থী: '+rows.length+' | নির্বাচিত বিষয়: '+subs.length+' | নম্বর সংরক্ষণ ও অনলাইন প্রকাশ আলাদা ধাপ।';
+  }catch(e){status.textContent='পেন্ডিং তালিকা পাওয়া যায়নি: '+E(e.message||e)}
+ };
+ function render(){var box=el('jbReList20261025'),subs=selectedSubjects();if(!box)return;
+  box.innerHTML=rows.length?'<div class="jb-re-tablewrap"><table><thead><tr><th>Student ID</th><th>শিক্ষার্থীর নাম</th>'+subs.map(function(s){return '<th>'+E(s)+'<br>নম্বর</th>'}).join('')+'<th>সংরক্ষণ অবস্থা</th><th>নম্বর সংরক্ষণ</th><th>অনলাইন ফলাফল প্রকাশ</th></tr></thead><tbody>'+rows.map(function(r,i){var allSaved=subs.length&&subs.every(function(s){return r.marks[s]&&r.marks[s].saved}),allPublished=subs.length&&subs.every(function(s){return r.marks[s]&&r.marks[s].published});return '<tr><td>'+E(r.id)+'</td><td>'+E(r.name)+'</td>'+subs.map(function(s,j){var m=r.marks[s]||{};return '<td><input class="jb-re-submark" type="number" min="0" max="'+E(m.maxMark||100)+'" id="jbReMark20261025_'+i+'_'+j+'" value="'+E(m.mark)+'" placeholder="নম্বর"></td>'}).join('')+'<td><span class="'+(allSaved?'jb-re-saved':'jb-re-pending')+'">'+(allSaved?(allPublished?'অনলাইনে প্রকাশিত':'নম্বর সংরক্ষিত — পেন্ডিং'):'নম্বর পেন্ডিং')+'</span></td><td><button type="button" class="primary" '+(busy?'disabled':'')+' onclick="jbSaveResultEntry20261025('+i+')">💾 নম্বর সংরক্ষণ</button></td><td><button type="button" class="secondary" '+(!allSaved||allPublished||busy?'disabled':'')+' onclick="jbPublishResultEntry20261025('+i+')">🌐 অনলাইন প্ল্যাটফর্মে প্রকাশ</button></td></tr>'}).join('')+'</tbody></table></div>':'<p>এই পরীক্ষা ও শ্রেণিতে নিবন্ধিত পরীক্ষার্থী পাওয়া যায়নি। আগে পরীক্ষার্থী নিবন্ধন করুন।';}
+ window.jbSaveResultEntry20261025=async function(i){if(busy||!tokenOK())return;var r=rows[i],subs=selectedSubjects(),year=V('jbReYear20261025'),ex=V('jbReExam20261025'),cl=V('jbReClass20261025');if(!r||!subs.length)return;var payload=[];for(var j=0;j<subs.length;j++){var sub=subs[j],inp=el('jbReMark20261025_'+i+'_'+j),raw=String(inp&&inp.value||'').trim(),max=Number(r.marks[sub]&&r.marks[sub].maxMark||100),n=Number(raw);if(raw===''||!Number.isFinite(n)||n<0||n>max){msg('বিষয় “'+sub+'”-এর নম্বর ০ থেকে '+max+'-এর মধ্যে লিখুন।');return}payload.push({subject:sub,mark:n,maxMark:max,academicYear:year})}busy=true;render();try{for(var k=0;k<payload.length;k++){var p=payload[k],res=await call('saveExamDashboardMarks',token,ex,cl,p.subject,[{studentId:r.id,name:r.name,mark:p.mark,maxMark:p.maxMark,academicYear:p.academicYear}]);if(!res||!res.ok)throw new Error(res&&res.message||p.subject+' নম্বর সেভ হয়নি')}msg('নির্বাচিত '+payload.length+'টি বিষয়ের নম্বর সংরক্ষণ হয়েছে। অনলাইন প্রকাশ করতে ডানের বাটন চাপুন।')}catch(e){msg('নম্বর সংরক্ষণে সমস্যা: '+E(e.message||e)+'। আংশিক সংরক্ষণ হয়ে থাকলে তালিকা রিফ্রেশ করুন।')}finally{busy=false;await window.jbLoadResultEntry20261025()}};
+ window.jbPublishResultEntry20261025=async function(i){if(busy||!tokenOK())return;var r=rows[i],subs=selectedSubjects();if(!r||!subs.length)return;var allSaved=subs.every(function(s){return r.marks[s]&&r.marks[s].saved});if(!allSaved){msg('আগে নির্বাচিত সব বিষয়ের নম্বর সংরক্ষণ করুন।');return}var ok=confirm('এই শিক্ষার্থীর সংরক্ষিত ফলাফল অনলাইন প্ল্যাটফর্মে প্রকাশ করবেন? শিক্ষার্থী ID দিয়ে যে কোনো স্থান থেকে দেখা যাবে।');if(!ok)return;busy=true;render();try{var res=await call('publishExamDashboardStudentResult',token,r.id,V('jbReExam20261025'),V('jbReClass20261025'),V('jbReYear20261025'));if(!res||!res.ok)throw new Error(res&&res.message||'অনলাইনে প্রকাশ হয়নি');msg(res.message||'অনলাইনে প্রকাশ হয়েছে।')}catch(e){msg('অনলাইনে প্রকাশ ব্যর্থ: '+E(e.message||e))}finally{busy=false;await window.jbLoadResultEntry20261025()}};
+ var oldExamComing=window.examComing;
+ window.examComing=function(name){name=String(name||'');if(name.indexOf('ফলাফল তৈরি')>=0||name.indexOf('নম্বর প্রদান')>=0){ensure();var w=el(winId);w.style.display='block';w.classList.add('show');window.jbRefreshResultEntry20261025();return}if(typeof oldExamComing==='function')return oldExamComing.apply(this,arguments)};
+})();
+</script>
+<!-- ===== END EXAM RESULT ENTRY + PER-STUDENT ONLINE PUBLISH ===== -->
