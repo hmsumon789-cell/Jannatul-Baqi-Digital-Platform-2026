@@ -17550,7 +17550,9 @@ function institutionDocumentaryToggle2026(){
     savingIndex=i;
     var btns=tr.querySelectorAll('button');btns.forEach(function(b){b.disabled=true});
     try{
-      var res=await call('saveRecord',token,'STUDENTS',d);
+      var serial=old.Serial;
+      if(serial===undefined||serial===null||String(serial).trim()===''){toast('এই শিক্ষার্থীর Serial পাওয়া যায়নি; নিরাপদে সেভ করা হয়নি।');return}
+      var res=await call('updateRecord',token,'STUDENTS',serial,d);
       if(!res||!res.ok){toast((res&&res.message)||'তথ্য সংরক্ষণ হয়নি।');return}
       var ix=studentRows.findIndex(function(x){return sid(x)===sid(old)});
       if(ix>=0)studentRows[ix]=Object.assign({},studentRows[ix],d);
