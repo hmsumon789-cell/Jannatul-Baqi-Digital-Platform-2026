@@ -17480,7 +17480,7 @@ function institutionDocumentaryToggle2026(){
 </style>
 <script id="jb-exam-candidate-pending-workflow-20261025">
 (function(){
-  var studentRows=[], examRows=[], loading=false, loadedAt=0;
+  var studentRows=[], examRows=[], loading=false, loadedAt=0, editingIndex=-1, savingIndex=-1;
   function el(id){return document.getElementById(id)}
   function val(v){return String(v==null?'':v).trim()}
   function h(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
@@ -17510,8 +17510,9 @@ function institutionDocumentaryToggle2026(){
     var rows=studentRows.filter(function(r){return sid(r)});
     var out='<div class="jb-ec-table-wrap"><table class="jb-ec-table"><thead><tr><th>Student ID</th><th>শিক্ষার্থীর নাম</th><th>শ্রেণি/জামাত</th><th>মোবাইল</th><th>নিবন্ধন অবস্থা</th><th>এডিট</th><th>কার্যক্রম</th></tr></thead><tbody>';
     rows.forEach(function(r,i){
-      var done=registered(r,ex);
-      out+='<tr><td>'+h(sid(r))+'</td><td>'+h(name(r))+'</td><td>'+h(cls(r))+'</td><td>'+h(r.Mobile||r.Phone||'')+'</td><td><span class="jb-ec-status '+(done?'jb-ec-registered':'jb-ec-pending')+'">'+(done?'নিবন্ধিত':'নিবন্ধিত নয় / পেন্ডিং')+'</span></td><td><button type="button" class="secondary" title="শিক্ষার্থীর তথ্য সম্পাদনা" onclick="jbEcEditStudent2026('+i+')">✏️</button></td><td><div class="jb-ec-actions"><button type="button" class="'+(done?'secondary':'primary')+'" '+(done?'disabled':'')+' onclick="jbEcRegisterStudent2026('+i+')">'+(done?'✓ নিবন্ধিত':'📝 পরীক্ষার্থী নিবন্ধন করুন')+'</button></div></td></tr>';
+      var done=registered(r,ex), edit=editingIndex===i, busy=savingIndex===i;
+      var cell=function(v,key,locked){return edit?'<input class="jb-ec-edit-field" data-field="'+key+'" '+(locked?'readonly title="Student ID অপরিবর্তনীয়"':'')+' value="'+h(v)+'" style="width:100%;min-width:90px;box-sizing:border-box;padding:6px;border:1px solid #888;border-radius:5px">':h(v)};
+      out+='<tr data-ec-row="'+i+'"><td>'+cell(sid(r),'StudentID',true)+'</td><td>'+cell(name(r),'NameBN',false)+'</td><td>'+cell(cls(r),'Class',false)+'</td><td>'+cell(r.Mobile||r.Phone||'','Mobile',false)+'</td><td><span class="jb-ec-status '+(done?'jb-ec-registered':'jb-ec-pending')+'">'+(done?'নিবন্ধিত':'নিবন্ধিত নয় / পেন্ডিং')+'</span></td><td><div class="jb-ec-actions"><button type="button" class="secondary" title="শিক্ষার্থীর তথ্য সম্পাদনা" '+(busy?'disabled':'')+' onclick="jbEcEditStudent2026('+i+')">✏️ এডিট</button>'+(edit?'<button type="button" class="primary" '+(busy?'disabled':'')+' onclick="jbEcSaveInlineStudent2026('+i+')">💾 সেভ</button>':'')+'</div></td><td><div class="jb-ec-actions"><button type="button" class="'+(done?'secondary':'primary')+'" '+((done||edit||busy)?'disabled':'')+' onclick="jbEcRegisterStudent2026('+i+')">'+(done?'✓ নিবন্ধিত':'📝 পরীক্ষার্থী নিবন্ধন করুন')+'</button></div></td></tr>';
     });
     out+='</tbody></table></div><p style="font-weight:800;margin-top:8px">মোট শিক্ষার্থী: '+rows.length+' | নিবন্ধিত: '+rows.filter(function(r){return registered(r,ex)}).length+' | পেন্ডিং: '+rows.filter(function(r){return !registered(r,ex)}).length+'</p>';
     box.innerHTML=out;
@@ -17530,24 +17531,33 @@ function institutionDocumentaryToggle2026(){
   }
   window.jbEcRefresh2026=refresh;
   window.jbEcEditStudent2026=function(i){
-    var r=(window._jbEcVisibleRows2026||[])[i];if(!r)return;
-    el('jbEcId').value=sid(r);
-    el('jbEcName').value=name(r);
-    el('jbEcGuardian').value=val(r.FatherNameBN||r.Guardian||r.FatherName||'');
-    el('jbEcAddress').value=val(r.Address||r.PresentAddress||r.Village||'');
-    el('jbEcMobile').value=val(r.Mobile||r.Phone||'');
-    if(el('jbEcClass'))el('jbEcClass').value=cls(r);
-    window._jbEcEditingStudent2026=r;
-    var b=el('jbEcList');
-    var old=el('jbEcEditHint2026');if(old)old.remove();
-    var hint=document.createElement('div');hint.id='jbEcEditHint2026';hint.style.cssText='margin:8px 0;padding:10px;border:2px solid #c58b16;border-radius:8px;font-weight:800';
-    hint.textContent='✏️ '+name(r)+'-এর তথ্য সম্পাদনা করুন। উপরের ফর্মে পরিবর্তন করে “তথ্য সংরক্ষণ” চাপুন।';
-    b.parentNode.insertBefore(hint,b);
-    var actions=document.querySelector('#jbExamCandidateWin2026 .jb-ea');
-    if(actions&&!el('jbEcUpdateBtn2026')){
-      var btn=document.createElement('button');btn.id='jbEcUpdateBtn2026';btn.type='button';btn.className='primary';btn.textContent='💾 তথ্য সংরক্ষণ';btn.onclick=window.jbEcUpdateStudent2026;actions.insertBefore(btn,actions.firstChild);
-    }
-    el('jbEcName').focus();
+    if(savingIndex!==-1)return;
+    editingIndex=(editingIndex===i?-1:i);
+    renderRows();
+  };
+  window.jbEcSaveInlineStudent2026=async function(i){
+    var rows=window._jbEcVisibleRows2026||[],old=rows[i],tr=document.querySelector('#jbEcList tr[data-ec-row="'+i+'"]');
+    if(!old||!tr)return;
+    if(savingIndex!==-1)return;
+    var d=Object.assign({},old);
+    tr.querySelectorAll('.jb-ec-edit-field').forEach(function(input){
+      var key=input.getAttribute('data-field');
+      if(key==='NameBN')d.NameBN=val(input.value);
+      else if(key==='Class')d.Class=val(input.value);
+      else if(key==='Mobile'){d.Mobile=val(input.value);if(Object.prototype.hasOwnProperty.call(d,'Phone'))d.Phone=val(input.value)}
+    });
+    if(!val(d.NameBN)){toast('শিক্ষার্থীর নাম খালি রাখা যাবে না।');return}
+    savingIndex=i;
+    var btns=tr.querySelectorAll('button');btns.forEach(function(b){b.disabled=true});
+    try{
+      var res=await call('saveRecord',token,'STUDENTS',d);
+      if(!res||!res.ok){toast((res&&res.message)||'তথ্য সংরক্ষণ হয়নি।');return}
+      var ix=studentRows.findIndex(function(x){return sid(x)===sid(old)});
+      if(ix>=0)studentRows[ix]=Object.assign({},studentRows[ix],d);
+      editingIndex=-1;
+      toast('শিক্ষার্থীর সব সম্পাদিত তথ্য সংরক্ষণ হয়েছে।');
+    }catch(e){toast('তথ্য সংরক্ষণে সার্ভার ত্রুটি হয়েছে।')}
+    finally{savingIndex=-1;renderRows()}
   };
   window.jbEcUpdateStudent2026=async function(){
     var old=window._jbEcEditingStudent2026;if(!old)return;
