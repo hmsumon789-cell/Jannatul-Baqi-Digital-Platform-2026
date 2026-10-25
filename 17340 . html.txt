@@ -17699,3 +17699,62 @@ function institutionDocumentaryToggle2026(){
 })();
 </script>
 <!-- ===== END EXAM RESULT ENTRY + PER-STUDENT ONLINE PUBLISH ===== -->
+
+
+<!-- ===== OVERRIDE: MULTI SUBJECT + FULLSCREEN/MOVABLE RESULT WINDOW ===== -->
+<style id="jb-result-entry-multi-fullscreen-20261025">
+#jbResultEntryWin20261025{position:fixed!important;inset:0!important;left:0!important;top:0!important;width:100vw!important;height:100vh!important;max-width:none!important;max-height:none!important;z-index:2147483646!important;border-radius:0!important;overflow:auto!important;resize:both!important}
+#jbResultEntryWin20261025 .jb-re-head{cursor:move!important;user-select:none!important;position:sticky!important;top:0!important;z-index:20!important}
+#jbReSubject20261025{display:none!important}
+#jbReMultiSubjects20261025{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:7px;max-height:190px;overflow:auto;border:1px solid #999;border-radius:8px;padding:10px;background:#fff;color:#222}
+#jbReMultiSubjects20261025 label{display:flex;flex-direction:row;align-items:center;gap:7px;font-weight:600}
+#jbReMultiSubjects20261025 input{width:auto}
+</style>
+<script id="jb-result-entry-multi-fullscreen-js-20261025">
+(function(){
+ var selected=[],items=[],busy=false;
+ function el(id){return document.getElementById(id)}
+ function v(id){return String((el(id)||{}).value||'').trim()}
+ function esc(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+ function tok(){return window.token||window.authToken||window.adminToken||''}
+ function note(s){if(typeof toast==='function')toast(s);else alert(s)}
+ function chosen(){var b=el('jbReMultiSubjects20261025');return b?Array.prototype.slice.call(b.querySelectorAll('input:checked')).map(function(x){return x.value}):[]}
+ function subjectsUI(){
+  var old=chosen(),sel=el('jbReSubject20261025'),box=el('jbReMultiSubjects20261025');
+  if(!box&&sel){box=document.createElement('div');box.id='jbReMultiSubjects20261025';sel.parentNode.insertBefore(box,sel.nextSibling)}
+  if(!sel||!box)return;
+  var legacyClass=el('jbMkClass'),legacySubject=el('jbMkSubject');
+  if(legacyClass&&legacySubject&&typeof window.jbMkClassSubjects==='function'){legacyClass.value=v('jbReClass20261025');window.jbMkClassSubjects()}
+  var src=legacySubject||sel,vals=Array.prototype.slice.call(src.options||[]).map(function(o){return o.value}).filter(Boolean);
+  box.innerHTML=vals.map(function(s){return '<label><input type="checkbox" value="'+esc(s)+'" '+(old.indexOf(s)>=0?'checked':'')+'> '+esc(s)+'</label>'}).join('')||'<span>শ্রেণি নির্বাচন করে বিষয় লোড করুন।</span>';
+ }
+ window.jbReMultiSelectAll20261025=function(on){var b=el('jbReMultiSubjects20261025');if(b)b.querySelectorAll('input').forEach(function(x){x.checked=!!on})};
+ function bindMove(){var w=el('jbResultEntryWin20261025'),head=w&&w.querySelector('.jb-re-head');if(!w||!head||head.dataset.moveBound)return;head.dataset.moveBound='1';var down=false,x0=0,y0=0,l=0,t=0;head.addEventListener('pointerdown',function(e){if(e.target.closest('button')||w.dataset.fullscreen==='1')return;down=true;x0=e.clientX;y0=e.clientY;var r=w.getBoundingClientRect();l=r.left;t=r.top});window.addEventListener('pointermove',function(e){if(!down)return;w.style.inset='auto';w.style.left=Math.max(0,l+e.clientX-x0)+'px';w.style.top=Math.max(0,t+e.clientY-y0)+'px';w.style.right='auto';w.style.bottom='auto'});window.addEventListener('pointerup',function(){down=false})}
+ window.jbReMultiToggleSize20261025=function(){var w=el('jbResultEntryWin20261025');if(!w)return;if(w.dataset.fullscreen==='1'){w.dataset.fullscreen='0';w.style.inset='5vh auto auto 5vw';w.style.left='5vw';w.style.top='5vh';w.style.width='90vw';w.style.height='90vh'}else{w.dataset.fullscreen='1';w.style.inset='0';w.style.left='0';w.style.top='0';w.style.width='100vw';w.style.height='100vh'}};
+ window.jbRefreshResultEntry20261025=async function(){
+  if(!tok()){note('ফলাফল তৈরির আগে অনুমোদিত অ্যাডমিন হিসেবে লগইন করুন।');return}
+  try{if(typeof window.jbMkInit==='function')await window.jbMkInit();var r=await call('getExamDashboardOptions',tok());if(!r||!r.ok)throw new Error(r&&r.message||'তালিকা পাওয়া যায়নি');
+   function fill(id,vals,label){var q=el(id);if(!q)return;var old=q.value;q.innerHTML='<option value="">'+esc(label)+'</option>'+(vals||[]).map(function(x){return '<option value="'+esc(x)+'">'+esc(x)+'</option>'}).join('');if(old)q.value=old}
+   fill('jbReExam20261025',r.exams,'পরীক্ষা নির্বাচন');fill('jbReClass20261025',r.classes,'শ্রেণি/জামাত নির্বাচন');fill('jbReYear20261025',Array.from({length:46},function(_,i){return String(2005+i)}),'শিক্ষাবর্ষ');
+   if(!v('jbReYear20261025'))el('jbReYear20261025').value=String(new Date().getFullYear());
+   var sel=el('jbReSubject20261025');if(sel){var lab=sel.closest('label');if(lab)lab.style.display='none'}
+   if(!el('jbReMultiControls20261025')){var box=el('jbReMultiSubjects20261025'),status=el('jbReStatus20261025');var p=document.createElement('div');p.id='jbReMultiControls20261025';p.innerHTML='<b>বিষয় নির্বাচন — একাধিক বিষয়ে টিক দিন</b><div id="jbReMultiSubjects20261025"></div><button type="button" onclick="jbReMultiSelectAll20261025(true)">সব বিষয়ে টিক</button> <button type="button" onclick="jbReMultiSelectAll20261025(false)">টিক তুলে দিন</button> <button type="button" onclick="jbReMultiToggleSize20261025()">পূর্ণস্ক্রিন/মুভ</button>';status.parentNode.insertBefore(p,status)}
+   subjectsUI();if(!el('jbReClass20261025').dataset.multiBound){el('jbReClass20261025').dataset.multiBound='1';el('jbReClass20261025').addEventListener('change',subjectsUI)}
+   var w=el('jbResultEntryWin20261025');if(w){w.dataset.fullscreen='1';w.style.inset='0';w.style.left='0';w.style.top='0';w.style.width='100vw';w.style.height='100vh'}bindMove();
+   el('jbReStatus20261025').textContent='পরীক্ষা, শ্রেণি/জামাত, শিক্ষাবর্ষ নির্বাচন করে একাধিক বিষয়ে টিক দিন।';
+  }catch(e){if(el('jbReStatus20261025'))el('jbReStatus20261025').textContent='নির্বাচন লোড হয়নি: '+esc(e.message||e)}
+ };
+ window.jbLoadResultEntry20261025=async function(){
+  if(!tok())return;var ex=v('jbReExam20261025'),cl=v('jbReClass20261025'),year=v('jbReYear20261025');selected=chosen();
+  if(!ex||!cl||!year||!selected.length){note('পরীক্ষা, শ্রেণি/জামাত, শিক্ষাবর্ষ নির্বাচন করে অন্তত একটি বিষয়ে টিক দিন।');return}
+  try{var r=await call('getExamDashboardData',tok(),ex,cl);if(!r||!r.ok)throw new Error(r&&r.message||'তালিকা পাওয়া যায়নি');var results=r.results||[];
+   items=(r.students||[]).filter(function(x){return x.registered}).map(function(x){var s=x.student||{},rec=results.find(function(z){return String(z.StudentID||'')===String(s.StudentID||'')&&String(z.Exam||'')===ex&&String(z.Class||'')===cl}),sd=[];try{sd=JSON.parse(String(rec&&rec.SubjectData||'[]'))}catch(e){}if(!Array.isArray(sd))sd=[];var marks={};selected.forEach(function(sub){var m=sd.find(function(a){return String(a.subject||a.Subject||a.name||'')===sub&&(!a.academicYear||String(a.academicYear)===year)});marks[sub]=m?String(m.marks!=null?m.marks:m.mark):''});return {id:s.StudentID,name:s.NameBN||s.NameEN||'',marks:marks,saved:selected.every(function(sub){return marks[sub]!==''}),published:!!(rec&&/^(TRUE|YES|1|PUBLISHED|প্রকাশিত)$/i.test(String(rec.Published||'')))}});
+   render();el('jbReStatus20261025').textContent='নিবন্ধিত: '+items.length+' | বিষয়: '+selected.length+' | পেন্ডিং: '+items.filter(function(x){return !x.saved}).length;
+  }catch(e){el('jbReStatus20261025').textContent='তালিকা পাওয়া যায়নি: '+esc(e.message||e)}
+ };
+ function render(){var box=el('jbReList20261025');if(!box)return;box.innerHTML=items.length?'<div class="jb-re-tablewrap"><table><thead><tr><th>আইডি</th><th>নাম</th>'+selected.map(function(s){return '<th>'+esc(s)+'<br>নম্বর</th>'}).join('')+'<th>অবস্থা</th><th>সংরক্ষণ</th><th>অনলাইন প্রকাশ</th></tr></thead><tbody>'+items.map(function(r,i){return '<tr><td>'+esc(r.id)+'</td><td>'+esc(r.name)+'</td>'+selected.map(function(s,j){return '<td><input type="number" min="0" max="100" id="jbReMultiMark_'+i+'_'+j+'" value="'+esc(r.marks[s]||'')+'" style="max-width:100px"></td>'}).join('')+'<td>'+(r.published?'অনলাইনে প্রকাশিত':r.saved?'নম্বর সংরক্ষিত':'নম্বর পেন্ডিং')+'</td><td><button onclick="jbSaveResultEntry20261025('+i+')">💾 সেভ</button></td><td><button '+(!r.saved||r.published?'disabled':'')+' onclick="jbPublishResultEntry20261025('+i+')">📤 প্রকাশ</button></td></tr>'}).join('')+'</tbody></table></div>':'<p>নিবন্ধিত পরীক্ষার্থী পাওয়া যায়নি।'}
+ window.jbSaveResultEntry20261025=async function(i){if(busy||!tok())return;var r=items[i],ex=v('jbReExam20261025'),cl=v('jbReClass20261025'),year=v('jbReYear20261025');if(!r)return;busy=true;try{for(var j=0;j<selected.length;j++){var raw=String((el('jbReMultiMark_'+i+'_'+j)||{}).value||'').trim(),n=Number(raw);if(raw===''||!Number.isFinite(n)||n<0||n>100)throw new Error('প্রতিটি বিষয়ে ০ থেকে ১০০-এর মধ্যে নম্বর দিন।');var out=await call('saveExamDashboardMarks',tok(),ex,cl,selected[j],[{studentId:r.id,name:r.name,mark:n,maxMark:100,academicYear:year}]);if(!out||!out.ok)throw new Error(out&&out.message||'নম্বর সেভ হয়নি')}note('নির্বাচিত '+selected.length+'টি বিষয়ের নম্বর সংরক্ষণ হয়েছে।')}catch(e){note('নম্বর সংরক্ষণ ব্যর্থ: '+(e.message||e))}finally{busy=false;await window.jbLoadResultEntry20261025()}};
+ window.jbPublishResultEntry20261025=async function(i){if(!tok()||!items[i]||!items[i].saved)return;if(!confirm('এই শিক্ষার্থীর ফলাফল অনলাইন প্ল্যাটফর্মে প্রকাশ করবেন?'))return;try{var r=items[i],out=await call('publishExamDashboardStudentResult',tok(),r.id,v('jbReExam20261025'),v('jbReClass20261025'),v('jbReYear20261025'));if(!out||!out.ok)throw new Error(out&&out.message||'প্রকাশ হয়নি');note(out.message||'ফলাফল প্রকাশ হয়েছে');await window.jbLoadResultEntry20261025()}catch(e){note('অনলাইন প্রকাশ ব্যর্থ: '+(e.message||e))}};
+})();
+</script>
+<!-- ===== END MULTI SUBJECT + FULLSCREEN/MOVABLE OVERRIDE ===== -->
