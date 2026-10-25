@@ -17464,3 +17464,139 @@ function institutionDocumentaryToggle2026(){
 })();
 </script>
 <!-- ===== END RESULT WINDOW DOCUMENT-LEVEL DRAG OVERRIDE ===== -->
+
+
+<!-- ===== EXAM CANDIDATE PENDING / EDIT / REGISTER WORKFLOW 2026-10-25 ===== -->
+<style id="jb-exam-candidate-pending-style-20261025">
+#jbEcList .jb-ec-status{font-weight:900;white-space:nowrap}
+#jbEcList .jb-ec-pending{color:#9a5700;background:#fff2cc;border-radius:6px;padding:4px 7px;display:inline-block}
+#jbEcList .jb-ec-registered{color:#176b37;background:#e1f5e7;border-radius:6px;padding:4px 7px;display:inline-block}
+#jbEcList .jb-ec-actions{display:flex;gap:5px;justify-content:center;flex-wrap:wrap}
+#jbEcList .jb-ec-actions button{padding:6px 9px;white-space:nowrap}
+#jbEcList .jb-ec-table-wrap{width:100%;overflow:auto}
+#jbEcList .jb-ec-table{width:100%;border-collapse:collapse;min-width:760px}
+#jbEcList .jb-ec-table th,#jbEcList .jb-ec-table td{border:1px solid #999;padding:7px;text-align:center}
+#jbEcList .jb-ec-table th{background:var(--accent);color:#fff}
+</style>
+<script id="jb-exam-candidate-pending-workflow-20261025">
+(function(){
+  var studentRows=[], examRows=[], loading=false, loadedAt=0;
+  function el(id){return document.getElementById(id)}
+  function val(v){return String(v==null?'':v).trim()}
+  function h(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function sid(r){return val(r.StudentID||r.StudentId||r.ID||r.Id||r.FormID||r.HandwrittenID)}
+  function name(r){return val(r.NameBN||r.Name||r.StudentName||r.NameEN)}
+  function cls(r){return val(r.Class||r.Jamaat||r.Jamat||r.ClassName)}
+  function examName(){return val(el('jbEcExam')&&el('jbEcExam').value)}
+  function sheetRows(r){return r&&r.ok&&Array.isArray(r.rows)?r.rows:[]}
+  async function loadSheet(sheet){
+    var r=await call('getSheetData',token,sheet,1000);
+    if(!r||!r.ok)throw new Error((r&&r.message)||sheet+' তালিকা পাওয়া যায়নি');
+    return sheetRows(r);
+  }
+  function registered(r,ex){
+    var id=sid(r), cl=cls(r);
+    return examRows.some(function(q){
+      return val(q.Exam||q.exam)===ex &&
+        val(q.StudentID||q.StudentId||q.ID||q.Id)===id &&
+        (!val(q.Class||q.Jamaat||q.class)||!cl||val(q.Class||q.Jamaat||q.class)===cl);
+    });
+  }
+  function renderRows(){
+    var box=el('jbEcList'); if(!box)return;
+    var ex=examName();
+    if(!ex){box.innerHTML='<p style="font-weight:800">প্রথমে উপরের “পরীক্ষা” ঘরে পরীক্ষার নাম লিখুন। ভর্তি/অ্যাড হওয়া শিক্ষার্থীরা নিচে নিবন্ধিত নয় / পেন্ডিং অবস্থায় দেখা যাবে।</p>';return}
+    if(!studentRows.length){box.innerHTML='<p>ছাত্র/ছাত্রীর তালিকা পাওয়া যায়নি।</p>';return}
+    var rows=studentRows.filter(function(r){return sid(r)});
+    var out='<div class="jb-ec-table-wrap"><table class="jb-ec-table"><thead><tr><th>Student ID</th><th>শিক্ষার্থীর নাম</th><th>শ্রেণি/জামাত</th><th>মোবাইল</th><th>নিবন্ধন অবস্থা</th><th>এডিট</th><th>কার্যক্রম</th></tr></thead><tbody>';
+    rows.forEach(function(r,i){
+      var done=registered(r,ex);
+      out+='<tr><td>'+h(sid(r))+'</td><td>'+h(name(r))+'</td><td>'+h(cls(r))+'</td><td>'+h(r.Mobile||r.Phone||'')+'</td><td><span class="jb-ec-status '+(done?'jb-ec-registered':'jb-ec-pending')+'">'+(done?'নিবন্ধিত':'নিবন্ধিত নয় / পেন্ডিং')+'</span></td><td><button type="button" class="secondary" title="শিক্ষার্থীর তথ্য সম্পাদনা" onclick="jbEcEditStudent2026('+i+')">✏️</button></td><td><div class="jb-ec-actions"><button type="button" class="'+(done?'secondary':'primary')+'" '+(done?'disabled':'')+' onclick="jbEcRegisterStudent2026('+i+')">'+(done?'✓ নিবন্ধিত':'📝 পরীক্ষার্থী নিবন্ধন করুন')+'</button></div></td></tr>';
+    });
+    out+='</tbody></table></div><p style="font-weight:800;margin-top:8px">মোট শিক্ষার্থী: '+rows.length+' | নিবন্ধিত: '+rows.filter(function(r){return registered(r,ex)}).length+' | পেন্ডিং: '+rows.filter(function(r){return !registered(r,ex)}).length+'</p>';
+    box.innerHTML=out;
+    window._jbEcVisibleRows2026=rows;
+  }
+  async function refresh(){
+    var box=el('jbEcList');if(!box)return;
+    if(loading)return;
+    loading=true;box.innerHTML='<p>ছাত্র/ছাত্রী ও পরীক্ষার্থী নিবন্ধনের তালিকা লোড হচ্ছে…</p>';
+    try{
+      var results=await Promise.all([loadSheet('STUDENTS'),loadSheet('EXAM_REG')]);
+      studentRows=results[0];examRows=results[1];loadedAt=Date.now();renderRows();
+    }catch(e){
+      box.innerHTML='<p style="color:#a00;font-weight:800">সার্ভার থেকে শিক্ষার্থী তালিকা আনা যায়নি: '+h(e&&e.message||e)+'</p><p>দয়া করে লগইন/সার্ভার সংযোগ পরীক্ষা করুন।</p>';
+    }finally{loading=false}
+  }
+  window.jbEcRefresh2026=refresh;
+  window.jbEcEditStudent2026=function(i){
+    var r=(window._jbEcVisibleRows2026||[])[i];if(!r)return;
+    el('jbEcId').value=sid(r);
+    el('jbEcName').value=name(r);
+    el('jbEcGuardian').value=val(r.FatherNameBN||r.Guardian||r.FatherName||'');
+    el('jbEcAddress').value=val(r.Address||r.PresentAddress||r.Village||'');
+    el('jbEcMobile').value=val(r.Mobile||r.Phone||'');
+    if(el('jbEcClass'))el('jbEcClass').value=cls(r);
+    window._jbEcEditingStudent2026=r;
+    var b=el('jbEcList');
+    var old=el('jbEcEditHint2026');if(old)old.remove();
+    var hint=document.createElement('div');hint.id='jbEcEditHint2026';hint.style.cssText='margin:8px 0;padding:10px;border:2px solid #c58b16;border-radius:8px;font-weight:800';
+    hint.textContent='✏️ '+name(r)+'-এর তথ্য সম্পাদনা করুন। উপরের ফর্মে পরিবর্তন করে “তথ্য সংরক্ষণ” চাপুন।';
+    b.parentNode.insertBefore(hint,b);
+    var actions=document.querySelector('#jbExamCandidateWin2026 .jb-ea');
+    if(actions&&!el('jbEcUpdateBtn2026')){
+      var btn=document.createElement('button');btn.id='jbEcUpdateBtn2026';btn.type='button';btn.className='primary';btn.textContent='💾 তথ্য সংরক্ষণ';btn.onclick=window.jbEcUpdateStudent2026;actions.insertBefore(btn,actions.firstChild);
+    }
+    el('jbEcName').focus();
+  };
+  window.jbEcUpdateStudent2026=async function(){
+    var old=window._jbEcEditingStudent2026;if(!old)return;
+    var d=Object.assign({},old,{
+      StudentID:sid(old),NameBN:val(el('jbEcName').value),
+      FatherNameBN:val(el('jbEcGuardian').value),Address:val(el('jbEcAddress').value),
+      Mobile:val(el('jbEcMobile').value),Class:val(el('jbEcClass').value)
+    });
+    if(!d.StudentID||!d.NameBN){toast('Student ID ও শিক্ষার্থীর নাম আবশ্যক।');return}
+    try{
+      var res=await call('saveRecord',token,'STUDENTS',d);
+      if(!res||!res.ok){toast((res&&res.message)||'তথ্য সংরক্ষণ হয়নি।');return}
+      window._jbEcEditingStudent2026=null;
+      var hint=el('jbEcEditHint2026');if(hint)hint.remove();
+      var btn=el('jbEcUpdateBtn2026');if(btn)btn.remove();
+      toast('শিক্ষার্থীর তথ্য আপডেট হয়েছে।');
+      await refresh();
+    }catch(e){toast('তথ্য সংরক্ষণে সার্ভার ত্রুটি হয়েছে।')}
+  };
+  window.jbEcRegisterStudent2026=async function(i){
+    var r=(window._jbEcVisibleRows2026||[])[i];if(!r)return;
+    var ex=examName(),id=sid(r),cl=cls(r);
+    if(!ex){toast('প্রথমে পরীক্ষার নাম লিখুন।');return}
+    if(!id){toast('শিক্ষার্থীর Student ID পাওয়া যায়নি।');return}
+    if(registered(r,ex)){toast('এই শিক্ষার্থী ইতিমধ্যে এই পরীক্ষায় নিবন্ধিত।');renderRows();return}
+    var d={StudentID:id,NameBN:name(r),NameEN:val(r.NameEN),Class:cl,Branch:val(r.Branch),Exam:ex,SubjectData:'',Published:'NO',Date:new Date().toISOString(),Status:'REGISTERED'};
+    try{
+      var res=await call('saveRecord',token,'EXAM_REG',d);
+      if(!res||!res.ok){toast((res&&res.message)||'পরীক্ষার্থী নিবন্ধন করা যায়নি।');return}
+      var local=JSON.parse(localStorage.getItem('jb_exam_candidates_2026')||'[]');
+      if(!local.some(function(x){return x.exam===ex&&x.id===id})){
+        local.push({exam:ex,cls:cl,id:id,name:name(r),guardian:val(r.FatherNameBN||r.Guardian),address:val(r.Address),mobile:val(r.Mobile)});
+        localStorage.setItem('jb_exam_candidates_2026',JSON.stringify(local));
+      }
+      toast('পরীক্ষার্থী নিবন্ধন সফল হয়েছে।');
+      await refresh();
+      if(typeof window.jbMkInit==='function')window.jbMkInit();
+    }catch(e){toast('পরীক্ষার্থী নিবন্ধনে সার্ভার ত্রুটি হয়েছে।')}
+  };
+  var oldOpen=window.jbEcRender;
+  window.jbEcRender=function(){
+    var ex=el('jbEcExam');
+    if(ex&&!ex.dataset.pendingBound){ex.dataset.pendingBound='1';ex.addEventListener('change',renderRows);ex.addEventListener('input',function(){renderRows()})}
+    refresh();
+  };
+  document.addEventListener('DOMContentLoaded',function(){
+    var w=el('jbExamCandidateWin2026');
+    if(w&&!w.dataset.pendingBound){w.dataset.pendingBound='1';}
+  });
+})();
+</script>
+<!-- ===== END EXAM CANDIDATE PENDING / EDIT / REGISTER WORKFLOW 2026-10-25 ===== -->
