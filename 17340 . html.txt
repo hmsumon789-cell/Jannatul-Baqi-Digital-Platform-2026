@@ -1331,7 +1331,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       <button type="button" class="primary login-online-admission20261017" onclick="openModule('admission')">📝 অনলাইন ভর্তি ফর্ম</button><select id="loginSignal" class="field" onchange="syncSearchSignal('login')"><option value="">সংকেত নির্বাচন করুন</option></select><input id="loginSearch" class="field" placeholder="সংকেত নির্বাচন করে ID / মোবাইল / ইমেইল লিখুন" onkeydown="if(event.key==='Enter')doSearch('login')"><button class="primary" onclick="doSearch('login')">🔎</button>
     </div>
     <div class="quick">
-      <button onclick="openModule('payment')">অনলাইন পেমেন্ট</button><button type="button" onclick="openOnlineExamResult2026()">📱 অনলাইন ফলাফল</button><button onclick="openModule('exam')">পরীক্ষার্থী নিবন্ধন</button><button onclick="openModule('admin')">নতুন অ্যাডমিন একাউন্ট</button><button onclick="openModule('madrasa')">নতুন মাদ্রাসা নিবন্ধন</button><button onclick="openWindow('quickWin')">দ্রুত সেবা</button>
+      <button onclick="openModule('payment')">অনলাইন পেমেন্ট</button><button type="button" onclick="examComing('📱 অনলাইন ফলাফল')">📱 অনলাইন ফলাফল</button><button onclick="openModule('exam')">পরীক্ষার্থী নিবন্ধন</button><button onclick="openModule('admin')">নতুন অ্যাডমিন একাউন্ট</button><button onclick="openModule('madrasa')">নতুন মাদ্রাসা নিবন্ধন</button><button onclick="openWindow('quickWin')">দ্রুত সেবা</button>
     </div>
     <section id="loginContactStrip20261013" aria-label="মাদ্রাসার যোগাযোগ">
   <div class="lc-title">📞 যোগাযোগ</div>
@@ -1569,7 +1569,7 @@ body.gold #loginContactStrip20261013{background:#fff9e7!important;color:#4a3300!
 <div id="adminHelpWin" class="window"><div class="win-head"><b>প্রশাসনিক বিভাগ কর্তৃক অনুমোদিত অ্যাডমিন</b><button class="secondary" type="button" onclick="closeWindow('adminHelpWin')">✕</button></div><div class="win-body"><p>অনুমোদিত অ্যাডমিন নিজস্ব ইউজার নেম ও পাসওয়ার্ড দিয়ে প্রবেশ করবেন।</p><button class="primary" type="button" onclick="closeWindow('adminHelpWin');document.getElementById('username').focus()">লগইন করুন</button></div></div>
 <div id="approvedLoginWin" class="window approved-login-window"><div class="win-head"><b>🔐 অনুমোদিত Account Login</b><button class="secondary" type="button" onclick="closeWindow('approvedLoginWin')">✕</button></div><div class="win-body"><div class="approved-login-note">Super Admin কর্তৃক অনুমোদিত <b>নতুন Admin</b> অথবা <b>নতুন Madrasa</b> Account এখানে Username + Password দিয়ে OTP ছাড়া লগইন করবে।</div><div class="approved-login-tabs"><button id="approvedAdminTab" class="primary" type="button" onclick="setApprovedLoginType('admin')">👤 নতুন Admin</button><button id="approvedMadrasaTab" class="secondary" type="button" onclick="setApprovedLoginType('madrasa')">🏫 নতুন Madrasa</button></div><label>Username<input id="approvedLoginUser" class="field" autocomplete="username" placeholder="নিজস্ব Username"></label><label>Password<div class="pass-wrap"><input id="approvedLoginPass" class="field" type="password" autocomplete="current-password" placeholder="নিজস্ব Password"><button class="eye" type="button" onclick="toggleApprovedPassword()">👁</button></div></label><div class="approved-login-actions"><button class="primary" type="button" id="approvedLoginBtn" onclick="approvedLoginSubmit()">🔐 Admin Login</button><button class="secondary" type="button" onclick="closeWindow('approvedLoginWin')">বন্ধ করুন</button></div><div id="approvedLoginMsg" class="small"></div></div></div>
 <div id="resetWin" class="window"><div class="win-head"><b>Password Reset</b><button class="secondary" onclick="closeWindow('resetWin')">✕</button></div><div class="win-body"><p>ইউজার নেম দিন এবং OTP পুনরায় পাঠান। নতুন পাসওয়ার্ড পরিবর্তনের জন্য প্রশাসনিক অনুমোদন প্রয়োজন।</p><input id="resetUser" class="field" placeholder="Username"><button class="primary" onclick="resetOtp()">OTP পাঠান</button></div></div>
-<div id="examDashboardWin" class="window" style="display:none"><div class="windowHead"><b>📝 পরীক্ষা ড্যাশবোর্ড</b><button onclick="document.getElementById('examDashboardWin').style.display='none';document.getElementById('examDashboardWin').classList.remove('show')">✕</button></div><div class="windowBody"><div class="jb-exam-grid"><div class="jb-exam-card"><h3>পরীক্ষা</h3><div id="examStatTotal">০</div></div><div class="jb-exam-card"><h3>প্রকাশিত ফলাফল</h3><div id="examStatPublished">০</div></div><div class="jb-exam-card"><h3>ড্রাফট</h3><div id="examStatDraft">০</div></div></div><div class="jb-exam-actions"><button onclick="openExamManager()">➕ পরীক্ষা তৈরি/ব্যবস্থাপনা</button><button onclick="examComing('📄 প্রশ্নপত্র')">📄 প্রশ্নপত্র</button><button onclick="examComing('📅 পরীক্ষার রুটিন')">📅 পরীক্ষার রুটিন</button><button onclick="examComing('👩‍🎓 পরীক্ষার্থী')">👩‍🎓 পরীক্ষার্থী</button><button onclick="examComing('📝 ফলাফল তৈরি')">📝 ফলাফল তৈরি</button><button onclick="examComing('🏆 ফলাফল ও মেধাক্রম')">🏆 ফলাফল ও মেধাক্রম</button><button id="jbExamOnlineResult2026" type="button" onclick="openOnlineExamResult2026()">📱 অনলাইন ফলাফল</button><button onclick="examComing('🎫 Admit Card / Seat Plan')">🎫 Admit Card / Seat Plan</button><button onclick="examComing('🖨️ মার্কশিট / রিপোর্ট')">🖨️ মার্কশিট / রিপোর্ট</button></div></div></div>
+<div id="examDashboardWin" class="window" style="display:none"><div class="windowHead"><b>📝 পরীক্ষা ড্যাশবোর্ড</b><button onclick="document.getElementById('examDashboardWin').style.display='none';document.getElementById('examDashboardWin').classList.remove('show')">✕</button></div><div class="windowBody"><div class="jb-exam-grid"><div class="jb-exam-card"><h3>পরীক্ষা</h3><div id="examStatTotal">০</div></div><div class="jb-exam-card"><h3>প্রকাশিত ফলাফল</h3><div id="examStatPublished">০</div></div><div class="jb-exam-card"><h3>ড্রাফট</h3><div id="examStatDraft">০</div></div></div><div class="jb-exam-actions"><button onclick="openExamManager()">➕ পরীক্ষা তৈরি/ব্যবস্থাপনা</button><button onclick="examComing('📄 প্রশ্নপত্র')">📄 প্রশ্নপত্র</button><button onclick="examComing('📅 পরীক্ষার রুটিন')">📅 পরীক্ষার রুটিন</button><button onclick="examComing('👩‍🎓 পরীক্ষার্থী')">👩‍🎓 পরীক্ষার্থী</button><button onclick="examComing('📝 ফলাফল তৈরি')">📝 ফলাফল তৈরি</button><button onclick="examComing('🏆 ফলাফল ও মেধাক্রম')">🏆 ফলাফল ও মেধাক্রম</button><button id="jbExamOnlineResult2026" type="button" onclick="examComing('📱 অনলাইন ফলাফল')">📱 অনলাইন ফলাফল</button><button onclick="examComing('🎫 Admit Card / Seat Plan')">🎫 Admit Card / Seat Plan</button><button onclick="examComing('🖨️ মার্কশিট / রিপোর্ট')">🖨️ মার্কশিট / রিপোর্ট</button></div></div></div>
 <div id="examManagerWin" class="window" style="display:none"><div class="windowHead"><b>➕ পরীক্ষা তৈরি/ব্যবস্থাপনা</b><button onclick="closeWindow('examManagerWin')">✕</button></div><div class="windowBody"><div class="jb-exam-form"><input id="examName" placeholder="পরীক্ষার নাম"><input id="examYear" placeholder="শিক্ষাবর্ষ" value="2026"><select id="examType"><option>সাময়িক পরীক্ষা</option><option>অর্ধবার্ষিক পরীক্ষা</option><option>বার্ষিক পরীক্ষা</option><option>মডেল টেস্ট</option><option>বোর্ড/কেন্দ্রীয় পরীক্ষা</option></select><select id="examStatus"><option value="draft">ড্রাফট</option><option value="published">প্রকাশিত</option></select><label>শুরু <input id="examStart" type="date"></label><label>শেষ <input id="examEnd" type="date"></label><textarea id="examNote" placeholder="নির্দেশনা/নোট"></textarea></div><div style="margin-top:10px"><button onclick="saveExamDraft()">💾 সংরক্ষণ</button> <button onclick="clearExamForm()">♻️ পরিষ্কার</button></div><div id="examList" class="jb-exam-list"></div></div></div>
 <div id="jbQuestionPaperWin2026" class="window" style="display:none"><div class="windowHead"><b>📄 প্রশ্নপত্র তৈরি</b><button type="button" onclick="closeWindow('jbQuestionPaperWin2026');document.getElementById('jbQuestionPaperWin2026').style.display='none'">✕</button></div><div class="windowBody"><div class="jb-qp-form"><input id="jbQpExam" placeholder="পরীক্ষার নাম"><select id="jbQpClass"><option value="">শ্রেণি/জামাত নির্বাচন</option><option>প্লে শ্রেনি</option><option>শিশু শ্রেনি</option><option>আউয়াল জামাত</option><option>ছানী জামাত</option><option>ছালেছ জামাত</option><option>রাবে জামাত</option><option>পঞ্চম জামাত</option><option>মিজান জামাত</option><option>নাহবেমীর জামাত</option><option>কুদুরী জামাত</option><option>শরহে বেকায়া জামাত</option><option>হেদায়া জামাত</option><option>মিশকাত জামাত</option><option>দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)</option></select><input id="jbQpSubject" placeholder="বিষয়ের নাম"><input id="jbQpDate" type="date"><input id="jbQpMarks" type="number" min="1" placeholder="পূর্ণমান"><input id="jbQpTime" placeholder="সময় (যেমন: ৩ ঘণ্টা)"></div><textarea id="jbQpQuestions" placeholder="প্রশ্ন লিখুন — প্রতিটি প্রশ্ন নতুন লাইনে"></textarea><div class="jb-qp-actions"><button class="primary" onclick="jbQpPreview()">👁️ প্রশ্নপত্র তৈরি</button><button class="secondary" onclick="jbQpPrint()">🖨️ প্রিন্ট</button><button class="secondary" onclick="jbQpClear()">♻️ পরিষ্কার</button></div><div id="jbQpPreview" class="jb-qp-preview"><div style="text-align:center">প্রশ্নপত্রের পূর্বরূপ এখানে দেখা যাবে</div></div></div></div><div id="sheetWin" class="window"><div class="win-head"><b>শিট ডাটা</b><button class="secondary" onclick="closeWindow('sheetWin')">✕</button></div><div class="win-body"><select id="sheetSelect" class="field" onchange="loadSheet()"></select><div id="sheetBody"></div></div></div>
 <div id="toast" class="toast"></div>
@@ -12578,106 +12578,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 <div id="jbExamReportWin2026" class="jb-em"><div class="jb-emh"><b>🖨️ মার্কশিট / রিপোর্ট</b><button onclick="jbEClose('jbExamReportWin2026')">✕</button></div><div class="jb-emb"><div class="jb-eg"><label>পরীক্ষা<input id="jbRpExam"></label><label>শিক্ষার্থী ID<input id="jbRpId"></label></div><div class="jb-ea"><button class="primary" onclick="jbRpBuild()">📄 মার্কশিট তৈরি</button><button class="secondary" onclick="jbRpPrint()">🖨️ প্রিন্ট</button></div><div id="jbRpView"></div></div></div>
 <script id="jb-exam-all-2026-js">(function(){var C='jb_exam_candidates_2026',M='jb_exam_marks_2026',R='jb_exam_results_2026';function D(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch(e){return[]}}function S(k,a){localStorage.setItem(k,JSON.stringify(a))}function V(id){return String((document.getElementById(id)||{}).value||'')}function E(v){return String(v==null?'':v).replace(/[&<>"]/g,function(m){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[m]})}window.jbEClose=function(id){var w=document.getElementById(id);if(w){w.classList.remove('show');w.style.display='none'}};function O(id){var w=document.getElementById(id);if(w){w.style.display='block';w.classList.add('show')}}window.jbEcSave=function(){var x={exam:V('jbEcExam').trim(),cls:V('jbEcClass'),id:V('jbEcId').trim(),name:V('jbEcName').trim(),guardian:V('jbEcGuardian').trim(),address:V('jbEcAddress').trim(),mobile:V('jbEcMobile').trim()};if(!x.exam||!x.cls||!x.id||!x.name){toast('পরীক্ষা, শ্রেণি, ID ও নাম আবশ্যক।');return}var a=D(C);if(a.some(q=>q.exam===x.exam&&q.id===x.id)){toast('এই পরীক্ষায় এই ID আগে নিবন্ধিত।');return}a.push(x);S(C,a);jbEcRender();jbEcClear();toast('পরীক্ষার্থী নিবন্ধিত হয়েছে।')};window.jbEcClear=function(){['jbEcId','jbEcName','jbEcGuardian','jbEcAddress','jbEcMobile'].forEach(function(i){var x=document.getElementById(i);if(x)x.value=''})};window.jbEcRender=function(){var a=D(C),el=document.getElementById('jbEcList');if(!el)return;el.innerHTML='<table class="jb-et"><tr><th>ID</th><th>নাম</th><th>শ্রেণি</th><th>পরীক্ষা</th><th>মুছুন</th></tr>'+a.map(function(x){return '<tr><td>'+E(x.id)+'</td><td>'+E(x.name)+'</td><td>'+E(x.cls)+'</td><td>'+E(x.exam)+'</td><td><button onclick="jbEcDel(\''+x.id+'\',\''+x.exam+'\')">🗑️</button></td></tr>'}).join('')+'</table>'};window.jbEcDel=function(id,ex){S(C,D(C).filter(function(x){return !(x.id===id&&x.exam===ex)}));jbEcRender()};window.jbMkLoad=function(){var ex=V('jbMkExam').trim(),cl=V('jbMkClass').trim(),sub=V('jbMkSubject').trim();if(!ex||!cl||!sub){toast('পরীক্ষা, শ্রেণি ও বিষয় দিন।');return}var a=D(C).filter(function(x){return x.exam===ex&&x.cls===cl}),m=D(M),rows=a.map(function(x){var z=m.find(function(q){return q.exam===ex&&q.subject===sub&&q.id===x.id});return{id:x.id,name:x.name,mark:z?z.mark:''}});window._jbMkRows=rows;document.getElementById('jbMkTable').innerHTML='<table class="jb-et"><tr><th>ID</th><th>নাম</th><th>নম্বর</th></tr>'+rows.map(function(x,i){return '<tr><td>'+E(x.id)+'</td><td>'+E(x.name)+'</td><td><input type="number" min="0" max="100" data-jbmk="'+i+'" value="'+E(x.mark)+'"></td></tr>'}).join('')+'</table>'};window.jbMkSave=function(){var rows=window._jbMkRows||[],ex=V('jbMkExam').trim(),cl=V('jbMkClass').trim(),sub=V('jbMkSubject').trim();if(!rows.length){toast('আগে পরীক্ষার্থী লোড করুন।');return}var a=D(M),ins=document.querySelectorAll('[data-jbmk]');rows.forEach(function(x,i){a=a.filter(function(q){return !(q.exam===ex&&q.subject===sub&&q.id===x.id)});a.push({exam:ex,class:cl,subject:sub,id:x.id,name:x.name,mark:Number(ins[i].value||0)})});S(M,a);toast('নম্বর সংরক্ষণ হয়েছে।')};window.jbRsBuild=function(){var ex=V('jbRsExam').trim(),cl=V('jbRsClass').trim();if(!ex||!cl){toast('পরীক্ষা ও শ্রেণি দিন।');return}var map={};D(C).filter(function(x){return x.exam===ex&&x.cls===cl}).forEach(function(x){map[x.id]={id:x.id,name:x.name,total:0,count:0}});D(M).filter(function(x){return x.exam===ex&&x.class===cl}).forEach(function(x){if(map[x.id]){map[x.id].total+=Number(x.mark||0);map[x.id].count++}});var a=Object.values(map).map(function(x){x.average=x.count?x.total/x.count:0;return x}).sort(function(a,b){return b.total-a.total});a.forEach(function(x,i){x.rank=i+1;x.exam=ex;x.class=cl;x.published=false});S(R,a);jbRsRender(a)};function jbRsRender(a){document.getElementById('jbRsTable').innerHTML='<table class="jb-et"><tr><th>মেধা</th><th>ID</th><th>নাম</th><th>মোট</th><th>গড়</th></tr>'+a.map(function(x){return '<tr><td>'+x.rank+'</td><td>'+E(x.id)+'</td><td>'+E(x.name)+'</td><td>'+x.total+'</td><td>'+x.average.toFixed(2)+'</td></tr>'}).join('')+'</table>'}window.jbRsPublish=function(){var ex=V('jbRsExam').trim(),cl=V('jbRsClass').trim(),a=D(R);a.forEach(function(x){if(x.exam===ex&&x.class===cl)x.published=true});S(R,a);toast('ফলাফল প্রকাশ করা হয়েছে।')};window.jbRsPrint=function(){var x=document.getElementById('jbRsTable'),w=window.open('','_blank');if(!w)return;w.document.write('<html><body><h2>ফলাফল ও মেধাক্রম</h2>'+x.innerHTML+'</body></html>');w.document.close();setTimeout(function(){w.print()},300)};window.jbRsSyncHeader=function(){var logo=document.getElementById('jbRsLogo'),qr=document.getElementById('jbRsQR');var srcLogo=document.getElementById('headerLogo'),srcQR=document.getElementById('loginContactQR20261013');if(logo&&srcLogo&&srcLogo.src)logo.src=srcLogo.src;if(qr&&srcQR&&srcQR.src)qr.src=srcQR.src;var news=document.querySelector('.ticker-text')||document.querySelector('#app .header-news')||document.querySelector('.news-full-run');var box=document.getElementById('jbRsNews');if(news&&box){var t=(news.textContent||news.getAttribute('data-news')||'').trim();if(t)box.textContent=t}};window.jbRsMinimize=function(){var w=document.getElementById('jbExamResultWin2026');if(w)w.classList.toggle('jb-result-minimized')};window.jbRsWindowOpen=function(){var w=document.getElementById('jbExamResultWin2026');if(!w)return;w.classList.remove('jb-result-minimized');w.style.left='1vw';w.style.top='1vh';window.jbRsSyncHeader();if(w.dataset.dragReady==='1')return;w.dataset.dragReady='1';var h=document.getElementById('jbRsDragHead'),drag=false,sx=0,sy=0,sl=0,st=0;if(!h)return;h.addEventListener('pointerdown',function(e){if(e.target.closest('button'))return;drag=true;sx=e.clientX;sy=e.clientY;var r=w.getBoundingClientRect();sl=r.left;st=r.top;w.style.left=sl+'px';w.style.top=st+'px';w.style.right='auto';w.style.bottom='auto';try{h.setPointerCapture(e.pointerId)}catch(_){}e.preventDefault()});h.addEventListener('pointermove',function(e){if(!drag)return;var nx=Math.max(0,Math.min(window.innerWidth-w.offsetWidth,sl+e.clientX-sx)),ny=Math.max(0,Math.min(window.innerHeight-45,st+e.clientY-sy));w.style.left=nx+'px';w.style.top=ny+'px'});h.addEventListener('pointerup',function(){drag=false});h.addEventListener('pointercancel',function(){drag=false})};window.jbOnSearch=function(){var id=V('jbOnId').trim(),a=D(R).filter(function(x){return x.id===id&&x.published});document.getElementById('jbOnView').innerHTML=a.length?a.map(function(x){return '<div class="jb-em-note"><b>'+E(x.name)+'</b><br>ID: '+E(x.id)+'<br>পরীক্ষা: '+E(x.exam)+'<br>মোট: '+x.total+' | গড়: '+x.average.toFixed(2)+' | মেধা: '+x.rank+'</div>'}).join(''):'প্রকাশিত ফলাফল পাওয়া যায়নি।'};window.jbAdBuild=function(){var ex=V('jbAdExam').trim(),room=V('jbAdRoom').trim(),n=Number(V('jbAdStart')||1),a=D(C).filter(function(x){return x.exam===ex});document.getElementById('jbAdView').innerHTML='<table class="jb-et"><tr><th>সিট</th><th>ID</th><th>নাম</th><th>শ্রেণি</th><th>কক্ষ</th></tr>'+a.map(function(x,i){return '<tr><td>'+(n+i)+'</td><td>'+E(x.id)+'</td><td>'+E(x.name)+'</td><td>'+E(x.cls)+'</td><td>'+E(room)+'</td></tr>'}).join('')+'</table>'};window.jbAdPrint=function(){jbAdBuild();var w=window.open('','_blank'),x=document.getElementById('jbAdView');if(!w)return;w.document.write('<html><body><h2>Admit Card / Seat Plan</h2>'+x.innerHTML+'</body></html>');w.document.close();setTimeout(function(){w.print()},300)};window.jbRpBuild=function(){var id=V('jbRpId').trim(),ex=V('jbRpExam').trim(),a=D(R).find(function(x){return x.id===id&&x.exam===ex}),m=D(M).filter(function(x){return x.id===id&&x.exam===ex});if(!a){toast('ফলাফল পাওয়া যায়নি। আগে ফলাফল তৈরি করুন।');return}document.getElementById('jbRpView').innerHTML='<div class="jb-em-note"><h2>জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</h2><h3>মার্কশিট</h3>শিক্ষার্থী: '+E(a.name)+'<br>ID: '+E(a.id)+'<br>শ্রেণি/জামাত: '+E(a.class)+'<hr>'+m.map(function(x){return E(x.subject)+' — <b>'+x.mark+'</b>'}).join('<br>')+'<hr>মোট: <b>'+a.total+'</b> | গড়: <b>'+a.average.toFixed(2)+'</b> | মেধা: <b>'+a.rank+'</b></div>'};window.jbRpPrint=function(){jbRpBuild();var w=window.open('','_blank'),x=document.getElementById('jbRpView');if(!w)return;w.document.write('<html><body>'+x.innerHTML+'</body></html>');w.document.close();setTimeout(function(){w.print()},300)};function OC(s){s=String(s||'');if(s.indexOf('পরীক্ষার্থী')>-1){O('jbExamCandidateWin2026');jbEcRender();return 1}if(s.indexOf('নম্বর প্রদান')>-1){O('jbExamMarksWin2026');return 1}if(s.indexOf('ফলাফল ও মেধাক্রম')>-1){O('jbExamResultWin2026');return 1}if(s.indexOf('অনলাইন ফলাফল')>-1){O('jbExamOnlineWin2026');return 1}if(s.indexOf('Admit Card')>-1||s.indexOf('Seat Plan')>-1){O('jbExamAdmitWin2026');return 1}if(s.indexOf('মার্কশিট')>-1||s.indexOf('রিপোর্ট')>-1){O('jbExamReportWin2026');return 1}if(s.indexOf('প্রশ্নপত্র')>-1){O('jbQuestionPaperWin2026');return 1}if(s.indexOf('পরীক্ষার রুটিন')>-1){O('jbExamRoutineWin2026');if(typeof jbRtPreview==='function')jbRtPreview();return 1}return 0}var old=window.examComing;window.examComing=function(n){if(OC(n))return;if(old)return old(n)};document.addEventListener('DOMContentLoaded',function(){jbEcRender()})})();</script>
 <!-- ===== END EXAM SYSTEM — ALL MODULES FUNCTIONAL — 2026-10-08 ===== -->
-<!-- ===== EXISTING ONLINE RESULT — MOBILE/PUBLIC VIEW — 2026-10-08 ===== -->
-<script id="jb-existing-online-result-2026">
-(function(){
-  function E(id){return document.getElementById(id)}
-  function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
-  function findSignal(list){
-    var a=list||[];
-    for(var i=0;i<a.length;i++){
-      var code=String(a[i]&&a[i][0]||'').toUpperCase(), label=String(a[i]&&a[i][1]||'');
-      if(code==='RS'||/ফলাফল|রেজাল্ট|result/i.test(label))return code;
-    }
-    return 'RS';
-  }
-  function renderRows(rows,q){
-    var box=E('jbOnlineResultBody2026'); if(!box)return;
-    if(!rows||!rows.length){box.innerHTML='<div class="jb-or-empty">❌ '+esc(q)+' এর কোনো প্রকাশিত ফলাফল পাওয়া যায়নি।</div>';return}
-    var r=rows[0], subjects={};
-    try{subjects=JSON.parse(String(r.SubjectData||r.Subjects||r.Marks||'{}'))||{}}catch(e){}
-    var total=r.Total||r.TotalMarks||r.MarksTotal||'';
-    if(!total&&Object.keys(subjects).length)total=Object.keys(subjects).reduce(function(s,k){return s+(Number(subjects[k])||0)},0);
-    var html='<div class="jb-or-card">';
-    html+='<div class="jb-or-title">📊 ফলাফল</div>';
-    html+='<div class="jb-or-student"><b>'+esc(r.Name||r.NameBN||r.StudentName||'')+'</b><span>ID: '+esc(r.StudentID||r.ID||q)+'</span><span>শ্রেণি/জামাত: '+esc(r.Class||r.Jamaat||'')+'</span><span>পরীক্ষা: '+esc(r.Exam||r.ExamName||'')+'</span></div>';
-    if(Object.keys(subjects).length){
-      html+='<div class="jb-or-subjects"><div class="jb-or-head"><b>বিষয়</b><b>নম্বর</b></div>';
-      Object.keys(subjects).forEach(function(k){html+='<div><span>'+esc(k)+'</span><b>'+esc(subjects[k])+'</b></div>'});
-      html+='</div>';
-    }
-    html+='<div class="jb-or-total"><span>মোট নম্বর</span><b>'+esc(total)+'</b><span>মেধাক্রম</span><b>'+esc(r.Merit||r.Rank||r.MeritPosition||'—')+'</b><span>Grade / GPA</span><b>'+esc(r.Grade||'—')+' / '+esc(r.GPA||r.Gpa||'—')+'</b></div>';
-    html+='<div class="jb-or-note">ফলাফল প্রকাশিত হলে এখানে প্রদর্শিত হবে।</div></div>';
-    box.innerHTML=html;
-  }
-  window.openOnlineResult2026=async function(){
-    var w=E('jbOnlineResultWin2026');
-    if(!w){
-      w=document.createElement('div');w.id='jbOnlineResultWin2026';w.className='window';
-      w.innerHTML='<div class="windowHead"><b>📱 অনলাইন রেজাল্ট</b><button type="button" onclick="closeOnlineResult2026()">✕</button></div><div class="windowBody"><div class="jb-or-search"><input id="jbOnlineResultQuery2026" class="field" placeholder="Student ID / মোবাইল নম্বর"><button class="primary" type="button" onclick="searchOnlineResult2026()">🔎 ফলাফল দেখুন</button></div><div id="jbOnlineResultBody2026" class="jb-or-body"><p>আইডি বা মোবাইল নম্বর দিয়ে ফলাফল খুঁজুন।</p></div></div>';
-      document.body.appendChild(w);
-    }
-    w.style.display='block';w.classList.add('show');
-    var q=E('jbOnlineResultQuery2026');if(q){q.focus();q.onkeydown=function(e){if(e.key==='Enter')searchOnlineResult2026()}}
-  };
-  window.closeOnlineResult2026=function(){var w=E('jbOnlineResultWin2026');if(w){w.classList.remove('show');w.style.display='none'}};
-  window.searchOnlineResult2026=async function(){
-    var q=String(E('jbOnlineResultQuery2026')&&E('jbOnlineResultQuery2026').value||'').trim();
-    if(!q)return toast('Student ID / মোবাইল নম্বর দিন।');
-    var box=E('jbOnlineResultBody2026');
-    if(box)box.innerHTML='<p>⏳ ফলাফল খোঁজা হচ্ছে...</p>';
-    try{
-      /* Use the public-results endpoint already used by the online-result module. */
-      var r=await call('getPublicExamResult',q);
-      if(!r||!r.ok){
-        if(box)box.innerHTML='<p>❌ '+esc(r&&r.message||'এই ID-তে প্রকাশিত ফলাফল পাওয়া যায়নি।')+'</p>';
-        return;
-      }
-      var student=r.student||{};
-      var rows=r.results||[];
-      if(!rows.length){
-        if(box)box.innerHTML='<p>এই শিক্ষার্থীর কোনো প্রকাশিত ফলাফল পাওয়া যায়নি।</p>';
-        return;
-      }
-      var html='<div class="jb-or-card"><div class="jb-or-title">'+esc(student.nameBN||student.name||'শিক্ষার্থীর ফলাফল')+'</div><div class="jb-or-student"><b>ID: '+esc(student.studentId||q)+'</b><span>শ্রেণি: '+esc(student.className||'—')+'</span></div>';
-      rows.forEach(function(x){
-        html+='<section class="jb-or-card"><h3>'+esc(x.exam||x.examName||'পরীক্ষার ফলাফল')+'</h3><div class="jb-or-subjects"><div class="jb-or-head"><b>বিষয়</b><b>নম্বর</b></div>';
-        (x.subjects||[]).forEach(function(y){
-          var mark=y.marks!=null?y.marks:(y.mark!=null?y.mark:'—');
-          var fail=Number.isFinite(Number(mark))&&Number(mark)<33;
-          html+='<div><span>'+esc(y.subject||y.name||'')+'</span><b'+(fail?' style="color:#b00020;background:#ffe1e1"':'')+'>'+esc(mark)+(fail?' — ফেল':'')+'</b></div>';
-        });
-        html+='</div><div class="jb-or-total"><span>মোট নম্বর</span><b>'+esc(x.total==null?'—':x.total)+'</b><span>Grade / GPA</span><b>'+esc(x.grade||'—')+' / '+esc(x.gpa==null?'—':x.gpa)+'</b></div></section>';
-      });
-      html+='</div>';
-      if(box)box.innerHTML=html;
-    }catch(e){
-      if(box)box.innerHTML='<p>❌ সার্ভার ত্রুটি: '+esc(e&&e.message||e)+'</p>';
-    }
-  };
-})();
-</script>
-<style id="jb-existing-online-result-2026-css">
-#jbOnlineResultWin2026{width:min(620px,94vw)!important;top:5vh!important;max-height:90vh!important}
-#jbOnlineResultWin2026 .windowBody{padding:12px!important}
-#jbOnlineResultWin2026 .jb-or-search{display:flex;gap:8px;position:sticky;top:0;background:var(--panel);padding-bottom:10px;z-index:2}
-#jbOnlineResultWin2026 .jb-or-search input{flex:1;min-width:0;padding:12px;border:2px solid var(--border);border-radius:12px}
-#jbOnlineResultWin2026 .jb-or-search button{min-width:130px}
-.jb-or-card{border:3px solid var(--border);border-radius:16px;padding:12px;background:var(--panel)}
-.jb-or-title{text-align:center;font-size:24px;font-weight:900;margin-bottom:10px}
-.jb-or-student{display:grid;gap:6px;border-bottom:2px solid var(--border);padding-bottom:10px;margin-bottom:10px}
-.jb-or-subjects{border:1px solid var(--border);border-radius:10px;overflow:hidden}
-.jb-or-subjects>div{display:grid;grid-template-columns:1fr 100px;gap:8px;padding:8px;border-bottom:1px solid var(--border)}
-.jb-or-head{font-weight:900;background:#ddd;color:#111}
-.jb-or-total{display:grid;grid-template-columns:1fr 90px 1fr 90px 1fr 110px;gap:6px;margin-top:10px;align-items:center}
-.jb-or-total>*{padding:7px;border:1px solid var(--border);border-radius:8px}
-.jb-or-note{text-align:center;margin-top:10px;font-size:13px}
-.jb-or-empty{text-align:center;padding:25px;font-weight:900}
-@media(max-width:600px){#jbOnlineResultWin2026{top:1vh!important;width:98vw!important;max-height:96vh!important}.jb-or-search{flex-direction:column}.jb-or-search button{width:100%;min-height:46px}.jb-or-total{grid-template-columns:1fr 1fr}.jb-or-total>*{font-size:13px}.jb-or-subjects>div{grid-template-columns:1fr 75px}}
-</style>
-<!-- ===== END EXISTING ONLINE RESULT — MOBILE/PUBLIC VIEW ===== -->
 
-<!-- ===== EXAM DASHBOARD — GLOBAL BUTTON FIX — 2026-10-08 ===== -->
 <script id="jb-exam-dashboard-global-fix-2026">
 (function(){
   function render(){
@@ -12711,99 +12612,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 </script>
 <!-- ===== END EXAM DASHBOARD — GLOBAL BUTTON FIX — 2026-10-08 ===== -->
 
-<!-- ===== MOBILE + ONLINE EXAM RESULT VIEWER — 2026-10-08 ===== -->
-<style id="jb-mobile-online-result-2026">
-#jbOnlineResultWin2026{width:min(760px,96vw);top:4vh;max-height:92vh}
-#jbOnlineResultWin2026 .jb-or-search{display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:12px}
-#jbOnlineResultWin2026 .jb-or-search input{min-height:48px;border:2px solid var(--border);border-radius:12px;padding:10px 13px}
-#jbOnlineResultWin2026 .jb-or-card{border:3px solid var(--border);border-radius:16px;padding:14px;background:var(--panel)}
-#jbOnlineResultWin2026 .jb-or-head{text-align:center;border-bottom:2px solid var(--border);padding-bottom:10px;margin-bottom:10px}
-#jbOnlineResultWin2026 .jb-or-name{font-size:22px;font-weight:900}
-#jbOnlineResultWin2026 .jb-or-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:9px 0}
-#jbOnlineResultWin2026 .jb-or-meta div{border:1px solid var(--border);border-radius:9px;padding:8px;text-align:center}
-#jbOnlineResultWin2026 .jb-or-table{width:100%;border-collapse:collapse}
-#jbOnlineResultWin2026 .jb-or-table th,#jbOnlineResultWin2026 .jb-or-table td{border:1px solid var(--border);padding:8px;text-align:center}
-#jbOnlineResultWin2026 .jb-or-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
-.jb-online-result-entry{width:100%;min-height:52px;border:2px solid #c59a25!important;border-radius:999px!important;background:linear-gradient(180deg,#fffdf6,#f8edc9)!important;color:#5c4300!important;font-weight:900!important}
-@media(max-width:600px){
-  #jbOnlineResultWin2026{top:2vh;max-height:96vh}
-  #jbOnlineResultWin2026 .jb-or-search{grid-template-columns:1fr}
-  #jbOnlineResultWin2026 .jb-or-meta{grid-template-columns:1fr 1fr}
-  #jbOnlineResultWin2026 .jb-or-card{padding:9px;border-radius:12px}
-  #jbOnlineResultWin2026 .jb-or-name{font-size:18px}
-  #jbOnlineResultWin2026 .jb-or-table th,#jbOnlineResultWin2026 .jb-or-table td{padding:6px;font-size:13px}
-}
-</style>
-<script id="jb-mobile-online-result-2026">
-(function(){
-  function esc(v){return String(v==null?'':v).replace(/[&<>"]/g,function(s){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s];});}
-  function ensure(){
-    var w=document.getElementById('jbOnlineExamResultWin2026');
-    if(w)return w;
-    w=document.createElement('div');w.id='jbOnlineExamResultWin2026';w.className='window';
-    w.innerHTML='<div class="win-head"><b>📱 অনলাইন ফলাফল</b><button class="secondary" type="button" id="jbOnlineExamResultClose2026">✕</button></div>'+
-      '<div class="win-body"><p style="text-align:center;font-weight:800">Student ID / মোবাইল নম্বর দিয়ে প্রকাশিত ফলাফল দেখুন</p>'+
-      '<div class="jb-or-search"><input id="jbOnlineExamResultQuery2026" class="field" placeholder="Student ID / মোবাইল নম্বর"><button id="jbOnlineExamResultSearch2026" class="primary" type="button">🔎 ফলাফল দেখুন</button></div>'+
-      '<div id="jbOnlineExamResultBody2026"><div style="text-align:center;padding:20px">উপরের ঘরে তথ্য দিয়ে ফলাফল দেখুন।</div></div></div>';
-    document.body.appendChild(w);
-    document.getElementById('jbOnlineExamResultClose2026').onclick=function(){w.classList.remove('show');w.style.display='none';};
-    document.getElementById('jbOnlineExamResultSearch2026').onclick=search;
-    document.getElementById('jbOnlineExamResultQuery2026').addEventListener('keydown',function(e){if(e.key==='Enter')search();});
-    return w;
-  }
-  function open(){
-    var w=ensure();w.style.display='block';w.classList.add('show');
-    setTimeout(function(){var x=document.getElementById('jbOnlineExamResultQuery2026');if(x)x.focus();},80);
-  }
-  function escResult(r){return r;}
-  function render(r){
-    var body=document.getElementById('jbOnlineExamResultBody2026');if(!body)return;
-    if(!r||!r.ok){body.innerHTML='<div style="padding:20px;text-align:center;font-weight:900">❌ '+esc(r&&r.message||'ফলাফল পাওয়া যায়নি।')+'</div>';return;}
-    var s=r.student||{},out='<div class="jb-or-card"><div class="jb-or-head"><div class="jb-or-name">'+esc(s.nameBN||'শিক্ষার্থী')+'</div><div>'+esc(s.nameAR||'')+'</div></div>';
-    out+='<div class="jb-or-meta"><div><b>ID</b><br>'+esc(s.studentId)+'</div><div><b>শ্রেণি/জামাত</b><br>'+esc(s.className)+'</div><div><b>মোবাইল</b><br>'+esc(s.mobile)+'</div></div>';
-    (r.results||[]).forEach(function(x){
-      out+='<h3 style="text-align:center;margin:14px 0 7px">📘 '+esc(x.exam)+'</h3><div class="jb-or-meta"><div><b>মোট</b><br>'+esc(x.total)+'</div><div><b>GPA</b><br>'+esc(x.gpa)+'</div><div><b>Grade</b><br>'+esc(x.grade)+'</div></div>';
-      out+='<div style="overflow:auto"><table class="jb-or-table"><thead><tr><th>বিষয়</th><th>নম্বর</th></tr></thead><tbody>';
-      (x.subjects||[]).forEach(function(z){var n=z.subject||z.name||z.Subject||z.SubjectName||z.label||'';var m=z.marks!=null?z.marks:(z.mark!=null?z.mark:(z.Marks!=null?z.Marks:z.value));out+='<tr><td>'+esc(n)+'</td><td>'+esc(m)+'</td></tr>';});
-      out+='</tbody></table></div>';
-    });
-    out+='<div class="jb-or-actions"><button class="primary" type="button" onclick="window.printOnlineExamResult2026()">🖨️ প্রিন্ট</button><button class="secondary" type="button" onclick="window.shareOnlineExamResult2026()">📤 শেয়ার</button></div></div>';
-    body.innerHTML=out;window.__jbOnlineResultData=r;
-  }
-  function search(){
-    var q=String((document.getElementById('jbOnlineExamResultQuery2026')||{}).value||'').trim();
-    var body=document.getElementById('jbOnlineExamResultBody2026');if(!q){if(body)body.innerHTML='<div style="padding:20px;text-align:center">Student ID / মোবাইল নম্বর দিন।</div>';return;}
-    if(body)body.innerHTML='<div style="padding:20px;text-align:center">⏳ ফলাফল খোঁজা হচ্ছে...</div>';
-    try{google.script.run.withSuccessHandler(render).withFailureHandler(function(e){render({ok:false,message:'সার্ভার ত্রুটি: '+(e&&e.message||e)});}).getPublicExamResult(q);}
-    catch(e){render({ok:false,message:String(e&&e.message||e)});}
-  }
-  window.openOnlineExamResult2026=open;
-  window.printOnlineExamResult2026=function(){
-    var body=document.getElementById('jbOnlineExamResultBody2026');if(!body)return;
-    var w=window.open('','_blank');if(!w)return;
-    w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>অনলাইন ফলাফল</title><style>body{font-family:Arial,sans-serif;padding:20px}.jb-or-table{width:100%;border-collapse:collapse}.jb-or-table th,.jb-or-table td{border:1px solid #333;padding:7px;text-align:center}.jb-or-actions{display:none!important}</style></head><body>'+body.innerHTML+'
-</body></html>');
-    w.document.close();w.print();
-  };
-  window.shareOnlineExamResult2026=function(){
-    var s=(window.__jbOnlineResultData||{}).student||{},txt='জান্নাতুল বাক্বী মহিলা মাদ্রাসা — '+(s.nameBN||'ফলাফল')+' | ID: '+(s.studentId||'');
-    if(navigator.share)navigator.share({title:'অনলাইন ফলাফল',text:txt}).catch(function(){});
-    else if(navigator.clipboard)navigator.clipboard.writeText(txt).then(function(){if(typeof toast==='function')toast('ফলাফলের শেয়ার তথ্য কপি হয়েছে।');});
-  };
-  function addEntry(){
-    var lp=document.getElementById('loginPage');
-    var d=document.getElementById('examDashboardWin');
-    if(d&&!document.getElementById('jbExamOnlineResult2026')){
-      var b2=document.createElement('button');b2.id='jbExamOnlineResult2026';b2.type='button';b2.className='secondary';b2.textContent='📱 অনলাইন ফলাফল';b2.onclick=open;
-      var a=d.querySelector('.jb-exam-actions');if(a)a.appendChild(b2);
-    }
-  }
-  addEntry();if(document.body)new MutationObserver(addEntry).observe(document.body,{childList:true,subtree:true});
-})();
-</script>
 
-<style id="jb-online-exam-result-viewer-css">#jbOnlineExamResultWin2026{position:fixed;z-index:100000;top:3vh;left:50%;transform:translateX(-50%);width:min(760px,96vw);max-height:94vh;overflow:auto;background:var(--panel,#fff);color:var(--text,#222);border:3px solid var(--border,#c59a25);border-radius:14px;box-shadow:0 20px 60px #0006}#jbOnlineExamResultWin2026 .win-head{position:sticky;top:0;display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--panel,#fff);border-bottom:1px solid var(--border,#ccc);font-weight:900;z-index:2}#jbOnlineExamResultWin2026 .win-body{padding:12px}#jbOnlineExamResultWin2026 .jb-or-search{display:flex;gap:8px;margin:10px 0}#jbOnlineExamResultWin2026 .jb-or-search input{flex:1;min-width:0;padding:12px;border:2px solid var(--border,#aaa);border-radius:9px}#jbOnlineExamResultWin2026 .jb-or-card{border:2px solid var(--border,#c59a25);border-radius:12px;padding:12px}#jbOnlineExamResultWin2026 .jb-or-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:9px 0}#jbOnlineExamResultWin2026 .jb-or-meta div{border:1px solid var(--border,#aaa);border-radius:8px;padding:8px;text-align:center}#jbOnlineExamResultWin2026 .jb-or-table{width:100%;border-collapse:collapse}#jbOnlineExamResultWin2026 .jb-or-table th,#jbOnlineExamResultWin2026 .jb-or-table td{border:1px solid #888;padding:8px;text-align:center}#jbOnlineExamResultWin2026 .jb-or-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}@media(max-width:600px){#jbOnlineExamResultWin2026{top:1vh;width:98vw;max-height:98vh}#jbOnlineExamResultWin2026 .jb-or-search{flex-direction:column}#jbOnlineExamResultWin2026 .jb-or-meta{grid-template-columns:1fr 1fr}}</style>
-<!-- ===== END MOBILE + ONLINE EXAM RESULT VIEWER — 2026-10-08 ===== -->
 
 <!-- ===== LOGIN-FREE ONLINE PAYMENT ENTRY — 2026-10-08 ===== -->
 <style id="jb-login-online-payment-2026">
