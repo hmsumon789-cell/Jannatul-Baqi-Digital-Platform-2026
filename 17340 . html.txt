@@ -12791,11 +12791,28 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     else if(navigator.clipboard)navigator.clipboard.writeText(txt).then(function(){if(typeof toast==='function')toast('ফলাফলের শেয়ার তথ্য কপি হয়েছে।');});
   };
   function addEntry(){
+    /* Login page and examination dashboard share one public viewer.
+       getPublicExamResult(query) is intentionally called without an admin token. */
     var lp=document.getElementById('loginPage');
+    if(lp){
+      Array.prototype.forEach.call(lp.querySelectorAll('button'),function(b){
+        if(!/অনলাইন ফলাফল/.test(String(b.textContent||''))||b.id==='jbExamOnlineResult2026')return;
+        if(b.dataset.jbPublicResultBound==='1')return;
+        b.dataset.jbPublicResultBound='1';b.type='button';
+        b.addEventListener('click',function(ev){ev.preventDefault();open();});
+      });
+    }
     var d=document.getElementById('examDashboardWin');
-    if(d&&!document.getElementById('jbExamOnlineResult2026')){
-      var b2=document.createElement('button');b2.id='jbExamOnlineResult2026';b2.type='button';b2.className='secondary';b2.textContent='📱 অনলাইন ফলাফল';b2.onclick=open;
-      var a=d.querySelector('.jb-exam-actions');if(a)a.appendChild(b2);
+    if(d){
+      var b2=document.getElementById('jbExamOnlineResult2026');
+      if(!b2){
+        b2=document.createElement('button');b2.id='jbExamOnlineResult2026';b2.type='button';b2.className='secondary';b2.textContent='📱 অনলাইন ফলাফল';
+        var a=d.querySelector('.jb-exam-actions');if(a)a.appendChild(b2);
+      }
+      if(b2.dataset.jbPublicResultBound!=='1'){
+        b2.dataset.jbPublicResultBound='1';
+        b2.addEventListener('click',function(ev){ev.preventDefault();open();});
+      }
     }
   }
   addEntry();if(document.body)new MutationObserver(addEntry).observe(document.body,{childList:true,subtree:true});
