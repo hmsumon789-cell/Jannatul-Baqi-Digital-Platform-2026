@@ -17617,71 +17617,85 @@ function institutionDocumentaryToggle2026(){
 
 <!-- ===== EXAM RESULT PENDING LIST + PER-STUDENT ONLINE PUBLISH 2026-10-25 ===== -->
 <style id="jb-result-entry-pending-style-20261025">
-#jbResultEntryWin20261025{display:none;position:fixed;z-index:2147483000;inset:4vh 3vw auto;width:94vw;max-height:92vh;overflow:auto;background:var(--panel,#fff);color:var(--text,#222);border:3px solid var(--border,#8b5e00);border-radius:16px;box-shadow:0 20px 70px #0008}
-#jbResultEntryWin20261025.show{display:block}
-#jbResultEntryWin20261025 .jb-re-head{position:sticky;top:0;z-index:4;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px;background:var(--panel,#fff);border-bottom:2px solid var(--border,#8b5e00);font-weight:900}
-#jbResultEntryWin20261025 .jb-re-body{padding:12px}
-#jbResultEntryWin20261025 .jb-re-controls{display:grid;grid-template-columns:repeat(4,minmax(140px,1fr));gap:8px;align-items:end}
-#jbResultEntryWin20261025 label{display:flex;flex-direction:column;gap:4px;font-weight:800}
-#jbResultEntryWin20261025 input,#jbResultEntryWin20261025 select{width:100%;min-width:0;padding:8px;border:1px solid #999;border-radius:7px;background:#fff;color:#222}
-#jbResultEntryWin20261025 .jb-re-tablewrap{overflow:auto;margin-top:12px}
-#jbResultEntryWin20261025 table{width:100%;border-collapse:collapse;min-width:800px}
-#jbResultEntryWin20261025 th,#jbResultEntryWin20261025 td{border:1px solid #999;padding:7px;text-align:center}
-#jbResultEntryWin20261025 th{background:var(--accent,#8b5e00);color:#fff}
-#jbResultEntryWin20261025 .jb-re-actions{display:flex;gap:5px;justify-content:center;flex-wrap:wrap}
-#jbResultEntryWin20261025 .jb-re-pending{color:#8b4b00;background:#fff0c2;font-weight:900;padding:4px 7px;border-radius:6px}
-#jbResultEntryWin20261025 .jb-re-saved{color:#176b37;background:#e0f5e7;font-weight:900;padding:4px 7px;border-radius:6px}
-@media(max-width:760px){#jbResultEntryWin20261025 .jb-re-controls{grid-template-columns:1fr 1fr}}
+#jbResultEntryPanel20261025{margin:14px 0 8px;padding:12px;border:3px solid var(--border,#8b5e00);border-radius:14px;background:var(--panel,#fff);color:var(--text,#222);box-shadow:0 8px 24px #0002}
+#jbResultEntryPanel20261025 .jb-re-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:4px 2px 10px;border-bottom:2px solid var(--border,#8b5e00);font-weight:900}
+#jbResultEntryPanel20261025 .jb-re-tablewrap{overflow:auto;margin-top:12px}
+#jbResultEntryPanel20261025 table{width:100%;border-collapse:collapse;min-width:760px}
+#jbResultEntryPanel20261025 th,#jbResultEntryPanel20261025 td{border:1px solid #999;padding:7px;text-align:center}
+#jbResultEntryPanel20261025 th{background:var(--accent,#8b5e00);color:#fff}
+#jbResultEntryPanel20261025 .jb-re-actions{display:flex;gap:7px;justify-content:flex-start;flex-wrap:wrap;margin-top:10px}
+#jbResultEntryPanel20261025 .jb-re-pending{color:#8b4b00;background:#fff0c2;font-weight:900;padding:4px 7px;border-radius:6px}
+#jbResultEntryPanel20261025 .jb-re-saved{color:#176b37;background:#e0f5e7;font-weight:900;padding:4px 7px;border-radius:6px}
 </style>
 <script id="jb-result-entry-pending-js-20261025">
 (function(){
  'use strict';
- var winId='jbResultEntryWin20261025', rows=[], busy=false, options=null;
+ var panelId='jbResultEntryPanel20261025',rows=[],busy=false;
  function el(id){return document.getElementById(id)}
  function V(id){return String((el(id)||{}).value||'').trim()}
  function E(v){return String(v==null?'':v).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
  function msg(t){if(typeof toast==='function')toast(t);else alert(t)}
- function tokenOK(){if(typeof token==='undefined'||!token){msg('ফলাফল তৈরির আগে অনুমোদিত অ্যাডমিন হিসেবে লগইন করুন।');return false}return true}
- function ensure(){
-  if(el(winId))return;
-  var w=document.createElement('section');w.id=winId;
-  w.innerHTML='<div class="jb-re-head"><span>📝 ফলাফল তৈরি তালিকা — পেন্ডিং নম্বর ও অনলাইন প্রকাশ</span><button type="button" onclick="jbCloseResultEntry20261025()">✕ বন্ধ</button></div>'+
-   '<div class="jb-re-body"><div class="jb-re-controls">'+
-   '<label>পরীক্ষা<select id="jbReExam20261025"><option value="">পরীক্ষা নির্বাচন</option></select></label>'+
-   '<label>শ্রেণি/জামাত<select id="jbReClass20261025"><option value="">শ্রেণি নির্বাচন</option></select></label>'+
-   '<label>বিষয় নির্বাচন<select id="jbReSubject20261025"><option value="">বিষয় নির্বাচন</option></select></label>'+
-   '<label>শিক্ষাবর্ষ<select id="jbReYear20261025"></select></label></div>'+
-   '<div class="jb-re-actions" style="margin-top:10px"><button type="button" class="primary" onclick="jbLoadResultEntry20261025()">📋 পেন্ডিং তালিকা দেখুন</button><button type="button" class="secondary" onclick="jbRefreshResultEntry20261025()">↻ রিফ্রেশ</button></div>'+
-   '<p id="jbReStatus20261025" role="status">পরীক্ষা, শ্রেণি ও বিষয় নির্বাচন করুন। নিবন্ধিত পরীক্ষার্থীরা স্বয়ংক্রিয়ভাবে পেন্ডিং তালিকায় আসবে।</p><div id="jbReList20261025"></div></div>';
-  document.body.appendChild(w);
+ function tokenOK(){if(typeof ensureToken==='function')return ensureToken();if(typeof token==='undefined'||!token){msg('ফলাফল তৈরির আগে অনুমোদিত অ্যাডমিন হিসেবে লগইন করুন।');return false}return true}
+ function selection(){
+  var subjects=Array.isArray(window._jbMkSelectedSubjects)?window._jbMkSelectedSubjects.slice():[];
+  if(!subjects.length&&V('jbMkSubject'))subjects=[V('jbMkSubject')];
+  return {exam:V('jbMkExam'),className:V('jbMkClass'),subject:subjects.length===1?String(subjects[0]||'').trim():'',year:V('jbMkYear'),maxMark:Number(V('jbMkMaxMark')||100)};
  }
- window.jbCloseResultEntry20261025=function(){var w=el(winId);if(w){w.classList.remove('show');w.style.display='none'}};
- function fill(id,values,placeholder){var q=el(id);if(!q)return;var old=q.value;q.innerHTML='<option value="">'+E(placeholder)+'</option>'+(values||[]).map(function(v){return '<option value="'+E(v)+'">'+E(v)+'</option>'}).join('');if(old&&Array.prototype.some.call(q.options,function(o){return o.value===old}))q.value=old}
- function syncSubjects(){var cl=V('jbReClass20261025'),legacyClass=el('jbMkClass'),legacySubject=el('jbMkSubject');if(legacyClass&&legacySubject&&typeof window.jbMkClassSubjects==='function'){legacyClass.value=cl;window.jbMkClassSubjects();var vals=Array.prototype.slice.call(legacySubject.options).map(function(o){return o.value}).filter(Boolean);if(vals.length){var old=V('jbReSubject20261025');fill('jbReSubject20261025',vals,'বিষয় নির্বাচন');if(old&&vals.indexOf(old)>=0)el('jbReSubject20261025').value=old;return}}if(options)fill('jbReSubject20261025',options.subjects,'বিষয় নির্বাচন')}
- window.jbRefreshResultEntry20261025=async function(){
-  if(!tokenOK())return;ensure();var status=el('jbReStatus20261025');status.textContent='⏳ পরীক্ষা ও শ্রেণির তালিকা লোড হচ্ছে…';
-  try{var r=await call('getExamDashboardOptions',token);if(!r||!r.ok)throw new Error(r&&r.message||'তালিকা পাওয়া যায়নি');options=r;
-   fill('jbReExam20261025',r.exams,'পরীক্ষা নির্বাচন');fill('jbReClass20261025',r.classes,'শ্রেণি নির্বাচন');fill('jbReSubject20261025',r.subjects,'বিষয় নির্বাচন');syncSubjects();if(!el('jbReClass20261025').dataset.subjectBound){el('jbReClass20261025').dataset.subjectBound='1';el('jbReClass20261025').addEventListener('change',syncSubjects)}
-   fill('jbReYear20261025',Array.from({length:46},function(_,i){return String(2005+i)}),'শিক্ষাবর্ষ');if(!V('jbReYear20261025'))el('jbReYear20261025').value=String(new Date().getFullYear());
-   status.textContent='নিবন্ধিত পরীক্ষার্থীরা স্বয়ংক্রিয়ভাবে তালিকায় আসবে। পরীক্ষা, শ্রেণি ও বিষয় নির্বাচন করে “পেন্ডিং তালিকা দেখুন” চাপুন।';
-  }catch(e){status.textContent='তালিকা লোড হয়নি: '+E(e.message||e)}
- };
+ function ensure(){
+  if(el(panelId))return;
+  var host=el('jbExamMarksWin2026'),body=host&&host.querySelector('.jb-emb'),p=document.createElement('section');p.id=panelId;
+  p.innerHTML='<div class="jb-re-head"><span>📋 পেন্ডিং নম্বর তালিকা ও অনলাইন ফলাফল প্রকাশ</span><span style="font-size:12px;font-weight:600">উপরের বিদ্যমান নির্বাচন ব্যবহার হবে</span></div><p id="jbReStatus20261025" role="status">উপরের পরীক্ষা, শ্রেণি/জামাত, বিষয় (একটি টিক) ও শিক্ষাবর্ষ নির্বাচন করুন।</p><div class="jb-re-actions"><button type="button" class="primary" onclick="jbLoadResultEntry20261025()">📋 পেন্ডিং তালিকা দেখুন</button><button type="button" class="secondary" onclick="jbRefreshResultEntry20261025()">↻ রিফ্রেশ</button></div><div id="jbReList20261025"></div>';
+  if(body)body.appendChild(p);else document.body.appendChild(p);
+ }
+ function status(t){var s=el('jbReStatus20261025');if(s)s.textContent=t}
+ function getSubjectArray(row){try{var p=JSON.parse(String(row&&row.SubjectData||'[]'));if(Array.isArray(p))return p;if(p&&typeof p==='object')return Object.keys(p).map(function(k){return {subject:k,marks:p[k]}})}catch(e){}return []}
+ function selected(){var s=selection();if(!s.exam||!s.className||!s.subject||!s.year){msg('বর্তমান নম্বর প্রদান উইন্ডোতে পরীক্ষা, শ্রেণি/জামাত, শুধু একটি বিষয় ও শিক্ষাবর্ষ নির্বাচন করুন।');return null}return s}
+ window.jbRefreshResultEntry20261025=async function(){if(!tokenOK())return;ensure();return window.jbLoadResultEntry20261025()};
  window.jbLoadResultEntry20261025=async function(){
-  if(!tokenOK())return;var ex=V('jbReExam20261025'),cl=V('jbReClass20261025'),sub=V('jbReSubject20261025'),year=V('jbReYear20261025'),box=el('jbReList20261025'),status=el('jbReStatus20261025');
-  if(!ex||!cl||!sub||!year){msg('পরীক্ষা, শ্রেণি/জামাত, বিষয় ও শিক্ষাবর্ষ নির্বাচন করুন।');return}
-  status.textContent='⏳ নিবন্ধিত পরীক্ষার্থী ও সংরক্ষিত নম্বর লোড হচ্ছে…';box.innerHTML='';
-  try{var r=await call('getExamDashboardData',token,ex,cl);if(!r||!r.ok)throw new Error(r&&r.message||'তালিকা পাওয়া যায়নি');
-   var res=r.results||[], candidates=(r.students||[]).filter(function(x){return x.registered});
-   rows=candidates.map(function(x){var st=x.student||{},rec=res.find(function(z){return String(z.StudentID||'')===String(st.StudentID||'')&&String(z.Exam||'')===ex&&String(z.Class||'')===cl}),subs=[];try{subs=JSON.parse(String(rec&&rec.SubjectData||'[]'))}catch(e){}if(!Array.isArray(subs))subs=[];var mark=subs.find(function(z){return String(z.subject||z.Subject||z.name||'')===sub&&String(z.academicYear||'')===year});return {id:String(st.StudentID||''),name:st.NameBN||st.NameEN||'',className:st.Class||cl,mark:mark?String(mark.marks!=null?mark.marks:mark.mark):'',saved:!!mark,published:!!(rec&&/^(TRUE|YES|1|PUBLISHED|প্রকাশিত)$/i.test(String(rec.Published||''))&&mark),maxMark:mark&&mark.maxMark||100}});
-   render();status.textContent='মোট নিবন্ধিত পরীক্ষার্থী: '+rows.length+' | এই বিষয়ে নম্বর সেভ হয়েছে: '+rows.filter(function(x){return x.saved}).length+' | পেন্ডিং: '+rows.filter(function(x){return !x.saved}).length;
-  }catch(e){status.textContent='পেন্ডিং তালিকা পাওয়া যায়নি: '+E(e.message||e)}
+  if(!tokenOK())return;ensure();var s=selected();if(!s)return;var box=el('jbReList20261025');if(!box)return;
+  status('⏳ নিবন্ধিত পরীক্ষার্থী ও সংরক্ষিত নম্বর লোড হচ্ছে…');box.innerHTML='';
+  try{
+   var r=await call('getExamDashboardData',token,s.exam,s.className);if(!r||!r.ok)throw new Error(r&&r.message||'তালিকা পাওয়া যায়নি');
+   var res=r.results||[],candidates=(r.students||[]).filter(function(x){return x.registered});
+   rows=candidates.map(function(x){
+    var st=x.student||{},rec=res.find(function(z){return String(z.StudentID||'')===String(st.StudentID||'')&&String(z.Exam||'')===s.exam&&String(z.Class||'')===s.className&&String(z.AcademicYear||'')===s.year}),subs=getSubjectArray(rec);
+    var mark=subs.find(function(z){return String(z.subject||z.Subject||z.name||'')===s.subject&&String(z.academicYear||s.year)===s.year});
+    return {id:String(st.StudentID||''),name:st.NameBN||st.NameEN||'',mark:mark?String(mark.marks!=null?mark.marks:mark.mark):'',saved:!!mark,published:!!(rec&&/^(TRUE|YES|1|PUBLISHED|প্রকাশিত)$/i.test(String(rec.Published||''))&&mark),maxMark:mark&&mark.maxMark||s.maxMark||100};
+   });
+   render();status('মোট নিবন্ধিত পরীক্ষার্থী: '+rows.length+' | নম্বর সংরক্ষিত: '+rows.filter(function(x){return x.saved}).length+' | পেন্ডিং: '+rows.filter(function(x){return !x.saved}).length+' | বিষয়: '+s.subject+' | শিক্ষাবর্ষ: '+s.year);
+  }catch(e){status('পেন্ডিং তালিকা পাওয়া যায়নি: '+E(e.message||e))}
  };
- function render(){var box=el('jbReList20261025');if(!box)return;
-  box.innerHTML=rows.length?'<div class="jb-re-tablewrap"><table><thead><tr><th>Student ID</th><th>শিক্ষার্থীর নাম</th><th>বিষয়</th><th>নম্বর</th><th>অবস্থা</th><th>সেভ</th><th>অনলাইন প্ল্যাটফর্মে প্রেরণ</th></tr></thead><tbody>'+rows.map(function(r,i){return '<tr><td>'+E(r.id)+'</td><td>'+E(r.name)+'</td><td>'+E(V('jbReSubject20261025'))+'</td><td><input type="number" min="0" max="'+E(r.maxMark||100)+'" id="jbReMark20261025_'+i+'" value="'+E(r.mark)+'" placeholder="নম্বর লিখুন" style="max-width:120px"></td><td><span class="'+(r.saved?'jb-re-saved':'jb-re-pending')+'">'+(r.saved?(r.published?'অনলাইনে প্রকাশিত':'নম্বর সংরক্ষিত — পেন্ডিং'):'নিবন্ধিত পরীক্ষার্থী — নম্বর পেন্ডিং')+'</span></td><td><button type="button" class="primary" '+(busy?'disabled':'')+' onclick="jbSaveResultEntry20261025('+i+')">💾 সেভ</button></td><td><button type="button" class="secondary" '+(!r.saved||r.published||busy?'disabled':'')+' onclick="jbPublishResultEntry20261025('+i+')">📤 ফলাফল অনলাইন প্ল্যাটফর্মে প্রেরণ করুন</button></td></tr>'}).join('')+'</tbody></table></div>':'<p>এই পরীক্ষা ও শ্রেণিতে নিবন্ধিত পরীক্ষার্থী পাওয়া যায়নি। আগে পরীক্ষার্থী নিবন্ধন করুন।';}
- window.jbSaveResultEntry20261025=async function(i){if(busy||!tokenOK())return;var r=rows[i],sub=V('jbReSubject20261025'),year=V('jbReYear20261025'),ex=V('jbReExam20261025'),cl=V('jbReClass20261025'),inp=el('jbReMark20261025_'+i);if(!r||!inp||!sub)return;var raw=String(inp.value||'').trim(),max=Number(r.maxMark||100),n=Number(raw);if(raw===''||!Number.isFinite(n)||n<0||n>max){msg('০ থেকে '+max+'-এর মধ্যে নম্বর লিখুন।');return}busy=true;render();try{var res=await call('saveExamDashboardMarks',token,ex,cl,sub,[{studentId:r.id,name:r.name,mark:n,maxMark:max,academicYear:year}]);if(!res||!res.ok)throw new Error(res&&res.message||'নম্বর সেভ হয়নি');msg(res.message||'নম্বর সংরক্ষণ হয়েছে।');}catch(e){msg('নম্বর সংরক্ষণ ব্যর্থ: '+E(e.message||e))}finally{busy=false;await window.jbLoadResultEntry20261025()}};
- window.jbPublishResultEntry20261025=async function(i){if(busy||!tokenOK())return;var r=rows[i];if(!r||!r.saved)return;var ok=confirm('এই শিক্ষার্থীর সংরক্ষিত ফলাফল অনলাইন প্ল্যাটফর্মে প্রকাশ করবেন? শিক্ষার্থী ID দিয়ে যে কোনো স্থান থেকে দেখা যাবে।');if(!ok)return;busy=true;render();try{var res=await call('publishExamDashboardStudentResult',token,r.id,V('jbReExam20261025'),V('jbReClass20261025'),V('jbReYear20261025'));if(!res||!res.ok)throw new Error(res&&res.message||'অনলাইনে প্রকাশ হয়নি');msg(res.message||'অনলাইনে প্রকাশ হয়েছে।')}catch(e){msg('অনলাইনে প্রকাশ ব্যর্থ: '+E(e.message||e))}finally{busy=false;await window.jbLoadResultEntry20261025()}};
+ function render(){
+  var box=el('jbReList20261025');if(!box)return;var s=selection();
+  box.innerHTML=rows.length?'<div class="jb-re-tablewrap"><table><thead><tr><th>Student ID</th><th>শিক্ষার্থীর নাম</th><th>বিষয়</th><th>প্রাপ্ত নম্বর</th><th>অবস্থা</th><th>সংরক্ষণ</th><th>অনলাইন প্রকাশ</th></tr></thead><tbody>'+rows.map(function(r,i){return '<tr><td>'+E(r.id)+'</td><td>'+E(r.name)+'</td><td>'+E(s.subject)+'</td><td><input type="number" min="0" max="'+E(r.maxMark||s.maxMark||100)+'" id="jbReMark20261025_'+i+'" value="'+E(r.mark)+'" placeholder="নম্বর লিখুন" style="max-width:120px"></td><td><span class="'+(r.saved?'jb-re-saved':'jb-re-pending')+'">'+(r.saved?(r.published?'অনলাইনে প্রকাশিত':'নম্বর সংরক্ষিত — পেন্ডিং'):'নিবন্ধিত — নম্বর পেন্ডিং')+'</span></td><td><button type="button" class="primary" '+(busy?'disabled':'')+' onclick="jbSaveResultEntry20261025('+i+')">💾 সেভ</button></td><td><button type="button" class="secondary" '+(!r.saved||r.published||busy?'disabled':'')+' onclick="jbPublishResultEntry20261025('+i+')">📤 অনলাইনে প্রকাশ</button></td></tr>'}).join('')+'</tbody></table></div>':'<p>এই পরীক্ষা ও শ্রেণিতে নিবন্ধিত পরীক্ষার্থী পাওয়া যায়নি। আগে পরীক্ষার্থী নিবন্ধন করুন।';
+ }
+ window.jbSaveResultEntry20261025=async function(i){
+  if(busy||!tokenOK())return;var s=selected(),r=rows[i],inp=el('jbReMark20261025_'+i);if(!s||!r||!inp)return;
+  var raw=String(inp.value||'').trim(),max=Number(r.maxMark||s.maxMark||100),n=Number(raw);if(raw===''||!Number.isFinite(n)||n<0||n>max){msg('০ থেকে '+max+'-এর মধ্যে নম্বর লিখুন।');return}
+  busy=true;render();
+  try{var res=await call('saveExamDashboardMarks',token,s.exam,s.className,s.subject,[{studentId:r.id,name:r.name,mark:n,maxMark:max,academicYear:s.year}]);if(!res||!res.ok)throw new Error(res&&res.message||'নম্বর সেভ হয়নি');msg(res.message||'নম্বর সংরক্ষণ হয়েছে।')}
+  catch(e){msg('নম্বর সংরক্ষণ ব্যর্থ: '+E(e.message||e))}
+  finally{busy=false;await window.jbLoadResultEntry20261025()}
+ };
+ window.jbPublishResultEntry20261025=async function(i){
+  if(busy||!tokenOK())return;var s=selected(),r=rows[i];if(!s||!r||!r.saved)return;
+  if(!confirm('এই শিক্ষার্থীর সংরক্ষিত ফলাফল অনলাইন প্ল্যাটফর্মে প্রকাশ করবেন? শিক্ষার্থী ID দিয়ে যে কোনো স্থান থেকে দেখা যাবে।'))return;
+  busy=true;render();
+  try{var res=await call('publishExamDashboardStudentResult',token,r.id,s.exam,s.className,s.year);if(!res||!res.ok)throw new Error(res&&res.message||'অনলাইনে প্রকাশ হয়নি');msg(res.message||'অনলাইনে প্রকাশ হয়েছে।')}
+  catch(e){msg('অনলাইনে প্রকাশ ব্যর্থ: '+E(e.message||e))}
+  finally{busy=false;await window.jbLoadResultEntry20261025()}
+ };
  var oldExamComing=window.examComing;
- window.examComing=function(name){name=String(name||'');if(name.indexOf('ফলাফল তৈরি')>=0||name.indexOf('নম্বর প্রদান')>=0){ensure();var w=el(winId);w.style.display='block';w.classList.add('show');window.jbRefreshResultEntry20261025();return}if(typeof oldExamComing==='function')return oldExamComing.apply(this,arguments)};
+ window.examComing=function(name){
+  name=String(name||'');
+  if(name.indexOf('ফলাফল তৈরি')>=0||name.indexOf('নম্বর প্রদান')>=0){
+   if(typeof show==='function')show('jbExamMarksWin2026');else{var w=el('jbExamMarksWin2026');if(w)w.style.display='block'}
+   ensure();if(typeof window.jbMkInit==='function')Promise.resolve(window.jbMkInit()).then(function(){ensure();status('উপরের বিদ্যমান পরীক্ষা, শ্রেণি/জামাত, বিষয় (একটি টিক) ও শিক্ষাবর্ষ নির্বাচন করে পেন্ডিং তালিকা দেখুন।')});
+   return;
+  }
+  if(typeof oldExamComing==='function')return oldExamComing.apply(this,arguments);
+ };
+ document.addEventListener('DOMContentLoaded',function(){ensure()});
 })();
 </script>
 <!-- ===== END EXAM RESULT ENTRY + PER-STUDENT ONLINE PUBLISH ===== -->
