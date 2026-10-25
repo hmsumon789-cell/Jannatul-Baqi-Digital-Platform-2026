@@ -17421,3 +17421,46 @@ function institutionDocumentaryToggle2026(){
 })();
 </script>
 <!-- ===== END EXAM RESULT WINDOW DRAG + FULLSCREEN + RUNNING NEWS FIX ===== -->
+
+
+<!-- ===== RESULT WINDOW DOCUMENT-LEVEL DRAG OVERRIDE — 2026-10-25 ===== -->
+<style id="jbRsDocumentDragOverride20261025">
+#jbExamResultWin2026 #jbRsDragHead{cursor:move!important;touch-action:none!important;user-select:none!important;-webkit-user-select:none!important}
+#jbExamResultWin2026 #jbRsDragHead *{user-select:none!important;-webkit-user-select:none!important}
+</style>
+<script id="jbRsDocumentDragOverride20261025JS">
+(function(){
+ if(window.__jbRsDocumentDragOverride20261025)return;
+ window.__jbRsDocumentDragOverride20261025=true;
+ var drag=null;
+ function isResultHeader(target){
+  if(!target||!target.closest)return false;
+  var h=target.closest('#jbRsDragHead');
+  return !!(h&&h.closest('#jbExamResultWin2026'));
+ }
+ document.addEventListener('pointerdown',function(e){
+  if(!isResultHeader(e.target)||e.target.closest('#jbRsDragHead button')||e.button!==0)return;
+  var w=document.getElementById('jbExamResultWin2026');
+  if(!w||w.classList.contains('jb-common-fullscreen'))return;
+  var r=w.getBoundingClientRect();
+  drag={id:e.pointerId,x:e.clientX,y:e.clientY,left:r.left,top:r.top,w:w};
+  w.style.left=r.left+'px';w.style.top=r.top+'px';w.style.right='auto';w.style.bottom='auto';w.style.transform='none';
+  w.style.zIndex='2147483002';
+  e.preventDefault();e.stopImmediatePropagation();
+ },true);
+ document.addEventListener('pointermove',function(e){
+  if(!drag||drag.id!==e.pointerId)return;
+  var w=drag.w;
+  var maxX=Math.max(0,window.innerWidth-w.offsetWidth);
+  var maxY=Math.max(0,window.innerHeight-45);
+  w.style.left=Math.max(0,Math.min(maxX,drag.left+e.clientX-drag.x))+'px';
+  w.style.top=Math.max(0,Math.min(maxY,drag.top+e.clientY-drag.y))+'px';
+  e.preventDefault();e.stopImmediatePropagation();
+ },true);
+ function finish(e){if(drag&&(!e||e.pointerId===undefined||drag.id===e.pointerId))drag=null;}
+ document.addEventListener('pointerup',finish,true);
+ document.addEventListener('pointercancel',finish,true);
+ document.addEventListener('mouseup',finish,true);
+})();
+</script>
+<!-- ===== END RESULT WINDOW DOCUMENT-LEVEL DRAG OVERRIDE ===== -->
