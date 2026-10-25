@@ -17360,3 +17360,64 @@ function institutionDocumentaryToggle2026(){
 })();
 </script>
 <!-- ===== END COMMON EXAM WINDOW CONTROLS ===== -->
+
+<!-- ===== EXAM RESULT WINDOW DRAG + FULLSCREEN + RUNNING NEWS FIX — 2026-10-25 ===== -->
+<style id="jbExamResultMoveFullscreenNewsFix20261025">
+#jbExamResultWin2026.jb-result-window.jb-common-fullscreen{left:0!important;top:0!important;width:100vw!important;height:100vh!important;max-width:100vw!important;max-height:100vh!important;border-radius:0!important;transform:none!important}
+#jbExamResultWin2026 .jb-result-window-head{cursor:move!important;touch-action:none!important;user-select:none!important}
+#jbExamResultWin2026 .jb-result-window-actions{align-items:center!important;flex-wrap:wrap!important}
+#jbExamResultWin2026 .jb-result-window-actions button{cursor:pointer!important}
+#jbRsNews{position:relative!important;display:block!important;white-space:nowrap!important;overflow:hidden!important;text-align:left!important}
+#jbRsNews .jbRsNewsMovingText20261025{display:inline-block!important;min-width:max-content!important;padding-left:100%!important;animation:jbRsNewsScroll20261025 22s linear infinite!important;will-change:transform}
+#jbRsNews:hover .jbRsNewsMovingText20261025{animation-play-state:paused!important}
+@keyframes jbRsNewsScroll20261025{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
+.ticker-text,.news-full-run,.header-news{animation:jbHeaderNewsScroll20261025 24s linear infinite!important;white-space:nowrap!important;will-change:transform}
+@keyframes jbHeaderNewsScroll20261025{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
+@media(prefers-reduced-motion:reduce){#jbRsNews .jbRsNewsMovingText20261025,.ticker-text,.news-full-run,.header-news{animation-duration:60s!important}}
+</style>
+<script id="jbExamResultMoveFullscreenNewsFix20261025JS">
+(function(){
+ function installResultControls(){
+  var w=document.getElementById('jbExamResultWin2026');
+  if(!w)return;
+  var h=document.getElementById('jbRsDragHead')||w.querySelector('.jb-result-window-head');
+  var actions=w.querySelector('.jb-result-window-actions');
+  if(actions&&!actions.querySelector('[data-jb-rs-fullscreen="1"]')){
+   var fs=document.createElement('button');fs.type='button';fs.title='ফুল স্ক্রিন চালু/বন্ধ';fs.setAttribute('aria-label','ফুল স্ক্রিন');fs.textContent='⛶';fs.dataset.jbRsFullscreen='1';
+   fs.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();w.classList.toggle('jb-common-fullscreen');w.classList.remove('jb-result-minimized');if(w.classList.contains('jb-common-fullscreen')){w.style.left='0';w.style.top='0';w.style.right='auto';w.style.bottom='auto';w.style.transform='none';}else{w.style.left='1vw';w.style.top='1vh';w.style.right='';w.style.bottom='';w.style.width='';w.style.height='';w.style.transform='none';}});
+   actions.insertBefore(fs,actions.lastElementChild||null);
+  }
+  if(h&&!h.dataset.jbRobustDrag20261025){
+   h.dataset.jbRobustDrag20261025='1';
+   var drag=null;
+   h.addEventListener('pointerdown',function(e){
+    if(e.target.closest('button')||w.classList.contains('jb-common-fullscreen')||e.button!==0)return;
+    var r=w.getBoundingClientRect();drag={id:e.pointerId,x:e.clientX,y:e.clientY,left:r.left,top:r.top};
+    w.style.left=r.left+'px';w.style.top=r.top+'px';w.style.right='auto';w.style.bottom='auto';w.style.transform='none';
+    w.style.zIndex='2147483002';
+    e.preventDefault();e.stopImmediatePropagation();
+    try{h.setPointerCapture(e.pointerId)}catch(_){}
+   },true);
+   h.addEventListener('pointermove',function(e){if(!drag||drag.id!==e.pointerId)return;var nx=Math.max(0,Math.min(window.innerWidth-w.offsetWidth,drag.left+e.clientX-drag.x));var ny=Math.max(0,Math.min(window.innerHeight-45,drag.top+e.clientY-drag.y));w.style.left=nx+'px';w.style.top=ny+'px';e.preventDefault();},true);
+   function end(e){if(drag&&(!e||drag.id===e.pointerId))drag=null;}
+   h.addEventListener('pointerup',end,true);h.addEventListener('pointercancel',end,true);h.addEventListener('lostpointercapture',end,true);
+  }
+  var news=document.getElementById('jbRsNews');
+  if(news&&!news.querySelector('.jbRsNewsMovingText20261025')){
+   var txt=(news.textContent||'').trim();
+   if(txt){news.textContent='';var span=document.createElement('span');span.className='jbRsNewsMovingText20261025';span.textContent=txt;news.appendChild(span);}
+  }
+ }
+ function makeHeaderNewsRun(){
+  document.querySelectorAll('.ticker-text,.news-full-run,.header-news').forEach(function(el){
+   if(el.closest('#jbExamResultWin2026'))return;
+   if(!el.dataset.jbHeaderNewsRun20261025){el.dataset.jbHeaderNewsRun20261025='1';el.style.display='inline-block';el.style.whiteSpace='nowrap';}
+  });
+ }
+ function run(){installResultControls();makeHeaderNewsRun();}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run);else run();
+ new MutationObserver(run).observe(document.documentElement,{childList:true,subtree:true});
+ window.addEventListener('resize',run);
+})();
+</script>
+<!-- ===== END EXAM RESULT WINDOW DRAG + FULLSCREEN + RUNNING NEWS FIX ===== -->
