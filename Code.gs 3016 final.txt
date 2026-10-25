@@ -3039,10 +3039,33 @@ function publishExamDashboardResults(token, exam, className, academicYear) {
   SpreadsheetApp.flush();
   return {ok:true,published:rows.length,message:rows.length+' জনের ফলাফল প্রকাশ করা হয়েছে।'};
 }
+function publishExamDashboardStudentResult(token, studentId, exam, className, academicYear) {
+  auth_(token); requireFeature_(token,'result');
+  const id=String(studentId||'').trim(),ex=String(exam||'').trim(),cl=String(className||'').trim(),year=String(academicYear||'').trim();
+  if(!id||!ex||!cl||!year)return {ok:false,message:'শিক্ষার্থী, পরীক্ষা, শ্রেণি ও শিক্ষাবর্ষ আবশ্যক।'};
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.RESULTS);
+  if(!sh)return {ok:false,message:'RESULTS শিট পাওয়া যায়নি।'};
+  const headers=ensureExamAcademicYearColumn_(sh),values=sh.getDataRange().getValues(),ix={};
+  headers.forEach(function(h,i){ix[h]=i;});
+  if(ix.StudentID==null||ix.Exam==null||ix.Class==null||ix.Published==null||ix.SubjectData==null||ix.AcademicYear==null)
+    return {ok:false,message:'RESULTS শিটের প্রয়োজনীয় কলাম পাওয়া যায়নি।'};
+  for(let i=1;i<values.length;i++){
+    const row=values[i];
+    if(String(row[ix.StudentID]||'').trim()!==id||String(row[ix.Exam]||'').trim()!==ex||String(row[ix.Class]||'').trim()!==cl||String(row[ix.AcademicYear]||'').trim()!==year)continue;
+    let subjects=[];
+    try{const parsed=typeof row[ix.SubjectData]==='string'?JSON.parse(row[ix.SubjectData]||'[]'):row[ix.SubjectData];subjects=Array.isArray(parsed)?parsed:[];}catch(e){}
+    if(!subjects.length)return {ok:false,message:'এই শিক্ষার্থীর কোনো বিষয়ভিত্তিক নম্বর সংরক্ষিত নেই।'};
+    sh.getRange(i+1,ix.Published+1).setValue('YES');
+    SpreadsheetApp.flush();
+    return {ok:true,published:1,studentId:id,message:'শিক্ষার্থীর ফলাফল অনলাইন প্ল্যাটফর্মে প্রকাশ করা হয়েছে।'};
+  }
+  return {ok:false,message:'নির্বাচিত পরীক্ষা, শ্রেণি ও শিক্ষাবর্ষে এই শিক্ষার্থীর সংরক্ষিত ফলাফল পাওয়া যায়নি।'};
+}
+
 function getPublicExamResult(query) {
   const q=String(query||'').trim(); if(!q)return {ok:false,message:'Student ID / মোবাইল নম্বর দিন।'};
   const students=listRows_(SHEETS.STUDENTS,'',10000);
-  const student=students.find(function(x){return String(x.StudentID||'').trim()===q||String(x.Mobile||'').trim()===q||String(x.MobileID||'').trim()===q;});
+  const student=students.find(function(x){return [x.StudentID,x.FormID,x.AdmissionID,x.HandwrittenID,x.Mobile,x.MobileID].some(function(v){return String(v||'').trim()===q;});});
   if(!student)return {ok:false,message:'শিক্ষার্থী পাওয়া যায়নি।'};
   const rows=listRows_(SHEETS.RESULTS,'',10000).filter(function(x){
     return String(x.StudentID||'').trim()===String(student.StudentID||'').trim() && /^(YES|TRUE|1|PUBLISHED|প্রকাশিত)$/i.test(String(x.Published||'').trim());
