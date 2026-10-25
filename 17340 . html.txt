@@ -1331,7 +1331,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       <button type="button" class="primary login-online-admission20261017" onclick="openModule('admission')">📝 অনলাইন ভর্তি ফর্ম</button><select id="loginSignal" class="field" onchange="syncSearchSignal('login')"><option value="">সংকেত নির্বাচন করুন</option></select><input id="loginSearch" class="field" placeholder="সংকেত নির্বাচন করে ID / মোবাইল / ইমেইল লিখুন" onkeydown="if(event.key==='Enter')doSearch('login')"><button class="primary" onclick="doSearch('login')">🔎</button>
     </div>
     <div class="quick">
-      <button onclick="openModule('payment')">অনলাইন পেমেন্ট</button><button type="button" onclick="openOnlineResult2026()">📱 অনলাইন ফলাফল</button><button onclick="openModule('exam')">পরীক্ষার্থী নিবন্ধন</button><button onclick="openModule('admin')">নতুন অ্যাডমিন একাউন্ট</button><button onclick="openModule('madrasa')">নতুন মাদ্রাসা নিবন্ধন</button><button onclick="openWindow('quickWin')">দ্রুত সেবা</button>
+      <button onclick="openModule('payment')">অনলাইন পেমেন্ট</button><button type="button" onclick="openOnlineExamResult2026()">📱 অনলাইন ফলাফল</button><button onclick="openModule('exam')">পরীক্ষার্থী নিবন্ধন</button><button onclick="openModule('admin')">নতুন অ্যাডমিন একাউন্ট</button><button onclick="openModule('madrasa')">নতুন মাদ্রাসা নিবন্ধন</button><button onclick="openWindow('quickWin')">দ্রুত সেবা</button>
     </div>
     <section id="loginContactStrip20261013" aria-label="মাদ্রাসার যোগাযোগ">
   <div class="lc-title">📞 যোগাযোগ</div>
@@ -12624,14 +12624,36 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   window.searchOnlineResult2026=async function(){
     var q=String(E('jbOnlineResultQuery2026')&&E('jbOnlineResultQuery2026').value||'').trim();
     if(!q)return toast('Student ID / মোবাইল নম্বর দিন।');
-    var box=E('jbOnlineResultBody2026');if(box)box.innerHTML='<p>⏳ ফলাফল খোঁজা হচ্ছে...</p>';
+    var box=E('jbOnlineResultBody2026');
+    if(box)box.innerHTML='<p>⏳ ফলাফল খোঁজা হচ্ছে...</p>';
     try{
-      var cfg=await call('getPublicConfig');
-      var sig=findSignal(cfg&&cfg.signals);
-      var r=await call('searchAll','',sig,q);
-      if(!r||!r.ok){if(box)box.innerHTML='<p>❌ '+esc(r&&r.message||'ফলাফল পাওয়া যায়নি।')+'</p>';return}
-      renderRows(r.matches||[],q);
-    }catch(e){if(box)box.innerHTML='<p>❌ সার্ভার ত্রুটি: '+esc(e&&e.message||e)+'</p>'}
+      /* Use the public-results endpoint already used by the online-result module. */
+      var r=await call('getPublicExamResult',q);
+      if(!r||!r.ok){
+        if(box)box.innerHTML='<p>❌ '+esc(r&&r.message||'এই ID-তে প্রকাশিত ফলাফল পাওয়া যায়নি।')+'</p>';
+        return;
+      }
+      var student=r.student||{};
+      var rows=r.results||[];
+      if(!rows.length){
+        if(box)box.innerHTML='<p>এই শিক্ষার্থীর কোনো প্রকাশিত ফলাফল পাওয়া যায়নি।</p>';
+        return;
+      }
+      var html='<div class="jb-or-card"><div class="jb-or-title">'+esc(student.nameBN||student.name||'শিক্ষার্থীর ফলাফল')+'</div><div class="jb-or-student"><b>ID: '+esc(student.studentId||q)+'</b><span>শ্রেণি: '+esc(student.className||'—')+'</span></div>';
+      rows.forEach(function(x){
+        html+='<section class="jb-or-card"><h3>'+esc(x.exam||x.examName||'পরীক্ষার ফলাফল')+'</h3><div class="jb-or-subjects"><div class="jb-or-head"><b>বিষয়</b><b>নম্বর</b></div>';
+        (x.subjects||[]).forEach(function(y){
+          var mark=y.marks!=null?y.marks:(y.mark!=null?y.mark:'—');
+          var fail=Number.isFinite(Number(mark))&&Number(mark)<33;
+          html+='<div><span>'+esc(y.subject||y.name||'')+'</span><b'+(fail?' style="color:#b00020;background:#ffe1e1"':'')+'>'+esc(mark)+(fail?' — ফেল':'')+'</b></div>';
+        });
+        html+='</div><div class="jb-or-total"><span>মোট নম্বর</span><b>'+esc(x.total==null?'—':x.total)+'</b><span>Grade / GPA</span><b>'+esc(x.grade||'—')+' / '+esc(x.gpa==null?'—':x.gpa)+'</b></div></section>';
+      });
+      html+='</div>';
+      if(box)box.innerHTML=html;
+    }catch(e){
+      if(box)box.innerHTML='<p>❌ সার্ভার ত্রুটি: '+esc(e&&e.message||e)+'</p>';
+    }
   };
 })();
 </script>
