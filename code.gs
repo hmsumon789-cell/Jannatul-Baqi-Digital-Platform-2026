@@ -1026,3 +1026,108 @@ function searchFinanceReceipt(token,receiptId){
   return {ok:false,message:'এই আইডিতে কোনো রসিদ পাওয়া যায়নি।'};
 }
 /* ===== END FINANCE SAVE API FIX ===== */
+
+
+
+/* ===== EXAM RESULT ENTRY + PUBLICATION WORKFLOW 2026-10-25 ===== */
+function getExamDashboardOptions(token) {
+  auth_(token); requireFeature_(token,'exam');
+  const students=listRows_(SHEETS.STUDENTS,token,10000);
+  const regs=listRows_(SHEETS.EXAM_REG,token,10000);
+  const results=listRows_(SHEETS.RESULTS,token,10000);
+  const exams=[...new Set(regs.concat(results).map(r=>String(r.Exam||'').trim()).filter(Boolean))].sort();
+  const classes=[...new Set(students.map(r=>String(r.Class||'').trim()).filter(Boolean))].sort();
+  const subjects=['কুরআন মাজীদ','হাদিস শরীফ','ফিকহ','আকাইদ','আরবি','বাংলা','ইংরেজি','গণিত','তাজবিদ','নাহু','সরফ'];
+  return {ok:true,exams:exams,classes:classes,subjects:subjects};
+}
+function findExamDashboardStudent(token, query) {
+  auth_(token); requireFeature_(token,'exam');
+  const q=String(query||'').trim().toLowerCase();
+  if(!q)return {ok:false,message:'শিক্ষার্থীর ID দিন।'};
+  const rows=listRows_(SHEETS.STUDENTS,token,10000);
+  const student=rows.find(s=>[s.StudentID,s.FormID,s.MobileID,s.Mobile].some(v=>String(v||'').trim().toLowerCase()===q));
+  return student?{ok:true,student:student}:{ok:false,message:'এই ID-তে শিক্ষার্থী পাওয়া যায়নি।'};
+}
+function saveExamDashboardCandidate(token, studentId, exam, className) {
+  auth_(token); requireFeature_(token,'exam');
+  studentId=String(studentId||'').trim(); exam=String(exam||'').trim(); className=String(className||'').trim();
+  if(!studentId||!exam||!className) return {ok:false,message:'শিক্ষার্থী ID, পরীক্ষা ও শ্রেণি আবশ্যক।'};
+  const ss=SpreadsheetApp.getActiveSpreadsheet(), sh=ss.getSheetByName(SHEETS.STUDENTS), students=listRows_(SHEETS.STUDENTS,token,10000);
+  const student=students.find(s=>String(s.StudentID||'').trim()===studentId);
+  if(!student)return {ok:false,message:'STUDENTS শিটে শিক্ষার্থী পাওয়া যায়নি।'};
+  const regSh=ss.getSheetByName(SHEETS.EXAM_REG), regs=listRows_(SHEETS.EXAM_REG,token,10000);
+  const duplicate=regs.some(r=>String(r.StudentID||'').trim()===studentId&&String(r.Exam||'').trim()===exam&&String(r.Class||'').trim()===className);
+  if(duplicate)return {ok:true,duplicate:true,message:'এই পরীক্ষার্থী আগে থেকেই নিবন্ধিত।'};
+  const h=HEADERS[SHEETS.EXAM_REG], row=h.map(k=>({StudentID:studentId,Exam:exam,Class:className,Branch:student.Branch||'',Status:'REGISTERED',FormData:JSON.stringify({NameBN:student.NameBN||'',AcademicYear:String(new Date().getFullYear())}),CreatedAt:now_()}[k]??''));
+  row[0]=nextSerial_(regSh); row[1]='EXR-'+Date.now()+'-'+studentId;
+  regSh.appendRow(row);
+  return {ok:true,duplicate:false,message:'পরীক্ষার্থী নিবন্ধিত হয়েছে; ফলাফল তৈরির তালিকায় পেন্ডিং হিসেবে দেখা যাবে.'};
+}
+function getExamDashboardData(token, exam, className) {
+  auth_(token); requireFeature_(token,'exam');
+  exam=String(exam||'').trim(); className=String(className||'').trim();
+  const students=listRows_(SHEETS.STUDENTS,token,10000), regs=listRows_(SHEETS.EXAM_REG,token,10000), results=listRows_(SHEETS.RESULTS,token,10000);
+  const studentById={}; students.forEach(s=>{studentById[String(s.StudentID||'').trim()]=s;});
+  const relevantRegs=regs.filter(r=>(!exam||String(r.Exam||'').trim()===exam)&&(!className||String(r.Class||'').trim()===className));
+  const regIds=new Set(relevantRegs.map(r=>String(r.StudentID||'').trim()));
+  const candidateRows=exam?students.filter(s=>regIds.has(String(s.StudentID||'').trim())):students;
+  const enriched=candidateRows.map(s=>{
+    const id=String(s.StudentID||'').trim();
+    const reg=relevantRegs.find(r=>String(r.StudentID||'').trim()===id)||{};
+    return {student:s,registered:!!reg.StudentID,registration:reg};
+  });
+  return {ok:true,students:enriched,results:results.filter(r=>(!exam||String(r.Exam||'').trim()===exam)&&(!className||String(r.Class||'').trim()===className)),counts:{registered:relevantRegs.length,published:results.filter(r=>String(r.Published||'').toUpperCase()==='TRUE').length,results:results.length}};
+}
+function saveExamDashboardMarks(token, exam, className, subject, marks) {
+  auth_(token); requireFeature_(token,'exam');
+  exam=String(exam||'').trim(); className=String(className||'').trim(); subject=String(subject||'').trim();
+  if(!exam||!className||!subject||!Array.isArray(marks)||!marks.length) return {ok:false,message:'পরীক্ষা, শ্রেণি, বিষয় ও নম্বর আবশ্যক।'};
+  const ss=SpreadsheetApp.getActiveSpreadsheet(), sh=ss.getSheetByName(SHEETS.RESULTS), h=HEADERS[SHEETS.RESULTS], values=sh.getDataRange().getValues();
+  const students=listRows_(SHEETS.STUDENTS,token,10000), byId={}; students.forEach(s=>byId[String(s.StudentID||'').trim()]=s);
+  let saved=0;
+  marks.forEach(item=>{
+    const id=String(item.studentId||'').trim(), student=byId[id]; if(!id||!student) return;
+    const mark=Number(item.mark), max=Number(item.maxMark||100); if(!Number.isFinite(mark)||mark<0||mark>max) return;
+    let idx=-1;
+    for(let i=1;i<values.length;i++) if(String(values[i][h.indexOf('StudentID')]||'').trim()===id&&String(values[i][h.indexOf('Exam')]||'').trim()===exam&&String(values[i][h.indexOf('Class')]||'').trim()===className){idx=i;break;}
+    let record=idx>=0?objectFrom_(h,values[idx]):{Serial:'',ResultID:'RES-'+Date.now()+'-'+id,StudentID:id,Name:student.NameBN||'',Class:className,Exam:exam,SubjectData:'[]',Total:0,GPA:'',Grade:'',Published:'FALSE',Date:now_(),CreatedAt:now_()};
+    let subs=[]; try{subs=typeof record.SubjectData==='string'?JSON.parse(record.SubjectData||'[]'):(record.SubjectData||[])}catch(e){subs=[]}
+    if(!Array.isArray(subs))subs=Object.keys(subs||{}).map(k=>({subject:k,marks:subs[k]}));
+    const at=subs.findIndex(z=>String(z.subject||z.Subject||z.name||'')===subject&&String(z.academicYear||'')===String(item.academicYear||''));
+    const sub={subject:subject,marks:mark,maxMark:max,academicYear:String(item.academicYear||''),updatedAt:now_()};
+    if(at>=0)subs[at]=sub;else subs.push(sub);
+    const nums=subs.map(z=>Number(z.marks!=null?z.marks:z.mark)).filter(n=>Number.isFinite(n)), total=nums.reduce((a,b)=>a+b,0), avg=nums.length?total/nums.length:0;
+    record.SubjectData=JSON.stringify(subs); record.Total=total; record.GPA=avg>=80?'5.00':avg>=70?'4.00':avg>=60?'3.50':avg>=50?'3.00':avg>=40?'2.00':avg>=33?'1.00':'0.00'; record.Grade=avg>=80?'A+':avg>=70?'A':avg>=60?'A-':avg>=50?'B':avg>=40?'C':avg>=33?'D':'F'; record.Published='FALSE'; record.Date=now_();
+    if(idx>=0){h.forEach((key,j)=>{if(record[key]!==undefined)sh.getRange(idx+1,j+1).setValue(record[key]);});}
+    else {const row=h.map(k=>record[k]??'');row[0]=nextSerial_(sh);if(!row[1])row[1]='RES-'+Date.now()+'-'+id;sh.appendRow(row);}
+    saved++;
+  });
+  return {ok:saved>0,message:saved+' জন শিক্ষার্থীর '+subject+' নম্বর সংরক্ষণ হয়েছে। ফলাফল এখনো অনলাইনে প্রকাশিত নয়.'};
+}
+function publishExamDashboardStudentResult(token, studentId, exam, className, year) {
+  auth_(token); requireFeature_(token,'exam');
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.RESULTS), v=sh.getDataRange().getValues(), h=v[0];
+  const ix={}; h.forEach((k,i)=>ix[k]=i); let found=0;
+  for(let i=1;i<v.length;i++){
+    if(String(v[i][ix.StudentID]||'').trim()!==String(studentId||'').trim()||String(v[i][ix.Exam]||'').trim()!==String(exam||'').trim()||String(v[i][ix.Class]||'').trim()!==String(className||'').trim())continue;
+    let subs=[];try{subs=JSON.parse(String(v[i][ix.SubjectData]||'[]'))}catch(e){}
+    if(year&&Array.isArray(subs)&&subs.length&&!subs.some(z=>String(z.academicYear||'')===String(year)))continue;
+    if(!subs||!subs.length)return {ok:false,message:'আগে অন্তত একটি বিষয়ের নম্বর সেভ করুন।'};
+    sh.getRange(i+1,ix.Published+1).setValue('TRUE'); found++; break;
+  }
+  return found?{ok:true,message:'ফলাফল অনলাইন প্ল্যাটফর্মে প্রকাশিত হয়েছে। শিক্ষার্থী ID দিয়ে দেখা যাবে।'}:{ok:false,message:'এই শিক্ষার্থীর সংরক্ষিত ফলাফল পাওয়া যায়নি।'};
+}
+function publishExamDashboardResults(token, exam, className, year) {
+  auth_(token); requireFeature_(token,'exam');
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.RESULTS), v=sh.getDataRange().getValues(), h=v[0], ix={};h.forEach((k,i)=>ix[k]=i);
+  let count=0;
+  for(let i=1;i<v.length;i++){
+    if(String(v[i][ix.Exam]||'').trim()!==String(exam||'').trim()||String(v[i][ix.Class]||'').trim()!==String(className||'').trim())continue;
+    let subs=[];try{subs=JSON.parse(String(v[i][ix.SubjectData]||'[]'))}catch(e){}
+    if(year&&Array.isArray(subs)&&subs.length&&!subs.some(z=>String(z.academicYear||'')===String(year)))continue;
+    if(!subs||!subs.length)continue;
+    sh.getRange(i+1,ix.Published+1).setValue('TRUE');count++;
+  }
+  return {ok:count>0,message:count+' জনের ফলাফল অনলাইনে প্রকাশিত হয়েছে।'};
+}
+/* ===== END EXAM RESULT ENTRY + PUBLICATION WORKFLOW ===== */
