@@ -17827,3 +17827,23 @@ function institutionDocumentaryToggle2026(){
 }
 </style>
 <!-- ===== END LOGIN PAGE BUTTON ORDER + LABELS ===== -->
+
+
+<!-- ===== PASSWORD BOX POSITION + WIDTH ADJUSTMENT — 2026-10-26 ===== -->
+<style id="jbPasswordBoxPositionWidthFix20261026">
+/* Password box: 5px lower and 5px wider on each side. */
+#loginPage .login-grid .pass-wrap{
+  top:0!important;
+}
+#loginPage .login-grid .pass-wrap input#password{
+  width:calc(100% + 10px)!important;
+  max-width:none!important;
+  margin-left:-5px!important;
+}
+/* Password eye: move 30px lower relative to its previous centered position. */
+#loginPage .login-grid .pass-wrap .eye{
+  top:calc(50% + 30px)!important;
+  transform:translateY(-50%)!important;
+}
+</style>
+<!-- ===== END PASSWORD BOX ADJUSTMENT ===== -->
