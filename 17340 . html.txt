@@ -17827,3 +17827,14 @@ function institutionDocumentaryToggle2026(){
 }
 </style>
 <!-- ===== END LOGIN PAGE BUTTON ORDER + LABELS ===== -->
+
+
+<!-- ===== PASSWORD BOX POSITION + WIDTH ONLY — 2026-10-26 ===== -->
+<style id="jbPasswordBoxMoveUp20px20261026">
+#loginPage .login-auth-802268e .login-grid .pass-wrap{
+  transform:translateY(-20px)!important;
+  width:calc(100% + 20px)!important;
+  margin-left:-10px!important;
+}
+</style>
+<!-- ===== END PASSWORD BOX POSITION + WIDTH ===== -->
