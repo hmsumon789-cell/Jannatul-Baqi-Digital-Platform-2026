@@ -5825,10 +5825,18 @@ body #app .header-news *{
   };
   function bind(){
     var q=document.querySelectorAll('#loginPage .quick button');
-    var keys=['payment','result','exam','admin','madrasa','quick'];
+    /* Keep the six handlers aligned with the six visible login buttons. */
+    var handlers=[
+      function(){if(typeof window.openAdmissionPanel2026==='function')window.openAdmissionPanel2026();else openPublicFeature('admission');},
+      function(){openPublicFeature('payment');},
+      function(){if(typeof window.openOnlineExamResult2026==='function')window.openOnlineExamResult2026();else openPublicFeature('result');},
+      function(){openPublicFeature('exam');},
+      function(){openPublicFeature('admin');},
+      function(){openPublicFeature('madrasa');}
+    ];
     q.forEach(function(b,i){
-      if(i<5){b.setAttribute('type','button');b.onclick=function(){openPublicFeature(keys[i]);};}
-      else{b.setAttribute('type','button');b.onclick=function(){openWindow('quickWin');};}
+      b.setAttribute('type','button');
+      if(handlers[i])b.onclick=handlers[i];
     });
     var inp=document.getElementById('loginSearch');
     if(inp){inp.placeholder='সংকেত নির্বাচন করে ID / মোবাইল / ইমেইল / নাম লিখুন';}
