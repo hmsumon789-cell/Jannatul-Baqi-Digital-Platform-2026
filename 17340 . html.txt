@@ -17782,3 +17782,19 @@ function institutionDocumentaryToggle2026(){
 }
 </style>
 <!-- ===== END STATIONARY NEWS BOX FIX ===== -->
+
+
+<!-- ===== LOGIN PAGE: REMOVE FOUR REQUESTED OPTIONS — 2026-10-26 ===== -->
+<style id="jbLoginRemoveFourButtons20261026">
+/* Hide only the Super Admin heading on the login page; keep login fields and approved-admin access. */
+#loginPage .login-auth-802268e .super-admin-head{
+  display:none!important;
+}
+/* Remove the four requested buttons from the login page quick-action row only. */
+#loginPage .quick > button[onclick="openModule('payment')"],
+#loginPage .quick > button[onclick="openOnlineExamResult2026()"],
+#loginPage .quick > button[onclick="openModule('admin')"]{
+  display:none!important;
+}
+</style>
+<!-- ===== END LOGIN PAGE OPTION REMOVAL ===== -->
