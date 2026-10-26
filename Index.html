@@ -23,6 +23,9 @@ body.gold .card,body.gold .module,body.gold .stat{border-radius:35px}
 .tools-left,.tools-right{display:flex;gap:6px;align-items:center}.mode{width:36px;height:32px;border:2px solid var(--border);border-radius:9px;background:var(--panel)}
 .login-grid{display:grid;grid-template-columns:1fr 1fr auto;gap:8px}.field{padding:10px;border:2px solid var(--border);border-radius:10px;background:transparent;color:inherit}
 .pass-wrap{position:relative}.pass-wrap input{width:100%}.eye{position:absolute;right:5px;top:5px;height:38px;border:0;background:transparent;color:inherit}
+/* Login password field: move box up 15px, widen 5px per side; keep eye 20px lower on screen */
+.login-grid .pass-wrap{position:relative;top:-15px;margin-left:-5px;margin-right:-5px}
+.login-grid .pass-wrap .eye{top:40px}
 .link-row{display:flex;justify-content:flex-end;margin:7px 0}.actions{display:flex;justify-content:space-between;gap:8px}.primary{background:var(--accent);color:var(--panel);border:2px solid var(--border);padding:10px 16px;border-radius:10px;font-weight:800}.secondary{background:transparent;color:inherit;border:2px solid var(--border);padding:10px 16px;border-radius:10px}
 .searchbar{display:flex;gap:6px;margin-top:10px}.searchbar select{width:230px}.searchbar input{flex:1}.quick{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin-top:10px}.quick button{min-height:54px;border:2px solid var(--border);border-radius:12px;background:var(--panel);color:inherit;font-weight:800}
 .otp{display:none;margin:12px 0}.otp.show{display:block}.otp-boxes{display:flex;justify-content:center;gap:7px}.otp-box{width:44px;height:50px;text-align:center;font-size:25px;font-weight:900;border:3px solid var(--border);border-radius:9px;background:transparent;color:inherit}
