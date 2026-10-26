@@ -12887,27 +12887,36 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 <!-- ===== END LOGIN-FREE ONLINE PAYMENT ENTRY ===== -->
 <script id="jbAutoOpenPaymentWindow2026">
 (function(){
-  function openLoginPaymentWindow(){
-    try{
-      var q=new URLSearchParams(window.location.search||'');
-      if(q.get('payment')!=='1')return;
-      var launch=function(){
+  function startPaymentShortcut(){
+    var q;
+    try{q=new URLSearchParams(window.location.search||'');}catch(e){return;}
+    if(q.get('payment')!=='1')return;
+    var opened=false,tries=0;
+    function attempt(){
+      tries++;
+      if(!opened){
         if(typeof window.openPublicFeature==='function'){
-          window.openPublicFeature('payment');
-          setTimeout(function(){
-            var method=document.getElementById('pMethod');
-            if(method){
-              method.value='হ্যান্ড ক্যাশ';
-              if(typeof window.updatePaymentMethodLogo==='function')window.updatePaymentMethodLogo();
-            }
-          },250);
+          opened=true;
+          try{window.openPublicFeature('payment');}catch(e){opened=false;}
         }
-      };
-      if(document.readyState==='complete'||document.readyState==='interactive')setTimeout(launch,250);
-      else window.addEventListener('DOMContentLoaded',function(){setTimeout(launch,250);},{once:true});
-    }catch(e){}
+      }
+      var method=document.getElementById('pMethod');
+      if(method){
+        method.value='হ্যান্ড ক্যাশ';
+        if(typeof window.updatePaymentMethodLogo==='function'){
+          try{window.updatePaymentMethodLogo();}catch(e){}
+        }
+        return;
+      }
+      if(tries<80)window.setTimeout(attempt,200);
+    }
+    attempt();
   }
-  openLoginPaymentWindow();
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',startPaymentShortcut,{once:true});
+  }else{
+    startPaymentShortcut();
+  }
 })();
 </script>
 
