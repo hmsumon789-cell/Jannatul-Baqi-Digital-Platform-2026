@@ -1333,10 +1333,11 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     <div class="quick">
       <button type="button" class="primary" onclick="openModule('admission')">📝 অনলাইন ভর্তি ফর্ম</button><button onclick="openModule('payment')">অনলাইন পেমেন্ট</button><button type="button" onclick="openOnlineExamResult2026()">📱 অনলাইন ফলাফল</button><button onclick="openModule('exam')">পরীক্ষার্থী নিবন্ধন</button><button onclick="openModule('admin')">নতুন অ্যাডমিন একাউন্ট</button><button onclick="openModule('madrasa')">নতুন মাদ্রাসা নিবন্ধন</button></div>
     <section id="loginContactStrip20261013" aria-label="মাদ্রাসার যোগাযোগ">
-  <div class="lc-title jb-contact-quick-title-20261026"><span>📞 যোগাযোগ</span><button type="button" class="jb-contact-quick-button-20261026" onclick="openWindow('quickWin')">যোগাযোগ +দ্রুত সেবা</button></div>
+  
   <div class="lc-layout">
     <div class="lc-logo-side"><img class="lc-logo" id="loginContactLogo20261013" alt="মাদ্রাসার লোগো"></div>
     <div class="lc-center">
+      <button type="button" class="jb-contact-quick-button-20261026" onclick="openWindow('quickWin')">যোগাযোগ +দ্রুত সেবা</button>
       <div class="lc-name">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div>
       <div class="lc-address">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div>
       <div class="lc-hotline">☎ হটলাইন: 01823316630</div>
@@ -17800,13 +17801,10 @@ function institutionDocumentaryToggle2026(){
 
 <!-- ===== LOGIN PAGE BUTTON ORDER + LABELS — 2026-10-26 ===== -->
 <style id="jbLoginButtonOrderLabels20261026">
-#loginPage .jb-contact-quick-title-20261026{
-  display:flex!important;align-items:center!important;justify-content:space-between!important;
-  gap:10px!important;flex-wrap:wrap!important;text-align:left!important;
-}
-#loginPage .jb-contact-quick-button-20261026{
-  margin:0!important;min-height:36px!important;padding:7px 13px!important;
-  font-weight:900!important;white-space:nowrap!important;flex:0 0 auto!important;
+#loginPage .lc-center .jb-contact-quick-button-20261026{
+  display:block!important;width:fit-content!important;max-width:100%!important;
+  margin:0 auto 8px!important;min-height:36px!important;padding:7px 13px!important;
+  font-weight:900!important;white-space:normal!important;flex:0 0 auto!important;
 }
 #loginPage .login-searchbar-admission20261017{grid-template-columns:145px minmax(0,1fr) 72px!important}
 #loginPage .login-searchbar-admission20261017 #loginSignal{grid-column:1!important;grid-row:1!important}
@@ -17818,8 +17816,6 @@ function institutionDocumentaryToggle2026(){
   #loginPage .login-searchbar-admission20261017 #loginSignal{grid-column:1!important;grid-row:1!important}
   #loginPage .login-searchbar-admission20261017 #loginSearch{grid-column:1!important;grid-row:2!important}
   #loginPage .login-searchbar-admission20261017 button[onclick="doSearch('login')"]{grid-column:2!important;grid-row:2!important}
-  #loginPage .jb-contact-quick-title-20261026{align-items:stretch!important}
-  #loginPage .jb-contact-quick-button-20261026{white-space:normal!important}
 }
 </style>
 <!-- ===== END LOGIN PAGE BUTTON ORDER + LABELS ===== -->
