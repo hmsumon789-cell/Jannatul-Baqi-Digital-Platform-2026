@@ -2643,3 +2643,30 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
  window.deleteCurrentMedia=function(){if(!media||!media.length)return toast('ডিলেট করার মিডিয়া নেই।');deleteMediaByIndex(mediaIndex)};
 })();
 </script>
+
+
+<style id="stationary-news-slow-text-fix">
+/* নিউজের বক্স স্থির থাকবে; শুধু ভেতরের লেখা ধীরে চলবে */
+#loginPage .ticker{
+  animation:none!important;
+  transform:none!important;
+  position:relative!important;
+  overflow:hidden!important;
+}
+#loginPage .ticker-text{
+  display:block!important;
+  animation:newsRun 36s linear infinite!important;
+  will-change:transform;
+}
+.header-news{
+  animation:none!important;
+  transform:none!important;
+  position:relative!important;
+  overflow:hidden!important;
+}
+.header-news .running-news-text{
+  display:inline-block!important;
+  animation:headerNewsRun 36s linear infinite!important;
+  will-change:transform!important;
+}
+</style>
