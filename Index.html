@@ -716,6 +716,35 @@ body.gold #loginPage .login-main-qr-box{
 @media(max-width:560px){.exam-dashboard-grid,.exam-dashboard-actions{grid-template-columns:1fr}}
 body.dark .exam-dashboard-card,body.dark .exam-dashboard-actions button{background:#000;color:#ffe95c;border-color:#ff1f2f}
 </style>
+<!-- ROYAL GOLD OTP AND CENTER VOICE TOAST -->
+<style>
+/* OTP digits: prominent royal gold */
+#loginPage .otp-box,
+.otp-box {
+  width:54px!important;height:60px!important;min-width:54px!important;
+  font-size:35px!important;font-weight:1000!important;line-height:1!important;
+  color:#b8860b!important;-webkit-text-fill-color:#b8860b!important;
+  background:#fffdf4!important;border:3px solid #d4af37!important;
+  border-radius:13px!important;text-shadow:0 1px 0 #fff0b3;
+  box-shadow:0 3px 10px #b8860b30!important;
+}
+#toast.toast {
+  position:fixed!important;left:50%!important;top:50%!important;
+  right:auto!important;bottom:auto!important;transform:translate(-50%,-50%)!important;
+  z-index:2147483647!important;width:min(620px,90vw)!important;
+  min-height:90px!important;max-height:70vh!important;overflow:auto!important;
+  display:none;padding:26px 30px!important;text-align:center!important;
+  font-size:clamp(22px,3vw,32px)!important;font-weight:900!important;
+  line-height:1.65!important;color:#3b2600!important;
+  background:linear-gradient(135deg,#fffdf4,#fff0b3)!important;
+  border:4px solid #d4af37!important;border-radius:24px!important;
+  box-shadow:0 18px 70px #0008,0 0 24px #d4af3770!important;
+}
+@media(max-width:600px){
+  #loginPage .otp-box,.otp-box{width:42px!important;min-width:42px!important;height:50px!important;font-size:29px!important}
+  #toast.toast{width:92vw!important;padding:20px 16px!important;font-size:22px!important}
+}
+</style>
 </head>
 <body>
 <div id="welcomeScreen">
@@ -1431,7 +1460,24 @@ function deleteExamDraft(id){const a=examDrafts().filter(x=>x.id!==id);setExamDr
 \nfunction goHome(){window.scrollTo({top:0,behavior:'smooth'})}
 function setMode(m){document.body.classList.remove('dark','gold');if(m==='dark')document.body.classList.add('dark');if(m==='gold')document.body.classList.add('gold');localStorage.mode=m}
 function setLang(l){localStorage.lang=l;document.documentElement.dir=l==='ar'?'rtl':'ltr'}
-function toast(t){const x=$('toast');x.textContent=t;x.style.display='block';clearTimeout(window._toast);window._toast=setTimeout(()=>x.style.display='none',3500)}
+function toast(t){
+  const x=$('toast');
+  const message=String(t==null?'':t);
+  x.textContent=message;
+  x.style.display='block';
+  clearTimeout(window._toast);
+  window._toast=setTimeout(()=>{x.style.display='none'},5200);
+  try{
+    if('speechSynthesis' in window && typeof SpeechSynthesisUtterance!=='undefined'){
+      window.speechSynthesis.cancel();
+      const utterance=new SpeechSynthesisUtterance(message);
+      utterance.lang='bn-BD';
+      utterance.rate=0.92;
+      utterance.pitch=1;
+      window.speechSynthesis.speak(utterance);
+    }
+  }catch(e){/* Keep visual feedback working if voice is unavailable. */}
+}
 function dragWindow(el){
   const head=el.querySelector('.win-head');
   if(!head)return;
