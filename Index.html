@@ -2590,6 +2590,38 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
 .media-arrow-new:hover{transform:translateY(-50%) scale(1.08)!important}
 #mediaStageContent .media-center-badge{position:absolute;top:8px;left:50%;transform:translateX(-50%);padding:4px 13px;border-radius:20px;background:rgba(255,232,139,.92);border:2px solid #a80000;color:#4a2400;font-weight:900;box-shadow:0 3px 7px #0004;z-index:10}
 @media(max-width:650px){#mediaStageContent{height:190px!important}.media-arrow-new{width:40px!important;height:40px!important;min-width:40px!important;font-size:20px!important}.media-player-controls{gap:5px!important}.media-player-controls button{min-width:75px!important;padding:5px!important}}
+
+/* Keep news containers stationary; animate only the text inside them. */
+#loginPage .ticker,
+.ticker {
+  position: relative !important;
+  overflow: hidden !important;
+}
+#loginPage .ticker .ticker-text,
+.ticker .ticker-text {
+  display: inline-block !important;
+  flex: 0 0 auto !important;
+  width: max-content !important;
+  max-width: none !important;
+  white-space: nowrap !important;
+  animation: newsRun 36s linear infinite !important;
+  will-change: transform;
+}
+#loginPage .ticker:hover .ticker-text,
+.ticker:hover .ticker-text {
+  animation-play-state: paused !important;
+}
+.header-news {
+  position: relative !important;
+  overflow: hidden !important;
+  transform: none !important;
+  animation: none !important;
+}
+.header-news .running-news-text {
+  animation: headerNewsRun 36s linear infinite !important;
+  will-change: transform;
+}
+
 </style>
 <script id="universal-window-player-3d-2026-09-20-js">
 (function(){
