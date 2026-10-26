@@ -17719,3 +17719,66 @@ function institutionDocumentaryToggle2026(){
 })();
 </script>
 <!-- ===== END EXAM RESULT ENTRY + PER-STUDENT ONLINE PUBLISH ===== -->
+
+
+<!-- ===== STATIONARY NEWS BOX + SLOW INNER TEXT — 2026-10-26 ===== -->
+<style id="jbStationaryNewsBoxFix20261026">
+/* Login page: keep the outer news bar still; animate only its text. */
+#loginPage .ticker{
+  position:relative!important;
+  overflow:hidden!important;
+  white-space:nowrap!important;
+  transform:none!important;
+  animation:none!important;
+}
+#loginPage .ticker-text{
+  display:inline-block!important;
+  width:max-content!important;
+  max-width:none!important;
+  white-space:nowrap!important;
+  animation:jbStationaryNewsText20261026 36s linear infinite!important;
+  will-change:transform!important;
+}
+/* Dashboard: the pill/box and microphone stay in place; only inner text moves. */
+#app .header-news,
+#app > header.header .header-news{
+  position:relative!important;
+  overflow:hidden!important;
+  white-space:nowrap!important;
+  transform:none!important;
+  animation:none!important;
+}
+#app .header-news .running-news-text{
+  display:block!important;
+  flex:1 1 auto!important;
+  min-width:0!important;
+  overflow:hidden!important;
+  white-space:nowrap!important;
+  padding-left:0!important;
+  transform:none!important;
+  animation:none!important;
+}
+#app .header-news .news-full-run{
+  display:inline-block!important;
+  width:max-content!important;
+  max-width:none!important;
+  white-space:nowrap!important;
+  animation:jbStationaryNewsText20261026 36s linear infinite!important;
+  will-change:transform!important;
+}
+@keyframes jbStationaryNewsText20261026{
+  0%{transform:translateX(100%)}
+  100%{transform:translateX(-100%)}
+}
+#loginPage .ticker:hover .ticker-text,
+#app .header-news:hover .news-full-run{
+  animation-play-state:paused!important;
+}
+@media(prefers-reduced-motion:reduce){
+  #loginPage .ticker-text,
+  #app .header-news .news-full-run{
+    animation-duration:60s!important;
+  }
+}
+</style>
+<!-- ===== END STATIONARY NEWS BOX FIX ===== -->
