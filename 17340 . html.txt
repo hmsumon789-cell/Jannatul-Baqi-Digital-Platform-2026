@@ -12760,7 +12760,14 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     return w;
   }
   function open(){
-    var w=ensure();w.style.display='block';w.classList.add('show');
+    var w=ensure();
+    w.style.setProperty('display','block','important');
+    w.style.setProperty('visibility','visible','important');
+    w.style.setProperty('opacity','1','important');
+    w.style.zIndex='2147483000';
+    w.classList.add('show');
+    w.setAttribute('aria-hidden','false');
+    try{w.scrollIntoView({block:'center',behavior:'auto'});}catch(e){}
     setTimeout(function(){var x=document.getElementById('jbOnlineExamResultQuery2026');if(x)x.focus();},80);
   }
   function escResult(r){return r;}
@@ -12805,7 +12812,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     var service=document.getElementById('jbLoginOnlineService2026');
     if(lpRow&&pay&&service){
       var loginResult=document.getElementById('jbLoginOnlineResult2026');
-      if(!loginResult){loginResult=document.createElement('button');loginResult.id='jbLoginOnlineResult2026';loginResult.type='button';loginResult.className='primary';loginResult.textContent='📱 অনলাইন ফলাফল';loginResult.title='লগইন ছাড়াই Student ID / মোবাইল দিয়ে প্রকাশিত ফলাফল দেখুন';loginResult.addEventListener('click',function(ev){ev.preventDefault();open();});}
+      if(!loginResult){loginResult=document.createElement('button');loginResult.id='jbLoginOnlineResult2026';loginResult.type='button';loginResult.className='primary';loginResult.textContent='📱 অনলাইন ফলাফল';loginResult.title='লগইন ছাড়াই Student ID / মোবাইল দিয়ে প্রকাশিত ফলাফল দেখুন';loginResult.addEventListener('click',function(ev){if(ev){ev.preventDefault();ev.stopPropagation();}window.openOnlineExamResult2026();});}
       if(pay.parentNode===lpRow&&(loginResult.parentNode!==lpRow||pay.nextElementSibling!==loginResult))pay.insertAdjacentElement('afterend',loginResult);
     }
     /* Login page and examination dashboard share one public viewer.
@@ -12828,7 +12835,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       }
       if(b2.dataset.jbPublicResultBound!=='1'){
         b2.dataset.jbPublicResultBound='1';
-        b2.addEventListener('click',function(ev){ev.preventDefault();open();});
+        b2.addEventListener('click',function(ev){if(ev){ev.preventDefault();ev.stopPropagation();}window.openOnlineExamResult2026();});
       }
     }
   }
