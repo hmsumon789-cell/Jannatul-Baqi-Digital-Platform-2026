@@ -12803,23 +12803,38 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
        getPublicExamResult(query) is intentionally called without an admin token. */
     var lp=document.getElementById('loginPage');
     if(lp){
-      /* Place the existing public result button immediately to the left of the online-service button. */
-      var loginResultButton=Array.prototype.find.call(lp.querySelectorAll('button'),function(b){return /অনলাইন ফলাফল/.test(String(b.textContent||''))&&b.id!=='jbExamOnlineResult2026';});
+      /* Create a dedicated, visible login-page public-result button in the exact service/payment row. */
       var serviceButton=document.getElementById('jbLoginOnlineService2026');
       var servicePaymentRow=document.getElementById('jbLoginServicePaymentRow2026');
-      if(loginResultButton&&serviceButton&&servicePaymentRow){
-        loginResultButton.removeAttribute('onclick');
-        loginResultButton.textContent='📱 অনলাইন ফলাফল';
-        loginResultButton.classList.add('jb-login-public-result-2026');
+      var loginResultButton=document.getElementById('jbLoginPublicResultLogin2026');
+      if(serviceButton&&servicePaymentRow){
+        if(!loginResultButton){
+          loginResultButton=document.createElement('button');
+          loginResultButton.id='jbLoginPublicResultLogin2026';
+          loginResultButton.type='button';
+          loginResultButton.className='primary jb-login-public-result-2026';
+          loginResultButton.textContent='📱 অনলাইন ফলাফল';
+          loginResultButton.addEventListener('click',function(ev){ev.preventDefault();open();});
+        }
         loginResultButton.style.setProperty('display','inline-flex','important');
+        loginResultButton.style.setProperty('visibility','visible','important');
+        loginResultButton.style.setProperty('opacity','1','important');
         loginResultButton.style.setProperty('align-items','center','important');
         loginResultButton.style.setProperty('justify-content','center','important');
         loginResultButton.style.setProperty('width','100%','important');
         loginResultButton.style.setProperty('min-width','0','important');
+        loginResultButton.style.setProperty('min-height','54px','important');
         loginResultButton.style.setProperty('margin','0','important');
+        loginResultButton.style.setProperty('position','relative','important');
+        loginResultButton.style.setProperty('z-index','2','important');
         if(loginResultButton.parentNode!==servicePaymentRow||loginResultButton.nextElementSibling!==serviceButton){
           servicePaymentRow.insertBefore(loginResultButton,serviceButton);
         }
+        Array.prototype.forEach.call(lp.querySelectorAll('button'),function(b){
+          if(b!==loginResultButton&&b.id!=='jbExamOnlineResult2026'&&/অনলাইন ফলাফল/.test(String(b.textContent||''))){
+            if(b.parentNode&&b.parentNode.classList&&b.parentNode.classList.contains('quick'))b.style.setProperty('display','none','important');
+          }
+        });
       }
       Array.prototype.forEach.call(lp.querySelectorAll('button'),function(b){
         if(!/অনলাইন ফলাফল/.test(String(b.textContent||''))||b.id==='jbExamOnlineResult2026')return;
