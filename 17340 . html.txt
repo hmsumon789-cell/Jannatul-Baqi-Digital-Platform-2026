@@ -1310,7 +1310,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     <div class="login-auth-qr-802268e">
       <div class="login-auth-802268e">
         <div class="super-admin-head">সুপার অ্যাডমিন</div>
-        <button class="approved-admin secondary" type="button" onclick="openApprovedLogin()">অনুমোদিত অ্যাডমিন</button>
+        <button class="approved-admin secondary" type="button" onclick="openApprovedLogin()">সুপার অ্যাডমিন+অনুমোদিত মাদ্রাসা</button>
         <div class="login-grid">
           <input id="username" class="field" placeholder="ইউজার নেম">
           <div class="pass-wrap"><input id="password" class="field" type="password" placeholder="পাসওয়ার্ড"><button class="eye" type="button" onclick="togglePassword()">👁</button></div>
@@ -1328,16 +1328,16 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       <button class="secondary" onclick="clearOtp()">Clear</button>
     </div>
     <div class="searchbar login-searchbar-admission20261017">
-      <button type="button" class="primary login-online-admission20261017" onclick="openModule('admission')">📝 অনলাইন ভর্তি ফর্ম</button><select id="loginSignal" class="field" onchange="syncSearchSignal('login')"><option value="">সংকেত নির্বাচন করুন</option></select><input id="loginSearch" class="field" placeholder="সংকেত নির্বাচন করে ID / মোবাইল / ইমেইল লিখুন" onkeydown="if(event.key==='Enter')doSearch('login')"><button class="primary" onclick="doSearch('login')">🔎</button>
+      <select id="loginSignal" class="field" onchange="syncSearchSignal('login')"><option value="">সংকেত নির্বাচন করুন</option></select><input id="loginSearch" class="field" placeholder="সংকেত নির্বাচন করে ID / মোবাইল / ইমেইল লিখুন" onkeydown="if(event.key==='Enter')doSearch('login')"><button class="primary" onclick="doSearch('login')">🔎</button>
     </div>
     <div class="quick">
-      <button onclick="openModule('payment')">অনলাইন পেমেন্ট</button><button type="button" onclick="openOnlineExamResult2026()">📱 অনলাইন ফলাফল</button><button onclick="openModule('exam')">পরীক্ষার্থী নিবন্ধন</button><button onclick="openModule('admin')">নতুন অ্যাডমিন একাউন্ট</button><button onclick="openModule('madrasa')">নতুন মাদ্রাসা নিবন্ধন</button><button onclick="openWindow('quickWin')">দ্রুত সেবা</button>
-    </div>
+      <button type="button" class="primary" onclick="openModule('admission')">📝 অনলাইন ভর্তি ফর্ম</button><button onclick="openModule('payment')">অনলাইন পেমেন্ট</button><button type="button" onclick="openOnlineExamResult2026()">📱 অনলাইন ফলাফল</button><button onclick="openModule('exam')">পরীক্ষার্থী নিবন্ধন</button><button onclick="openModule('admin')">নতুন অ্যাডমিন একাউন্ট</button><button onclick="openModule('madrasa')">নতুন মাদ্রাসা নিবন্ধন</button></div>
     <section id="loginContactStrip20261013" aria-label="মাদ্রাসার যোগাযোগ">
-  <div class="lc-title">📞 যোগাযোগ</div>
+  
   <div class="lc-layout">
     <div class="lc-logo-side"><img class="lc-logo" id="loginContactLogo20261013" alt="মাদ্রাসার লোগো"></div>
     <div class="lc-center">
+      <button type="button" class="jb-contact-quick-button-20261026" onclick="openWindow('quickWin')">যোগাযোগ +দ্রুত সেবা</button>
       <div class="lc-name">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div>
       <div class="lc-address">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div>
       <div class="lc-hotline">☎ হটলাইন: 01823316630</div>
@@ -5825,10 +5825,18 @@ body #app .header-news *{
   };
   function bind(){
     var q=document.querySelectorAll('#loginPage .quick button');
-    var keys=['payment','result','exam','admin','madrasa','quick'];
+    /* Keep the six handlers aligned with the six visible login buttons. */
+    var handlers=[
+      function(){if(typeof window.openAdmissionPanel2026==='function')window.openAdmissionPanel2026();else openPublicFeature('admission');},
+      function(){openPublicFeature('payment');},
+      function(){if(typeof window.openOnlineExamResult2026==='function')window.openOnlineExamResult2026();else openPublicFeature('result');},
+      function(){openPublicFeature('exam');},
+      function(){openPublicFeature('admin');},
+      function(){openPublicFeature('madrasa');}
+    ];
     q.forEach(function(b,i){
-      if(i<5){b.setAttribute('type','button');b.onclick=function(){openPublicFeature(keys[i]);};}
-      else{b.setAttribute('type','button');b.onclick=function(){openWindow('quickWin');};}
+      b.setAttribute('type','button');
+      if(handlers[i])b.onclick=handlers[i];
     });
     var inp=document.getElementById('loginSearch');
     if(inp){inp.placeholder='সংকেত নির্বাচন করে ID / মোবাইল / ইমেইল / নাম লিখুন';}
@@ -17719,3 +17727,147 @@ function institutionDocumentaryToggle2026(){
 })();
 </script>
 <!-- ===== END EXAM RESULT ENTRY + PER-STUDENT ONLINE PUBLISH ===== -->
+
+
+<!-- ===== STATIONARY NEWS BOX + SLOW INNER TEXT — 2026-10-26 ===== -->
+<style id="jbStationaryNewsBoxFix20261026">
+/* Login page: keep the outer news bar still; animate only its text. */
+#loginPage .ticker{
+  position:relative!important;
+  overflow:hidden!important;
+  white-space:nowrap!important;
+  transform:none!important;
+  animation:none!important;
+}
+#loginPage .ticker-text{
+  display:inline-block!important;
+  width:max-content!important;
+  max-width:none!important;
+  white-space:nowrap!important;
+  animation:jbStationaryNewsText20261026 36s linear infinite!important;
+  will-change:transform!important;
+}
+/* Dashboard: the pill/box and microphone stay in place; only inner text moves. */
+#app .header-news,
+#app > header.header .header-news{
+  position:relative!important;
+  overflow:hidden!important;
+  white-space:nowrap!important;
+  transform:none!important;
+  animation:none!important;
+}
+#app .header-news .running-news-text{
+  display:block!important;
+  flex:1 1 auto!important;
+  min-width:0!important;
+  overflow:hidden!important;
+  white-space:nowrap!important;
+  padding-left:0!important;
+  transform:none!important;
+  animation:none!important;
+}
+#app .header-news .news-full-run{
+  display:inline-block!important;
+  width:max-content!important;
+  max-width:none!important;
+  white-space:nowrap!important;
+  animation:jbStationaryNewsText20261026 36s linear infinite!important;
+  will-change:transform!important;
+}
+@keyframes jbStationaryNewsText20261026{
+  0%{transform:translateX(100%)}
+  100%{transform:translateX(-100%)}
+}
+#loginPage .ticker:hover .ticker-text,
+#app .header-news:hover .news-full-run{
+  animation-play-state:paused!important;
+}
+@media(prefers-reduced-motion:reduce){
+  #loginPage .ticker-text,
+  #app .header-news .news-full-run{
+    animation-duration:60s!important;
+  }
+}
+</style>
+<!-- ===== END STATIONARY NEWS BOX FIX ===== -->
+
+
+<!-- ===== LOGIN PAGE: REMOVE FOUR REQUESTED OPTIONS — 2026-10-26 ===== -->
+<style id="jbLoginRemoveFourButtons20261026">
+/* Hide only the Super Admin heading on the login page; keep login fields and approved-admin access. */
+#loginPage .login-auth-802268e .super-admin-head{
+  display:none!important;
+}
+/* Remove the four requested buttons from the login page quick-action row only. */
+#loginPage .quick > button[onclick="openModule('payment')"],
+#loginPage .quick > button[onclick="openOnlineExamResult2026()"],
+#loginPage .quick > button[onclick="openModule('admin')"]{
+  display:none!important;
+}
+</style>
+<!-- ===== END LOGIN PAGE OPTION REMOVAL ===== -->
+
+<!-- ===== LOGIN PAGE BUTTON ORDER + LABELS — 2026-10-26 ===== -->
+<style id="jbLoginButtonOrderLabels20261026">
+#loginPage .lc-center .jb-contact-quick-button-20261026{
+  display:block!important;width:fit-content!important;max-width:100%!important;
+  margin:0 auto 8px!important;min-height:36px!important;padding:7px 13px!important;
+  font-weight:900!important;white-space:normal!important;flex:0 0 auto!important;
+}
+#loginPage .login-searchbar-admission20261017{grid-template-columns:145px minmax(0,1fr) 72px!important}
+#loginPage .login-searchbar-admission20261017 #loginSignal{grid-column:1!important;grid-row:1!important}
+#loginPage .login-searchbar-admission20261017 #loginSearch{grid-column:2!important;grid-row:1!important}
+#loginPage .login-searchbar-admission20261017 button[onclick="doSearch('login')"]{grid-column:3!important;grid-row:1!important}
+#loginPage .quick button[onclick="openModule('admission')"]{font-weight:900!important}
+@media(max-width:760px){
+  #loginPage .login-searchbar-admission20261017{grid-template-columns:minmax(0,1fr) 48px!important}
+  #loginPage .login-searchbar-admission20261017 #loginSignal{grid-column:1!important;grid-row:1!important}
+  #loginPage .login-searchbar-admission20261017 #loginSearch{grid-column:1!important;grid-row:2!important}
+  #loginPage .login-searchbar-admission20261017 button[onclick="doSearch('login')"]{grid-column:2!important;grid-row:2!important}
+}
+</style>
+<!-- ===== END LOGIN PAGE BUTTON ORDER + LABELS ===== -->
+
+<!-- JB centered voice feedback + golden OTP digits 2026-10-27 -->
+<style id="jb-centered-voice-feedback-otp-20261027">
+/* সব Toast/ফিডব্যাক স্ক্রিনের মাঝখানে বড় করে */
+#toast.toast{
+  position:fixed!important;left:50%!important;top:50%!important;right:auto!important;bottom:auto!important;
+  transform:translate(-50%,-50%)!important;width:min(92vw,820px)!important;max-width:92vw!important;min-height:90px;
+  padding:24px 30px!important;z-index:2147483647!important;border:4px solid #d4a017!important;border-radius:24px!important;
+  background:rgba(255,252,235,.98)!important;color:#392700!important;box-shadow:0 16px 55px #0006!important;
+  text-align:center!important;font-size:clamp(25px,3.2vw,42px)!important;line-height:1.5!important;font-weight:900!important;overflow-wrap:anywhere;
+}
+body.dark #toast.toast{background:#111!important;color:#ffdc55!important;border-color:#ffca28!important}
+body.gold #toast.toast{background:#fff5c7!important;color:#4b3200!important;border-color:#8b6500!important}
+#otpBoxes .otp-box,.otp-boxes .otp-box{
+  width:54px!important;min-width:54px!important;height:60px!important;font-size:36px!important;line-height:1!important;font-weight:1000!important;
+  color:#b8860b!important;-webkit-text-fill-color:#b8860b!important;border:3px solid #d4a017!important;border-radius:13px!important;
+  background:#fffdf3!important;text-align:center!important;box-shadow:0 3px 10px #b8860b25!important;
+}
+#otpBoxes,.otp-boxes{gap:9px!important;justify-content:center!important}
+@media(max-width:420px){
+ #otpBoxes .otp-box,.otp-boxes .otp-box{width:43px!important;min-width:43px!important;height:51px!important;font-size:30px!important}
+ #toast.toast{padding:18px!important;font-size:25px!important}
+}
+</style>
+<script id="jb-centered-voice-feedback-otp-js-20261027">
+(function(){
+ 'use strict';
+ function speakBangla(message){
+  try{
+   if(!('speechSynthesis' in window)||typeof SpeechSynthesisUtterance==='undefined')return;
+   window.speechSynthesis.cancel();
+   var utterance=new SpeechSynthesisUtterance(String(message||''));utterance.lang='bn-BD';utterance.rate=0.92;utterance.pitch=1;utterance.volume=1;
+   var voices=window.speechSynthesis.getVoices()||[],bn=voices.find(function(v){return /^bn(-|_)/i.test(v.lang||'');});
+   if(bn)utterance.voice=bn;window.speechSynthesis.speak(utterance);
+  }catch(e){}
+ }
+ window.toast=function(message){
+  var box=document.getElementById('toast'),text=String(message==null?'':message);
+  if(box){box.textContent=text;box.style.display='block';clearTimeout(window._toast);window._toast=setTimeout(function(){box.style.display='none';},5000);}
+  speakBangla(text);
+ };
+ window.alert=function(message){window.toast(message);};
+})();
+</script>
