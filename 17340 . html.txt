@@ -12805,9 +12805,10 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     if(lp){
       /* Create a dedicated, visible login-page public-result button in the exact service/payment row. */
       var serviceButton=document.getElementById('jbLoginOnlineService2026');
+      var paymentButton=document.getElementById('jbLoginOnlinePayment2026');
       var servicePaymentRow=document.getElementById('jbLoginServicePaymentRow2026');
       var loginResultButton=document.getElementById('jbLoginPublicResultLogin2026');
-      if(serviceButton&&servicePaymentRow){
+      if(serviceButton&&paymentButton&&servicePaymentRow){
         if(!loginResultButton){
           loginResultButton=document.createElement('button');
           loginResultButton.id='jbLoginPublicResultLogin2026';
@@ -12827,8 +12828,11 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
         loginResultButton.style.setProperty('margin','0','important');
         loginResultButton.style.setProperty('position','relative','important');
         loginResultButton.style.setProperty('z-index','2','important');
-        if(loginResultButton.parentNode!==servicePaymentRow||loginResultButton.nextElementSibling!==serviceButton){
-          servicePaymentRow.insertBefore(loginResultButton,serviceButton);
+        /* Keep the result button immediately to the RIGHT of online payment. */
+        if(paymentButton.parentNode!==servicePaymentRow)servicePaymentRow.insertBefore(paymentButton,serviceButton);
+        if(loginResultButton.parentNode!==servicePaymentRow||paymentButton.nextElementSibling!==loginResultButton){
+          if(paymentButton.nextSibling)servicePaymentRow.insertBefore(loginResultButton,paymentButton.nextSibling);
+          else servicePaymentRow.appendChild(loginResultButton);
         }
         Array.prototype.forEach.call(lp.querySelectorAll('button'),function(b){
           if(b!==loginResultButton&&b.id!=='jbExamOnlineResult2026'&&/অনলাইন ফলাফল/.test(String(b.textContent||''))){
