@@ -12874,7 +12874,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 <style id="jb-login-service-payment-row-2026">
 #loginPage .login .jb-login-service-payment-row-2026{
   display:grid!important;
-  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
   gap:12px!important;
   width:100%!important;
   max-width:none!important;
@@ -12895,7 +12895,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 }
 @media(max-width:700px){
   #loginPage .login .jb-login-service-payment-row-2026{
-    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
     gap:8px!important;
     width:100%!important;
     max-width:none!important;
@@ -12909,6 +12909,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     var lp=document.getElementById('loginPage'),
         panel=lp&&lp.querySelector('.login'),
         p=document.getElementById('jbLoginOnlinePayment2026'),
+        r=document.getElementById('jbLoginOnlineResult2026'),
         s=document.getElementById('jbLoginOnlineService2026');
     if(!lp||!p||!s)return;
     panel=panel||lp;
@@ -12919,8 +12920,17 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       row.className='jb-login-service-payment-row-2026';
     }
     if(row.parentNode!==panel)panel.appendChild(row);
-    if(s.parentNode!==row)row.appendChild(s);
+    if(!r){
+      r=document.createElement('button');
+      r.id='jbLoginOnlineResult2026';
+      r.type='button';
+      r.textContent='📱 অনলাইন ফলাফল';
+      r.title='লগইন ছাড়াই শিক্ষার্থীর আইডি/মোবাইল দিয়ে প্রকাশিত ফলাফল দেখুন';
+      r.style.cssText='display:block!important;width:100%!important;min-height:54px;padding:11px 8px;border:3px solid #8b5e00;border-radius:999px;background:linear-gradient(135deg,#8b5e00,#d4af37);color:#111;font-weight:900;font-size:16px;cursor:pointer;box-shadow:0 7px 18px #0003;';
+    }
     if(p.parentNode!==row)row.appendChild(p);
+    if(r.parentNode!==row)row.appendChild(r);
+    if(s.parentNode!==row)row.appendChild(s);
     row.style.position='relative';
     row.style.left='auto';
     row.style.right='auto';
