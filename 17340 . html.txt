@@ -17849,6 +17849,15 @@ window.alert=function(message){window.toast(message)};
 <style id="jb-online-result-platform-css-20261027">
 #jbOnlineResultPlatform20261027{position:fixed;inset:1vh 1vw;z-index:2147483005;background:var(--panel,#fff);color:var(--text,#222);border:2px solid #b68b22;border-radius:14px;box-shadow:0 12px 50px #0005;display:none;overflow:auto}
 #jbOnlineResultPlatform20261027.show{display:block}
+#jbOnlineResultPlatform20261027.jborp-minimized{inset:auto 18px 18px auto!important;width:min(430px,calc(100vw - 36px));height:auto;max-height:56px;overflow:hidden;border-radius:12px}
+#jbOnlineResultPlatform20261027.jborp-minimized .jborp-body{display:none}
+#jbOnlineResultPlatform20261027.jborp-fullscreen{inset:0!important;width:auto!important;height:auto!important;max-width:none!important;max-height:none!important;border-radius:0!important}
+#jbOnlineResultPlatform20261027 .jborp-head{cursor:move;user-select:none;touch-action:none}
+#jbOnlineResultPlatform20261027 .jborp-head button{cursor:pointer;touch-action:manipulation;white-space:nowrap}
+#jbOnlineResultPlatform20261027 .jborp-head .jborp-window-controls{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+#jbOnlineResultPlatform20261027 .jborp-head .jborp-window-controls button{font-size:14px;padding:5px 9px;border:1px solid #e3c66b;border-radius:6px;background:#254b37;color:#fff8db}
+#jbOnlineResultPlatform20261027 .jborp-head .jborp-window-controls button:hover{background:#37694d}
+#jbOnlineResultPlatform20261027.jborp-minimized .jborp-head{padding:8px 10px}
 #jbOnlineResultPlatform20261027 .jborp-head{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 16px;background:#173d2b;color:#f4d77e;font-weight:900;font-size:clamp(17px,2vw,25px)}
 #jbOnlineResultPlatform20261027 .jborp-body{padding:14px}
 #jbOnlineResultPlatform20261027 .jborp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:12px}
@@ -17866,7 +17875,7 @@ window.alert=function(message){window.toast(message)};
 @media(max-width:600px){#jbOnlineResultPlatform20261027 .jborp-body{padding:8px}#jbOnlineResultPlatform20261027 .jborp-head{padding:9px}}
 </style>
 <div id="jbOnlineResultPlatform20261027" role="dialog" aria-modal="true" aria-label="অনলাইন ফলাফল প্লাটফর্ম">
- <div class="jborp-head"><span>🌐 অনলাইন ফলাফল প্লাটফর্ম — কেন্দ্রীয় ব্যবস্থাপনা</span><button type="button" onclick="window.jbORPClose20261027()">✕ বন্ধ</button></div>
+ <div class="jborp-head" id="jbORPDragHandle20261027"><span>🌐 অনলাইন ফলাফল প্লাটফর্ম — কেন্দ্রীয় ব্যবস্থাপনা</span><div class="jborp-window-controls"><button type="button" id="jbORPMinBtn20261027" aria-label="মিনিমাইজ" title="মিনিমাইজ" onclick="window.jbORPToggleMin20261027()">− মিনিমাইজ</button><button type="button" id="jbORPFullBtn20261027" aria-label="ফুল স্ক্রিন" title="ফুল স্ক্রিন" onclick="window.jbORPToggleFull20261027()">⛶ ফুল স্ক্রিন</button><button type="button" onclick="window.jbORPClose20261027()">✕ বন্ধ</button></div></div>
  <div class="jborp-body">
   <div class="jborp-note">সুপার অ্যাডমিন এখান থেকে সকল মাদ্রাসা ও শাখার প্রকাশিত/পেন্ডিং ফলাফল পরিচালনা করবেন। নির্দিষ্ট মাদ্রাসা/শাখা বাছলে শিক্ষার্থীর রেকর্ডে থাকা মাদ্রাসা ও শাখার তথ্য দিয়ে তালিকা মিলিয়ে দেখানো হবে।</div>
   <div class="jborp-grid">
@@ -17902,8 +17911,10 @@ window.alert=function(message){window.toast(message)};
  function subjectMark(x){var n=x.marks!=null?x.marks:(x.mark!=null?x.mark:(x.Marks!=null?x.Marks:x.value));return n==null?'':String(n)}
  function byId(rows,id){return rows.find(function(x){return String(x.StudentID||x.studentId||'')===String(id||'')})}
  function fill(id,arr,placeholder,keep){var s=el(id),old=keep?s.value:'';if(!s)return;s.innerHTML=(placeholder?'<option value="">'+esc(placeholder)+'</option>':'')+arr.map(function(x){return '<option value="'+esc(x.value)+'">'+esc(x.label)+'</option>'}).join('');if(old&&Array.prototype.some.call(s.options,function(o){return o.value===old}))s.value=old}
- function open(){if(!el(wid))return;el(wid).classList.add('show');el(wid).style.display='block';if(!val('jbORPYear20261027'))el('jbORPYear20261027').value=String(new Date().getFullYear());init()}
- window.jbORPClose20261027=function(){if(el(wid)){el(wid).classList.remove('show');el(wid).style.display='none'}};
+ function open(){if(!el(wid))return;el(wid).classList.add('show');el(wid).classList.remove('jborp-minimized');el(wid).style.display='block';if(!val('jbORPYear20261027'))el('jbORPYear20261027').value=String(new Date().getFullYear());init()}
+ window.jbORPToggleMin20261027=function(){var w=el(wid);if(!w)return;w.classList.toggle('jborp-minimized');var b=el('jbORPMinBtn20261027');if(b){var m=w.classList.contains('jborp-minimized');b.textContent=m?'□ পুনরায় খুলুন':'− মিনিমাইজ';b.title=m?'উইন্ডো পুনরায় খুলুন':'মিনিমাইজ';}};
+ window.jbORPToggleFull20261027=function(){var w=el(wid);if(!w)return;w.classList.toggle('jborp-fullscreen');var b=el('jbORPFullBtn20261027');if(b){var f=w.classList.contains('jborp-fullscreen');b.textContent=f?'⛶ স্বাভাবিক আকার':'⛶ ফুল স্ক্রিন';b.title=f?'স্বাভাবিক আকারে ফিরুন':'ফুল স্ক্রিন';}};
+ window.jbORPClose20261027=function(){if(el(wid)){el(wid).classList.remove('show','jborp-minimized','jborp-fullscreen');el(wid).style.display='none'}};
  async function init(){
   if(!token){note('এই ব্যবস্থাপনা খুলতে আগে অনুমোদিত অ্যাকাউন্টে লগইন করুন।');return}
   if(cache){return}
@@ -18026,7 +18037,23 @@ window.alert=function(message){window.toast(message)};
   }finally{busy=false}
  };
  window.jbORPPrint20261027=function(){var box=el('jbORPList20261027');if(!box||!box.innerHTML){note('প্রিন্টের আগে তালিকা লোড করুন।');return}var w=window.open('','_blank');if(!w){note('প্রিন্ট উইন্ডো খোলা যায়নি; ব্রাউজারের pop-up অনুমতি দিন।');return}w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>অনলাইন ফলাফল প্লাটফর্ম</title><style>body{font-family:Arial,sans-serif;padding:16px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #555;padding:5px;text-align:center}input{border:0;width:60px}.jborp-tools,button{display:none!important}</style></head><body><h2>অনলাইন ফলাফল প্লাটফর্ম</h2><p>'+esc(val('jbORPExam20261027'))+' | '+esc(val('jbORPClass20261027'))+' | '+esc(val('jbORPYear20261027'))+'</p>'+box.innerHTML+'</body></html>');w.document.close();w.focus();w.print()};
+ function enableDrag(){
+  var w=el(wid),h=el('jbORPDragHandle20261027');if(!w||!h||h.dataset.dragReady==='1')return;h.dataset.dragReady='1';
+  var active=false,sx=0,sy=0,left=0,top=0;
+  h.addEventListener('pointerdown',function(e){
+   if(e.target.closest('button'))return;
+   if(w.classList.contains('jborp-fullscreen')||w.classList.contains('jborp-minimized'))return;
+   active=true;sx=e.clientX;sy=e.clientY;var r=w.getBoundingClientRect();left=r.left;top=r.top;
+   w.style.inset='auto';w.style.left=left+'px';w.style.top=top+'px';w.style.right='auto';w.style.bottom='auto';
+   try{h.setPointerCapture(e.pointerId)}catch(_){}
+   e.preventDefault();
+  });
+  h.addEventListener('pointermove',function(e){if(!active)return;var nx=Math.max(0,Math.min(window.innerWidth-w.offsetWidth,left+e.clientX-sx));var ny=Math.max(0,Math.min(window.innerHeight-44,top+e.clientY-sy));w.style.left=nx+'px';w.style.top=ny+'px';});
+  function stop(){active=false}
+  h.addEventListener('pointerup',stop);h.addEventListener('pointercancel',stop);
+ }
  function addButton(){
+  enableDrag();
   var d=el('examDashboardWin');if(!d)return;
   var area=d.querySelector('.jb-exam-actions')||d.querySelector('.windowBody')||d.querySelector('.win-body')||d;
   var b=el('jbOnlineResultPlatformButton20261027');
