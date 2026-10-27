@@ -665,7 +665,7 @@ body.gold #formWin .signature-box{border-radius:0!important;}
 }
 #formWin .form-grid{
   display:grid!important;
-  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
   gap:9px!important;
   align-items:start!important;
 }
@@ -1217,7 +1217,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 #institutionDocumentary2026 .institution-documentary-controls{margin-top:3px!important;gap:3px!important;}
 #institutionDocumentary2026 .institution-documentary-controls button{padding:3px 6px!important;font-size:10px!important;}
 #institutionDocumentary2026 .institution-documentary-footnote{font-size:9px!important;margin-top:2px!important;}
-@media(max-width:700px){#summary.dashboard-summary-inside{grid-template-columns:repeat(3,minmax(0,1fr))!important;}#institutionDocumentary2026 .institution-documentary-stage{height:82px!important;min-height:82px!important;max-height:82px!important;}#institutionDocumentary2026 .institution-documentary-slide{height:76px!important;min-height:76px!important;max-height:76px!important;grid-template-columns:65px minmax(0,1fr)!important;padding:3px!important;gap:5px!important;}#institutionDocumentary2026 .institution-documentary-photo-wrap{height:66px!important;min-height:66px!important;max-height:66px!important;}}
+@media(max-width:700px){#summary.dashboard-summary-inside{grid-template-columns:repeat(2,minmax(0,1fr))!important;}#institutionDocumentary2026 .institution-documentary-stage{height:82px!important;min-height:82px!important;max-height:82px!important;}#institutionDocumentary2026 .institution-documentary-slide{height:76px!important;min-height:76px!important;max-height:76px!important;grid-template-columns:65px minmax(0,1fr)!important;padding:3px!important;gap:5px!important;}#institutionDocumentary2026 .institution-documentary-photo-wrap{height:66px!important;min-height:66px!important;max-height:66px!important;}}
 </style>
 <style id="dashboard-four-stat-boxes-and-login-fix-20261018">
 /* চারটি নির্বাচিত বক্স মিডিয়া প্লেয়ারের কন্ট্রোল লাইনের ২ ইঞ্চি নিচে */
@@ -8116,7 +8116,7 @@ body.gold #headerCalendarWindow .hc-weekday{background:#f4d56b;color:#111;border
 }
 #searchProfilePrint .sp-data{
   display:grid!important;
-  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
   gap:6px!important;
   margin-top:8px!important;
 }
@@ -8580,7 +8580,7 @@ body.dark #searchProfilePrint .sp-bottom-actions button{
 #searchProfilePrint .sp-photo-wrap{display:none!important}
 #searchProfilePrint .sp-data{
   display:grid!important;
-  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
   gap:4px!important;
   margin:0!important;
 }
@@ -9032,7 +9032,7 @@ body.gold #searchProfilePrint .sp-field{border-color:#d40000!important}
 }
 </style>
 <style id="final-8089-fixes">
-.student-meta-row-2026{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important;width:100%!important;margin:0 0 10px!important;padding:0!important;box-sizing:border-box!important}
+.student-meta-row-2026{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;width:100%!important;margin:0 0 10px!important;padding:0!important;box-sizing:border-box!important}
 .student-meta-row-2026 label{display:flex!important;flex-direction:column!important;gap:4px!important;font-weight:900!important}
 .student-meta-row-2026 .field{width:100%!important;min-height:42px!important}
 @media(max-width:700px){.student-meta-row-2026{grid-template-columns:1fr!important}}
@@ -12900,7 +12900,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 <style id="jb-login-service-payment-row-2026">
 #loginPage .login .jb-login-service-payment-row-2026{
   display:grid!important;
-  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
   gap:12px!important;
   width:100%!important;
   max-width:none!important;
@@ -12921,7 +12921,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 }
 @media(max-width:700px){
   #loginPage .login .jb-login-service-payment-row-2026{
-    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
     gap:8px!important;
     width:100%!important;
     max-width:none!important;
@@ -13164,7 +13164,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 
 <!-- ===== FINAL SAFE UI POLISH — LOGIN 3x2 + ONLINE SERVICE + ICON ACTIONS — 2026-10-08 ===== -->
 <style id="jb-final-safe-ui-polish-2026-10-08">
-#loginPage .quick{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
+#loginPage .quick{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
 #loginPage .quick button{min-width:0!important}
 #jbLoginOnlineService2026{display:block!important;width:min(820px,92vw)!important;margin:10px auto 0!important;min-height:54px!important;padding:11px 18px!important}
 #jbDocBuilderWin .jb-doc-preview > .jb-doc-actions{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;grid-template-rows:repeat(2,auto)!important;align-items:center!important;justify-items:center!important;gap:3px!important;width:calc(100% - 40px)!important;overflow:hidden!important;margin:5px auto!important}
