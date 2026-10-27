@@ -17871,7 +17871,7 @@ function institutionDocumentaryToggle2026(){
     var sv=await call('saveExamDashboardMarks',token,ex,cl,name,[{studentId:r.id,name:r.name,mark:n,maxMark:100,academicYear:year}]);
     if(!sv||!sv.ok)throw new Error(sv&&sv.message||name+' সংরক্ষণ হয়নি');
    }
-   note('নম্বর সংরক্ষণ হয়েছে। সংরক্ষণের পর ফলাফল আবার লোড করে যাচাই করুন।');await window.jbORPLoad20261027();
+   note('নম্বর সংরক্ষণ হয়েছে। সংরক্ষণের পর ফলাফল আবার লোড করে যাচাই করুন।');busy=false;await window.jbORPLoad20261027();
   }catch(e){note('নম্বর সংরক্ষণে সমস্যা: '+(e&&e.message||e))}
   finally{busy=false}
  };
@@ -17883,7 +17883,7 @@ function institutionDocumentaryToggle2026(){
   try{
    var out=await call('publishExamDashboardStudentResult',token,r.id,val('jbORPExam20261027'),val('jbORPClass20261027'),val('jbORPYear20261027'));
    if(!out||!out.ok)throw new Error(out&&out.message||'প্রকাশ করা যায়নি');
-   note(out.message||'ফলাফল প্রকাশ হয়েছে।');await window.jbORPLoad20261027();
+   note(out.message||'ফলাফল প্রকাশ হয়েছে।');busy=false;await window.jbORPLoad20261027();
   }catch(e){note('প্রকাশ করা যায়নি: '+(e&&e.message||e)+'। সার্ভারে publishExamDashboardStudentResult ফাংশন থাকা প্রয়োজন।')}
   finally{busy=false}
  };
@@ -17898,7 +17898,7 @@ function institutionDocumentaryToggle2026(){
     try{var out=await call('publishExamDashboardStudentResult',token,r.id,val('jbORPExam20261027'),val('jbORPClass20261027'),val('jbORPYear20261027'));if(!out||!out.ok)throw new Error(out&&out.message||'প্রকাশ ব্যর্থ');done++}
     catch(e){failed.push(r.id+': '+(e&&e.message||e))}
    }
-   note('প্রকাশ সম্পন্ন: '+done+' | ব্যর্থ: '+failed.length+(failed.length?' — '+failed.slice(0,5).join('; '):''));await window.jbORPLoad20261027();
+   note('প্রকাশ সম্পন্ন: '+done+' | ব্যর্থ: '+failed.length+(failed.length?' — '+failed.slice(0,5).join('; '):''));busy=false;await window.jbORPLoad20261027();
   }finally{busy=false}
  };
  window.jbORPPrint20261027=function(){var box=el('jbORPList20261027');if(!box||!box.innerHTML){note('প্রিন্টের আগে তালিকা লোড করুন।');return}var w=window.open('','_blank');if(!w){note('প্রিন্ট উইন্ডো খোলা যায়নি; ব্রাউজারের pop-up অনুমতি দিন।');return}w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>অনলাইন ফলাফল প্লাটফর্ম</title><style>body{font-family:Arial,sans-serif;padding:16px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #555;padding:5px;text-align:center}input{border:0;width:60px}.jborp-tools,button{display:none!important}</style></head><body><h2>অনলাইন ফলাফল প্লাটফর্ম</h2><p>'+esc(val('jbORPExam20261027'))+' | '+esc(val('jbORPClass20261027'))+' | '+esc(val('jbORPYear20261027'))+'</p>'+box.innerHTML+'</body></html>');w.document.close();w.focus();w.print()};
