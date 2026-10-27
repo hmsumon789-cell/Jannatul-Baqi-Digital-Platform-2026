@@ -18061,7 +18061,7 @@ window.alert=function(message){window.toast(message)};
    b.textContent='🌐 অনলাইন ফলাফল প্লাটফর্ম';b.title='সকল মাদ্রাসা/শাখার ফলাফল কেন্দ্রীয়ভাবে পরিচালনা';b.addEventListener('click',open);
   }
   var buttons=Array.prototype.slice.call(lp.querySelectorAll('button'));
-  var target=buttons.find(function(x){return /পরীক্ষার্থী নিবন্ধন/.test(String(x.textContent||''))||/openModule\\(['"]exam['"]\\)/.test(String(x.getAttribute('onclick')||''));});
+  var target=buttons.find(function(x){var label=String(x.textContent||''),onclick=String(x.getAttribute('onclick')||'');return /পরীক্ষার্থী নিবন্ধন/.test(label)||onclick.indexOf("openModule('exam')")>=0||onclick.indexOf('openModule("exam")')>=0;});
   if(target&&target.parentNode){if(b.parentNode!==target.parentNode||b.nextElementSibling!==target)target.parentNode.insertBefore(b,target);}
   else if(!b.parentNode){var row=lp.querySelector('.login-buttons,.login-actions,.button-row,.loginPageButtons')||lp;row.appendChild(b);}
  }
