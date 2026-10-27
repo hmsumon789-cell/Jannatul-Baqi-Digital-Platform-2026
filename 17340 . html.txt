@@ -12803,6 +12803,17 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
        getPublicExamResult(query) is intentionally called without an admin token. */
     var lp=document.getElementById('loginPage');
     if(lp){
+      /* Place the existing public result button immediately to the left of the online-service button. */
+      var loginResultButton=Array.prototype.find.call(lp.querySelectorAll('button'),function(b){return /অনলাইন ফলাফল/.test(String(b.textContent||''))&&b.id!=='jbExamOnlineResult2026';});
+      var serviceButton=document.getElementById('jbLoginOnlineService2026');
+      if(loginResultButton&&serviceButton){
+        loginResultButton.removeAttribute('onclick');
+        loginResultButton.textContent='📱 অনলাইন ফলাফল';
+        loginResultButton.style.margin='0 8px 0 0';
+        loginResultButton.style.display='inline-flex';
+        loginResultButton.style.alignItems='center';
+        serviceButton.insertAdjacentElement('beforebegin',loginResultButton);
+      }
       Array.prototype.forEach.call(lp.querySelectorAll('button'),function(b){
         if(!/অনলাইন ফলাফল/.test(String(b.textContent||''))||b.id==='jbExamOnlineResult2026')return;
         if(b.dataset.jbPublicResultBound==='1')return;
