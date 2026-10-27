@@ -12940,6 +12940,8 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       r.textContent='📱 অনলাইন ফলাফল';
       r.title='লগইন ছাড়াই শিক্ষার্থীর আইডি/মোবাইল দিয়ে প্রকাশিত ফলাফল দেখুন';
       r.style.cssText='display:block!important;width:100%!important;min-height:54px;padding:11px 8px;border:3px solid #8b5e00;border-radius:999px;background:linear-gradient(135deg,#8b5e00,#d4af37);color:#111;font-weight:900;font-size:16px;cursor:pointer;box-shadow:0 7px 18px #0003;';
+      r.dataset.jbPublicResultBound='1';
+      r.onclick=function(ev){ev.preventDefault();if(typeof window.jbOpenPublicOnlineResult2026==='function')window.jbOpenPublicOnlineResult2026();};
     }
     if(p.parentNode!==row)row.appendChild(p);
     if(r.parentNode!==row)row.appendChild(r);
