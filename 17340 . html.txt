@@ -12799,12 +12799,21 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     else if(navigator.clipboard)navigator.clipboard.writeText(txt).then(function(){if(typeof toast==='function')toast('ফলাফলের শেয়ার তথ্য কপি হয়েছে।');});
   };
   function addEntry(){
+    /* Keep a dedicated public result button beside online payment on the login page. */
+    var lpRow=document.getElementById('jbLoginServicePaymentRow2026');
+    var pay=document.getElementById('jbLoginOnlinePayment2026');
+    var service=document.getElementById('jbLoginOnlineService2026');
+    if(lpRow&&pay&&service){
+      var loginResult=document.getElementById('jbLoginOnlineResult2026');
+      if(!loginResult){loginResult=document.createElement('button');loginResult.id='jbLoginOnlineResult2026';loginResult.type='button';loginResult.className='primary';loginResult.textContent='📱 অনলাইন ফলাফল';loginResult.title='লগইন ছাড়াই Student ID / মোবাইল দিয়ে প্রকাশিত ফলাফল দেখুন';loginResult.addEventListener('click',function(ev){ev.preventDefault();open();});}
+      if(pay.parentNode===lpRow&&(loginResult.parentNode!==lpRow||pay.nextElementSibling!==loginResult))pay.insertAdjacentElement('afterend',loginResult);
+    }
     /* Login page and examination dashboard share one public viewer.
        getPublicExamResult(query) is intentionally called without an admin token. */
     var lp=document.getElementById('loginPage');
     if(lp){
       Array.prototype.forEach.call(lp.querySelectorAll('button'),function(b){
-        if(!/অনলাইন ফলাফল/.test(String(b.textContent||''))||b.id==='jbExamOnlineResult2026')return;
+        if(!/অনলাইন ফলাফল/.test(String(b.textContent||''))||b.id==='jbExamOnlineResult2026'||b.id==='jbLoginOnlineResult2026')return;
         if(b.dataset.jbPublicResultBound==='1')return;
         b.dataset.jbPublicResultBound='1';b.type='button';
         b.addEventListener('click',function(ev){ev.preventDefault();open();});
@@ -12882,7 +12891,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 <style id="jb-login-service-payment-row-2026">
 #loginPage .login .jb-login-service-payment-row-2026{
   display:grid!important;
-  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
   gap:12px!important;
   width:100%!important;
   max-width:none!important;
@@ -12903,7 +12912,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 }
 @media(max-width:700px){
   #loginPage .login .jb-login-service-payment-row-2026{
-    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
     gap:8px!important;
     width:100%!important;
     max-width:none!important;
@@ -12927,8 +12936,8 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       row.className='jb-login-service-payment-row-2026';
     }
     if(row.parentNode!==panel)panel.appendChild(row);
-    if(s.parentNode!==row)row.appendChild(s);
     if(p.parentNode!==row)row.appendChild(p);
+    if(s.parentNode!==row)row.appendChild(s);
     row.style.position='relative';
     row.style.left='auto';
     row.style.right='auto';
