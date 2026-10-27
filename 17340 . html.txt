@@ -18054,10 +18054,16 @@ window.alert=function(message){window.toast(message)};
  }
  function addButton(){
   enableDrag();
-  var d=el('examDashboardWin');if(!d)return;
-  var area=d.querySelector('.jb-exam-actions')||d.querySelector('.windowBody')||d.querySelector('.win-body')||d;
+  var lp=el('loginPage');if(!lp)return;
   var b=el('jbOnlineResultPlatformButton20261027');
-  if(!b){b=document.createElement('button');b.id='jbOnlineResultPlatformButton20261027';b.type='button';b.className='primary';b.textContent='🌐 অনলাইন ফলাফল প্লাটফর্ম';b.title='সকল মাদ্রাসা/শাখার ফলাফল কেন্দ্রীয়ভাবে পরিচালনা';b.addEventListener('click',open);area.appendChild(b)}
+  if(!b){
+   b=document.createElement('button');b.id='jbOnlineResultPlatformButton20261027';b.type='button';b.className='primary';
+   b.textContent='🌐 অনলাইন ফলাফল প্লাটফর্ম';b.title='সকল মাদ্রাসা/শাখার ফলাফল কেন্দ্রীয়ভাবে পরিচালনা';b.addEventListener('click',open);
+  }
+  var buttons=Array.prototype.slice.call(lp.querySelectorAll('button'));
+  var target=buttons.find(function(x){return /পরীক্ষার্থী নিবন্ধন/.test(String(x.textContent||''))||/openModule\\(['"]exam['"]\\)/.test(String(x.getAttribute('onclick')||''));});
+  if(target&&target.parentNode){if(b.parentNode!==target.parentNode||b.nextElementSibling!==target)target.parentNode.insertBefore(b,target);}
+  else if(!b.parentNode){var row=lp.querySelector('.login-buttons,.login-actions,.button-row,.loginPageButtons')||lp;row.appendChild(b);}
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){addButton();if(document.body)new MutationObserver(addButton).observe(document.body,{childList:true,subtree:true})},{once:true});
  else {addButton();if(document.body)new MutationObserver(addButton).observe(document.body,{childList:true,subtree:true})}
