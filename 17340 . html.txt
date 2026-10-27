@@ -12755,6 +12755,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     var w=ensure();w.style.display='block';w.classList.add('show');
     setTimeout(function(){var x=document.getElementById('jbOnlineExamResultQuery2026');if(x)x.focus();},80);
   }
+  window.jbOpenPublicOnlineResult2026=open;
   function escResult(r){return r;}
   function render(r){
     var body=document.getElementById('jbOnlineExamResultBody2026');if(!body)return;
@@ -12796,6 +12797,18 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     var lp=document.getElementById('loginPage');
     if(lp){
       Array.prototype.forEach.call(lp.querySelectorAll('button'),function(b){
+        if(b.id==='jbLoginOnlineResult2026'){
+
+          if(b.dataset.jbPublicResultBound==='1')return;
+
+          b.dataset.jbPublicResultBound='1';b.type='button';
+
+          b.onclick=function(ev){ev.preventDefault();if(typeof window.jbOpenPublicOnlineResult2026==='function')window.jbOpenPublicOnlineResult2026();};
+
+          return;
+
+        }
+
         if(!/অনলাইন ফলাফল/.test(String(b.textContent||''))||b.id==='jbExamOnlineResult2026')return;
         if(b.dataset.jbPublicResultBound==='1')return;
         b.dataset.jbPublicResultBound='1';b.type='button';
