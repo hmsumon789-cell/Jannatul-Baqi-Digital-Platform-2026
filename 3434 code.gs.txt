@@ -1721,7 +1721,7 @@ function hash_(s){ return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_
 function maskEmail_(e){ const p=String(e).split('@'); return p.length<2?'':p[0].slice(0,2)+'***@'+p[1]; }
 function sendOtpEmail_(to,otp,user){
   const subject='Login OTP | Jannatul Baqi Digital Platform';
-  const plainBody='Your login OTP is: '+otp+'\\nUser: '+user+'\\nValid for '+APP.otpMinutes+' minutes.';
+  const plainBody='Your login OTP is: '+otp+'\nUser: '+user+'\nValid for '+APP.otpMinutes+' minutes.';
   const safeUser=String(user||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});
   const htmlBody='<div style="font-family:Arial,sans-serif;text-align:center;padding:24px;color:#333;">'
     +'<p style="font-size:18px;">Your login OTP is:</p>'
