@@ -18159,20 +18159,29 @@ window.alert=function(message){window.toast(message)};
    if(head.dataset.jbDragBound20261028==='1')return;
    head.dataset.jbDragBound20261028='1';
    var drag=null;
+   function isControl(target){return !!(target&&target.closest&&target.closest('button,a,input,select,textarea,[role="button"]'));}
    head.addEventListener('pointerdown',function(e){
-     if(w.classList.contains('jb-or-fullscreen20261028')||e.target.closest('button'))return;
-     drag={x:e.clientX,y:e.clientY,left:w.getBoundingClientRect().left,top:w.getBoundingClientRect().top,id:e.pointerId};
-     try{head.setPointerCapture(e.pointerId)}catch(_){}
+     if(w.classList.contains('jb-or-fullscreen20261028')||isControl(e.target)||e.button===2)return;
+     var rect=w.getBoundingClientRect();
+     drag={x:e.clientX,y:e.clientY,left:rect.left,top:rect.top,id:e.pointerId};
+     w.style.setProperty('position','fixed','important');
+     w.style.setProperty('left',rect.left+'px','important');
+     w.style.setProperty('top',rect.top+'px','important');
+     w.style.setProperty('right','auto','important');
+     w.style.setProperty('bottom','auto','important');
+     w.style.setProperty('transform','none','important');
      e.preventDefault();
    });
-   head.addEventListener('pointermove',function(e){
+   document.addEventListener('pointermove',function(e){
      if(!drag||e.pointerId!==drag.id)return;
-     var nx=Math.max(0,Math.min(window.innerWidth-w.offsetWidth,drag.left+e.clientX-drag.x));
-     var ny=Math.max(0,Math.min(window.innerHeight-45,drag.top+e.clientY-drag.y));
-     w.style.setProperty('left',nx+'px','important');w.style.setProperty('top',ny+'px','important');w.style.setProperty('transform','none','important');
-   });
+     var nx=Math.max(0,Math.min(Math.max(0,window.innerWidth-w.offsetWidth),drag.left+e.clientX-drag.x));
+     var ny=Math.max(0,Math.min(Math.max(0,window.innerHeight-45),drag.top+e.clientY-drag.y));
+     w.style.setProperty('left',nx+'px','important');
+     w.style.setProperty('top',ny+'px','important');
+   },{passive:false});
    function end(e){if(drag&&(!e||e.pointerId===drag.id))drag=null;}
-   head.addEventListener('pointerup',end);head.addEventListener('pointercancel',end);
+   document.addEventListener('pointerup',end);
+   document.addEventListener('pointercancel',end);
  }
  function printResult(){
    var body=byId('jbOnlineExamResultBody2026'),brand=byId(BRAND);if(!body)return;
