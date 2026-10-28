@@ -12882,7 +12882,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 <style id="jb-login-service-payment-row-2026">
 #loginPage .login .jb-login-service-payment-row-2026{
   display:grid!important;
-  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
   gap:12px!important;
   width:100%!important;
   max-width:none!important;
@@ -12903,7 +12903,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 }
 @media(max-width:700px){
   #loginPage .login .jb-login-service-payment-row-2026{
-    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
     gap:8px!important;
     width:100%!important;
     max-width:none!important;
@@ -12926,9 +12926,24 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       row.id='jbLoginServicePaymentRow2026';
       row.className='jb-login-service-payment-row-2026';
     }
+    var r=document.getElementById('jbLoginOnlineResultPlatform20261027');
+    if(!r){
+      r=document.createElement('button');
+      r.id='jbLoginOnlineResultPlatform20261027';
+      r.type='button';
+      r.className='primary';
+      r.textContent='🌐 অনলাইন ফলাফল প্লাটফর্ম';
+      r.title='পরীক্ষা ড্যাশবোর্ডের কেন্দ্রীয় অনলাইন ফলাফল ব্যবস্থাপনা';
+      r.style.cssText='display:block!important;width:100%!important;min-height:54px;padding:11px 8px;border:3px solid #8b5e00;border-radius:999px;background:linear-gradient(135deg,#8b5e00,#d4af37);color:#111;font-weight:900;font-size:16px;cursor:pointer;box-shadow:0 7px 18px #0003;';
+      r.addEventListener('click',function(){
+        if(typeof window.jbORPOpenPlatform20261027==='function')window.jbORPOpenPlatform20261027();
+        else alert('অনলাইন ফলাফল প্লাটফর্ম প্রস্তুত হচ্ছে। কিছুক্ষণ পর আবার চেষ্টা করুন।');
+      });
+    }
     if(row.parentNode!==panel)panel.appendChild(row);
     if(s.parentNode!==row)row.appendChild(s);
     if(p.parentNode!==row)row.appendChild(p);
+    if(r.parentNode!==row)row.appendChild(r);
     row.style.position='relative';
     row.style.left='auto';
     row.style.right='auto';
@@ -17912,6 +17927,7 @@ window.alert=function(message){window.toast(message)};
  function byId(rows,id){return rows.find(function(x){return String(x.StudentID||x.studentId||'')===String(id||'')})}
  function fill(id,arr,placeholder,keep){var s=el(id),old=keep?s.value:'';if(!s)return;s.innerHTML=(placeholder?'<option value="">'+esc(placeholder)+'</option>':'')+arr.map(function(x){return '<option value="'+esc(x.value)+'">'+esc(x.label)+'</option>'}).join('');if(old&&Array.prototype.some.call(s.options,function(o){return o.value===old}))s.value=old}
  function open(){if(!el(wid))return;el(wid).classList.add('show');el(wid).classList.remove('jborp-minimized');el(wid).style.display='block';if(!val('jbORPYear20261027'))el('jbORPYear20261027').value=String(new Date().getFullYear());init()}
+ window.jbORPOpenPlatform20261027=open;
  window.jbORPToggleMin20261027=function(){var w=el(wid);if(!w)return;w.classList.toggle('jborp-minimized');var b=el('jbORPMinBtn20261027');if(b){var m=w.classList.contains('jborp-minimized');b.textContent=m?'□ পুনরায় খুলুন':'− মিনিমাইজ';b.title=m?'উইন্ডো পুনরায় খুলুন':'মিনিমাইজ';}};
  window.jbORPToggleFull20261027=function(){var w=el(wid);if(!w)return;w.classList.toggle('jborp-fullscreen');var b=el('jbORPFullBtn20261027');if(b){var f=w.classList.contains('jborp-fullscreen');b.textContent=f?'⛶ স্বাভাবিক আকার':'⛶ ফুল স্ক্রিন';b.title=f?'স্বাভাবিক আকারে ফিরুন':'ফুল স্ক্রিন';}};
  window.jbORPClose20261027=function(){if(el(wid)){el(wid).classList.remove('show','jborp-minimized','jborp-fullscreen');el(wid).style.display='none'}};
