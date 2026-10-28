@@ -12825,9 +12825,11 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   }
   function search(){
     var q=String((document.getElementById('jbOnlineExamResultQuery2026')||{}).value||'').trim();
+    var selectedYear=String((document.getElementById('jbOnlineExamResultYear2026')||{}).value||'').trim();
+    var selectedExam=String((document.getElementById('jbOnlineExamResultExam2026')||{}).value||'').trim();
     var body=document.getElementById('jbOnlineExamResultBody2026');if(!q){if(body)body.innerHTML='<div style="padding:20px;text-align:center">Student ID / মোবাইল নম্বর দিন।</div>';return;}
     if(body)body.innerHTML='<div style="padding:20px;text-align:center">⏳ ফলাফল খোঁজা হচ্ছে...</div>';
-    try{google.script.run.withSuccessHandler(render).withFailureHandler(function(e){render({ok:false,message:'সার্ভার ত্রুটি: '+(e&&e.message||e)});}).getPublicExamResult(q);}
+    try{google.script.run.withSuccessHandler(render).withFailureHandler(function(e){render({ok:false,message:'সার্ভার ত্রুটি: '+(e&&e.message||e)});}).getPublicExamResult(q,selectedYear,selectedExam);}
     catch(e){render({ok:false,message:String(e&&e.message||e)});}
   }
   window.openOnlineExamResult2026=open;
