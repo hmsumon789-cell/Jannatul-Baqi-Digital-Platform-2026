@@ -18193,3 +18193,49 @@ window.alert=function(message){window.toast(message)};
 })();
 </script>
 <!-- ===== END ONLINE RESULT PAGE BRANDING / PRINT-SHARE / FULLSCREEN-DRAG — 2026-10-28 ===== -->
+
+<!-- ===== RESULT-ONLY WINDOW PLACEMENT FIX — 2026-10-28 ===== -->
+<style id="jb-online-result-only-window-fix-20261028">
+#jbOnlineExamResultWin2026 #jbOnlineResultBrand20261028,
+#jbOnlineExamResultWin2026 #jbOnlineResultActions20261028{display:none}
+#jbOnlineExamResultWin2026 #jbOnlineExamResultBody2026 .jb-or-brand20261028{margin-bottom:12px}
+#jbOnlineExamResultWin2026 #jbOnlineExamResultBody2026 .jb-or-bottom-actions20261028{margin-top:14px}
+#jbOnlineExamResultWin2026 .win-head{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#jbOnlineExamResultWin2026 .win-head>b{flex:1;min-width:100px}
+@media(max-width:600px){
+ #jbOnlineExamResultWin2026 .win-head{padding:8px;gap:5px}
+ #jbOnlineExamResultWin2026 .win-body{padding:8px}
+ #jbOnlineExamResultWin2026 #jbOnlineExamResultBody2026 .jb-or-meta{grid-template-columns:1fr 1fr}
+ #jbOnlineExamResultWin2026 #jbOnlineExamResultBody2026 .jb-or-brand20261028{grid-template-columns:46px minmax(0,1fr) 46px;gap:5px;padding:6px}
+ #jbOnlineExamResultWin2026 #jbOnlineExamResultBody2026 .jb-or-brand20261028 .jb-or-logo20261028,
+ #jbOnlineExamResultWin2026 #jbOnlineExamResultBody2026 .jb-or-brand20261028 .jb-or-qr20261028{width:44px;height:44px}
+ #jbOnlineExamResultWin2026 #jbOnlineExamResultBody2026 .jb-or-brandname20261028{font-size:14px}
+ #jbOnlineExamResultWin2026 #jbOnlineExamResultBody2026 .jb-or-brandaddress20261028,
+ #jbOnlineExamResultWin2026 #jbOnlineExamResultBody2026 .jb-or-brandhotline20261028{font-size:10px;overflow-wrap:anywhere}
+}
+</style>
+<script id="jb-online-result-only-window-fix-20261028-js">
+(function(){
+ 'use strict';
+ var W='jbOnlineExamResultWin2026',B='jbOnlineResultBrand20261028',A='jbOnlineResultActions20261028',R='jbOnlineExamResultBody2026';
+ function id(x){return document.getElementById(x);}
+ function placeInActualResult(){
+   var w=id(W),r=id(R),b=id(B),a=id(A);
+   if(!w||!r)return;
+   var hasResult=!!r.querySelector('.jb-or-card');
+   if(b){
+     if(hasResult){if(b.parentNode!==r)r.insertBefore(b,r.firstChild);b.style.display='grid';}
+     else {b.style.display='none';}
+   }
+   if(a){
+     if(hasResult){if(a.parentNode!==r)r.appendChild(a);a.style.display='flex';}
+     else {a.style.display='none';}
+   }
+ }
+ function schedule(){placeInActualResult();}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule);else schedule();
+ if(document.body)new MutationObserver(schedule).observe(document.body,{childList:true,subtree:true});
+ setTimeout(schedule,250);setTimeout(schedule,800);setTimeout(schedule,1800);
+})();
+</script>
+<!-- ===== END RESULT-ONLY WINDOW PLACEMENT FIX — 2026-10-28 ===== -->
