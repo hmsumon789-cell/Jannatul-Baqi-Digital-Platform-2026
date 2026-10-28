@@ -516,7 +516,7 @@ function saveRecord(token,sheetName,data) {
       sh.getRange(1,lastCol+1).setValue('AcademicYear');
       existing.push('AcademicYear');
     }
-    headers=existing.filter(Boolean);
+    headers=existing;
     data.AcademicYear=String(data.AcademicYear||data.academicYear||data.Year||data.year||data.Session||data.session||'').trim();
   }
   const row=headers.map(h=>data[h] ?? '');
