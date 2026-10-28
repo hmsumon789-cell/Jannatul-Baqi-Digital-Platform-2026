@@ -18081,3 +18081,96 @@ window.alert=function(message){window.toast(message)};
 })();
 </script>
 <!-- ===== END ONLINE RESULT PLATFORM — CENTRAL MANAGEMENT ===== -->
+
+<!-- ===== MOVABLE + SCROLLABLE PUBLIC RESULT VIEWER — 2026-10-28 ===== -->
+<style id="jb-movable-online-result-style-20261028">
+/* Keep the public result popup inside the viewport and let users move it. */
+#jbOnlineExamResultWin2026{
+  position:fixed!important;
+  left:50%!important;top:50%!important;
+  right:auto!important;bottom:auto!important;
+  transform:translate(-50%,-50%)!important;
+  width:min(920px,94vw)!important;
+  max-width:94vw!important;
+  max-height:88vh!important;
+  overflow:hidden!important;
+  z-index:2147483000!important;
+  box-sizing:border-box!important;
+}
+#jbOnlineExamResultWin2026 .win-head{
+  cursor:move!important;touch-action:none!important;
+  user-select:none!important;-webkit-user-select:none!important;
+}
+#jbOnlineExamResultWin2026 .win-body{
+  max-height:calc(88vh - 58px)!important;
+  overflow-y:auto!important;overflow-x:hidden!important;
+  overscroll-behavior:contain!important;
+}
+#jbOnlineExamResultBody2026{
+  max-height:60vh!important;overflow-y:auto!important;overflow-x:auto!important;
+  overscroll-behavior:contain!important;
+}
+#jbOnlineExamResultWin2026 .jb-or-card{
+  max-height:70vh!important;overflow:auto!important;
+  overscroll-behavior:contain!important;box-sizing:border-box!important;
+}
+@media(max-width:700px){
+  #jbOnlineExamResultWin2026{width:96vw!important;max-width:96vw!important;max-height:90vh!important}
+  #jbOnlineExamResultWin2026 .win-body{max-height:calc(90vh - 54px)!important}
+  #jbOnlineExamResultBody2026{max-height:65vh!important}
+}
+</style>
+<script id="jb-movable-online-result-script-20261028">
+(function(){
+ 'use strict';
+ function bindMovableResultWindow(){
+   var win=document.getElementById('jbOnlineExamResultWin2026');
+   if(!win || win.dataset.jbMovableBound==='1') return;
+   var head=win.querySelector('.win-head');
+   if(!head) return;
+   win.dataset.jbMovableBound='1';
+   var dragging=false,startX=0,startY=0,originX=0,originY=0;
+   function numeric(v){var n=parseFloat(v);return Number.isFinite(n)?n:0}
+   function pointerDown(e){
+     if(e.button!==undefined && e.button!==0) return;
+     if(e.target && e.target.closest && e.target.closest('button,a,input,select,textarea,label')) return;
+     var r=win.getBoundingClientRect();
+     dragging=true;startX=e.clientX;startY=e.clientY;originX=r.left;originY=r.top;
+     win.style.transform='none';win.style.left=r.left+'px';win.style.top=r.top+'px';
+     win.style.right='auto';win.style.bottom='auto';
+     try{head.setPointerCapture(e.pointerId)}catch(_){}
+     e.preventDefault();
+   }
+   function pointerMove(e){
+     if(!dragging)return;
+     var maxX=Math.max(0,window.innerWidth-win.offsetWidth);
+     var maxY=Math.max(0,window.innerHeight-Math.min(win.offsetHeight,window.innerHeight));
+     var x=Math.min(maxX,Math.max(0,originX+e.clientX-startX));
+     var y=Math.min(maxY,Math.max(0,originY+e.clientY-startY));
+     win.style.left=x+'px';win.style.top=y+'px';
+   }
+   function pointerUp(){dragging=false}
+   head.addEventListener('pointerdown',pointerDown);
+   head.addEventListener('pointermove',pointerMove);
+   head.addEventListener('pointerup',pointerUp);
+   head.addEventListener('pointercancel',pointerUp);
+   window.addEventListener('resize',function(){
+     if(!win.isConnected)return;
+     var r=win.getBoundingClientRect();
+     win.style.left=Math.max(0,Math.min(r.left,window.innerWidth-win.offsetWidth))+'px';
+     win.style.top=Math.max(0,Math.min(r.top,window.innerHeight-Math.min(win.offsetHeight,window.innerHeight)))+'px';
+   });
+ }
+ function watch(){
+   bindMovableResultWindow();
+   var body=document.body;
+   if(body && !body.dataset.jbMovableResultObserver){
+     body.dataset.jbMovableResultObserver='1';
+     new MutationObserver(bindMovableResultWindow).observe(body,{childList:true,subtree:true});
+   }
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',watch,{once:true});
+ else watch();
+})();
+</script>
+<!-- ===== END MOVABLE + SCROLLABLE PUBLIC RESULT VIEWER ===== -->
