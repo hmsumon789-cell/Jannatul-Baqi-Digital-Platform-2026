@@ -12882,7 +12882,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 <style id="jb-login-service-payment-row-2026">
 #loginPage .login .jb-login-service-payment-row-2026{
   display:grid!important;
-  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
   gap:12px!important;
   width:100%!important;
   max-width:none!important;
@@ -12903,7 +12903,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 }
 @media(max-width:700px){
   #loginPage .login .jb-login-service-payment-row-2026{
-    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
     gap:8px!important;
     width:100%!important;
     max-width:none!important;
@@ -12917,8 +12917,9 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     var lp=document.getElementById('loginPage'),
         panel=lp&&lp.querySelector('.login'),
         p=document.getElementById('jbLoginOnlinePayment2026'),
-        s=document.getElementById('jbLoginOnlineService2026');
-    if(!lp||!p||!s)return;
+        s=document.getElementById('jbLoginOnlineService2026'),
+        r=lp&&lp.querySelector('.quick button[onclick*="openOnlineExamResult2026"]');
+    if(!lp||!p||!s||!r)return;
     panel=panel||lp;
     var row=document.getElementById('jbLoginServicePaymentRow2026');
     if(!row){
@@ -12926,9 +12927,13 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       row.id='jbLoginServicePaymentRow2026';
       row.className='jb-login-service-payment-row-2026';
     }
+    r.id='jbLoginOnlineResult2026';
+    r.textContent='📱 অনলাইন ফলাফল';
+    r.title='লগইন ছাড়াই প্রকাশিত ফলাফল দেখুন';
     if(row.parentNode!==panel)panel.appendChild(row);
     if(s.parentNode!==row)row.appendChild(s);
     if(p.parentNode!==row)row.appendChild(p);
+    if(r.parentNode!==row)row.appendChild(r);
     row.style.position='relative';
     row.style.left='auto';
     row.style.right='auto';
