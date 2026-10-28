@@ -41,7 +41,7 @@ const HEADERS = {
   PAYMENTS:['Serial','PaymentID','StudentID','Name','Month','Category','Amount','Method','Reference','Date','Note','CreatedAt'],
   EXPENSES:['Serial','ExpenseID','Category','Amount','Method','Date','Note','CreatedAt'],
   INCOME:['Serial','IncomeID','Category','Amount','Method','Date','Note','CreatedAt'],
-  RESULTS:['Serial','ResultID','StudentID','Name','Class','Exam','SubjectData','Total','GPA','Grade','Published','Date','CreatedAt'],
+  RESULTS:['Serial','ResultID','StudentID','Name','Class','Exam','SubjectData','Total','GPA','Grade','Published','Date','CreatedAt','AcademicYear'],
   NOTICES:['Serial','NoticeID','TitleBN','TitleAR','TitleEN','BodyBN','BodyAR','BodyEN','Date','Status','CreatedAt'],
   ATTENDANCE:['Serial','AttendanceID','StudentID','Date','Status','Class','Branch','Note','CreatedAt'],
   MEDIA:['Serial','MediaID','Type','Name','DataURL','MimeType','Size','Sort','Status','CreatedAt'],
@@ -507,7 +507,18 @@ function saveRecord(token,sheetName,data) {
   const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
   if(!HEADERS[sheetName]) throw new Error('Invalid sheet');
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
-  const headers=HEADERS[sheetName];
+  let headers=HEADERS[sheetName];
+  // RESULTS needs a persistent AcademicYear column; preserve existing sheet column order.
+  if(sheetName==='RESULTS'){
+    const lastCol=Math.max(1,sh.getLastColumn());
+    const existing=sh.getRange(1,1,1,lastCol).getValues()[0].map(h=>String(h||'').trim());
+    if(existing.indexOf('AcademicYear')<0){
+      sh.getRange(1,lastCol+1).setValue('AcademicYear');
+      existing.push('AcademicYear');
+    }
+    headers=existing.filter(Boolean);
+    data.AcademicYear=String(data.AcademicYear||data.academicYear||data.Year||data.year||data.Session||data.session||'').trim();
+  }
   const row=headers.map(h=>data[h] ?? '');
   row[0]=nextSerial_(sh);
   if(headers.includes('CreatedAt')) row[headers.indexOf('CreatedAt')]=now_();
