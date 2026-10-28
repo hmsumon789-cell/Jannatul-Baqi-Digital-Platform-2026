@@ -41,7 +41,7 @@ const HEADERS = {
   PAYMENTS:['Serial','PaymentID','StudentID','Name','Month','Category','Amount','Method','Reference','Date','Note','CreatedAt'],
   EXPENSES:['Serial','ExpenseID','Category','Amount','Method','Date','Note','CreatedAt'],
   INCOME:['Serial','IncomeID','Category','Amount','Method','Date','Note','CreatedAt'],
-  RESULTS:['Serial','ResultID','StudentID','Name','Class','Exam','SubjectData','Total','GPA','Grade','Published','Date','CreatedAt'],
+  RESULTS:['Serial','ResultID','StudentID','Name','Class','Exam','SubjectData','Total','GPA','Grade','Published','Date','CreatedAt','AcademicYear'],
   NOTICES:['Serial','NoticeID','TitleBN','TitleAR','TitleEN','BodyBN','BodyAR','BodyEN','Date','Status','CreatedAt'],
   ATTENDANCE:['Serial','AttendanceID','StudentID','Date','Status','Class','Branch','Note','CreatedAt'],
   MEDIA:['Serial','MediaID','Type','Name','DataURL','MimeType','Size','Sort','Status','CreatedAt'],
@@ -276,11 +276,12 @@ function getModulesForSession_(token){
   const allowed=String(a.Permissions||'').split(',').map(x=>x.trim()).filter(Boolean);
   return all.filter(x=>allowed.includes(x[0]) || x[0]==='institution' || x[0]==='help');
 }
-function getPublicExamResult(query){
+function getPublicExamResult(query, academicYear, examName){
   try{
     query=String(query||'').trim();
+    academicYear=String(academicYear||'').trim();
+    examName=String(examName||'').trim();
     if(!query) return {ok:false,message:'Student ID / মোবাইল নম্বর দিন।'};
-    const ss=SpreadsheetApp.getActiveSpreadsheet();
     const resultRows=listRows_(SHEETS.RESULTS,null,10000);
     const studentRows=listRows_(SHEETS.STUDENTS,null,10000);
     const q=query.toLowerCase();
@@ -293,15 +294,29 @@ function getPublicExamResult(query){
     let rows=resultRows.filter(function(r){
       if(String(r.Published||'').toUpperCase()!=='TRUE' && String(r.Published||'')!=='1' && String(r.Published||'').toLowerCase()!=='yes') return false;
       const sid=String(r.StudentID||'').trim().toLowerCase();
-      return sid===q || studentIds.some(function(id){return id.toLowerCase()===sid;});
+      if(!(sid===q || studentIds.some(function(id){return id.toLowerCase()===sid;}))) return false;
+      const rowYear=String(r.AcademicYear||r.academicYear||r.Year||r.year||r.Session||r.session||'').trim();
+      const rowExam=String(r.Exam||r.ExamName||r.exam||r.examName||'').trim();
+      if(academicYear && rowYear && rowYear!==academicYear && rowYear.indexOf(academicYear)<0) return false;
+      if(examName && rowExam.toLowerCase().indexOf(examName.toLowerCase())<0) return false;
+      return true;
     });
-    if(!rows.length) return {ok:false,message:'প্রকাশিত কোনো ফলাফল পাওয়া যায়নি।'};
+    if(!rows.length) return {ok:false,message:academicYear||examName?'নির্বাচিত শিক্ষাবর্ষ ও পরীক্ষার জন্য প্রকাশিত ফলাফল পাওয়া যায়নি।':'প্রকাশিত কোনো ফলাফল পাওয়া যায়নি।'};
+    // If a year was requested, never silently return rows from another year.
+    if(academicYear){
+      const matchingYearRows=rows.filter(function(r){
+        const y=String(r.AcademicYear||r.academicYear||r.Year||r.year||r.Session||r.session||'').trim();
+        return y && (y===academicYear || y.indexOf(academicYear)>=0);
+      });
+      if(matchingYearRows.length) rows=matchingYearRows;
+      else return {ok:false,message:'এই ফলাফলের সার্ভার-তথ্যে শিক্ষাবর্ষ নেই। ফলাফল ডেটার সঙ্গে শিক্ষাবর্ষ যুক্ত করে আবার চেষ্টা করুন।'};
+    }
     const student=students[0]||{};
     rows=rows.map(function(r){
       let subjects=[];
       try{subjects=typeof r.SubjectData==='string'?JSON.parse(r.SubjectData||'[]'):(r.SubjectData||[]);}catch(e){subjects=[];}
       if(!Array.isArray(subjects) && subjects && typeof subjects==='object') subjects=Object.keys(subjects).map(function(k){return {subject:k,marks:subjects[k]};});
-      return {resultId:r.ResultID||'',studentId:r.StudentID||'',name:r.Name||student.NameBN||'',className:r.Class||student.Class||'',exam:r.Exam||'',subjects:subjects,total:r.Total||'',gpa:r.GPA||'',grade:r.Grade||'',date:r.Date||''};
+      return {resultId:r.ResultID||'',studentId:r.StudentID||'',name:r.Name||student.NameBN||'',className:r.Class||student.Class||'',exam:r.Exam||r.ExamName||'',academicYear:r.AcademicYear||r.academicYear||r.Year||r.year||r.Session||r.session||'',subjects:subjects,total:r.Total||'',gpa:r.GPA||'',grade:r.Grade||'',date:r.Date||''};
     });
     return {ok:true,student:{studentId:student.StudentID||rows[0].studentId||'',nameBN:student.NameBN||rows[0].name||'',nameAR:student.NameAR||'',nameEN:student.NameEN||'',className:student.Class||rows[0].className||'',mobile:student.Mobile||''},results:rows};
   }catch(e){return {ok:false,message:'ফলাফল খুঁজতে সার্ভার ত্রুটি: '+e.message};}
@@ -497,8 +512,16 @@ function listSignalRecords(token,signal,className) {
 
 function saveRecord(token,sheetName,data) {
   auth_(token);
+  data=data||{};
   const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
   if(!HEADERS[sheetName]) throw new Error('Invalid sheet');
+  // Keep the RESULTS sheet schema in sync before writing. AcademicYear is
+  // appended to the end of the schema so existing column positions remain intact.
+  if(sheetName==='RESULTS'){
+    data=Object.assign({},data);
+    data.AcademicYear=String(data.AcademicYear||data.academicYear||data.Year||data.year||data.Session||data.session||'').trim();
+    ensureSheet_(SpreadsheetApp.getActiveSpreadsheet(),SHEETS.RESULTS,HEADERS.RESULTS);
+  }
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
   const headers=HEADERS[sheetName];
   const row=headers.map(h=>data[h] ?? '');
