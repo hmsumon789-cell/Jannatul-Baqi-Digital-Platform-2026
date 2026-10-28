@@ -12745,15 +12745,41 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 <script id="jb-mobile-online-result-2026">
 (function(){
   function esc(v){return String(v==null?'':v).replace(/[&<>"]/g,function(s){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s];});}
+  function bindWindowDrag(w){
+    if(!w||w.dataset.jbResultDragBound20261028==='1')return;
+    var head=w.querySelector('.win-head');if(!head)return;
+    w.dataset.jbResultDragBound20261028='1';head.style.cursor='move';head.style.touchAction='none';head.style.userSelect='none';
+    head.addEventListener('pointerdown',function(e){
+      if(e.target&&e.target.closest('button'))return;
+      var r=w.getBoundingClientRect(),sx=e.clientX,sy=e.clientY,l=r.left,t=r.top;
+      w.style.left=l+'px';w.style.top=t+'px';w.style.right='auto';w.style.bottom='auto';w.style.transform='none';
+      try{head.setPointerCapture(e.pointerId)}catch(_){}
+      function move(ev){w.style.left=Math.max(0,Math.min(window.innerWidth-w.offsetWidth,l+ev.clientX-sx))+'px';w.style.top=Math.max(0,Math.min(window.innerHeight-48,t+ev.clientY-sy))+'px';}
+      function stop(){head.removeEventListener('pointermove',move);head.removeEventListener('pointerup',stop);head.removeEventListener('pointercancel',stop)}
+      head.addEventListener('pointermove',move);head.addEventListener('pointerup',stop);head.addEventListener('pointercancel',stop);e.preventDefault();
+    });
+  }
+  function bindCardDrag(card){
+    if(!card||card.dataset.jbResultCardDragBound20261028==='1')return;
+    var head=card.querySelector('.jb-or-institution-head');if(!head)return;
+    card.dataset.jbResultCardDragBound20261028='1';head.style.cursor='move';head.style.touchAction='none';head.style.userSelect='none';
+    head.addEventListener('pointerdown',function(e){
+      var sx=e.clientX,sy=e.clientY;try{head.setPointerCapture(e.pointerId)}catch(_){}
+      function move(ev){card.style.transform='translate('+(ev.clientX-sx)+'px,'+(ev.clientY-sy)+'px)';}
+      function stop(){head.removeEventListener('pointermove',move);head.removeEventListener('pointerup',stop);head.removeEventListener('pointercancel',stop)}
+      head.addEventListener('pointermove',move);head.addEventListener('pointerup',stop);head.addEventListener('pointercancel',stop);e.preventDefault();
+    });
+  }
   function ensure(){
     var w=document.getElementById('jbOnlineExamResultWin2026');
-    if(w)return w;
+    if(w){bindWindowDrag(w);return w;}
     w=document.createElement('div');w.id='jbOnlineExamResultWin2026';w.className='window';
     w.innerHTML='<div class="win-head"><b>📱 অনলাইন ফলাফল</b><button class="secondary" type="button" id="jbOnlineExamResultClose2026">✕</button></div>'+
       '<div class="win-body"><p style="text-align:center;font-weight:800">Student ID / মোবাইল নম্বর দিয়ে প্রকাশিত ফলাফল দেখুন</p>'+
       '<div class="jb-or-search"><input id="jbOnlineExamResultQuery2026" class="field" placeholder="Student ID / মোবাইল নম্বর"><button id="jbOnlineExamResultSearch2026" class="primary" type="button">শিক্ষার্থী আইডি দিয়ে ফলাফল দেখুন</button></div>'+
       '<div id="jbOnlineExamResultBody2026"><div style="text-align:center;padding:20px">উপরের ঘরে তথ্য দিয়ে ফলাফল দেখুন।</div></div></div>';
     document.body.appendChild(w);
+    bindWindowDrag(w);
     document.getElementById('jbOnlineExamResultClose2026').onclick=function(){w.classList.remove('show');w.style.display='none';};
     document.getElementById('jbOnlineExamResultSearch2026').onclick=search;
     document.getElementById('jbOnlineExamResultQuery2026').addEventListener('keydown',function(e){if(e.key==='Enter')search();});
@@ -12767,7 +12793,11 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   function render(r){
     var body=document.getElementById('jbOnlineExamResultBody2026');if(!body)return;
     if(!r||!r.ok){body.innerHTML='<div style="padding:20px;text-align:center;font-weight:900">❌ '+esc(r&&r.message||'ফলাফল পাওয়া যায়নি।')+'</div>';return;}
-    var s=r.student||{},out='<div class="jb-or-card"><div class="jb-or-head"><div class="jb-or-name">'+esc(s.nameBN||'শিক্ষার্থী')+'</div><div>'+esc(s.nameAR||'')+'</div></div>';
+    var s=r.student||{};
+    var logoEl=document.getElementById('loginContactLogo20261013')||document.getElementById('contactLoginLogo2026')||document.getElementById('loginLogo')||document.getElementById('headerLogo');
+    var qrEl=document.getElementById('loginContactQR20261013')||document.getElementById('contactMainQR2026');
+    var logoSrc=logoEl?(logoEl.currentSrc||logoEl.src||''):'',qrSrc=qrEl?(qrEl.currentSrc||qrEl.src||''):'';
+    var out='<div class="jb-or-card" id="jbOnlineResultCard2026"><div class="jb-or-institution-head" id="jbOnlineResultCardDrag2026"><img class="jb-or-institution-logo" src="'+esc(logoSrc)+'" alt="মাদ্রাসার লোগো"><div class="jb-or-institution-text"><strong>জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</strong><span>المدرسة الجنة الباقية للبنات ودار الايتام</span><span>Jannatul Baky Mohila Madrasha &amp; Eatimkhana</span><small>ঠিকানা: উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</small><small>☎ হটলাইন: 01823316630</small></div><img class="jb-or-institution-qr" src="'+esc(qrSrc)+'" alt="মূল পেজের QR কোড"></div><div class="jb-or-head"><div class="jb-or-name">'+esc(s.nameBN||'শিক্ষার্থী')+'</div><div>'+esc(s.nameAR||'')+'</div></div>';
     out+='<div class="jb-or-meta"><div><b>ID</b><br>'+esc(s.studentId)+'</div><div><b>শ্রেণি/জামাত</b><br>'+esc(s.className)+'</div><div><b>মোবাইল</b><br>'+esc(s.mobile)+'</div></div>';
     (r.results||[]).forEach(function(x){
       out+='<h3 style="text-align:center;margin:14px 0 7px">📘 '+esc(x.exam)+'</h3><div class="jb-or-meta"><div><b>মোট</b><br>'+esc(x.total)+'</div><div><b>GPA</b><br>'+esc(x.gpa)+'</div><div><b>Grade</b><br>'+esc(x.grade)+'</div></div>';
@@ -12775,8 +12805,9 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       (x.subjects||[]).forEach(function(z){var n=z.subject||z.name||z.Subject||z.SubjectName||z.label||'';var m=z.marks!=null?z.marks:(z.mark!=null?z.mark:(z.Marks!=null?z.Marks:z.value));out+='<tr><td>'+esc(n)+'</td><td>'+esc(m)+'</td></tr>';});
       out+='</tbody></table></div>';
     });
+    out+='<div class="jb-or-actions"><button type="button" onclick="printOnlineExamResult2026()">🖨️ প্রিন্ট</button><button type="button" onclick="shareOnlineExamResult2026()">📤 শেয়ার</button></div>';
     out+='</div>';
-    body.innerHTML=out;window.__jbOnlineResultData=r;
+    body.innerHTML=out;window.__jbOnlineResultData=r;bindCardDrag(body.querySelector('.jb-or-card'));
   }
   function search(){
     var q=String((document.getElementById('jbOnlineExamResultQuery2026')||{}).value||'').trim();
@@ -12789,8 +12820,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   window.printOnlineExamResult2026=function(){
     var body=document.getElementById('jbOnlineExamResultBody2026');if(!body)return;
     var w=window.open('','_blank');if(!w)return;
-    w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>অনলাইন ফলাফল</title><style>body{font-family:Arial,sans-serif;padding:20px}.jb-or-table{width:100%;border-collapse:collapse}.jb-or-table th,.jb-or-table td{border:1px solid #333;padding:7px;text-align:center}.jb-or-actions{display:none!important}</style></head><body>'+body.innerHTML+'
-</body></html>');
+    w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>অনলাইন ফলাফল</title><style>body{font-family:Arial,sans-serif;padding:20px}.jb-or-table{width:100%;border-collapse:collapse}.jb-or-table th,.jb-or-table td{border:1px solid #333;padding:7px;text-align:center}.jb-or-actions{display:none!important}.jb-or-institution-head{display:grid;grid-template-columns:80px 1fr 70px;gap:8px;align-items:center;text-align:center;border-bottom:2px solid #8b5e00;padding:8px}.jb-or-institution-logo,.jb-or-institution-qr{width:70px;height:70px;object-fit:contain}.jb-or-institution-text strong{display:block;font-size:20px}.jb-or-institution-text span,.jb-or-institution-text small{display:block}</style></head><body>'+body.innerHTML+'</body></html>');
     w.document.close();w.print();
   };
   window.shareOnlineExamResult2026=function(){
@@ -12828,6 +12858,31 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 </script>
 
 <style id="jb-online-exam-result-viewer-css">#jbOnlineExamResultWin2026{position:fixed;z-index:100000;top:3vh;left:50%;transform:translateX(-50%);width:min(760px,96vw);max-height:94vh;overflow:auto;background:var(--panel,#fff);color:var(--text,#222);border:3px solid var(--border,#c59a25);border-radius:14px;box-shadow:0 20px 60px #0006}#jbOnlineExamResultWin2026 .win-head{position:sticky;top:0;display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--panel,#fff);border-bottom:1px solid var(--border,#ccc);font-weight:900;z-index:2}#jbOnlineExamResultWin2026 .win-body{padding:12px}#jbOnlineExamResultWin2026 .jb-or-search{display:flex;gap:8px;margin:10px 0}#jbOnlineExamResultWin2026 .jb-or-search input{flex:1;min-width:0;padding:12px;border:2px solid var(--border,#aaa);border-radius:9px}#jbOnlineExamResultWin2026 .jb-or-card{border:2px solid var(--border,#c59a25);border-radius:12px;padding:12px}#jbOnlineExamResultWin2026 .jb-or-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:9px 0}#jbOnlineExamResultWin2026 .jb-or-meta div{border:1px solid var(--border,#aaa);border-radius:8px;padding:8px;text-align:center}#jbOnlineExamResultWin2026 .jb-or-table{width:100%;border-collapse:collapse}#jbOnlineExamResultWin2026 .jb-or-table th,#jbOnlineExamResultWin2026 .jb-or-table td{border:1px solid #888;padding:8px;text-align:center}#jbOnlineExamResultWin2026 .jb-or-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}@media(max-width:600px){#jbOnlineExamResultWin2026{top:1vh;width:98vw;max-height:98vh}#jbOnlineExamResultWin2026 .jb-or-search{flex-direction:column}#jbOnlineExamResultWin2026 .jb-or-meta{grid-template-columns:1fr 1fr}}</style>
+
+<style id="jb-online-result-movable-card-20261028">
+#jbOnlineExamResultWin2026{position:fixed!important;left:2vw!important;top:3vh!important;transform:none!important;width:min(900px,96vw)!important;max-height:94vh!important;overflow:hidden!important;resize:both!important;display:none}
+#jbOnlineExamResultWin2026.show{display:block!important}
+#jbOnlineExamResultWin2026 .win-head{position:sticky!important;top:0!important;z-index:5!important;cursor:move!important;touch-action:none!important;user-select:none!important}
+#jbOnlineExamResultWin2026 .win-body{max-height:calc(94vh - 58px)!important;overflow:auto!important;overscroll-behavior:contain!important}
+#jbOnlineExamResultWin2026 .jb-or-card{max-height:70vh!important;overflow:auto!important;resize:both!important;overscroll-behavior:contain!important;position:relative!important}
+#jbOnlineExamResultWin2026 .jb-or-institution-head{display:grid!important;grid-template-columns:76px minmax(0,1fr) 76px!important;gap:8px!important;align-items:center!important;text-align:center!important;padding:8px!important;margin:-2px -2px 10px!important;border-bottom:2px solid var(--border,#c59a25)!important;background:var(--panel,#fff)!important}
+#jbOnlineExamResultWin2026 .jb-or-institution-logo,#jbOnlineExamResultWin2026 .jb-or-institution-qr{width:70px!important;height:70px!important;object-fit:contain!important;justify-self:center!important;background:#fff!important;border-radius:8px!important}
+#jbOnlineExamResultWin2026 .jb-or-institution-text{display:flex!important;flex-direction:column!important;gap:3px!important;overflow-wrap:anywhere!important}
+#jbOnlineExamResultWin2026 .jb-or-institution-text strong{font-size:clamp(15px,2vw,23px)!important;font-weight:1000!important}
+#jbOnlineExamResultWin2026 .jb-or-institution-text span,#jbOnlineExamResultWin2026 .jb-or-institution-text small{font-size:12px!important;font-weight:800!important}
+#jbOnlineExamResultWin2026 .jb-or-actions{display:flex!important;gap:8px!important;justify-content:center!important;flex-wrap:wrap!important;margin-top:14px!important;padding:10px!important;border-top:2px solid var(--border,#c59a25)!important;background:var(--panel,#fff)!important}
+#jbOnlineExamResultWin2026 .jb-or-actions button{min-height:44px!important;padding:9px 18px!important;border:2px solid #8b5e00!important;border-radius:10px!important;font-weight:900!important;cursor:pointer!important;background:linear-gradient(135deg,#fffdf6,#f0d98d)!important;color:#392800!important}
+@media(max-width:600px){
+ #jbOnlineExamResultWin2026{left:1vw!important;top:1vh!important;width:98vw!important;max-height:98vh!important}
+ #jbOnlineExamResultWin2026 .win-body{max-height:calc(98vh - 54px)!important}
+ #jbOnlineExamResultWin2026 .jb-or-card{max-height:72vh!important}
+ #jbOnlineExamResultWin2026 .jb-or-institution-head{grid-template-columns:48px minmax(0,1fr) 48px!important;gap:4px!important;padding:5px!important}
+ #jbOnlineExamResultWin2026 .jb-or-institution-logo,#jbOnlineExamResultWin2026 .jb-or-institution-qr{width:44px!important;height:44px!important}
+ #jbOnlineExamResultWin2026 .jb-or-institution-text span,#jbOnlineExamResultWin2026 .jb-or-institution-text small{font-size:10px!important}
+ #jbLoginServicePaymentRow2026{gap:6px!important}
+ #jbLoginServicePaymentRow2026>#jbLoginOnlinePayment2026,#jbLoginServicePaymentRow2026>#jbLoginOnlineResult20261028{font-size:12px!important;padding:8px 5px!important}
+}
+</style>
 <!-- ===== END MOBILE + ONLINE EXAM RESULT VIEWER — 2026-10-08 ===== -->
 
 <!-- ===== LOGIN-FREE ONLINE PAYMENT ENTRY — 2026-10-08 ===== -->
