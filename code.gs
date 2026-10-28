@@ -337,6 +337,7 @@ function backfillResultAcademicYears_(){
     if(!yearCol||studentCol<0) return;
     const registrations=listRows_(SHEETS.EXAM_REG,null,10000);
     const yearByKey={};
+    const yearsByStudent={};
     registrations.forEach(function(reg){
       const sid=String(reg.StudentID||'').trim();
       const exam=String(reg.Exam||reg.ExamName||'').trim().toLowerCase();
@@ -346,7 +347,8 @@ function backfillResultAcademicYears_(){
       if(sid&&year){
         const key=sid+'|'+exam;
         if(!yearByKey[key]) yearByKey[key]=year;
-        if(!yearByKey[sid+'|']) yearByKey[sid+'|']=year;
+        if(!yearsByStudent[sid]) yearsByStudent[sid]={};
+        yearsByStudent[sid][year]=true;
       }
     });
     const lastRow=resultSheet.getLastRow();
@@ -356,7 +358,8 @@ function backfillResultAcademicYears_(){
       if(String(row[yearCol-1]||'').trim()) return;
       const sid=String(row[studentCol]||'').trim();
       const exam=examCol>=0?String(row[examCol]||'').trim().toLowerCase():'';
-      const year=yearByKey[sid+'|'+exam]||yearByKey[sid+'|']||'';
+      const knownYears=yearsByStudent[sid]?Object.keys(yearsByStudent[sid]):[];
+      const year=yearByKey[sid+'|'+exam]||(knownYears.length===1?knownYears[0]:'');
       if(year) updates.push({row:i+2,year:year});
     });
     updates.forEach(function(x){resultSheet.getRange(x.row,yearCol).setValue(x.year);});
