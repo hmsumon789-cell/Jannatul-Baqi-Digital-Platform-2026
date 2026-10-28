@@ -276,9 +276,11 @@ function getModulesForSession_(token){
   const allowed=String(a.Permissions||'').split(',').map(x=>x.trim()).filter(Boolean);
   return all.filter(x=>allowed.includes(x[0]) || x[0]==='institution' || x[0]==='help');
 }
-function getPublicExamResult(query){
+function getPublicExamResult(query, academicYear, examName){
   try{
     query=String(query||'').trim();
+    academicYear=String(academicYear||'').trim();
+    examName=String(examName||'').trim();
     if(!query) return {ok:false,message:'Student ID / মোবাইল নম্বর দিন।'};
     const ss=SpreadsheetApp.getActiveSpreadsheet();
     const resultRows=listRows_(SHEETS.RESULTS,null,10000);
@@ -293,15 +295,20 @@ function getPublicExamResult(query){
     let rows=resultRows.filter(function(r){
       if(String(r.Published||'').toUpperCase()!=='TRUE' && String(r.Published||'')!=='1' && String(r.Published||'').toLowerCase()!=='yes') return false;
       const sid=String(r.StudentID||'').trim().toLowerCase();
-      return sid===q || studentIds.some(function(id){return id.toLowerCase()===sid;});
+      if(!(sid===q || studentIds.some(function(id){return id.toLowerCase()===sid;}))) return false;
+      const rowYear=String(r.AcademicYear||r.academicYear||r.Year||r.year||r.Session||r.session||'').trim();
+      const rowExam=String(r.Exam||r.ExamName||r.exam||r.examName||'').trim();
+      if(academicYear && (!rowYear || (rowYear!==academicYear && rowYear.indexOf(academicYear)<0))) return false;
+      if(examName && rowExam.indexOf(examName)<0) return false;
+      return true;
     });
-    if(!rows.length) return {ok:false,message:'প্রকাশিত কোনো ফলাফল পাওয়া যায়নি।'};
+    if(!rows.length) return {ok:false,message:academicYear||examName?'নির্বাচিত শিক্ষাবর্ষ ও পরীক্ষার জন্য প্রকাশিত ফলাফল পাওয়া যায়নি।':'প্রকাশিত কোনো ফলাফল পাওয়া যায়নি।'};
     const student=students[0]||{};
     rows=rows.map(function(r){
       let subjects=[];
       try{subjects=typeof r.SubjectData==='string'?JSON.parse(r.SubjectData||'[]'):(r.SubjectData||[]);}catch(e){subjects=[];}
       if(!Array.isArray(subjects) && subjects && typeof subjects==='object') subjects=Object.keys(subjects).map(function(k){return {subject:k,marks:subjects[k]};});
-      return {resultId:r.ResultID||'',studentId:r.StudentID||'',name:r.Name||student.NameBN||'',className:r.Class||student.Class||'',exam:r.Exam||'',subjects:subjects,total:r.Total||'',gpa:r.GPA||'',grade:r.Grade||'',date:r.Date||''};
+      return {resultId:r.ResultID||'',studentId:r.StudentID||'',name:r.Name||student.NameBN||'',className:r.Class||student.Class||'',exam:r.Exam||r.ExamName||'',academicYear:r.AcademicYear||r.academicYear||r.Year||r.year||r.Session||r.session||'',subjects:subjects,total:r.Total||'',gpa:r.GPA||'',grade:r.Grade||'',date:r.Date||''};
     });
     return {ok:true,student:{studentId:student.StudentID||rows[0].studentId||'',nameBN:student.NameBN||rows[0].name||'',nameAR:student.NameAR||'',nameEN:student.NameEN||'',className:student.Class||rows[0].className||'',mobile:student.Mobile||''},results:rows};
   }catch(e){return {ok:false,message:'ফলাফল খুঁজতে সার্ভার ত্রুটি: '+e.message};}
