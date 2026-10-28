@@ -18081,3 +18081,115 @@ window.alert=function(message){window.toast(message)};
 })();
 </script>
 <!-- ===== END ONLINE RESULT PLATFORM — CENTRAL MANAGEMENT ===== -->
+
+
+<!-- ===== ONLINE RESULT PAGE BRANDING / PRINT-SHARE / FULLSCREEN-DRAG — 2026-10-28 ===== -->
+<style id="jb-online-result-branding-controls-20261028">
+#jbOnlineExamResultWin2026 .jb-or-brand20261028{display:grid;grid-template-columns:78px minmax(0,1fr) 78px;align-items:center;gap:10px;padding:10px;margin:0 0 12px;border:2px solid #b68b22;border-radius:12px;background:#fffdf5;color:#222}
+#jbOnlineExamResultWin2026 .jb-or-brand20261028 img{display:block;object-fit:contain}
+#jbOnlineExamResultWin2026 .jb-or-brand20261028 .jb-or-logo20261028{width:76px;height:76px}
+#jbOnlineExamResultWin2026 .jb-or-brand20261028 .jb-or-qr20261028{width:76px;height:76px;background:#fff}
+#jbOnlineExamResultWin2026 .jb-or-brandcenter20261028{text-align:center;min-width:0;line-height:1.45}
+#jbOnlineExamResultWin2026 .jb-or-brandname20261028{font-size:clamp(16px,2.5vw,23px);font-weight:900;color:#745000}
+#jbOnlineExamResultWin2026 .jb-or-brandaddress20261028,#jbOnlineExamResultWin2026 .jb-or-brandhotline20261028{font-size:clamp(12px,1.7vw,15px);font-weight:700}
+#jbOnlineExamResultWin2026 .jb-or-bottom-actions20261028{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 0 4px;margin-top:12px;border-top:2px solid #b68b22}
+#jbOnlineExamResultWin2026 .jb-or-bottom-actions20261028 button{min-width:130px;min-height:44px;border:2px solid #9b7616;border-radius:10px;padding:9px 16px;font-weight:900;cursor:pointer;background:linear-gradient(135deg,#fff8d9,#e5c35c);color:#352600}
+#jbOnlineExamResultWin2026 .jb-or-fullscreen-toggle20261028{margin-left:auto}
+#jbOnlineExamResultWin2026.jb-or-fullscreen20261028{position:fixed!important;inset:0!important;left:0!important;top:0!important;transform:none!important;width:100vw!important;height:100vh!important;height:100dvh!important;max-width:none!important;max-height:none!important;border-radius:0!important;overflow:auto!important;z-index:2147483646!important}
+#jbOnlineExamResultWin2026 .win-head{touch-action:none;cursor:move;user-select:none}
+@media(max-width:600px){
+ #jbOnlineExamResultWin2026 .jb-or-brand20261028{grid-template-columns:52px minmax(0,1fr) 52px;gap:6px;padding:7px}
+ #jbOnlineExamResultWin2026 .jb-or-brand20261028 .jb-or-logo20261028,#jbOnlineExamResultWin2026 .jb-or-brand20261028 .jb-or-qr20261028{width:50px;height:50px}
+ #jbOnlineExamResultWin2026 .jb-or-brandname20261028{font-size:15px}
+ #jbOnlineExamResultWin2026 .jb-or-brandaddress20261028,#jbOnlineExamResultWin2026 .jb-or-brandhotline20261028{font-size:11px}
+ #jbOnlineExamResultWin2026 .jb-or-bottom-actions20261028 button{flex:1;min-width:110px}
+}
+@media print{
+ #jbOnlineExamResultWin2026 .jb-or-bottom-actions20261028,#jbOnlineExamResultWin2026 .win-head,#jbOnlineExamResultWin2026 .jb-or-search{display:none!important}
+}
+</style>
+<script id="jb-online-result-branding-controls-20261028-js">
+(function(){
+ 'use strict';
+ var W='jbOnlineExamResultWin2026', BRAND='jbOnlineResultBrand20261028', ACTIONS='jbOnlineResultActions20261028';
+ var MAIN_URL='';
+ function byId(id){return document.getElementById(id);}
+ function mainUrl(){return new Promise(function(resolve){
+   if(MAIN_URL){resolve(MAIN_URL);return;}
+   try{
+     if(window.google&&google.script&&google.script.run){
+       google.script.run.withSuccessHandler(function(r){MAIN_URL=String(r&&r.ok&&r.url||'').trim();resolve(MAIN_URL);}).withFailureHandler(function(){resolve('');}).getMainWebAppUrl();
+     }else resolve('');
+   }catch(e){resolve('');}
+ });}
+ function logoUrl(){var l=byId('loginLogo')||byId('headerLogo')||byId('contactLoginLogo2026');return l?(l.getAttribute('src')||l.src||''):'';}
+ function esc(s){return String(s||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+ function ensureBrand(){
+   var w=byId(W);if(!w)return;
+   var body=w.querySelector('.win-body');if(!body)return;
+   var h=byId(BRAND);
+   if(!h){h=document.createElement('div');h.id=BRAND;h.className='jb-or-brand20261028';
+     h.innerHTML='<img class="jb-or-logo20261028" alt="মাদ্রাসার লোগো"><div class="jb-or-brandcenter20261028"><div class="jb-or-brandname20261028">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div><div class="jb-or-brandaddress20261028">উপজেলা মডেল টাউন, কোনাখোলা, কেরানীগঞ্জ, ঢাকা-১৩১০</div><div class="jb-or-brandhotline20261028">হটলাইন: ০১৮২৩৩১৬৬৩০</div></div><img class="jb-or-qr20261028" alt="মূল পেজের QR কোড" title="মূল পেজ খুলতে স্ক্যান করুন">';
+     var search=body.querySelector('.jb-or-search');if(search)body.insertBefore(h,search);else body.insertBefore(h,body.firstChild);
+   }
+   var logo=h.querySelector('.jb-or-logo20261028'),src=logoUrl();if(logo&&src&&logo.src!==src)logo.src=src;
+   var qr=h.querySelector('.jb-or-qr20261028');
+   mainUrl().then(function(url){if(qr&&url){var qrSrc='https://quickchart.io/qr?size=220&margin=2&text='+encodeURIComponent(url);if(qr.getAttribute('data-main-url')!==url){qr.src=qrSrc;qr.setAttribute('data-main-url',url);}}});
+ }
+ function ensureActions(){
+   var w=byId(W);if(!w)return;
+   var body=w.querySelector('.win-body'),result=byId('jbOnlineExamResultBody2026');if(!body||!result)return;
+   var a=byId(ACTIONS);
+   if(!a){a=document.createElement('div');a.id=ACTIONS;a.className='jb-or-bottom-actions20261028';
+     a.innerHTML='<button type="button" data-jb-or-action="print">🖨️ প্রিন্ট</button><button type="button" data-jb-or-action="share">📤 শেয়ার</button>';
+     body.appendChild(a);
+     a.querySelector('[data-jb-or-action="print"]').addEventListener('click',printResult);
+     a.querySelector('[data-jb-or-action="share"]').addEventListener('click',shareResult);
+   }
+ }
+ function ensureWindowControls(){
+   var w=byId(W);if(!w)return;
+   var head=w.querySelector('.win-head');if(!head)return;
+   var close=byId('jbOnlineExamResultClose2026');
+   if(!head.querySelector('.jb-or-fullscreen-toggle20261028')){
+     var b=document.createElement('button');b.type='button';b.className='secondary jb-or-fullscreen-toggle20261028';b.textContent='⛶ ফুল স্ক্রিন';b.title='ফুল স্ক্রিন চালু/বন্ধ';
+     b.addEventListener('click',function(e){e.stopPropagation();var on=w.classList.toggle('jb-or-fullscreen20261028');b.textContent=on?'↙ স্বাভাবিক আকার':'⛶ ফুল স্ক্রিন';if(!on){w.style.removeProperty('left');w.style.removeProperty('top');w.style.removeProperty('transform');}});
+     if(close)head.insertBefore(b,close);else head.appendChild(b);
+   }
+   if(head.dataset.jbDragBound20261028==='1')return;
+   head.dataset.jbDragBound20261028='1';
+   var drag=null;
+   head.addEventListener('pointerdown',function(e){
+     if(w.classList.contains('jb-or-fullscreen20261028')||e.target.closest('button'))return;
+     drag={x:e.clientX,y:e.clientY,left:w.getBoundingClientRect().left,top:w.getBoundingClientRect().top,id:e.pointerId};
+     try{head.setPointerCapture(e.pointerId)}catch(_){}
+     e.preventDefault();
+   });
+   head.addEventListener('pointermove',function(e){
+     if(!drag||e.pointerId!==drag.id)return;
+     var nx=Math.max(0,Math.min(window.innerWidth-w.offsetWidth,drag.left+e.clientX-drag.x));
+     var ny=Math.max(0,Math.min(window.innerHeight-45,drag.top+e.clientY-drag.y));
+     w.style.setProperty('left',nx+'px','important');w.style.setProperty('top',ny+'px','important');w.style.setProperty('transform','none','important');
+   });
+   function end(e){if(drag&&(!e||e.pointerId===drag.id))drag=null;}
+   head.addEventListener('pointerup',end);head.addEventListener('pointercancel',end);
+ }
+ function printResult(){
+   var body=byId('jbOnlineExamResultBody2026'),brand=byId(BRAND);if(!body)return;
+   var win=window.open('','_blank');if(!win){alert('প্রিন্টের জন্য browser popup অনুমতি দিন।');return;}
+   var html='<!doctype html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>প্রকাশিত পরীক্ষার ফলাফল</title><style>body{font-family:Arial,sans-serif;color:#111;margin:18px}.jb-or-brand20261028{display:grid;grid-template-columns:80px 1fr 80px;align-items:center;gap:10px;padding:10px;border:2px solid #b68b22;margin-bottom:14px}.jb-or-brand20261028 img{width:76px;height:76px;object-fit:contain}.jb-or-brandcenter20261028{text-align:center;line-height:1.5}.jb-or-brandname20261028{font-size:20px;font-weight:900}.jb-or-brandaddress20261028,.jb-or-brandhotline20261028{font-size:13px;font-weight:bold}.jb-or-card{border:1px solid #777;padding:10px;margin:10px 0;break-inside:avoid}.jb-or-head{text-align:center}.jb-or-name{text-align:center;font-size:18px;font-weight:bold}.jb-or-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}.jb-or-meta div{border:1px solid #aaa;padding:6px;text-align:center}.jb-or-table{width:100%;border-collapse:collapse}.jb-or-table th,.jb-or-table td{border:1px solid #333;padding:7px;text-align:center}@media print{body{margin:8mm}}</style></head><body>'+(brand?brand.outerHTML:'')+body.innerHTML+'</body></html>';
+   win.document.open();win.document.write(html);win.document.close();win.onload=function(){win.focus();win.print();};
+ }
+ function shareResult(){
+   var s=(window.__jbOnlineResultData||{}).student||{},text='জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা — '+(s.nameBN||s.name||'প্রকাশিত ফলাফল')+' | ID: '+(s.studentId||'')+' | '+location.href;
+   if(navigator.share){navigator.share({title:'অনলাইন ফলাফল',text:text,url:location.href}).catch(function(){});}
+   else if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(function(){alert('ফলাফলের শেয়ার তথ্য কপি হয়েছে।');}).catch(function(){window.prompt('শেয়ার করার জন্য কপি করুন:',text);});}
+   else window.prompt('শেয়ার করার জন্য কপি করুন:',text);
+ }
+ function apply(){ensureBrand();ensureActions();ensureWindowControls();}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply);else apply();
+ if(document.body)new MutationObserver(apply).observe(document.body,{childList:true,subtree:true});
+ setTimeout(apply,300);setTimeout(apply,1000);setTimeout(apply,2500);
+})();
+</script>
+<!-- ===== END ONLINE RESULT PAGE BRANDING / PRINT-SHARE / FULLSCREEN-DRAG — 2026-10-28 ===== -->
