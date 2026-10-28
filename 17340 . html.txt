@@ -1331,7 +1331,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       <select id="loginSignal" class="field" onchange="syncSearchSignal('login')"><option value="">সংকেত নির্বাচন করুন</option></select><input id="loginSearch" class="field" placeholder="সংকেত নির্বাচন করে ID / মোবাইল / ইমেইল লিখুন" onkeydown="if(event.key==='Enter')doSearch('login')"><button class="primary" onclick="doSearch('login')">🔎</button>
     </div>
     <div class="quick">
-      <button type="button" class="primary" onclick="openModule('admission')">📝 অনলাইন ভর্তি ফর্ম</button><button onclick="openModule('payment')">অনলাইন পেমেন্ট</button><button type="button" onclick="openOnlineExamResult2026()">📱 অনলাইন ফলাফল</button><button onclick="openModule('exam')">পরীক্ষার্থী নিবন্ধন</button><button onclick="openModule('admin')">নতুন অ্যাডমিন একাউন্ট</button><button onclick="openModule('madrasa')">নতুন মাদ্রাসা নিবন্ধন</button></div>
+      <button type="button" class="primary" onclick="openModule('admission')">📝 অনলাইন ভর্তি ফর্ম</button><button onclick="openModule('payment')">অনলাইন পেমেন্ট</button><button type="button" onclick="openPublicFeature(\'result\')">📱 অনলাইন ফলাফল</button><button onclick="openModule('exam')">পরীক্ষার্থী নিবন্ধন</button><button onclick="openModule('admin')">নতুন অ্যাডমিন একাউন্ট</button><button onclick="openModule('madrasa')">নতুন মাদ্রাসা নিবন্ধন</button></div>
     <section id="loginContactStrip20261013" aria-label="মাদ্রাসার যোগাযোগ">
   
   <div class="lc-layout">
@@ -5829,7 +5829,7 @@ body #app .header-news *{
     var handlers=[
       function(){if(typeof window.openAdmissionPanel2026==='function')window.openAdmissionPanel2026();else openPublicFeature('admission');},
       function(){openPublicFeature('payment');},
-      function(){if(typeof window.openOnlineExamResult2026==='function')window.openOnlineExamResult2026();else openPublicFeature('result');},
+      function(){openPublicFeature('result');},
       function(){openPublicFeature('exam');},
       function(){openPublicFeature('admin');},
       function(){openPublicFeature('madrasa');}
@@ -12938,7 +12938,8 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       r.addEventListener('click',function(ev){
         if(ev)ev.preventDefault();
         if(typeof window.openOnlineExamResult2026==='function')window.openOnlineExamResult2026();
-        else alert('অনলাইন ফলাফল উইন্ডো চালু হয়নি। পেজটি রিফ্রেশ করে আবার চেষ্টা করুন।');
+        else if(typeof window.openOnlineResult2026==='function')window.openOnlineResult2026();
+        else openPublicFeature('result');
       });
     }
     if(row.parentNode!==panel)panel.appendChild(row);
