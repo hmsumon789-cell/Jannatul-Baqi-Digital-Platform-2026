@@ -522,6 +522,25 @@ function saveRecord(token,sheetName,data) {
   if(sheetName==='RESULTS'){
     data=Object.assign({},data);
     data.AcademicYear=String(data.AcademicYear||data.academicYear||data.Year||data.year||data.Session||data.session||'').trim();
+    // When the result form omits the year, reuse the matching student's exam
+    // registration year instead of silently assigning the current year.
+    if(!data.AcademicYear){
+      const sid=String(data.StudentID||data.studentId||'').trim();
+      const exam=String(data.Exam||data.ExamName||data.exam||'').trim().toLowerCase();
+      if(sid){
+        const registrations=listRows_(SHEETS.EXAM_REG,null,10000);
+        for(let i=registrations.length-1;i>=0;i--){
+          const reg=registrations[i];
+          if(String(reg.StudentID||'').trim()!==sid) continue;
+          const regExam=String(reg.Exam||reg.ExamName||'').trim().toLowerCase();
+          if(exam && regExam && regExam!==exam) continue;
+          let form={};
+          try{form=typeof reg.FormData==='string'?JSON.parse(reg.FormData||'{}'):(reg.FormData||{});}catch(_){form={};}
+          data.AcademicYear=String(reg.AcademicYear||reg.academicYear||reg.Year||reg.year||reg.Session||reg.session||form.AcademicYear||form.academicYear||form.Year||form.year||form.Session||form.session||'').trim();
+          if(data.AcademicYear) break;
+        }
+      }
+    }
     ensureSheet_(SpreadsheetApp.getActiveSpreadsheet(),SHEETS.RESULTS,HEADERS.RESULTS);
   }
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
