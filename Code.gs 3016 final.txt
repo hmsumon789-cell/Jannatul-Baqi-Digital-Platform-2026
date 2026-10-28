@@ -41,7 +41,7 @@ const HEADERS = {
   PAYMENTS:['Serial','PaymentID','StudentID','Name','Month','Category','Amount','Method','Reference','Date','Note','CreatedAt'],
   EXPENSES:['Serial','ExpenseID','Category','Amount','Method','Date','Note','CreatedAt'],
   INCOME:['Serial','IncomeID','Category','Amount','Method','Date','Note','CreatedAt'],
-  RESULTS:['Serial','ResultID','StudentID','Name','Class','Exam','SubjectData','Total','GPA','Grade','Published','Date','CreatedAt'],
+  RESULTS:['Serial','ResultID','StudentID','Name','Class','Exam','SubjectData','Total','GPA','Grade','Published','Date','CreatedAt','AcademicYear'],
   NOTICES:['Serial','NoticeID','TitleBN','TitleAR','TitleEN','BodyBN','BodyAR','BodyEN','Date','Status','CreatedAt'],
   ATTENDANCE:['Serial','AttendanceID','StudentID','Date','Status','Class','Branch','Note','CreatedAt'],
   MEDIA:['Serial','MediaID','Type','Name','DataURL','MimeType','Size','Sort','Status','CreatedAt'],
@@ -2787,6 +2787,7 @@ function getAllDocumentBuilderHistory(token, personId) {
 /* ===== EXAM DASHBOARD SERVER API — 2026-10-09 ===== */
 function getExamDashboardData(token, exam, className) {
   auth_(token); requireFeature_(token,'exam');
+  ensureResultsAcademicYearColumn_();
   const ex=String(exam||'').trim(), cl=String(className||'').trim();
   const students=listRows_(SHEETS.STUDENTS,token,10000).filter(function(x){
     return String(x.ApprovalStatus||'ACTIVE').toUpperCase()==='ACTIVE' && (!cl||String(x.Class||'').trim()===cl);
@@ -2808,65 +2809,90 @@ function saveExamDashboardCandidate(token, studentId, exam, className) {
   catch(e){admit={ok:false,message:String(e&&e.message||e)};}
   return {ok:true,duplicate:!!reg.duplicate,examRegId:reg.examRegId||'',admit:admit,message:reg.message||'পরীক্ষার্থী যুক্ত হয়েছে।'};
 }
+function ensureResultsAcademicYearColumn_() {
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.RESULTS);
+  if(!sh)throw new Error('RESULTS শীট পাওয়া যায়নি।');
+  const lastCol=Math.max(1,sh.getLastColumn());
+  const headers=sh.getRange(1,1,1,lastCol).getValues()[0].map(function(x){return String(x||'').trim();});
+  if(headers.indexOf('AcademicYear')<0)sh.getRange(1,lastCol+1).setValue('AcademicYear');
+  return sh;
+}
 function saveExamDashboardMarks(token, exam, className, subject, marks) {
   auth_(token); requireFeature_(token,'result');
   const ex=String(exam||'').trim(), cl=String(className||'').trim(), sub=String(subject||'').trim();
   if(!ex||!cl||!sub||!Array.isArray(marks))return {ok:false,message:'পরীক্ষা, শ্রেণি, বিষয় ও নম্বর আবশ্যক।'};
-  const ss=SpreadsheetApp.getActiveSpreadsheet(), sh=ss.getSheetByName(SHEETS.RESULTS);
-  const headers=HEADERS.RESULTS, vals=sh.getDataRange().getValues(), ix={}; headers.forEach(function(h,i){ix[h]=i;});
+  const sh=ensureResultsAcademicYearColumn_();
+  const vals=sh.getDataRange().getValues(), headers=vals[0].map(function(h){return String(h||'').trim();}), ix={}; headers.forEach(function(h,i){ix[h]=i;});
   let saved=0;
   marks.forEach(function(m){
-    const id=String(m.studentId||'').trim(); if(!id)return;
+    const id=String(m.studentId||'').trim(), year=String(m.academicYear||'').trim(); if(!id)return;
+    if(!year)throw new Error('নম্বর সংরক্ষণের জন্য শিক্ষাবর্ষ আবশ্যক।');
     const student=findBy_(SHEETS.STUDENTS,'StudentID',id); if(!student)return;
     let rowIndex=-1, rowObj=null;
     for(let i=1;i<vals.length;i++){
-      if(String(vals[i][ix.StudentID]||'')===id && String(vals[i][ix.Exam]||'').trim()===ex && String(vals[i][ix.Class]||'').trim()===cl){rowIndex=i+1;rowObj=objectFrom_(headers,vals[i]);break;}
+      if(String(vals[i][ix.StudentID]||'').trim()===id && String(vals[i][ix.Exam]||'').trim()===ex &&
+         String(vals[i][ix.Class]||'').trim()===cl && String(vals[i][ix.AcademicYear]||'').trim()===year){
+        rowIndex=i+1;rowObj=objectFrom_(headers,vals[i]);break;
+      }
     }
     let subjects=[];try{const raw=rowObj&&rowObj.SubjectData;const parsed=typeof raw==='string'?JSON.parse(raw||'[]'):raw;subjects=Array.isArray(parsed)?parsed:[];}catch(e){subjects=[];}
-    subjects=subjects.filter(function(x){return String(x.subject||x.Subject||x.name||'').trim()!==sub;});
+    subjects=subjects.filter(function(x){return !(String(x.subject||x.Subject||x.name||'').trim()===sub && String(x.academicYear||'').trim()===year);});
     const mark=Number(m.mark); if(!Number.isFinite(mark)||mark<0||mark>100)throw new Error('নম্বর ০ থেকে ১০০-এর মধ্যে হতে হবে।');
-    subjects.push({subject:sub,marks:mark});
-    const total=subjects.reduce(function(a,x){return a+Number(x.marks!=null?x.marks:(x.mark||0));},0);
-    const average=subjects.length?total/subjects.length:0;
+    subjects.push({subject:sub,marks:mark,maxMark:Number(m.maxMark||100),academicYear:year});
+    const yearSubjects=subjects.filter(function(x){return String(x.academicYear||'').trim()===year;});
+    const total=yearSubjects.reduce(function(a,x){return a+Number(x.marks!=null?x.marks:(x.mark||0));},0);
+    const average=yearSubjects.length?total/yearSubjects.length:0;
     const grade=average>=80?'A+':average>=70?'A':average>=60?'A-':average>=50?'B':average>=40?'C':average>=33?'D':'F';
-    const data={StudentID:id,Name:student.NameBN||m.name||'',Class:cl,Exam:ex,SubjectData:JSON.stringify(subjects),Total:total,GPA:Math.min(5,Math.round((average/20)*100)/100),Grade:grade,Published:'NO',Date:now_()};
+    const data={StudentID:id,Name:student.NameBN||m.name||'',Class:cl,Exam:ex,SubjectData:JSON.stringify(subjects),Total:total,GPA:Math.min(5,Math.round((average/20)*100)/100),Grade:grade,Published:'NO',Date:now_(),AcademicYear:year};
     if(rowIndex>0){
-      ['Name','SubjectData','Total','GPA','Grade','Published','Date'].forEach(function(k){if(ix[k]!=null)sh.getRange(rowIndex,ix[k]+1).setValue(data[k]);});
+      Object.keys(data).forEach(function(k){if(ix[k]!=null)sh.getRange(rowIndex,ix[k]+1).setValue(data[k]);});
+      vals[rowIndex-1]=headers.map(function(k,i){return data[k]!==undefined?data[k]:vals[rowIndex-1][i];});
     }else{
-      const row=headers.map(function(k){return data[k]===undefined?'':data[k];});row[ix.Serial]=nextSerial_(sh);row[ix.ResultID]='RES-'+String(row[ix.Serial]).padStart(5,'0');if(ix.CreatedAt!=null)row[ix.CreatedAt]=now_();sh.appendRow(row);
+      const row=headers.map(function(k){return data[k]===undefined?'':data[k];});
+      if(ix.Serial!=null)row[ix.Serial]=nextSerial_(sh);
+      if(ix.ResultID!=null)row[ix.ResultID]='RES-'+String(row[ix.Serial]).padStart(5,'0');
+      if(ix.CreatedAt!=null)row[ix.CreatedAt]=now_();
+      sh.appendRow(row); vals.push(row);
     }
     saved++;
   });
   SpreadsheetApp.flush();
-  return {ok:true,saved:saved,message:'নম্বর সংরক্ষণ হয়েছে। ফলাফল প্রকাশ না করা পর্যন্ত অনলাইনে দেখা যাবে না।'};
+  return {ok:true,saved:saved,message:'নম্বর সংরক্ষণ হয়েছে। শিক্ষাবর্ষসহ ফলাফল ডেটায় সংরক্ষিত হয়েছে; প্রকাশ না করা পর্যন্ত অনলাইনে দেখা যাবে না।'};
 }
-function publishExamDashboardResults(token, exam, className) {
+function publishExamDashboardResults(token, exam, className, academicYear) {
   auth_(token); requireFeature_(token,'result');
-  const ex=String(exam||'').trim(),cl=String(className||'').trim();
-  if(!ex||!cl)return {ok:false,message:'পরীক্ষা ও শ্রেণি আবশ্যক।'};
-  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.RESULTS), vals=sh.getDataRange().getValues(), h=vals[0].map(String), ix={};h.forEach(function(k,i){ix[k]=i;});
+  const ex=String(exam||'').trim(),cl=String(className||'').trim(),year=String(academicYear||'').trim();
+  if(!ex||!cl||!year)return {ok:false,message:'পরীক্ষা, শ্রেণি ও শিক্ষাবর্ষ আবশ্যক।'};
+  const sh=ensureResultsAcademicYearColumn_(), vals=sh.getDataRange().getValues(), h=vals[0].map(function(x){return String(x||'').trim();}), ix={};h.forEach(function(k,i){ix[k]=i;});
   let rows=[];
-  for(let i=1;i<vals.length;i++){
-    if(String(vals[i][ix.Exam]||'').trim()===ex&&String(vals[i][ix.Class]||'').trim()===cl)rows.push({row:i+1,id:String(vals[i][ix.StudentID]||''),total:Number(vals[i][ix.Total]||0)});
-  }
+  for(let i=1;i<vals.length;i++)if(String(vals[i][ix.Exam]||'').trim()===ex&&String(vals[i][ix.Class]||'').trim()===cl&&String(vals[i][ix.AcademicYear]||'').trim()===year)rows.push({row:i+1,total:Number(vals[i][ix.Total]||0)});
   rows.sort(function(a,b){return b.total-a.total;});
-  let rank=0,last=null;
-  rows.forEach(function(x,i){if(last===null||x.total!==last)rank=i+1;last=x.total;sh.getRange(x.row,ix.Published+1).setValue('YES');});
+  rows.forEach(function(x){sh.getRange(x.row,ix.Published+1).setValue('YES');});
   SpreadsheetApp.flush();
-  return {ok:true,published:rows.length,message:rows.length+' জনের ফলাফল প্রকাশ করা হয়েছে।'};
+  return {ok:true,published:rows.length,message:year+' শিক্ষাবর্ষে '+rows.length+' জনের ফলাফল প্রকাশ করা হয়েছে।'};
 }
-function getPublicExamResult(query) {
-  const q=String(query||'').trim(); if(!q)return {ok:false,message:'Student ID / মোবাইল নম্বর দিন।'};
+function publishExamDashboardStudentResult(token, studentId, exam, className, academicYear) {
+  auth_(token); requireFeature_(token,'result');
+  const id=String(studentId||'').trim(), ex=String(exam||'').trim(), cl=String(className||'').trim(), year=String(academicYear||'').trim();
+  if(!id||!ex||!cl||!year)return {ok:false,message:'শিক্ষার্থী, পরীক্ষা, শ্রেণি ও শিক্ষাবর্ষ আবশ্যক।'};
+  const sh=ensureResultsAcademicYearColumn_(), vals=sh.getDataRange().getValues(), h=vals[0].map(function(x){return String(x||'').trim();}), ix={};h.forEach(function(k,i){ix[k]=i;});
+  for(let i=1;i<vals.length;i++)if(String(vals[i][ix.StudentID]||'').trim()===id&&String(vals[i][ix.Exam]||'').trim()===ex&&String(vals[i][ix.Class]||'').trim()===cl&&String(vals[i][ix.AcademicYear]||'').trim()===year){
+    sh.getRange(i+1,ix.Published+1).setValue('YES');SpreadsheetApp.flush();
+    return {ok:true,message:year+' শিক্ষাবর্ষের ফলাফল অনলাইনে প্রকাশ হয়েছে。'};
+  }
+  return {ok:false,message:'নির্বাচিত শিক্ষাবর্ষের সংরক্ষিত ফলাফল পাওয়া যায়নি।'};
+}
+function getPublicExamResult(query, academicYear) {
+  ensureResultsAcademicYearColumn_();
+  const q=String(query||'').trim(), year=String(academicYear||'').trim(); if(!q)return {ok:false,message:'Student ID / মোবাইল নম্বর দিন।'};
   const students=listRows_(SHEETS.STUDENTS,'',10000);
   const student=students.find(function(x){return String(x.StudentID||'').trim()===q||String(x.Mobile||'').trim()===q||String(x.MobileID||'').trim()===q;});
   if(!student)return {ok:false,message:'শিক্ষার্থী পাওয়া যায়নি।'};
-  const rows=listRows_(SHEETS.RESULTS,'',10000).filter(function(x){
-    return String(x.StudentID||'').trim()===String(student.StudentID||'').trim() && /^(YES|TRUE|PUBLISHED|প্রকাশিত)$/i.test(String(x.Published||''));
-  });
-  if(!rows.length)return {ok:false,message:'এই শিক্ষার্থীর প্রকাশিত ফলাফল পাওয়া যায়নি।'};
+  const rows=listRows_(SHEETS.RESULTS,'',10000).filter(function(x){return String(x.StudentID||'').trim()===String(student.StudentID||'').trim()&&/^(YES|TRUE|PUBLISHED|প্রকাশিত)$/i.test(String(x.Published||''))&&(!year||String(x.AcademicYear||'').trim()===year);});
+  if(!rows.length)return {ok:false,message:year?'এই শিক্ষাবর্ষে শিক্ষার্থীর প্রকাশিত ফলাফল পাওয়া যায়নি।':'এই শিক্ষার্থীর প্রকাশিত ফলাফল পাওয়া যায়নি।'};
   return {ok:true,student:{studentId:student.StudentID,nameBN:student.NameBN||'',nameAR:student.NameAR||'',className:student.Class||'',mobile:student.Mobile||''},results:rows.map(function(x){
     let subjects=[];try{const p=JSON.parse(String(x.SubjectData||'[]'));subjects=Array.isArray(p)?p:Object.keys(p||{}).map(function(k){return {subject:k,marks:p[k]};});}catch(e){}
-    return {exam:x.Exam,total:x.Total,gpa:x.GPA,grade:x.Grade,subjects:subjects};
+    return {exam:x.Exam,academicYear:String(x.AcademicYear||''),total:x.Total,gpa:x.GPA,grade:x.Grade,subjects:subjects};
   })};
 }
 
