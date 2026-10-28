@@ -1770,7 +1770,7 @@ ${locationField('adVillage','গ্রাম',['কোনাখোলা','ম�
 <label>জাতীয় ১৭ ডিজিট NID<input id="adNid" class="field"></label>
 <label class="full">ঠিকানা / Address<textarea id="adAddress" class="field"></textarea></label>
 </div><button class="primary" onclick="saveModule('admission')">Save Admission</button>`;
-if(['result','marks','exam'].includes(k))return `<div class="student-meta-row-2026"><label>আইডি লিখুন<input id="rStudentMeta" class="field"></label><label>জন্ম তারিখ লিখুন<input id="rDob" class="field" type="date"></label><label>তারিখ লিখুন<input id="rRecordDate" class="field" type="date"></label></div><div class="form-grid"><label>Student ID<input id="rStudent" class="field"></label><label>নাম<input id="rName" class="field"></label><label>শ্রেনি<input id="rClass" class="field"></label><label>পরীক্ষা<input id="rExam" class="field"></label><label class="full">Subject/Marks JSON<textarea id="rSubjects" class="field" placeholder='{"বাংলা":80,"আরবি":85}'></textarea></label></div><button class="primary" onclick="saveResult('${k}')">Save</button>`;
+if(['result','marks','exam'].includes(k))return `<div class="student-meta-row-2026"><label>আইডি লিখুন<input id="rStudentMeta" class="field"></label><label>জন্ম তারিখ লিখুন<input id="rDob" class="field" type="date"></label><label>তারিখ লিখুন<input id="rRecordDate" class="field" type="date"></label></div><div class="form-grid"><label>Student ID<input id="rStudent" class="field"></label><label>নাম<input id="rName" class="field"></label><label>শ্রেনি<input id="rClass" class="field"></label><label>পরীক্ষা<input id="rExam" class="field"></label><label>শিক্ষাবর্ষ<select id="rYear" class="field"><option value="">শিক্ষাবর্ষ নির্বাচন</option>'+Array.from({length:45},(_,i)=>{const y=2005+i;return '<option value="'+y+'/'+(y+1)+'">'+y+'/'+(y+1)+'</option>'}).join('')+'</select></label><label class="full">Subject/Marks JSON<textarea id="rSubjects" class="field" placeholder='{"বাংলা":80,"আরবি":85}'></textarea></label></div><button class="primary" onclick="saveResult('${k}')">Save</button>`;
 return `<p>এই ফিচারের জন্য ৩ ভাষা, A4, ৩ কলাম উইন্ডো কাঠামো প্রস্তুত। প্রয়োজনীয় তথ্য পূরণ করুন।</p><div class="form-grid"><label class="full">বিবরণ<textarea class="field" rows="8" id="genericData"></textarea></label></div><button class="primary" onclick="toast('ফিচার উইন্ডো প্রস্তুত')">Save</button>`;
 }
 function openOldStudentImport2026(){
@@ -2056,7 +2056,7 @@ function downloadOnlineReceipt(){
   a.href=u;a.download='Money_Receipt_'+String(x.ReceiptID||'receipt').replace(/[^a-zA-Z0-9_-]/g,'_')+'.html';
   document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},1000);
 }
-async function saveResult(k){const d={StudentID:$('rStudent').value,Name:$('rName').value,Class:$('rClass').value,Exam:$('rExam').value,SubjectData:$('rSubjects').value,Published:'NO',Date:new Date().toISOString()};const r=await call('saveRecord',token,'RESULTS',d);toast(r.ok?'Saved':'Failed')}
+async function saveResult(k){const d={StudentID:$('rStudent').value,Name:$('rName').value,Class:$('rClass').value,Exam:$('rExam').value,AcademicYear:$('rYear')?$('rYear').value:'',SubjectData:$('rSubjects').value,Published:'NO',Date:new Date().toISOString()};const r=await call('saveRecord',token,'RESULTS',d);toast(r.ok?'Saved':'Failed')}
 async function uploadMedia(){
   const input=$('mediaFiles');
   if(!input||!input.files||!input.files.length)return toast('প্রথমে ফটো/ভিডিও/অডিও নির্বাচন করুন।');
@@ -12622,7 +12622,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     var w=E('jbOnlineResultWin2026');
     if(!w){
       w=document.createElement('div');w.id='jbOnlineResultWin2026';w.className='window';
-      w.innerHTML='<div class="windowHead"><b>📱 অনলাইন রেজাল্ট</b><button type="button" onclick="closeOnlineResult2026()">✕</button></div><div class="windowBody"><div class="jb-or-search"><input id="jbOnlineResultQuery2026" class="field" placeholder="Student ID / মোবাইল নম্বর"><button class="primary" type="button" onclick="searchOnlineResult2026()">🔎 ফলাফল দেখুন</button></div><div id="jbOnlineResultBody2026" class="jb-or-body"><p>আইডি বা মোবাইল নম্বর দিয়ে ফলাফল খুঁজুন।</p></div></div>';
+      w.innerHTML='<div class="windowHead"><b>📱 অনলাইন রেজাল্ট</b><button type="button" onclick="closeOnlineResult2026()">✕</button></div><div class="windowBody"><div class="jb-or-search"><select id="jbOnlineResultYear2026" class="field"><option value="">সকল শিক্ষাবর্ষ</option>'+Array.from({length:45},function(_,i){var y=2005+i;return '<option value="'+y+'/'+(y+1)+'">'+y+'/'+(y+1)+'</option>'}).join('')+'</select><select id="jbOnlineResultExam2026" class="field"><option value="">সকল পরীক্ষা</option><option>সাময়িক পরীক্ষা</option><option>অর্ধবার্ষিক পরীক্ষা</option><option>বার্ষিক পরীক্ষা</option><option>মডেল টেস্ট</option><option>বোর্ড/কেন্দ্রীয় পরীক্ষা</option></select><input id="jbOnlineResultQuery2026" class="field" placeholder="Student ID / মোবাইল নম্বর"><button class="primary" type="button" onclick="searchOnlineResult2026()">🔎 ফলাফল দেখুন</button></div><div id="jbOnlineResultBody2026" class="jb-or-body"><p>আইডি বা মোবাইল নম্বর দিয়ে ফলাফল খুঁজুন।</p></div></div>';
       document.body.appendChild(w);
     }
     w.style.display='block';w.classList.add('show');
@@ -12636,7 +12636,9 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     if(box)box.innerHTML='<p>⏳ ফলাফল খোঁজা হচ্ছে...</p>';
     try{
       /* Use the public-results endpoint already used by the online-result module. */
-      var r=await call('getPublicExamResult',q);
+      var selectedYear=String(E('jbOnlineResultYear2026')&&E('jbOnlineResultYear2026').value||'').trim();
+      var selectedExam=String(E('jbOnlineResultExam2026')&&E('jbOnlineResultExam2026').value||'').trim();
+      var r=await call('getPublicExamResult',q,selectedYear,selectedExam);
       if(!r||!r.ok){
         if(box)box.innerHTML='<p>❌ '+esc(r&&r.message||'এই ID-তে প্রকাশিত ফলাফল পাওয়া যায়নি।')+'</p>';
         return;
@@ -12649,7 +12651,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       }
       var html='<div class="jb-or-card"><div class="jb-or-title">'+esc(student.nameBN||student.name||'শিক্ষার্থীর ফলাফল')+'</div><div class="jb-or-student"><b>ID: '+esc(student.studentId||q)+'</b><span>শ্রেণি: '+esc(student.className||'—')+'</span></div>';
       rows.forEach(function(x){
-        html+='<section class="jb-or-card"><h3>'+esc(x.exam||x.examName||'পরীক্ষার ফলাফল')+'</h3><div class="jb-or-subjects"><div class="jb-or-head"><b>বিষয়</b><b>নম্বর</b></div>';
+        html+='<section class="jb-or-card"><h3>'+esc(x.exam||x.examName||'পরীক্ষার ফলাফল')+'</h3><p>শিক্ষাবর্ষ: '+esc(x.academicYear||'উল্লেখ নেই')+'</p><div class="jb-or-subjects"><div class="jb-or-head"><b>বিষয়</b><b>নম্বর</b></div>';
         (x.subjects||[]).forEach(function(y){
           var mark=y.marks!=null?y.marks:(y.mark!=null?y.mark:'—');
           var fail=Number.isFinite(Number(mark))&&Number(mark)<33;
