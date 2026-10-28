@@ -284,6 +284,7 @@ function getPublicExamResult(query, academicYear, examName){
     if(!query) return {ok:false,message:'Student ID / মোবাইল নম্বর দিন।'};
     // Add the AcademicYear header to existing RESULTS sheets before reading rows.
     ensureSheet_(SpreadsheetApp.getActiveSpreadsheet(),SHEETS.RESULTS,HEADERS.RESULTS);
+    backfillResultAcademicYears_();
     const resultRows=listRows_(SHEETS.RESULTS,null,10000);
     const studentRows=listRows_(SHEETS.STUDENTS,null,10000);
     const q=query.toLowerCase();
@@ -322,6 +323,44 @@ function getPublicExamResult(query, academicYear, examName){
     });
     return {ok:true,student:{studentId:student.StudentID||rows[0].studentId||'',nameBN:student.NameBN||rows[0].name||'',nameAR:student.NameAR||'',nameEN:student.NameEN||'',className:student.Class||rows[0].className||'',mobile:student.Mobile||''},results:rows};
   }catch(e){return {ok:false,message:'ফলাফল খুঁজতে সার্ভার ত্রুটি: '+e.message};}
+}
+
+function backfillResultAcademicYears_(){
+  try{
+    const ss=SpreadsheetApp.getActiveSpreadsheet();
+    const resultSheet=ss.getSheetByName(SHEETS.RESULTS);
+    if(!resultSheet||resultSheet.getLastRow()<2) return;
+    const headers=resultSheet.getRange(1,1,1,resultSheet.getLastColumn()).getValues()[0].map(function(v){return String(v||'').trim();});
+    const yearCol=headers.indexOf('AcademicYear')+1;
+    const studentCol=headers.indexOf('StudentID');
+    const examCol=headers.indexOf('Exam');
+    if(!yearCol||studentCol<0) return;
+    const registrations=listRows_(SHEETS.EXAM_REG,null,10000);
+    const yearByKey={};
+    registrations.forEach(function(reg){
+      const sid=String(reg.StudentID||'').trim();
+      const exam=String(reg.Exam||reg.ExamName||'').trim().toLowerCase();
+      let form={};
+      try{form=typeof reg.FormData==='string'?JSON.parse(reg.FormData||'{}'):(reg.FormData||{});}catch(_){form={};}
+      const year=String(reg.AcademicYear||reg.academicYear||reg.Year||reg.year||reg.Session||reg.session||form.AcademicYear||form.academicYear||form.Year||form.year||form.Session||form.session||'').trim();
+      if(sid&&year){
+        const key=sid+'|'+exam;
+        if(!yearByKey[key]) yearByKey[key]=year;
+        if(!yearByKey[sid+'|']) yearByKey[sid+'|']=year;
+      }
+    });
+    const lastRow=resultSheet.getLastRow();
+    const values=resultSheet.getRange(2,1,lastRow-1,resultSheet.getLastColumn()).getValues();
+    const updates=[];
+    values.forEach(function(row,i){
+      if(String(row[yearCol-1]||'').trim()) return;
+      const sid=String(row[studentCol]||'').trim();
+      const exam=examCol>=0?String(row[examCol]||'').trim().toLowerCase():'';
+      const year=yearByKey[sid+'|'+exam]||yearByKey[sid+'|']||'';
+      if(year) updates.push({row:i+2,year:year});
+    });
+    updates.forEach(function(x){resultSheet.getRange(x.row,yearCol).setValue(x.year);});
+  }catch(e){/* Public lookup should remain available if legacy data cannot be migrated. */}
 }
 
 function getModuleList(token,key){
