@@ -282,6 +282,8 @@ function getPublicExamResult(query, academicYear, examName){
     academicYear=String(academicYear||'').trim();
     examName=String(examName||'').trim();
     if(!query) return {ok:false,message:'Student ID / মোবাইল নম্বর দিন।'};
+    // Add the AcademicYear header to existing RESULTS sheets before reading rows.
+    ensureSheet_(SpreadsheetApp.getActiveSpreadsheet(),SHEETS.RESULTS,HEADERS.RESULTS);
     const resultRows=listRows_(SHEETS.RESULTS,null,10000);
     const studentRows=listRows_(SHEETS.STUDENTS,null,10000);
     const q=query.toLowerCase();
