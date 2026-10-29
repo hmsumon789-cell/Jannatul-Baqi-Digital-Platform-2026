@@ -149,13 +149,19 @@ function login(username,password) {
     if (!username || !password) return {ok:false,message:'ইউজার নেম ও পাসওয়ার্ড দিন।'};
     const row = findAdminLogin_(username);
     if (!row) return {ok:false,message:'ইউজার নেম পাওয়া যায়নি।'};
-    if (String(row.status).toUpperCase() !== 'ACTIVE') return {ok:false,message:'এই অ্যাডমিন একাউন্ট সক্রিয় নয়। Super Admin অনুমোদন প্রয়োজন।'};
+
+    // আগে Role যাচাই: Super Admin-এর Status ফাঁকা/PENDING হলেও লগইন চলবে।
+    const full = findBy_(SHEETS.ADMINS,'Username',username) || {};
+    const role = String(full.Role || full.role || '').trim().toUpperCase().replace(/[\\s-]+/g,'_');
+    const isSuperAdmin = role === 'SUPER_ADMIN' || role === 'SUPERADMIN';
+    const status = String(row.status || '').trim().toUpperCase();
+    if (isSuperAdmin ? ['SUSPENDED','DISABLED','INACTIVE','BLOCKED'].includes(status) : status !== 'ACTIVE') {
+      return {ok:false,message:'এই অ্যাডমিন একাউন্ট সক্রিয় নয়। Super Admin অনুমোদন প্রয়োজন।'};
+    }
     if (row.passwordHash !== hash_(password)) return {ok:false,message:'পাসওয়ার্ড সঠিক নয়।'};
 
     // বিদ্যমান Super Admin-এর জন্য OTP অপরিবর্তিত থাকবে।
-    const full = findBy_(SHEETS.ADMINS,'Username',username) || {};
-    const role = String(full.Role || '').toUpperCase().replace(/\s+/g,'_');
-    if (role === 'SUPER_ADMIN' || role === 'SUPERADMIN') {
+    if (isSuperAdmin) {
       const otp = generateOtp_();
       const otpHash = hash_(otp);
       const expires = new Date(Date.now()+APP.otpMinutes*60000);
