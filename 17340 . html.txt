@@ -18294,6 +18294,7 @@ async function previewMadrasaHeaderPhoto2026(){
 async function loadMadrasaRegistrationForEdit2026(){
   var lookup=$('mLookupID2026'),status=$('mLookupStatus2026'),id=String(lookup&&lookup.value||'').trim();
   if(!id){toast('মাদ্রাসা আইডি বা নিবন্ধন নম্বর লিখুন।');return;}
+  $('mMadrasaID2026').value='';$('mRegistrationNo2026').value='';
   if(status)status.textContent='তথ্য খোঁজা হচ্ছে…';
   try{
     var r=await call('getMadrasaRegistrationForEdit2026',token,id);
