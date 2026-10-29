@@ -229,10 +229,10 @@ function login(username,password) {
     if (!row) return {ok:false,message:'ইউজার নেম পাওয়া যায়নি।'};
     const role = String(row.role || (findBy_(SHEETS.ADMINS,'Username',username) || {}).Role || '').toUpperCase().replace(/\s+/g,'_');
     const status = String(row.status || '').trim().toUpperCase();
-    const isSuperAdmin = role === 'SUPER_ADMIN' || role === 'SUPERADMIN';
-    // Super Admin-এর Status ফাঁকা/PENDING হলেও নিজস্ব লগইন আটকে যাবে না;
-    // স্পষ্টভাবে নিষ্ক্রিয় বা স্থগিত থাকলে নিরাপত্তার জন্য লগইন বন্ধ থাকবে।
-    if (isSuperAdmin ? ['SUSPENDED','DISABLED','INACTIVE','BLOCKED'].includes(status) : status !== 'ACTIVE') {
+    const isSuperAdmin = role === 'SUPER_ADMIN' || role === 'SUPERADMIN' || username.toLowerCase() === 'superadmin';
+    // মূল superadmin অ্যাকাউন্টে পুরোনো/ভুল Status থাকলেও অনুমোদনের লুপে আটকে যাবে না;
+    // কেবল স্পষ্ট নিরাপত্তা-অবরোধ থাকলে লগইন বন্ধ থাকবে।
+    if (isSuperAdmin ? ['SUSPENDED','DISABLED','BLOCKED'].includes(status) : status !== 'ACTIVE') {
       return {ok:false,message:'এই অ্যাডমিন একাউন্ট সক্রিয় নয়। Super Admin অনুমোদন প্রয়োজন।'};
     }
     if (row.passwordHash !== hash_(password)) return {ok:false,message:'পাসওয়ার্ড সঠিক নয়।'};
