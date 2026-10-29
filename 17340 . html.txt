@@ -18155,33 +18155,33 @@ body.gold #toast.toast{background:#fff5c7!important;color:#4b3200!important;bord
 <!-- ===== LOGIN PAGE MADRASA REGISTRATION FORM SYNC — 2026-10-29 ===== -->
 <script id="login-madrasa-registration-sync-20261029">
 function openLoginMadrasaRegistration2026(){
-  if(typeof window.openModule!=='function'){if(typeof window.toast==='function')window.toast('নিবন্ধন ফর্ম খোলা যাচ্ছে না।');return;}
-  window.openModule('madrasa');
-  setTimeout(function(){
-    var body=document.getElementById('winBody');
-    if(!body)return;
-    var name=body.querySelector('#mName');
-    if(!name)return;
-    var nameLabel=name.closest('label');
-    if(!nameLabel)return;
-    var fields=[
-      ['mNameAR','আরবি নাম (ঐচ্ছিক)','text'],
-      ['mNameEN','ইংরেজি নাম (ঐচ্ছিক)','text'],
-      ['mFounder','প্রতিষ্ঠাতার নাম','text'],
-      ['mMuhtamim','মুহতামিমের নাম','text']
-    ];
-    var anchor=nameLabel;
-    fields.forEach(function(f){
-      if(body.querySelector('#'+f[0]))return;
-      var label=document.createElement('label');
-      label.textContent=f[1];
-      var input=document.createElement('input');
-      input.id=f[0];input.className='field';input.type=f[2];
-      label.appendChild(input);
-      anchor.insertAdjacentElement('afterend',label);
-      anchor=label;
-    });
-  },80);
+  var body=document.getElementById('winBody');
+  var title=document.getElementById('winTitle');
+  if(!body||!title||typeof window.openWindow!=='function'){
+    if(typeof window.toast==='function')window.toast('নিবন্ধন ফর্ম খোলা যাচ্ছে না।');
+    return;
+  }
+  title.textContent='নতুন মাদ্রাসা নিবন্ধন';
+  body.innerHTML =
+    '<div class="form-language-fixed"><span>বাংলা</span><span>العربية</span><span>English</span></div>'+
+    '<div class="form-grid madrasa-registration-grid">'+
+      '<label>Username<input id="mUser" class="field" required></label>'+
+      '<label>Password<input id="mPass" class="field" type="password" required></label>'+
+      '<label>Email<input id="mEmail" class="field" type="email" required></label>'+
+      '<label>মোবাইল নম্বর<input id="mMobile" class="field" required></label>'+
+      '<label>প্রতিষ্ঠা সন<input id="mYear" class="field" type="number" min="1000" max="2100" required></label>'+
+      '<label class="full">বাংলা মাদ্রাসার নাম<input id="mName" class="field" required></label>'+
+      '<label class="full">আরবি নাম (ঐচ্ছিক)<input id="mNameAR" class="field"></label>'+
+      '<label class="full">ইংরেজি নাম (ঐচ্ছিক)<input id="mNameEN" class="field"></label>'+
+      '<label>প্রতিষ্ঠাতার নাম<input id="mFounder" class="field"></label>'+
+      '<label>মুহতামিমের নাম<input id="mMuhtamim" class="field"></label>'+
+      '<label class="full">ঠিকানা<textarea id="mAddress" class="field" required></textarea></label>'+
+      '<label class="full">মাদ্রাসার ফটো<input id="mPhoto" class="field" type="file" accept="image/*" required></label>'+
+    '</div>'+
+    '<div class="form-action-bar"><button class="primary" type="button" onclick="saveMadrasaRegistration()">📄 পেজ তৈরি করুন</button></div>';
+  var win=document.getElementById('formWin');
+  if(win){win.classList.remove('minimized');win.style.height='';}
+  window.openWindow('formWin');
 }
 </script>
 <!-- ===== END LOGIN PAGE MADRASA REGISTRATION FORM SYNC ===== -->
