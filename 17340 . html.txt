@@ -1699,6 +1699,7 @@ $('winBody').innerHTML='<div class="form-language-fixed"><span>বাংলা</
 $('formWin').classList.remove('minimized');
 $('formWin').style.height='';
 openWindow('formWin');
+if(key==='madrasa')setTimeout(function(){initMadrasaRegistrationForm2026();},60);
 if(key==='gallery')setTimeout(function(){loadPhotoGalleryData2026();},60);
 if(key==='institution')setTimeout(function(){loadInstitutionProfile2026();},60);
 if(key!=='institution')setTimeout(function(){clearFormWindow(false);},0);
@@ -1736,7 +1737,51 @@ ${locationField('fVillage','গ্রাম',['কোনাখোলা','মড
 <label class="full">ঠিকানা<textarea id="fAddress" class="field"></textarea></label></div>`;
 if(['student','teacher','donor'].includes(k))return common+`<div class="form-grid"><label>শ্রেনি/জামাত<select id="fClass" class="field">${['প্লে শ্রেনি','শিশু শ্রেনি','আউয়াল জামাত','ছানী জামাত','ছালেছ জামাত','রাবে জামাত','পঞ্চম জামাত','মিজান জামাত','নাহবেমীর জামাত','কুদুরী জামাত','শরহে বেকায়া জামাত','হেদায়া জামাত','মিশকাত জামাত','দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)'].map(x=>`<option>${x}</option>`).join('')}</select></label><label>বিভাগ<select id="fDept" class="field"><option>কিতাব বিভাগ</option><option>হিফজুল কুরআন বিভাগ</option><option>নুরানী বিভাগ</option><option>গণিত বিভাগ</option><option>ইংলিশ বিভাগ</option><option>বাংলা বিভাগ</option><option>বোর্ডিং বিভাগ</option><option>হিসাব বিভাগ</option></select></label><label>শাখা<select id="fBranch" class="field"><option>প্রধান শাখা</option><option>২য় শাখা</option><option>৩য় শাখা</option><option>বালক শাখা</option><option>বালিকা শাখা</option></select></label><label>ছবি<input id="fPhoto" class="field" type="file" accept="image/*"></label><label>জন্ম নিবন্ধন<input id="fBirth" class="field"></label><label>জাতীয় ১৭ ডিজিট NID<input id="fNid" class="field"></label></div><button class="primary" onclick="saveModule('${k}')">Save</button>`;
 if(k==='admin')return `<div class="form-grid"><label>Username<input id="aUser" class="field" required></label><label>Password<input id="aPass" class="field" type="password" required></label><label>Email<input id="aEmail" class="field" type="email" required></label><label>Mobile<input id="aMobile" class="field" required></label><label class="full">মাদ্রাসার নাম<input id="mName" class="field" required></label><label>প্রতিষ্ঠা সন<input id="mYear" class="field" required></label><label class="full">ঠিকানা<textarea id="mAddress" class="field" required></textarea></label><label class="full">মাদ্রাসার ফটো<input id="mPhoto" class="field" type="file" accept="image/*" required></label></div><button class="primary" type="button" onclick="saveMadrasaRegistration()">📄 পেজ তৈরি করুন</button>`;
-if(k==='madrasa')return `<div class="form-grid madrasa-registration-grid"><label>Username<input id="mUser" class="field" required></label><label>Password<input id="mPass" class="field" type="password" required></label><label>Email<input id="mEmail" class="field" type="email" required></label><label>মোবাইল নম্বর<input id="mMobile" class="field" required></label><label>প্রতিষ্ঠা সন<input id="mYear" class="field" type="number" min="1000" max="2100" required></label><label class="full">বাংলা মাদ্রাসার নাম<input id="mName" class="field" required></label><label class="full">আরবি নাম (ঐচ্ছিক)<input id="mNameAR" class="field"></label><label class="full">ইংরেজি নাম (ঐচ্ছিক)<input id="mNameEN" class="field"></label><label>প্রতিষ্ঠাতার নাম<input id="mFounder" class="field"></label><label>মুহতামিমের নাম<input id="mMuhtamim" class="field"></label><label class="full">ঠিকানা<textarea id="mAddress" class="field" required></textarea></label><label class="full">মাদ্রাসার ফটো<input id="mPhoto" class="field" type="file" accept="image/*" required></label></div><button class="primary" type="button" onclick="saveMadrasaRegistration()">📄 পেজ তৈরি করুন</button>`;
+if(k==='madrasa')return `
+<div class="madrasa-registration-header-2026">
+  <div class="madrasa-reg-logo-2026"><img id="madrasaRegHeaderLogo2026" alt="মাদ্রাসার লোগো"></div>
+  <div class="madrasa-reg-center-2026">
+    <button type="button" class="jb-contact-quick-button-2026" onclick="openWindow('quickWin')">যোগাযোগ + দ্রুত সেবা</button>
+    <div class="madrasa-reg-name-2026">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div>
+    <div class="madrasa-reg-address-2026">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div>
+    <div class="madrasa-reg-hotline-2026">☎ হটলাইন: 01823316630</div>
+  </div>
+  <div class="madrasa-reg-qr-2026"><img id="madrasaRegHeaderQR2026" alt="মূল পেজের QR কোড"><div>মূল পেজ</div></div>
+</div>
+<div class="madrasa-reg-controls-2026">
+  <div class="madrasa-reg-lookup-2026">
+    <label>মাদ্রাসা আইডি / মাদ্রাসা রেজিঃ / নিবন্ধন নং<input id="mLookupID2026" class="field" placeholder="যেমন: MR-0001"></label>
+    <button type="button" class="primary" onclick="loadMadrasaRegistrationForEdit2026()">🔎 তথ্য আনুন / সম্পাদনা</button>
+    <div id="mLookupStatus2026" class="madrasa-reg-status-2026"></div>
+  </div>
+  <label>মাদ্রাসার ধরন
+    <select id="mGenderType" class="field" required>
+      <option value="">নির্বাচন করুন</option><option value="পুরুষ মাদ্রাসা">পুরুষ মাদ্রাসা</option><option value="মহিলা মাদ্রাসা">মহিলা মাদ্রাসা</option>
+    </select>
+  </label>
+  <label>যে ফটো হেডারে দেখতে চান আপলোড করুন
+    <input id="mPhoto" class="field" type="file" accept="image/*" onchange="previewMadrasaHeaderPhoto2026()">
+    <small id="mPhotoStatus2026">লোগো/হেডারের ছবি নির্বাচন করুন</small>
+  </label>
+</div>
+<div class="madrasa-reg-id-row-2026">
+  <label>মাদ্রাসা আইডি (পরিবর্তনযোগ্য নয়)<input id="mMadrasaID2026" class="field" readonly></label>
+  <label>নিবন্ধন নং<input id="mRegistrationNo2026" class="field" readonly></label>
+</div>
+<div class="form-grid madrasa-registration-grid">
+  <label>Username<input id="mUser" class="field" required></label>
+  <label>Password (নতুন নিবন্ধনে আবশ্যক)<input id="mPass" class="field" type="password"></label>
+  <label>Email<input id="mEmail" class="field" type="email" required></label>
+  <label>মোবাইল নম্বর<input id="mMobile" class="field" required></label>
+  <label>প্রতিষ্ঠা সন<input id="mYear" class="field" type="number" min="1000" max="2100" required></label>
+  <label class="full">বাংলা মাদ্রাসার নাম<input id="mName" class="field" required></label>
+  <label class="full">আরবি নাম (ঐচ্ছিক)<input id="mNameAR" class="field"></label>
+  <label class="full">ইংরেজি নাম (ঐচ্ছিক)<input id="mNameEN" class="field"></label>
+  <label>প্রতিষ্ঠাতার নাম<input id="mFounder" class="field"></label>
+  <label>মুহতামিমের নাম<input id="mMuhtamim" class="field"></label>
+  <label class="full">ঠিকানা<textarea id="mAddress" class="field" required></textarea></label>
+</div>
+<button class="primary" type="button" onclick="saveMadrasaRegistration()">💾 নতুন নিবন্ধন / পরিবর্তন সেভ করুন</button>`;
 if(k==='gallery')return `<div class="media-upload-note"><b>ফটো:</b> সর্বোচ্চ 20 MB, 100টি। <b>ভিডিও:</b> সর্বোচ্চ 50 MB, 20টি। <b>অডিও:</b> সর্বোচ্চ 50 MB, 50টি।<br><b>ছবির গোপনীয়তা:</b> পাবলিক ছবি সবাই দেখবে; অ্যাডমিন-শুধু ছবি কেবল গ্যালারী-অনুমোদিত অ্যাডমিন দেখবে। ভিডিও/অডিওর বর্তমান ব্যবস্থা অপরিবর্তিত।</div><div class="form-grid"><label>নতুন ফটোর অনুমতি<select id="mediaVisibility" class="field"><option value="public">🌐 পাবলিক — সবাই দেখতে পারবে</option><option value="admin">🔒 অ্যাডমিন-শুধু</option></select></label><label>ফটো/ভিডিও/অডিও নির্বাচন<input id="mediaFiles" class="field" type="file" multiple accept="image/*,video/*,audio/*"></label></div><div class="photo-gallery-tools-2026"><button class="primary" type="button" onclick="uploadMedia()">⬆ আপলোড</button><button class="secondary" type="button" onclick="openPublicPhotoGallery2026()">🌐 পাবলিক গ্যালারী খুলুন</button></div><h3>📸 ফটো গ্যালারী — গ্রিড</h3><label>ছবি ফিল্টার <select id="photoGalleryFilter2026" class="field" onchange="renderPhotoGalleryGrid2026()"><option value="all">সব অনুমোদিত ছবি</option><option value="public">পাবলিক ছবি</option><option value="admin">অ্যাডমিন-শুধু ছবি</option></select></label><div id="photoGalleryGrid2026" class="photo-gallery-grid-2026"></div><h3>📂 মিডিয়া তালিকা</h3><div id="mediaList"></div>`;
 if(k==='help')return `<button class="primary" onclick="openWindow('quickWin')">দ্রুত সেবা / হেল্প</button>`;
 if(k==='institution')return institutionProfileFormHtml2026();
@@ -1896,7 +1941,35 @@ Mobile:$('fMobile').value,WhatsApp:$('fWhatsApp').value,Email:$('fEmail').value,
 Division:getLocationValue('fDivision'),District:getLocationValue('fDistrict'),Upazila:getLocationValue('fUpazila'),Union:getLocationValue('fUnion'),Ward:getLocationValue('fWard'),Village:getLocationValue('fVillage'),
 Class:document.getElementById('fClass')?.value||'',Department:document.getElementById('fDept')?.value||'',Branch:document.getElementById('fBranch')?.value||'',Photo:await fileData('fPhoto'),BirthReg:document.getElementById('fBirth')?.value||'',NID:document.getElementById('fNid')?.value||''};
 if(k==='student')d.Gender='';const r=await call('saveRecord',token,s,d);if(r&&r.ok){const ad=r.autoDocuments||{};const row=r.row||{};const savedId=row.StudentID||row.TeacherID||row.DonorID||row.MemberID||d.StudentID||(r.studentWorkflow&&r.studentWorkflow.studentId)||'';toast('সফলভাবে সংরক্ষণ হয়েছে'+(savedId?'। ID: '+savedId:'')+(ad.ok?'। স্বয়ংক্রিয় নথি/কার্ডের খসড়া '+(ad.created||0)+'টি প্রস্তুত।':''));}else toast((r&&r.message)||'সংরক্ষণ ব্যর্থ হয়েছে')}
-async function saveMadrasaRegistration(){try{const u=$('mUser').value.trim(),p=$('mPass').value,e=$('mEmail').value.trim(),mobile=$('mMobile').value.trim(),name=$('mName').value.trim(),nameAR=$('mNameAR').value.trim(),nameEN=$('mNameEN').value.trim(),founder=$('mFounder').value.trim(),muhtamim=$('mMuhtamim').value.trim(),year=$('mYear').value.trim(),address=$('mAddress').value.trim(),photo=await fileData('mPhoto');if(!u||!p||!e||!mobile||!name||!year||!address||!photo){toast('সকল বাধ্যতামূলক ঘর পূরণ করুন।');return;}const r=await call('registerMadrasa',{username:u,password:p,email:e,mobile:mobile,name:name,nameAR:nameAR,nameEN:nameEN,founder:founder,muhtamim:muhtamim,foundedYear:year,address:address,photo:photo});if(!r||!r.ok){toast((r&&r.message)||'মাদ্রাসা একাউন্ট তৈরি হয়নি।');return;}toast('সফল হয়েছে। এখন অনুমোদনের পর Username + Password দিয়ে OTP ছাড়া লগইন করতে পারবেন।');closeWindow('formWin');openApprovedLogin();setApprovedLoginType('madrasa');$('approvedLoginUser').value=u;$('approvedLoginPass').value=p;}catch(e){toast('সার্ভার ত্রুটি: '+(e&&e.message?e.message:e));}}
+async function saveMadrasaRegistration(){
+ try{
+  const editId=String($('mMadrasaID2026')?.value||'').trim();
+  const u=$('mUser')?.value.trim()||'',p=$('mPass')?.value||'',e=$('mEmail')?.value.trim()||'';
+  const mobile=$('mMobile')?.value.trim()||'',name=$('mName')?.value.trim()||'',nameAR=$('mNameAR')?.value.trim()||'';
+  const nameEN=$('mNameEN')?.value.trim()||'',founder=$('mFounder')?.value.trim()||'',muhtamim=$('mMuhtamim')?.value.trim()||'';
+  const year=$('mYear')?.value.trim()||'',address=$('mAddress')?.value.trim()||'',genderType=$('mGenderType')?.value||'';
+  const newPhoto=await fileData('mPhoto');
+  const photo=newPhoto||String($('mPhoto')?.dataset.savedPhoto||'');
+  if(!genderType||!name||!year||!address||!e||!mobile||!u){toast('মাদ্রাসার ধরনসহ প্রয়োজনীয় ঘর পূরণ করুন।');return;}
+  if(editId){
+    const r=await call('updateMadrasaRegistration2026',token,{madrasaId:editId,username:u,password:p,email:e,mobile:mobile,name:name,nameAR:nameAR,nameEN:nameEN,founder:founder,muhtamim:muhtamim,foundedYear:year,address:address,genderType:genderType,photo:photo});
+    if(!r||!r.ok){toast((r&&r.message)||'মাদ্রাসার তথ্য আপডেট হয়নি।');return;}
+    $('mMadrasaID2026').value=r.madrasaId||editId;
+    $('mLookupID2026').value=r.madrasaId||editId;
+    const status=$('mLookupStatus2026');if(status)status.textContent='তথ্য আপডেট হয়েছে। মাদ্রাসা আইডি অপরিবর্তিত আছে।';
+    toast('মাদ্রাসার তথ্য আপডেট হয়েছে। আইডি অপরিবর্তিত আছে।');return;
+  }
+  if(!p||!photo){toast('নতুন নিবন্ধনের জন্য Password ও হেডারের ফটো দিন।');return;}
+  const r=await call('registerMadrasa',{username:u,password:p,email:e,mobile:mobile,name:name,nameAR:nameAR,nameEN:nameEN,founder:founder,muhtamim:muhtamim,foundedYear:year,address:address,photo:photo,genderType:genderType});
+  if(!r||!r.ok){toast((r&&r.message)||'মাদ্রাসা একাউন্ট তৈরি হয়নি।');return;}
+  $('mMadrasaID2026').value=r.madrasaId||'';
+  $('mRegistrationNo2026').value=r.registrationNo||r.madrasaId||'';
+  $('mLookupID2026').value=r.madrasaId||'';
+  $('mPhoto').dataset.savedPhoto=photo;
+  const status=$('mLookupStatus2026');if(status)status.textContent='নিবন্ধন হয়েছে: '+(r.madrasaId||'');
+  toast('নতুন মাদ্রাসা নিবন্ধন হয়েছে। ID: '+(r.madrasaId||'')+'। অনুমোদনের পর লগইন করা যাবে।');
+ }catch(e){toast('সার্ভার ত্রুটি: '+(e&&e.message?e.message:e));}
+}
 async function saveAdmin(){const photo=await fileData('aPhoto');const d={NameBN:$('aName').value,NameAR:$('aAr').value,NameEN:$('aEn').value,Username:$('aUser').value,Password:$('aPass').value,Email:$('aEmail').value,Mobile:$('aMobile').value,WhatsApp:$('aWa').value,ApprovalID:$('aApproval').value,Address:$('aAddress').value,Photo:photo,BirthReg:$('aBirth').value,NID:$('aNid').value};const r=await call('createAdmin',token,d);toast(r.message||('Admin ID: '+r.adminId))}
 async function lookupOnlinePaymentStudent(){
   const id=String($('pStudent')?.value||'').trim();
@@ -2169,6 +2242,7 @@ function saveCurrentForm(){
   var m=modules.find(function(x){return x[1]===t});
   if(m && typeof saveModule==='function' && ['student','teacher','donor'].includes(m[0])) return saveModule(m[0]);
   if(m && m[0]==='admin' && typeof saveAdmin==='function') return saveAdmin();
+  if(m && m[0]==='madrasa' && typeof saveMadrasaRegistration==='function') return saveMadrasaRegistration();
   toast('ফর্ম প্রস্তুত আছে — সংশ্লিষ্ট Save অপশন ব্যবহার করুন।');
 }
 function enableFormEdit(){
@@ -18185,3 +18259,59 @@ function openLoginMadrasaRegistration2026(){
 }
 </script>
 <!-- ===== END LOGIN PAGE MADRASA REGISTRATION FORM SYNC ===== -->
+
+
+<style id="madrasa-registration-form-2026-css">
+.madrasa-registration-header-2026{display:grid;grid-template-columns:110px minmax(0,1fr) 90px;gap:12px;align-items:center;padding:12px;margin:0 0 12px;border:2px solid var(--border,#c89b27);border-radius:14px;background:var(--panel,#fff);color:var(--text,#222);text-align:center}
+.madrasa-reg-logo-2026 img{width:96px;height:96px;object-fit:contain;border-radius:10px}
+.madrasa-reg-center-2026{min-width:0}.madrasa-reg-name-2026{font-weight:800;font-size:20px;margin:7px 0}.madrasa-reg-address-2026,.madrasa-reg-hotline-2026{font-size:13px;margin:4px 0;overflow-wrap:anywhere}
+.madrasa-reg-qr-2026 img{width:78px;height:78px;object-fit:contain}.madrasa-reg-qr-2026 div{font-size:11px}
+.madrasa-reg-controls-2026{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(150px,.8fr) minmax(190px,1fr);gap:12px;align-items:start;padding:12px;margin:0 0 12px;border:1px solid var(--border,#c89b27);border-radius:12px}
+.madrasa-reg-lookup-2026{display:grid;gap:8px}.madrasa-reg-status-2026{font-size:12px;overflow-wrap:anywhere}
+.madrasa-reg-id-row-2026{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.madrasa-reg-controls-2026 label,.madrasa-reg-id-row-2026 label{min-width:0}
+.madrasa-reg-controls-2026 small{display:block;margin-top:5px}
+@media(max-width:650px){.madrasa-registration-header-2026{grid-template-columns:65px minmax(0,1fr) 55px;gap:6px;padding:7px}.madrasa-reg-logo-2026 img{width:58px;height:58px}.madrasa-reg-qr-2026 img{width:48px;height:48px}.madrasa-reg-name-2026{font-size:15px}.madrasa-reg-address-2026,.madrasa-reg-hotline-2026{font-size:11px}.madrasa-reg-controls-2026{grid-template-columns:1fr}.madrasa-reg-id-row-2026{grid-template-columns:1fr}}
+</style>
+<script id="madrasa-registration-form-2026-js">
+function initMadrasaRegistrationForm2026(){
+  var logo=document.getElementById('madrasaRegHeaderLogo2026'),qr=document.getElementById('madrasaRegHeaderQR2026');
+  var source=document.getElementById('loginContactLogo20261013')||document.getElementById('contactLoginLogo2026')||document.getElementById('loginLogo')||document.getElementById('headerLogo');
+  if(logo&&source){var src=source.getAttribute('src')||source.src;if(src&&src!=='about:blank')logo.src=src;}
+  var qsource=document.getElementById('loginContactQR20261013');
+  if(qr&&qsource&&qsource.src&&qsource.src!=='about:blank')qr.src=qsource.src;
+  if(qr&&(!qr.getAttribute('src')||qr.getAttribute('src')===''))call('getMainWebAppUrl').then(function(r){var url=r&&r.url?r.url:'';if(url)qr.src='https://quickchart.io/qr?size=220&margin=2&text='+encodeURIComponent(url);}).catch(function(){});
+  var photo=$('mPhoto');if(photo){photo.dataset.savedPhoto='';photo.dataset.pendingPhoto='';}
+}
+async function previewMadrasaHeaderPhoto2026(){
+  var input=$('mPhoto'),img=$('madrasaRegHeaderLogo2026'),status=$('mPhotoStatus2026');
+  if(!input||!input.files||!input.files[0])return;
+  try{var data=await readFile(input.files[0]);input.dataset.pendingPhoto=data;if(img)img.src=data;if(status)status.textContent='হেডারের ফটো প্রস্তুত হয়েছে; সেভ করলে সংরক্ষিত হবে।';}
+  catch(e){if(status)status.textContent='ফটো পড়া যায়নি: '+(e.message||e);}
+}
+async function loadMadrasaRegistrationForEdit2026(){
+  var lookup=$('mLookupID2026'),status=$('mLookupStatus2026'),id=String(lookup&&lookup.value||'').trim();
+  if(!id){toast('মাদ্রাসা আইডি বা নিবন্ধন নম্বর লিখুন।');return;}
+  if(status)status.textContent='তথ্য খোঁজা হচ্ছে…';
+  try{
+    var r=await call('getMadrasaRegistrationForEdit2026',token,id);
+    if(!r||!r.ok){if(status)status.textContent=(r&&r.message)||'তথ্য পাওয়া যায়নি।';toast((r&&r.message)||'মাদ্রাসা পাওয়া যায়নি।');return;}
+    var d=r.data||{};
+    $('mMadrasaID2026').value=d.MadrasaID||'';
+    $('mRegistrationNo2026').value=d.RegistrationNo||d.MadrasaID||'';
+    $('mUser').value=d.Username||'';$('mPass').value='';
+    $('mEmail').value=d.Email||'';$('mMobile').value=d.Mobile||'';
+    $('mYear').value=d.FoundedYear||'';$('mName').value=d.Name||'';
+    $('mNameAR').value=d.NameAR||'';$('mNameEN').value=d.NameEN||'';
+    $('mFounder').value=d.Founder||'';$('mMuhtamim').value=d.Muhtamim||'';
+    $('mAddress').value=d.Address||'';$('mGenderType').value=d.GenderType||'';
+    var photo=$('mPhoto'),img=$('madrasaRegHeaderLogo2026'),pstatus=$('mPhotoStatus2026');
+    if(photo){photo.dataset.savedPhoto=d.Photo||'';photo.dataset.pendingPhoto='';}
+    if(img&&d.Photo)img.src=d.Photo;
+    if(pstatus)pstatus.textContent=d.Photo?'বর্তমান হেডার ফটো লোড হয়েছে। নতুন ফটো দিলে সেটি প্রতিস্থাপিত হবে।':'এখনো সংরক্ষিত হেডার ফটো নেই।';
+    if(status)status.textContent='তথ্য এসেছে। পরিবর্তন করে সেভ করুন। আইডি পরিবর্তন হবে না।';
+    toast('মাদ্রাসার তথ্য এসেছে। সম্পাদনা করে সেভ করুন।');
+  }catch(e){if(status)status.textContent='তথ্য আনা যায়নি: '+(e.message||e);toast('তথ্য আনা যায়নি: '+(e.message||e));}
+}
+</script>
+
