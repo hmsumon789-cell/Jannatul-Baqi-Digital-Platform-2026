@@ -1331,7 +1331,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       <select id="loginSignal" class="field" onchange="syncSearchSignal('login')"><option value="">সংকেত নির্বাচন করুন</option></select><input id="loginSearch" class="field" placeholder="সংকেত নির্বাচন করে ID / মোবাইল / ইমেইল লিখুন" onkeydown="if(event.key==='Enter')doSearch('login')"><button class="primary" onclick="doSearch('login')">🔎</button>
     </div>
     <div class="quick">
-      <button type="button" class="primary" onclick="openModule('admission')">📝 অনলাইন ভর্তি ফর্ম</button><button onclick="openModule('payment')">অনলাইন পেমেন্ট</button><button onclick="openModule('exam')">পরীক্ষার্থী নিবন্ধন</button><button onclick="openModule('admin')">নতুন অ্যাডমিন একাউন্ট</button><button onclick="openModule('madrasa')">নতুন মাদ্রাসা নিবন্ধন</button></div>
+      <button type="button" class="primary" onclick="openModule('admission')">📝 অনলাইন ভর্তি ফর্ম</button><button onclick="openModule('payment')">অনলাইন পেমেন্ট</button><button onclick="openModule('exam')">পরীক্ষার্থী নিবন্ধন</button><button onclick="openModule('admin')">নতুন অ্যাডমিন একাউন্ট</button><button type="button" onclick="openLoginMadrasaRegistration2026()">নতুন মাদ্রাসা নিবন্ধন</button></div>
     <section id="loginContactStrip20261013" aria-label="মাদ্রাসার যোগাযোগ">
   
   <div class="lc-layout">
@@ -18150,3 +18150,38 @@ body.gold #toast.toast{background:#fff5c7!important;color:#4b3200!important;bord
 })();
 </script>
 <!-- ===== END ONLINE RESULT PLATFORM — CENTRAL MANAGEMENT ===== -->
+
+
+<!-- ===== LOGIN PAGE MADRASA REGISTRATION FORM SYNC — 2026-10-29 ===== -->
+<script id="login-madrasa-registration-sync-20261029">
+function openLoginMadrasaRegistration2026(){
+  if(typeof window.openModule!=='function'){if(typeof window.toast==='function')window.toast('নিবন্ধন ফর্ম খোলা যাচ্ছে না।');return;}
+  window.openModule('madrasa');
+  setTimeout(function(){
+    var body=document.getElementById('winBody');
+    if(!body)return;
+    var name=body.querySelector('#mName');
+    if(!name)return;
+    var nameLabel=name.closest('label');
+    if(!nameLabel)return;
+    var fields=[
+      ['mNameAR','আরবি নাম (ঐচ্ছিক)','text'],
+      ['mNameEN','ইংরেজি নাম (ঐচ্ছিক)','text'],
+      ['mFounder','প্রতিষ্ঠাতার নাম','text'],
+      ['mMuhtamim','মুহতামিমের নাম','text']
+    ];
+    var anchor=nameLabel;
+    fields.forEach(function(f){
+      if(body.querySelector('#'+f[0]))return;
+      var label=document.createElement('label');
+      label.textContent=f[1];
+      var input=document.createElement('input');
+      input.id=f[0];input.className='field';input.type=f[2];
+      label.appendChild(input);
+      anchor.insertAdjacentElement('afterend',label);
+      anchor=label;
+    });
+  },80);
+}
+</script>
+<!-- ===== END LOGIN PAGE MADRASA REGISTRATION FORM SYNC ===== -->
