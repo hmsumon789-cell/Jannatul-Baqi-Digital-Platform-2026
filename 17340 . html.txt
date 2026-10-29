@@ -2710,6 +2710,13 @@ window.renderAccountList=function(type){
   if(type==='admin'||type==='all')arr=arr.concat((d.admins||[]).map(function(x){return Object.assign({_type:'admin'},x)}));
   if(type==='madrasa'||type==='all')arr=arr.concat((d.madrasas||[]).map(function(x){return Object.assign({_type:'madrasa'},x)}));
   if(type==='students'||type==='all')arr=arr.concat((d.admissions||[]).map(function(x){return Object.assign({_type:'studentAdmission'},x)}));
+  // Hide the root Super Admin from all account-control lists; server-side protection remains authoritative.
+  arr=arr.filter(function(x){
+    if(x._type!=='admin')return true;
+    var username=String(x.Username||'').trim().toLowerCase();
+    var role=String(x.Role||x.role||'').trim().toUpperCase().replace(/\s+/g,'_');
+    return username!=='superadmin'&&role!=='SUPER_ADMIN'&&role!=='SUPERADMIN';
+  });
   var box=$('accountListUi');if(!box)return;
   box.innerHTML='';
   if(!arr.length){box.innerHTML='<div class="account-card">কোনো Account পাওয়া যায়নি।</div>';return}
@@ -2721,7 +2728,7 @@ window.renderAccountList=function(type){
     var card=document.createElement('div');card.className='account-card '+(String(status).toUpperCase()==='PENDING'?'pending':'');card.dataset.type=x._type;card.dataset.id=String(id||'');
     var head=document.createElement('div');head.className='account-card-head';head.innerHTML='<span>'+escA(name)+'</span><span>Status: <b>'+escA(status)+'</b></span>';card.appendChild(head);
     var meta=document.createElement('div');meta.className='account-meta';
-    [['ID',id],['Username',x.Username||''],['Password',x.Password||''],['Mobile',x.Mobile||''],['Type',_typeLabel(x._type)],['প্রাথমিক যাচাই',x.ReviewStatus||'যাচাই বাকি'],['যাচাইকারী',x.ReviewedBy||''],['যাচাই নোট',x.ReviewNote||''],['Approved By',x.ApprovedBy||'']].forEach(function(a){var q=document.createElement('div');q.innerHTML=escA(a[0])+': <b>'+escA(a[1])+'</b>';meta.appendChild(q)});card.appendChild(meta);
+    [['ID',id],['Username',x.Username||''],['Mobile',x.Mobile||''],['Type',_typeLabel(x._type)],['প্রাথমিক যাচাই',x.ReviewStatus||'যাচাই বাকি'],['যাচাইকারী',x.ReviewedBy||''],['যাচাই নোট',x.ReviewNote||''],['Approved By',x.ApprovedBy||'']].forEach(function(a){var q=document.createElement('div');q.innerHTML=escA(a[0])+': <b>'+escA(a[1])+'</b>';meta.appendChild(q)});card.appendChild(meta);
     if(x._type==='studentAdmission'){
       var sm=document.createElement('div');sm.className='account-meta';
       [['Student ID',x.StudentID||''],['Class',x.Class||''],['Branch',x.Branch||''],['Source',x.FormData||''],['Status',x.Status||'PENDING']].forEach(function(a){var q=document.createElement('div');q.innerHTML=escA(a[0])+': <b>'+escA(a[1])+'</b>';sm.appendChild(q)});card.appendChild(sm);
