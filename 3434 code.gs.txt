@@ -237,7 +237,7 @@ function login(username,password) {
     }
     if (row.passwordHash !== hash_(password)) return {ok:false,message:'পাসওয়ার্ড সঠিক নয়।'};
 
-    // বিদ্যমান Super Admin-এর জন্য OTP অপরিবর্তিত থাকবে.
+    // বিদ্যমান Super Admin-এর জন্য OTP অপরিবর্তিত থাকবে।
     if (role === 'SUPER_ADMIN' || role === 'SUPERADMIN') {
       const otp = generateOtp_();
       const otpHash = hash_(otp);
