@@ -544,6 +544,8 @@ function approveAccount(token,type,id,status,permissions){
     const targetUsername=targetUsernameCol>=0?String(targetRow[targetUsernameCol]||'').trim().toLowerCase():'';
     const targetRole=targetRoleCol>=0?String(targetRow[targetRoleCol]||'').trim().toUpperCase().replace(/\s+/g,'_'):'';
     if(type==='admin' && (targetUsername==='superadmin' || targetRole==='SUPER_ADMIN' || targetRole==='SUPERADMIN')){
+      notifySuperAdminSecurity_(actor,'Blocked approval/permission change attempt',targetUsername||id,'Attempt to change primary Super Admin status/permissions was blocked.');
+      log_(actor,'security-blocked-approval-change','admin',id+' | primary Super Admin protected');
       return {ok:false,message:'নিরাপত্তার জন্য মূল Super Admin অ্যাকাউন্টের Status/Permission এই তালিকা থেকে পরিবর্তন করা যাবে না।'};
     }
 
@@ -591,7 +593,11 @@ function setAccountStatus(token,type,id,status){
   if(type==='admin'){
     const username=h.indexOf('Username')>=0?String(vals[idx][h.indexOf('Username')]||'').trim().toLowerCase():'';
     const role=h.indexOf('Role')>=0?String(vals[idx][h.indexOf('Role')]||'').trim().toUpperCase().replace(/\s+/g,'_'):'';
-    if(username==='superadmin'||role==='SUPER_ADMIN'||role==='SUPERADMIN') return {ok:false,message:'নিরাপত্তার জন্য মূল Super Admin অ্যাকাউন্টের Status এই তালিকা থেকে পরিবর্তন করা যাবে না।'};
+    if(username==='superadmin'||role==='SUPER_ADMIN'||role==='SUPERADMIN'){
+      notifySuperAdminSecurity_(sessionUser_(token),'Blocked Status change attempt',username||id,'Attempted Status: '+status+'; change was blocked.');
+      log_(sessionUser_(token),'security-blocked-status-change','admin',id+' | attempted '+status);
+      return {ok:false,message:'নিরাপত্তার জন্য মূল Super Admin অ্যাকাউন্টের Status এই তালিকা থেকে পরিবর্তন করা যাবে না।'};
+    }
   }
   const previous=String(vals[idx][statusCol]||'').trim().toUpperCase();
   if(previous===status) return {ok:true,message:'Account Status আগে থেকেই '+status+' আছে।'};
@@ -612,7 +618,11 @@ function resetAccountPassword(token,type,id,newPassword){
   if(type==='admin'){
     const username=h.indexOf('Username')>=0?String(vals[idx][h.indexOf('Username')]||'').trim().toLowerCase():'';
     const role=h.indexOf('Role')>=0?String(vals[idx][h.indexOf('Role')]||'').trim().toUpperCase().replace(/\s+/g,'_'):'';
-    if(username==='superadmin'||role==='SUPER_ADMIN'||role==='SUPERADMIN')return {ok:false,message:'নিরাপত্তার জন্য মূল Super Admin-এর Password এই তালিকা থেকে পরিবর্তন করা যাবে না।'};
+    if(username==='superadmin'||role==='SUPER_ADMIN'||role==='SUPERADMIN'){
+      notifySuperAdminSecurity_(sessionUser_(token),'Blocked password reset attempt',username||id,'Attempt to reset the primary Super Admin password from account control was blocked. Password value was not recorded or emailed.');
+      log_(sessionUser_(token),'security-blocked-password-reset','admin',id+' | primary Super Admin protected');
+      return {ok:false,message:'নিরাপত্তার জন্য মূল Super Admin-এর Password এই তালিকা থেকে পরিবর্তন করা যাবে না।'};
+    }
   }
   const hi=h.indexOf('PasswordHash'), pi=h.indexOf('Password'); if(hi>=0)sh.getRange(idx+1,hi+1).setValue(hash_(newPassword)); if(pi>=0)sh.getRange(idx+1,pi+1).setValue(newPassword);
   SpreadsheetApp.flush(); log_(sessionUser_(token),'password_reset',type,id); return {ok:true,message:'Password reset হয়েছে।'};
@@ -1838,6 +1848,72 @@ function auth_(token){ const raw=CacheService.getScriptCache().get('SESSION:'+to
 function sessionUser_(token){ return auth_(token).username; }
 function getAdminSafe_(u){ const x=findBy_(SHEETS.ADMINS,'Username',u)||{}; delete x.PasswordHash; return x; }
 function log_(u,a,t,d){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.AUDIT); if(sh)sh.appendRow([nextSerial_(sh),now_(),u,a,t,d]); }
+
+// Security alert: never include or email anyone's password.
+function notifySuperAdminSecurity_(actor,action,target,detail){
+  try{
+    const recipient=String(APP.email1||'').trim();
+    if(!recipient)return;
+    const when=Utilities.formatDate(new Date(),APP.timezone,'yyyy-MM-dd HH:mm:ss');
+    const subject='⚠️ Jannatul Baqi Security Alert: '+String(action||'Account change');
+    const body=[
+      'জান্নাতুল বাক্বী ডিজিটাল প্ল্যাটফর্মের নিরাপত্তা সতর্কবার্তা।',
+      '',
+      'ব্যবহারকারী/অভিনেতা: '+String(actor||'পরিচয় পাওয়া যায়নি'),
+      'কাজ: '+String(action||'অজানা'),
+      'লক্ষ্য অ্যাকাউন্ট: '+String(target||'অজানা'),
+      'বিবরণ: '+String(detail||''),
+      'সময়: '+when,
+      '',
+      'নিরাপত্তার কারণে কোনো পাসওয়ার্ড এই ইমেইলে পাঠানো হয়নি।'
+    ].join('\\n');
+    MailApp.sendEmail({to:recipient,subject:subject,body:body});
+  }catch(err){
+    try{log_(String(actor||'unknown'),'security-alert-email-failed',String(target||''),String(action||'')+' | '+String(err&&err.message||err));}catch(ignore){}
+  }
+}
+
+// Run once from Apps Script editor to enable alerts for direct manual edits
+// to the primary Super Admin row in ADMINS.
+function installSuperAdminSecurityTrigger(){
+  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  const sh=ss.getSheetByName(SHEETS.ADMINS);
+  if(!sh)throw new Error('ADMINS sheet পাওয়া যায়নি।');
+  const vals=sh.getDataRange().getValues();
+  const h=vals[0].map(x=>String(x||'').trim());
+  const ui=h.indexOf('Username'),ri=h.indexOf('Role');
+  let rootRow=0;
+  for(let i=1;i<vals.length;i++){
+    const username=ui>=0?String(vals[i][ui]||'').trim().toLowerCase():'';
+    const role=ri>=0?String(vals[i][ri]||'').trim().toUpperCase().replace(/\\s+/g,'_'):'';
+    if(username==='superadmin'||role==='SUPER_ADMIN'||role==='SUPERADMIN'){rootRow=i+1;break;}
+  }
+  if(!rootRow)throw new Error('মূল Super Admin row পাওয়া যায়নি।');
+  PropertiesService.getScriptProperties().setProperty('SUPERADMIN_PROTECTED_ROW',String(rootRow));
+  ScriptApp.getProjectTriggers().filter(function(t){return t.getHandlerFunction()==='superAdminSecurityOnEdit_';}).forEach(function(t){ScriptApp.deleteTrigger(t);});
+  ScriptApp.newTrigger('superAdminSecurityOnEdit_').forSpreadsheet(ss).onEdit().create();
+  return 'Security alert trigger installed for ADMINS row '+rootRow;
+}
+
+function superAdminSecurityOnEdit_(e){
+  try{
+    if(!e||!e.range)return;
+    const sh=e.range.getSheet();
+    if(sh.getName()!==SHEETS.ADMINS)return;
+    const row=Number(PropertiesService.getScriptProperties().getProperty('SUPERADMIN_PROTECTED_ROW')||0);
+    if(!row||e.range.getRow()>row||e.range.getLastRow()<row)return;
+    const actor=(e.user&&e.user.getEmail)?e.user.getEmail():'Google editor identity unavailable';
+    const values=sh.getRange(row,1,1,sh.getLastColumn()).getDisplayValues()[0];
+    const headers=sh.getRange(1,1,1,sh.getLastColumn()).getDisplayValues()[0].map(function(x){return String(x||'').trim();});
+    const ui=headers.indexOf('Username'),ri=headers.indexOf('Role');
+    const username=ui>=0?String(values[ui]||'').trim():'root Super Admin row';
+    const role=ri>=0?String(values[ri]||'').trim():'';
+    notifySuperAdminSecurity_(actor,'Direct sheet edit/change',username,'ADMINS row '+row+' was edited; current Role='+role+'. Alert fires after edit; use sheet protection to prevent edits beforehand.');
+    try{log_(actor,'security-sheet-edit',username,'ADMINS row '+row+' edited; current Role='+role);}catch(ignore){}
+  }catch(err){
+    try{notifySuperAdminSecurity_('trigger error','Direct sheet edit alert failed','ADMINS','Error: '+String(err&&err.message||err));}catch(ignore){}
+  }
+}
 
 function getClasses_(){
   return ['প্লে শ্রেনি','শিশু শ্রেনি','আউয়াল জামাত','ছানী জামাত','ছালেছ জামাত','রাবে জামাত','পঞ্চম জামাত','মিজান জামাত','নাহবেমীর জামাত','কুদুরী জামাত','শরহে বেকায়া জামাত','হেদায়া জামাত','মিশকাত জামাত','দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)'];
