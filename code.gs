@@ -149,12 +149,17 @@ function login(username,password) {
     if (!username || !password) return {ok:false,message:'ইউজার নেম ও পাসওয়ার্ড দিন।'};
     const row = findAdminLogin_(username);
     if (!row) return {ok:false,message:'ইউজার নেম পাওয়া যায়নি।'};
-    if (String(row.status).toUpperCase() !== 'ACTIVE') return {ok:false,message:'এই অ্যাডমিন একাউন্ট সক্রিয় নয়। Super Admin অনুমোদন প্রয়োজন।'};
+    const role = String(row.role || '').toUpperCase().replace(/\s+/g,'_');
+    const isSuperAdmin = role === 'SUPER_ADMIN' || role === 'SUPERADMIN';
+    const status = String(row.status || '').trim().toUpperCase();
+    // Super Admin-এর ফাঁকা/PENDING Status তাকে নিজেকেই অনুমোদনের বাইরে আটকে রাখবে না;
+    // স্পষ্টভাবে স্থগিত/নিষ্ক্রিয় হলে নিরাপত্তার জন্য লগইন বন্ধ থাকবে।
+    if (isSuperAdmin ? ['SUSPENDED','DISABLED','INACTIVE','BLOCKED'].includes(status) : status !== 'ACTIVE') {
+      return {ok:false,message:'এই অ্যাডমিন একাউন্ট সক্রিয় নয়। Super Admin অনুমোদন প্রয়োজন।'};
+    }
     if (row.passwordHash !== hash_(password)) return {ok:false,message:'পাসওয়ার্ড সঠিক নয়।'};
 
     // বিদ্যমান Super Admin-এর জন্য OTP অপরিবর্তিত থাকবে।
-    const full = findBy_(SHEETS.ADMINS,'Username',username) || {};
-    const role = String(full.Role || '').toUpperCase().replace(/\s+/g,'_');
     if (role === 'SUPER_ADMIN' || role === 'SUPERADMIN') {
       const otp = generateOtp_();
       const otpHash = hash_(otp);
@@ -814,11 +819,13 @@ function findAdminLogin_(username){
   const pi=idx.passwordhash || idx.password_hash;
   const si=idx.status;
   const ei=idx.email;
+  const ri=idx.role;
   if(ui==null || pi==null) return null;
   for(let i=1;i<v.length;i++){
     if(String(v[i][ui]).trim().toLowerCase()===String(username).trim().toLowerCase()){
       return {
-        status: si==null?'ACTIVE':String(v[i][si]||'ACTIVE'),
+        status: si==null?'ACTIVE':String(v[i][si]||''),
+        role: ri==null?'':String(v[i][ri]||''),
         passwordHash:String(v[i][pi]||''),
         email: ei==null?'':String(v[i][ei]||'')
       };
