@@ -505,7 +505,9 @@ function submitAccountReview(token,type,id,note){
 function getAccountControlData(token){
   ensureAccountReviewColumns_();
   if(!isSuperAdmin_(token)) return {ok:false,message:'শুধু Super Admin অনুমোদন ও পারমিশন পরিবর্তন করতে পারবেন।'};
-  return {ok:true,admins:listRows_(SHEETS.ADMINS,token,500),madrasas:listRows_(SHEETS.MADRASAS,token,500),admissions:listRows_(SHEETS.ADMISSIONS,token,500).filter(function(r){return ['PENDING','SUBMITTED','SUBMITTED_TO_SUPER_ADMIN','PENDING_PAYMENT'].indexOf(String(r.Status||r.ApprovalStatus||'').trim().toUpperCase())>=0;}),modules:getModules_()};
+  // Never send stored password fields to the browser.
+  const safeAccounts=function(rows){return rows.map(function(r){delete r.Password;delete r.PasswordHash;delete r.password;delete r.passwordHash;return r;});};
+  return {ok:true,admins:safeAccounts(listRows_(SHEETS.ADMINS,token,500)),madrasas:safeAccounts(listRows_(SHEETS.MADRASAS,token,500)),admissions:listRows_(SHEETS.ADMISSIONS,token,500).filter(function(r){return ['PENDING','SUBMITTED','SUBMITTED_TO_SUPER_ADMIN','PENDING_PAYMENT'].indexOf(String(r.Status||r.ApprovalStatus||'').trim().toUpperCase())>=0;}),modules:getModules_()};
 }
 function approveAccount(token,type,id,status,permissions){
   try{
