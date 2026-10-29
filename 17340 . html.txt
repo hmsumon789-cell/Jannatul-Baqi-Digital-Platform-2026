@@ -1950,7 +1950,8 @@ async function saveMadrasaRegistration(){
   const year=$('mYear')?.value.trim()||'',address=$('mAddress')?.value.trim()||'',genderType=$('mGenderType')?.value||'';
   const newPhoto=await fileData('mPhoto');
   const photo=newPhoto||String($('mPhoto')?.dataset.savedPhoto||'');
-  if(!genderType||!name||!year||!address||!e||!mobile||!u){toast('মাদ্রাসার ধরনসহ প্রয়োজনীয় ঘর পূরণ করুন।');return;}
+  const dashboardForm=!!$('mGenderType');
+  if((dashboardForm&&!genderType)||!name||!year||!address||!e||!mobile||!u){toast('মাদ্রাসার ধরনসহ প্রয়োজনীয় ঘর পূরণ করুন।');return;}
   if(editId){
     const r=await call('updateMadrasaRegistration2026',token,{madrasaId:editId,username:u,password:p,email:e,mobile:mobile,name:name,nameAR:nameAR,nameEN:nameEN,founder:founder,muhtamim:muhtamim,foundedYear:year,address:address,genderType:genderType,photo:photo});
     if(!r||!r.ok){toast((r&&r.message)||'মাদ্রাসার তথ্য আপডেট হয়নি।');return;}
@@ -1962,6 +1963,7 @@ async function saveMadrasaRegistration(){
   if(!p||!photo){toast('নতুন নিবন্ধনের জন্য Password ও হেডারের ফটো দিন।');return;}
   const r=await call('registerMadrasa',{username:u,password:p,email:e,mobile:mobile,name:name,nameAR:nameAR,nameEN:nameEN,founder:founder,muhtamim:muhtamim,foundedYear:year,address:address,photo:photo,genderType:genderType});
   if(!r||!r.ok){toast((r&&r.message)||'মাদ্রাসা একাউন্ট তৈরি হয়নি।');return;}
+  if(!dashboardForm){toast('সফল হয়েছে। এখন অনুমোদনের পর Username + Password দিয়ে OTP ছাড়া লগইন করতে পারবেন।');closeWindow('formWin');openApprovedLogin();setApprovedLoginType('madrasa');$('approvedLoginUser').value=u;$('approvedLoginPass').value=p;return;}
   $('mMadrasaID2026').value=r.madrasaId||'';
   $('mRegistrationNo2026').value=r.registrationNo||r.madrasaId||'';
   $('mLookupID2026').value=r.madrasaId||'';
