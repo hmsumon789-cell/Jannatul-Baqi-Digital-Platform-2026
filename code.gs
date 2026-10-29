@@ -152,7 +152,7 @@ function login(username,password) {
 
     // আগে Role যাচাই: Super Admin-এর Status ফাঁকা/PENDING হলেও লগইন চলবে।
     const full = findBy_(SHEETS.ADMINS,'Username',username) || {};
-    const role = String(full.Role || full.role || '').trim().toUpperCase().replace(/[\\s-]+/g,'_');
+    const role = String(full.Role || full.role || '').trim().toUpperCase().replace(/[\s-]+/g,'_');
     const isSuperAdmin = role === 'SUPER_ADMIN' || role === 'SUPERADMIN';
     const status = String(row.status || '').trim().toUpperCase();
     if (isSuperAdmin ? ['SUSPENDED','DISABLED','INACTIVE','BLOCKED'].includes(status) : status !== 'ACTIVE') {
