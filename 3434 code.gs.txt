@@ -538,8 +538,18 @@ function approveAccount(token,type,id,status,permissions){
     }
     if(rowIndex<2) return {ok:false,message:'Account পাওয়া যায়নি: '+id};
 
+    // মূল Super Admin-কে সাধারণ অনুমোদন তালিকা থেকে পরিবর্তন করা যাবে না।
+    const targetRow=vals[rowIndex-1];
+    const targetUsernameCol=h.indexOf('Username'), targetRoleCol=h.indexOf('Role');
+    const targetUsername=targetUsernameCol>=0?String(targetRow[targetUsernameCol]||'').trim().toLowerCase():'';
+    const targetRole=targetRoleCol>=0?String(targetRow[targetRoleCol]||'').trim().toUpperCase().replace(/\s+/g,'_'):'';
+    if(type==='admin' && (targetUsername==='superadmin' || targetRole==='SUPER_ADMIN' || targetRole==='SUPERADMIN')){
+      return {ok:false,message:'নিরাপত্তার জন্য মূল Super Admin অ্যাকাউন্টের Status/Permission এই তালিকা থেকে পরিবর্তন করা যাবে না।'};
+    }
+
     const safePermissions=Array.isArray(permissions)?permissions.map(x=>String(x).trim()).filter(Boolean):String(permissions||'').split(',').map(x=>x.trim()).filter(Boolean);
     const finalStatus=String(status||'ACTIVE').toUpperCase();
+    if(!['ACTIVE','PENDING','SUSPENDED','DISABLED','BLOCKED','REJECTED'].includes(finalStatus)) return {ok:false,message:'Account Status গ্রহণযোগ্য নয়।'};
     const statusCol=h.indexOf('Status');
     const reviewCol=h.indexOf('ReviewStatus');
     const currentStatus=statusCol>=0?String(vals[rowIndex-1][statusCol]||'PENDING').toUpperCase():'PENDING';
@@ -568,17 +578,44 @@ function approveAccountDirect(token,type,id,status,permissions){
 }
 function setAccountStatus(token,type,id,status){
   if(!isSuperAdmin_(token)) return {ok:false,message:'শুধু Super Admin status পরিবর্তন করতে পারবেন।'};
-  const sheet=type==='admin'?SHEETS.ADMINS:SHEETS.MADRASAS, key=type==='admin'?'AdminID':'MadrasaID', sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheet), vals=sh.getDataRange().getValues(), h=vals[0], idx=vals.findIndex((r,i)=>i>0&&String(r[h.indexOf(key)])===String(id));
+  type=String(type||'').toLowerCase(); id=String(id||'').trim(); status=String(status||'').trim().toUpperCase();
+  if(type!=='admin'&&type!=='madrasa') return {ok:false,message:'Account type সঠিক নয়।'};
+  if(!['ACTIVE','PENDING','SUSPENDED','DISABLED','BLOCKED','REJECTED'].includes(status)) return {ok:false,message:'Account Status গ্রহণযোগ্য নয়।'};
+  const sheet=type==='admin'?SHEETS.ADMINS:SHEETS.MADRASAS, key=type==='admin'?'AdminID':'MadrasaID', sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheet);
+  if(!sh) return {ok:false,message:'Account sheet পাওয়া যায়নি।'};
+  const vals=sh.getDataRange().getValues(); if(!vals.length) return {ok:false,message:'Account sheet খালি।'};
+  const h=vals[0].map(x=>String(x||'').trim()), keyCol=h.indexOf(key), statusCol=h.indexOf('Status');
+  if(keyCol<0||statusCol<0) return {ok:false,message:'Account ID/Status কলাম পাওয়া যায়নি।'};
+  const idx=vals.findIndex((r,i)=>i>0&&String(r[keyCol]||'').trim()===id);
   if(idx<1) return {ok:false,message:'Account পাওয়া যায়নি।'};
-  sh.getRange(idx+1,h.indexOf('Status')+1).setValue(status); log_(sessionUser_(token),'status',type,id+' => '+status); return {ok:true,message:'Account status '+status+' করা হয়েছে।'};
+  if(type==='admin'){
+    const username=h.indexOf('Username')>=0?String(vals[idx][h.indexOf('Username')]||'').trim().toLowerCase():'';
+    const role=h.indexOf('Role')>=0?String(vals[idx][h.indexOf('Role')]||'').trim().toUpperCase().replace(/\s+/g,'_'):'';
+    if(username==='superadmin'||role==='SUPER_ADMIN'||role==='SUPERADMIN') return {ok:false,message:'নিরাপত্তার জন্য মূল Super Admin অ্যাকাউন্টের Status এই তালিকা থেকে পরিবর্তন করা যাবে না।'};
+  }
+  const previous=String(vals[idx][statusCol]||'').trim().toUpperCase();
+  if(previous===status) return {ok:true,message:'Account Status আগে থেকেই '+status+' আছে।'};
+  sh.getRange(idx+1,statusCol+1).setValue(status); SpreadsheetApp.flush();
+  log_(sessionUser_(token),'status',type,id+' | '+previous+' → '+status);
+  return {ok:true,message:'Account status '+status+' করা হয়েছে।'};
 }
 function resetAccountPassword(token,type,id,newPassword){
   if(!isSuperAdmin_(token)) return {ok:false,message:'শুধু Super Admin Password reset করতে পারবেন।'};
   newPassword=String(newPassword||''); if(newPassword.length<4)return {ok:false,message:'Password কমপক্ষে ৪ অক্ষরের দিন।'};
-  const sheet=type==='admin'?SHEETS.ADMINS:SHEETS.MADRASAS, key=type==='admin'?'AdminID':'MadrasaID', sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheet), vals=sh.getDataRange().getValues(), h=vals[0], idx=vals.findIndex((r,i)=>i>0&&String(r[h.indexOf(key)])===String(id));
+  type=String(type||'').toLowerCase(); id=String(id||'').trim();
+  if(type!=='admin'&&type!=='madrasa')return {ok:false,message:'Account type সঠিক নয়।'};
+  const sheet=type==='admin'?SHEETS.ADMINS:SHEETS.MADRASAS, key=type==='admin'?'AdminID':'MadrasaID', sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheet);
+  if(!sh)return {ok:false,message:'Account sheet পাওয়া যায়নি।'};
+  const vals=sh.getDataRange().getValues(); if(!vals.length)return {ok:false,message:'Account sheet খালি।'};
+  const h=vals[0].map(x=>String(x||'').trim()), keyCol=h.indexOf(key), idx=vals.findIndex((r,i)=>i>0&&keyCol>=0&&String(r[keyCol]||'').trim()===id);
   if(idx<1)return {ok:false,message:'Account পাওয়া যায়নি।'};
+  if(type==='admin'){
+    const username=h.indexOf('Username')>=0?String(vals[idx][h.indexOf('Username')]||'').trim().toLowerCase():'';
+    const role=h.indexOf('Role')>=0?String(vals[idx][h.indexOf('Role')]||'').trim().toUpperCase().replace(/\s+/g,'_'):'';
+    if(username==='superadmin'||role==='SUPER_ADMIN'||role==='SUPERADMIN')return {ok:false,message:'নিরাপত্তার জন্য মূল Super Admin-এর Password এই তালিকা থেকে পরিবর্তন করা যাবে না।'};
+  }
   const hi=h.indexOf('PasswordHash'), pi=h.indexOf('Password'); if(hi>=0)sh.getRange(idx+1,hi+1).setValue(hash_(newPassword)); if(pi>=0)sh.getRange(idx+1,pi+1).setValue(newPassword);
-  log_(sessionUser_(token),'password_reset',type,id); return {ok:true,message:'Password reset হয়েছে।'};
+  SpreadsheetApp.flush(); log_(sessionUser_(token),'password_reset',type,id); return {ok:true,message:'Password reset হয়েছে।'};
 }
 
 function logout(token) {
