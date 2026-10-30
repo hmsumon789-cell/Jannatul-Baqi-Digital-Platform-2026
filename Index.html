@@ -935,7 +935,8 @@ body.dark .exam-dashboard-card,body.dark .exam-dashboard-actions button{backgrou
 <div id="toast" class="toast"></div>
 
 <script>
-let token='',otpToken='',currentUser=null,media=[],mediaIndex=0,modules=[],drag={};
+let token='',otpToken='',currentUser=null,media=[],mediaIndex=0,modules=[],drag={},sessionGuardTimer=null;
+function startSessionGuard(){if(sessionGuardTimer)clearInterval(sessionGuardTimer);sessionGuardTimer=setInterval(async function(){if(!token)return;try{var r=await call('checkSession',token);if(!r||!r.ok){clearInterval(sessionGuardTimer);sessionGuardTimer=null;token='';currentUser=null;toast('আপনার অ্যাকাউন্টের সেশন Super Admin বাতিল করেছেন। আবার লগইন করুন।');$('app').classList.remove('show');$('loginPage').style.display='';}},30000)}
 const $=id=>document.getElementById(id);
 const call=(fn,...args)=>new Promise((resolve,reject)=>google.script.run.withSuccessHandler(resolve).withFailureHandler(e=>reject(e))[fn](...args));
 
@@ -971,7 +972,7 @@ async function login(){
     const r=await call('login',u,p);
     if(!r||!r.ok){toast((r&&r.message)||'লগইন ব্যর্থ হয়েছে।');return;}
     if(!r.requiresOtp){
-      token=r.token;currentUser=r.user||{};
+      token=r.token;currentUser=r.user||{};startSessionGuard();
       $('otpArea').classList.remove('show');
       $('loginPage').style.display='none';
       $('app').classList.add('show');
@@ -988,7 +989,7 @@ async function login(){
     if(btn){btn.disabled=false;btn.textContent=btn.dataset.oldText||'লগইন';}
   }
 } 
-async function verifyOtp(){const code=[...document.querySelectorAll('.otp-box')].map(x=>x.value).join('');if(code.length!==6)return toast('৬ সংখ্যার OTP দিন।');const r=await call('verifyLoginOtp',otpToken,$('username').value.trim(),code);if(!r.ok)return toast(r.message);token=r.token;currentUser=r.user;$('loginPage').style.display='none';$('app').classList.add('show');await loadApp()}
+async function verifyOtp(){const code=[...document.querySelectorAll('.otp-box')].map(x=>x.value).join('');if(code.length!==6)return toast('৬ সংখ্যার OTP দিন।');const r=await call('verifyLoginOtp',otpToken,$('username').value.trim(),code);if(!r.ok)return toast(r.message);token=r.token;currentUser=r.user;startSessionGuard();$('loginPage').style.display='none';$('app').classList.add('show');await loadApp()}
 async function resendOtp(){const r=await call('requestOtp',$('username').value.trim());toast(r.message)}
 function clearOtp(){document.querySelectorAll('.otp-box').forEach(x=>x.value='');$('otpBoxes').firstElementChild.focus()}
 async function resetOtp(){const r=await call('requestOtp',$('resetUser').value.trim());toast(r.message)}
@@ -1889,7 +1890,7 @@ var approvedLoginType='admin';
 function openApprovedLogin(){openWindow('approvedLoginWin');setApprovedLoginType('admin');setTimeout(function(){if($('approvedLoginUser'))$('approvedLoginUser').focus()},80)}
 function setApprovedLoginType(type){approvedLoginType=type==='madrasa'?'madrasa':'admin';var a=$('approvedAdminTab'),m=$('approvedMadrasaTab'),b=$('approvedLoginBtn'),msg=$('approvedLoginMsg');if(a)a.className=approvedLoginType==='admin'?'primary':'secondary';if(m)m.className=approvedLoginType==='madrasa'?'primary':'secondary';if(b)b.textContent=approvedLoginType==='admin'?'🔐 Admin Login':'🔐 Madrasa Login';if(msg)msg.textContent='';}
 function toggleApprovedPassword(){var x=$('approvedLoginPass');if(x)x.type=x.type==='password'?'text':'password'}
-async function approvedLoginSubmit(){var u=$('approvedLoginUser').value.trim(),p=$('approvedLoginPass').value;if(!u||!p){$('approvedLoginMsg').textContent='Username ও Password দিন।';return;}var btn=$('approvedLoginBtn');btn.disabled=true;btn.textContent='⏳ লগইন হচ্ছে...';try{var fn=approvedLoginType==='madrasa'?'loginMadrasa':'loginNewAdmin';var r=await call(fn,u,p);if(!r||!r.ok){$('approvedLoginMsg').textContent=(r&&r.message)||'লগইন ব্যর্থ হয়েছে।';return;}token=r.token;currentUser=r.user||{};closeWindow('approvedLoginWin');$('loginPage').style.display='none';$('app').classList.add('show');await loadApp();toast('✅ লগইন সফল হয়েছে।');}catch(e){$('approvedLoginMsg').textContent='সার্ভার ত্রুটি: '+(e&&e.message?e.message:e)}finally{btn.disabled=false;btn.textContent=approvedLoginType==='admin'?'🔐 Admin Login':'🔐 Madrasa Login'}}
+async function approvedLoginSubmit(){var u=$('approvedLoginUser').value.trim(),p=$('approvedLoginPass').value;if(!u||!p){$('approvedLoginMsg').textContent='Username ও Password দিন।';return;}var btn=$('approvedLoginBtn');btn.disabled=true;btn.textContent='⏳ লগইন হচ্ছে...';try{var fn=approvedLoginType==='madrasa'?'loginMadrasa':'loginNewAdmin';var r=await call(fn,u,p);if(!r||!r.ok){$('approvedLoginMsg').textContent=(r&&r.message)||'লগইন ব্যর্থ হয়েছে।';return;}token=r.token;currentUser=r.user||{};startSessionGuard();closeWindow('approvedLoginWin');$('loginPage').style.display='none';$('app').classList.add('show');await loadApp();toast('✅ লগইন সফল হয়েছে।');}catch(e){$('approvedLoginMsg').textContent='সার্ভার ত্রুটি: '+(e&&e.message?e.message:e)}finally{btn.disabled=false;btn.textContent=approvedLoginType==='admin'?'🔐 Admin Login':'🔐 Madrasa Login'}}
 </script>
 <script id="account-approval-manager-js">
 (function(){
@@ -1904,6 +1905,7 @@ window.refreshAccountManager=async function(){
     body.innerHTML='';
     var wrap=document.createElement('div');wrap.className='account-manager-wrap';
     wrap.innerHTML='<div class="account-manager-title">🔐 Account Approval & Permission Control</div><div class="account-manager-note">এখান থেকে Super Admin নতুন Admin/Madrasa Account অনুমোদন করবেন, কোন কোন কাজ করতে পারবে তা টিক দেবেন, প্রয়োজনে Suspend/Active করবেন এবং Password Reset করতে পারবেন।</div>';
+    if(r.rootSuperAdmin){var root=document.createElement('div');root.className='account-card';root.style.border='2px solid #c99b28';root.innerHTML='<div class="account-card-head"><span>👑 মূল Super Admin</span><span>Protected</span></div><div class="account-meta"><div>ID: <b>'+escA(r.rootSuperAdmin.AdminID||'')+'</b></div><div>Username: <b>'+escA(r.rootSuperAdmin.Username||'')+'</b></div></div>';var rb=document.createElement('button');rb.type='button';rb.className='stop';rb.textContent='🚪 মূল Super Admin-এর সব ডিভাইস থেকে লগআউট';rb.onclick=function(){if(!confirm('মূল Super Admin-এর সব ডিভাইসের সেশন বাতিল হবে। বর্তমান সেশনও বন্ধ হয়ে যাবে। চালাবেন?'))return;forceLogoutAccountUi(rb,'admin',r.rootSuperAdmin.AdminID)};root.appendChild(rb);body.appendChild(root)}
     var tabs=document.createElement('div');tabs.className='account-tabs';
     [['admin','Admin Account'],['madrasa','Madrasa Account'],['all','সব Account']].forEach(function(t){var b=document.createElement('button');b.type='button';b.className='account-tab';b.textContent=t[1];b.onclick=function(){renderAccountList(t[0])};tabs.appendChild(b)});
     wrap.appendChild(tabs);var list=document.createElement('div');list.id='accountListUi';list.className='account-list';wrap.appendChild(list);body.appendChild(wrap);
@@ -1934,9 +1936,11 @@ window.renderAccountList=function(type){
     var st=document.createElement('button');st.type='button';st.className='stop';st.textContent='⛔ Suspend';st.onclick=function(){changeAccountStatus(st,'SUSPENDED')};acts.appendChild(st);
     var ac=document.createElement('button');ac.type='button';ac.className='active';ac.textContent='▶ Active';ac.onclick=function(){changeAccountStatus(ac,'ACTIVE')};acts.appendChild(ac);
     var rp=document.createElement('button');rp.type='button';rp.className='reset';rp.textContent='🔑 Password Reset';rp.onclick=function(){resetAccountPasswordUi(rp)};acts.appendChild(rp);
+    var fl=document.createElement('button');fl.type='button';fl.className='stop';fl.textContent='🚪 সব ডিভাইস থেকে লগআউট';fl.onclick=function(){forceLogoutAccountUi(fl,x._type,id)};acts.appendChild(fl);
     card.appendChild(acts);box.appendChild(card);
   });
 };
+window.forceLogoutAccountUi=async function(btn,type,id){if(!confirm('এই Account-এর সব ব্রাউজার ও ডিভাইসের সক্রিয় সেশন বাতিল করবেন?'))return;var old=btn.textContent;btn.disabled=true;btn.textContent='⏳ বাতিল হচ্ছে...';try{var r=await call('forceLogoutAccount',token,type,id);toast((r&&r.message)||'ফলাফল পাওয়া যায়নি');if(r&&r.ok){if(r.selfInvalidated){token='';currentUser=null;setTimeout(function(){location.reload()},900)}else btn.textContent='✅ সেশন বাতিল'}else btn.textContent=old}catch(e){toast('Force logout ব্যর্থ: '+(e&&e.message?e.message:e));btn.textContent=old}finally{setTimeout(function(){btn.disabled=false},1000)}};
 window.saveAccountApproval=async function(btn){
   var c=btn&&btn.closest?btn.closest('.account-card'):null;if(!c)return toast('Account card পাওয়া যায়নি।');
   var type=c.dataset.type||'',id=c.dataset.id||'';var permissions=[...c.querySelectorAll('.perm-ui:checked')].map(function(x){return x.dataset.key});
