@@ -1708,8 +1708,8 @@ function updateLiveDashboardBoxes2026(x){
   const live=[
     ['মোট শিক্ষক/শিক্ষিকা',x.totalTeachers??x.teachers],
     ['নিবন্ধিত মাদ্রাসা + অ্যাডমিন',x.registeredAccounts],
-    ['মোট একাউন্ট অনলাইন',x.onlineAccounts],
-    ['মূল ওয়েবসাইটে অনলাইন ডিভাইস',x.onlineDevices]
+    ['মোট একাউন্ট অনলাইন',x.onlineAccounts??x.accounts],
+    ['মূল ওয়েবসাইটে অনলাইন ডিভাইস',x.onlineDevices??x.devices]
   ];
   const box=$('liveSummary');
   if(box)box.innerHTML=live.map(a=>'<div class="live-stat"><b>'+((a[1]??0))+'</b>'+a[0]+'</div>').join('');
