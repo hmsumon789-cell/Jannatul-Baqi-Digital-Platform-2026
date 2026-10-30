@@ -943,6 +943,7 @@ function auth_(token){
   if(version!==currentSessionVersion_(session.accountType||'admin',session.username))throw new Error('SESSION_REVOKED');
   return session;
 }
+function validateSession(token){ try{auth_(token);return {ok:true};}catch(e){return {ok:false,revoked:true,message:'Super Admin আপনার এই সেশনটি বন্ধ করেছেন। পুনরায় লগইন করুন।'};} }
 function sessionUser_(token){ return auth_(token).username; }
 function getAdminSafe_(u){ const x=findBy_(SHEETS.ADMINS,'Username',u)||{}; delete x.PasswordHash; return x; }
 function log_(u,a,t,d){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.AUDIT); if(sh)sh.appendRow([nextSerial_(sh),now_(),u,a,t,d]); }
