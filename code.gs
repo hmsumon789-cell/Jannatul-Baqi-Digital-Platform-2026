@@ -332,7 +332,40 @@ function getModuleList(token,key){
 
 function isSuperAdmin_(token){
   const s=auth_(token), a=findBy_(SHEETS.ADMINS,'Username',s.username)||{};
-  return String(a.Role||'').toUpperCase()==='SUPER_ADMIN' || String(a.Role||'').toUpperCase()==='SUPERADMIN';
+  const role=String(a.Role||'').toUpperCase().replace(/\\s+/g,'_');
+  return role==='SUPER_ADMIN' || role==='SUPERADMIN';
+}
+function isSuperAdminAccount_(row){
+  const role=String((row&&row.Role)||'').toUpperCase().replace(/\\s+/g,'_');
+  const username=String((row&&row.Username)||'').trim().toLowerCase();
+  return role==='SUPER_ADMIN'||role==='SUPERADMIN'||username==='superadmin';
+}
+function stripAccountSecrets_(row){
+  const safe=Object.assign({},row||{});
+  ['Password','PasswordHash','password','passwordHash','password_hash','OTP','Otp','Token','SessionToken'].forEach(function(k){delete safe[k];});
+  return safe;
+}
+function isProtectedMasterSheet_(name){
+  return ['ADMINS','MADRASAS','CONFIG','AUDIT','OTP_LOG','EXECUTIVES','ADVISERS','FOUNDERS','LOCATION_MASTER'].indexOf(String(name||'').toUpperCase())>=0;
+}
+function notifySuperAdminSecurity_(token,action,target,details){
+  try{
+    let actor='অজানা';
+    try{actor=String(auth_(token).username||actor);}catch(e){}
+    const admins=listRows_(SHEETS.ADMINS,null,1000);
+    const root=admins.find(isSuperAdminAccount_)||{};
+    const recipient=String(root.Email||APP.email1||'').trim();
+    if(!recipient)return false;
+    const body='সতর্কতা: সংবেদনশীল কাজের একটি অননুমোদিত চেষ্টা শনাক্ত হয়েছে.\\n\\n'
+      +'ব্যবহারকারীর নাম: '+actor+'\\n'
+      +'কাজ: '+String(action||'অজানা')+'\\n'
+      +'লক্ষ্য: '+String(target||'অজানা')+'\\n'
+      +'বিবরণ: '+String(details||'প্রযোজ্য নয়')+'\\n'
+      +'সময়: '+now_()+'\\n\\n'
+      +'নিরাপত্তার কারণে কোনো পাসওয়ার্ড ইমেইলে পাঠানো হয়নি.';
+    MailApp.sendEmail(recipient,'⚠️ Security Alert | Jannatul Baqi Digital Platform',body);
+    return true;
+  }catch(e){try{Logger.log('Security alert failed: '+e.message);}catch(x){}return false;}
 }
 function requireFeature_(token,feature){
   const s=auth_(token); const a=findBy_(SHEETS.ADMINS,'Username',s.username)||{};
@@ -345,9 +378,11 @@ function requireFeature_(token,feature){
 }
 
 function getAccountControlData(token){
-  if(!isSuperAdmin_(token)) return {ok:false,message:'শুধু Super Admin অনুমোদন ও পারমিশন পরিবর্তন করতে পারবেন।'};
+  if(!isSuperAdmin_(token)){notifySuperAdminSecurity_(token,'অনুমোদন তালিকা খোলার চেষ্টা','ACCOUNT_CONTROL','Super Admin ছাড়া অ্যাকাউন্ট তালিকা দেখা নিষিদ্ধ।');return {ok:false,message:'শুধু Super Admin অনুমোদন ও পারমিশন পরিবর্তন করতে পারবেন।'};}
   const admissions=listRows_(SHEETS.ADMISSIONS,token,500).filter(function(x){return String(x.Status||'').toUpperCase()==='PENDING';});
-  return {ok:true,admins:listRows_(SHEETS.ADMINS,token,500),madrasas:listRows_(SHEETS.MADRASAS,token,500),admissions:admissions,modules:getModules_()};
+  const admins=listRows_(SHEETS.ADMINS,token,500).filter(function(x){return !isSuperAdminAccount_(x);}).map(stripAccountSecrets_);
+  const madrasas=listRows_(SHEETS.MADRASAS,token,500).map(stripAccountSecrets_);
+  return {ok:true,admins:admins,madrasas:madrasas,admissions:admissions,modules:getModules_()};
 }
 function approveStudentAdmission(token,admissionId){
   if(!isSuperAdmin_(token)) return {ok:false,message:'শুধু Super Admin শিক্ষার্থী ভর্তি অনুমোদন করতে পারবেন।'};
@@ -367,12 +402,13 @@ function approveAccount(token,type,id,status,permissions){
     const actor=String(s.username||'');
     const a=findBy_(SHEETS.ADMINS,'Username',actor)||{};
     const role=String(a.Role||'').toUpperCase().replace(/\s+/g,'_');
-    if(role!=='SUPER_ADMIN' && role!=='SUPERADMIN') return {ok:false,message:'শুধু Super Admin অনুমোদন করতে পারবেন।'};
+    if(role!=='SUPER_ADMIN' && role!=='SUPERADMIN'){notifySuperAdminSecurity_(token,'Account approval/status পরিবর্তনের চেষ্টা',String(type||'')+':'+String(id||''),'অনুমোদিত Super Admin নন।');return {ok:false,message:'শুধু Super Admin অনুমোদন করতে পারবেন।'};}
 
     type=String(type||'').toLowerCase();
     id=String(id||'').trim();
     if(type!=='admin' && type!=='madrasa') return {ok:false,message:'Account type সঠিক নয়।'};
     if(!id) return {ok:false,message:'Account ID পাওয়া যায়নি।'};
+    if(type==='admin'&&isSuperAdminAccount_(findBy_(SHEETS.ADMINS,'AdminID',id)||{})){notifySuperAdminSecurity_(token,'মূল Super Admin অ্যাকাউন্ট পরিবর্তনের চেষ্টা','ADMINS:'+id,'মূল Super Admin অ্যাকাউন্টে পরিবর্তন ব্লক করা হয়েছে।');return {ok:false,message:'মূল Super Admin অ্যাকাউন্ট পরিবর্তন করা যাবে না।'};}
 
     const ss=SpreadsheetApp.getActiveSpreadsheet();
     const sheetName=type==='admin'?SHEETS.ADMINS:SHEETS.MADRASAS;
@@ -414,17 +450,19 @@ function approveAccountDirect(token,type,id,status,permissions){
   return approveAccount(token,type,id,status,permissions);
 }
 function setAccountStatus(token,type,id,status){
-  if(!isSuperAdmin_(token)) return {ok:false,message:'শুধু Super Admin status পরিবর্তন করতে পারবেন।'};
+  if(!isSuperAdmin_(token)){notifySuperAdminSecurity_(token,'Account status পরিবর্তনের চেষ্টা',String(type||'')+':'+String(id||''),'Super Admin ছাড়া status পরিবর্তন নিষিদ্ধ।');return {ok:false,message:'শুধু Super Admin status পরিবর্তন করতে পারবেন।'};}
+  if(String(type||'').toLowerCase()==='admin'&&isSuperAdminAccount_(findBy_(SHEETS.ADMINS,'AdminID',id)||{})){notifySuperAdminSecurity_(token,'মূল Super Admin status পরিবর্তনের চেষ্টা','ADMINS:'+id,'মূল Super Admin সুরক্ষিত।');return {ok:false,message:'মূল Super Admin-এর status পরিবর্তন করা যাবে না।'};}
   const sheet=type==='admin'?SHEETS.ADMINS:SHEETS.MADRASAS, key=type==='admin'?'AdminID':'MadrasaID', sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheet), vals=sh.getDataRange().getValues(), h=vals[0], idx=vals.findIndex((r,i)=>i>0&&String(r[h.indexOf(key)])===String(id));
   if(idx<1) return {ok:false,message:'Account পাওয়া যায়নি।'};
   sh.getRange(idx+1,h.indexOf('Status')+1).setValue(status); log_(sessionUser_(token),'status',type,id+' => '+status); return {ok:true,message:'Account status '+status+' করা হয়েছে।'};
 }
 function resetAccountPassword(token,type,id,newPassword){
-  if(!isSuperAdmin_(token)) return {ok:false,message:'শুধু Super Admin Password reset করতে পারবেন।'};
+  if(!isSuperAdmin_(token)){notifySuperAdminSecurity_(token,'Password reset করার চেষ্টা',String(type||'')+':'+String(id||''),'Super Admin ছাড়া password reset নিষিদ্ধ।');return {ok:false,message:'শুধু Super Admin Password reset করতে পারবেন।'};}
+  if(String(type||'').toLowerCase()==='admin'&&isSuperAdminAccount_(findBy_(SHEETS.ADMINS,'AdminID',id)||{})){notifySuperAdminSecurity_(token,'মূল Super Admin password পরিবর্তনের চেষ্টা','ADMINS:'+id,'মূল Super Admin সুরক্ষিত।');return {ok:false,message:'মূল Super Admin-এর password পরিবর্তন করা যাবে না।'};}
   newPassword=String(newPassword||''); if(newPassword.length<4)return {ok:false,message:'Password কমপক্ষে ৪ অক্ষরের দিন।'};
   const sheet=type==='admin'?SHEETS.ADMINS:SHEETS.MADRASAS, key=type==='admin'?'AdminID':'MadrasaID', sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheet), vals=sh.getDataRange().getValues(), h=vals[0], idx=vals.findIndex((r,i)=>i>0&&String(r[h.indexOf(key)])===String(id));
   if(idx<1)return {ok:false,message:'Account পাওয়া যায়নি।'};
-  const hi=h.indexOf('PasswordHash'), pi=h.indexOf('Password'); if(hi>=0)sh.getRange(idx+1,hi+1).setValue(hash_(newPassword)); if(pi>=0)sh.getRange(idx+1,pi+1).setValue(newPassword);
+  const hi=h.indexOf('PasswordHash'), pi=h.indexOf('Password'); if(hi>=0)sh.getRange(idx+1,hi+1).setValue(hash_(newPassword)); if(pi>=0)sh.getRange(idx+1,pi+1).clearContent();
   log_(sessionUser_(token),'password_reset',type,id); return {ok:true,message:'Password reset হয়েছে।'};
 }
 
@@ -502,7 +540,7 @@ function listSignalRecords(token,signal,className) {
   return {ok:true,signal,className,rows:rows.slice(0,5000),count:rows.length};
 }
 
-function saveRecord(token,sheetName,data) {
+function saveRecord(token,sheetName,data) {\n  if(isProtectedMasterSheet_(sheetName)&&!isSuperAdmin_(token)){notifySuperAdminSecurity_(token,'Master Sheet পরিবর্তনের চেষ্টা',String(sheetName||''),'অননুমোদিত saveRecord অনুরোধ ব্লক করা হয়েছে।');throw new Error('Master Sheet পরিবর্তনের অনুমতি শুধু Super Admin-এর আছে।');}
   auth_(token);
   const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
   if(!HEADERS[sheetName]) throw new Error('Invalid sheet');
@@ -545,7 +583,7 @@ function saveRecord(token,sheetName,data) {
   return {ok:true,row:objectFrom_(headers,row)};
 }
 
-function updateRecord(token,sheetName,serial,data) {
+function updateRecord(token,sheetName,serial,data) {\n  if(isProtectedMasterSheet_(sheetName)&&!isSuperAdmin_(token)){notifySuperAdminSecurity_(token,'Master Sheet পরিবর্তনের চেষ্টা',String(sheetName||''),'অননুমোদিত updateRecord অনুরোধ ব্লক করা হয়েছে।');throw new Error('Master Sheet পরিবর্তনের অনুমতি শুধু Super Admin-এর আছে।');}
   auth_(token); const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
   const values=sh.getDataRange().getValues();
@@ -558,7 +596,7 @@ function updateRecord(token,sheetName,serial,data) {
   return {ok:true};
 }
 
-function deleteRecord(token,sheetName,serial) {
+function deleteRecord(token,sheetName,serial) {\n  if(isProtectedMasterSheet_(sheetName)&&!isSuperAdmin_(token)){notifySuperAdminSecurity_(token,'Master Sheet পরিবর্তনের চেষ্টা',String(sheetName||''),'অননুমোদিত deleteRecord অনুরোধ ব্লক করা হয়েছে।');throw new Error('Master Sheet পরিবর্তনের অনুমতি শুধু Super Admin-এর আছে।');}
   auth_(token); const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
   const vals=sh.getRange(2,1,Math.max(1,sh.getLastRow()-1),1).getValues();
@@ -747,8 +785,10 @@ function uploadFile(token,item) {
 }
 
 function getSheetData(token,sheetName,limit) {
-  auth_(token); if(!isSuperAdmin_(token)) requireFeature_(token,'excel');
-  return {ok:true,headers:HEADERS[sheetName],rows:listRows_(sheetName,token,limit||1000)};
+  auth_(token);
+  if(!isSuperAdmin_(token)){notifySuperAdminSecurity_(token,'মূল Google Sheet/ডেটা খোলার চেষ্টা',String(sheetName||''),'শুধু Super Admin-এর ডেটা দেখার অনুমতি আছে।');return {ok:false,message:'মূল Google Sheet/ডেটা দেখার অনুমতি শুধু Super Admin-এর আছে।'};}
+  if(!HEADERS[sheetName]&&!Object.values(SHEETS).includes(sheetName))return {ok:false,message:'অবৈধ Sheet নাম।'};
+  return {ok:true,headers:HEADERS[sheetName]||[],rows:listRows_(sheetName,token,limit||1000).map(stripAccountSecrets_)};
 }
 
 function getLocations() {
@@ -772,8 +812,9 @@ function getLocations() {
 
 function getRunningNews_(){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.CONFIG); if(!sh||sh.getLastRow()<2)return 'জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম'; const v=sh.getDataRange().getValues(); for(let i=1;i<v.length;i++){ if(String(v[i][0])==='RUNNING_NEWS') return String(v[i][1]||''); } return 'জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম'; }
 function setRunningNews(token,text){ if(!isSuperAdmin_(token)) return {ok:false,message:'শুধু Super Admin চলমান নিউজ পরিবর্তন করতে পারবেন।'}; text=String(text||'').trim(); if(!text)return {ok:false,message:'নিউজ লিখুন।'}; const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.CONFIG), v=sh.getDataRange().getValues(), idx=v.findIndex((r,i)=>i>0&&String(r[0])==='RUNNING_NEWS'); if(idx<1) sh.appendRow(['RUNNING_NEWS',text,now_()]); else {sh.getRange(idx+1,2).setValue(text);sh.getRange(idx+1,3).setValue(now_());} log_(sessionUser_(token),'update','RUNNING_NEWS',text); return {ok:true,message:'চলমান নিউজ আপডেট হয়েছে।'}; }
-function getDirectSheetUrl() {
+function getDirectSheetUrl(token) {
   try {
+    if(!isSuperAdmin_(token)){notifySuperAdminSecurity_(token,'মূল Google Sheet-এর লিংক নেওয়ার চেষ্টা','MASTER_SPREADSHEET','শুধু Super Admin-কে শিটের লিংক দেওয়া হবে।');return {ok:false,message:'মূল Google Sheet-এর লিংক শুধু Super Admin দেখতে পারবেন।'};}
     const url = SpreadsheetApp.getActiveSpreadsheet().getUrl();
     return {ok:true,url:url};
   } catch(e) {
