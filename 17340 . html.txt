@@ -18324,11 +18324,10 @@ body.gold #toast.toast{background:#fff5c7!important;color:#4b3200!important;bord
 </script>
 <!-- ===== END ONLINE RESULT PLATFORM — CENTRAL MANAGEMENT ===== -->
 
-<!-- ===== FINAL CONTACT FOOTER LIFT: EXACTLY 2 INCHES — 2026-10-31 ===== -->
-<style id="contact-footer-final-lift-192px-20261031">
-/* আগের position:static / top:auto নিয়মকে অতিক্রম করে শুধু যোগাযোগ বক্স ১৯২px উপরে */
-#app main > #contactFooter.footer.card{
-  position:relative!important;
-  top:-192px!important;
+<!-- ===== CONTACT FOOTER VISUAL LIFT FIX — 2026-10-31 ===== -->
+<style id="contact-footer-force-visual-lift-192px-20261031">
+/* শুধু যোগাযোগ বক্সকে দৃশ্যত ২ ইঞ্চি উপরে নেয়; অন্য কোনো বক্সে প্রভাব নেই */
+#contactFooter{
+  transform:translateY(-192px)!important;
 }
 </style>
