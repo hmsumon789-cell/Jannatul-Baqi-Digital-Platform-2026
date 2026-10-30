@@ -1315,6 +1315,10 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 /* শুধু পরিচিতি স্লাইডের সম্পূর্ণ বক্সটি ১৫০px উপরে; অন্য সারি অপরিবর্তিত */
 #institutionDocumentary2026{position:relative!important;top:-150px!important}
 </style>
+<style id="dashboard-chart-box-only-lift-20261031">
+/* পরিচিতি স্লাইডের নিচের লাল বর্ডারযুক্ত সামারি বক্সটি শুধু ২ ইঞ্চি উপরে */
+#dashboardCharts{position:relative!important;top:-192px!important}
+</style>
 </head>
 <body>
 <div id="welcomeScreen">
