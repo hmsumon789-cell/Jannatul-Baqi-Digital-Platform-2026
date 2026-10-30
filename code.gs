@@ -434,7 +434,10 @@ function resetAccountPassword(token,type,id,newPassword){
 }
 
 function logout(token) {
-  if(token) CacheService.getScriptCache().remove('SESSION:'+token);
+  if(token) {
+    CacheService.getScriptCache().remove('SESSION:'+token);
+    PropertiesService.getScriptProperties().deleteProperty('JB_ONLINE_'+token);
+  }
   return {ok:true};
 }
 
@@ -465,7 +468,9 @@ function getStats(token) {
   const teachers=countData_(SHEETS.TEACHERS);
   const executives=countData_(SHEETS.EXECUTIVES);
   const female=countMadrasa_('মহিলা'), male=countMadrasa_('পুরুষ');
-  return {income,expense,cash:income-expense,due:0,students,teachers,executives,femaleMadrasa:female,maleMadrasa:male,attendanceToday:attendanceToday_()};
+  const registeredAccounts=countData_(SHEETS.ADMINS)+countData_(SHEETS.MADRASAS);
+  const presence=getDashboardPresenceStats_();
+  return {income,expense,cash:income-expense,due:0,students,teachers,totalTeachers:teachers,registeredAccounts,onlineAccounts:presence.accounts,onlineDevices:presence.devices,executives,femaleMadrasa:female,maleMadrasa:male,attendanceToday:attendanceToday_()};
 }
 
 function searchAll(token,signal,query) {
@@ -867,6 +872,23 @@ function countData_(s){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetB
 function sumCol_(s,key){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(s); if(!sh||sh.getLastRow()<2)return 0; const h=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0],j=h.indexOf(key); if(j<0)return 0; return sh.getRange(2,j+1,sh.getLastRow()-1,1).getValues().reduce((a,r)=>a+(Number(r[0])||0),0); }
 function countMadrasa_(g){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MADRASAS); if(!sh||sh.getLastRow()<2)return 0; return sh.getRange(2,3,sh.getLastRow()-1,1).getValues().filter(r=>String(r[0])===g).length; }
 function attendanceToday_(){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ATTENDANCE); if(!sh||sh.getLastRow()<2)return {present:0,absent:0}; const h=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0],d=h.indexOf('Date'),s=h.indexOf('Status'),today=Utilities.formatDate(new Date(),APP.timezone,'yyyy-MM-dd'); let p=0,a=0; sh.getDataRange().getValues().slice(1).forEach(r=>{if(String(r[d]).slice(0,10)===today){if(String(r[s]).toLowerCase().includes('present'))p++;if(String(r[s]).toLowerCase().includes('absent'))a++;}}); return {present:p,absent:a};}
+function pingDashboardPresence(token) {
+  const session=auth_(token);
+  PropertiesService.getScriptProperties().setProperty('JB_ONLINE_'+token,JSON.stringify({username:String(session.username||''),accountType:String(session.accountType||'admin'),at:Date.now()}));
+  return getDashboardPresenceStats_();
+}
+function getDashboardPresenceStats_() {
+  const props=PropertiesService.getScriptProperties(), all=props.getProperties(), now=Date.now(), users={}, devices=[];
+  Object.keys(all).forEach(function(key){
+    if(key.indexOf('JB_ONLINE_')!==0)return;
+    let item={};
+    try{item=JSON.parse(all[key]||'{}')}catch(e){}
+    if(!item.at||now-Number(item.at)>90000){props.deleteProperty(key);return;}
+    devices.push(key);
+    if(item.username)users[item.username]=true;
+  });
+  return {accounts:Object.keys(users).length,devices:devices.length};
+}
 function auth_(token){ const raw=CacheService.getScriptCache().get('SESSION:'+token); if(!raw)throw new Error('SESSION_EXPIRED'); return JSON.parse(raw); }
 function sessionUser_(token){ return auth_(token).username; }
 function getAdminSafe_(u){ const x=findBy_(SHEETS.ADMINS,'Username',u)||{}; delete x.PasswordHash; return x; }
