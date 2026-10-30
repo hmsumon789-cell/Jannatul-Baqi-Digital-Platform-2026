@@ -1944,7 +1944,7 @@ function updateSessionDeviceInfo(token,info){
     if(String(rec.username||'')!==String(s.username||''))return {ok:false,message:'Session মিলছে না।'};
     info=info||{};
     const clean=function(v,n){return String(v===undefined||v===null?'':v).slice(0,n);};
-    const num=function(v){v=Number(v);return isFinite(v)?v:null;};
+    const num=function(v){if(v===undefined||v===null||v==='')return null;v=Number(v);return isFinite(v)?v:null;};
     rec.deviceInfo={
       deviceName:clean(info.deviceName,120),deviceType:clean(info.deviceType,40),
       operatingSystem:clean(info.operatingSystem,80),browser:clean(info.browser,80),
