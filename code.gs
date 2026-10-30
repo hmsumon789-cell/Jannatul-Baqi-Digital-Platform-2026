@@ -875,7 +875,10 @@ function attendanceToday_(){ const sh=SpreadsheetApp.getActiveSpreadsheet().getS
 function pingDashboardPresence(token) {
   const session=auth_(token);
   PropertiesService.getScriptProperties().setProperty('JB_ONLINE_'+token,JSON.stringify({username:String(session.username||''),accountType:String(session.accountType||'admin'),at:Date.now()}));
-  return getDashboardPresenceStats_();
+  const presence=getDashboardPresenceStats_();
+  presence.totalTeachers=countData_(SHEETS.TEACHERS);
+  presence.registeredAccounts=countData_(SHEETS.ADMINS)+countData_(SHEETS.MADRASAS);
+  return presence;
 }
 function getDashboardPresenceStats_() {
   const props=PropertiesService.getScriptProperties(), all=props.getProperties(), now=Date.now(), users={}, devices=[];
