@@ -1207,6 +1207,20 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 #liveSummary .live-stat{display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:center!important;min-width:0!important;min-height:58px!important;padding:7px 5px!important;margin:0!important;border:2px solid var(--border)!important;border-radius:12px!important;background:var(--panel)!important;color:var(--text)!important;text-align:center!important;font-size:12px!important;font-weight:800!important;line-height:1.3!important;overflow-wrap:anywhere!important;box-shadow:0 3px 10px #0001!important}
 #liveSummary .live-stat b{display:block!important;font-size:20px!important;line-height:1.2!important;margin-bottom:3px!important;color:var(--accent)!important;font-variant-numeric:tabular-nums!important}
 @media(max-width:700px){#liveSummary.dashboard-live-summary{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}#liveSummary .live-stat{min-height:54px!important;font-size:11px!important}#liveSummary .live-stat b{font-size:18px!important}}
+/* দুই সারির মাঝের ফাঁকা জায়গা সম্পূর্ণ বন্ধ */
+.dashboard-slider{gap:0!important;row-gap:0!important}
+#liveSummary.dashboard-live-summary{margin-bottom:0!important;padding-bottom:0!important}
+#liveSummary + #summary,
+#summary.dashboard-summary-inside.dashboard-slider-summary{margin-top:0!important;padding-top:0!important}
+/* চারটি লাইভ বক্সে আলাদা উজ্জ্বল রঙ */
+#liveSummary .live-stat:nth-child(1){background:linear-gradient(135deg,#d7f7e5,#65d69a)!important;border-color:#159653!important;color:#073d25!important}
+#liveSummary .live-stat:nth-child(2){background:linear-gradient(135deg,#dceeff,#72b7f5)!important;border-color:#247ac1!important;color:#082f55!important}
+#liveSummary .live-stat:nth-child(3){background:linear-gradient(135deg,#fff0c9,#ffc45c)!important;border-color:#d58a08!important;color:#593500!important}
+#liveSummary .live-stat:nth-child(4){background:linear-gradient(135deg,#f2ddff,#c38bea)!important;border-color:#8742b5!important;color:#3d155b!important}
+#liveSummary .live-stat:nth-child(1) b{color:#075b32!important}
+#liveSummary .live-stat:nth-child(2) b{color:#064b86!important}
+#liveSummary .live-stat:nth-child(3) b{color:#805000!important}
+#liveSummary .live-stat:nth-child(4) b{color:#54217a!important}
 </style>
 <style id="dashboard-media-boxes-and-compact-documentary-20261018">
 /* মিডিয়া প্লেয়ারের কন্ট্রোলের ঠিক নিচে সব ড্যাশবোর্ড বক্স; এরপর পরিচিতি স্লাইড */
