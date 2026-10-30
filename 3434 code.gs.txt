@@ -338,6 +338,11 @@ function loginMadrasa(username,password){
 }
 
 function createDirectSession_(username,type){
+  const account=type==='admin'?findBy_(SHEETS.ADMINS,'Username',username):findBy_(SHEETS.MADRASAS,'Username',username);
+  if(!account)return {ok:false,message:'Account পাওয়া যায়নি।'};
+  const role=String(account.Role||'').toUpperCase().replace(/\s+/g,'_');
+  const root=type==='admin'&&(role==='SUPER_ADMIN'||role==='SUPERADMIN'||String(username).toLowerCase()==='superadmin');
+  if(!root&&String(account.Status||'').toUpperCase()!=='ACTIVE')return {ok:false,message:'এই account সক্রিয় নয়। Super Admin অনুমোদন প্রয়োজন।'};
   const session=Utilities.getUuid();
   CacheService.getScriptCache().put('SESSION:'+session,JSON.stringify({username:String(username),accountType:type,at:Date.now(),sessionVersion:getUserSessionVersion_(type,username)}),21600);
   const user=type==='admin'?getAdminSafe_(username):findBy_(SHEETS.MADRASAS,'Username',username)||{};
