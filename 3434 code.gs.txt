@@ -391,7 +391,9 @@ function getModuleList(token,key){
 }
 
 function isSuperAdmin_(token){
-  const s=auth_(token), a=findBy_(SHEETS.ADMINS,'Username',s.username)||{};
+  const s=auth_(token);
+  if(String(s.accountType||'admin')==='madrasa')return false;
+  const a=findBy_(SHEETS.ADMINS,'Username',s.username)||{};
   const role=String(a.Role||'').toUpperCase().replace(/\s+/g,'_');
   return role==='SUPER_ADMIN'||role==='SUPERADMIN'||String(s.username||'').toLowerCase()==='superadmin';
 }
