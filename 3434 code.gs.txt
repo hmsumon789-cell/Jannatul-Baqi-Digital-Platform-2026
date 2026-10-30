@@ -522,7 +522,7 @@ function getAccountControlData(token){
   return {ok:true,admins:safeAccounts(listRows_(SHEETS.ADMINS,token,500)),madrasas:safeAccounts(listRows_(SHEETS.MADRASAS,token,500)),admissions:listRows_(SHEETS.ADMISSIONS,token,500).filter(function(r){return ['PENDING','SUBMITTED','SUBMITTED_TO_SUPER_ADMIN','PENDING_PAYMENT'].indexOf(String(r.Status||r.ApprovalStatus||'').trim().toUpperCase())>=0;}),modules:getModules_()};
 }
 function getActiveLoginControlData(token){
-  if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin সক্রিয় Login নিয়ন্ত্রণ করতে পারবেন।'};
+  if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin All Account Control ব্যবহার করতে পারবেন।'};
   const props=PropertiesService.getScriptProperties(),all=props.getProperties(),now=Date.now(),sessionMap={};
   Object.keys(all).forEach(function(k){
     if(k.indexOf('ACTIVE_SESSION:')!==0)return;
@@ -531,19 +531,23 @@ function getActiveLoginControlData(token){
       if(age>21600000||!s.username){props.deleteProperty(k);return;}
       const key=String(s.accountType||'admin')+':'+String(s.username||'');
       if(!sessionMap[key])sessionMap[key]=[];
-      sessionMap[key].push(Number(s.createdAt||0));
+      sessionMap[key].push({createdAt:Number(s.createdAt||0),deviceInfo:s.deviceInfo||{}});
     }catch(e){props.deleteProperty(k);}
   });
   const safe=function(sheet,type,idKey){
-    return listRows_(sheet,token,500).filter(function(r){
-      const u=String(r.Username||'').trim().toLowerCase(),role=String(r.Role||'').trim().toUpperCase().replace(/\s+/g,'_');
-      return !(type==='admin'&&(u==='superadmin'||role==='SUPER_ADMIN'||role==='SUPERADMIN'));
-    }).map(function(r){
-      const username=String(r.Username||''),times=sessionMap[type+':'+username]||[];
-      return {type:type,id:String(r[idKey]||''),name:String(r.NameBN||r.Name||r.InstitutionName||username),username:username,status:String(r.Status||'UNKNOWN'),activeSessions:times.length,lastLogin:times.length?Math.max.apply(null,times):0};
+    return listRows_(sheet,token,500).map(function(r){
+      const username=String(r.Username||''),role=String(r.Role||'').trim().toUpperCase().replace(/\s+/g,'_');
+      const isRoot=type==='admin'&&(username.toLowerCase()==='superadmin'||role==='SUPER_ADMIN'||role==='SUPERADMIN');
+      const sessions=sessionMap[type+':'+username]||[];
+      const email=String(r.Email||r.EmailAddress||r.email||r.EmailID||'');
+      return {type:type,id:String(r[idKey]||''),name:String(r.NameBN||r.Name||r.InstitutionName||username||'Super Admin'),
+        username:username,email:email,status:String(r.Status||(isRoot?'ACTIVE':'UNKNOWN')),
+        isRoot:isRoot,activeSessions:sessions.length,lastLogin:sessions.length?Math.max.apply(null,sessions.map(function(x){return x.createdAt;})):0,
+        sessions:sessions.map(function(x){return {createdAt:x.createdAt,deviceInfo:x.deviceInfo||{}};})};
     });
   };
-  return {ok:true,accounts:safe(SHEETS.ADMINS,'admin','AdminID').concat(safe(SHEETS.MADRASAS,'madrasa','MadrasaID'))};
+  const accounts=safe(SHEETS.ADMINS,'admin','AdminID').concat(safe(SHEETS.MADRASAS,'madrasa','MadrasaID'));
+  return {ok:true,accounts:accounts};
 }
 function forceLogoutAccount(token,type,username){
   try{
@@ -1930,7 +1934,29 @@ function auth_(token){
 function getUserSessionVersion_(type,username){return Number(PropertiesService.getScriptProperties().getProperty('SESSION_VERSION:'+String(type||'admin')+':'+String(username||''))||0);}
 function registerActiveSession_(token,username,type){
   const props=PropertiesService.getScriptProperties();
-  props.setProperty('ACTIVE_SESSION:'+String(token),JSON.stringify({username:String(username||''),accountType:String(type||'admin'),createdAt:Date.now()}));
+  props.setProperty('ACTIVE_SESSION:'+String(token),JSON.stringify({username:String(username||''),accountType:String(type||'admin'),createdAt:Date.now(),deviceInfo:{}}));
+}
+function updateSessionDeviceInfo(token,info){
+  try{
+    const s=auth_(token),props=PropertiesService.getScriptProperties(),key='ACTIVE_SESSION:'+String(token),raw=props.getProperty(key);
+    if(!raw)return {ok:false,message:'সক্রিয় Session পাওয়া যায়নি।'};
+    const rec=JSON.parse(raw);
+    if(String(rec.username||'')!==String(s.username||''))return {ok:false,message:'Session মিলছে না।'};
+    info=info||{};
+    const clean=function(v,n){return String(v===undefined||v===null?'':v).slice(0,n);};
+    const num=function(v){v=Number(v);return isFinite(v)?v:null;};
+    rec.deviceInfo={
+      deviceName:clean(info.deviceName,120),deviceType:clean(info.deviceType,40),
+      operatingSystem:clean(info.operatingSystem,80),browser:clean(info.browser,80),
+      ip:clean(info.ip,64),ipCity:clean(info.ipCity,100),ipRegion:clean(info.ipRegion,100),
+      ipCountry:clean(info.ipCountry,100),ipLatitude:num(info.ipLatitude),ipLongitude:num(info.ipLongitude),
+      gpsLatitude:num(info.gpsLatitude),gpsLongitude:num(info.gpsLongitude),
+      gpsAccuracy:num(info.gpsAccuracy),gpsStatus:clean(info.gpsStatus,80),
+      updatedAt:Date.now()
+    };
+    props.setProperty(key,JSON.stringify(rec));
+    return {ok:true};
+  }catch(e){return {ok:false,message:String(e&&e.message||e)};}
 }
 function removeActiveSession_(token){if(token)PropertiesService.getScriptProperties().deleteProperty('ACTIVE_SESSION:'+String(token));}
 function invalidateUserSessions_(type,username){
