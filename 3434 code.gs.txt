@@ -605,7 +605,10 @@ function setAccountStatus(token,type,id,status){
   const previous=String(vals[idx][statusCol]||'').trim().toUpperCase();
   if(previous===status) return {ok:true,message:'Account Status আগে থেকেই '+status+' আছে।'};
   sh.getRange(idx+1,statusCol+1).setValue(status); SpreadsheetApp.flush();
+  const usernameCol=h.indexOf('Username'),targetUsername=usernameCol>=0?String(vals[idx][usernameCol]||'').trim():'';
+  invalidateUserSessions_(type==='admin'?'admin':'madrasa',targetUsername);
   log_(sessionUser_(token),'status',type,id+' | '+previous+' → '+status);
+  notifySuperAdminSecurity_(sessionUser_(token),'Account status changed',type+':'+id,'Previous='+previous+'; new='+status+'; target username='+targetUsername);
   return {ok:true,message:'Account status '+status+' করা হয়েছে।'};
 }
 function resetAccountPassword(token,type,id,newPassword){
@@ -1703,8 +1706,13 @@ function uploadFile(token,item) {
 }
 
 function getSheetData(token,sheetName,limit) {
-  auth_(token); if(!isSuperAdmin_(token)) requireFeature_(token,'excel');
-  return {ok:true,headers:HEADERS[sheetName],rows:listRows_(sheetName,token,limit||1000)};
+  auth_(token);
+  if(!isSuperAdmin_(token)) return {ok:false,message:'মূল Google Sheet-এর তথ্য দেখার অনুমতি শুধু Super Admin-এর।'};
+  const allowedSheets=Object.keys(SHEETS).map(function(k){return SHEETS[k];});
+  if(allowedSheets.indexOf(sheetName)<0)return {ok:false,message:'অজানা Sheet নির্বাচন করা হয়েছে।'};
+  const rows=listRows_(sheetName,token,limit||1000).map(function(r){delete r.Password;delete r.PasswordHash;delete r.password;delete r.passwordHash;return r;});
+  const headers=(HEADERS[sheetName]||[]).filter(function(h){return !/^(password|passwordhash)$/i.test(String(h));});
+  return {ok:true,headers:headers,rows:rows};
 }
 
 function getLocations() {
