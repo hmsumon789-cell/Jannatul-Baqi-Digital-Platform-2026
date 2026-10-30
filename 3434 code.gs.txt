@@ -687,7 +687,7 @@ function resetAccountPassword(token,type,id,newPassword){
   SpreadsheetApp.flush(); log_(sessionUser_(token),'password_reset',type,id); return {ok:true,message:'Password reset হয়েছে।'};
 }
 
-function checkSession(token){try{auth_(token);return {ok:true};}catch(e){return {ok:false,message:'SESSION_EXPIRED'};}}
+function checkSession(token){try{auth_(token);return {ok:true};}catch(e){var m=String(e&&e.message||e||'');if(m.indexOf('SESSION_EXPIRED')!==-1)return {ok:false,message:'SESSION_EXPIRED'};throw e;}}
 
 function logout(token) {
   if(token){
