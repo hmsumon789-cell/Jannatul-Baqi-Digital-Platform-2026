@@ -1307,6 +1307,10 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 #summary.dashboard-summary-inside{margin-top:-192px!important}
 #institutionDocumentary2026{margin-top:8px!important}
 </style>
+<style id="summary-row-only-lift-20261031">
+/* শুধু আয়-ব্যয়-ছাত্রছাত্রী-মোট পরীক্ষার্থী সারি ২ ইঞ্চি উপরে; পরিচিতি স্লাইড অপরিবর্তিত */
+#summary.dashboard-summary-inside{position:relative!important;top:-192px!important}
+</style>
 </head>
 <body>
 <div id="welcomeScreen">
