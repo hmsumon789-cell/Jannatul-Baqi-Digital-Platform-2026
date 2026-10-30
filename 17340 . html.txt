@@ -1578,6 +1578,36 @@ body.gold #loginContactStrip20261013{background:#fff9e7!important;color:#4a3300!
 let token='',otpToken='',currentUser=null,media=[],mediaIndex=0,modules=[],drag={};
 const $=id=>document.getElementById(id);
 const call=(fn,...args)=>new Promise((resolve,reject)=>google.script.run.withSuccessHandler(resolve).withFailureHandler(e=>reject(e))[fn](...args));
+async function collectSessionDeviceInfo(){
+  if(!token||typeof navigator==='undefined')return;
+  var ua=navigator.userAgent||'',os='Unknown OS',browser='Unknown Browser',deviceType='Computer';
+  if(/Android/i.test(ua)){os='Android';deviceType='Mobile';}
+  else if(/iPhone|iPad|iPod/i.test(ua)){os='iOS';deviceType=/iPad/i.test(ua)?'Tablet':'Mobile';}
+  else if(/Windows NT/i.test(ua))os='Windows';
+  else if(/Mac OS X/i.test(ua))os='macOS';
+  else if(/Linux/i.test(ua))os='Linux';
+  if(/Edg\//i.test(ua))browser='Microsoft Edge';
+  else if(/OPR\//i.test(ua))browser='Opera';
+  else if(/Chrome\//i.test(ua))browser='Google Chrome';
+  else if(/Firefox\//i.test(ua))browser='Mozilla Firefox';
+  else if(/Safari\//i.test(ua))browser='Safari';
+  var model='';
+  var mm=ua.match(/Android[^;]*;\s*([^;)]+)/i);if(mm)model=mm[1].trim();
+  if(/iPhone/i.test(ua))model='iPhone';else if(/iPad/i.test(ua))model='iPad';
+  var info={deviceName:(model||deviceType)+' • '+os,deviceType:deviceType,operatingSystem:os,browser:browser,gpsStatus:'অবস্থানের অনুমতি অপেক্ষমাণ'};
+  try{
+    var ipr=await fetch('https://ipwho.is/',{cache:'no-store'});
+    var ipd=await ipr.json();
+    if(ipd&&ipd.success!==false){info.ip=ipd.ip||'';info.ipCity=ipd.city||'';info.ipRegion=ipd.region||'';info.ipCountry=ipd.country||'';info.ipLatitude=ipd.latitude;info.ipLongitude=ipd.longitude;}
+  }catch(e){info.ip='';info.ipCity='IP তথ্য পাওয়া যায়নি';}
+  if(navigator.geolocation){
+    try{
+      var pos=await new Promise(function(resolve,reject){navigator.geolocation.getCurrentPosition(resolve,reject,{enableHighAccuracy:true,timeout:12000,maximumAge:60000});});
+      info.gpsLatitude=pos.coords.latitude;info.gpsLongitude=pos.coords.longitude;info.gpsAccuracy=pos.coords.accuracy;info.gpsStatus='অনুমতি দেওয়া হয়েছে';
+    }catch(e){info.gpsStatus=e&&e.code===1?'ব্যবহারকারী অনুমতি দেননি':(e&&e.code===3?'GPS সময় শেষ':'GPS অবস্থান পাওয়া যায়নি');}
+  }else info.gpsStatus='এই Browser GPS সমর্থন করে না';
+  try{await call('updateSessionDeviceInfo',token,info);}catch(e){}
+}
 
 window.addEventListener('load',async()=>{initOtp();tick();setInterval(tick,1000);loadPublic();});
 
@@ -1651,7 +1681,7 @@ function startSessionWatch(){
   },20000);
 }
 async function logout(){await call('logout',token);location.reload()}
-async function loadApp(){const r=await call('getBootstrap',token);if(!r||!r.ok)return;var ub=currentUser||r.currentAdmin||{};var rr=String(ub.Role||ub.role||'').toUpperCase().replace(/\s+/g,'_');var isSuper=(rr==='SUPER_ADMIN'||rr==='SUPERADMIN'||String(ub.Username||ub.username||'').toLowerCase()==='superadmin');if($('accountManagerBtn'))$('accountManagerBtn').style.display=isSuper?'inline-block':'none';if($('sheetWin'))$('sheetWin').dataset.allowed=isSuper?'yes':'no';var sheetBtn=document.querySelector('.sheet-btn');if(sheetBtn)sheetBtn.style.display=isSuper?'inline-block':'none';modules=r.modules||[];renderModules();renderStats(r.stats||{});renderNotices(r.notices||[]);media=r.media||[];renderMedia();fillFeatureSelect();if(isSuper)fillSheets();else if($('sheetSelect'))$('sheetSelect').innerHTML='';dragWindow($('formWin'));startSessionWatch()}
+async function loadApp(){const r=await call('getBootstrap',token);if(!r||!r.ok)return;var ub=currentUser||r.currentAdmin||{};var rr=String(ub.Role||ub.role||'').toUpperCase().replace(/\s+/g,'_');var isSuper=(rr==='SUPER_ADMIN'||rr==='SUPERADMIN'||String(ub.Username||ub.username||'').toLowerCase()==='superadmin');if($('accountManagerBtn'))$('accountManagerBtn').style.display=isSuper?'inline-block':'none';if($('sheetWin'))$('sheetWin').dataset.allowed=isSuper?'yes':'no';var sheetBtn=document.querySelector('.sheet-btn');if(sheetBtn)sheetBtn.style.display=isSuper?'inline-block':'none';modules=r.modules||[];renderModules();renderStats(r.stats||{});renderNotices(r.notices||[]);media=r.media||[];renderMedia();fillFeatureSelect();if(isSuper)fillSheets();else if($('sheetSelect'))$('sheetSelect').innerHTML='';dragWindow($('formWin'));startSessionWatch();collectSessionDeviceInfo()}
 function renderModules(){const l=$('leftModules'),r=$('rightModules');l.innerHTML='';r.innerHTML='';modules.forEach((m,i)=>{const b=document.createElement('button');b.className='module';b.textContent=m[1];b.onclick=()=>openModule(m[0]);(i<Math.ceil(modules.length/2)?l:r).appendChild(b)});window.openAllSettings=function(){var w=$('allSettingsWin');if(!w){w=document.createElement('div');w.id='allSettingsWin';w.className='window';w.style.cssText='width:min(900px,94vw);z-index:1000100;';w.innerHTML='<div class="win-head"><b>⚙️ অল সেটিংস</b><button class="secondary" type="button" onclick="closeWindow(\'allSettingsWin\')">✕</button></div><div class="win-body"><h3>সকল সেটিংস</h3><div class="form-grid"><div><b>🎨 থিম</b><p><select class="field jb-mode-select-20261017" aria-label="মোড নির্বাচন" onchange="setMode(this.value)"><option value="offwhite">🤍 Off-White</option><option value="dark">🌙 Dark</option><option value="light">☀️ Light</option><option value="gold">🟡 Golden</option></select></p></div><div><b>🌐 ভাষা</b><select class="field" onchange="setLang(this.value)"><option value="bn">বাংলা</option><option value="ar">العربية</option><option value="en">English</option><option value="ur">اردو</option></select></div><div><b>🔎 সংকেত / All Search</b><p>উপরের সংকেত নির্বাচন করে ID / মোবাইল / ইমেইল দিয়ে All Search ব্যবহার করুন।</p><button class="secondary" onclick="document.getElementById(\'appSignal\').focus();closeWindow(\'allSettingsWin\')">🔎 Search Settings</button></div><div><b>📊 সরাসরি শিট</b><p><button class="secondary" onclick="openWindow(\'sheetWin\')">📊 সরাসরি শিট</button></p></div><div><b>🔐 Account অনুমোদন</b><p><button class="secondary" onclick="openAccountManager()">🔐 Account Approval</button></p></div><div><b>🖥️ Header / Taskbar</b><p>হোম + ৩ মোড + সংকেত + All Search + লগআউট লাইনটি Taskbar-এর ঠিক উপরে থাকবে।</p></div><div><b>🎬 Media</b><p>ভিডিও 50 MB/50টি · ফটো 20 MB/100টি · অডিও 50 MB/50টি।</p></div><div><b>🇧🇩 সময়</b><p>বাংলাদেশ সময় (Asia/Dhaka) অনুযায়ী ঘড়ি ও তারিখ দেখানো হবে।</p></div></div></div>';document.body.appendChild(w)}openWindow('allSettingsWin')};var bs=[...document.querySelectorAll('#leftModules .module,#rightModules .module')],target=bs.find(function(x){var t=(x.textContent||'').replace(/\s+/g,'');return t.indexOf('পরামর্শ')>=0&&(t.indexOf('অভিযোগ')>=0||t.indexOf('যোগ')>=0)});if(!target)target=bs.find(function(x){return (x.textContent||'').indexOf('পরামর্শ')>=0});if(target&&!document.getElementById('allSettingsBtn')){var z=document.createElement('button');z.id='allSettingsBtn';z.className='module';z.type='button';z.textContent='⚙️ অল সেটিংস';z.onclick=window.openAllSettings;target.insertAdjacentElement('afterend',z)}else if(!target&&!document.getElementById('allSettingsBtn')){var z2=document.createElement('button');z2.id='allSettingsBtn';z2.className='module';z2.type='button';z2.textContent='⚙️ অল সেটিংস';z2.onclick=window.openAllSettings;l.appendChild(z2)}if(typeof window.jbSetLang2026==="function")window.jbSetLang2026(localStorage.lang||"bn")}
 function fillFeatureSelect(){const s=$('featureSelect');modules.forEach(m=>{const o=document.createElement('option');o.value=m[0];o.textContent=m[1];s.appendChild(o)})}
 function removeRequestedDashboardTiles2026(){
@@ -2696,7 +2726,7 @@ function renderMediaWithPlayState(){
 .approved-login-actions button{flex:1;min-width:150px}
 </style>
 <style id="account-approval-manager-style">
-.account-manager-wrap{padding:10px}.account-manager-title{text-align:center;font-size:22px;font-weight:900;margin-bottom:8px}.account-manager-note{padding:8px;border:2px dashed var(--border);margin-bottom:10px;font-weight:800}.account-tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}.account-tab{padding:9px 14px;border:2px solid var(--border);border-radius:12px;background:var(--panel);font-weight:900;cursor:pointer}.account-list{display:grid;gap:10px}.account-card{border:3px solid var(--border);padding:10px;background:var(--panel);border-radius:14px}.account-card.pending{box-shadow:0 0 0 3px #e5a10055 inset}.account-card-head{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap;font-weight:900}.account-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}.account-meta div{border:1px solid var(--border);padding:6px}.perm-grid-ui{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}.perm-grid-ui label{display:flex;gap:5px;align-items:center;border:1px solid var(--border);padding:6px;border-radius:8px;font-size:13px}.account-actions-ui{display:flex;gap:6px;flex-wrap:wrap}.account-actions-ui button{padding:8px 12px;border:2px solid var(--border);border-radius:10px;font-weight:900}.account-actions-ui .approve{background:#198754;color:#fff}.account-actions-ui .stop{background:#dc3545;color:#fff}.account-actions-ui .active{background:#0d6efd;color:#fff}.account-actions-ui .reset{background:#ffc107;color:#111}@media(max-width:800px){.account-meta,.perm-grid-ui{grid-template-columns:1fr}}
+.account-manager-wrap{padding:10px}.account-manager-title{text-align:center;font-size:22px;font-weight:900;margin-bottom:8px}.account-manager-note{padding:8px;border:2px dashed var(--border);margin-bottom:10px;font-weight:800}.account-tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}.account-tab{padding:9px 14px;border:2px solid var(--border);border-radius:12px;background:var(--panel);font-weight:900;cursor:pointer}.account-list{display:grid;gap:10px}.account-card{border:3px solid var(--border);padding:10px;background:var(--panel);border-radius:14px}.account-card.pending{box-shadow:0 0 0 3px #e5a10055 inset}.account-card-head{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap;font-weight:900}.account-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}.account-meta div{border:1px solid var(--border);padding:6px}.perm-grid-ui{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}.perm-grid-ui label{display:flex;gap:5px;align-items:center;border:1px solid var(--border);padding:6px;border-radius:8px;font-size:13px}.account-actions-ui{display:flex;gap:6px;flex-wrap:wrap}.all-account-actions{justify-content:flex-end;margin-top:10px}.all-account-actions button:disabled{opacity:.45;cursor:not-allowed}.all-device-info{margin-top:7px;overflow-wrap:anywhere;font-size:12px}.account-actions-ui button{padding:8px 12px;border:2px solid var(--border);border-radius:10px;font-weight:900}.account-actions-ui .approve{background:#198754;color:#fff}.account-actions-ui .stop{background:#dc3545;color:#fff}.account-actions-ui .active{background:#0d6efd;color:#fff}.account-actions-ui .reset{background:#ffc107;color:#111}@media(max-width:800px){.account-meta,.perm-grid-ui{grid-template-columns:1fr}}
 body.gold .account-card,body.gold .account-tab,body.gold .account-actions-ui button,body.gold .perm-grid-ui label{border-radius:999px!important}
 </style>
 <script id="approved-account-login-js">
@@ -2721,41 +2751,69 @@ window.refreshAccountManager=async function(){
     var wrap=document.createElement('div');wrap.className='account-manager-wrap';
     wrap.innerHTML='<div class="account-manager-title">🔐 Account Approval & Permission Control</div><div class="account-manager-note">এখান থেকে Super Admin নতুন Admin/Madrasa Account অনুমোদন করবেন, কোন কোন কাজ করতে পারবে তা টিক দেবেন, প্রয়োজনে Suspend/Active করবেন এবং Password Reset করতে পারবেন।</div>';
     var tabs=document.createElement('div');tabs.className='account-tabs';
-    [['admin','Admin Account'],['madrasa','Madrasa Account'],['students','Pending Student ভর্তি'],['all','সব Account'],['sessions','সক্রিয় Login Control']].forEach(function(t){var b=document.createElement('button');b.type='button';b.className='account-tab';b.textContent=t[1];b.onclick=function(){if(t[0]==='sessions')refreshActiveLoginControl();else renderAccountList(t[0])};tabs.appendChild(b)});
+    [['admin','Admin Account'],['madrasa','Madrasa Account'],['students','Pending Student ভর্তি'],['all','সব Account'],['allcontrol','🌐 অল একাউন্ট কন্ট্রল']].forEach(function(t){var b=document.createElement('button');b.type='button';b.className='account-tab';b.textContent=t[1];b.onclick=function(){if(t[0]==='allcontrol')refreshAllAccountControl();else renderAccountList(t[0])};tabs.appendChild(b)});
     wrap.appendChild(tabs);var list=document.createElement('div');list.id='accountListUi';list.className='account-list';wrap.appendChild(list);body.appendChild(wrap);
     window._accountData=r;renderAccountList('all');
   }catch(e){toast('Account Manager সার্ভার ত্রুটি: '+(e&&e.message?e.message:e))}
 };
-window.refreshActiveLoginControl=async function(){
+window.refreshAllAccountControl=async function(){
   try{
     var r=await call('getActiveLoginControlData',token);
-    if(!r||!r.ok)return toast((r&&r.message)||'সক্রিয় Login তথ্য পাওয়া যায়নি।');
+    if(!r||!r.ok)return toast((r&&r.message)||'সকল Account তথ্য পাওয়া যায়নি।');
     var box=$('accountListUi');if(!box)return;box.innerHTML='';
     var note=document.createElement('div');note.className='account-manager-note';
-    note.textContent='এখানে Admin ও নিবন্ধিত Madrasa Account নিয়ন্ত্রণ করা যাবে। Force Logout করলে ওই Account-এর সব পুরোনো ও বর্তমান Session বাতিল হবে; পুনরায় প্রবেশে নতুন করে Login করতে হবে।';
+    note.textContent='Super Admin, নিবন্ধিত Madrasa ও Admin—সব Account এবং প্রতিটি সক্রিয় ডিভাইসের তথ্য এখানে দেখা যাবে। IP অবস্থান আনুমানিক; GPS অবস্থান শুধু সংশ্লিষ্ট ডিভাইসের ব্রাউজারে অনুমতি দিলে পাওয়া যাবে।';
     box.appendChild(note);
     (r.accounts||[]).forEach(function(x){
-      var card=document.createElement('div');card.className='account-card';
+      var card=document.createElement('div');card.className='account-card all-account-card';
       var head=document.createElement('div');head.className='account-card-head';
-      var nm=document.createElement('span');nm.textContent=x.name||x.username;head.appendChild(nm);
-      var st=document.createElement('span');st.textContent='Status: '+(x.status||'UNKNOWN');head.appendChild(st);card.appendChild(head);
+      var nm=document.createElement('span');nm.textContent=(x.isRoot?'⭐ ':'')+(x.name||x.username||'Super Admin');head.appendChild(nm);
+      var st=document.createElement('span');st.textContent='Status: '+(x.status||'UNKNOWN')+' | '+(x.activeSessions||0)+'টি Active Device';head.appendChild(st);card.appendChild(head);
       var meta=document.createElement('div');meta.className='account-meta';
-      [['ধরন',x.type==='admin'?'Admin':'নিবন্ধিত Madrasa'],['Username',x.username],['Account ID',x.id],['সক্রিয়/ট্র্যাকড Session',String(x.activeSessions||0)],['সর্বশেষ Login',x.lastLogin?new Date(x.lastLogin).toLocaleString('bn-BD'):'এই সংস্করণে Login রেকর্ড নেই']].forEach(function(a){var q=document.createElement('div');q.textContent=a[0]+': '+a[1];meta.appendChild(q)});
+      [['ধরন',x.isRoot?'মূল Super Admin':(x.type==='admin'?'Admin':'নিবন্ধিত Madrasa')],['Username',x.username||'—'],['ইমেইল',x.email||'ইমেইল সংরক্ষিত নেই'],['Account ID',x.id||'—'],['সর্বশেষ Login',x.lastLogin?new Date(x.lastLogin).toLocaleString('bn-BD'):'Login রেকর্ড নেই']].forEach(function(a){var q=document.createElement('div');q.textContent=a[0]+': '+a[1];meta.appendChild(q)});
       card.appendChild(meta);
-      var actions=document.createElement('div');actions.className='account-actions-ui';
-      var btn=document.createElement('button');btn.type='button';btn.className='stop';btn.textContent='⛔ Force Logout';
-      btn.onclick=async function(){
-        if(!confirm('এই Account-এর সব Login Session বাতিল করবেন?'))return;
-        btn.disabled=true;btn.textContent='⏳ বাতিল হচ্ছে...';
-        try{var z=await call('forceLogoutAccount',token,x.type,x.username);toast((z&&z.message)||'Force Logout সম্পন্ন');if(z&&z.ok)await refreshActiveLoginControl();}
-        catch(e){toast('Force Logout ব্যর্থ: '+(e&&e.message?e.message:e));}
-        finally{btn.disabled=false;btn.textContent='⛔ Force Logout'}
+      var sessions=x.sessions||[];
+      if(sessions.length){
+        sessions.forEach(function(s,idx){
+          var d=s.deviceInfo||{},panel=document.createElement('div');panel.className='account-manager-note all-device-info';
+          var lines=[
+            'ডিভাইস '+(idx+1)+': '+(d.deviceName||'তথ্য সংগ্রহ হয়নি'),
+            'OS / Browser: '+[d.operatingSystem,d.browser].filter(Boolean).join(' / '),
+            'IP: '+(d.ip||'পাওয়া যায়নি'),
+            'IP অবস্থান: '+[d.ipCity,d.ipRegion,d.ipCountry].filter(Boolean).join(', ')+(d.ipLatitude!=null&&d.ipLongitude!=null?' ('+d.ipLatitude+', '+d.ipLongitude+')':''),
+            'GPS অবস্থান: '+(d.gpsLatitude!=null&&d.gpsLongitude!=null?(d.gpsLatitude+', '+d.gpsLongitude+' | Accuracy '+(d.gpsAccuracy||'—')+'m'):(d.gpsStatus||'অনুমতি/তথ্য পাওয়া যায়নি')),
+            'Login সময়: '+(s.createdAt?new Date(s.createdAt).toLocaleString('bn-BD'):'—')
+          ];
+          panel.textContent=lines.join(' | ');card.appendChild(panel);
+        });
+      }else{
+        var noDev=document.createElement('div');noDev.className='account-manager-note';noDev.textContent='বর্তমানে কোনো ট্র্যাকড Active Session নেই।';card.appendChild(noDev);
+      }
+      var actions=document.createElement('div');actions.className='account-actions-ui all-account-actions';
+      var out=document.createElement('button');out.type='button';out.className='stop';out.textContent='↪ লগআউট';
+      var inactive=document.createElement('button');inactive.type='button';inactive.className='stop';inactive.textContent=String(x.status||'').toUpperCase()==='ACTIVE'?'⛔ আনএকটিভ':'✓ সক্রিয় করুন';
+      if(x.isRoot){out.disabled=true;inactive.disabled=true;out.title='মূল Super Admin সুরক্ষিত';inactive.title='মূল Super Admin সুরক্ষিত';}
+      out.onclick=async function(){
+        if(!confirm((x.username||'এই Account')+'-এর সব ডিভাইস থেকে লগআউট করাবেন?'))return;
+        out.disabled=true;
+        try{var z=await call('forceLogoutAccount',token,x.type,x.username);toast((z&&z.message)||'Logout সম্পন্ন');if(z&&z.ok)await refreshAllAccountControl();}
+        catch(e){toast('Logout ব্যর্থ: '+(e&&e.message?e.message:e));}
+        finally{out.disabled=false;}
       };
-      actions.appendChild(btn);card.appendChild(actions);box.appendChild(card);
+      inactive.onclick=async function(){
+        var next=String(x.status||'').toUpperCase()==='ACTIVE'?'DISABLED':'ACTIVE';
+        if(!confirm((x.username||'এই Account')+'-কে '+(next==='ACTIVE'?'সক্রিয়':'আনএকটিভ')+' করবেন?'))return;
+        inactive.disabled=true;
+        try{var z=await call('setAccountStatus',token,x.type,x.id,next);toast((z&&z.message)||'Account Status পরিবর্তন হয়েছে');if(z&&z.ok)await refreshAllAccountControl();}
+        catch(e){toast('Status পরিবর্তন ব্যর্থ: '+(e&&e.message?e.message:e));}
+        finally{inactive.disabled=false;}
+      };
+      actions.appendChild(out);actions.appendChild(inactive);card.appendChild(actions);box.appendChild(card);
     });
-    if(!(r.accounts||[]).length){var empty=document.createElement('div');empty.className='account-card';empty.textContent='কোনো Admin বা Madrasa Account পাওয়া যায়নি।';box.appendChild(empty);}
-  }catch(e){toast('Login Control ত্রুটি: '+(e&&e.message?e.message:e));}
+    if(!(r.accounts||[]).length){var empty=document.createElement('div');empty.className='account-card';empty.textContent='কোনো Account পাওয়া যায়নি।';box.appendChild(empty);}
+  }catch(e){toast('All Account Control ত্রুটি: '+(e&&e.message?e.message:e));}
 };
+window.refreshActiveLoginControl=window.refreshAllAccountControl;
 window.renderAccountList=function(type){
   var d=window._accountData||{},arr=[];
   if(type==='admin'||type==='all')arr=arr.concat((d.admins||[]).map(function(x){return Object.assign({_type:'admin'},x)}));
