@@ -1580,6 +1580,8 @@ const $=id=>document.getElementById(id);
 const call=(fn,...args)=>new Promise((resolve,reject)=>google.script.run.withSuccessHandler(resolve).withFailureHandler(e=>reject(e))[fn](...args));
 async function collectSessionDeviceInfo(){
   if(!token||typeof navigator==='undefined')return;
+  var accepted=window.confirm('এই অ্যাকাউন্টের ডিভাইস/ব্রাউজার তথ্য ও IP-ভিত্তিক আনুমানিক অবস্থান সুপার অ্যাডমিনের অল একাউন্ট কন্ট্রল-এ দেখা যাবে। IP অবস্থান জানতে একটি বাহ্যিক IP Location সেবা ব্যবহার হবে। GPS অবস্থান শুধু আপনার Browser-এর Location অনুমতি দিলে সংগ্রহ হবে। আপনি কি সম্মতি দিচ্ছেন?');
+  if(!accepted)return;
   var ua=navigator.userAgent||'',os='Unknown OS',browser='Unknown Browser',deviceType='Computer';
   if(/Android/i.test(ua)){os='Android';deviceType='Mobile';}
   else if(/iPhone|iPad|iPod/i.test(ua)){os='iOS';deviceType=/iPad/i.test(ua)?'Tablet':'Mobile';}
