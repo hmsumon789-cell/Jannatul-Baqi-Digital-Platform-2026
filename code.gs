@@ -489,11 +489,11 @@ function forceLogoutAccount(token,type,id){
     if(rowIndex<1)return {ok:false,message:'নির্বাচিত অ্যাকাউন্ট পাওয়া যায়নি।'};
     const username=String(values[rowIndex][userCol]||'').trim();
     if(!username)return {ok:false,message:'অ্যাকাউন্টের Username পাওয়া যায়নি।'};
+    const actor=sessionUser_(token);
     const props=PropertiesService.getScriptProperties();
     const key=sessionVersionKey_(type,username);
     const nextVersion=Number(props.getProperty(key)||0)+1;
     props.setProperty(key,String(nextVersion));
-    const actor=sessionUser_(token);
     log_(actor,'force_logout',type.toUpperCase(),username+' এর সকল ডিভাইস/ব্রাউজারের সেশন বাতিল; version='+nextVersion);
     return {ok:true,username:username,message:'✅ '+username+' অ্যাকাউন্টের সকল সক্রিয় সেশন জোরপূর্বক লগআউট করা হয়েছে।'};
   }catch(e){return {ok:false,message:'জোরপূর্বক লগআউট ব্যর্থ: '+e.message};}
