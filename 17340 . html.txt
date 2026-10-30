@@ -1202,6 +1202,12 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </script>
 
 
+<style id="dashboard-live-four-boxes-20261030">
+#liveSummary.dashboard-live-summary{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:7px!important;width:100%!important;margin:8px 0 2px!important;padding:0!important;box-sizing:border-box!important}
+#liveSummary .live-stat{display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:center!important;min-width:0!important;min-height:58px!important;padding:7px 5px!important;margin:0!important;border:2px solid var(--border)!important;border-radius:12px!important;background:var(--panel)!important;color:var(--text)!important;text-align:center!important;font-size:12px!important;font-weight:800!important;line-height:1.3!important;overflow-wrap:anywhere!important;box-shadow:0 3px 10px #0001!important}
+#liveSummary .live-stat b{display:block!important;font-size:20px!important;line-height:1.2!important;margin-bottom:3px!important;color:var(--accent)!important;font-variant-numeric:tabular-nums!important}
+@media(max-width:700px){#liveSummary.dashboard-live-summary{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}#liveSummary .live-stat{min-height:54px!important;font-size:11px!important}#liveSummary .live-stat b{font-size:18px!important}}
+</style>
 <style id="dashboard-media-boxes-and-compact-documentary-20261018">
 /* মিডিয়া প্লেয়ারের কন্ট্রোলের ঠিক নিচে সব ড্যাশবোর্ড বক্স; এরপর পরিচিতি স্লাইড */
 #summary.dashboard-summary-inside{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:7px!important;width:100%!important;margin:8px 0 10px!important;transform:none!important;}
@@ -1491,6 +1497,7 @@ body.gold #loginContactStrip20261013{background:#fff9e7!important;color:#4a3300!
             <button class="secondary slider-arrow" onclick="nextMedia()" title="পরের স্লাইড">▶</button>
           </div>
         </div>
+                <section class="dashboard-live-summary" id="liveSummary" aria-label="লাইভ প্ল্যাটফর্ম তথ্য"></section>
                 <section class="dashboard-summary dashboard-summary-inside" id="summary"></section>
     <!-- ===== Royal golden documentary replaces selected stat boxes under main media player ===== -->
     <section id="institutionDocumentary2026" class="institution-documentary-2026 card" aria-label="প্রতিষ্ঠানের গৌরবময় যাত্রার প্রামাণ্যচিত্র">
@@ -1670,7 +1677,10 @@ function startSessionWatch(){
     checking=true;
     try{
       var r=await call('checkSession',token);
-      if(!r||r.ok!==false||r.message!=='SESSION_EXPIRED')return;
+      if(!r||r.ok!==false||r.message!=='SESSION_EXPIRED'){
+        try{var live=await call('pingDashboardPresence',token);if(live&&$('liveSummary'))updateLiveDashboardBoxes2026(live)}catch(e){}
+        return;
+      }
       token='';currentUser=null;
       if($('app'))$('app').classList.remove('show','jb-dashboard-visible-2026');
       if($('loginPage'))$('loginPage').classList.remove('jb-login-hidden-2026');
@@ -1683,7 +1693,7 @@ function startSessionWatch(){
   },20000);
 }
 async function logout(){await call('logout',token);location.reload()}
-async function loadApp(){const r=await call('getBootstrap',token);if(!r||!r.ok)return;var ub=currentUser||r.currentAdmin||{};var rr=String(ub.Role||ub.role||'').toUpperCase().replace(/\s+/g,'_');var isSuper=(rr==='SUPER_ADMIN'||rr==='SUPERADMIN'||String(ub.Username||ub.username||'').toLowerCase()==='superadmin');if($('accountManagerBtn'))$('accountManagerBtn').style.display=isSuper?'inline-block':'none';if($('sheetWin'))$('sheetWin').dataset.allowed=isSuper?'yes':'no';var sheetBtn=document.querySelector('.sheet-btn');if(sheetBtn)sheetBtn.style.display=isSuper?'inline-block':'none';modules=r.modules||[];renderModules();renderStats(r.stats||{});renderNotices(r.notices||[]);media=r.media||[];renderMedia();fillFeatureSelect();if(isSuper)fillSheets();else if($('sheetSelect'))$('sheetSelect').innerHTML='';dragWindow($('formWin'));startSessionWatch();collectSessionDeviceInfo()}
+async function loadApp(){try{await call('pingDashboardPresence',token)}catch(e){}const r=await call('getBootstrap',token);if(!r||!r.ok)return;var ub=currentUser||r.currentAdmin||{};var rr=String(ub.Role||ub.role||'').toUpperCase().replace(/\s+/g,'_');var isSuper=(rr==='SUPER_ADMIN'||rr==='SUPERADMIN'||String(ub.Username||ub.username||'').toLowerCase()==='superadmin');if($('accountManagerBtn'))$('accountManagerBtn').style.display=isSuper?'inline-block':'none';if($('sheetWin'))$('sheetWin').dataset.allowed=isSuper?'yes':'no';var sheetBtn=document.querySelector('.sheet-btn');if(sheetBtn)sheetBtn.style.display=isSuper?'inline-block':'none';modules=r.modules||[];renderModules();renderStats(r.stats||{});renderNotices(r.notices||[]);media=r.media||[];renderMedia();fillFeatureSelect();if(isSuper)fillSheets();else if($('sheetSelect'))$('sheetSelect').innerHTML='';dragWindow($('formWin'));startSessionWatch();collectSessionDeviceInfo()}
 function renderModules(){const l=$('leftModules'),r=$('rightModules');l.innerHTML='';r.innerHTML='';modules.forEach((m,i)=>{const b=document.createElement('button');b.className='module';b.textContent=m[1];b.onclick=()=>openModule(m[0]);(i<Math.ceil(modules.length/2)?l:r).appendChild(b)});window.openAllSettings=function(){var w=$('allSettingsWin');if(!w){w=document.createElement('div');w.id='allSettingsWin';w.className='window';w.style.cssText='width:min(900px,94vw);z-index:1000100;';w.innerHTML='<div class="win-head"><b>⚙️ অল সেটিংস</b><button class="secondary" type="button" onclick="closeWindow(\'allSettingsWin\')">✕</button></div><div class="win-body"><h3>সকল সেটিংস</h3><div class="form-grid"><div><b>🎨 থিম</b><p><select class="field jb-mode-select-20261017" aria-label="মোড নির্বাচন" onchange="setMode(this.value)"><option value="offwhite">🤍 Off-White</option><option value="dark">🌙 Dark</option><option value="light">☀️ Light</option><option value="gold">🟡 Golden</option></select></p></div><div><b>🌐 ভাষা</b><select class="field" onchange="setLang(this.value)"><option value="bn">বাংলা</option><option value="ar">العربية</option><option value="en">English</option><option value="ur">اردو</option></select></div><div><b>🔎 সংকেত / All Search</b><p>উপরের সংকেত নির্বাচন করে ID / মোবাইল / ইমেইল দিয়ে All Search ব্যবহার করুন।</p><button class="secondary" onclick="document.getElementById(\'appSignal\').focus();closeWindow(\'allSettingsWin\')">🔎 Search Settings</button></div><div><b>📊 সরাসরি শিট</b><p><button class="secondary" onclick="openWindow(\'sheetWin\')">📊 সরাসরি শিট</button></p></div><div><b>🔐 Account অনুমোদন</b><p><button class="secondary" onclick="openAccountManager()">🔐 Account Approval</button></p></div><div><b>🖥️ Header / Taskbar</b><p>হোম + ৩ মোড + সংকেত + All Search + লগআউট লাইনটি Taskbar-এর ঠিক উপরে থাকবে।</p></div><div><b>🎬 Media</b><p>ভিডিও 50 MB/50টি · ফটো 20 MB/100টি · অডিও 50 MB/50টি।</p></div><div><b>🇧🇩 সময়</b><p>বাংলাদেশ সময় (Asia/Dhaka) অনুযায়ী ঘড়ি ও তারিখ দেখানো হবে।</p></div></div></div>';document.body.appendChild(w)}openWindow('allSettingsWin')};var bs=[...document.querySelectorAll('#leftModules .module,#rightModules .module')],target=bs.find(function(x){var t=(x.textContent||'').replace(/\s+/g,'');return t.indexOf('পরামর্শ')>=0&&(t.indexOf('অভিযোগ')>=0||t.indexOf('যোগ')>=0)});if(!target)target=bs.find(function(x){return (x.textContent||'').indexOf('পরামর্শ')>=0});if(target&&!document.getElementById('allSettingsBtn')){var z=document.createElement('button');z.id='allSettingsBtn';z.className='module';z.type='button';z.textContent='⚙️ অল সেটিংস';z.onclick=window.openAllSettings;target.insertAdjacentElement('afterend',z)}else if(!target&&!document.getElementById('allSettingsBtn')){var z2=document.createElement('button');z2.id='allSettingsBtn';z2.className='module';z2.type='button';z2.textContent='⚙️ অল সেটিংস';z2.onclick=window.openAllSettings;l.appendChild(z2)}if(typeof window.jbSetLang2026==="function")window.jbSetLang2026(localStorage.lang||"bn")}
 function fillFeatureSelect(){const s=$('featureSelect');modules.forEach(m=>{const o=document.createElement('option');o.value=m[0];o.textContent=m[1];s.appendChild(o)})}
 function removeRequestedDashboardTiles2026(){
@@ -1693,7 +1703,19 @@ function removeRequestedDashboardTiles2026(){
 function watchRequestedDashboardTiles2026(){
   // Keep compatibility with the existing dashboard initialization without deleting tiles.
 }
+function updateLiveDashboardBoxes2026(x){
+  x=x||{};
+  const live=[
+    ['মোট শিক্ষক/শিক্ষিকা',x.totalTeachers??x.teachers],
+    ['নিবন্ধিত মাদ্রাসা + অ্যাডমিন',x.registeredAccounts],
+    ['মোট একাউন্ট অনলাইন',x.onlineAccounts],
+    ['মূল ওয়েবসাইটে অনলাইন ডিভাইস',x.onlineDevices]
+  ];
+  const box=$('liveSummary');
+  if(box)box.innerHTML=live.map(a=>'<div class="live-stat"><b>'+((a[1]??0))+'</b>'+a[0]+'</div>').join('');
+}
 function renderStats(x){
+  updateLiveDashboardBoxes2026(x);
   const arr=[
     ['আয়',x.income],
     ['ব্যয়',x.expense],
