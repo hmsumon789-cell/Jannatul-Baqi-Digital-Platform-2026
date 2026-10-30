@@ -1903,7 +1903,7 @@ window.refreshAccountManager=async function(){
     var body=$('accountManagerWin').querySelector('.win-body');
     body.innerHTML='';
     var wrap=document.createElement('div');wrap.className='account-manager-wrap';
-    wrap.innerHTML='<div class="account-manager-title">🔐 Account Approval & Permission Control</div><div class="account-manager-note">এখান থেকে Super Admin নতুন Admin/Madrasa Account অনুমোদন করবেন, কোন কোন কাজ করতে পারবে তা টিক দেবেন, প্রয়োজনে Suspend/Active করবেন এবং Password Reset করতে পারবেন।</div>';
+    wrap.innerHTML='<div class="account-manager-title">🔐 Account Approval & Permission Control</div><div class="account-manager-note">এখান থেকে Super Admin নতুন Admin/Madrasa Account অনুমোদন করবেন, কোন কোন কাজ করতে পারবে তা টিক দেবেন, প্রয়োজনে Suspend/Active করবেন, Password Reset এবং সকল ডিভাইস থেকে জোরপূর্বক লগআউট করতে পারবেন।</div><button type="button" class="stop" style="margin:10px 0;padding:10px 16px" onclick="forceLogoutRootAccountUi()">🚨 মূল Super Admin অ্যাকাউন্টের সব সেশন লগআউট</button><div class="account-manager-note">সতর্কতা: মূল Super Admin অ্যাকাউন্টের সব সেশন বাতিল করলে বর্তমান Super Admin সেশনটিও বন্ধ হবে; পরে আবার লগইন করতে হবে।</div>';
     var tabs=document.createElement('div');tabs.className='account-tabs';
     [['admin','Admin Account'],['madrasa','Madrasa Account'],['all','সব Account']].forEach(function(t){var b=document.createElement('button');b.type='button';b.className='account-tab';b.textContent=t[1];b.onclick=function(){renderAccountList(t[0])};tabs.appendChild(b)});
     wrap.appendChild(tabs);var list=document.createElement('div');list.id='accountListUi';list.className='account-list';wrap.appendChild(list);body.appendChild(wrap);
@@ -1933,6 +1933,7 @@ window.renderAccountList=function(type){
     var ap=document.createElement('button');ap.type='button';ap.className='approve';ap.textContent='✅ অনুমোদন + Permission Save';ap.onclick=function(){saveAccountApproval(ap)};acts.appendChild(ap);
     var st=document.createElement('button');st.type='button';st.className='stop';st.textContent='⛔ Suspend';st.onclick=function(){changeAccountStatus(st,'SUSPENDED')};acts.appendChild(st);
     var ac=document.createElement('button');ac.type='button';ac.className='active';ac.textContent='▶ Active';ac.onclick=function(){changeAccountStatus(ac,'ACTIVE')};acts.appendChild(ac);
+    var fl=document.createElement('button');fl.type='button';fl.className='stop';fl.textContent='🚪 জোরপূর্বক লগআউট';fl.onclick=function(){forceLogoutAccountUi(fl,x._type,id,x.Username||'')};acts.appendChild(fl);
     var rp=document.createElement('button');rp.type='button';rp.className='reset';rp.textContent='🔑 Password Reset';rp.onclick=function(){resetAccountPasswordUi(rp)};acts.appendChild(rp);
     card.appendChild(acts);box.appendChild(card);
   });
@@ -1946,6 +1947,26 @@ window.saveAccountApproval=async function(btn){
 };
 window.changeAccountStatus=async function(btn,status){var c=btn.closest('.account-card');if(!c)return;if(!confirm(status==='SUSPENDED'?'এই Account স্থগিত করবেন?':'এই Account সক্রিয় করবেন?'))return;try{var r=await call('setAccountStatus',token,c.dataset.type,c.dataset.id,status);toast((r&&r.message)||'Status পরিবর্তন হয়েছে');if(r&&r.ok)refreshAccountManager()}catch(e){toast('Status পরিবর্তন ব্যর্থ: '+(e&&e.message?e.message:e))}};
 window.resetAccountPasswordUi=async function(btn){var c=btn.closest('.account-card');if(!c)return;var p=prompt('নতুন Password দিন (কমপক্ষে 4 অক্ষর):','');if(!p)return;try{var r=await call('resetAccountPassword',token,c.dataset.type,c.dataset.id,p);toast((r&&r.message)||'Password reset হয়েছে');if(r&&r.ok)refreshAccountManager()}catch(e){toast('Password reset ব্যর্থ: '+(e&&e.message?e.message:e))}};
+window.forceLogoutAccountUi=async function(btn,type,id,username){
+  var label=username||id||'নির্বাচিত অ্যাকাউন্ট';
+  if(!confirm('সতর্কতা! '+label+' অ্যাকাউন্টের সব ডিভাইস ও ব্রাউজারের সক্রিয় সেশন বাতিল করে জোরপূর্বক লগআউট করবেন?'))return;
+  var old=btn?btn.textContent:'';
+  if(btn){btn.disabled=true;btn.textContent='⏳ সেশন বাতিল হচ্ছে...'}
+  try{
+    var r=await call('forceLogoutAccount',token,type,id);
+    toast((r&&r.message)||(r&&r.ok?'সেশন বাতিল হয়েছে।':'লগআউট ব্যর্থ হয়েছে।'));
+    if(r&&r.ok)refreshAccountManager();
+  }catch(e){toast('জোরপূর্বক লগআউট ব্যর্থ: '+(e&&e.message?e.message:e))}
+  finally{if(btn){btn.disabled=false;btn.textContent=old}}
+};
+window.forceLogoutRootAccountUi=async function(){
+  if(!confirm('মূল Super Admin Username-এর সব ডিভাইস/ব্রাউজারের সেশন বাতিল করবেন? এতে আপনার বর্তমান লগইনও বন্ধ হবে।'))return;
+  try{
+    var r=await call('forceLogoutAccount',token,'admin','superadmin');
+    toast((r&&r.message)||'সেশন বাতিলের অনুরোধ সম্পন্ন হয়েছে।');
+    if(r&&r.ok)setTimeout(function(){window.location.reload()},900);
+  }catch(e){toast('জোরপূর্বক লগআউট ব্যর্থ: '+(e&&e.message?e.message:e))}
+};
 function _typeLabel(t){return t==='admin'?'Admin Account':'Madrasa Account'}
 function escA(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 })();
