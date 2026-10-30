@@ -1302,6 +1302,11 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 }
 </style>
 
+<style id="dashboard-summary-gap-final-override-20261031">
+/* আগের স্টাইলের পরের নিয়মে margin:0 দিয়ে ২ ইঞ্চি সরানোর নির্দেশটি বাতিল হচ্ছিল; সর্বশেষ অগ্রাধিকার দিয়ে সারি ও পরিচিতি একসাথে উপরে */
+#summary.dashboard-summary-inside{margin-top:-192px!important}
+#institutionDocumentary2026{margin-top:8px!important}
+</style>
 </head>
 <body>
 <div id="welcomeScreen">
