@@ -1632,14 +1632,22 @@ async function resetOtp(){const r=await call('requestOtp',$('resetUser').value.t
 let sessionWatchTimer=null;
 function startSessionWatch(){
   if(sessionWatchTimer)clearInterval(sessionWatchTimer);
+  var checking=false;
   sessionWatchTimer=setInterval(async function(){
-    if(!token)return;
-    try{var r=await call('checkSession',token);if(r&&r.ok)return;}catch(e){}
-    token='';currentUser=null;
-    if($('app'))$('app').classList.remove('show','jb-dashboard-visible-2026');
-    if($('loginPage'))$('loginPage').classList.remove('jb-login-hidden-2026');
-    clearInterval(sessionWatchTimer);sessionWatchTimer=null;
-    window.toast('আপনার Login Session বাতিল করা হয়েছে। পুনরায় প্রবেশ করতে Login করুন।');
+    if(!token||checking)return;
+    checking=true;
+    try{
+      var r=await call('checkSession',token);
+      if(!r||r.ok!==false||r.message!=='SESSION_EXPIRED')return;
+      token='';currentUser=null;
+      if($('app'))$('app').classList.remove('show','jb-dashboard-visible-2026');
+      if($('loginPage'))$('loginPage').classList.remove('jb-login-hidden-2026');
+      clearInterval(sessionWatchTimer);sessionWatchTimer=null;
+      window.toast('আপনার Login Session বাতিল করা হয়েছে। পুনরায় প্রবেশ করতে Login করুন।');
+    }catch(e){
+      // Temporary network/server errors must not log out a valid user.
+      return;
+    }finally{checking=false;}
   },20000);
 }
 async function logout(){await call('logout',token);location.reload()}
