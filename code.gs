@@ -180,7 +180,7 @@ function verifyLoginOtp(token,username,code) {
     if (d.username !== username || Date.now() > d.expires) return {ok:false,message:'OTP অবৈধ বা মেয়াদ শেষ।'};
     if (hash_(String(code).replace(/\D/g,'')) !== d.otpHash) return {ok:false,message:'OTP সঠিক নয়।'};
     const session = Utilities.getUuid();
-    CacheService.getScriptCache().put('SESSION:'+session, JSON.stringify({username,accountType:'admin',at:Date.now()}), 21600);
+    CacheService.getScriptCache().put('SESSION:'+session, JSON.stringify({username,accountType:'admin',at:Date.now(),sessionVersion:currentSessionVersion_('admin',username)}), 21600);
     CacheService.getScriptCache().remove('OTP:'+token);
     log_(username,'login','SESSION','Login successful');
     return {ok:true,token:session,user:getAdminSafe_(username)};
@@ -249,7 +249,7 @@ function loginMadrasa(username,password){
 
 function createDirectSession_(username,type){
   const session=Utilities.getUuid();
-  CacheService.getScriptCache().put('SESSION:'+session,JSON.stringify({username:String(username),accountType:type,at:Date.now()}),21600);
+  CacheService.getScriptCache().put('SESSION:'+session,JSON.stringify({username:String(username),accountType:type,at:Date.now(),sessionVersion:currentSessionVersion_(type,username)}),21600);
   const user=type==='admin'?getAdminSafe_(username):findBy_(SHEETS.MADRASAS,'Username',username)||{};
   user.accountType=type;
   return {ok:true,token:session,user:user,message:'লগইন সফল হয়েছে।'};
@@ -466,6 +466,38 @@ function resetAccountPassword(token,type,id,newPassword){
   log_(sessionUser_(token),'password_reset',type,id); return {ok:true,message:'Password reset হয়েছে।'};
 }
 
+function forceLogoutAccount(token,type,id){
+  try{
+    if(!isSuperAdmin_(token)){
+      notifySuperAdminSecurity_(token,'জোরপূর্বক লগআউটের চেষ্টা',String(type||'')+':'+String(id||''),'শুধু Super Admin অন্য অ্যাকাউন্টের সেশন বাতিল করতে পারবেন।');
+      return {ok:false,message:'শুধু Super Admin এই কাজ করতে পারবেন।'};
+    }
+    type=String(type||'').toLowerCase();
+    if(type!=='admin'&&type!=='madrasa')return {ok:false,message:'অ্যাকাউন্টের ধরন সঠিক নয়।'};
+    const sheet=type==='admin'?SHEETS.ADMINS:SHEETS.MADRASAS;
+    const idKey=type==='admin'?'AdminID':'MadrasaID';
+    const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheet);
+    if(!sh||sh.getLastRow()<2)return {ok:false,message:'অ্যাকাউন্ট পাওয়া যায়নি।'};
+    const values=sh.getDataRange().getValues(),headers=values[0].map(String);
+    const idCol=headers.indexOf(idKey),userCol=headers.indexOf('Username');
+    if(userCol<0)return {ok:false,message:'অ্যাকাউন্টের Username কলাম পাওয়া যায়নি।'};
+    const target=String(id||'').trim().toLowerCase();
+    let rowIndex=-1;
+    for(let i=1;i<values.length;i++){
+      if((idCol>=0&&String(values[i][idCol]||'').trim().toLowerCase()===target)||String(values[i][userCol]||'').trim().toLowerCase()===target){rowIndex=i;break;}
+    }
+    if(rowIndex<1)return {ok:false,message:'নির্বাচিত অ্যাকাউন্ট পাওয়া যায়নি।'};
+    const username=String(values[rowIndex][userCol]||'').trim();
+    if(!username)return {ok:false,message:'অ্যাকাউন্টের Username পাওয়া যায়নি।'};
+    const props=PropertiesService.getScriptProperties();
+    const key=sessionVersionKey_(type,username);
+    const nextVersion=Number(props.getProperty(key)||0)+1;
+    props.setProperty(key,String(nextVersion));
+    const actor=sessionUser_(token);
+    log_(actor,'force_logout',type.toUpperCase(),username+' এর সকল ডিভাইস/ব্রাউজারের সেশন বাতিল; version='+nextVersion);
+    return {ok:true,username:username,message:'✅ '+username+' অ্যাকাউন্টের সকল সক্রিয় সেশন জোরপূর্বক লগআউট করা হয়েছে।'};
+  }catch(e){return {ok:false,message:'জোরপূর্বক লগআউট ব্যর্থ: '+e.message};}
+}
 function logout(token) {
   if(token) CacheService.getScriptCache().remove('SESSION:'+token);
   return {ok:true};
@@ -896,7 +928,20 @@ function countData_(s){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetB
 function sumCol_(s,key){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(s); if(!sh||sh.getLastRow()<2)return 0; const h=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0],j=h.indexOf(key); if(j<0)return 0; return sh.getRange(2,j+1,sh.getLastRow()-1,1).getValues().reduce((a,r)=>a+(Number(r[0])||0),0); }
 function countMadrasa_(g){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MADRASAS); if(!sh||sh.getLastRow()<2)return 0; return sh.getRange(2,3,sh.getLastRow()-1,1).getValues().filter(r=>String(r[0])===g).length; }
 function attendanceToday_(){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ATTENDANCE); if(!sh||sh.getLastRow()<2)return {present:0,absent:0}; const h=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0],d=h.indexOf('Date'),s=h.indexOf('Status'),today=Utilities.formatDate(new Date(),APP.timezone,'yyyy-MM-dd'); let p=0,a=0; sh.getDataRange().getValues().slice(1).forEach(r=>{if(String(r[d]).slice(0,10)===today){if(String(r[s]).toLowerCase().includes('present'))p++;if(String(r[s]).toLowerCase().includes('absent'))a++;}}); return {present:p,absent:a};}
-function auth_(token){ const raw=CacheService.getScriptCache().get('SESSION:'+token); if(!raw)throw new Error('SESSION_EXPIRED'); return JSON.parse(raw); }
+function sessionVersionKey_(accountType,username){
+  return 'SESSION_VERSION:'+String(accountType||'admin').toLowerCase()+':'+hash_(String(username||'').trim().toLowerCase());
+}
+function currentSessionVersion_(accountType,username){
+  return Number(PropertiesService.getScriptProperties().getProperty(sessionVersionKey_(accountType,username))||0);
+}
+function auth_(token){
+  const raw=CacheService.getScriptCache().get('SESSION:'+token);
+  if(!raw)throw new Error('SESSION_EXPIRED');
+  const session=JSON.parse(raw);
+  const version=Number(session.sessionVersion||0);
+  if(version!==currentSessionVersion_(session.accountType||'admin',session.username))throw new Error('SESSION_REVOKED');
+  return session;
+}
 function sessionUser_(token){ return auth_(token).username; }
 function getAdminSafe_(u){ const x=findBy_(SHEETS.ADMINS,'Username',u)||{}; delete x.PasswordHash; return x; }
 function log_(u,a,t,d){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.AUDIT); if(sh)sh.appendRow([nextSerial_(sh),now_(),u,a,t,d]); }
