@@ -261,7 +261,7 @@ function getModulesForSession_(token){
   // complete feature list even if the ADMIN row has incomplete Permissions.
   if(s.accountType !== 'madrasa'){
     const a = findBy_(SHEETS.ADMINS,'Username',s.username)||{};
-    const role = String(a.Role||'').toUpperCase().replace(/\\s+/g,'_');
+    const role = String(a.Role||'').toUpperCase().replace(/\s+/g,'_');
     if(role==='SUPER_ADMIN' || role==='SUPERADMIN') return getModules_();
   }
   const all = getModules_();
@@ -332,11 +332,11 @@ function getModuleList(token,key){
 
 function isSuperAdmin_(token){
   const s=auth_(token), a=findBy_(SHEETS.ADMINS,'Username',s.username)||{};
-  const role=String(a.Role||'').toUpperCase().replace(/\\s+/g,'_');
+  const role=String(a.Role||'').toUpperCase().replace(/\s+/g,'_');
   return role==='SUPER_ADMIN' || role==='SUPERADMIN';
 }
 function isSuperAdminAccount_(row){
-  const role=String((row&&row.Role)||'').toUpperCase().replace(/\\s+/g,'_');
+  const role=String((row&&row.Role)||'').toUpperCase().replace(/\s+/g,'_');
   const username=String((row&&row.Username)||'').trim().toLowerCase();
   return role==='SUPER_ADMIN'||role==='SUPERADMIN'||username==='superadmin';
 }
@@ -356,12 +356,12 @@ function notifySuperAdminSecurity_(token,action,target,details){
     const root=admins.find(isSuperAdminAccount_)||{};
     const recipient=String(root.Email||APP.email1||'').trim();
     if(!recipient)return false;
-    const body='সতর্কতা: সংবেদনশীল কাজের একটি অননুমোদিত চেষ্টা শনাক্ত হয়েছে.\\n\\n'
-      +'ব্যবহারকারীর নাম: '+actor+'\\n'
-      +'কাজ: '+String(action||'অজানা')+'\\n'
-      +'লক্ষ্য: '+String(target||'অজানা')+'\\n'
-      +'বিবরণ: '+String(details||'প্রযোজ্য নয়')+'\\n'
-      +'সময়: '+now_()+'\\n\\n'
+    const body='সতর্কতা: সংবেদনশীল কাজের একটি অননুমোদিত চেষ্টা শনাক্ত হয়েছে.\n\n'
+      +'ব্যবহারকারীর নাম: '+actor+'\n'
+      +'কাজ: '+String(action||'অজানা')+'\n'
+      +'লক্ষ্য: '+String(target||'অজানা')+'\n'
+      +'বিবরণ: '+String(details||'প্রযোজ্য নয়')+'\n'
+      +'সময়: '+now_()+'\n\n'
       +'নিরাপত্তার কারণে কোনো পাসওয়ার্ড ইমেইলে পাঠানো হয়নি.';
     MailApp.sendEmail(recipient,'⚠️ Security Alert | Jannatul Baqi Digital Platform',body);
     return true;
@@ -540,7 +540,8 @@ function listSignalRecords(token,signal,className) {
   return {ok:true,signal,className,rows:rows.slice(0,5000),count:rows.length};
 }
 
-function saveRecord(token,sheetName,data) {\n  if(isProtectedMasterSheet_(sheetName)&&!isSuperAdmin_(token)){notifySuperAdminSecurity_(token,'Master Sheet পরিবর্তনের চেষ্টা',String(sheetName||''),'অননুমোদিত saveRecord অনুরোধ ব্লক করা হয়েছে।');throw new Error('Master Sheet পরিবর্তনের অনুমতি শুধু Super Admin-এর আছে।');}
+function saveRecord(token,sheetName,data) {
+  if(isProtectedMasterSheet_(sheetName)&&!isSuperAdmin_(token)){notifySuperAdminSecurity_(token,'Master Sheet পরিবর্তনের চেষ্টা',String(sheetName||''),'অননুমোদিত saveRecord অনুরোধ ব্লক করা হয়েছে।');throw new Error('Master Sheet পরিবর্তনের অনুমতি শুধু Super Admin-এর আছে।');}
   auth_(token);
   const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
   if(!HEADERS[sheetName]) throw new Error('Invalid sheet');
@@ -568,7 +569,7 @@ function saveRecord(token,sheetName,data) {\n  if(isProtectedMasterSheet_(sheetN
         const exists=av.slice(1).some(r=>String(r[sidCol]||'').trim()===studentId);
         if(!exists){
           const adm=findBy_(SHEETS.ADMINS,'Username',s.username)||{};
-          const role=String(adm.Role||'').toUpperCase().replace(/\\s+/g,'_');
+          const role=String(adm.Role||'').toUpperCase().replace(/\s+/g,'_');
           const status=(role==='SUPER_ADMIN'||role==='SUPERADMIN')?'ACTIVE':'PENDING';
           const payload={sourceAccount:s.username||'',accountType:s.accountType||'',nameBN:data.NameBN||'',mobile:data.Mobile||'',createdAt:now_()};
           const ar=ah.map(h=>data[h]??'');
@@ -583,7 +584,8 @@ function saveRecord(token,sheetName,data) {\n  if(isProtectedMasterSheet_(sheetN
   return {ok:true,row:objectFrom_(headers,row)};
 }
 
-function updateRecord(token,sheetName,serial,data) {\n  if(isProtectedMasterSheet_(sheetName)&&!isSuperAdmin_(token)){notifySuperAdminSecurity_(token,'Master Sheet পরিবর্তনের চেষ্টা',String(sheetName||''),'অননুমোদিত updateRecord অনুরোধ ব্লক করা হয়েছে।');throw new Error('Master Sheet পরিবর্তনের অনুমতি শুধু Super Admin-এর আছে।');}
+function updateRecord(token,sheetName,serial,data) {
+  if(isProtectedMasterSheet_(sheetName)&&!isSuperAdmin_(token)){notifySuperAdminSecurity_(token,'Master Sheet পরিবর্তনের চেষ্টা',String(sheetName||''),'অননুমোদিত updateRecord অনুরোধ ব্লক করা হয়েছে।');throw new Error('Master Sheet পরিবর্তনের অনুমতি শুধু Super Admin-এর আছে।');}
   auth_(token); const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
   const values=sh.getDataRange().getValues();
@@ -596,7 +598,8 @@ function updateRecord(token,sheetName,serial,data) {\n  if(isProtectedMasterShee
   return {ok:true};
 }
 
-function deleteRecord(token,sheetName,serial) {\n  if(isProtectedMasterSheet_(sheetName)&&!isSuperAdmin_(token)){notifySuperAdminSecurity_(token,'Master Sheet পরিবর্তনের চেষ্টা',String(sheetName||''),'অননুমোদিত deleteRecord অনুরোধ ব্লক করা হয়েছে।');throw new Error('Master Sheet পরিবর্তনের অনুমতি শুধু Super Admin-এর আছে।');}
+function deleteRecord(token,sheetName,serial) {
+  if(isProtectedMasterSheet_(sheetName)&&!isSuperAdmin_(token)){notifySuperAdminSecurity_(token,'Master Sheet পরিবর্তনের চেষ্টা',String(sheetName||''),'অননুমোদিত deleteRecord অনুরোধ ব্লক করা হয়েছে।');throw new Error('Master Sheet পরিবর্তনের অনুমতি শুধু Super Admin-এর আছে।');}
   auth_(token); const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
   const vals=sh.getRange(2,1,Math.max(1,sh.getLastRow()-1),1).getValues();
