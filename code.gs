@@ -223,7 +223,7 @@ function registerMadrasa(data){
   const hdr2=sh.getRange(1,1,1,Math.max(sh.getLastColumn(),1)).getValues()[0];
   if(hdr2.indexOf('Photo')<0) sh.getRange(1,hdr2.length+1).setValue('Photo');
   const deps=Array.isArray(data.departments)?data.departments.filter(Boolean).join(', '):String(data.departments||'');
-  const row=[n,id,'',name,year,'','',address,mobile,0,0,'','PENDING',now_(),username,password,hash_(password),deps,String(data.otherDepartment||''),String(data.ownership||''),'','', '',email,photo];
+  const row=[n,id,'',name,year,'','',address,mobile,0,0,'','PENDING',now_(),username,'',hash_(password),deps,String(data.otherDepartment||''),String(data.ownership||''),'','', '',email,photo];
   sh.getRange(sh.getLastRow()+1,1,1,row.length).setValues([row]);
   log_('PUBLIC','register','MADRASA',id);
   return {ok:true,madrasaId:id,message:'নতুন মাদ্রাসা নিবন্ধন হয়েছে। প্রশাসন/সুপার অ্যাডমিন অনুমোদনের পর Username + Password দিয়ে OTP ছাড়া লগইন করতে পারবেন।'};
@@ -617,7 +617,7 @@ function createAdmin(token,data) {
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ADMINS);
   const n=nextSerial_(sh);
   const id='M-1/'+String(n).padStart(4,'0');
-  sh.appendRow([n,id,data.NameBN||'',data.NameAR||'',data.NameEN||'',data.Username,hash_(data.Password),data.Email||'',data.Mobile,data.WhatsApp||'',data.Address,data.Photo,data.BirthReg||'',data.NID||'',data.ApprovalID||'',data.Role||'ADMIN','ACTIVE',now_(),data.Password,'','','']);
+  sh.appendRow([n,id,data.NameBN||'',data.NameAR||'',data.NameEN||'',data.Username,hash_(data.Password),data.Email||'',data.Mobile,data.WhatsApp||'',data.Address,data.Photo,data.BirthReg||'',data.NID||'',data.ApprovalID||'',data.Role||'ADMIN','ACTIVE',now_(),'','','','']);
   log_(sessionUser_(token),'create','ADMIN',id);
   return {ok:true,adminId:id};
 }
@@ -814,7 +814,7 @@ function getLocations() {
 }
 
 function getRunningNews_(){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.CONFIG); if(!sh||sh.getLastRow()<2)return 'জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম'; const v=sh.getDataRange().getValues(); for(let i=1;i<v.length;i++){ if(String(v[i][0])==='RUNNING_NEWS') return String(v[i][1]||''); } return 'জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম'; }
-function setRunningNews(token,text){ if(!isSuperAdmin_(token)) return {ok:false,message:'শুধু Super Admin চলমান নিউজ পরিবর্তন করতে পারবেন।'}; text=String(text||'').trim(); if(!text)return {ok:false,message:'নিউজ লিখুন।'}; const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.CONFIG), v=sh.getDataRange().getValues(), idx=v.findIndex((r,i)=>i>0&&String(r[0])==='RUNNING_NEWS'); if(idx<1) sh.appendRow(['RUNNING_NEWS',text,now_()]); else {sh.getRange(idx+1,2).setValue(text);sh.getRange(idx+1,3).setValue(now_());} log_(sessionUser_(token),'update','RUNNING_NEWS',text); return {ok:true,message:'চলমান নিউজ আপডেট হয়েছে।'}; }
+function setRunningNews(token,text){ if(!isSuperAdmin_(token)){notifySuperAdminSecurity_(token,'মূল CONFIG/নিউজ পরিবর্তনের চেষ্টা','CONFIG:RUNNING_NEWS','Super Admin ছাড়া পরিবর্তন নিষিদ্ধ।');return {ok:false,message:'শুধু Super Admin চলমান নিউজ পরিবর্তন করতে পারবেন।'};} text=String(text||'').trim(); if(!text)return {ok:false,message:'নিউজ লিখুন।'}; const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.CONFIG), v=sh.getDataRange().getValues(), idx=v.findIndex((r,i)=>i>0&&String(r[0])==='RUNNING_NEWS'); if(idx<1) sh.appendRow(['RUNNING_NEWS',text,now_()]); else {sh.getRange(idx+1,2).setValue(text);sh.getRange(idx+1,3).setValue(now_());} log_(sessionUser_(token),'update','RUNNING_NEWS',text); return {ok:true,message:'চলমান নিউজ আপডেট হয়েছে।'}; }
 function getDirectSheetUrl(token) {
   try {
     if(!isSuperAdmin_(token)){notifySuperAdminSecurity_(token,'মূল Google Sheet-এর লিংক নেওয়ার চেষ্টা','MASTER_SPREADSHEET','শুধু Super Admin-কে শিটের লিংক দেওয়া হবে।');return {ok:false,message:'মূল Google Sheet-এর লিংক শুধু Super Admin দেখতে পারবেন।'};}
