@@ -392,7 +392,7 @@ function getModuleList(token,key){
 
 function isSuperAdmin_(token){
   const s=auth_(token), a=findBy_(SHEETS.ADMINS,'Username',s.username)||{};
-  const role=String(a.Role||'').toUpperCase().replace(/\\s+/g,'_');
+  const role=String(a.Role||'').toUpperCase().replace(/\s+/g,'_');
   return role==='SUPER_ADMIN'||role==='SUPERADMIN'||String(s.username||'').toLowerCase()==='superadmin';
 }
 function requireFeature_(token,feature){
@@ -534,7 +534,7 @@ function getActiveLoginControlData(token){
   });
   const safe=function(sheet,type,idKey){
     return listRows_(sheet,token,500).filter(function(r){
-      const u=String(r.Username||'').trim().toLowerCase(),role=String(r.Role||'').trim().toUpperCase().replace(/\\s+/g,'_');
+      const u=String(r.Username||'').trim().toLowerCase(),role=String(r.Role||'').trim().toUpperCase().replace(/\s+/g,'_');
       return !(type==='admin'&&(u==='superadmin'||role==='SUPER_ADMIN'||role==='SUPERADMIN'));
     }).map(function(r){
       const username=String(r.Username||''),times=sessionMap[type+':'+username]||[];
@@ -550,7 +550,7 @@ function forceLogoutAccount(token,type,username){
     if((type!=='admin'&&type!=='madrasa')||!username)return {ok:false,message:'Account তথ্য সঠিক নয়।'};
     const account=type==='admin'?findBy_(SHEETS.ADMINS,'Username',username):findBy_(SHEETS.MADRASAS,'Username',username);
     if(!account)return {ok:false,message:'Account পাওয়া যায়নি।'};
-    const role=String(account.Role||'').toUpperCase().replace(/\\s+/g,'_');
+    const role=String(account.Role||'').toUpperCase().replace(/\s+/g,'_');
     if(type==='admin'&&(username.toLowerCase()==='superadmin'||role==='SUPER_ADMIN'||role==='SUPERADMIN')){
       log_(sessionUser_(token),'force-logout-blocked','admin','Primary Super Admin protection');
       return {ok:false,message:'নিরাপত্তার জন্য মূল Super Admin-কে Force Logout করা যাবে না।'};
@@ -1920,7 +1920,7 @@ function auth_(token){
   if(!account){cache.remove('SESSION:'+token);removeActiveSession_(token);throw new Error('SESSION_EXPIRED');}
   const role=String(account.Role||'').toUpperCase().replace(/\s+/g,'_');
   const root=type!=='madrasa'&&(role==='SUPER_ADMIN'||role==='SUPERADMIN'||username.toLowerCase()==='superadmin');
-  if(!root&&String(account.Status||'').toUpperCase()!=='ACTIVE'){cache.remove('SESSION:'+token);throw new Error('SESSION_EXPIRED');}
+  if(!root&&String(account.Status||'').toUpperCase()!=='ACTIVE'){cache.remove('SESSION:'+token);removeActiveSession_(token);throw new Error('SESSION_EXPIRED');}
   return s;
 }
 function getUserSessionVersion_(type,username){return Number(PropertiesService.getScriptProperties().getProperty('SESSION_VERSION:'+String(type||'admin')+':'+String(username||''))||0);}
@@ -1980,7 +1980,7 @@ function installSuperAdminSecurityTrigger(){
   let rootRow=0;
   for(let i=1;i<vals.length;i++){
     const username=ui>=0?String(vals[i][ui]||'').trim().toLowerCase():'';
-    const role=ri>=0?String(vals[i][ri]||'').trim().toUpperCase().replace(/\\s+/g,'_'):'';
+    const role=ri>=0?String(vals[i][ri]||'').trim().toUpperCase().replace(/\s+/g,'_'):'';
     if(username==='superadmin'||role==='SUPER_ADMIN'||role==='SUPERADMIN'){rootRow=i+1;break;}
   }
   if(!rootRow)throw new Error('মূল Super Admin row পাওয়া যায়নি।');
