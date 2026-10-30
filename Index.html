@@ -1962,7 +1962,7 @@ window.forceLogoutAccountUi=async function(btn,type,id,username){
 window.forceLogoutRootAccountUi=async function(){
   if(!confirm('মূল Super Admin Username-এর সব ডিভাইস/ব্রাউজারের সেশন বাতিল করবেন? এতে আপনার বর্তমান লগইনও বন্ধ হবে।'))return;
   try{
-    var r=await call('forceLogoutAccount',token,'admin','superadmin');
+    var r=await call('forceLogoutAccount',token,'admin','__ROOT_SUPER_ADMIN__');
     toast((r&&r.message)||'সেশন বাতিলের অনুরোধ সম্পন্ন হয়েছে।');
     if(r&&r.ok)setTimeout(function(){window.location.reload()},900);
   }catch(e){toast('জোরপূর্বক লগআউট ব্যর্থ: '+(e&&e.message?e.message:e))}
