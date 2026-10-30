@@ -1222,6 +1222,11 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 #liveSummary .live-stat:nth-child(3) b{color:#805000!important}
 #liveSummary .live-stat:nth-child(4) b{color:#54217a!important}
 </style>
+<style id="dashboard-summary-and-documentary-lift-20261031">
+/* আয়-ব্যয়-ছাত্রছাত্রীর সারি ও পরিচিতি স্লাইড একসাথে ২ ইঞ্চি উপরে */
+#summary.dashboard-summary-inside{margin-top:-192px!important}
+#institutionDocumentary2026{margin-top:8px!important}
+</style>
 <style id="dashboard-media-boxes-and-compact-documentary-20261018">
 /* মিডিয়া প্লেয়ারের কন্ট্রোলের ঠিক নিচে সব ড্যাশবোর্ড বক্স; এরপর পরিচিতি স্লাইড */
 #summary.dashboard-summary-inside{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:7px!important;width:100%!important;margin:0 0 10px!important;transform:none!important;}
