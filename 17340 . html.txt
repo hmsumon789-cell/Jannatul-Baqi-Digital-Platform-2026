@@ -1311,6 +1311,10 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 /* শুধু আয়-ব্যয়-ছাত্রছাত্রী-মোট পরীক্ষার্থী সারি ২ ইঞ্চি উপরে; পরিচিতি স্লাইড অপরিবর্তিত */
 #summary.dashboard-summary-inside{position:relative!important;top:-192px!important}
 </style>
+<style id="institution-documentary-only-lift-20261031">
+/* শুধু পরিচিতি স্লাইডের সম্পূর্ণ বক্সটি ১৫০px উপরে; অন্য সারি অপরিবর্তিত */
+#institutionDocumentary2026{position:relative!important;top:-150px!important}
+</style>
 </head>
 <body>
 <div id="welcomeScreen">
