@@ -264,6 +264,7 @@ function verifyLoginOtp(token,username,code) {
     if (hash_(String(code).replace(/\D/g,'')) !== d.otpHash) return {ok:false,message:'OTP সঠিক নয়।'};
     const session = Utilities.getUuid();
     CacheService.getScriptCache().put('SESSION:'+session, JSON.stringify({username,accountType:'admin',at:Date.now(),sessionVersion:getUserSessionVersion_('admin',username)}), 21600);
+    registerActiveSession_(session,username,'admin');
     CacheService.getScriptCache().remove('OTP:'+token);
     log_(username,'login','SESSION','Login successful');
     return {ok:true,token:session,user:getAdminSafe_(username)};
@@ -345,6 +346,8 @@ function createDirectSession_(username,type){
   if(!root&&String(account.Status||'').toUpperCase()!=='ACTIVE')return {ok:false,message:'এই account সক্রিয় নয়। Super Admin অনুমোদন প্রয়োজন।'};
   const session=Utilities.getUuid();
   CacheService.getScriptCache().put('SESSION:'+session,JSON.stringify({username:String(username),accountType:type,at:Date.now(),sessionVersion:getUserSessionVersion_(type,username)}),21600);
+  registerActiveSession_(session,username,type);
+  log_(username,'login','SESSION',type+' login successful');
   const user=type==='admin'?getAdminSafe_(username):findBy_(SHEETS.MADRASAS,'Username',username)||{};
   delete user.Password;delete user.PasswordHash;delete user.password;delete user.passwordHash;
   user.accountType=type;
@@ -389,7 +392,8 @@ function getModuleList(token,key){
 
 function isSuperAdmin_(token){
   const s=auth_(token), a=findBy_(SHEETS.ADMINS,'Username',s.username)||{};
-  return String(a.Role||'').toUpperCase()==='SUPER_ADMIN' || String(a.Role||'').toUpperCase()==='SUPERADMIN';
+  const role=String(a.Role||'').toUpperCase().replace(/\\s+/g,'_');
+  return role==='SUPER_ADMIN'||role==='SUPERADMIN'||String(s.username||'').toLowerCase()==='superadmin';
 }
 function requireFeature_(token,feature){
   const s=auth_(token); const a=findBy_(SHEETS.ADMINS,'Username',s.username)||{};
@@ -514,6 +518,48 @@ function getAccountControlData(token){
   // Never send stored password fields to the browser.
   const safeAccounts=function(rows){return rows.filter(function(r){const u=String(r.Username||'').trim().toLowerCase(),role=String(r.Role||'').trim().toUpperCase().replace(/\s+/g,'_');return !(u==='superadmin'||role==='SUPER_ADMIN'||role==='SUPERADMIN');}).map(function(r){delete r.Password;delete r.PasswordHash;delete r.password;delete r.passwordHash;return r;});};
   return {ok:true,admins:safeAccounts(listRows_(SHEETS.ADMINS,token,500)),madrasas:safeAccounts(listRows_(SHEETS.MADRASAS,token,500)),admissions:listRows_(SHEETS.ADMISSIONS,token,500).filter(function(r){return ['PENDING','SUBMITTED','SUBMITTED_TO_SUPER_ADMIN','PENDING_PAYMENT'].indexOf(String(r.Status||r.ApprovalStatus||'').trim().toUpperCase())>=0;}),modules:getModules_()};
+}
+function getActiveLoginControlData(token){
+  if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin সক্রিয় Login নিয়ন্ত্রণ করতে পারবেন।'};
+  const props=PropertiesService.getScriptProperties(),all=props.getProperties(),now=Date.now(),sessionMap={};
+  Object.keys(all).forEach(function(k){
+    if(k.indexOf('ACTIVE_SESSION:')!==0)return;
+    try{
+      const s=JSON.parse(all[k]),age=now-Number(s.createdAt||0);
+      if(age>21600000||!s.username){props.deleteProperty(k);return;}
+      const key=String(s.accountType||'admin')+':'+String(s.username||'');
+      if(!sessionMap[key])sessionMap[key]=[];
+      sessionMap[key].push(Number(s.createdAt||0));
+    }catch(e){props.deleteProperty(k);}
+  });
+  const safe=function(sheet,type,idKey){
+    return listRows_(sheet,token,500).filter(function(r){
+      const u=String(r.Username||'').trim().toLowerCase(),role=String(r.Role||'').trim().toUpperCase().replace(/\\s+/g,'_');
+      return !(type==='admin'&&(u==='superadmin'||role==='SUPER_ADMIN'||role==='SUPERADMIN'));
+    }).map(function(r){
+      const username=String(r.Username||''),times=sessionMap[type+':'+username]||[];
+      return {type:type,id:String(r[idKey]||''),name:String(r.NameBN||r.Name||r.InstitutionName||username),username:username,status:String(r.Status||'UNKNOWN'),activeSessions:times.length,lastLogin:times.length?Math.max.apply(null,times):0};
+    });
+  };
+  return {ok:true,accounts:safe(SHEETS.ADMINS,'admin','AdminID').concat(safe(SHEETS.MADRASAS,'madrasa','MadrasaID'))};
+}
+function forceLogoutAccount(token,type,username){
+  try{
+    if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin Force Logout করতে পারবেন।'};
+    type=String(type||'').toLowerCase();username=String(username||'').trim();
+    if((type!=='admin'&&type!=='madrasa')||!username)return {ok:false,message:'Account তথ্য সঠিক নয়।'};
+    const account=type==='admin'?findBy_(SHEETS.ADMINS,'Username',username):findBy_(SHEETS.MADRASAS,'Username',username);
+    if(!account)return {ok:false,message:'Account পাওয়া যায়নি।'};
+    const role=String(account.Role||'').toUpperCase().replace(/\\s+/g,'_');
+    if(type==='admin'&&(username.toLowerCase()==='superadmin'||role==='SUPER_ADMIN'||role==='SUPERADMIN')){
+      log_(sessionUser_(token),'force-logout-blocked','admin','Primary Super Admin protection');
+      return {ok:false,message:'নিরাপত্তার জন্য মূল Super Admin-কে Force Logout করা যাবে না।'};
+    }
+    invalidateUserSessions_(type,username);
+    const actor=sessionUser_(token);
+    log_(actor,'force-logout',type,username+' | all sessions revoked');
+    return {ok:true,message:username+' Account-এর সব Login Session Force Logout করা হয়েছে।'};
+  }catch(e){return {ok:false,message:'Force Logout ব্যর্থ: '+String(e&&e.message||e)};}
 }
 function approveAccount(token,type,id,status,permissions){
   try{
@@ -640,7 +686,11 @@ function resetAccountPassword(token,type,id,newPassword){
 }
 
 function logout(token) {
-  if(token) CacheService.getScriptCache().remove('SESSION:'+token);
+  if(token){
+    const cache=CacheService.getScriptCache(),raw=cache.get('SESSION:'+token);
+    if(raw){try{const s=JSON.parse(raw);log_(s.username||'','logout',s.accountType||'admin','Logout successful');}catch(e){}}
+    cache.remove('SESSION:'+token);removeActiveSession_(token);
+  }
   return {ok:true};
 }
 
@@ -1863,18 +1913,33 @@ function attendanceToday_(){ const sh=SpreadsheetApp.getActiveSpreadsheet().getS
 function auth_(token){
   if(!token)throw new Error('SESSION_EXPIRED');
   const cache=CacheService.getScriptCache(),raw=cache.get('SESSION:'+token);
-  if(!raw)throw new Error('SESSION_EXPIRED');
+  if(!raw){removeActiveSession_(token);throw new Error('SESSION_EXPIRED');}
   const s=JSON.parse(raw),type=String(s.accountType||'admin'),username=String(s.username||'');
-  if(Number(s.sessionVersion||0)!==getUserSessionVersion_(type,username)){cache.remove('SESSION:'+token);throw new Error('SESSION_EXPIRED');}
+  if(Number(s.sessionVersion||0)!==getUserSessionVersion_(type,username)){cache.remove('SESSION:'+token);removeActiveSession_(token);throw new Error('SESSION_EXPIRED');}
   const account=type==='madrasa'?findBy_(SHEETS.MADRASAS,'Username',username):findBy_(SHEETS.ADMINS,'Username',username);
-  if(!account){cache.remove('SESSION:'+token);throw new Error('SESSION_EXPIRED');}
+  if(!account){cache.remove('SESSION:'+token);removeActiveSession_(token);throw new Error('SESSION_EXPIRED');}
   const role=String(account.Role||'').toUpperCase().replace(/\s+/g,'_');
   const root=type!=='madrasa'&&(role==='SUPER_ADMIN'||role==='SUPERADMIN'||username.toLowerCase()==='superadmin');
   if(!root&&String(account.Status||'').toUpperCase()!=='ACTIVE'){cache.remove('SESSION:'+token);throw new Error('SESSION_EXPIRED');}
   return s;
 }
 function getUserSessionVersion_(type,username){return Number(PropertiesService.getScriptProperties().getProperty('SESSION_VERSION:'+String(type||'admin')+':'+String(username||''))||0);}
-function invalidateUserSessions_(type,username){if(!username)return;const props=PropertiesService.getScriptProperties(),key='SESSION_VERSION:'+String(type||'admin')+':'+String(username);props.setProperty(key,String(getUserSessionVersion_(type,username)+1));}
+function registerActiveSession_(token,username,type){
+  const props=PropertiesService.getScriptProperties();
+  props.setProperty('ACTIVE_SESSION:'+String(token),JSON.stringify({username:String(username||''),accountType:String(type||'admin'),createdAt:Date.now()}));
+}
+function removeActiveSession_(token){if(token)PropertiesService.getScriptProperties().deleteProperty('ACTIVE_SESSION:'+String(token));}
+function invalidateUserSessions_(type,username){
+  if(!username)return;
+  type=String(type||'admin');username=String(username);
+  const props=PropertiesService.getScriptProperties(),key='SESSION_VERSION:'+type+':'+username;
+  props.setProperty(key,String(getUserSessionVersion_(type,username)+1));
+  const all=props.getProperties();
+  Object.keys(all).forEach(function(k){
+    if(k.indexOf('ACTIVE_SESSION:')!==0)return;
+    try{const s=JSON.parse(all[k]);if(String(s.accountType||'admin')===type&&String(s.username||'')===username)props.deleteProperty(k);}catch(e){props.deleteProperty(k);}
+  });
+}
 function sessionUser_(token){ return auth_(token).username; }
 function getAdminSafe_(u){ const x=findBy_(SHEETS.ADMINS,'Username',u)||{}; delete x.Password;delete x.PasswordHash;delete x.password;delete x.passwordHash;return x; }
 function log_(u,a,t,d){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.AUDIT); if(sh)sh.appendRow([nextSerial_(sh),now_(),u,a,t,d]); }
