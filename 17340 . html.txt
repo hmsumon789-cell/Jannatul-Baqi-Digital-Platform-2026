@@ -1319,6 +1319,10 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 /* পরিচিতি স্লাইডের নিচের লাল বর্ডারযুক্ত সামারি বক্সটি শুধু ২ ইঞ্চি উপরে */
 #dashboardCharts{position:relative!important;top:-192px!important}
 </style>
+<style id="contact-footer-only-lift-20261031">
+/* ড্যাশবোর্ডের একদম নিচের যোগাযোগ বক্সটি শুধু ২ ইঞ্চি উপরে */
+#contactFooter{position:relative!important;top:-192px!important}
+</style>
 </head>
 <body>
 <div id="welcomeScreen">
