@@ -292,7 +292,7 @@ function registerNewAdmin(data){
   if(!name||!mobile||!username||!password||!address||!photo) return {ok:false,message:'নাম, ঠিকানা, ফটো, মোবাইল, Username ও Password বাধ্যতামূলক।'};
   if(findBy_(SHEETS.ADMINS,'Username',username)) return {ok:false,message:'এই Username আগে থেকেই আছে।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ADMINS), n=nextSerial_(sh), id='M-1/'+String(n).padStart(4,'0');
-  sh.appendRow([n,id,name,'','',username,hash_(password),'',mobile,'',address,photo,'','',id,'ADMIN','PENDING',now_(),password,'','','']);
+  sh.appendRow([n,id,name,'','',username,hash_(password),'',mobile,'',address,photo,'','',id,'ADMIN','PENDING',now_(),'','','','']);
   log_('PUBLIC','register','ADMIN',id);
   return {ok:true,adminId:id,message:'নতুন অ্যাডমিন নিবন্ধন হয়েছে। অনুমোদনের পর Username + Password দিয়ে OTP ছাড়া লগইন করতে পারবেন।'};
 }
@@ -311,7 +311,7 @@ function registerMadrasa(data){
   const deps=Array.isArray(data.departments)?data.departments.filter(Boolean).join(', '):String(data.departments||'');
   /* Add review columns only after the legacy Email/Photo columns exist; write by header name to avoid column shifts. */
   ensureAccountReviewColumns_();
-  const rowData={Serial:n,MadrasaID:id,GenderType:'',Name:name,FoundedYear:year,Founder:'',Muhtamim:'',Address:address,Mobile:mobile,StaffCount:0,StudentCount:0,Level:'',Status:'PENDING',CreatedAt:now_(),Username:username,Password:password,PasswordHash:hash_(password),ActiveDepartments:deps,OtherDepartment:String(data.otherDepartment||''),Ownership:String(data.ownership||''),ApprovedBy:'',ApprovedAt:'',Permissions:'',Email:email,Photo:photo,ReviewStatus:'',ReviewedBy:'',ReviewedAt:'',ReviewNote:''};
+  const rowData={Serial:n,MadrasaID:id,GenderType:'',Name:name,FoundedYear:year,Founder:'',Muhtamim:'',Address:address,Mobile:mobile,StaffCount:0,StudentCount:0,Level:'',Status:'PENDING',CreatedAt:now_(),Username:username,Password:'',PasswordHash:hash_(password),ActiveDepartments:deps,OtherDepartment:String(data.otherDepartment||''),Ownership:String(data.ownership||''),ApprovedBy:'',ApprovedAt:'',Permissions:'',Email:email,Photo:photo,ReviewStatus:'',ReviewedBy:'',ReviewedAt:'',ReviewNote:''};
   const finalHeaders=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(function(x){return String(x||'').trim()});
   const row=finalHeaders.map(function(k){return rowData[k]!==undefined?rowData[k]:''});
   sh.getRange(sh.getLastRow()+1,1,1,row.length).setValues([row]);
@@ -626,7 +626,7 @@ function resetAccountPassword(token,type,id,newPassword){
       return {ok:false,message:'নিরাপত্তার জন্য মূল Super Admin-এর Password এই তালিকা থেকে পরিবর্তন করা যাবে না।'};
     }
   }
-  const hi=h.indexOf('PasswordHash'), pi=h.indexOf('Password'); if(hi>=0)sh.getRange(idx+1,hi+1).setValue(hash_(newPassword)); if(pi>=0)sh.getRange(idx+1,pi+1).setValue(newPassword);
+  const hi=h.indexOf('PasswordHash'), pi=h.indexOf('Password'); if(hi>=0)sh.getRange(idx+1,hi+1).setValue(hash_(newPassword)); if(pi>=0)sh.getRange(idx+1,pi+1).clearContent();
   SpreadsheetApp.flush(); log_(sessionUser_(token),'password_reset',type,id); return {ok:true,message:'Password reset হয়েছে।'};
 }
 
