@@ -325,8 +325,8 @@ function forceLogoutAccount(token,type,id){
     const row=findBy_(sheet,key,id);
     if(!row||!row.Username)return {ok:false,message:'Account পাওয়া যায়নি।'};
     const self=type==='admin'&&String(row.Username).trim().toLowerCase()===String(sessionUser_(token)).trim().toLowerCase();
-    bumpSessionVersion_(type,row.Username);
     log_(sessionUser_(token),'force_logout',type,String(id)+' / '+String(row.Username));
+    bumpSessionVersion_(type,row.Username);
     return {ok:true,selfInvalidated:self,message:self?'মূল Super Admin-এর সব সেশন বাতিল হয়েছে। বর্তমান সেশনও বন্ধ হবে।':'এই Account-এর সব সক্রিয় সেশন বাতিল করা হয়েছে।',username:String(row.Username)};
   }catch(e){return {ok:false,message:'Force logout সার্ভার ত্রুটি: '+(e&&e.message?e.message:e)};}
 }
