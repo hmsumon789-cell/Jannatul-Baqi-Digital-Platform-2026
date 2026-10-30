@@ -484,7 +484,8 @@ function forceLogoutAccount(token,type,id){
     const target=String(id||'').trim().toLowerCase();
     let rowIndex=-1;
     for(let i=1;i<values.length;i++){
-      if((idCol>=0&&String(values[i][idCol]||'').trim().toLowerCase()===target)||String(values[i][userCol]||'').trim().toLowerCase()===target){rowIndex=i;break;}
+      const rootTarget=type==='admin'&&target==='__root_super_admin__'&&isSuperAdminAccount_(objectFrom_(headers,values[i]));
+      if(rootTarget||(idCol>=0&&String(values[i][idCol]||'').trim().toLowerCase()===target)||String(values[i][userCol]||'').trim().toLowerCase()===target){rowIndex=i;break;}
     }
     if(rowIndex<1)return {ok:false,message:'নির্বাচিত অ্যাকাউন্ট পাওয়া যায়নি।'};
     const username=String(values[rowIndex][userCol]||'').trim();
