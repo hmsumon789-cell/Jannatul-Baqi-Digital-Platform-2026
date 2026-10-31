@@ -1695,20 +1695,32 @@ function watchRequestedDashboardTiles2026(){
   // Keep compatibility with the existing dashboard initialization without deleting tiles.
 }
 function renderStats(x){
-  const arr=[
-    ['মোট শিক্ষক/শিক্ষিকা',x.teachers],
-    ['আয়',x.income],
-    ['ব্যয়',x.expense],
-    ['মোট ছাত্র-ছাত্রী সংখ্যা',x.students],
-    ['মোট পরীক্ষার্থী সংখ্যা',x.examinees??x.examCandidates]
-  ];
   const sum=$('summary');
   if(sum){
-    sum.innerHTML=arr.map(a=>'<div class="stat"><b>'+((a[1]??0))+'</b>'+a[0]+'</div>').join('');
+    sum.innerHTML=
+      '<div class="stat teacher-live-stat"><b>'+((x.teachers??0))+'</b>মোট শিক্ষক/শিক্ষিকা</div>'+
+      '<div class="stat live-count-stat"><b id="dashboardRegisteredAccounts2026">—</b>নিবন্ধিত মাদ্রাসা + অ্যাডমিন সংখ্যা</div>'+
+      '<div class="stat live-count-stat"><b id="dashboardOnlineAccounts2026">—</b>মোট অনলাইন একাউন্ট</div>'+
+      '<div class="stat live-count-stat"><b id="dashboardActiveDevices2026">—</b>মূল ওয়েবসাইটে সক্রিয় ডিভাইস</div>'+
+      '<div class="stat"><b>'+((x.income??0))+'</b>আয়</div>'+
+      '<div class="stat"><b>'+((x.expense??0))+'</b>ব্যয়</div>'+
+      '<div class="stat"><b>'+((x.students??0))+'</b>মোট ছাত্র-ছাত্রী সংখ্যা</div>'+
+      '<div class="stat"><b>'+((x.examinees??x.examCandidates??0))+'</b>মোট পরীক্ষার্থী সংখ্যা</div>';
     sum.classList.add('dashboard-slider-summary');
+    refreshDashboardLiveCounts2026();
   }
   renderDashboardCharts(x);
   loadInstitutionDocumentary2026();
+}
+function refreshDashboardLiveCounts2026(){
+  if(!token)return;
+  call('getDashboardLiveCounts',token).then(function(r){
+    if(!r||!r.ok)return;
+    var a=$('dashboardRegisteredAccounts2026'),b=$('dashboardOnlineAccounts2026'),d=$('dashboardActiveDevices2026');
+    if(a)a.textContent=Number(r.registeredAccounts||0).toLocaleString('bn-BD');
+    if(b)b.textContent=Number(r.onlineAccounts||0).toLocaleString('bn-BD');
+    if(d)d.textContent=Number(r.activeDevices||0).toLocaleString('bn-BD');
+  }).catch(function(e){console.warn('Dashboard live counts:',e);});
 }
 function renderDashboardCharts(x){
   const income=Number(x.income)||0, expense=Number(x.expense)||0, cash=Number(x.cash)||0, due=Number(x.due)||0;
@@ -18277,4 +18289,13 @@ body.gold #toast.toast{background:#fff5c7!important;color:#4b3200!important;bord
   top:0!important;
   padding-top:0!important;
 }
+</style>
+
+<style id="dashboard-three-live-boxes-20261031">
+/* শিক্ষক বক্সের ডান পাশে তিনটি লাইভ কাউন্ট; নিচে আগের চারটি সারাংশ */
+.dashboard-slider-summary{grid-template-columns:repeat(4,minmax(0,1fr))!important;}
+.dashboard-slider-summary .stat:first-child{grid-column:auto!important;}
+.dashboard-slider-summary .stat{min-width:0!important;overflow-wrap:anywhere!important;}
+.dashboard-slider-summary .live-count-stat{border:1px solid var(--border)!important;border-radius:10px!important;background:linear-gradient(145deg,var(--panel),#ffffff12)!important;}
+@media(max-width:700px){.dashboard-slider-summary{grid-template-columns:repeat(2,minmax(0,1fr))!important;}}
 </style>
