@@ -730,6 +730,48 @@ function getStats(token) {
   const executives=countData_(SHEETS.EXECUTIVES);
   const female=countMadrasa_('মহিলা'), male=countMadrasa_('পুরুষ');
   return {income,expense,cash:income-expense,due:0,students,teachers,executives,femaleMadrasa:female,maleMadrasa:male,attendanceToday:attendanceToday_()};
+}function getStats(token) {
+  auth_(token);
+  const income=sumCol_(SHEETS.PAYMENTS,'Amount');
+  const expense=sumCol_(SHEETS.EXPENSES,'Amount');
+  const students=countData_(SHEETS.STUDENTS);
+  const teachers=countData_(SHEETS.TEACHERS);
+  const executives=countData_(SHEETS.EXECUTIVES);
+  const female=countMadrasa_('মহিলা'), male=countMadrasa_('পুরুষ');
+  return {income,expense,cash:income-expense,due:0,students,teachers,executives,femaleMadrasa:female,maleMadrasa:male,attendanceToday:attendanceToday_()};
+}
+
+/* ===== DASHBOARD LIVE ACCOUNT / DEVICE COUNTS — 2026-10-31 ===== */
+function getDashboardLiveCounts(token) {
+  auth_(token);
+  const admins = listRows_(SHEETS.ADMINS, token, 5000);
+  const madrasas = listRows_(SHEETS.MADRASAS, token, 5000);
+  const registeredAdmins = admins.filter(function(r){return String(r.AdminID||r.Username||'').trim();}).length;
+  const registeredMadrasas = madrasas.filter(function(r){return String(r.MadrasaID||r.Username||'').trim();}).length;
+  const props = PropertiesService.getScriptProperties();
+  const all = props.getProperties();
+  const now = Date.now();
+  const online = {};
+  let activeDevices = 0;
+  Object.keys(all).forEach(function(key){
+    if(key.indexOf('ACTIVE_SESSION:') !== 0) return;
+    try {
+      const rec = JSON.parse(all[key]);
+      const age = now - Number(rec.createdAt||0);
+      const sessionToken = key.substring('ACTIVE_SESSION:'.length);
+      const cached = CacheService.getScriptCache().get('SESSION:'+sessionToken);
+      if(age > 21600000 || !rec.username || !cached) {
+        props.deleteProperty(key);
+        return;
+      }
+      const accountKey = String(rec.accountType||'admin')+':'+String(rec.username);
+      online[accountKey] = true;
+      activeDevices++;
+    } catch(e) {
+      props.deleteProperty(key);
+    }
+  });
+  return {ok:true,registeredAccounts:registeredAdmins+registeredMadrasas,onlineAccounts:Object.keys(online).length,activeDevices:activeDevices};
 }
 
 function searchAll(token,signal,query) {
