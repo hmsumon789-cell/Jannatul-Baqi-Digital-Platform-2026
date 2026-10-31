@@ -1695,6 +1695,7 @@ function watchRequestedDashboardTiles2026(){
 }
 function renderStats(x){
   const arr=[
+    ['মোট শিক্ষক/শিক্ষিকা',x.totalTeachers??x.teachers],
     ['আয়',x.income],
     ['ব্যয়',x.expense],
     ['মোট ছাত্র-ছাত্রী সংখ্যা',x.students],
