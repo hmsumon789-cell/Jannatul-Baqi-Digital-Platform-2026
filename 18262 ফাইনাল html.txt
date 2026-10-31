@@ -3254,7 +3254,7 @@ body.gold #formWin select.field,body.gold #formWin input.field{border-radius:7px
   window.openModule=function(key){
     var labels=Object.fromEntries((modules||[]).map(function(x){return[x[0],x[1]]}));$('winTitle').textContent=labels[key]||key;
     var sig=key==='admission'?'<div class="form-signatures"><div class="signature-box"><div>আবেদনকারীর স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>অভিভাবকের স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>প্রধান শিক্ষিকার স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>প্রিন্সিপাল/মুহতামিম এর স্বাক্ষর</div><div class="signature-line"></div></div></div>':'';
-    $('winBody').innerHTML='<div class="form-language-fixed"><span>বাংলা</span><span>العربية</span><span>English</span></div>'+moduleForm(key)+sig+'<div class="form-action-bar"><button type="button" class="primary" onclick="saveCurrentForm()">💾 সেভ</button><button type="button" class="secondary" onclick="printCurrentForm()">🖨️ প্রিন্ট</button><button type="button" class="secondary" onclick="enableFormEdit()">✏️ এডিট</button><button type="button" class="secondary" onclick="downloadCurrentForm()">⬇️ ডাউনলোড</button><button type="button" class="secondary" onclick="clearFormWindow()">🧹 ক্লিয়ার</button></div>';
+    $('winBody').innerHTML=moduleForm(key)+sig+'<div class="form-action-bar"><button type="button" class="primary" onclick="saveCurrentForm()">💾 সেভ</button><button type="button" class="secondary" onclick="printCurrentForm()">🖨️ প্রিন্ট</button><button type="button" class="secondary" onclick="enableFormEdit()">✏️ এডিট</button><button type="button" class="secondary" onclick="downloadCurrentForm()">⬇️ ডাউনলোড</button><button type="button" class="secondary" onclick="clearFormWindow()">🧹 ক্লিয়ার</button></div>';
     $('formWin').classList.remove('minimized');$('formWin').style.height='';openWindow('formWin');setTimeout(bindAll,30);
   };
   var oldGL=window.getLocationValue;window.getLocationValue=function(id){var m=document.getElementById(id+'Manual'),s=document.getElementById(id+'Select');return(m&&m.value.trim())||(s&&s.value)||''};
@@ -9649,7 +9649,7 @@ window.saveResult=async function(k){
             var body=document.getElementById('winBody');
             if(body&&typeof window.moduleForm==='function'){
               var extra='<div class="form-signatures"><div class="signature-box"><div>আবেদনকারীর স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>অভিভাবকের স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>প্রধান শিক্ষিকার স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>প্রিন্সিপাল/মুহতামিম এর স্বাক্ষর</div><div class="signature-line"></div></div></div><div class="form-action-bar"><button type="button" class="primary" onclick="saveCurrentForm()">💾 সেভ</button><button type="button" class="secondary" onclick="printCurrentForm()">🖨️ প্রিন্ট</button><button type="button" class="secondary" onclick="enableFormEdit()">✏️ এডিট</button><button type="button" class="secondary" onclick="downloadCurrentForm()">⬇️ ডাউনলোড</button><button type="button" class="secondary" onclick="clearFormWindow()">🧹 ক্লিয়ার</button></div>';
-              body.innerHTML='<div class="form-language-fixed"><span>বাংলা</span><span>العربية</span><span>English</span></div>'+window.moduleForm('exam')+extra;
+              body.innerHTML=window.moduleForm('exam')+extra;
             }
           }
           rebuildExam();
@@ -9704,7 +9704,7 @@ window.openModule=function(k){
  if(k!=='exam')return prev(k);
  const b=$('winBody');if(!b)return;
  const t=$('winTitle');if(t)t.textContent='পরীক্ষার্থী নিবন্ধন করুন';
- b.innerHTML='<div class="form-language-fixed"><span>বাংলা</span><span>العربية</span><span>English</span></div>'+form();
+ b.innerHTML=form();
  $('formWin').classList.remove('minimized');$('formWin').style.height='';openWindow('formWin');
  const cl=$('examClass2026');if(cl)cl.onchange=subjects;
  subjects();
@@ -14457,7 +14457,7 @@ window.jbRsBuild=async function(){
     }
     var teacher=type==='teacher';
     E('winTitle').textContent=teacher?'শিক্ষক/শিক্ষিকা চাকরির আবেদন ফর্ম':'সদস্য আবেদন ফর্ম';
-    E('winBody').innerHTML=admissionBrandHeader20261010()+'<div class="form-language-fixed"><span>বাংলা</span><span>العربية</span><span>English</span></div>'+
+    E('winBody').innerHTML=admissionBrandHeader20261010()+
       '<div class="form-grid">'+
       '<label>বাংলা নাম / Name <span class="adm-required">*</span><input id="admGenericName2026" class="field" required></label>'+
       '<label>English Name<input id="admGenericNameEn2026" class="field"></label>'+
