@@ -308,7 +308,7 @@ function nextMadrasaRegistrationId_(){
     var maxId=0;
     if(idCol>=0&&sh.getLastRow()>1){
       sh.getRange(2,idCol+1,sh.getLastRow()-1,1).getValues().forEach(function(r){
-        var m=String(r[0]||'').trim().match(/^MR-(\\d+)$/i);
+        var m=String(r[0]||'').trim().match(/^MR-(\d+)$/i);
         if(m)maxId=Math.max(maxId,Number(m[1])||0);
       });
     }
@@ -407,7 +407,7 @@ function registerMadrasa(data){
     return {ok:true,madrasaId:keepId,message:'পুরাতন মাদ্রাসার তথ্য একই রেকর্ডে আপডেট হয়েছে।'};
   }
   const existingId=String(data.madrasaId||'').trim();
-  const idPattern=/^MR-\\d{4,}$/i;
+  const idPattern=/^MR-\d{4,}$/i;
   const id=(idPattern.test(existingId)&&!findBy_(SHEETS.MADRASAS,'MadrasaID',existingId))?existingId:nextMadrasaRegistrationId_();
   const n=nextSerial_(sh);
   const deps=Array.isArray(data.departments)?data.departments.filter(Boolean).join(', '):String(data.departments||'');
@@ -2874,7 +2874,7 @@ function getMarksMerit(token,studentId,className,examName,currentTotal){
     if(isFinite(n))latest[rid]=n;
   });
   let rank=1;Object.keys(latest).forEach(function(k){if(latest[k]>mine)rank++;});
-  const bn=String(rank).replace(/\\d/g,function(x){return '০১২৩৪৫৬৭৮৯'[x]});
+  const bn=String(rank).replace(/\d/g,function(x){return '০১২৩৪৫৬৭৮৯'[x]});
   const suffix={1:'ম',2:'য়',3:'য়',4:'র্থ',5:'ম',6:'ষ্ঠ',7:'ম',8:'ম',9:'ম',10:'ম'};
   return {ok:true,rank:rank,label:bn+(suffix[rank]||'তম'),count:Object.keys(latest).length+1,total:mine};
 }
