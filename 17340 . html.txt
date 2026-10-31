@@ -18261,3 +18261,36 @@ body.gold #toast.toast{background:#fff5c7!important;color:#4b3200!important;bord
 })();
 </script>
 <!-- ===== END ONLINE RESULT PLATFORM — CENTRAL MANAGEMENT ===== -->
+
+<!-- ===== MOVE TOTAL TEACHERS BOX ABOVE TOTAL INCOME — 2026-10-31 ===== -->
+<script id="move-total-teachers-above-income-20261031">
+(function(){
+  'use strict';
+  function textOf(el){return String(el&&(el.innerText||el.textContent)||'').replace(/\\s+/g,' ').trim();}
+  function moveTeacherBox(){
+    var all=document.querySelectorAll('body *'),teacherLeaf=null;
+    for(var i=0;i<all.length;i++){
+      var el=all[i];
+      if(textOf(el).indexOf('মোট শিক্ষক/শিক্ষিকা')<0)continue;
+      var childHas=false;
+      for(var j=0;j<el.children.length;j++)if(textOf(el.children[j]).indexOf('মোট শিক্ষক/শিক্ষিকা')>=0){childHas=true;break;}
+      if(!childHas){teacherLeaf=el;break;}
+    }
+    if(!teacherLeaf)return false;
+    var box=teacherLeaf;
+    for(var depth=0;depth<8&&box.parentElement;depth++){
+      var parent=box.parentElement,children=Array.prototype.slice.call(parent.children),income=null;
+      for(var k=0;k<children.length;k++){
+        var sibling=children[k];if(sibling===box)continue;
+        var label=textOf(sibling);
+        if(label.indexOf('মোট আয়')>=0||/(^|\\s)আয়(\\s|$)/.test(label)){income=sibling;break;}
+      }
+      if(income){if(box!==income&&box.nextElementSibling!==income)parent.insertBefore(box,income);return true;}
+      box=parent;
+    }
+    return false;
+  }
+  function start(){moveTeacherBox();if(window.MutationObserver){var observer=new MutationObserver(function(){moveTeacherBox();});observer.observe(document.body,{childList:true,subtree:true,characterData:true});}}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
+</script>
