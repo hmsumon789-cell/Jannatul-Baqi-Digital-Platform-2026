@@ -583,27 +583,6 @@ body.gold #formWin .signature-box{border-radius:0!important;}
   scroll-behavior:smooth!important;
   overscroll-behavior:contain!important;
 }
-#formWin .form-language-fixed{
-  position:sticky!important;
-  top:0!important;
-  z-index:10!important;
-  display:grid!important;
-  grid-template-columns:repeat(3,1fr)!important;
-  gap:6px!important;
-  margin:0 0 10px!important;
-  padding:5px!important;
-  border:2px solid var(--border)!important;
-  border-radius:10px!important;
-  background:var(--panel)!important;
-}
-#formWin .form-language-fixed span{
-  text-align:center!important;
-  font-weight:1000!important;
-  font-size:14px!important;
-  padding:6px 4px!important;
-  border:1px solid var(--border)!important;
-  border-radius:7px!important;
-}
 #formWin .form-grid{
   display:grid!important;
   grid-template-columns:repeat(3,minmax(0,1fr))!important;
@@ -628,7 +607,6 @@ body.gold #formWin .signature-box{border-radius:0!important;}
 @media(max-width:430px){
   #formWin .form-grid{grid-template-columns:1fr!important}
 }
-body.gold #formWin .form-language-fixed span{border-radius:999px!important}
 </style>
 <style id="login-working-final-fix-2026-09-18">
 #mainLoginBtn:disabled{opacity:.7!important;cursor:wait!important;pointer-events:none!important}
@@ -1078,11 +1056,11 @@ async function deleteCurrentMedia(){if(!media.length)return;const current=media[
 function openModule(key){
 const labels=Object.fromEntries(modules.map(x=>[x[0],x[1]]));
 $('winTitle').textContent=labels[key]||key;
-$('winBody').innerHTML='<div class="form-language-fixed"><span>বাংলা</span><span>العربية</span><span>English</span></div>'+moduleForm(key)+'<div class="form-signatures"><div class="signature-box"><div>আবেদনকারীর স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>অভিভাবকের স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>প্রধান শিক্ষিকার স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>প্রিন্সিপাল/মুহতামিম এর স্বাক্ষর</div><div class="signature-line"></div></div></div><div class="form-action-bar"><button type="button" class="primary" onclick="saveCurrentForm()">💾 সেভ</button><button type="button" class="secondary" onclick="printCurrentForm()">🖨️ প্রিন্ট</button><button type="button" class="secondary" onclick="enableFormEdit()">✏️ এডিট</button><button type="button" class="secondary" onclick="downloadCurrentForm()">⬇️ ডাউনলোড</button><button type="button" class="secondary" onclick="clearFormWindow()">🧹 ক্লিয়ার</button></div>';
+$('winBody').innerHTML=''+moduleForm(key)+'<div class="form-signatures"><div class="signature-box"><div>আবেদনকারীর স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>অভিভাবকের স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>প্রধান শিক্ষিকার স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>প্রিন্সিপাল/মুহতামিম এর স্বাক্ষর</div><div class="signature-line"></div></div></div><div class="form-action-bar"><button type="button" class="primary" onclick="saveCurrentForm()">💾 সেভ</button><button type="button" class="secondary" onclick="printCurrentForm()">🖨️ প্রিন্ট</button><button type="button" class="secondary" onclick="enableFormEdit()">✏️ এডিট</button><button type="button" class="secondary" onclick="downloadCurrentForm()">⬇️ ডাউনলোড</button><button type="button" class="secondary" onclick="clearFormWindow()">🧹 ক্লিয়ার</button></div>';
 $('formWin').classList.remove('minimized');
 $('formWin').style.height='';
 openWindow('formWin');
-setTimeout(function(){clearFormWindow(false);},0);
+setTimeout(function(){clearFormWindow(false);if(key==='madrasa')loadMadrasaPreviewId();},0);
 }
 function locationField(id,label,options){
   return `<label>${label} / Dropdown<select id="${id}Select" class="field"><option value="">নির্বাচন করুন</option>${options.map(x=>`<option>${x}</option>`).join('')}</select><input id="${id}Manual" class="field" placeholder="হাতে লিখুন"></label>`;
@@ -1150,7 +1128,7 @@ ${locationField('adVillage','গ্রাম',['কোনাখোলা','ম�
 <label class="full">ঠিকানা / Address<textarea id="adAddress" class="field"></textarea></label>
 </div><button class="primary" onclick="saveModule('admission')">Save Admission</button>`;
 if(['result','marks','exam'].includes(k))return `<div class="form-grid"><label>Student ID<input id="rStudent" class="field"></label><label>নাম<input id="rName" class="field"></label><label>শ্রেনি<input id="rClass" class="field"></label><label>পরীক্ষা<input id="rExam" class="field"></label><label class="full">Subject/Marks JSON<textarea id="rSubjects" class="field" placeholder='{"বাংলা":80,"আরবি":85}'></textarea></label></div><button class="primary" onclick="saveResult('${k}')">Save</button>`;
-return `<p>এই ফিচারের জন্য ৩ ভাষা, A4, ৩ কলাম উইন্ডো কাঠামো প্রস্তুত। প্রয়োজনীয় তথ্য পূরণ করুন।</p><div class="form-grid"><label class="full">বিবরণ<textarea class="field" rows="8" id="genericData"></textarea></label></div><button class="primary" onclick="toast('ফিচার উইন্ডো প্রস্তুত')">Save</button>`;
+if(k==='madrasa')return `<div class="madrasa-register-top"><label>MR ID<input id="mrId" class="field" readonly placeholder="লোড হচ্ছে..."></label><button type="button" class="secondary mr-copy" onclick="copyMadrasaId()" title="MR ID কপি করুন">📋</button><label>বোর্ড কর্তৃক ইলহাক/নিবন্ধন<input id="mrBoard" class="field" placeholder="ইলহাক/নিবন্ধন নম্বর লিখুন"></label><label>মাদ্রাসার ধরন<select id="mrGenderType" class="field"><option value="">নির্বাচন করুন</option><option value="পুরুষ মাদ্রাসা">পুরুষ মাদ্রাসা</option><option value="মহিলা মাদ্রাসা">মহিলা মাদ্রাসা</option></select></label></div><div class="form-grid"><label>মাদ্রাসার নাম<input id="mrName" class="field"></label><label>প্রতিষ্ঠা সন<input id="mrFoundedYear" class="field" type="number"></label><label>প্রতিষ্ঠাতার নাম<input id="mrFounder" class="field"></label><label>মুহতামিমের নাম<input id="mrMuhtamim" class="field"></label><label>মোবাইল<input id="mrMobile" class="field"></label><label>ইমেইল<input id="mrEmail" class="field" type="email"></label><label>Username<input id="mrUsername" class="field"></label><label>Password<input id="mrPassword" class="field" type="password"></label><label>মালিকানা<select id="mrOwnership" class="field"><option value="">নির্বাচন করুন</option><option>ব্যক্তিগত</option><option>ট্রাস্ট</option><option>ওয়াকফ</option><option>অন্যান্য</option></select></label><label class="full">ঠিকানা<textarea id="mrAddress" class="field"></textarea></label><label>সক্রিয় বিভাগসমূহ<input id="mrDepartments" class="field" placeholder="যেমন: নুরানী, হিফজ, কিতাব"></label><label>অন্যান্য বিভাগ<input id="mrOtherDepartment" class="field"></label><label class="full">মাদ্রাসার ছবি<input id="mrPhoto" class="field" type="file" accept="image/*"></label></div><button class="primary" type="button" onclick="saveMadrasaRegistration()">🏫 নিবন্ধন জমা দিন</button>`;\nreturn `<p>এই ফিচারের জন্য ৩ ভাষা, A4, ৩ কলাম উইন্ডো কাঠামো প্রস্তুত। প্রয়োজনীয় তথ্য পূরণ করুন।</p><div class="form-grid"><label class="full">বিবরণ<textarea class="field" rows="8" id="genericData"></textarea></label></div><button class="primary" onclick="toast('ফিচার উইন্ডো প্রস্তুত')">Save</button>`;
 }
 async function saveModule(k){
 const map={student:'STUDENTS',teacher:'TEACHERS',donor:'DONORS'};const s=map[k];
@@ -2365,8 +2343,8 @@ body.gold #formWin select.field,body.gold #formWin input.field{border-radius:7px
   window.openModule=function(key){
     var labels=Object.fromEntries((modules||[]).map(function(x){return[x[0],x[1]]}));$('winTitle').textContent=labels[key]||key;
     var sig=key==='admission'?'<div class="form-signatures"><div class="signature-box"><div>আবেদনকারীর স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>অভিভাবকের স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>প্রধান শিক্ষিকার স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>প্রিন্সিপাল/মুহতামিম এর স্বাক্ষর</div><div class="signature-line"></div></div></div>':'';
-    $('winBody').innerHTML='<div class="form-language-fixed"><span>বাংলা</span><span>العربية</span><span>English</span></div>'+moduleForm(key)+sig+'<div class="form-action-bar"><button type="button" class="primary" onclick="saveCurrentForm()">💾 সেভ</button><button type="button" class="secondary" onclick="printCurrentForm()">🖨️ প্রিন্ট</button><button type="button" class="secondary" onclick="enableFormEdit()">✏️ এডিট</button><button type="button" class="secondary" onclick="downloadCurrentForm()">⬇️ ডাউনলোড</button><button type="button" class="secondary" onclick="clearFormWindow()">🧹 ক্লিয়ার</button></div>';
-    $('formWin').classList.remove('minimized');$('formWin').style.height='';openWindow('formWin');setTimeout(bindAll,30);
+    $('winBody').innerHTML=''+moduleForm(key)+sig+'<div class="form-action-bar"><button type="button" class="primary" onclick="saveCurrentForm()">💾 সেভ</button><button type="button" class="secondary" onclick="printCurrentForm()">🖨️ প্রিন্ট</button><button type="button" class="secondary" onclick="enableFormEdit()">✏️ এডিট</button><button type="button" class="secondary" onclick="downloadCurrentForm()">⬇️ ডাউনলোড</button><button type="button" class="secondary" onclick="clearFormWindow()">🧹 ক্লিয়ার</button></div>';
+    $('formWin').classList.remove('minimized');$('formWin').style.height='';openWindow('formWin');setTimeout(bindAll,30);if(key==='madrasa')setTimeout(loadMadrasaPreviewId,40);
   };
   var oldGL=window.getLocationValue;window.getLocationValue=function(id){var m=document.getElementById(id+'Manual'),s=document.getElementById(id+'Select');return(m&&m.value.trim())||(s&&s.value)||''};
   var oldSaveResult=window.saveResult;window.saveResult=async function(k){if(k!=='exam')return oldSaveResult(k);var d={StudentID:$('rStudent').value,Name:$('rName').value,Class:'',Exam:$('rExam').value,SubjectData:$('rSubjects').value,Published:'NO',Date:new Date().toISOString(),Division:getLocationValue('rDivision'),District:getLocationValue('rDistrict'),Upazila:getLocationValue('rUpazila'),Union:getLocationValue('rUnion'),Post:getLocationValue('rPost'),Ward:getLocationValue('rWard'),Village:getLocationValue('rVillage')};var r=await call('saveRecord',token,'EXAM_REG',d);toast(r.ok?'পরীক্ষার্থী নিবন্ধন সফলভাবে সংরক্ষণ হয়েছে':(r.message||'ব্যর্থ'))};
@@ -2688,4 +2666,17 @@ button:active,.btn:active,.primary:active,.secondary:active,.module:active,.mode
  };
  window.deleteCurrentMedia=function(){if(!media||!media.length)return toast('ডিলেট করার মিডিয়া নেই।');deleteMediaByIndex(mediaIndex)};
 })();
+</script>
+
+<style id="madrasa-registration-controls-2026-10-31">
+.madrasa-register-top{display:grid;grid-template-columns:minmax(120px,.75fr) 42px minmax(180px,1.5fr) minmax(180px,1.2fr);gap:7px;align-items:end;margin:0 0 12px;padding:9px;border:2px solid var(--border);border-radius:12px;background:var(--panel)}
+.madrasa-register-top label{display:flex;flex-direction:column;gap:4px;font-weight:900;min-width:0}
+.madrasa-register-top .field{width:100%;min-width:0}
+.mr-copy{height:42px;padding:5px!important;font-size:20px}
+@media(max-width:650px){.madrasa-register-top{grid-template-columns:minmax(0,1fr) 42px;}.madrasa-register-top label:nth-of-type(2),.madrasa-register-top label:nth-of-type(3){grid-column:1/-1}.mr-copy{grid-column:2;grid-row:1}}
+</style>
+<script id="madrasa-registration-controls-js">
+async function loadMadrasaPreviewId(){var el=$('mrId');if(!el)return;try{var r=await call('getNextMadrasaId');if(r&&r.ok)el.value=r.madrasaId||'';else el.value='সার্ভার ID পাওয়া যায়নি'}catch(e){el.value='ID লোড হয়নি'}}
+async function copyMadrasaId(){var el=$('mrId');if(!el||!el.value||el.value.indexOf('MR-')!==0)return toast('কপি করার MR ID পাওয়া যায়নি।');try{await navigator.clipboard.writeText(el.value);toast('MR ID কপি হয়েছে: '+el.value)}catch(e){el.select();document.execCommand('copy');toast('MR ID কপি হয়েছে: '+el.value)}}
+async function saveMadrasaRegistration(){var photo=await fileData('mrPhoto');var d={name:$('mrName').value.trim(),foundedYear:$('mrFoundedYear').value.trim(),founder:$('mrFounder').value.trim(),muhtamim:$('mrMuhtamim').value.trim(),username:$('mrUsername').value.trim(),password:$('mrPassword').value,address:$('mrAddress').value.trim(),email:$('mrEmail').value.trim(),mobile:$('mrMobile').value.trim(),photo:photo,genderType:$('mrGenderType').value,boardAffiliation:$('mrBoard').value.trim(),departments:$('mrDepartments').value,otherDepartment:$('mrOtherDepartment').value,ownership:$('mrOwnership').value};if(!d.genderType)return toast('মাদ্রাসার ধরন নির্বাচন করুন।');if(!d.boardAffiliation)return toast('বোর্ড কর্তৃক ইলহাক/নিবন্ধন নম্বর লিখুন।');var r=await call('registerMadrasa',d);if(r&&r.ok){$('mrId').value=r.madrasaId||$('mrId').value;toast(r.message||'মাদ্রাসা নিবন্ধন সফল হয়েছে।')}else toast((r&&r.message)||'নিবন্ধন ব্যর্থ হয়েছে।')}
 </script>
