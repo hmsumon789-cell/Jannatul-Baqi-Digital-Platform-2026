@@ -220,7 +220,7 @@ function registerNewAdmin(data){
 function getNextMadrasaId(){
   setupSystem();
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MADRASAS);
-  const n=nextSerial_(sh)+1;
+  const n=nextSerial_(sh);
   return {ok:true,madrasaId:'MR-'+String(n).padStart(4,'0')};
 }
 
