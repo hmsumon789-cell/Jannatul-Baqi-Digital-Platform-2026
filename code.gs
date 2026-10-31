@@ -228,7 +228,7 @@ function registerMadrasa(data){
   setupSystem();
   data=data||{};
   const name=String(data.name||'').trim(), year=String(data.foundedYear||'').trim(), username=String(data.username||'').trim(), password=String(data.password||''), address=String(data.address||'').trim(), email=String(data.email||'').trim(), mobile=String(data.mobile||'').trim(), photo=String(data.photo||'');
-  if(!name||!year||!username||!password||!address||!email||!mobile||!photo) return {ok:false,message:'সকল তথ্য পূরণ করা বাধ্যতামূলক।'};
+  if(!name||!year||!username||!password||!address||!email||!mobile||!photo||!String(data.genderType||'').trim()||!String(data.boardAffiliation||'').trim()) return {ok:false,message:'সকল তথ্য পূরণ করা বাধ্যতামূলক। মাদ্রাসার ধরন ও বোর্ড ইলহাক/নিবন্ধন নম্বর দিন।'};
   if(findBy_(SHEETS.MADRASAS,'Username',username)||findBy_(SHEETS.ADMINS,'Username',username)) return {ok:false,message:'এই Username আগে থেকেই ব্যবহার হচ্ছে।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MADRASAS), n=nextSerial_(sh), id='MR-'+String(n).padStart(4,'0');
   const hdr=sh.getRange(1,1,1,Math.max(sh.getLastColumn(),1)).getValues()[0];
@@ -238,7 +238,9 @@ function registerMadrasa(data){
   const hdr3=sh.getRange(1,1,1,Math.max(sh.getLastColumn(),1)).getValues()[0];
   if(hdr3.indexOf('BoardAffiliation')<0) sh.getRange(1,hdr3.length+1).setValue('BoardAffiliation');
   const deps=Array.isArray(data.departments)?data.departments.filter(Boolean).join(', '):String(data.departments||'');
-  const row=[n,id,String(data.genderType||''),name,year,String(data.founder||''),String(data.muhtamim||''),address,mobile,0,0,'','PENDING',now_(),username,password,hash_(password),deps,String(data.otherDepartment||''),String(data.ownership||''),'','', '',email,photo,String(data.boardAffiliation||'')];
+  const rowValues={Serial:n,MadrasaID:id,GenderType:String(data.genderType||''),Name:name,FoundedYear:year,Founder:String(data.founder||''),Muhtamim:String(data.muhtamim||''),Address:address,Mobile:mobile,StaffCount:0,StudentCount:0,Level:'',Status:'PENDING',CreatedAt:now_(),Username:username,Password:password,PasswordHash:hash_(password),ActiveDepartments:deps,OtherDepartment:String(data.otherDepartment||''),Ownership:String(data.ownership||''),ApprovedBy:'',ApprovedAt:'',Permissions:'',Email:email,Photo:photo,BoardAffiliation:String(data.boardAffiliation||'')};
+  const finalHeaders=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
+  const row=finalHeaders.map(function(h){return Object.prototype.hasOwnProperty.call(rowValues,h)?rowValues[h]:''});
   sh.getRange(sh.getLastRow()+1,1,1,row.length).setValues([row]);
   log_('PUBLIC','register','MADRASA',id);
   return {ok:true,madrasaId:id,message:'নতুন মাদ্রাসা নিবন্ধন হয়েছে। প্রশাসন/সুপার অ্যাডমিন অনুমোদনের পর Username + Password দিয়ে OTP ছাড়া লগইন করতে পারবেন।'};
