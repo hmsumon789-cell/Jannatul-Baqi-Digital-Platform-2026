@@ -1350,6 +1350,22 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </div>
 
 <!-- ===== LOGIN PAGE CONTACT STRIP — COPIED FROM DASHBOARD CONTACT — 2026-10-13 ===== -->
+<style id="dashboard-contact-strip-20261101-css">
+#dashboardContactStrip20261101{width:100%;max-width:100%;box-sizing:border-box;margin:10px auto 12px;padding:10px 12px;background:var(--panel,#fff);color:var(--text,#222);border:2px solid var(--border,#c89b27);border-radius:14px;box-shadow:0 5px 14px #0002;text-align:center;position:relative;z-index:2}
+#dashboardContactStrip20261101 .lc-layout{display:grid;grid-template-columns:78px minmax(0,1fr) 78px;align-items:center;gap:10px}
+#dashboardContactStrip20261101 .lc-logo-side{grid-column:1;grid-row:1}
+#dashboardContactStrip20261101 .lc-center{grid-column:2;grid-row:1}
+#dashboardContactStrip20261101 .lc-qr-side{grid-column:3;grid-row:1}
+#dashboardContactStrip20261101 .lc-logo,#dashboardContactStrip20261101 .lc-qr{width:72px;height:72px;object-fit:contain;display:block;margin:auto;background:#fff;border:2px solid var(--border,#c89b27);border-radius:12px;box-sizing:border-box}
+#dashboardContactStrip20261101 .lc-name{font-size:21px;font-weight:1000;line-height:1.4;margin:5px 0}
+#dashboardContactStrip20261101 .lc-address{font-size:16px;font-weight:800;line-height:1.5;margin:0 0 5px}
+#dashboardContactStrip20261101 .lc-hotline{font-size:17px;font-weight:1000;line-height:1.5}
+#dashboardContactStrip20261101 .lc-qr-label{font-weight:900;font-size:13px;margin-top:4px}
+body.dark #dashboardContactStrip20261101{background:#111!important;color:#fff!important;border-color:#ffcc33!important}
+body.gold #dashboardContactStrip20261101{background:#fff9e7!important;color:#4a3300!important;border-color:#b88408!important}
+@media(max-width:620px){#dashboardContactStrip20261101{padding:12px 8px}#dashboardContactStrip20261101 .lc-layout{grid-template-columns:1fr 1fr;gap:10px}#dashboardContactStrip20261101 .lc-center{grid-column:1/-1;grid-row:1}#dashboardContactStrip20261101 .lc-logo-side{grid-column:1;grid-row:2}#dashboardContactStrip20261101 .lc-qr-side{grid-column:2;grid-row:2}#dashboardContactStrip20261101 .lc-logo,#dashboardContactStrip20261101 .lc-qr{width:72px;height:72px}#dashboardContactStrip20261101 .lc-name{font-size:18px}#dashboardContactStrip20261101 .lc-address{font-size:14px}#dashboardContactStrip20261101 .lc-hotline{font-size:15px}}
+</style>
+
 <style id="login-contact-strip-20261013-css">
 #loginContactStrip20261013{width:100%;max-width:100%;box-sizing:border-box;margin:14px auto 0;padding:10px 12px;background:var(--panel,#fff);color:var(--text,#222);border:2px solid var(--border,#c89b27);border-radius:14px;box-shadow:0 5px 14px #0002;text-align:center;position:relative;z-index:2}
 #loginContactStrip20261013 .lc-title{font-size:20px;font-weight:1000;margin-bottom:10px}
@@ -1385,14 +1401,22 @@ body.gold #loginContactStrip20261013{background:#fff9e7!important;color:#4a3300!
         if(url){
           qrOut.src='https://quickchart.io/qr?size=220&margin=2&text='+encodeURIComponent(String(url).trim())+'&v='+Date.now();
           qrOut.dataset.loaded='yes';
+          syncDashboardContactStrip20261101();
         }else{qrOut.dataset.loaded='';}
       }).catch(function(){qrOut.dataset.loaded='';});
     }
   }
-  function runLoginContactStrip20261013(){syncLoginContactStrip20261013();}
+  function syncDashboardContactStrip20261101(){
+    var outLogo=document.getElementById('dashboardContactLogo20261101'),outQR=document.getElementById('dashboardContactQR20261101');
+    var inLogo=document.getElementById('loginContactLogo20261013'),inQR=document.getElementById('loginContactQR20261013');
+    if(outLogo&&inLogo){var ls=inLogo.getAttribute('src')||inLogo.src;if(ls&&ls!=='about:blank')outLogo.src=ls;}
+    if(outQR&&inQR){var qs=inQR.getAttribute('src')||inQR.src;if(qs&&qs!=='about:blank')outQR.src=qs;}
+  }
+  function runLoginContactStrip20261013(){syncLoginContactStrip20261013();syncDashboardContactStrip20261101();}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',runLoginContactStrip20261013);else runLoginContactStrip20261013();
   setTimeout(runLoginContactStrip20261013,500);
   setTimeout(runLoginContactStrip20261013,1400);
+  setTimeout(syncDashboardContactStrip20261101,2200);
 })();
 </script>
 
@@ -1455,6 +1479,19 @@ body.gold #loginContactStrip20261013{background:#fff9e7!important;color:#4a3300!
     </div>
 
     </header>
+
+    <section id="dashboardContactStrip20261101" aria-label="ড্যাশবোর্ড যোগাযোগ ও দ্রুত সেবা">
+      <div class="lc-layout">
+        <div class="lc-logo-side"><img class="lc-logo" id="dashboardContactLogo20261101" alt="মাদ্রাসার লোগো"></div>
+        <div class="lc-center">
+          <button type="button" class="jb-contact-quick-button-20261026" onclick="openWindow('quickWin')">যোগাযোগ + দ্রুত সেবা</button>
+          <div class="lc-name">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div>
+          <div class="lc-address">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div>
+          <div class="lc-hotline">☎ হটলাইন: 01823316630</div>
+        </div>
+        <div class="lc-qr-side"><img class="lc-qr" id="dashboardContactQR20261101" alt="মূল পেজের QR কোড"><div class="lc-qr-label">মূল পেজ</div></div>
+      </div>
+    </section>
 
   <main>
     <div class="dashboard-nav dashboard-title-bar">
@@ -1804,7 +1841,7 @@ ${locationField('fWard','ওয়ার্ড',['১ নং ওয়ার্ড','�
 ${locationField('fVillage','গ্রাম',['কোনাখোলা','মডেল টাউন','জিঞ্জিরা','শুভাঢ্যা','আগানগর','বাস্তা','তেঘরিয়া'])}
 <label class="full">ঠিকানা<textarea id="fAddress" class="field"></textarea></label></div>`;
 if(['student','teacher','donor'].includes(k))return common+`<div class="form-grid"><label>শ্রেনি/জামাত<select id="fClass" class="field">${['প্লে শ্রেনি','শিশু শ্রেনি','আউয়াল জামাত','ছানী জামাত','ছালেছ জামাত','রাবে জামাত','পঞ্চম জামাত','মিজান জামাত','নাহবেমীর জামাত','কুদুরী জামাত','শরহে বেকায়া জামাত','হেদায়া জামাত','মিশকাত জামাত','দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)'].map(x=>`<option>${x}</option>`).join('')}</select></label><label>বিভাগ<select id="fDept" class="field"><option>কিতাব বিভাগ</option><option>হিফজুল কুরআন বিভাগ</option><option>নুরানী বিভাগ</option><option>গণিত বিভাগ</option><option>ইংলিশ বিভাগ</option><option>বাংলা বিভাগ</option><option>বোর্ডিং বিভাগ</option><option>হিসাব বিভাগ</option></select></label><label>শাখা<select id="fBranch" class="field"><option>প্রধান শাখা</option><option>২য় শাখা</option><option>৩য় শাখা</option><option>বালক শাখা</option><option>বালিকা শাখা</option></select></label><label>ছবি<input id="fPhoto" class="field" type="file" accept="image/*"></label><label>জন্ম নিবন্ধন<input id="fBirth" class="field"></label><label>জাতীয় ১৭ ডিজিট NID<input id="fNid" class="field"></label></div><button class="primary" onclick="saveModule('${k}')">Save</button>`;
-if(k==='admin')return `<div class="form-grid"><label>Username<input id="aUser" class="field" required></label><label>Password<input id="aPass" class="field" type="password" required></label><label>Email<input id="aEmail" class="field" type="email" required></label><label>Mobile<input id="aMobile" class="field" required></label><label class="full">মাদ্রাসার নাম<input id="mName" class="field" required></label><label>প্রতিষ্ঠা সন<input id="mYear" class="field" required></label><label class="full">ঠিকানা<textarea id="mAddress" class="field" required></textarea></label><div class="full" style="display:flex;align-items:end;gap:10px;flex-wrap:wrap"><label style="flex:1;min-width:190px">মাদ্রাসার ফটো<input id="mPhoto" class="field" type="file" accept="image/*" required></label><input id="mHeaderPhoto" type="file" accept="image/*" style="display:none" onchange="showMadrasaHeaderPhotoName()"><button type="button" class="secondary" onclick="document.getElementById('mHeaderPhoto').click()">🖼️ হেডারে যে ফটো দেখতে চান যুক্ত করুন</button><span id="mHeaderPhotoName" style="font-size:13px;color:var(--muted)">ঐচ্ছিক হেডার ফটো</span></div></div><button class="primary" type="button" onclick="saveMadrasaRegistration()">📄 পেজ তৈরি করুন</button>`;
+if(k==='admin')return `<div class="form-grid"><label>Username<input id="aUser" class="field" required></label><label>Password<input id="aPass" class="field" type="password" required></label><label>Email<input id="aEmail" class="field" type="email" required></label><label>Mobile<input id="aMobile" class="field" required></label><label class="full">মাদ্রাসার নাম<input id="mName" class="field" required></label><label>প্রতিষ্ঠা সন<input id="mYear" class="field" required></label><label class="full">ঠিকানা<textarea id="mAddress" class="field" required></textarea></label><div class="full" style="display:flex;align-items:end;gap:10px;flex-wrap:wrap"><label style="flex:1;min-width:190px">মাদ্রাসার ফটো<input id="mPhoto" class="field" type="file" accept="image/*" required></label><input id="mHeaderPhoto" type="file" accept="image/*" style="display:none" onchange="showMadrasaHeaderPhotoName()"><button type="button" class="secondary" onclick="document.getElementById('mHeaderPhoto').click()">🖼️ হেডার + ওয়ালপেপারে দেখতে চান—ফটো যুক্ত করুন</button><span id="mHeaderPhotoName" style="font-size:13px;color:var(--muted)">ঐচ্ছিক হেডার ফটো</span></div></div><button class="primary" type="button" onclick="saveMadrasaRegistration()">📄 পেজ তৈরি করুন</button>`;
 if(k==='madrasa')return `<section id="madrasaAccountContactHeader20261101" class="madrasa-account-contact-header-20261101"><div class="madrasa-account-contact-layout-20261101"><div class="madrasa-account-contact-logo-20261101"><img id="madrasaAccountContactLogo20261101" alt="মাদ্রাসার লোগো"></div><div class="madrasa-account-contact-center-20261101"><button type="button" class="jb-contact-quick-button-20261026" onclick="openWindow('quickWin')">যোগাযোগ + দ্রুত সেবা</button><div class="madrasa-account-contact-name-20261101">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div><div>উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div><div>☎ হটলাইন: 01823316630</div></div><div class="madrasa-account-contact-qr-20261101"><img id="madrasaAccountMainQR20261101" alt="মূল পেজের QR কোড"><div>মূল পেজ</div></div></div></section><div style="display:flex;align-items:end;gap:8px;flex-wrap:wrap;margin:8px 0 14px"><label style="flex:1;min-width:150px">MR ID<input id="mMadrasaID" class="field" readonly placeholder="স্বয়ংক্রিয়ভাবে তৈরি হবে"></label><button type="button" class="secondary" onclick="copyMadrasaRegistrationId()">📋 কপি</button><button type="button" class="secondary" onclick="lookupOldMadrasaRegistration()">পুরাতন ইলহাক/আইডি দিয়ে তথ্য আনুন</button></div><div class="form-grid"><label>বোর্ড কর্তৃক ইলহাক/নিবন্ধন<input id="mBoardRegistration" class="field" placeholder="বোর্ডের ইলহাক/নিবন্ধন নম্বর"></label><label>মাদ্রাসার ধরন<select id="mGenderType" class="field"><option value="">নির্বাচন করুন</option><option value="পুরুষ মাদ্রাসা">পুরুষ মাদ্রাসা</option><option value="মহিলা মাদ্রাসা">মহিলা মাদ্রাসা</option></select></label><label>Username<input id="mUser" class="field" required></label><label>Password<input id="mPass" class="field" type="password" required></label><label>Email<input id="mEmail" class="field" type="email" required></label><label>মোবাইল নম্বর<input id="mMobile" class="field" required></label><label>প্রতিষ্ঠা সন<input id="mYear" class="field" type="number" min="1000" max="2100" required></label><label>মোট শিক্ষক + স্টাফ সংখ্যা<input id="mStaffCount" class="field" type="number" min="0" placeholder="মোট জনবল"></label><label>মোট ছাত্র/ছাত্রী সংখ্যা<input id="mStudentCount" class="field" type="number" min="0" placeholder="মোট শিক্ষার্থী"></label><label class="full">বাংলা মাদ্রাসার নাম<input id="mName" class="field" required></label><label class="full">আরবি নাম (ঐচ্ছিক)<input id="mNameAR" class="field"></label><label class="full">ইংরেজি নাম (ঐচ্ছিক)<input id="mNameEN" class="field"></label><label>প্রতিষ্ঠাতার নাম<input id="mFounder" class="field"></label><label>মুহতামিমের নাম<input id="mMuhtamim" class="field"></label><label class="full">ঠিকানা<textarea id="mAddress" class="field" required></textarea></label><div class="full" style="display:flex;align-items:end;gap:10px;flex-wrap:wrap"><label style="flex:1;min-width:220px">মাদ্রাসার ফটো<input id="mPhoto" class="field" type="file" accept="image/*" required></label><input id="mHeaderPhoto" type="file" accept="image/*" style="display:none" onchange="showMadrasaHeaderPhotoName()"><button type="button" class="secondary" onclick="document.getElementById('mHeaderPhoto').click()">🖼️ হেডার + ওয়ালপেপারে দেখতে চান—ফটো যুক্ত করুন</button><span id="mHeaderPhotoName" style="font-size:13px;color:var(--muted)">ঐচ্ছিক হেডার + ওয়ালপেপার ফটো</span></div><input id="mUpdateMadrasaID" type="hidden"><input id="mUpdateLookupKey" type="hidden"></div><button class="primary" type="button" onclick="saveMadrasaRegistration()">📄 পেজ তৈরি করুন</button>`;
 if(k==='gallery')return `<div class="media-upload-note"><b>ফটো:</b> সর্বোচ্চ 20 MB, 100টি। <b>ভিডিও:</b> সর্বোচ্চ 50 MB, 20টি। <b>অডিও:</b> সর্বোচ্চ 50 MB, 50টি।<br><b>ছবির গোপনীয়তা:</b> পাবলিক ছবি সবাই দেখবে; অ্যাডমিন-শুধু ছবি কেবল গ্যালারী-অনুমোদিত অ্যাডমিন দেখবে। ভিডিও/অডিওর বর্তমান ব্যবস্থা অপরিবর্তিত।</div><div class="form-grid"><label>নতুন ফটোর অনুমতি<select id="mediaVisibility" class="field"><option value="public">🌐 পাবলিক — সবাই দেখতে পারবে</option><option value="admin">🔒 অ্যাডমিন-শুধু</option></select></label><label>ফটো/ভিডিও/অডিও নির্বাচন<input id="mediaFiles" class="field" type="file" multiple accept="image/*,video/*,audio/*"></label></div><div class="photo-gallery-tools-2026"><button class="primary" type="button" onclick="uploadMedia()">⬆ আপলোড</button><button class="secondary" type="button" onclick="openPublicPhotoGallery2026()">🌐 পাবলিক গ্যালারী খুলুন</button></div><h3>📸 ফটো গ্যালারী — গ্রিড</h3><label>ছবি ফিল্টার <select id="photoGalleryFilter2026" class="field" onchange="renderPhotoGalleryGrid2026()"><option value="all">সব অনুমোদিত ছবি</option><option value="public">পাবলিক ছবি</option><option value="admin">অ্যাডমিন-শুধু ছবি</option></select></label><div id="photoGalleryGrid2026" class="photo-gallery-grid-2026"></div><h3>📂 মিডিয়া তালিকা</h3><div id="mediaList"></div>`;
 if(k==='help')return `<button class="primary" onclick="openWindow('quickWin')">দ্রুত সেবা / হেল্প</button>`;
