@@ -217,6 +217,13 @@ function registerNewAdmin(data){
   return {ok:true,adminId:id,message:'নতুন অ্যাডমিন নিবন্ধন হয়েছে। অনুমোদনের পর Username + Password দিয়ে OTP ছাড়া লগইন করতে পারবেন।'};
 }
 
+function getNextMadrasaId(){
+  setupSystem();
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MADRASAS);
+  const n=nextSerial_(sh)+1;
+  return {ok:true,madrasaId:'MR-'+String(n).padStart(4,'0')};
+}
+
 function registerMadrasa(data){
   setupSystem();
   data=data||{};
@@ -228,8 +235,10 @@ function registerMadrasa(data){
   if(hdr.indexOf('Email')<0) sh.getRange(1,hdr.length+1).setValue('Email');
   const hdr2=sh.getRange(1,1,1,Math.max(sh.getLastColumn(),1)).getValues()[0];
   if(hdr2.indexOf('Photo')<0) sh.getRange(1,hdr2.length+1).setValue('Photo');
+  const hdr3=sh.getRange(1,1,1,Math.max(sh.getLastColumn(),1)).getValues()[0];
+  if(hdr3.indexOf('BoardAffiliation')<0) sh.getRange(1,hdr3.length+1).setValue('BoardAffiliation');
   const deps=Array.isArray(data.departments)?data.departments.filter(Boolean).join(', '):String(data.departments||'');
-  const row=[n,id,'',name,year,'','',address,mobile,0,0,'','PENDING',now_(),username,password,hash_(password),deps,String(data.otherDepartment||''),String(data.ownership||''),'','', '',email,photo];
+  const row=[n,id,String(data.genderType||''),name,year,String(data.founder||''),String(data.muhtamim||''),address,mobile,0,0,'','PENDING',now_(),username,password,hash_(password),deps,String(data.otherDepartment||''),String(data.ownership||''),'','', '',email,photo,String(data.boardAffiliation||'')];
   sh.getRange(sh.getLastRow()+1,1,1,row.length).setValues([row]);
   log_('PUBLIC','register','MADRASA',id);
   return {ok:true,madrasaId:id,message:'নতুন মাদ্রাসা নিবন্ধন হয়েছে। প্রশাসন/সুপার অ্যাডমিন অনুমোদনের পর Username + Password দিয়ে OTP ছাড়া লগইন করতে পারবেন।'};
