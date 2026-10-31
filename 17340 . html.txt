@@ -18297,3 +18297,94 @@ body.gold #toast.toast{background:#fff5c7!important;color:#4b3200!important;bord
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
 </script>
+
+
+<!-- ===== THREE LIVE STAT TILES BESIDE TOTAL TEACHERS — BASE e53796d ===== -->
+<style id="dashboard-live-stats-e53796d">
+#summary .dashboard-live-stat{
+  min-width:0!important;cursor:pointer!important;text-align:center!important;
+  border:2px solid var(--border,#777)!important;font-family:inherit!important;
+}
+#summary .dashboard-live-stat small{
+  display:block!important;font-size:10px!important;font-weight:700!important;
+  line-height:1.25!important;margin-top:3px!important;opacity:.9!important;
+}
+#summary .dashboard-live-stat:focus-visible{outline:3px solid #f0c400!important;outline-offset:2px!important;}
+@media(max-width:800px){
+  #summary .dashboard-live-stat{min-height:58px!important;padding:6px 4px!important;}
+  #summary .dashboard-live-stat b{font-size:20px!important;}
+  #summary .dashboard-live-stat small{font-size:9px!important;}
+}
+</style>
+<script id="dashboard-live-stats-e53796d">
+(function(){
+  'use strict';
+  var latest=null,busy=false,observer=null;
+  var specs=[
+    {id:'jbLiveRegisteredTotal',label:'নিবন্ধিত মাদ্রাসা + অ্যাডমিন সংখ্যা',sub:function(x){return 'মাদ্রাসা '+x.registeredMadrasas+' · অ্যাডমিন '+x.registeredAdmins;},value:function(x){return x.registeredTotal; }},
+    {id:'jbLiveOnlineAccounts',label:'মোট একাউন্ট অনলাইন',sub:function(){return 'বর্তমানে অনলাইন অ্যাকাউন্ট';},value:function(x){return x.onlineAccounts;}},
+    {id:'jbLiveActiveDevices',label:'মূল ওয়েবসাইটে সক্রিয় ডিভাইস',sub:function(){return 'সক্রিয় লগইন ডিভাইস/সেশন';},value:function(x){return x.activeDevices;}}
+  ];
+  function findTeacherCard(){
+    var sum=document.getElementById('summary');
+    if(!sum)return null;
+    var cards=sum.querySelectorAll('.stat');
+    for(var i=0;i<cards.length;i++){
+      if((cards[i].textContent||'').indexOf('মোট শিক্ষক/শিক্ষিকা')>=0)return cards[i];
+    }
+    return null;
+  }
+  function renderCards(){
+    var sum=document.getElementById('summary'),teacher=findTeacherCard();
+    if(!sum||!teacher||teacher.parentElement!==sum)return false;
+    var cursor=teacher;
+    specs.forEach(function(spec){
+      var card=document.getElementById(spec.id);
+      if(!card){
+        card=document.createElement('div');
+        card.id=spec.id;card.className='stat dashboard-live-stat';
+        card.setAttribute('role','button');card.setAttribute('tabindex','0');
+        card.setAttribute('title','লাইভ সংখ্যা আপডেট করতে চাপ দিন');
+        card.innerHTML='<b>—</b><span></span><small></small>';
+        card.addEventListener('click',refresh);
+        card.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();refresh();}});
+      }
+      if(cursor.nextElementSibling!==card)sum.insertBefore(card,cursor.nextElementSibling);
+      cursor=card;
+    });
+    if(latest)paint(latest);
+    return true;
+  }
+  function paint(data){
+    latest=data;
+    specs.forEach(function(spec){
+      var card=document.getElementById(spec.id);if(!card)return;
+      var v=spec.value(data),b=card.querySelector('b'),label=card.querySelector('span'),small=card.querySelector('small');
+      if(b&&b.textContent!==String(v))b.textContent=String(v);
+      if(label&&label.textContent!==spec.label)label.textContent=spec.label;
+      var sub=spec.sub(data);if(small&&small.textContent!==sub)small.textContent=sub;
+    });
+  }
+  async function refresh(){
+    if(busy)return;busy=true;
+    try{
+      var result=await call('getDashboardLiveStats');
+      if(result&&result.ok)paint(result);
+      else specs.forEach(function(spec){var b=document.querySelector('#'+spec.id+' b');if(b)b.textContent='—';});
+    }catch(e){
+      // Keep the last successful totals visible if a temporary connection error occurs.
+    }finally{busy=false;}
+  }
+  function start(){
+    renderCards();
+    refresh();
+    if(window.MutationObserver){
+      observer=new MutationObserver(function(){renderCards();});
+      observer.observe(document.body,{childList:true,subtree:true,characterData:true});
+    }
+    window.setInterval(function(){renderCards();refresh();},30000);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
+</script>
+<!-- ===== END THREE LIVE STAT TILES ===== -->
