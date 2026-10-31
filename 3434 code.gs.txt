@@ -263,7 +263,8 @@ function verifyLoginOtp(token,username,code) {
     if (d.username !== username || Date.now() > d.expires) return {ok:false,message:'OTP অবৈধ বা মেয়াদ শেষ।'};
     if (hash_(String(code).replace(/\D/g,'')) !== d.otpHash) return {ok:false,message:'OTP সঠিক নয়।'};
     const session = Utilities.getUuid();
-    CacheService.getScriptCache().put('SESSION:'+session, JSON.stringify({username,accountType:'admin',at:Date.now()}), 21600);
+    CacheService.getScriptCache().put('SESSION:'+session, JSON.stringify({username,accountType:'admin',at:Date.now(),sessionVersion:getUserSessionVersion_('admin',username)}), 21600);
+    registerActiveSession_(session,username,'admin');
     CacheService.getScriptCache().remove('OTP:'+token);
     log_(username,'login','SESSION','Login successful');
     return {ok:true,token:session,user:getAdminSafe_(username)};
@@ -292,7 +293,7 @@ function registerNewAdmin(data){
   if(!name||!mobile||!username||!password||!address||!photo) return {ok:false,message:'নাম, ঠিকানা, ফটো, মোবাইল, Username ও Password বাধ্যতামূলক।'};
   if(findBy_(SHEETS.ADMINS,'Username',username)) return {ok:false,message:'এই Username আগে থেকেই আছে।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ADMINS), n=nextSerial_(sh), id='M-1/'+String(n).padStart(4,'0');
-  sh.appendRow([n,id,name,'','',username,hash_(password),'',mobile,'',address,photo,'','',id,'ADMIN','PENDING',now_(),password,'','','']);
+  sh.appendRow([n,id,name,'','',username,hash_(password),'',mobile,'',address,photo,'','',id,'ADMIN','PENDING',now_(),'','','','']);
   log_('PUBLIC','register','ADMIN',id);
   return {ok:true,adminId:id,message:'নতুন অ্যাডমিন নিবন্ধন হয়েছে। অনুমোদনের পর Username + Password দিয়ে OTP ছাড়া লগইন করতে পারবেন।'};
 }
@@ -311,7 +312,7 @@ function registerMadrasa(data){
   const deps=Array.isArray(data.departments)?data.departments.filter(Boolean).join(', '):String(data.departments||'');
   /* Add review columns only after the legacy Email/Photo columns exist; write by header name to avoid column shifts. */
   ensureAccountReviewColumns_();
-  const rowData={Serial:n,MadrasaID:id,GenderType:'',Name:name,FoundedYear:year,Founder:'',Muhtamim:'',Address:address,Mobile:mobile,StaffCount:0,StudentCount:0,Level:'',Status:'PENDING',CreatedAt:now_(),Username:username,Password:password,PasswordHash:hash_(password),ActiveDepartments:deps,OtherDepartment:String(data.otherDepartment||''),Ownership:String(data.ownership||''),ApprovedBy:'',ApprovedAt:'',Permissions:'',Email:email,Photo:photo,ReviewStatus:'',ReviewedBy:'',ReviewedAt:'',ReviewNote:''};
+  const rowData={Serial:n,MadrasaID:id,GenderType:'',Name:name,FoundedYear:year,Founder:'',Muhtamim:'',Address:address,Mobile:mobile,StaffCount:0,StudentCount:0,Level:'',Status:'PENDING',CreatedAt:now_(),Username:username,Password:'',PasswordHash:hash_(password),ActiveDepartments:deps,OtherDepartment:String(data.otherDepartment||''),Ownership:String(data.ownership||''),ApprovedBy:'',ApprovedAt:'',Permissions:'',Email:email,Photo:photo,ReviewStatus:'',ReviewedBy:'',ReviewedAt:'',ReviewNote:''};
   const finalHeaders=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(function(x){return String(x||'').trim()});
   const row=finalHeaders.map(function(k){return rowData[k]!==undefined?rowData[k]:''});
   sh.getRange(sh.getLastRow()+1,1,1,row.length).setValues([row]);
@@ -338,9 +339,17 @@ function loginMadrasa(username,password){
 }
 
 function createDirectSession_(username,type){
+  const account=type==='admin'?findBy_(SHEETS.ADMINS,'Username',username):findBy_(SHEETS.MADRASAS,'Username',username);
+  if(!account)return {ok:false,message:'Account পাওয়া যায়নি।'};
+  const role=String(account.Role||'').toUpperCase().replace(/\s+/g,'_');
+  const root=type==='admin'&&(role==='SUPER_ADMIN'||role==='SUPERADMIN'||String(username).toLowerCase()==='superadmin');
+  if(!root&&String(account.Status||'').toUpperCase()!=='ACTIVE')return {ok:false,message:'এই account সক্রিয় নয়। Super Admin অনুমোদন প্রয়োজন।'};
   const session=Utilities.getUuid();
-  CacheService.getScriptCache().put('SESSION:'+session,JSON.stringify({username:String(username),accountType:type,at:Date.now()}),21600);
+  CacheService.getScriptCache().put('SESSION:'+session,JSON.stringify({username:String(username),accountType:type,at:Date.now(),sessionVersion:getUserSessionVersion_(type,username)}),21600);
+  registerActiveSession_(session,username,type);
+  log_(username,'login','SESSION',type+' login successful');
   const user=type==='admin'?getAdminSafe_(username):findBy_(SHEETS.MADRASAS,'Username',username)||{};
+  delete user.Password;delete user.PasswordHash;delete user.password;delete user.passwordHash;
   user.accountType=type;
   return {ok:true,token:session,user:user,message:'লগইন সফল হয়েছে।'};
 }
@@ -382,8 +391,11 @@ function getModuleList(token,key){
 }
 
 function isSuperAdmin_(token){
-  const s=auth_(token), a=findBy_(SHEETS.ADMINS,'Username',s.username)||{};
-  return String(a.Role||'').toUpperCase()==='SUPER_ADMIN' || String(a.Role||'').toUpperCase()==='SUPERADMIN';
+  const s=auth_(token);
+  if(String(s.accountType||'admin')==='madrasa')return false;
+  const a=findBy_(SHEETS.ADMINS,'Username',s.username)||{};
+  const role=String(a.Role||'').toUpperCase().replace(/\s+/g,'_');
+  return role==='SUPER_ADMIN'||role==='SUPERADMIN'||String(s.username||'').toLowerCase()==='superadmin';
 }
 function requireFeature_(token,feature){
   const s=auth_(token); const a=findBy_(SHEETS.ADMINS,'Username',s.username)||{};
@@ -506,8 +518,54 @@ function getAccountControlData(token){
   ensureAccountReviewColumns_();
   if(!isSuperAdmin_(token)) return {ok:false,message:'শুধু Super Admin অনুমোদন ও পারমিশন পরিবর্তন করতে পারবেন।'};
   // Never send stored password fields to the browser.
-  const safeAccounts=function(rows){return rows.map(function(r){delete r.Password;delete r.PasswordHash;delete r.password;delete r.passwordHash;return r;});};
+  const safeAccounts=function(rows){return rows.filter(function(r){const u=String(r.Username||'').trim().toLowerCase(),role=String(r.Role||'').trim().toUpperCase().replace(/\s+/g,'_');return !(u==='superadmin'||role==='SUPER_ADMIN'||role==='SUPERADMIN');}).map(function(r){delete r.Password;delete r.PasswordHash;delete r.password;delete r.passwordHash;return r;});};
   return {ok:true,admins:safeAccounts(listRows_(SHEETS.ADMINS,token,500)),madrasas:safeAccounts(listRows_(SHEETS.MADRASAS,token,500)),admissions:listRows_(SHEETS.ADMISSIONS,token,500).filter(function(r){return ['PENDING','SUBMITTED','SUBMITTED_TO_SUPER_ADMIN','PENDING_PAYMENT'].indexOf(String(r.Status||r.ApprovalStatus||'').trim().toUpperCase())>=0;}),modules:getModules_()};
+}
+function getActiveLoginControlData(token){
+  if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin All Account Control ব্যবহার করতে পারবেন।'};
+  const props=PropertiesService.getScriptProperties(),all=props.getProperties(),now=Date.now(),sessionMap={};
+  Object.keys(all).forEach(function(k){
+    if(k.indexOf('ACTIVE_SESSION:')!==0)return;
+    try{
+      const s=JSON.parse(all[k]),age=now-Number(s.createdAt||0);
+      if(age>21600000||!s.username){props.deleteProperty(k);return;}
+      const key=String(s.accountType||'admin')+':'+String(s.username||'');
+      if(!sessionMap[key])sessionMap[key]=[];
+      sessionMap[key].push({createdAt:Number(s.createdAt||0),deviceInfo:s.deviceInfo||{}});
+    }catch(e){props.deleteProperty(k);}
+  });
+  const safe=function(sheet,type,idKey){
+    return listRows_(sheet,token,500).map(function(r){
+      const username=String(r.Username||''),role=String(r.Role||'').trim().toUpperCase().replace(/\s+/g,'_');
+      const isRoot=type==='admin'&&(username.toLowerCase()==='superadmin'||role==='SUPER_ADMIN'||role==='SUPERADMIN');
+      const sessions=sessionMap[type+':'+username]||[];
+      const email=String(r.Email||r.EmailAddress||r.email||r.EmailID||'');
+      return {type:type,id:String(r[idKey]||''),name:String(r.NameBN||r.Name||r.InstitutionName||username||'Super Admin'),
+        username:username,email:email,status:String(r.Status||(isRoot?'ACTIVE':'UNKNOWN')),
+        isRoot:isRoot,activeSessions:sessions.length,lastLogin:sessions.length?Math.max.apply(null,sessions.map(function(x){return x.createdAt;})):0,
+        sessions:sessions.map(function(x){return {createdAt:x.createdAt,deviceInfo:x.deviceInfo||{}};})};
+    });
+  };
+  const accounts=safe(SHEETS.ADMINS,'admin','AdminID').concat(safe(SHEETS.MADRASAS,'madrasa','MadrasaID'));
+  return {ok:true,accounts:accounts};
+}
+function forceLogoutAccount(token,type,username){
+  try{
+    if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin Force Logout করতে পারবেন।'};
+    type=String(type||'').toLowerCase();username=String(username||'').trim();
+    if((type!=='admin'&&type!=='madrasa')||!username)return {ok:false,message:'Account তথ্য সঠিক নয়।'};
+    const account=type==='admin'?findBy_(SHEETS.ADMINS,'Username',username):findBy_(SHEETS.MADRASAS,'Username',username);
+    if(!account)return {ok:false,message:'Account পাওয়া যায়নি।'};
+    const role=String(account.Role||'').toUpperCase().replace(/\s+/g,'_');
+    if(type==='admin'&&(username.toLowerCase()==='superadmin'||role==='SUPER_ADMIN'||role==='SUPERADMIN')){
+      log_(sessionUser_(token),'force-logout-blocked','admin','Primary Super Admin protection');
+      return {ok:false,message:'নিরাপত্তার জন্য মূল Super Admin-কে Force Logout করা যাবে না।'};
+    }
+    invalidateUserSessions_(type,username);
+    const actor=sessionUser_(token);
+    log_(actor,'force-logout',type,username+' | all sessions revoked');
+    return {ok:true,message:username+' Account-এর সব Login Session Force Logout করা হয়েছে।'};
+  }catch(e){return {ok:false,message:'Force Logout ব্যর্থ: '+String(e&&e.message||e)};}
 }
 function approveAccount(token,type,id,status,permissions){
   try{
@@ -604,7 +662,10 @@ function setAccountStatus(token,type,id,status){
   const previous=String(vals[idx][statusCol]||'').trim().toUpperCase();
   if(previous===status) return {ok:true,message:'Account Status আগে থেকেই '+status+' আছে।'};
   sh.getRange(idx+1,statusCol+1).setValue(status); SpreadsheetApp.flush();
+  const usernameCol=h.indexOf('Username'),targetUsername=usernameCol>=0?String(vals[idx][usernameCol]||'').trim():'';
+  invalidateUserSessions_(type==='admin'?'admin':'madrasa',targetUsername);
   log_(sessionUser_(token),'status',type,id+' | '+previous+' → '+status);
+  notifySuperAdminSecurity_(sessionUser_(token),'Account status changed',type+':'+id,'Previous='+previous+'; new='+status+'; target username='+targetUsername);
   return {ok:true,message:'Account status '+status+' করা হয়েছে।'};
 }
 function resetAccountPassword(token,type,id,newPassword){
@@ -626,12 +687,18 @@ function resetAccountPassword(token,type,id,newPassword){
       return {ok:false,message:'নিরাপত্তার জন্য মূল Super Admin-এর Password এই তালিকা থেকে পরিবর্তন করা যাবে না।'};
     }
   }
-  const hi=h.indexOf('PasswordHash'), pi=h.indexOf('Password'); if(hi>=0)sh.getRange(idx+1,hi+1).setValue(hash_(newPassword)); if(pi>=0)sh.getRange(idx+1,pi+1).setValue(newPassword);
+  const hi=h.indexOf('PasswordHash'), pi=h.indexOf('Password'); if(hi>=0)sh.getRange(idx+1,hi+1).setValue(hash_(newPassword)); if(pi>=0)sh.getRange(idx+1,pi+1).clearContent();
   SpreadsheetApp.flush(); log_(sessionUser_(token),'password_reset',type,id); return {ok:true,message:'Password reset হয়েছে।'};
 }
 
+function checkSession(token){try{auth_(token);return {ok:true};}catch(e){var m=String(e&&e.message||e||'');if(m.indexOf('SESSION_EXPIRED')!==-1)return {ok:false,message:'SESSION_EXPIRED'};throw e;}}
+
 function logout(token) {
-  if(token) CacheService.getScriptCache().remove('SESSION:'+token);
+  if(token){
+    const cache=CacheService.getScriptCache(),raw=cache.get('SESSION:'+token);
+    if(raw){try{const s=JSON.parse(raw);log_(s.username||'','logout',s.accountType||'admin','Logout successful');}catch(e){}}
+    cache.remove('SESSION:'+token);removeActiveSession_(token);
+  }
   return {ok:true};
 }
 
@@ -1702,8 +1769,13 @@ function uploadFile(token,item) {
 }
 
 function getSheetData(token,sheetName,limit) {
-  auth_(token); if(!isSuperAdmin_(token)) requireFeature_(token,'excel');
-  return {ok:true,headers:HEADERS[sheetName],rows:listRows_(sheetName,token,limit||1000)};
+  auth_(token);
+  if(!isSuperAdmin_(token)) return {ok:false,message:'মূল Google Sheet-এর তথ্য দেখার অনুমতি শুধু Super Admin-এর।'};
+  const allowedSheets=Object.keys(SHEETS).map(function(k){return SHEETS[k];});
+  if(allowedSheets.indexOf(sheetName)<0)return {ok:false,message:'অজানা Sheet নির্বাচন করা হয়েছে।'};
+  const rows=listRows_(sheetName,token,limit||1000).map(function(r){delete r.Password;delete r.PasswordHash;delete r.password;delete r.passwordHash;return r;});
+  const headers=(HEADERS[sheetName]||[]).filter(function(h){return !/^(password|passwordhash)$/i.test(String(h));});
+  return {ok:true,headers:headers,rows:rows};
 }
 
 function getLocations() {
@@ -1846,9 +1918,60 @@ function countData_(s){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetB
 function sumCol_(s,key){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(s); if(!sh||sh.getLastRow()<2)return 0; const h=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0],j=h.indexOf(key); if(j<0)return 0; return sh.getRange(2,j+1,sh.getLastRow()-1,1).getValues().reduce((a,r)=>a+(Number(r[0])||0),0); }
 function countMadrasa_(g){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MADRASAS); if(!sh||sh.getLastRow()<2)return 0; return sh.getRange(2,3,sh.getLastRow()-1,1).getValues().filter(r=>String(r[0])===g).length; }
 function attendanceToday_(){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ATTENDANCE); if(!sh||sh.getLastRow()<2)return {present:0,absent:0}; const h=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0],d=h.indexOf('Date'),s=h.indexOf('Status'),today=Utilities.formatDate(new Date(),APP.timezone,'yyyy-MM-dd'); let p=0,a=0; sh.getDataRange().getValues().slice(1).forEach(r=>{if(String(r[d]).slice(0,10)===today){if(String(r[s]).toLowerCase().includes('present'))p++;if(String(r[s]).toLowerCase().includes('absent'))a++;}}); return {present:p,absent:a};}
-function auth_(token){ const raw=CacheService.getScriptCache().get('SESSION:'+token); if(!raw)throw new Error('SESSION_EXPIRED'); return JSON.parse(raw); }
+function auth_(token){
+  if(!token)throw new Error('SESSION_EXPIRED');
+  const cache=CacheService.getScriptCache(),raw=cache.get('SESSION:'+token);
+  if(!raw){removeActiveSession_(token);throw new Error('SESSION_EXPIRED');}
+  const s=JSON.parse(raw),type=String(s.accountType||'admin'),username=String(s.username||'');
+  if(Number(s.sessionVersion||0)!==getUserSessionVersion_(type,username)){cache.remove('SESSION:'+token);removeActiveSession_(token);throw new Error('SESSION_EXPIRED');}
+  const account=type==='madrasa'?findBy_(SHEETS.MADRASAS,'Username',username):findBy_(SHEETS.ADMINS,'Username',username);
+  if(!account){cache.remove('SESSION:'+token);removeActiveSession_(token);throw new Error('SESSION_EXPIRED');}
+  const role=String(account.Role||'').toUpperCase().replace(/\s+/g,'_');
+  const root=type!=='madrasa'&&(role==='SUPER_ADMIN'||role==='SUPERADMIN'||username.toLowerCase()==='superadmin');
+  if(!root&&String(account.Status||'').toUpperCase()!=='ACTIVE'){cache.remove('SESSION:'+token);removeActiveSession_(token);throw new Error('SESSION_EXPIRED');}
+  return s;
+}
+function getUserSessionVersion_(type,username){return Number(PropertiesService.getScriptProperties().getProperty('SESSION_VERSION:'+String(type||'admin')+':'+String(username||''))||0);}
+function registerActiveSession_(token,username,type){
+  const props=PropertiesService.getScriptProperties();
+  props.setProperty('ACTIVE_SESSION:'+String(token),JSON.stringify({username:String(username||''),accountType:String(type||'admin'),createdAt:Date.now(),deviceInfo:{}}));
+}
+function updateSessionDeviceInfo(token,info){
+  try{
+    const s=auth_(token),props=PropertiesService.getScriptProperties(),key='ACTIVE_SESSION:'+String(token),raw=props.getProperty(key);
+    if(!raw)return {ok:false,message:'সক্রিয় Session পাওয়া যায়নি।'};
+    const rec=JSON.parse(raw);
+    if(String(rec.username||'')!==String(s.username||''))return {ok:false,message:'Session মিলছে না।'};
+    info=info||{};
+    const clean=function(v,n){return String(v===undefined||v===null?'':v).slice(0,n);};
+    const num=function(v){if(v===undefined||v===null||v==='')return null;v=Number(v);return isFinite(v)?v:null;};
+    rec.deviceInfo={
+      deviceName:clean(info.deviceName,120),deviceType:clean(info.deviceType,40),
+      operatingSystem:clean(info.operatingSystem,80),browser:clean(info.browser,80),
+      ip:clean(info.ip,64),ipCity:clean(info.ipCity,100),ipRegion:clean(info.ipRegion,100),
+      ipCountry:clean(info.ipCountry,100),ipLatitude:num(info.ipLatitude),ipLongitude:num(info.ipLongitude),
+      gpsLatitude:num(info.gpsLatitude),gpsLongitude:num(info.gpsLongitude),
+      gpsAccuracy:num(info.gpsAccuracy),gpsStatus:clean(info.gpsStatus,80),
+      updatedAt:Date.now()
+    };
+    props.setProperty(key,JSON.stringify(rec));
+    return {ok:true};
+  }catch(e){return {ok:false,message:String(e&&e.message||e)};}
+}
+function removeActiveSession_(token){if(token)PropertiesService.getScriptProperties().deleteProperty('ACTIVE_SESSION:'+String(token));}
+function invalidateUserSessions_(type,username){
+  if(!username)return;
+  type=String(type||'admin');username=String(username);
+  const props=PropertiesService.getScriptProperties(),key='SESSION_VERSION:'+type+':'+username;
+  props.setProperty(key,String(getUserSessionVersion_(type,username)+1));
+  const all=props.getProperties();
+  Object.keys(all).forEach(function(k){
+    if(k.indexOf('ACTIVE_SESSION:')!==0)return;
+    try{const s=JSON.parse(all[k]);if(String(s.accountType||'admin')===type&&String(s.username||'')===username)props.deleteProperty(k);}catch(e){props.deleteProperty(k);}
+  });
+}
 function sessionUser_(token){ return auth_(token).username; }
-function getAdminSafe_(u){ const x=findBy_(SHEETS.ADMINS,'Username',u)||{}; delete x.PasswordHash; return x; }
+function getAdminSafe_(u){ const x=findBy_(SHEETS.ADMINS,'Username',u)||{}; delete x.Password;delete x.PasswordHash;delete x.password;delete x.passwordHash;return x; }
 function log_(u,a,t,d){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.AUDIT); if(sh)sh.appendRow([nextSerial_(sh),now_(),u,a,t,d]); }
 
 // Security alert: never include or email anyone's password.
@@ -1887,7 +2010,7 @@ function installSuperAdminSecurityTrigger(){
   let rootRow=0;
   for(let i=1;i<vals.length;i++){
     const username=ui>=0?String(vals[i][ui]||'').trim().toLowerCase():'';
-    const role=ri>=0?String(vals[i][ri]||'').trim().toUpperCase().replace(/\\s+/g,'_'):'';
+    const role=ri>=0?String(vals[i][ri]||'').trim().toUpperCase().replace(/\s+/g,'_'):'';
     if(username==='superadmin'||role==='SUPER_ADMIN'||role==='SUPERADMIN'){rootRow=i+1;break;}
   }
   if(!rootRow)throw new Error('মূল Super Admin row পাওয়া যায়নি।');

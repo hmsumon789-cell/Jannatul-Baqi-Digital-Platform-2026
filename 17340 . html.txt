@@ -1331,7 +1331,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       <select id="loginSignal" class="field" onchange="syncSearchSignal('login')"><option value="">সংকেত নির্বাচন করুন</option></select><input id="loginSearch" class="field" placeholder="সংকেত নির্বাচন করে ID / মোবাইল / ইমেইল লিখুন" onkeydown="if(event.key==='Enter')doSearch('login')"><button class="primary" onclick="doSearch('login')">🔎</button>
     </div>
     <div class="quick">
-      <button type="button" class="primary" onclick="openModule('admission')">📝 অনলাইন ভর্তি ফর্ম</button><button onclick="openModule('payment')">অনলাইন পেমেন্ট</button><button type="button" onclick="openOnlineExamResult2026()">📱 অনলাইন ফলাফল</button><button onclick="openModule('exam')">পরীক্ষার্থী নিবন্ধন</button><button onclick="openModule('admin')">নতুন অ্যাডমিন একাউন্ট</button><button onclick="openModule('madrasa')">নতুন মাদ্রাসা নিবন্ধন</button></div>
+      <button type="button" class="primary" onclick="openModule('admission')">📝 অনলাইন ভর্তি ফর্ম</button><button onclick="openModule('payment')">অনলাইন পেমেন্ট</button><button onclick="openModule('exam')">পরীক্ষার্থী নিবন্ধন</button><button onclick="openModule('admin')">নতুন অ্যাডমিন একাউন্ট</button><button onclick="openModule('madrasa')">নতুন মাদ্রাসা নিবন্ধন</button></div>
     <section id="loginContactStrip20261013" aria-label="মাদ্রাসার যোগাযোগ">
   
   <div class="lc-layout">
@@ -1578,6 +1578,38 @@ body.gold #loginContactStrip20261013{background:#fff9e7!important;color:#4a3300!
 let token='',otpToken='',currentUser=null,media=[],mediaIndex=0,modules=[],drag={};
 const $=id=>document.getElementById(id);
 const call=(fn,...args)=>new Promise((resolve,reject)=>google.script.run.withSuccessHandler(resolve).withFailureHandler(e=>reject(e))[fn](...args));
+async function collectSessionDeviceInfo(){
+  if(!token||typeof navigator==='undefined')return;
+  var accepted=window.confirm('এই অ্যাকাউন্টের ডিভাইস/ব্রাউজার তথ্য ও IP-ভিত্তিক আনুমানিক অবস্থান সুপার অ্যাডমিনের অল একাউন্ট কন্ট্রল-এ দেখা যাবে। IP অবস্থান জানতে একটি বাহ্যিক IP Location সেবা ব্যবহার হবে। GPS অবস্থান শুধু আপনার Browser-এর Location অনুমতি দিলে সংগ্রহ হবে। আপনি কি সম্মতি দিচ্ছেন?');
+  if(!accepted)return;
+  var ua=navigator.userAgent||'',os='Unknown OS',browser='Unknown Browser',deviceType='Computer';
+  if(/Android/i.test(ua)){os='Android';deviceType='Mobile';}
+  else if(/iPhone|iPad|iPod/i.test(ua)){os='iOS';deviceType=/iPad/i.test(ua)?'Tablet':'Mobile';}
+  else if(/Windows NT/i.test(ua))os='Windows';
+  else if(/Mac OS X/i.test(ua))os='macOS';
+  else if(/Linux/i.test(ua))os='Linux';
+  if(/Edg\//i.test(ua))browser='Microsoft Edge';
+  else if(/OPR\//i.test(ua))browser='Opera';
+  else if(/Chrome\//i.test(ua))browser='Google Chrome';
+  else if(/Firefox\//i.test(ua))browser='Mozilla Firefox';
+  else if(/Safari\//i.test(ua))browser='Safari';
+  var model='';
+  var mm=ua.match(/Android[^;]*;\s*([^;)]+)/i);if(mm)model=mm[1].trim();
+  if(/iPhone/i.test(ua))model='iPhone';else if(/iPad/i.test(ua))model='iPad';
+  var info={deviceName:(model||deviceType)+' • '+os,deviceType:deviceType,operatingSystem:os,browser:browser,gpsStatus:'অবস্থানের অনুমতি অপেক্ষমাণ'};
+  try{
+    var ipr=await fetch('https://ipwho.is/',{cache:'no-store'});
+    var ipd=await ipr.json();
+    if(ipd&&ipd.success!==false){info.ip=ipd.ip||'';info.ipCity=ipd.city||'';info.ipRegion=ipd.region||'';info.ipCountry=ipd.country||'';info.ipLatitude=ipd.latitude;info.ipLongitude=ipd.longitude;}
+  }catch(e){info.ip='';info.ipCity='IP তথ্য পাওয়া যায়নি';}
+  if(navigator.geolocation){
+    try{
+      var pos=await new Promise(function(resolve,reject){navigator.geolocation.getCurrentPosition(resolve,reject,{enableHighAccuracy:true,timeout:12000,maximumAge:60000});});
+      info.gpsLatitude=pos.coords.latitude;info.gpsLongitude=pos.coords.longitude;info.gpsAccuracy=pos.coords.accuracy;info.gpsStatus='অনুমতি দেওয়া হয়েছে';
+    }catch(e){info.gpsStatus=e&&e.code===1?'ব্যবহারকারী অনুমতি দেননি':(e&&e.code===3?'GPS সময় শেষ':'GPS অবস্থান পাওয়া যায়নি');}
+  }else info.gpsStatus='এই Browser GPS সমর্থন করে না';
+  try{await call('updateSessionDeviceInfo',token,info);}catch(e){}
+}
 
 window.addEventListener('load',async()=>{initOtp();tick();setInterval(tick,1000);loadPublic();});
 
@@ -1602,12 +1634,12 @@ function syncSearchSignal(where){const sig=$(where==='login'?'loginSignal':'appS
 function fillClasses(c){/* class list is available through module forms */}
 function togglePassword(){const x=$('password');x.type=x.type==='password'?'text':'password'}
 async function login(){  const u=$('username')?.value.trim()||'', p=$('password')?.value||'';  const btn=$('mainLoginBtn');
-  if(!u||!p){toast('ইউজার নেম ও পাসওয়ার্ড দিন।');return;}
+  if(!u||!p){window.toast('ইউজার নেম ও পাসওয়ার্ড দিন।');return;}
   if(btn){btn.disabled=true;btn.dataset.oldText=btn.textContent;btn.textContent='⏳ লগইন হচ্ছে...';}
   try{
     if(typeof google==='undefined'||!google.script||!google.script.run)throw new Error('Apps Script সংযোগ পাওয়া যায়নি। এই HTML ফাইলটি Apps Script Web App হিসেবে Deploy করুন।');
     const r=await call('login',u,p);
-    if(!r||!r.ok){toast((r&&r.message)||'লগইন ব্যর্থ হয়েছে।');return;}
+    if(!r||!r.ok){window.toast((r&&r.message)||'ইউজার নেম অথবা পাসওয়ার্ড ভুল হয়েছে।');return;}
     if(!r.requiresOtp){
       token=r.token;currentUser=r.user||{};
       $('otpArea').classList.remove('show');
@@ -1620,7 +1652,7 @@ async function login(){  const u=$('username')?.value.trim()||'', p=$('password'
     $('otpMsg').textContent=(r.message||'OTP পাঠানো হয়েছে।')+' '+(r.emailMask||'');
     const first=$('otpBoxes')?.firstElementChild;if(first)first.focus();
   }catch(e){
-    toast('লগইন সার্ভার ত্রুটি: '+(e&&e.message?e.message:e));
+    window.toast('লগইন সার্ভার ত্রুটি: '+(e&&e.message?e.message:e));
   }finally{
     if(btn){btn.disabled=false;btn.textContent=btn.dataset.oldText||'লগইন';}
   }
@@ -1629,8 +1661,29 @@ async function verifyOtp(){const code=[...document.querySelectorAll('.otp-box')]
 async function resendOtp(){const r=await call('requestOtp',$('username').value.trim());if(r&&r.ok&&r.token){otpToken=r.token;$('otpArea').classList.add('show');$('otpMsg').textContent=(r.message||'নতুন OTP পাঠানো হয়েছে।')+' '+(r.emailMask||'');clearOtp();return}toast((r&&r.message)||'নতুন OTP পাঠানো যায়নি।')}
 function clearOtp(){document.querySelectorAll('.otp-box').forEach(x=>x.value='');$('otpBoxes').firstElementChild.focus()}
 async function resetOtp(){const r=await call('requestOtp',$('resetUser').value.trim());toast(r.message)}
+let sessionWatchTimer=null;
+function startSessionWatch(){
+  if(sessionWatchTimer)clearInterval(sessionWatchTimer);
+  var checking=false;
+  sessionWatchTimer=setInterval(async function(){
+    if(!token||checking)return;
+    checking=true;
+    try{
+      var r=await call('checkSession',token);
+      if(!r||r.ok!==false||r.message!=='SESSION_EXPIRED')return;
+      token='';currentUser=null;
+      if($('app'))$('app').classList.remove('show','jb-dashboard-visible-2026');
+      if($('loginPage'))$('loginPage').classList.remove('jb-login-hidden-2026');
+      clearInterval(sessionWatchTimer);sessionWatchTimer=null;
+      window.toast('আপনার Login Session বাতিল করা হয়েছে। পুনরায় প্রবেশ করতে Login করুন।');
+    }catch(e){
+      // Temporary network/server errors must not log out a valid user.
+      return;
+    }finally{checking=false;}
+  },20000);
+}
 async function logout(){await call('logout',token);location.reload()}
-async function loadApp(){const r=await call('getBootstrap',token);if(!r||!r.ok)return;var ub=currentUser||r.currentAdmin||{};var rr=String(ub.Role||ub.role||'').toUpperCase().replace(/\s+/g,'_');var isSuper=(rr==='SUPER_ADMIN'||rr==='SUPERADMIN');if($('accountManagerBtn'))$('accountManagerBtn').style.display=isSuper?'inline-block':'none';if($('sheetWin'))$('sheetWin').dataset.allowed=isSuper?'yes':'no';var sheetBtn=document.querySelector('.sheet-btn');if(sheetBtn)sheetBtn.style.display=isSuper?'inline-block':'none';modules=r.modules||[];renderModules();renderStats(r.stats||{});renderNotices(r.notices||[]);media=r.media||[];renderMedia();fillFeatureSelect();if(isSuper)fillSheets();else if($('sheetSelect'))$('sheetSelect').innerHTML='';dragWindow($('formWin'))}
+async function loadApp(){const r=await call('getBootstrap',token);if(!r||!r.ok)return;var ub=currentUser||r.currentAdmin||{};var rr=String(ub.Role||ub.role||'').toUpperCase().replace(/\s+/g,'_');var isSuper=(rr==='SUPER_ADMIN'||rr==='SUPERADMIN'||String(ub.Username||ub.username||'').toLowerCase()==='superadmin');if($('accountManagerBtn'))$('accountManagerBtn').style.display=isSuper?'inline-block':'none';if($('sheetWin'))$('sheetWin').dataset.allowed=isSuper?'yes':'no';var sheetBtn=document.querySelector('.sheet-btn');if(sheetBtn)sheetBtn.style.display=isSuper?'inline-block':'none';modules=r.modules||[];renderModules();renderStats(r.stats||{});renderNotices(r.notices||[]);media=r.media||[];renderMedia();fillFeatureSelect();if(isSuper)fillSheets();else if($('sheetSelect'))$('sheetSelect').innerHTML='';dragWindow($('formWin'));startSessionWatch();collectSessionDeviceInfo()}
 function renderModules(){const l=$('leftModules'),r=$('rightModules');l.innerHTML='';r.innerHTML='';modules.forEach((m,i)=>{const b=document.createElement('button');b.className='module';b.textContent=m[1];b.onclick=()=>openModule(m[0]);(i<Math.ceil(modules.length/2)?l:r).appendChild(b)});window.openAllSettings=function(){var w=$('allSettingsWin');if(!w){w=document.createElement('div');w.id='allSettingsWin';w.className='window';w.style.cssText='width:min(900px,94vw);z-index:1000100;';w.innerHTML='<div class="win-head"><b>⚙️ অল সেটিংস</b><button class="secondary" type="button" onclick="closeWindow(\'allSettingsWin\')">✕</button></div><div class="win-body"><h3>সকল সেটিংস</h3><div class="form-grid"><div><b>🎨 থিম</b><p><select class="field jb-mode-select-20261017" aria-label="মোড নির্বাচন" onchange="setMode(this.value)"><option value="offwhite">🤍 Off-White</option><option value="dark">🌙 Dark</option><option value="light">☀️ Light</option><option value="gold">🟡 Golden</option></select></p></div><div><b>🌐 ভাষা</b><select class="field" onchange="setLang(this.value)"><option value="bn">বাংলা</option><option value="ar">العربية</option><option value="en">English</option><option value="ur">اردو</option></select></div><div><b>🔎 সংকেত / All Search</b><p>উপরের সংকেত নির্বাচন করে ID / মোবাইল / ইমেইল দিয়ে All Search ব্যবহার করুন।</p><button class="secondary" onclick="document.getElementById(\'appSignal\').focus();closeWindow(\'allSettingsWin\')">🔎 Search Settings</button></div><div><b>📊 সরাসরি শিট</b><p><button class="secondary" onclick="openWindow(\'sheetWin\')">📊 সরাসরি শিট</button></p></div><div><b>🔐 Account অনুমোদন</b><p><button class="secondary" onclick="openAccountManager()">🔐 Account Approval</button></p></div><div><b>🖥️ Header / Taskbar</b><p>হোম + ৩ মোড + সংকেত + All Search + লগআউট লাইনটি Taskbar-এর ঠিক উপরে থাকবে।</p></div><div><b>🎬 Media</b><p>ভিডিও 50 MB/50টি · ফটো 20 MB/100টি · অডিও 50 MB/50টি।</p></div><div><b>🇧🇩 সময়</b><p>বাংলাদেশ সময় (Asia/Dhaka) অনুযায়ী ঘড়ি ও তারিখ দেখানো হবে।</p></div></div></div>';document.body.appendChild(w)}openWindow('allSettingsWin')};var bs=[...document.querySelectorAll('#leftModules .module,#rightModules .module')],target=bs.find(function(x){var t=(x.textContent||'').replace(/\s+/g,'');return t.indexOf('পরামর্শ')>=0&&(t.indexOf('অভিযোগ')>=0||t.indexOf('যোগ')>=0)});if(!target)target=bs.find(function(x){return (x.textContent||'').indexOf('পরামর্শ')>=0});if(target&&!document.getElementById('allSettingsBtn')){var z=document.createElement('button');z.id='allSettingsBtn';z.className='module';z.type='button';z.textContent='⚙️ অল সেটিংস';z.onclick=window.openAllSettings;target.insertAdjacentElement('afterend',z)}else if(!target&&!document.getElementById('allSettingsBtn')){var z2=document.createElement('button');z2.id='allSettingsBtn';z2.className='module';z2.type='button';z2.textContent='⚙️ অল সেটিংস';z2.onclick=window.openAllSettings;l.appendChild(z2)}if(typeof window.jbSetLang2026==="function")window.jbSetLang2026(localStorage.lang||"bn")}
 function fillFeatureSelect(){const s=$('featureSelect');modules.forEach(m=>{const o=document.createElement('option');o.value=m[0];o.textContent=m[1];s.appendChild(o)})}
 function removeRequestedDashboardTiles2026(){
@@ -1736,7 +1789,7 @@ ${locationField('fVillage','গ্রাম',['কোনাখোলা','মড
 <label class="full">ঠিকানা<textarea id="fAddress" class="field"></textarea></label></div>`;
 if(['student','teacher','donor'].includes(k))return common+`<div class="form-grid"><label>শ্রেনি/জামাত<select id="fClass" class="field">${['প্লে শ্রেনি','শিশু শ্রেনি','আউয়াল জামাত','ছানী জামাত','ছালেছ জামাত','রাবে জামাত','পঞ্চম জামাত','মিজান জামাত','নাহবেমীর জামাত','কুদুরী জামাত','শরহে বেকায়া জামাত','হেদায়া জামাত','মিশকাত জামাত','দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)'].map(x=>`<option>${x}</option>`).join('')}</select></label><label>বিভাগ<select id="fDept" class="field"><option>কিতাব বিভাগ</option><option>হিফজুল কুরআন বিভাগ</option><option>নুরানী বিভাগ</option><option>গণিত বিভাগ</option><option>ইংলিশ বিভাগ</option><option>বাংলা বিভাগ</option><option>বোর্ডিং বিভাগ</option><option>হিসাব বিভাগ</option></select></label><label>শাখা<select id="fBranch" class="field"><option>প্রধান শাখা</option><option>২য় শাখা</option><option>৩য় শাখা</option><option>বালক শাখা</option><option>বালিকা শাখা</option></select></label><label>ছবি<input id="fPhoto" class="field" type="file" accept="image/*"></label><label>জন্ম নিবন্ধন<input id="fBirth" class="field"></label><label>জাতীয় ১৭ ডিজিট NID<input id="fNid" class="field"></label></div><button class="primary" onclick="saveModule('${k}')">Save</button>`;
 if(k==='admin')return `<div class="form-grid"><label>Username<input id="aUser" class="field" required></label><label>Password<input id="aPass" class="field" type="password" required></label><label>Email<input id="aEmail" class="field" type="email" required></label><label>Mobile<input id="aMobile" class="field" required></label><label class="full">মাদ্রাসার নাম<input id="mName" class="field" required></label><label>প্রতিষ্ঠা সন<input id="mYear" class="field" required></label><label class="full">ঠিকানা<textarea id="mAddress" class="field" required></textarea></label><label class="full">মাদ্রাসার ফটো<input id="mPhoto" class="field" type="file" accept="image/*" required></label></div><button class="primary" type="button" onclick="saveMadrasaRegistration()">📄 পেজ তৈরি করুন</button>`;
-if(k==='madrasa')return `<div class="form-grid"><label>Username<input id="mUser" class="field" required></label><label>Password<input id="mPass" class="field" type="password" required></label><label>Email<input id="mEmail" class="field" type="email" required></label><label>মোবাইল নম্বর<input id="mMobile" class="field" required></label><label>প্রতিষ্ঠা সন<input id="mYear" class="field" type="number" min="1000" max="2100" required></label><label class="full">মাদ্রাসার বাংলা নাম<input id="mName" class="field" required></label><label class="full">মাদ্রাসার আরবি নাম (ঐচ্ছিক)<input id="mNameAR" class="field"></label><label class="full">মাদ্রাসার ইংরেজি নাম (ঐচ্ছিক)<input id="mNameEN" class="field"></label><label>প্রতিষ্ঠাতার নাম (ঐচ্ছিক)<input id="mFounder" class="field"></label><label>মুহতামিমের নাম (ঐচ্ছিক)<input id="mMuhtamim" class="field"></label><label class="full">ঠিকানা<textarea id="mAddress" class="field" required></textarea></label><label class="full">মাদ্রাসার ফটো<input id="mPhoto" class="field" type="file" accept="image/*" required></label></div><button class="primary" type="button" onclick="saveMadrasaRegistration()">📄 পেজ তৈরি করুন</button>`;
+if(k==='madrasa')return `<div class="form-grid"><label>Username<input id="mUser" class="field" required></label><label>Password<input id="mPass" class="field" type="password" required></label><label>Email<input id="mEmail" class="field" type="email" required></label><label>মোবাইল নম্বর<input id="mMobile" class="field" required></label><label>প্রতিষ্ঠা সন<input id="mYear" class="field" type="number" min="1000" max="2100" required></label><label class="full">বাংলা মাদ্রাসার নাম<input id="mName" class="field" required></label><label class="full">আরবি নাম (ঐচ্ছিক)<input id="mNameAR" class="field"></label><label class="full">ইংরেজি নাম (ঐচ্ছিক)<input id="mNameEN" class="field"></label><label>প্রতিষ্ঠাতার নাম<input id="mFounder" class="field"></label><label>মুহতামিমের নাম<input id="mMuhtamim" class="field"></label><label class="full">ঠিকানা<textarea id="mAddress" class="field" required></textarea></label><label class="full">মাদ্রাসার ফটো<input id="mPhoto" class="field" type="file" accept="image/*" required></label></div><button class="primary" type="button" onclick="saveMadrasaRegistration()">📄 পেজ তৈরি করুন</button>`;
 if(k==='gallery')return `<div class="media-upload-note"><b>ফটো:</b> সর্বোচ্চ 20 MB, 100টি। <b>ভিডিও:</b> সর্বোচ্চ 50 MB, 20টি। <b>অডিও:</b> সর্বোচ্চ 50 MB, 50টি।<br><b>ছবির গোপনীয়তা:</b> পাবলিক ছবি সবাই দেখবে; অ্যাডমিন-শুধু ছবি কেবল গ্যালারী-অনুমোদিত অ্যাডমিন দেখবে। ভিডিও/অডিওর বর্তমান ব্যবস্থা অপরিবর্তিত।</div><div class="form-grid"><label>নতুন ফটোর অনুমতি<select id="mediaVisibility" class="field"><option value="public">🌐 পাবলিক — সবাই দেখতে পারবে</option><option value="admin">🔒 অ্যাডমিন-শুধু</option></select></label><label>ফটো/ভিডিও/অডিও নির্বাচন<input id="mediaFiles" class="field" type="file" multiple accept="image/*,video/*,audio/*"></label></div><div class="photo-gallery-tools-2026"><button class="primary" type="button" onclick="uploadMedia()">⬆ আপলোড</button><button class="secondary" type="button" onclick="openPublicPhotoGallery2026()">🌐 পাবলিক গ্যালারী খুলুন</button></div><h3>📸 ফটো গ্যালারী — গ্রিড</h3><label>ছবি ফিল্টার <select id="photoGalleryFilter2026" class="field" onchange="renderPhotoGalleryGrid2026()"><option value="all">সব অনুমোদিত ছবি</option><option value="public">পাবলিক ছবি</option><option value="admin">অ্যাডমিন-শুধু ছবি</option></select></label><div id="photoGalleryGrid2026" class="photo-gallery-grid-2026"></div><h3>📂 মিডিয়া তালিকা</h3><div id="mediaList"></div>`;
 if(k==='help')return `<button class="primary" onclick="openWindow('quickWin')">দ্রুত সেবা / হেল্প</button>`;
 if(k==='institution')return institutionProfileFormHtml2026();
@@ -1770,7 +1823,7 @@ ${locationField('adVillage','গ্রাম',['কোনাখোলা','ম�
 <label>জাতীয় ১৭ ডিজিট NID<input id="adNid" class="field"></label>
 <label class="full">ঠিকানা / Address<textarea id="adAddress" class="field"></textarea></label>
 </div><button class="primary" onclick="saveModule('admission')">Save Admission</button>`;
-if(['result','marks','exam'].includes(k))return `<div class="student-meta-row-2026"><label>আইডি লিখুন<input id="rStudentMeta" class="field"></label><label>জন্ম তারিখ লিখুন<input id="rDob" class="field" type="date"></label><label>তারিখ লিখুন<input id="rRecordDate" class="field" type="date"></label></div><div class="form-grid"><label>Student ID<input id="rStudent" class="field"></label><label>নাম<input id="rName" class="field"></label><label>শ্রেনি<input id="rClass" class="field"></label><label>পরীক্ষা<input id="rExam" class="field"></label><label>শিক্ষাবর্ষ<select id="rYear" class="field"><option value="">শিক্ষাবর্ষ নির্বাচন</option>'+Array.from({length:45},(_,i)=>{const y=2005+i;return '<option value="'+y+'/'+(y+1)+'">'+y+'/'+(y+1)+'</option>'}).join('')+'</select></label><label class="full">Subject/Marks JSON<textarea id="rSubjects" class="field" placeholder='{"বাংলা":80,"আরবি":85}'></textarea></label></div><button class="primary" onclick="saveResult('${k}')">Save</button>`;
+if(['result','marks','exam'].includes(k))return `<div class="student-meta-row-2026"><label>আইডি লিখুন<input id="rStudentMeta" class="field"></label><label>জন্ম তারিখ লিখুন<input id="rDob" class="field" type="date"></label><label>তারিখ লিখুন<input id="rRecordDate" class="field" type="date"></label></div><div class="form-grid"><label>Student ID<input id="rStudent" class="field"></label><label>নাম<input id="rName" class="field"></label><label>শ্রেনি<input id="rClass" class="field"></label><label>পরীক্ষা<input id="rExam" class="field"></label><label class="full">Subject/Marks JSON<textarea id="rSubjects" class="field" placeholder='{"বাংলা":80,"আরবি":85}'></textarea></label></div><button class="primary" onclick="saveResult('${k}')">Save</button>`;
 return `<p>এই ফিচারের জন্য ৩ ভাষা, A4, ৩ কলাম উইন্ডো কাঠামো প্রস্তুত। প্রয়োজনীয় তথ্য পূরণ করুন।</p><div class="form-grid"><label class="full">বিবরণ<textarea class="field" rows="8" id="genericData"></textarea></label></div><button class="primary" onclick="toast('ফিচার উইন্ডো প্রস্তুত')">Save</button>`;
 }
 function openOldStudentImport2026(){
@@ -1896,7 +1949,7 @@ Mobile:$('fMobile').value,WhatsApp:$('fWhatsApp').value,Email:$('fEmail').value,
 Division:getLocationValue('fDivision'),District:getLocationValue('fDistrict'),Upazila:getLocationValue('fUpazila'),Union:getLocationValue('fUnion'),Ward:getLocationValue('fWard'),Village:getLocationValue('fVillage'),
 Class:document.getElementById('fClass')?.value||'',Department:document.getElementById('fDept')?.value||'',Branch:document.getElementById('fBranch')?.value||'',Photo:await fileData('fPhoto'),BirthReg:document.getElementById('fBirth')?.value||'',NID:document.getElementById('fNid')?.value||''};
 if(k==='student')d.Gender='';const r=await call('saveRecord',token,s,d);if(r&&r.ok){const ad=r.autoDocuments||{};const row=r.row||{};const savedId=row.StudentID||row.TeacherID||row.DonorID||row.MemberID||d.StudentID||(r.studentWorkflow&&r.studentWorkflow.studentId)||'';toast('সফলভাবে সংরক্ষণ হয়েছে'+(savedId?'। ID: '+savedId:'')+(ad.ok?'। স্বয়ংক্রিয় নথি/কার্ডের খসড়া '+(ad.created||0)+'টি প্রস্তুত।':''));}else toast((r&&r.message)||'সংরক্ষণ ব্যর্থ হয়েছে')}
-async function saveMadrasaRegistration(){try{const u=$('mUser').value.trim(),p=$('mPass').value,e=$('mEmail').value.trim(),mobile=$('mMobile').value.trim(),name=$('mName').value.trim(),nameAR=$('mNameAR').value.trim(),nameEN=$('mNameEN').value.trim(),founder=$('mFounder').value.trim(),muhtamim=$('mMuhtamim').value.trim(),year=$('mYear').value.trim(),address=$('mAddress').value.trim(),photo=await fileData('mPhoto');if(!u||!p||!e||!mobile||!name||!year||!address||!photo){toast('Username, Password, Email, Mobile, বাংলা নাম, প্রতিষ্ঠা বছর, ঠিকানা ও ফটো পূরণ করা বাধ্যতামূলক।');return;}const r=await call('registerMadrasa',{username:u,password:p,email:e,mobile:mobile,name:name,nameAR:nameAR,nameEN:nameEN,founder:founder,muhtamim:muhtamim,foundedYear:year,address:address,photo:photo});if(!r||!r.ok){toast((r&&r.message)||'মাদ্রাসা একাউন্ট তৈরি হয়নি।');return;}toast('সফল হয়েছে। এখন অনুমোদনের পর Username + Password দিয়ে OTP ছাড়া লগইন করতে পারবেন।');closeWindow('formWin');openApprovedLogin();setApprovedLoginType('madrasa');$('approvedLoginUser').value=u;$('approvedLoginPass').value=p;}catch(e){toast('সার্ভার ত্রুটি: '+(e&&e.message?e.message:e));}}
+async function saveMadrasaRegistration(){try{const u=$('mUser').value.trim(),p=$('mPass').value,e=$('mEmail').value.trim(),mobile=$('mMobile').value.trim(),name=$('mName').value.trim(),nameAR=$('mNameAR').value.trim(),nameEN=$('mNameEN').value.trim(),founder=$('mFounder').value.trim(),muhtamim=$('mMuhtamim').value.trim(),year=$('mYear').value.trim(),address=$('mAddress').value.trim(),photo=await fileData('mPhoto');if(!u||!p||!e||!mobile||!name||!year||!address||!photo){toast('সকল বাধ্যতামূলক ঘর পূরণ করুন।');return;}const r=await call('registerMadrasa',{username:u,password:p,email:e,mobile:mobile,name:name,nameAR:nameAR,nameEN:nameEN,founder:founder,muhtamim:muhtamim,foundedYear:year,address:address,photo:photo});if(!r||!r.ok){toast((r&&r.message)||'মাদ্রাসা একাউন্ট তৈরি হয়নি।');return;}toast('সফল হয়েছে। এখন অনুমোদনের পর Username + Password দিয়ে OTP ছাড়া লগইন করতে পারবেন।');closeWindow('formWin');openApprovedLogin();setApprovedLoginType('madrasa');$('approvedLoginUser').value=u;$('approvedLoginPass').value=p;}catch(e){toast('সার্ভার ত্রুটি: '+(e&&e.message?e.message:e));}}
 async function saveAdmin(){const photo=await fileData('aPhoto');const d={NameBN:$('aName').value,NameAR:$('aAr').value,NameEN:$('aEn').value,Username:$('aUser').value,Password:$('aPass').value,Email:$('aEmail').value,Mobile:$('aMobile').value,WhatsApp:$('aWa').value,ApprovalID:$('aApproval').value,Address:$('aAddress').value,Photo:photo,BirthReg:$('aBirth').value,NID:$('aNid').value};const r=await call('createAdmin',token,d);toast(r.message||('Admin ID: '+r.adminId))}
 async function lookupOnlinePaymentStudent(){
   const id=String($('pStudent')?.value||'').trim();
@@ -2056,7 +2109,7 @@ function downloadOnlineReceipt(){
   a.href=u;a.download='Money_Receipt_'+String(x.ReceiptID||'receipt').replace(/[^a-zA-Z0-9_-]/g,'_')+'.html';
   document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},1000);
 }
-async function saveResult(k){const d={StudentID:$('rStudent').value,Name:$('rName').value,Class:$('rClass').value,Exam:$('rExam').value,AcademicYear:$('rYear')?$('rYear').value:'',SubjectData:$('rSubjects').value,Published:'NO',Date:new Date().toISOString()};const r=await call('saveRecord',token,'RESULTS',d);toast(r.ok?'Saved':'Failed')}
+async function saveResult(k){const d={StudentID:$('rStudent').value,Name:$('rName').value,Class:$('rClass').value,Exam:$('rExam').value,SubjectData:$('rSubjects').value,Published:'NO',Date:new Date().toISOString()};const r=await call('saveRecord',token,'RESULTS',d);toast(r.ok?'Saved':'Failed')}
 async function uploadMedia(){
   const input=$('mediaFiles');
   if(!input||!input.files||!input.files.length)return toast('প্রথমে ফটো/ভিডিও/অডিও নির্বাচন করুন।');
@@ -2675,7 +2728,7 @@ function renderMediaWithPlayState(){
 .approved-login-actions button{flex:1;min-width:150px}
 </style>
 <style id="account-approval-manager-style">
-.account-manager-wrap{padding:10px}.account-manager-title{text-align:center;font-size:22px;font-weight:900;margin-bottom:8px}.account-manager-note{padding:8px;border:2px dashed var(--border);margin-bottom:10px;font-weight:800}.account-tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}.account-tab{padding:9px 14px;border:2px solid var(--border);border-radius:12px;background:var(--panel);font-weight:900;cursor:pointer}.account-list{display:grid;gap:10px}.account-card{border:3px solid var(--border);padding:10px;background:var(--panel);border-radius:14px}.account-card.pending{box-shadow:0 0 0 3px #e5a10055 inset}.account-card-head{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap;font-weight:900}.account-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}.account-meta div{border:1px solid var(--border);padding:6px}.perm-grid-ui{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}.perm-grid-ui label{display:flex;gap:5px;align-items:center;border:1px solid var(--border);padding:6px;border-radius:8px;font-size:13px}.account-actions-ui{display:flex;gap:6px;flex-wrap:wrap}.account-actions-ui button{padding:8px 12px;border:2px solid var(--border);border-radius:10px;font-weight:900}.account-actions-ui .approve{background:#198754;color:#fff}.account-actions-ui .stop{background:#dc3545;color:#fff}.account-actions-ui .active{background:#0d6efd;color:#fff}.account-actions-ui .reset{background:#ffc107;color:#111}@media(max-width:800px){.account-meta,.perm-grid-ui{grid-template-columns:1fr}}
+.account-manager-wrap{padding:10px}.account-manager-title{text-align:center;font-size:22px;font-weight:900;margin-bottom:8px}.account-manager-note{padding:8px;border:2px dashed var(--border);margin-bottom:10px;font-weight:800}.account-tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}.account-tab{padding:9px 14px;border:2px solid var(--border);border-radius:12px;background:var(--panel);font-weight:900;cursor:pointer}.account-list{display:grid;gap:10px}.account-card{border:3px solid var(--border);padding:10px;background:var(--panel);border-radius:14px}.account-card.pending{box-shadow:0 0 0 3px #e5a10055 inset}.account-card-head{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap;font-weight:900}.account-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}.account-meta div{border:1px solid var(--border);padding:6px}.perm-grid-ui{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}.perm-grid-ui label{display:flex;gap:5px;align-items:center;border:1px solid var(--border);padding:6px;border-radius:8px;font-size:13px}.account-actions-ui{display:flex;gap:6px;flex-wrap:wrap}.all-account-actions{justify-content:flex-end;margin-top:10px}.all-account-actions button:disabled{opacity:.45;cursor:not-allowed}.all-device-info{margin-top:7px;overflow-wrap:anywhere;font-size:12px}.account-actions-ui button{padding:8px 12px;border:2px solid var(--border);border-radius:10px;font-weight:900}.account-actions-ui .approve{background:#198754;color:#fff}.account-actions-ui .stop{background:#dc3545;color:#fff}.account-actions-ui .active{background:#0d6efd;color:#fff}.account-actions-ui .reset{background:#ffc107;color:#111}@media(max-width:800px){.account-meta,.perm-grid-ui{grid-template-columns:1fr}}
 body.gold .account-card,body.gold .account-tab,body.gold .account-actions-ui button,body.gold .perm-grid-ui label{border-radius:999px!important}
 </style>
 <script id="approved-account-login-js">
@@ -2684,12 +2737,12 @@ function openApprovedLogin(){openWindow('approvedLoginWin');setApprovedLoginType
 function setApprovedLoginType(type){approvedLoginType=type==='madrasa'?'madrasa':'admin';var a=$('approvedAdminTab'),m=$('approvedMadrasaTab'),b=$('approvedLoginBtn'),msg=$('approvedLoginMsg');if(a)a.className=approvedLoginType==='admin'?'primary':'secondary';if(m)m.className=approvedLoginType==='madrasa'?'primary':'secondary';if(b)b.textContent=approvedLoginType==='admin'?'🔐 Admin Login':'🔐 Madrasa Login';if(msg)msg.textContent='';}
 function toggleApprovedPassword(){var x=$('approvedLoginPass');if(x)x.type=x.type==='password'?'text':'password'}
 function applyMadrasaBranding(){if(approvedLoginType!=='madrasa'||!currentUser)return;var name=currentUser.Name||currentUser.name||'মাদ্রাসা';var logo=currentUser.Photo||'';var bn=document.querySelector('#app .header-content .title-bn'),ar=document.querySelector('#app .header-content .title-ar'),en=document.querySelector('#app .header-content .title-en'),addr=document.querySelector('#app .header-address-line'),hot=document.querySelector('#app .header-hotline-email-line'),img=document.getElementById('headerLogo');if(bn)bn.textContent=name;if(ar)ar.textContent='';if(en)en.textContent='';if(addr&&currentUser.Address)addr.textContent='ঠিকানা: '+currentUser.Address;if(hot)hot.textContent='মোবাইল: '+(currentUser.Mobile||'')+' · ইমেইল: '+(currentUser.Email||'');if(img&&logo){img.src=logo;img.alt=name+' Logo';}}
-async function approvedLoginSubmit(){var u=$('approvedLoginUser').value.trim(),p=$('approvedLoginPass').value;if(!u||!p){$('approvedLoginMsg').textContent='Username ও Password দিন।';return;}var btn=$('approvedLoginBtn');btn.disabled=true;btn.textContent='⏳ লগইন হচ্ছে...';try{var fn=approvedLoginType==='madrasa'?'loginMadrasa':'loginNewAdmin';var r=await call(fn,u,p);if(!r||!r.ok){$('approvedLoginMsg').textContent=(r&&r.message)||'লগইন ব্যর্থ হয়েছে।';return;}token=r.token;currentUser=r.user||{};closeWindow('approvedLoginWin');$('loginPage').classList.add('jb-login-hidden-2026');$('app').classList.add('show','jb-dashboard-visible-2026');await loadApp();applyMadrasaBranding();toast('✅ লগইন সফল হয়েছে।');}catch(e){$('approvedLoginMsg').textContent='সার্ভার ত্রুটি: '+(e&&e.message?e.message:e)}finally{btn.disabled=false;btn.textContent=approvedLoginType==='admin'?'🔐 Admin Login':'🔐 Madrasa Login'}}
+async function approvedLoginSubmit(){var u=$('approvedLoginUser').value.trim(),p=$('approvedLoginPass').value;if(!u||!p){$('approvedLoginMsg').textContent='Username ও Password দিন।';window.toast('ইউজার নেম ও পাসওয়ার্ড দিন।');return;}var btn=$('approvedLoginBtn');btn.disabled=true;btn.textContent='⏳ লগইন হচ্ছে...';try{var fn=approvedLoginType==='madrasa'?'loginMadrasa':'loginNewAdmin';var r=await call(fn,u,p);if(!r||!r.ok){var err=(r&&r.message)||'ইউজার নেম অথবা পাসওয়ার্ড ভুল হয়েছে।';$('approvedLoginMsg').textContent=err;window.toast(err);return;}token=r.token;currentUser=r.user||{};closeWindow('approvedLoginWin');$('loginPage').classList.add('jb-login-hidden-2026');$('app').classList.add('show','jb-dashboard-visible-2026');await loadApp();applyMadrasaBranding();toast('✅ লগইন সফল হয়েছে।');}catch(e){var err='সার্ভার ত্রুটি: '+(e&&e.message?e.message:e);$('approvedLoginMsg').textContent=err;window.toast(err)}finally{btn.disabled=false;btn.textContent=approvedLoginType==='admin'?'🔐 Admin Login':'🔐 Madrasa Login'}}
 </script>
 <script id="account-approval-manager-js">
 (function(){
 const ACCOUNT_PERMS=[['student','স্টুডেন্ট'],['teacher','শিক্ষক'],['donor','দাতা'],['admission','অনলাইন ভর্তি'],['payment','পেমেন্ট'],['finance','আয়/ব্যয়'],['result','রেজাল্ট'],['exam','পরীক্ষার্থী'],['attendance','হাজিরা'],['notice','নোটিশ'],['gallery','গ্যালারি'],['files','ফাইলস'],['sms','SMS'],['print','প্রিন্ট'],['settings','সেটিংস'],['admin','নতুন Admin']];
-function superUser(){var u=window.currentUser||currentUser||{};var r=String(u.Role||u.role||'').toUpperCase().replace(/\s+/g,'_');return r==='SUPER_ADMIN'||r==='SUPERADMIN'}
+function superUser(){var u=window.currentUser||currentUser||{};var r=String(u.Role||u.role||'').toUpperCase().replace(/\s+/g,'_');return r==='SUPER_ADMIN'||r==='SUPERADMIN'||String(u.Username||u.username||'').toLowerCase()==='superadmin'}
 window.openAccountManager=async function(){if(!superUser())return toast('শুধু Super Admin এই অংশ ব্যবহার করতে পারবেন।');openWindow('accountManagerWin');await refreshAccountManager()};
 window.refreshAccountManager=async function(){
   try{
@@ -2700,23 +2753,74 @@ window.refreshAccountManager=async function(){
     var wrap=document.createElement('div');wrap.className='account-manager-wrap';
     wrap.innerHTML='<div class="account-manager-title">🔐 Account Approval & Permission Control</div><div class="account-manager-note">এখান থেকে Super Admin নতুন Admin/Madrasa Account অনুমোদন করবেন, কোন কোন কাজ করতে পারবে তা টিক দেবেন, প্রয়োজনে Suspend/Active করবেন এবং Password Reset করতে পারবেন।</div>';
     var tabs=document.createElement('div');tabs.className='account-tabs';
-    [['admin','Admin Account'],['madrasa','Madrasa Account'],['students','Pending Student ভর্তি'],['all','সব Account']].forEach(function(t){var b=document.createElement('button');b.type='button';b.className='account-tab';b.textContent=t[1];b.onclick=function(){renderAccountList(t[0])};tabs.appendChild(b)});
+    [['admin','Admin Account'],['madrasa','Madrasa Account'],['students','Pending Student ভর্তি'],['all','সব Account'],['allcontrol','🌐 অল একাউন্ট কন্ট্রল']].forEach(function(t){var b=document.createElement('button');b.type='button';b.className='account-tab';b.textContent=t[1];b.onclick=function(){if(t[0]==='allcontrol')refreshAllAccountControl();else renderAccountList(t[0])};tabs.appendChild(b)});
     wrap.appendChild(tabs);var list=document.createElement('div');list.id='accountListUi';list.className='account-list';wrap.appendChild(list);body.appendChild(wrap);
     window._accountData=r;renderAccountList('all');
   }catch(e){toast('Account Manager সার্ভার ত্রুটি: '+(e&&e.message?e.message:e))}
 };
+window.refreshAllAccountControl=async function(){
+  try{
+    var r=await call('getActiveLoginControlData',token);
+    if(!r||!r.ok)return toast((r&&r.message)||'সকল Account তথ্য পাওয়া যায়নি।');
+    var box=$('accountListUi');if(!box)return;box.innerHTML='';
+    var note=document.createElement('div');note.className='account-manager-note';
+    note.textContent='Super Admin, নিবন্ধিত Madrasa ও Admin—সব Account এবং প্রতিটি সক্রিয় ডিভাইসের তথ্য এখানে দেখা যাবে। IP অবস্থান আনুমানিক; GPS অবস্থান শুধু সংশ্লিষ্ট ডিভাইসের ব্রাউজারে অনুমতি দিলে পাওয়া যাবে।';
+    box.appendChild(note);
+    (r.accounts||[]).forEach(function(x){
+      var card=document.createElement('div');card.className='account-card all-account-card';
+      var head=document.createElement('div');head.className='account-card-head';
+      var nm=document.createElement('span');nm.textContent=(x.isRoot?'⭐ ':'')+(x.name||x.username||'Super Admin');head.appendChild(nm);
+      var st=document.createElement('span');st.textContent='Status: '+(x.status||'UNKNOWN')+' | '+(x.activeSessions||0)+'টি Active Device';head.appendChild(st);card.appendChild(head);
+      var meta=document.createElement('div');meta.className='account-meta';
+      [['ধরন',x.isRoot?'মূল Super Admin':(x.type==='admin'?'Admin':'নিবন্ধিত Madrasa')],['Username',x.username||'—'],['ইমেইল',x.email||'ইমেইল সংরক্ষিত নেই'],['Account ID',x.id||'—'],['সর্বশেষ Login',x.lastLogin?new Date(x.lastLogin).toLocaleString('bn-BD'):'Login রেকর্ড নেই']].forEach(function(a){var q=document.createElement('div');q.textContent=a[0]+': '+a[1];meta.appendChild(q)});
+      card.appendChild(meta);
+      var sessions=x.sessions||[];
+      if(sessions.length){
+        sessions.forEach(function(s,idx){
+          var d=s.deviceInfo||{},panel=document.createElement('div');panel.className='account-manager-note all-device-info';
+          var lines=[
+            'ডিভাইস '+(idx+1)+': '+(d.deviceName||'তথ্য সংগ্রহ হয়নি'),
+            'OS / Browser: '+[d.operatingSystem,d.browser].filter(Boolean).join(' / '),
+            'IP: '+(d.ip||'পাওয়া যায়নি'),
+            'IP অবস্থান: '+[d.ipCity,d.ipRegion,d.ipCountry].filter(Boolean).join(', ')+(d.ipLatitude!=null&&d.ipLongitude!=null?' ('+d.ipLatitude+', '+d.ipLongitude+')':''),
+            'GPS অবস্থান: '+(d.gpsLatitude!=null&&d.gpsLongitude!=null?(d.gpsLatitude+', '+d.gpsLongitude+' | Accuracy '+(d.gpsAccuracy||'—')+'m'):(d.gpsStatus||'অনুমতি/তথ্য পাওয়া যায়নি')),
+            'Login সময়: '+(s.createdAt?new Date(s.createdAt).toLocaleString('bn-BD'):'—')
+          ];
+          panel.textContent=lines.join(' | ');card.appendChild(panel);
+        });
+      }else{
+        var noDev=document.createElement('div');noDev.className='account-manager-note';noDev.textContent='বর্তমানে কোনো ট্র্যাকড Active Session নেই।';card.appendChild(noDev);
+      }
+      var actions=document.createElement('div');actions.className='account-actions-ui all-account-actions';
+      var out=document.createElement('button');out.type='button';out.className='stop';out.textContent='↪ লগআউট';
+      var inactive=document.createElement('button');inactive.type='button';inactive.className='stop';inactive.textContent=String(x.status||'').toUpperCase()==='ACTIVE'?'⛔ আনএকটিভ':'✓ সক্রিয় করুন';
+      if(x.isRoot){out.disabled=true;inactive.disabled=true;out.title='মূল Super Admin সুরক্ষিত';inactive.title='মূল Super Admin সুরক্ষিত';}
+      out.onclick=async function(){
+        if(!confirm((x.username||'এই Account')+'-এর সব ডিভাইস থেকে লগআউট করাবেন?'))return;
+        out.disabled=true;
+        try{var z=await call('forceLogoutAccount',token,x.type,x.username);toast((z&&z.message)||'Logout সম্পন্ন');if(z&&z.ok)await refreshAllAccountControl();}
+        catch(e){toast('Logout ব্যর্থ: '+(e&&e.message?e.message:e));}
+        finally{out.disabled=false;}
+      };
+      inactive.onclick=async function(){
+        var next=String(x.status||'').toUpperCase()==='ACTIVE'?'DISABLED':'ACTIVE';
+        if(!confirm((x.username||'এই Account')+'-কে '+(next==='ACTIVE'?'সক্রিয়':'আনএকটিভ')+' করবেন?'))return;
+        inactive.disabled=true;
+        try{var z=await call('setAccountStatus',token,x.type,x.id,next);toast((z&&z.message)||'Account Status পরিবর্তন হয়েছে');if(z&&z.ok)await refreshAllAccountControl();}
+        catch(e){toast('Status পরিবর্তন ব্যর্থ: '+(e&&e.message?e.message:e));}
+        finally{inactive.disabled=false;}
+      };
+      actions.appendChild(out);actions.appendChild(inactive);card.appendChild(actions);box.appendChild(card);
+    });
+    if(!(r.accounts||[]).length){var empty=document.createElement('div');empty.className='account-card';empty.textContent='কোনো Account পাওয়া যায়নি।';box.appendChild(empty);}
+  }catch(e){toast('All Account Control ত্রুটি: '+(e&&e.message?e.message:e));}
+};
+window.refreshActiveLoginControl=window.refreshAllAccountControl;
 window.renderAccountList=function(type){
   var d=window._accountData||{},arr=[];
   if(type==='admin'||type==='all')arr=arr.concat((d.admins||[]).map(function(x){return Object.assign({_type:'admin'},x)}));
   if(type==='madrasa'||type==='all')arr=arr.concat((d.madrasas||[]).map(function(x){return Object.assign({_type:'madrasa'},x)}));
   if(type==='students'||type==='all')arr=arr.concat((d.admissions||[]).map(function(x){return Object.assign({_type:'studentAdmission'},x)}));
-  // Hide the root Super Admin from all account-control lists; server-side protection remains authoritative.
-  arr=arr.filter(function(x){
-    if(x._type!=='admin')return true;
-    var username=String(x.Username||'').trim().toLowerCase();
-    var role=String(x.Role||x.role||'').trim().toUpperCase().replace(/\s+/g,'_');
-    return username!=='superadmin'&&role!=='SUPER_ADMIN'&&role!=='SUPERADMIN';
-  });
   var box=$('accountListUi');if(!box)return;
   box.innerHTML='';
   if(!arr.length){box.innerHTML='<div class="account-card">কোনো Account পাওয়া যায়নি।</div>';return}
@@ -5836,7 +5940,7 @@ body #app .header-news *{
     var handlers=[
       function(){if(typeof window.openAdmissionPanel2026==='function')window.openAdmissionPanel2026();else openPublicFeature('admission');},
       function(){openPublicFeature('payment');},
-      function(){if(typeof window.openOnlineExamResult2026==='function')window.openOnlineExamResult2026();else openPublicFeature('result');},
+      function(){openPublicFeature('result');},
       function(){openPublicFeature('exam');},
       function(){openPublicFeature('admin');},
       function(){openPublicFeature('madrasa');}
@@ -12629,7 +12733,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     var w=E('jbOnlineResultWin2026');
     if(!w){
       w=document.createElement('div');w.id='jbOnlineResultWin2026';w.className='window';
-      w.innerHTML='<div class="windowHead"><b>📱 অনলাইন রেজাল্ট</b><button type="button" onclick="closeOnlineResult2026()">✕</button></div><div class="windowBody"><div class="jb-or-search"><select id="jbOnlineResultYear2026" class="field"><option value="">সকল শিক্ষাবর্ষ</option>'+Array.from({length:45},function(_,i){var y=2005+i;return '<option value="'+y+'/'+(y+1)+'">'+y+'/'+(y+1)+'</option>'}).join('')+'</select><select id="jbOnlineResultExam2026" class="field"><option value="">সকল পরীক্ষা</option><option>সাময়িক পরীক্ষা</option><option>অর্ধবার্ষিক পরীক্ষা</option><option>বার্ষিক পরীক্ষা</option><option>মডেল টেস্ট</option><option>বোর্ড/কেন্দ্রীয় পরীক্ষা</option></select><input id="jbOnlineResultQuery2026" class="field" placeholder="Student ID / মোবাইল নম্বর"><button class="primary" type="button" onclick="searchOnlineResult2026()">🔎 ফলাফল দেখুন</button></div><div id="jbOnlineResultBody2026" class="jb-or-body"><p>আইডি বা মোবাইল নম্বর দিয়ে ফলাফল খুঁজুন।</p></div></div>';
+      w.innerHTML='<div class="windowHead"><b>📱 অনলাইন রেজাল্ট</b><button type="button" onclick="closeOnlineResult2026()">✕</button></div><div class="windowBody"><div class="jb-or-search"><input id="jbOnlineResultQuery2026" class="field" placeholder="Student ID / মোবাইল নম্বর"><button class="primary" type="button" onclick="searchOnlineResult2026()">🔎 ফলাফল দেখুন</button></div><div id="jbOnlineResultBody2026" class="jb-or-body"><p>আইডি বা মোবাইল নম্বর দিয়ে ফলাফল খুঁজুন।</p></div></div>';
       document.body.appendChild(w);
     }
     w.style.display='block';w.classList.add('show');
@@ -12643,9 +12747,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     if(box)box.innerHTML='<p>⏳ ফলাফল খোঁজা হচ্ছে...</p>';
     try{
       /* Use the public-results endpoint already used by the online-result module. */
-      var selectedYear=String(E('jbOnlineResultYear2026')&&E('jbOnlineResultYear2026').value||'').trim();
-      var selectedExam=String(E('jbOnlineResultExam2026')&&E('jbOnlineResultExam2026').value||'').trim();
-      var r=await call('getPublicExamResult',q,selectedYear,selectedExam);
+      var r=await call('getPublicExamResult',q);
       if(!r||!r.ok){
         if(box)box.innerHTML='<p>❌ '+esc(r&&r.message||'এই ID-তে প্রকাশিত ফলাফল পাওয়া যায়নি।')+'</p>';
         return;
@@ -12658,7 +12760,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       }
       var html='<div class="jb-or-card"><div class="jb-or-title">'+esc(student.nameBN||student.name||'শিক্ষার্থীর ফলাফল')+'</div><div class="jb-or-student"><b>ID: '+esc(student.studentId||q)+'</b><span>শ্রেণি: '+esc(student.className||'—')+'</span></div>';
       rows.forEach(function(x){
-        html+='<section class="jb-or-card"><h3>'+esc(x.exam||x.examName||'পরীক্ষার ফলাফল')+'</h3><p>শিক্ষাবর্ষ: '+esc(x.academicYear||'উল্লেখ নেই')+'</p><div class="jb-or-subjects"><div class="jb-or-head"><b>বিষয়</b><b>নম্বর</b></div>';
+        html+='<section class="jb-or-card"><h3>'+esc(x.exam||x.examName||'পরীক্ষার ফলাফল')+'</h3><div class="jb-or-subjects"><div class="jb-or-head"><b>বিষয়</b><b>নম্বর</b></div>';
         (x.subjects||[]).forEach(function(y){
           var mark=y.marks!=null?y.marks:(y.mark!=null?y.mark:'—');
           var fail=Number.isFinite(Number(mark))&&Number(mark)<33;
@@ -12754,15 +12856,41 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 <script id="jb-mobile-online-result-2026">
 (function(){
   function esc(v){return String(v==null?'':v).replace(/[&<>"]/g,function(s){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s];});}
+  function bindWindowDrag(w){
+    if(!w||w.dataset.jbResultDragBound20261028==='1')return;
+    var head=w.querySelector('.win-head');if(!head)return;
+    w.dataset.jbResultDragBound20261028='1';head.style.cursor='move';head.style.touchAction='none';head.style.userSelect='none';
+    head.addEventListener('pointerdown',function(e){
+      if(e.target&&e.target.closest('button'))return;
+      var r=w.getBoundingClientRect(),sx=e.clientX,sy=e.clientY,l=r.left,t=r.top;
+      w.style.left=l+'px';w.style.top=t+'px';w.style.right='auto';w.style.bottom='auto';w.style.transform='none';
+      try{head.setPointerCapture(e.pointerId)}catch(_){}
+      function move(ev){w.style.left=Math.max(0,Math.min(window.innerWidth-w.offsetWidth,l+ev.clientX-sx))+'px';w.style.top=Math.max(0,Math.min(window.innerHeight-48,t+ev.clientY-sy))+'px';}
+      function stop(){head.removeEventListener('pointermove',move);head.removeEventListener('pointerup',stop);head.removeEventListener('pointercancel',stop)}
+      head.addEventListener('pointermove',move);head.addEventListener('pointerup',stop);head.addEventListener('pointercancel',stop);e.preventDefault();
+    });
+  }
+  function bindCardDrag(card){
+    if(!card||card.dataset.jbResultCardDragBound20261028==='1')return;
+    var head=card.querySelector('.jb-or-institution-head');if(!head)return;
+    card.dataset.jbResultCardDragBound20261028='1';head.style.cursor='move';head.style.touchAction='none';head.style.userSelect='none';
+    head.addEventListener('pointerdown',function(e){
+      var sx=e.clientX,sy=e.clientY;try{head.setPointerCapture(e.pointerId)}catch(_){}
+      function move(ev){card.style.transform='translate('+(ev.clientX-sx)+'px,'+(ev.clientY-sy)+'px)';}
+      function stop(){head.removeEventListener('pointermove',move);head.removeEventListener('pointerup',stop);head.removeEventListener('pointercancel',stop)}
+      head.addEventListener('pointermove',move);head.addEventListener('pointerup',stop);head.addEventListener('pointercancel',stop);e.preventDefault();
+    });
+  }
   function ensure(){
     var w=document.getElementById('jbOnlineExamResultWin2026');
-    if(w)return w;
+    if(w){bindWindowDrag(w);return w;}
     w=document.createElement('div');w.id='jbOnlineExamResultWin2026';w.className='window';
     w.innerHTML='<div class="win-head"><b>📱 অনলাইন ফলাফল</b><button class="secondary" type="button" id="jbOnlineExamResultClose2026">✕</button></div>'+
       '<div class="win-body"><p style="text-align:center;font-weight:800">Student ID / মোবাইল নম্বর দিয়ে প্রকাশিত ফলাফল দেখুন</p>'+
-      '<div class="jb-or-search"><input id="jbOnlineExamResultQuery2026" class="field" placeholder="Student ID / মোবাইল নম্বর"><button id="jbOnlineExamResultSearch2026" class="primary" type="button">শিক্ষার্থী আইডি দিয়ে ফলাফল দেখুন</button></div>'+
+      '<div class="jb-or-search jb-or-search-filters"><select id="jbOnlineExamResultYear2026" class="field" aria-label="শিক্ষাবর্ষ নির্বাচন"><option value="">শিক্ষাবর্ষ নির্বাচন</option>'+Array.from({length:45},function(_,i){var y=2005+i;return '<option value="'+y+'/'+(y+1)+'">'+y+'/'+(y+1)+'</option>';}).join('')+'</select><select id="jbOnlineExamResultExam2026" class="field" aria-label="পরীক্ষা নির্বাচন"><option value="">পরীক্ষা নির্বাচন</option><option value="সাময়িক পরীক্ষা">সাময়িক পরীক্ষা</option><option value="অর্ধবার্ষিক পরীক্ষা">অর্ধবার্ষিক পরীক্ষা</option><option value="বার্ষিক পরীক্ষা">বার্ষিক পরীক্ষা</option><option value="মডেল টেস্ট">মডেল টেস্ট</option><option value="বোর্ড/কেন্দ্রীয় পরীক্ষা">বোর্ড/কেন্দ্রীয় পরীক্ষা</option></select><input id="jbOnlineExamResultQuery2026" class="field" placeholder="Student ID / মোবাইল নম্বর"><button id="jbOnlineExamResultSearch2026" class="primary" type="button">শিক্ষার্থী আইডি দিয়ে ফলাফল দেখুন</button></div>'+
       '<div id="jbOnlineExamResultBody2026"><div style="text-align:center;padding:20px">উপরের ঘরে তথ্য দিয়ে ফলাফল দেখুন।</div></div></div>';
     document.body.appendChild(w);
+    bindWindowDrag(w);
     document.getElementById('jbOnlineExamResultClose2026').onclick=function(){w.classList.remove('show');w.style.display='none';};
     document.getElementById('jbOnlineExamResultSearch2026').onclick=search;
     document.getElementById('jbOnlineExamResultQuery2026').addEventListener('keydown',function(e){if(e.key==='Enter')search();});
@@ -12776,7 +12904,25 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   function render(r){
     var body=document.getElementById('jbOnlineExamResultBody2026');if(!body)return;
     if(!r||!r.ok){body.innerHTML='<div style="padding:20px;text-align:center;font-weight:900">❌ '+esc(r&&r.message||'ফলাফল পাওয়া যায়নি।')+'</div>';return;}
-    var s=r.student||{},out='<div class="jb-or-card"><div class="jb-or-head"><div class="jb-or-name">'+esc(s.nameBN||'শিক্ষার্থী')+'</div><div>'+esc(s.nameAR||'')+'</div></div>';
+    var s=r.student||{};
+    var selectedYear=String((document.getElementById('jbOnlineExamResultYear2026')||{}).value||'').trim();
+    var selectedExam=String((document.getElementById('jbOnlineExamResultExam2026')||{}).value||'').trim();
+    var allResults=r.results||[];
+    var hasYearMetadata=allResults.some(function(x){return x.academicYear!=null||x.AcademicYear!=null||x.year!=null||x.schoolYear!=null||x.session!=null;});
+    if(selectedYear&&!hasYearMetadata){body.innerHTML='<div style="padding:20px;text-align:center;font-weight:800">এই ফলাফলের সার্ভার-তথ্যে শিক্ষাবর্ষ নেই। শিক্ষাবর্ষ অনুযায়ী সঠিক ফলাফল বাছাই করতে ফলাফল ডেটার সঙ্গে শিক্ষাবর্ষ যুক্ত করতে হবে।</div>';return;}
+    var filteredResults=allResults.filter(function(x){
+      var yearText=String(x.academicYear||x.AcademicYear||x.year||x.schoolYear||x.session||'');
+      var examText=String(x.exam||x.examName||x.name||'');
+      var yearOk=!selectedYear||yearText===selectedYear||yearText.indexOf(selectedYear)>=0;
+      var examOk=!selectedExam||examText.indexOf(selectedExam)>=0;
+      return yearOk&&examOk;
+    });
+    if((selectedYear||selectedExam)&&!filteredResults.length){body.innerHTML='<div style="padding:20px;text-align:center;font-weight:900">নির্বাচিত শিক্ষাবর্ষ/পরীক্ষার ফলাফল পাওয়া যায়নি। সঠিক শিক্ষাবর্ষ ও পরীক্ষা নির্বাচন করুন।</div>';return;}
+    r=Object.assign({},r,{results:filteredResults});
+    var logoEl=document.getElementById('loginContactLogo20261013')||document.getElementById('contactLoginLogo2026')||document.getElementById('loginLogo')||document.getElementById('headerLogo');
+    var qrEl=document.getElementById('loginContactQR20261013')||document.getElementById('contactMainQR2026');
+    var logoSrc=logoEl?(logoEl.currentSrc||logoEl.src||''):'',qrSrc=qrEl?(qrEl.currentSrc||qrEl.src||''):'';
+    var out='<div class="jb-or-card" id="jbOnlineResultCard2026"><div class="jb-or-institution-head" id="jbOnlineResultCardDrag2026"><img class="jb-or-institution-logo" src="'+esc(logoSrc)+'" alt="মাদ্রাসার লোগো"><div class="jb-or-institution-text"><strong>জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</strong><span>المدرسة الجنة الباقية للبنات ودار الايتام</span><span>Jannatul Baky Mohila Madrasha &amp; Eatimkhana</span><small>ঠিকানা: উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</small><small>☎ হটলাইন: 01823316630</small></div><img class="jb-or-institution-qr" src="'+esc(qrSrc)+'" alt="মূল পেজের QR কোড"></div><div class="jb-or-head"><div class="jb-or-name">'+esc(s.nameBN||'শিক্ষার্থী')+'</div><div>'+esc(s.nameAR||'')+'</div></div>';
     out+='<div class="jb-or-meta"><div><b>ID</b><br>'+esc(s.studentId)+'</div><div><b>শ্রেণি/জামাত</b><br>'+esc(s.className)+'</div><div><b>মোবাইল</b><br>'+esc(s.mobile)+'</div></div>';
     (r.results||[]).forEach(function(x){
       out+='<h3 style="text-align:center;margin:14px 0 7px">📘 '+esc(x.exam)+'</h3><div class="jb-or-meta"><div><b>মোট</b><br>'+esc(x.total)+'</div><div><b>GPA</b><br>'+esc(x.gpa)+'</div><div><b>Grade</b><br>'+esc(x.grade)+'</div></div>';
@@ -12784,22 +12930,24 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       (x.subjects||[]).forEach(function(z){var n=z.subject||z.name||z.Subject||z.SubjectName||z.label||'';var m=z.marks!=null?z.marks:(z.mark!=null?z.mark:(z.Marks!=null?z.Marks:z.value));out+='<tr><td>'+esc(n)+'</td><td>'+esc(m)+'</td></tr>';});
       out+='</tbody></table></div>';
     });
+    out+='<div class="jb-or-actions"><button type="button" onclick="printOnlineExamResult2026()">🖨️ প্রিন্ট</button><button type="button" onclick="shareOnlineExamResult2026()">📤 শেয়ার</button></div>';
     out+='</div>';
-    body.innerHTML=out;window.__jbOnlineResultData=r;
+    body.innerHTML=out;window.__jbOnlineResultData=r;bindCardDrag(body.querySelector('.jb-or-card'));
   }
   function search(){
     var q=String((document.getElementById('jbOnlineExamResultQuery2026')||{}).value||'').trim();
+    var selectedYear=String((document.getElementById('jbOnlineExamResultYear2026')||{}).value||'').trim();
+    var selectedExam=String((document.getElementById('jbOnlineExamResultExam2026')||{}).value||'').trim();
     var body=document.getElementById('jbOnlineExamResultBody2026');if(!q){if(body)body.innerHTML='<div style="padding:20px;text-align:center">Student ID / মোবাইল নম্বর দিন।</div>';return;}
     if(body)body.innerHTML='<div style="padding:20px;text-align:center">⏳ ফলাফল খোঁজা হচ্ছে...</div>';
-    try{google.script.run.withSuccessHandler(render).withFailureHandler(function(e){render({ok:false,message:'সার্ভার ত্রুটি: '+(e&&e.message||e)});}).getPublicExamResult(q);}
+    try{google.script.run.withSuccessHandler(render).withFailureHandler(function(e){render({ok:false,message:'সার্ভার ত্রুটি: '+(e&&e.message||e)});}).getPublicExamResult(q,selectedYear,selectedExam);}
     catch(e){render({ok:false,message:String(e&&e.message||e)});}
   }
   window.openOnlineExamResult2026=open;
   window.printOnlineExamResult2026=function(){
     var body=document.getElementById('jbOnlineExamResultBody2026');if(!body)return;
     var w=window.open('','_blank');if(!w)return;
-    w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>অনলাইন ফলাফল</title><style>body{font-family:Arial,sans-serif;padding:20px}.jb-or-table{width:100%;border-collapse:collapse}.jb-or-table th,.jb-or-table td{border:1px solid #333;padding:7px;text-align:center}.jb-or-actions{display:none!important}</style></head><body>'+body.innerHTML+'
-</body></html>');
+    w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>অনলাইন ফলাফল</title><style>body{font-family:Arial,sans-serif;padding:20px}.jb-or-table{width:100%;border-collapse:collapse}.jb-or-table th,.jb-or-table td{border:1px solid #333;padding:7px;text-align:center}.jb-or-actions{display:none!important}.jb-or-institution-head{display:grid;grid-template-columns:80px 1fr 70px;gap:8px;align-items:center;text-align:center;border-bottom:2px solid #8b5e00;padding:8px}.jb-or-institution-logo,.jb-or-institution-qr{width:70px;height:70px;object-fit:contain}.jb-or-institution-text strong{display:block;font-size:20px}.jb-or-institution-text span,.jb-or-institution-text small{display:block}</style></head><body>'+body.innerHTML+'</body></html>');
     w.document.close();w.print();
   };
   window.shareOnlineExamResult2026=function(){
@@ -12837,6 +12985,32 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 </script>
 
 <style id="jb-online-exam-result-viewer-css">#jbOnlineExamResultWin2026{position:fixed;z-index:100000;top:3vh;left:50%;transform:translateX(-50%);width:min(760px,96vw);max-height:94vh;overflow:auto;background:var(--panel,#fff);color:var(--text,#222);border:3px solid var(--border,#c59a25);border-radius:14px;box-shadow:0 20px 60px #0006}#jbOnlineExamResultWin2026 .win-head{position:sticky;top:0;display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--panel,#fff);border-bottom:1px solid var(--border,#ccc);font-weight:900;z-index:2}#jbOnlineExamResultWin2026 .win-body{padding:12px}#jbOnlineExamResultWin2026 .jb-or-search{display:flex;gap:8px;margin:10px 0}#jbOnlineExamResultWin2026 .jb-or-search input{flex:1;min-width:0;padding:12px;border:2px solid var(--border,#aaa);border-radius:9px}#jbOnlineExamResultWin2026 .jb-or-card{border:2px solid var(--border,#c59a25);border-radius:12px;padding:12px}#jbOnlineExamResultWin2026 .jb-or-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:9px 0}#jbOnlineExamResultWin2026 .jb-or-meta div{border:1px solid var(--border,#aaa);border-radius:8px;padding:8px;text-align:center}#jbOnlineExamResultWin2026 .jb-or-table{width:100%;border-collapse:collapse}#jbOnlineExamResultWin2026 .jb-or-table th,#jbOnlineExamResultWin2026 .jb-or-table td{border:1px solid #888;padding:8px;text-align:center}#jbOnlineExamResultWin2026 .jb-or-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}@media(max-width:600px){#jbOnlineExamResultWin2026{top:1vh;width:98vw;max-height:98vh}#jbOnlineExamResultWin2026 .jb-or-search{flex-direction:column}#jbOnlineExamResultWin2026 .jb-or-meta{grid-template-columns:1fr 1fr}}</style>
+
+<style id="jb-online-result-year-exam-filter-20261028">#jbOnlineExamResultWin2026 .jb-or-search-filters{display:grid!important;grid-template-columns:minmax(130px,1fr) minmax(130px,1fr) minmax(160px,1.2fr) auto!important;align-items:center!important;gap:8px!important}#jbOnlineExamResultWin2026 .jb-or-search-filters select{min-width:0;width:100%;padding:11px 8px;border:2px solid var(--border,#c59a25);border-radius:9px;background:var(--panel,#fff);color:var(--text,#222);font-weight:800}@media(max-width:700px){#jbOnlineExamResultWin2026 .jb-or-search-filters{grid-template-columns:1fr 1fr!important}#jbOnlineExamResultWin2026 .jb-or-search-filters input{grid-column:1/-1}#jbOnlineExamResultWin2026 .jb-or-search-filters button{grid-column:1/-1}}@media(max-width:380px){#jbOnlineExamResultWin2026 .jb-or-search-filters{grid-template-columns:1fr!important}}</style>
+<style id="jb-online-result-movable-card-20261028">
+#jbOnlineExamResultWin2026{position:fixed!important;left:2vw!important;top:3vh!important;transform:none!important;width:min(900px,96vw)!important;max-height:94vh!important;overflow:hidden!important;resize:both!important;display:none}
+#jbOnlineExamResultWin2026.show{display:block!important}
+#jbOnlineExamResultWin2026 .win-head{position:sticky!important;top:0!important;z-index:5!important;cursor:move!important;touch-action:none!important;user-select:none!important}
+#jbOnlineExamResultWin2026 .win-body{max-height:calc(94vh - 58px)!important;overflow:auto!important;overscroll-behavior:contain!important}
+#jbOnlineExamResultWin2026 .jb-or-card{max-height:70vh!important;overflow:auto!important;resize:both!important;overscroll-behavior:contain!important;position:relative!important}
+#jbOnlineExamResultWin2026 .jb-or-institution-head{display:grid!important;grid-template-columns:76px minmax(0,1fr) 76px!important;gap:8px!important;align-items:center!important;text-align:center!important;padding:8px!important;margin:-2px -2px 10px!important;border-bottom:2px solid var(--border,#c59a25)!important;background:var(--panel,#fff)!important}
+#jbOnlineExamResultWin2026 .jb-or-institution-logo,#jbOnlineExamResultWin2026 .jb-or-institution-qr{width:70px!important;height:70px!important;object-fit:contain!important;justify-self:center!important;background:#fff!important;border-radius:8px!important}
+#jbOnlineExamResultWin2026 .jb-or-institution-text{display:flex!important;flex-direction:column!important;gap:3px!important;overflow-wrap:anywhere!important}
+#jbOnlineExamResultWin2026 .jb-or-institution-text strong{font-size:clamp(15px,2vw,23px)!important;font-weight:1000!important}
+#jbOnlineExamResultWin2026 .jb-or-institution-text span,#jbOnlineExamResultWin2026 .jb-or-institution-text small{font-size:12px!important;font-weight:800!important}
+#jbOnlineExamResultWin2026 .jb-or-actions{display:flex!important;gap:8px!important;justify-content:center!important;flex-wrap:wrap!important;margin-top:14px!important;padding:10px!important;border-top:2px solid var(--border,#c59a25)!important;background:var(--panel,#fff)!important}
+#jbOnlineExamResultWin2026 .jb-or-actions button{min-height:44px!important;padding:9px 18px!important;border:2px solid #8b5e00!important;border-radius:10px!important;font-weight:900!important;cursor:pointer!important;background:linear-gradient(135deg,#fffdf6,#f0d98d)!important;color:#392800!important}
+@media(max-width:600px){
+ #jbOnlineExamResultWin2026{left:1vw!important;top:1vh!important;width:98vw!important;max-height:98vh!important}
+ #jbOnlineExamResultWin2026 .win-body{max-height:calc(98vh - 54px)!important}
+ #jbOnlineExamResultWin2026 .jb-or-card{max-height:72vh!important}
+ #jbOnlineExamResultWin2026 .jb-or-institution-head{grid-template-columns:48px minmax(0,1fr) 48px!important;gap:4px!important;padding:5px!important}
+ #jbOnlineExamResultWin2026 .jb-or-institution-logo,#jbOnlineExamResultWin2026 .jb-or-institution-qr{width:44px!important;height:44px!important}
+ #jbOnlineExamResultWin2026 .jb-or-institution-text span,#jbOnlineExamResultWin2026 .jb-or-institution-text small{font-size:10px!important}
+ #jbLoginServicePaymentRow2026{gap:6px!important}
+ #jbLoginServicePaymentRow2026>#jbLoginOnlinePayment2026,#jbLoginServicePaymentRow2026>#jbLoginOnlineResult20261028{font-size:12px!important;padding:8px 5px!important}
+}
+</style>
 <!-- ===== END MOBILE + ONLINE EXAM RESULT VIEWER — 2026-10-08 ===== -->
 
 <!-- ===== LOGIN-FREE ONLINE PAYMENT ENTRY — 2026-10-08 ===== -->
@@ -12891,7 +13065,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 <style id="jb-login-service-payment-row-2026">
 #loginPage .login .jb-login-service-payment-row-2026{
   display:grid!important;
-  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
   gap:12px!important;
   width:100%!important;
   max-width:none!important;
@@ -12912,7 +13086,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 }
 @media(max-width:700px){
   #loginPage .login .jb-login-service-payment-row-2026{
-    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
     gap:8px!important;
     width:100%!important;
     max-width:none!important;
@@ -12935,9 +13109,26 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       row.id='jbLoginServicePaymentRow2026';
       row.className='jb-login-service-payment-row-2026';
     }
+    var r=document.getElementById('jbLoginOnlineResult20261028');
+    if(!r){
+      r=document.createElement('button');
+      r.id='jbLoginOnlineResult20261028';
+      r.type='button';
+      r.className='primary';
+      r.textContent='📱 অনলাইন ফলাফল';
+      r.title='প্রকাশিত পরীক্ষার ফলাফল দেখুন';
+      r.style.cssText='display:block!important;width:100%!important;min-height:54px;padding:11px 8px;border:3px solid #8b5e00;border-radius:999px;background:linear-gradient(135deg,#8b5e00,#d4af37);color:#111;font-weight:900;font-size:16px;cursor:pointer;box-shadow:0 7px 18px #0003;';
+      r.addEventListener('click',function(ev){
+        if(ev)ev.preventDefault();
+        if(typeof window.openOnlineExamResult2026==='function')window.openOnlineExamResult2026();
+        else if(typeof window.openOnlineResult2026==='function')window.openOnlineResult2026();
+        else openPublicFeature('result');
+      });
+    }
     if(row.parentNode!==panel)panel.appendChild(row);
     if(s.parentNode!==row)row.appendChild(s);
     if(p.parentNode!==row)row.appendChild(p);
+    if(r.parentNode!==row)row.appendChild(r);
     row.style.position='relative';
     row.style.left='auto';
     row.style.right='auto';
@@ -17839,44 +18030,270 @@ function institutionDocumentaryToggle2026(){
 
 <!-- JB centered voice feedback + golden OTP digits 2026-10-27 -->
 <style id="jb-centered-voice-feedback-otp-20261027">
-/* সব Toast/ফিডব্যাক স্ক্রিনের মাঝখানে বড় করে */
-#toast.toast{
-  position:fixed!important;left:50%!important;top:50%!important;right:auto!important;bottom:auto!important;
-  transform:translate(-50%,-50%)!important;width:min(92vw,820px)!important;max-width:92vw!important;min-height:90px;
-  padding:24px 30px!important;z-index:2147483647!important;border:4px solid #d4a017!important;border-radius:24px!important;
-  background:rgba(255,252,235,.98)!important;color:#392700!important;box-shadow:0 16px 55px #0006!important;
-  text-align:center!important;font-size:clamp(25px,3.2vw,42px)!important;line-height:1.5!important;font-weight:900!important;overflow-wrap:anywhere;
-}
+#toast.toast{position:fixed!important;left:50%!important;top:50%!important;right:auto!important;bottom:auto!important;transform:translate(-50%,-50%)!important;width:min(92vw,820px)!important;max-width:92vw!important;min-height:90px;padding:24px 30px!important;z-index:2147483647!important;border:4px solid #d4a017!important;border-radius:24px!important;background:rgba(255,252,235,.98)!important;color:#392700!important;box-shadow:0 16px 55px #0006!important;text-align:center!important;font-size:clamp(25px,3.2vw,42px)!important;line-height:1.5!important;font-weight:900!important;overflow-wrap:anywhere}
 body.dark #toast.toast{background:#111!important;color:#ffdc55!important;border-color:#ffca28!important}
 body.gold #toast.toast{background:#fff5c7!important;color:#4b3200!important;border-color:#8b6500!important}
-#otpBoxes .otp-box,.otp-boxes .otp-box{
-  width:54px!important;min-width:54px!important;height:60px!important;font-size:36px!important;line-height:1!important;font-weight:1000!important;
-  color:#b8860b!important;-webkit-text-fill-color:#b8860b!important;border:3px solid #d4a017!important;border-radius:13px!important;
-  background:#fffdf3!important;text-align:center!important;box-shadow:0 3px 10px #b8860b25!important;
-}
+#otpBoxes .otp-box,.otp-boxes .otp-box{width:54px!important;min-width:54px!important;height:60px!important;font-size:36px!important;line-height:1!important;font-weight:1000!important;color:#b8860b!important;-webkit-text-fill-color:#b8860b!important;border:3px solid #d4a017!important;border-radius:13px!important;background:#fffdf3!important;text-align:center!important;box-shadow:0 3px 10px #b8860b25!important}
 #otpBoxes,.otp-boxes{gap:9px!important;justify-content:center!important}
-@media(max-width:420px){
- #otpBoxes .otp-box,.otp-boxes .otp-box{width:43px!important;min-width:43px!important;height:51px!important;font-size:30px!important}
- #toast.toast{padding:18px!important;font-size:25px!important}
-}
+@media(max-width:420px){#otpBoxes .otp-box,.otp-boxes .otp-box{width:43px!important;min-width:43px!important;height:51px!important;font-size:30px!important}#toast.toast{padding:18px!important;font-size:25px!important}}
 </style>
 <script id="jb-centered-voice-feedback-otp-js-20261027">
+(function(){'use strict';var synth=window.speechSynthesis,preferredVoice=null;function chooseFemaleBanglaVoice(){if(!synth||!synth.getVoices)return null;var voices=synth.getVoices()||[],bn=voices.filter(function(v){return /^bn(-|_|$)/i.test(v.lang||'')||/bangla|bengali|বাংলা/i.test(v.name||'');}),female=/(female|woman|zira|samantha|tessa|heera|veena|kanya|lekha|priya|susan|sara|sophie|google.*female|female.*google|নারী|মহিলা)/i;return bn.find(function(v){return female.test(v.name||'');})||voices.find(function(v){return /^bn(-|_|$)/i.test(v.lang||'')&&female.test(v.name||'');})||bn.find(function(v){return /google/i.test(v.name||'');})||bn[0]||null}function speakBangla(message){try{if(!synth||typeof SpeechSynthesisUtterance==='undefined')return;var text=String(message==null?'':message).trim();if(!text)return;var utterance=new SpeechSynthesisUtterance(text);utterance.lang='bn-BD';utterance.rate=0.88;utterance.pitch=1.25;utterance.volume=1;var voice=preferredVoice||chooseFemaleBanglaVoice();if(voice){preferredVoice=voice;utterance.voice=voice;utterance.lang=voice.lang||'bn-BD'}synth.cancel();synth.resume();synth.speak(utterance)}catch(e){}}if(synth){preferredVoice=chooseFemaleBanglaVoice();if(typeof synth.addEventListener==='function')synth.addEventListener('voiceschanged',function(){preferredVoice=chooseFemaleBanglaVoice()});else synth.onvoiceschanged=function(){preferredVoice=chooseFemaleBanglaVoice()}}window.speakBanglaPopup=speakBangla;window.toast=function(message){var box=document.getElementById('toast'),text=String(message==null?'':message);if(box){box.textContent=text;box.style.display='block';clearTimeout(window._toast);window._toast=setTimeout(function(){box.style.display='none'},5000)}speakBangla(text)};window.alert=function(message){window.toast(message)};})();
+</script>
+
+
+<!-- ===== ONLINE RESULT PLATFORM — CENTRAL MANAGEMENT ===== -->
+<style id="jb-online-result-platform-css-20261027">
+#jbOnlineResultPlatform20261027{position:fixed;inset:1vh 1vw;z-index:2147483005;background:var(--panel,#fff);color:var(--text,#222);border:2px solid #b68b22;border-radius:14px;box-shadow:0 12px 50px #0005;display:none;overflow:auto}
+#jbOnlineResultPlatform20261027.show{display:block}
+#jbOnlineResultPlatform20261027.jborp-minimized{inset:auto 18px 18px auto!important;width:min(430px,calc(100vw - 36px));height:auto;max-height:56px;overflow:hidden;border-radius:12px}
+#jbOnlineResultPlatform20261027.jborp-minimized .jborp-body{display:none}
+#jbOnlineResultPlatform20261027.jborp-fullscreen{inset:0!important;width:auto!important;height:auto!important;max-width:none!important;max-height:none!important;border-radius:0!important}
+#jbOnlineResultPlatform20261027 .jborp-head{cursor:move;user-select:none;touch-action:none}
+#jbOnlineResultPlatform20261027 .jborp-head button{cursor:pointer;touch-action:manipulation;white-space:nowrap}
+#jbOnlineResultPlatform20261027 .jborp-head .jborp-window-controls{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+#jbOnlineResultPlatform20261027 .jborp-head .jborp-window-controls button{font-size:14px;padding:5px 9px;border:1px solid #e3c66b;border-radius:6px;background:#254b37;color:#fff8db}
+#jbOnlineResultPlatform20261027 .jborp-head .jborp-window-controls button:hover{background:#37694d}
+#jbOnlineResultPlatform20261027.jborp-minimized .jborp-head{padding:8px 10px}
+#jbOnlineResultPlatform20261027 .jborp-head{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 16px;background:#173d2b;color:#f4d77e;font-weight:900;font-size:clamp(17px,2vw,25px)}
+#jbOnlineResultPlatform20261027 .jborp-body{padding:14px}
+#jbOnlineResultPlatform20261027 .jborp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:12px}
+#jbOnlineResultPlatform20261027 label{display:flex;flex-direction:column;gap:5px;font-weight:800}
+#jbOnlineResultPlatform20261027 input,#jbOnlineResultPlatform20261027 select{box-sizing:border-box;width:100%;min-height:38px;padding:7px;border:1px solid #b7a36b;border-radius:7px;background:var(--panel,#fff);color:inherit}
+#jbOnlineResultPlatform20261027 .jborp-tools{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+#jbOnlineResultPlatform20261027 .jborp-note{padding:10px;border:1px solid #c8ad56;border-radius:8px;margin:10px 0;background:#fff9e7;color:#493900}
+#jbOnlineResultPlatform20261027 .jborp-tablewrap{overflow:auto}
+#jbOnlineResultPlatform20261027 table{width:100%;border-collapse:collapse;min-width:760px}
+#jbOnlineResultPlatform20261027 th,#jbOnlineResultPlatform20261027 td{border:1px solid #c9bd9a;padding:7px;text-align:center;vertical-align:middle}
+#jbOnlineResultPlatform20261027 th{background:#f3e6bd;color:#302400;position:sticky;top:54px}
+#jbOnlineResultPlatform20261027 .jborp-status{font-weight:900}
+#jbOnlineResultPlatform20261027 .jborp-ok{color:#087443}
+#jbOnlineResultPlatform20261027 .jborp-pending{color:#a45b00}
+@media(max-width:600px){#jbOnlineResultPlatform20261027 .jborp-body{padding:8px}#jbOnlineResultPlatform20261027 .jborp-head{padding:9px}}
+</style>
+<div id="jbOnlineResultPlatform20261027" role="dialog" aria-modal="true" aria-label="অনলাইন ফলাফল প্লাটফর্ম">
+ <div class="jborp-head" id="jbORPDragHandle20261027"><span>🌐 অনলাইন ফলাফল প্লাটফর্ম — কেন্দ্রীয় ব্যবস্থাপনা</span><div class="jborp-window-controls"><button type="button" id="jbORPMinBtn20261027" aria-label="মিনিমাইজ" title="মিনিমাইজ" onclick="window.jbORPToggleMin20261027()">− মিনিমাইজ</button><button type="button" id="jbORPFullBtn20261027" aria-label="ফুল স্ক্রিন" title="ফুল স্ক্রিন" onclick="window.jbORPToggleFull20261027()">⛶ ফুল স্ক্রিন</button><button type="button" onclick="window.jbORPClose20261027()">✕ বন্ধ</button></div></div>
+ <div class="jborp-body">
+  <div class="jborp-note">সুপার অ্যাডমিন এখান থেকে সকল মাদ্রাসা ও শাখার প্রকাশিত/পেন্ডিং ফলাফল পরিচালনা করবেন। নির্দিষ্ট মাদ্রাসা/শাখা বাছলে শিক্ষার্থীর রেকর্ডে থাকা মাদ্রাসা ও শাখার তথ্য দিয়ে তালিকা মিলিয়ে দেখানো হবে।</div>
+  <div class="jborp-grid">
+   <label>মাদ্রাসা<select id="jbORPMadrasa20261027"><option value="__ALL__">সকল মাদ্রাসা</option></select></label>
+   <label>শাখা<select id="jbORPBranch20261027"><option value="__ALL__">সকল শাখা</option></select></label>
+   <label>পরীক্ষা<select id="jbORPExam20261027"><option value="">পরীক্ষা নির্বাচন</option></select></label>
+   <label>শ্রেণি / জামাত<select id="jbORPClass20261027"><option value="">শ্রেণি/জামাত নির্বাচন</option></select></label>
+   <label>শিক্ষাবর্ষ<select id="jbORPYear20261027"></select></label>
+  </div>
+  <div class="jborp-tools">
+   <button type="button" class="primary" onclick="window.jbORPLoad20261027()">🔎 ফলাফল/পেন্ডিং তালিকা লোড</button>
+   <button type="button" class="secondary" onclick="window.jbORPPublishFiltered20261027()">📢 ফিল্টার করা তালিকা প্রকাশ</button>
+   <button type="button" class="secondary" onclick="window.jbORPPrint20261027()">🖨️ তালিকা প্রিন্ট</button>
+  </div>
+  <div id="jbORPStatus20261027" role="status" aria-live="polite">প্রথমে পরীক্ষা ও শ্রেণি নির্বাচন করে তালিকা লোড করুন।</div>
+  <div id="jbORPList20261027" class="jborp-tablewrap"></div>
+ </div>
+</div>
+<script id="jb-online-result-platform-js-20261027">
 (function(){
- 'use strict';
- function speakBangla(message){
+ var wid='jbOnlineResultPlatform20261027', cache=null, schools=[], rows=[], subjectColumns=[], busy=false;
+ function el(id){return document.getElementById(id)}
+ function val(id){return String((el(id)||{}).value||'').trim()}
+ function esc(v){return String(v==null?'':v).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+ function note(t){var n=el('jbORPStatus20261027');if(n)n.textContent=t}
+ function published(v){return /^(YES|TRUE|1|PUBLISHED|প্রকাশিত)$/i.test(String(v||''))}
+ function first(o,keys){for(var i=0;i<keys.length;i++){var v=o&&o[keys[i]];if(v!==undefined&&v!==null&&String(v).trim()!=='')return String(v).trim()}return ''}
+ function schoolKey(o){return first(o,['MadrasaID','MadrasaId','SchoolID','InstitutionID','MadrasaCode','MadrasaName','Madrasa','SchoolName','InstitutionName'])}
+ function branchKey(o){return first(o,['BranchID','BranchId','Branch','BranchName','Shakha','শাখা','শাখার নাম'])}
+ function studentName(o){return first(o,['NameBN','Name','NameEN','StudentName'])||'নাম নেই'}
+ function subjectData(r){var a=[];try{a=typeof r.SubjectData==='string'?JSON.parse(r.SubjectData||'[]'):(r.SubjectData||[])}catch(e){}if(!Array.isArray(a)&&a&&typeof a==='object')a=Object.keys(a).map(function(k){return {subject:k,marks:a[k]}});return Array.isArray(a)?a:[]}
+ function subjectName(x){return first(x,['subject','Subject','name','SubjectName','label'])}
+ function subjectMark(x){var n=x.marks!=null?x.marks:(x.mark!=null?x.mark:(x.Marks!=null?x.Marks:x.value));return n==null?'':String(n)}
+ function byId(rows,id){return rows.find(function(x){return String(x.StudentID||x.studentId||'')===String(id||'')})}
+ function fill(id,arr,placeholder,keep){var s=el(id),old=keep?s.value:'';if(!s)return;s.innerHTML=(placeholder?'<option value="">'+esc(placeholder)+'</option>':'')+arr.map(function(x){return '<option value="'+esc(x.value)+'">'+esc(x.label)+'</option>'}).join('');if(old&&Array.prototype.some.call(s.options,function(o){return o.value===old}))s.value=old}
+ function open(){if(!el(wid))return;el(wid).classList.add('show');el(wid).classList.remove('jborp-minimized');el(wid).style.display='block';if(!val('jbORPYear20261027'))el('jbORPYear20261027').value=String(new Date().getFullYear());init()}
+ window.jbORPToggleMin20261027=function(){var w=el(wid);if(!w)return;w.classList.toggle('jborp-minimized');var b=el('jbORPMinBtn20261027');if(b){var m=w.classList.contains('jborp-minimized');b.textContent=m?'□ পুনরায় খুলুন':'− মিনিমাইজ';b.title=m?'উইন্ডো পুনরায় খুলুন':'মিনিমাইজ';}};
+ window.jbORPToggleFull20261027=function(){var w=el(wid);if(!w)return;w.classList.toggle('jborp-fullscreen');var b=el('jbORPFullBtn20261027');if(b){var f=w.classList.contains('jborp-fullscreen');b.textContent=f?'⛶ স্বাভাবিক আকার':'⛶ ফুল স্ক্রিন';b.title=f?'স্বাভাবিক আকারে ফিরুন':'ফুল স্ক্রিন';}};
+ window.jbORPClose20261027=function(){if(el(wid)){el(wid).classList.remove('show','jborp-minimized','jborp-fullscreen');el(wid).style.display='none'}};
+ async function init(){
+  if(!token){note('এই ব্যবস্থাপনা খুলতে আগে অনুমোদিত অ্যাকাউন্টে লগইন করুন।');return}
+  if(cache){return}
+  note('⏳ পরীক্ষা, শ্রেণি ও মাদ্রাসার তালিকা লোড হচ্ছে…');
   try{
-   if(!('speechSynthesis' in window)||typeof SpeechSynthesisUtterance==='undefined')return;
-   window.speechSynthesis.cancel();
-   var utterance=new SpeechSynthesisUtterance(String(message||''));utterance.lang='bn-BD';utterance.rate=0.92;utterance.pitch=1;utterance.volume=1;
-   var voices=window.speechSynthesis.getVoices()||[],bn=voices.find(function(v){return /^bn(-|_)/i.test(v.lang||'');});
-   if(bn)utterance.voice=bn;window.speechSynthesis.speak(utterance);
-  }catch(e){}
+   var res=await call('getExamDashboardOptions',token);
+   if(!res||!res.ok)throw new Error(res&&res.message||'পরীক্ষার তালিকা পাওয়া যায়নি');
+   cache=res;
+   fill('jbORPExam20261027',(res.exams||[]).map(function(x){return {value:x,label:x}}),'পরীক্ষা নির্বাচন',true);
+   fill('jbORPClass20261027',(res.classes||[]).map(function(x){return {value:x,label:x}}),'শ্রেণি/জামাত নির্বাচন',true);
+   var yrs=[];for(var y=new Date().getFullYear()+1;y>=2005;y--)yrs.push({value:String(y),label:String(y)});
+   fill('jbORPYear20261027',yrs,'',true);if(!val('jbORPYear20261027'))el('jbORPYear20261027').value=String(new Date().getFullYear());
+   try{
+    var mr=await call('getModuleList',token,'madrasas');
+    if(mr&&mr.ok)schools=mr.rows||[];
+   }catch(_){}
+   var opts=[{value:'__ALL__',label:'সকল মাদ্রাসা'}].concat(schools.map(function(x){var id=first(x,['MadrasaID','SchoolID','InstitutionID','Username','ID'])||first(x,['Name','NameBN']);var name=first(x,['Name','NameBN','MadrasaName','NameEN'])||id;return {value:id,label:name+(id&&name!==id?' ('+id+')':'')}}).filter(function(x){return x.value&&x.value!=='__ALL__'}));
+   fill('jbORPMadrasa20261027',opts,'',true);
+   note('তালিকা প্রস্তুত। মাদ্রাসা/শাখা/পরীক্ষা/শ্রেণি নির্বাচন করে ফলাফল লোড করুন।');
+  }catch(e){cache=null;note('তালিকা লোড হয়নি: '+esc(e&&e.message||e))}
  }
- window.toast=function(message){
-  var box=document.getElementById('toast'),text=String(message==null?'':message);
-  if(box){box.textContent=text;box.style.display='block';clearTimeout(window._toast);window._toast=setTimeout(function(){box.style.display='none';},5000);}
-  speakBangla(text);
+ function selectedSchoolFilter(list){
+  var sid=val('jbORPMadrasa20261027');
+  if(sid==='__ALL__'||!sid)return list;
+  var school=schools.find(function(x){return [first(x,['MadrasaID','SchoolID','InstitutionID','Username','ID']),first(x,['Name','NameBN','MadrasaName','NameEN'])].indexOf(sid)>=0});
+  var sname=first(school,['Name','NameBN','MadrasaName','NameEN']);
+  return list.filter(function(x){var k=schoolKey(x);return !!k&&(k===sid||k===sname||k.toLowerCase()===String(sid).toLowerCase()||k.toLowerCase()===String(sname).toLowerCase())});
+ }
+ function selectedBranchFilter(list){
+  var b=val('jbORPBranch20261027');if(!b||b==='__ALL__')return list;
+  return list.filter(function(x){return branchKey(x)===b});
+ }
+ function updateBranches(list){
+  var seen={};list.forEach(function(x){var b=branchKey(x);if(b)seen[b]=1});
+  var opts=[{value:'__ALL__',label:'সকল শাখা'}].concat(Object.keys(seen).sort().map(function(x){return {value:x,label:x}}));
+  fill('jbORPBranch20261027',opts,'',true);
+ }
+ window.jbORPLoad20261027=async function(){
+  if(busy)return;if(!token){note('আগে লগইন করুন।');return}
+  var ex=val('jbORPExam20261027'),cl=val('jbORPClass20261027');
+  if(!ex||!cl){note('পরীক্ষা ও শ্রেণি/জামাত নির্বাচন করুন।');return}
+  busy=true;note('⏳ ফলাফল ও নিবন্ধিত পরীক্ষার্থীর তালিকা লোড হচ্ছে…');el('jbORPList20261027').innerHTML='';
+  try{
+   var r=await call('getExamDashboardData',token,ex,cl);if(!r||!r.ok)throw new Error(r&&r.message||'ফলাফল তালিকা পাওয়া যায়নি');
+   var candidates=(r.students||[]).filter(function(x){return x.registered&&x.student});
+   var results=r.results||[];
+   var candidateRecords=candidates.map(function(x){return x.student});
+   var filteredSchool=selectedSchoolFilter(candidateRecords);
+   updateBranches(filteredSchool);
+   var filtered=selectedBranchFilter(filteredSchool);
+   var schoolSelected=val('jbORPMadrasa20261027')!=='__ALL__';
+   var branchSelected=val('jbORPBranch20261027')!=='__ALL__';
+   if(schoolSelected&&filteredSchool.length===0){
+    note('নির্বাচিত মাদ্রাসার সঙ্গে শিক্ষার্থীর রেকর্ড মেলেনি। STUDENTS-এ MadrasaID/MadrasaName/SchoolID ফিল্ড যাচাই করুন; ভুল মাদ্রাসার ফলাফল প্রকাশ ঠেকাতে তালিকা ফাঁকা রাখা হয়েছে।');rows=[];return;
+   }
+   if(branchSelected&&filtered.length===0){
+    note('নির্বাচিত শাখার রেকর্ড মেলেনি। শিক্ষার্থীর রেকর্ডে Branch/BranchName/BranchID ফিল্ড যাচাই করুন।');rows=[];return;
+   }
+   rows=filtered.map(function(st){
+    var id=first(st,['StudentID','studentId']),res=byId(results,id),subs=res?subjectData(res):[];
+    return {id:id,name:studentName(st),student:st,result:res,subjects:subs,published:!!(res&&published(res.Published)),className:first(st,['Class'])||cl};
+   });
+   render();
+   note('মোট নিবন্ধিত পরীক্ষার্থী: '+rows.length+' | প্রকাশিত: '+rows.filter(function(x){return x.published}).length+' | পেন্ডিং/নম্বর বাকি: '+rows.filter(function(x){return !x.result||!x.published}).length+'।');
+   if(!schoolSelected&&schools.length>1)note((note.textContent||'')+' সকল মাদ্রাসার তালিকা দেখানো হচ্ছে; নির্দিষ্ট মাদ্রাসা/শাখা প্রকাশের আগে ফিল্টার যাচাই করুন।');
+  }catch(e){note('ফলাফল লোড হয়নি: '+(e&&e.message||e))}
+  finally{busy=false}
  };
- window.alert=function(message){window.toast(message);};
+ function render(){
+  var box=el('jbORPList20261027');if(!box)return;
+  if(!rows.length){box.innerHTML='<p>এই নির্বাচন অনুযায়ী কোনো নিবন্ধিত পরীক্ষার্থী পাওয়া যায়নি।</p>';return}
+  var subjects=[];rows.forEach(function(r){r.subjects.forEach(function(s){var n=subjectName(s);if(n&&subjects.indexOf(n)<0)subjects.push(n)})});subjectColumns=subjects.slice();
+  box.innerHTML='<table><thead><tr><th>রেজিঃ/Student ID</th><th>নাম</th><th>মাদ্রাসা</th><th>শাখা</th><th>শ্রেণি</th>'+subjects.map(function(s){return '<th>'+esc(s)+'<br>নম্বর</th>'}).join('')+'<th>অবস্থা</th><th>কাজ</th></tr></thead><tbody>'+rows.map(function(r,i){
+   var m=subjects.map(function(sub,j){var found=r.subjects.find(function(x){return subjectName(x)===sub});return '<td><input type="number" min="0" max="100" data-jborp-mark="'+i+'_'+j+'" value="'+esc(found?subjectMark(found):'')+'" aria-label="'+esc(r.name+' '+sub)+'"></td>'}).join('');
+   var sch=schoolKey(r.student)||'—',br=branchKey(r.student)||'—';
+   return '<tr><td>'+esc(r.id)+'</td><td>'+esc(r.name)+'</td><td>'+esc(sch)+'</td><td>'+esc(br)+'</td><td>'+esc(r.className)+'</td>'+m+'<td class="jborp-status '+(r.published?'jborp-ok':'jborp-pending')+'">'+(r.published?'প্রকাশিত':'পেন্ডিং / সংশোধনযোগ্য')+'</td><td><button type="button" class="primary" onclick="window.jbORPSaveRow20261027('+i+')">💾 নম্বর সেভ</button> <button type="button" class="secondary" onclick="window.jbORPPublishRow20261027('+i+')">🌐 প্রকাশ</button></td></tr>';
+  }).join('')+'</tbody></table>';
+ }
+ window.jbORPSaveRow20261027=async function(i){
+  var r=rows[i];if(!r||busy)return;
+  var ex=val('jbORPExam20261027'),cl=val('jbORPClass20261027'),year=val('jbORPYear20261027'),box=el('jbORPList20261027');
+  if(!r.subjects.length){note('এই পরীক্ষার্থীর সংরক্ষিত বিষয়/নম্বর পাওয়া যায়নি। আগে পরীক্ষা ড্যাশবোর্ডের “নম্বর প্রদান” থেকে বিষয়ভিত্তিক নম্বর সংরক্ষণ করুন।');return}
+  busy=true;note('⏳ '+r.name+'-এর নম্বর সংরক্ষণ হচ্ছে…');
+  try{
+   for(var j=0;j<subjectColumns.length;j++){
+    var name=subjectColumns[j],input=box.querySelector('[data-jborp-mark="'+i+'_'+j+'"]');
+    if(!input)continue;var raw=String(input.value||'').trim(),n=Number(raw);
+    if(raw===''||!Number.isFinite(n)||n<0||n>100)throw new Error(name+'-এর নম্বর ০–১০০-এর মধ্যে লিখুন।');
+    var sv=await call('saveExamDashboardMarks',token,ex,cl,name,[{studentId:r.id,name:r.name,mark:n,maxMark:100,academicYear:year}]);
+    if(!sv||!sv.ok)throw new Error(sv&&sv.message||name+' সংরক্ষণ হয়নি');
+   }
+   note('নম্বর সংরক্ষণ হয়েছে। সংরক্ষণের পর ফলাফল আবার লোড করে যাচাই করুন।');busy=false;await window.jbORPLoad20261027();
+  }catch(e){note('নম্বর সংরক্ষণে সমস্যা: '+(e&&e.message||e))}
+  finally{busy=false}
+ };
+ window.jbORPPublishRow20261027=async function(i){
+  var r=rows[i];if(!r||busy)return;
+  if(!r.result||!r.subjects.length){note('এই পরীক্ষার্থীর সংরক্ষিত ফলাফল নেই। আগে নম্বর সংরক্ষণ করুন।');return}
+  if(!confirm('শিক্ষার্থী '+r.name+' (ID '+r.id+')-এর ফলাফল অনলাইনে প্রকাশ করবেন?'))return;
+  busy=true;note('⏳ ফলাফল প্রকাশ হচ্ছে…');
+  try{
+   var out=await call('publishExamDashboardStudentResult',token,r.id,val('jbORPExam20261027'),val('jbORPClass20261027'),val('jbORPYear20261027'));
+   if(!out||!out.ok)throw new Error(out&&out.message||'প্রকাশ করা যায়নি');
+   note(out.message||'ফলাফল প্রকাশ হয়েছে।');busy=false;await window.jbORPLoad20261027();
+  }catch(e){note('প্রকাশ করা যায়নি: '+(e&&e.message||e)+'। সার্ভারে publishExamDashboardStudentResult ফাংশন থাকা প্রয়োজন।')}
+  finally{busy=false}
+ };
+ window.jbORPPublishFiltered20261027=async function(){
+  if(!rows.length){note('প্রথমে তালিকা লোড করুন।');return}
+  var scope='মাদ্রাসা: '+(val('jbORPMadrasa20261027')==='__ALL__'?'সকল':val('jbORPMadrasa20261027'))+'; শাখা: '+(val('jbORPBranch20261027')==='__ALL__'?'সকল':val('jbORPBranch20261027'))+'; পরীক্ষা: '+val('jbORPExam20261027')+'; শ্রেণি: '+val('jbORPClass20261027')+'; শিক্ষাবর্ষ: '+val('jbORPYear20261027');
+  if(!confirm('নিচের ফিল্টার করা '+rows.length+' জন পরীক্ষার্থীর ফলাফল একে একে প্রকাশ করবেন?\n'+scope+'\n\nপ্রতিটি ফলাফল আলাদাভাবে প্রকাশ করা হবে।'))return;
+  busy=true;var done=0,failed=[];
+  try{
+   for(var i=0;i<rows.length;i++){
+    var r=rows[i];if(r.published)continue;if(!r.result||!r.subjects.length){failed.push(r.id+': নম্বর/ফলাফল সংরক্ষিত নয়');continue}
+    try{var out=await call('publishExamDashboardStudentResult',token,r.id,val('jbORPExam20261027'),val('jbORPClass20261027'),val('jbORPYear20261027'));if(!out||!out.ok)throw new Error(out&&out.message||'প্রকাশ ব্যর্থ');done++}
+    catch(e){failed.push(r.id+': '+(e&&e.message||e))}
+   }
+   note('প্রকাশ সম্পন্ন: '+done+' | ব্যর্থ: '+failed.length+(failed.length?' — '+failed.slice(0,5).join('; '):''));busy=false;await window.jbORPLoad20261027();
+  }finally{busy=false}
+ };
+ window.jbORPPrint20261027=function(){var box=el('jbORPList20261027');if(!box||!box.innerHTML){note('প্রিন্টের আগে তালিকা লোড করুন।');return}var w=window.open('','_blank');if(!w){note('প্রিন্ট উইন্ডো খোলা যায়নি; ব্রাউজারের pop-up অনুমতি দিন।');return}w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>অনলাইন ফলাফল প্লাটফর্ম</title><style>body{font-family:Arial,sans-serif;padding:16px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #555;padding:5px;text-align:center}input{border:0;width:60px}.jborp-tools,button{display:none!important}</style></head><body><h2>অনলাইন ফলাফল প্লাটফর্ম</h2><p>'+esc(val('jbORPExam20261027'))+' | '+esc(val('jbORPClass20261027'))+' | '+esc(val('jbORPYear20261027'))+'</p>'+box.innerHTML+'</body></html>');w.document.close();w.focus();w.print()};
+ function enableDrag(){
+  var w=el(wid),h=el('jbORPDragHandle20261027');if(!w||!h||h.dataset.dragReady==='1')return;h.dataset.dragReady='1';
+  var active=false,sx=0,sy=0,left=0,top=0;
+  h.addEventListener('pointerdown',function(e){
+   if(e.target.closest('button'))return;
+   if(w.classList.contains('jborp-fullscreen')||w.classList.contains('jborp-minimized'))return;
+   active=true;sx=e.clientX;sy=e.clientY;var r=w.getBoundingClientRect();left=r.left;top=r.top;
+   w.style.inset='auto';w.style.left=left+'px';w.style.top=top+'px';w.style.right='auto';w.style.bottom='auto';
+   try{h.setPointerCapture(e.pointerId)}catch(_){}
+   e.preventDefault();
+  });
+  h.addEventListener('pointermove',function(e){if(!active)return;var nx=Math.max(0,Math.min(window.innerWidth-w.offsetWidth,left+e.clientX-sx));var ny=Math.max(0,Math.min(window.innerHeight-44,top+e.clientY-sy));w.style.left=nx+'px';w.style.top=ny+'px';});
+  function stop(){active=false}
+  h.addEventListener('pointerup',stop);h.addEventListener('pointercancel',stop);
+ }
+ function addButton(){
+  enableDrag();
+  var d=el('examDashboardWin');if(!d)return;
+  var area=d.querySelector('.jb-exam-actions')||d.querySelector('.windowBody')||d.querySelector('.win-body')||d;
+  var b=el('jbOnlineResultPlatformButton20261027');
+  if(!b){b=document.createElement('button');b.id='jbOnlineResultPlatformButton20261027';b.type='button';b.className='primary';b.textContent='🌐 অনলাইন ফলাফল প্লাটফর্ম';b.title='সকল মাদ্রাসা/শাখার ফলাফল কেন্দ্রীয়ভাবে পরিচালনা';b.addEventListener('click',open);area.appendChild(b)}
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){addButton();if(document.body)new MutationObserver(addButton).observe(document.body,{childList:true,subtree:true})},{once:true});
+ else {addButton();if(document.body)new MutationObserver(addButton).observe(document.body,{childList:true,subtree:true})}
+})();
+</script>
+<!-- ===== END ONLINE RESULT PLATFORM — CENTRAL MANAGEMENT ===== -->
+
+<!-- ===== MOVE TOTAL TEACHERS BOX ABOVE TOTAL INCOME — 2026-10-31 ===== -->
+<script id="move-total-teachers-above-income-20261031">
+(function(){
+  'use strict';
+  function textOf(el){return String(el&&(el.innerText||el.textContent)||'').trim();}
+  function moveTeacherBox(){
+    var all=document.querySelectorAll('body *'),teacherLeaf=null;
+    for(var i=0;i<all.length;i++){
+      var el=all[i];
+      if(el.tagName==='SCRIPT'||el.tagName==='STYLE'||textOf(el).indexOf('মোট শিক্ষক/শিক্ষিকা')<0)continue;
+      var childHas=false;
+      for(var j=0;j<el.children.length;j++)if(textOf(el.children[j]).indexOf('মোট শিক্ষক/শিক্ষিকা')>=0){childHas=true;break;}
+      if(!childHas){teacherLeaf=el;break;}
+    }
+    if(!teacherLeaf)return false;
+    var box=teacherLeaf;
+    for(var depth=0;depth<8&&box.parentElement;depth++){
+      var parent=box.parentElement,children=Array.prototype.slice.call(parent.children),income=null;
+      for(var k=0;k<children.length;k++){
+        var sibling=children[k];if(sibling===box)continue;
+        var label=textOf(sibling);
+        if(label.indexOf('মোট আয়')>=0||(label.indexOf('আয়')>=0&&label.indexOf('ব্যয়')<0)){income=sibling;break;}
+      }
+      if(income){if(box!==income&&box.nextElementSibling!==income)parent.insertBefore(box,income);return true;}
+      box=parent;
+    }
+    return false;
+  }
+  function start(){
+    moveTeacherBox();
+    if(window.MutationObserver){var observer=new MutationObserver(function(){moveTeacherBox();});observer.observe(document.body,{childList:true,subtree:true,characterData:true});}
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
 </script>
