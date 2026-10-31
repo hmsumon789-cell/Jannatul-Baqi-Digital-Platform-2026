@@ -506,6 +506,7 @@ body.gold .dashboard-side .module,body.gold .dashboard-slider-title,body.gold .c
 .dashboard-slider-summary{display:grid!important;grid-template-columns:1fr 1fr!important;gap:6px!important;margin-top:7px!important;padding:0!important;}
 .dashboard-slider-summary .stat{min-height:48px!important;height:48px!important;padding:5px 7px!important;display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:center!important;box-sizing:border-box!important;font-size:12px!important;}
 .dashboard-slider-summary .stat b{font-size:19px!important;line-height:1.05!important;}
+.dashboard-slider-summary .stat:first-child{grid-column:1 / -1!important;}
 @media(max-width:900px){
  .dashboard-slider .media-stage{height:290px!important;min-height:290px!important;max-height:290px!important;}
  .dashboard-slider-controls{left:8px!important;right:8px!important;bottom:8px!important;}
