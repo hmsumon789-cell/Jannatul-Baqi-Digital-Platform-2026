@@ -1767,7 +1767,7 @@ $('winBody').innerHTML=moduleForm(key)+'<div class="form-signatures"><div class=
 $('formWin').classList.remove('minimized');
 $('formWin').style.height='';
 openWindow('formWin');
-if(key==='madrasa'){setTimeout(loadMadrasaRegistrationId2026,80);setTimeout(syncMadrasaAccountContactHeader20261101,100);setTimeout(syncMadrasaAccountContactHeader20261101,650);}
+if(key==='madrasa'){setTimeout(loadMadrasaRegistrationId2026,80);setTimeout(syncMadrasaAccountContactHeader20261101,100);setTimeout(syncMadrasaAccountContactHeader20261101,650);setTimeout(syncMadrasaAccountContactHeader20261101,1800);}
 if(key==='gallery')setTimeout(function(){loadPhotoGalleryData2026();},60);
 if(key==='institution')setTimeout(function(){loadInstitutionProfile2026();},60);
 if(key!=='institution')setTimeout(function(){clearFormWindow(false);},0);
