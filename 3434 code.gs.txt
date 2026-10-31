@@ -32,7 +32,7 @@ const SHEETS = {
 };
 
 const HEADERS = {
-  ADMINS:['Serial','AdminID','NameBN','NameAR','NameEN','Username','PasswordHash','Email','Mobile','WhatsApp','Address','Photo','BirthReg','NID','ApprovalID','Role','Status','CreatedAt','Password','Permissions','ApprovedBy','ApprovedAt'],
+  ADMINS:['Serial','AdminID','NameBN','NameAR','NameEN','Username','PasswordHash','Email','Mobile','WhatsApp','Address','Photo','BirthReg','NID','ApprovalID','Role','Status','CreatedAt','Password','Permissions','ApprovedBy','ApprovedAt','HeaderTextColor'],
   STUDENTS:['Serial','StudentID','FormID','MobileID','EmailID','NameBN','NameAR','NameEN','FatherBN','FatherAR','FatherEN','MotherBN','MotherAR','MotherEN','DOB','Gender','Class','Department','Branch','Residence','Mobile','WhatsApp','Email','Address','Photo','BirthReg','NID','Documents','CreatedAt','ApprovalStatus','SourceType','SourceAccount','ApprovedBy','ApprovedAt','AcademicYear'],
   TEACHERS:['Serial','TeacherID','NameBN','NameAR','NameEN','FatherBN','FatherAR','FatherEN','Mobile','WhatsApp','Email','Department','Branch','Gender','Address','Photo','BirthReg','NID','Documents','CreatedAt','FormID'],
   DONORS:['Serial','DonorID','NameBN','NameAR','NameEN','Mobile','WhatsApp','Email','Address','Amount','Fund','Photo','CreatedAt'],
@@ -55,7 +55,7 @@ const HEADERS = {
   ADVISERS:['Serial','MemberID','NameBN','NameAR','NameEN','Role','Mobile','Email','Photo'],
   FOUNDERS:['Serial','MemberID','NameBN','NameAR','NameEN','Role','Mobile','Email','Photo'],
   LOCATION_MASTER:['Division','District','Upazila','Union','Ward','Post','Village'],
-  MADRASAS:['Serial','MadrasaID','GenderType','Name','FoundedYear','Founder','Muhtamim','Address','Mobile','StaffCount','StudentCount','Level','Status','CreatedAt','Username','Password','PasswordHash','ActiveDepartments','OtherDepartment','Ownership','ApprovedBy','ApprovedAt','Permissions'],
+  MADRASAS:['Serial','MadrasaID','GenderType','Name','FoundedYear','Founder','Muhtamim','Address','Mobile','StaffCount','StudentCount','Level','Status','CreatedAt','Username','Password','PasswordHash','ActiveDepartments','OtherDepartment','Ownership','ApprovedBy','ApprovedAt','Permissions','HeaderPhoto','HeaderTextColor'],
   SALARY:['Serial','SalaryID','EmployeeID','Name','Month','Amount','Method','Date','Note','CreatedAt'],
   CERTIFICATES:['Serial','CertificateID','StudentID','Type','IssueDate','Data'],
   ID_CARDS:['Serial','CardID','StudentID','IssueDate','Data'],
@@ -300,7 +300,8 @@ function registerNewAdmin(data){
 
 function nextMadrasaRegistrationId_(){
   const lock=LockService.getScriptLock();
-  lock.waitLock(10000);
+  const alreadyHeld=lock.hasLock();
+  if(!alreadyHeld)lock.waitLock(10000);
   try{
     const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MADRASAS);
     const headers=sh.getRange(1,1,1,Math.max(sh.getLastColumn(),1)).getValues()[0].map(function(x){return String(x||'').trim();});
@@ -318,7 +319,7 @@ function nextMadrasaRegistrationId_(){
     props.setProperty('MADRASA_REGISTRATION_SEQ',String(next));
     return 'MR-'+String(next).padStart(4,'0');
   }finally{
-    lock.releaseLock();
+    if(!alreadyHeld)lock.releaseLock();
   }
 }
 
@@ -347,14 +348,14 @@ function lookupMadrasaRegistrationByOldId(value){
   return {ok:false,message:'এই ইলহাক/আইডির সঙ্গে মিলে এমন মাদ্রাসা পাওয়া যায়নি।'};
 }
 
-function registerMadrasa(data){
+function registerMadrasaCore_(data){
   setupSystem();
   data=data||{};
-  const name=String(data.name||'').trim(), year=String(data.foundedYear||'').trim(), username=String(data.username||'').trim(), password=String(data.password||''), address=String(data.address||'').trim(), email=String(data.email||'').trim(), mobile=String(data.mobile||'').trim(), photo=String(data.photo||''), headerPhoto=String(data.headerPhoto||'');
+  const name=String(data.name||'').trim(), year=String(data.foundedYear||'').trim(), username=normalizeAccountUsername_(data.username), password=String(data.password||''), address=String(data.address||'').trim(), email=String(data.email||'').trim(), mobile=String(data.mobile||'').trim(), photo=String(data.photo||''), headerPhoto=String(data.headerPhoto||'');
   const updateId=String(data.updateMadrasaID||'').trim(), lookupKey=String(data.updateLookupKey||'').trim().toLowerCase();
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MADRASAS);
   let hdr=sh.getRange(1,1,1,Math.max(sh.getLastColumn(),1)).getValues()[0].map(function(x){return String(x||'').trim();});
-  ['BoardRegistration','GenderType','Founder','Muhtamim','NameAR','NameEN','HeaderPhoto','Email','Photo'].forEach(function(k){
+  ['BoardRegistration','GenderType','Founder','Muhtamim','NameAR','NameEN','HeaderPhoto','HeaderTextColor','Email','Photo'].forEach(function(k){
     if(hdr.indexOf(k)<0){sh.getRange(1,sh.getLastColumn()+1).setValue(k);hdr.push(k);}
   });
   ensureAccountReviewColumns_();
@@ -375,12 +376,7 @@ function registerMadrasa(data){
   const isUpdate=!!(updateId||lookupKey);
   if(isUpdate&&!targetRow)return {ok:false,message:'পুরাতন রেকর্ডটি আর পাওয়া যাচ্ছে না। তথ্য নতুন রেকর্ড হিসেবে সংরক্ষণ করা হয়নি। আবার পুরাতন ID দিয়ে খুঁজুন।'};
   if(!name||!year||!username||!password||!address||!email||!mobile||(!isUpdate&&!photo))return {ok:false,message:'সকল বাধ্যতামূলক তথ্য পূরণ করুন। পুরাতন রেকর্ড আপডেটের জন্য বর্তমান Password যাচাই করতে হবে। নতুন নিবন্ধনে মাদ্রাসার ফটোও আবশ্যক।'};
-  const userCol=hdr.indexOf('Username');
-  for(let i=1;i<all.length;i++){
-    if(targetRow&&i+1===targetRow)continue;
-    if(userCol>=0&&String(all[i][userCol]||'').trim().toLowerCase()===username.toLowerCase())return {ok:false,message:'এই Username অন্য একটি মাদ্রাসা ব্যবহার করছে।'};
-  }
-  if(findBy_(SHEETS.ADMINS,'Username',username))return {ok:false,message:'এই Username আগে থেকেই ব্যবহার হচ্ছে।'};
+  if(isAccountUsernameTaken_(username,isUpdate?SHEETS.MADRASAS:'',targetRow))return {ok:false,message:'এই ইউজারনেমটি ইতিমধ্যে ব্যবহৃত হয়েছে। অন্য ইউজারনেম দিন।'};
   if(isUpdate){
     const currentValues=sh.getRange(targetRow,1,1,sh.getLastColumn()).getValues()[0];
     const current=objectFrom_(hdr,currentValues);
@@ -402,6 +398,7 @@ function registerMadrasa(data){
       const ix=hdr.indexOf(k);
       if(ix>=0)sh.getRange(targetRow,ix+1).setValue(updateData[k]);
     });
+    if(!String(current.HeaderTextColor||'').trim())ensureAccountHeaderColor_(SHEETS.MADRASAS,targetRow);
     const keepId=String(current.MadrasaID||'');
     log_('PUBLIC','update','MADRASA',keepId);
     return {ok:true,madrasaId:keepId,message:'পুরাতন মাদ্রাসার তথ্য একই রেকর্ডে আপডেট হয়েছে।'};
@@ -411,7 +408,7 @@ function registerMadrasa(data){
   const id=(idPattern.test(existingId)&&!findBy_(SHEETS.MADRASAS,'MadrasaID',existingId))?existingId:nextMadrasaRegistrationId_();
   const n=nextSerial_(sh);
   const deps=Array.isArray(data.departments)?data.departments.filter(Boolean).join(', '):String(data.departments||'');
-  const rowData={Serial:n,MadrasaID:id,GenderType:String(data.genderType||''),BoardRegistration:String(data.boardRegistration||''),Name:name,NameAR:String(data.nameAR||''),NameEN:String(data.nameEN||''),FoundedYear:year,Founder:String(data.founder||''),Muhtamim:String(data.muhtamim||''),Address:address,Mobile:mobile,StaffCount:Number(data.staffCount||0),StudentCount:Number(data.studentCount||0),Level:'',Status:'PENDING',CreatedAt:now_(),Username:username,Password:'',PasswordHash:hash_(password),ActiveDepartments:deps,OtherDepartment:String(data.otherDepartment||''),Ownership:String(data.ownership||''),ApprovedBy:'',ApprovedAt:'',Permissions:'',Email:email,Photo:photo,HeaderPhoto:headerPhoto,ReviewStatus:'',ReviewedBy:'',ReviewedAt:'',ReviewNote:''};
+  const rowData={Serial:n,MadrasaID:id,HeaderTextColor:allocateUniqueHeaderTextColor_(),GenderType:String(data.genderType||''),BoardRegistration:String(data.boardRegistration||''),Name:name,NameAR:String(data.nameAR||''),NameEN:String(data.nameEN||''),FoundedYear:year,Founder:String(data.founder||''),Muhtamim:String(data.muhtamim||''),Address:address,Mobile:mobile,StaffCount:Number(data.staffCount||0),StudentCount:Number(data.studentCount||0),Level:'',Status:'PENDING',CreatedAt:now_(),Username:username,Password:'',PasswordHash:hash_(password),ActiveDepartments:deps,OtherDepartment:String(data.otherDepartment||''),Ownership:String(data.ownership||''),ApprovedBy:'',ApprovedAt:'',Permissions:'',Email:email,Photo:photo,HeaderPhoto:headerPhoto,ReviewStatus:'',ReviewedBy:'',ReviewedAt:'',ReviewNote:''};
   const finalHeaders=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(function(x){return String(x||'').trim();});
   const row=finalHeaders.map(function(k){return rowData[k]!==undefined?rowData[k]:'';});
   sh.getRange(sh.getLastRow()+1,1,1,row.length).setValues([row]);
@@ -419,8 +416,16 @@ function registerMadrasa(data){
   return {ok:true,madrasaId:id,message:'নতুন মাদ্রাসা নিবন্ধন হয়েছে। প্রশাসন/সুপার অ্যাডমিন অনুমোদনের পর Username + Password দিয়ে OTP ছাড়া লগইন করতে পারবেন।'};
 }
 
+// Account-wide username uniqueness and persistent per-account header branding.
+function normalizeAccountUsername_(value){return String(value==null?'':value).trim().toLowerCase();}
+function isAccountUsernameTaken_(username,excludeSheet,excludeRow){const key=normalizeAccountUsername_(username);if(!key)return false;const ss=SpreadsheetApp.getActiveSpreadsheet();for(const name of [SHEETS.ADMINS,SHEETS.MADRASAS]){const sh=ss.getSheetByName(name);if(!sh||sh.getLastRow()<2)continue;const h=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(function(x){return String(x||'').trim();});const ix=h.indexOf('Username');if(ix<0)continue;const values=sh.getRange(2,ix+1,sh.getLastRow()-1,1).getValues();for(let i=0;i<values.length;i++){const rowNum=i+2;if(name===excludeSheet&&rowNum===Number(excludeRow))continue;if(normalizeAccountUsername_(values[i][0])===key)return true;}}return false;}
+function allocateUniqueHeaderTextColor_(){const ss=SpreadsheetApp.getActiveSpreadsheet(),used={};[SHEETS.ADMINS,SHEETS.MADRASAS].forEach(function(name){const sh=ss.getSheetByName(name);if(!sh||sh.getLastRow()<2)return;const h=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(function(x){return String(x||'').trim();});const ix=h.indexOf('HeaderTextColor');if(ix<0)return;sh.getRange(2,ix+1,sh.getLastRow()-1,1).getDisplayValues().forEach(function(r){const v=String(r[0]||'').trim().toLowerCase();if(v)used[v]=true;});});const props=PropertiesService.getScriptProperties();let seq=Number(props.getProperty('ACCOUNT_HEADER_COLOR_SEQ_2026')||0);for(let tries=0;tries<20000;tries++){seq++;const hue=(seq*137.507764)%360,sat=72+((Math.floor(seq/360)%4)*5),light=48+((Math.floor(seq/1440)%4)*5),color='hsl('+hue.toFixed(3)+','+sat+'%,'+light+'%)';if(!used[color.toLowerCase()]){props.setProperty('ACCOUNT_HEADER_COLOR_SEQ_2026',String(seq));return color;}}throw new Error('নতুন অ্যাকাউন্টের জন্য ইউনিক হেডার রং বরাদ্দ করা যায়নি।');}
+function ensureAccountHeaderColor_(sheetName,rowNum){const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);if(!sh||!rowNum)return '';let headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(function(x){return String(x||'').trim();}),ix=headers.indexOf('HeaderTextColor');if(ix<0){ix=sh.getLastColumn();sh.getRange(1,ix+1).setValue('HeaderTextColor');}const cell=sh.getRange(rowNum,ix+1);let color=String(cell.getValue()||'').trim();if(!color){color=allocateUniqueHeaderTextColor_();cell.setValue(color);}return color;}
+function registerMadrasa(data){const lock=LockService.getScriptLock();lock.waitLock(30000);try{return registerMadrasaCore_(data);}finally{lock.releaseLock();}}
+function createAdmin(token,data){const lock=LockService.getScriptLock();lock.waitLock(30000);try{return createAdminCore_(token,data);}finally{lock.releaseLock();}}
+
 function loginNewAdmin(username,password){
-  setupSystem(); username=String(username||'').trim(); password=String(password||'');
+  setupSystem(); username=normalizeAccountUsername_(username); password=String(password||'');
   const row=findBy_(SHEETS.ADMINS,'Username',username);
   if(!row) return {ok:false,message:'এই Admin Username পাওয়া যায়নি।'};
 
@@ -1706,15 +1711,17 @@ function deleteRecord(token,sheetName,serial) {
   return {ok:true};
 }
 
-function createAdmin(token,data) {
+function createAdminCore_(token,data) {
   auth_(token); requireFeature_(token,'admin');
+  data=data||{};data.Username=normalizeAccountUsername_(data.Username);
   if(!data.NameBN || !data.Username || !data.Password || !data.Mobile || !data.Photo || !data.Address)
     return {ok:false,message:'নাম, ইউজার নেম, পাসওয়ার্ড, মোবাইল, ছবি ও ঠিকানা বাধ্যতামূলক।'};
-  if(findBy_(SHEETS.ADMINS,'Username',data.Username)) return {ok:false,message:'এই ইউজার নেম আগে থেকেই আছে।'};
+  if(isAccountUsernameTaken_(data.Username))return {ok:false,message:'এই ইউজারনেমটি ইতিমধ্যে ব্যবহৃত হয়েছে। অন্য ইউজারনেম দিন।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ADMINS);
   const n=nextSerial_(sh);
   const id='M-1/'+String(n).padStart(4,'0');
   sh.appendRow([n,id,data.NameBN||'',data.NameAR||'',data.NameEN||'',data.Username,hash_(data.Password),data.Email||'',data.Mobile,data.WhatsApp||'',data.Address,data.Photo,data.BirthReg||'',data.NID||'',data.ApprovalID||'',data.Role||'ADMIN','ACTIVE',now_(),data.Password,'','','']);
+  ensureAccountHeaderColor_(SHEETS.ADMINS,sh.getLastRow());
   log_(sessionUser_(token),'create','ADMIN',id);
   return {ok:true,adminId:id};
 }
