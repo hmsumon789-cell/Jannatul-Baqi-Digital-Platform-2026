@@ -565,7 +565,8 @@ function getDashboardLiveStats(){
     const registeredMadrasas=countRows(SHEETS.MADRASAS);
     const props=PropertiesService.getScriptProperties();
     const all=props.getProperties();
-    const now=Date.now(),onlineAccounts={},activeDevices=0;
+    const now=Date.now(),onlineAccounts={};
+    let activeDevices=0;
     Object.keys(all).forEach(function(k){
       if(k.indexOf('ACTIVE_SESSION:')!==0)return;
       try{
