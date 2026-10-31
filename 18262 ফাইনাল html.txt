@@ -18269,12 +18269,3 @@ body.gold #toast.toast{background:#fff5c7!important;color:#4b3200!important;bord
 .dashboard-slider #summary.dashboard-slider-summary{margin-top:0!important;}
 </style>
 
-<style id="force-remove-summary-top-gap-20261031">
-/* শিক্ষক/শিক্ষিকা বক্সটি শুধু ১ ইঞ্চি নিচে সরানো */
-#app .dashboard-media-layout .dashboard-slider #summary.dashboard-summary-inside{
-  margin-top:96px!important;
-  transform:none!important;
-  top:0!important;
-  padding-top:0!important;
-}
-</style>
