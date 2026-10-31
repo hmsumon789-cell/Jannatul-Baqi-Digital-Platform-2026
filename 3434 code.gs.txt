@@ -549,6 +549,52 @@ function getActiveLoginControlData(token){
   const accounts=safe(SHEETS.ADMINS,'admin','AdminID').concat(safe(SHEETS.MADRASAS,'madrasa','MadrasaID'));
   return {ok:true,accounts:accounts};
 }
+/**
+ * Dashboard live totals. Returns aggregate counts only; never exposes account/session details.
+ */
+function getDashboardLiveStats(){
+  try{
+    setupSystem();
+    const ss=SpreadsheetApp.getActiveSpreadsheet();
+    const countAccounts=function(sheetName,idHeader){
+      const sh=ss.getSheetByName(sheetName);
+      if(!sh||sh.getLastRow()<2)return 0;
+      const values=sh.getDataRange().getValues();
+      const headers=values[0].map(function(v){return String(v||'').trim();});
+      let idx=headers.indexOf('Username');
+      if(idx<0)idx=headers.indexOf(idHeader);
+      if(idx<0)return 0;
+      return values.slice(1).filter(function(row){return String(row[idx]||'').trim()!=='';}).length;
+    };
+    const registeredAdmins=countAccounts(SHEETS.ADMINS,'AdminID');
+    const registeredMadrasas=countAccounts(SHEETS.MADRASAS,'MadrasaID');
+    const props=PropertiesService.getScriptProperties();
+    const all=props.getProperties(),now=Date.now(),online={};
+    let devices=0;
+    Object.keys(all).forEach(function(key){
+      if(key.indexOf('ACTIVE_SESSION:')!==0)return;
+      try{
+        const session=JSON.parse(all[key]||'{}');
+        const created=Number(session.createdAt||0);
+        if(!session.username||!created||now-created>21600000)return;
+        online[String(session.accountType||'admin')+':'+String(session.username)]=true;
+        devices++;
+      }catch(e){}
+    });
+    return {
+      ok:true,
+      registeredAdmins:registeredAdmins,
+      registeredMadrasas:registeredMadrasas,
+      registeredTotal:registeredAdmins+registeredMadrasas,
+      onlineAccounts:Object.keys(online).length,
+      activeDevices:devices,
+      updatedAt:now
+    };
+  }catch(e){
+    return {ok:false,message:String(e&&e.message||e)};
+  }
+}
+
 function forceLogoutAccount(token,type,username){
   try{
     if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin Force Logout করতে পারবেন।'};
