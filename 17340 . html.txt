@@ -376,11 +376,12 @@ body.gold .header-search-row{border-radius:999px!important;}
 @media(max-width:900px){.dashboard-slider .media-stage{height:260px!important;min-height:260px!important;max-height:260px!important}.dashboard-slider-controls{left:7px!important;right:7px!important;bottom:7px!important;grid-template-columns:30px 1fr 30px!important}.dashboard-slider-controls .slider-arrow{width:27px!important;height:27px!important;min-width:27px!important}.dashboard-slider-controls .slider-action{font-size:9px!important;padding:2px 5px!important}}
 .dashboard-summary{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:9px!important;margin-top:12px!important}
 .dashboard-summary .stat{min-height:105px!important;padding:12px!important;border-width:3px!important;border-radius:18px!important;display:flex!important;flex-direction:column!important;justify-content:center!important;box-shadow:0 7px 18px #0003!important;position:relative!important;overflow:hidden!important}
-.dashboard-summary .stat:nth-child(1){background:linear-gradient(135deg,#16834b,#48c982)!important;color:#fff!important}
-.dashboard-summary .stat:nth-child(2){background:linear-gradient(135deg,#b51f2b,#f05b66)!important;color:#fff!important}
-.dashboard-summary .stat:nth-child(3){background:linear-gradient(135deg,#1167a8,#42a5f5)!important;color:#fff!important}
-.dashboard-summary .stat:nth-child(4){background:linear-gradient(135deg,#b47700,#f3c64d)!important;color:#111!important}
-.dashboard-summary .stat:nth-child(n+5){background:linear-gradient(135deg,#5b3fa1,#b68cff)!important;color:#fff!important}
+.dashboard-summary .stat:nth-child(1){background:linear-gradient(135deg,#5b3fa1,#b68cff)!important;color:#fff!important}
+.dashboard-summary .stat:nth-child(2){background:linear-gradient(135deg,#16834b,#48c982)!important;color:#fff!important}
+.dashboard-summary .stat:nth-child(3){background:linear-gradient(135deg,#b51f2b,#f05b66)!important;color:#fff!important}
+.dashboard-summary .stat:nth-child(4){background:linear-gradient(135deg,#1167a8,#42a5f5)!important;color:#fff!important}
+.dashboard-summary .stat:nth-child(5){background:linear-gradient(135deg,#b47700,#f3c64d)!important;color:#111!important}
+.dashboard-summary .stat:nth-child(n+6){background:linear-gradient(135deg,#5b3fa1,#b68cff)!important;color:#fff!important}
 .dashboard-summary .stat b{font-size:29px!important;line-height:1.1!important}
 .dashboard-charts{display:grid!important;grid-template-columns:2fr 1fr!important;gap:10px!important;margin-top:10px!important}
 .chart-card{padding:12px!important;border:3px solid var(--border)!important;border-radius:18px!important;background:var(--panel)!important;box-shadow:0 7px 18px #0002!important}
@@ -1695,6 +1696,7 @@ function watchRequestedDashboardTiles2026(){
 }
 function renderStats(x){
   const arr=[
+    ['মোট শিক্ষক/শিক্ষিকা',x.teachers],
     ['আয়',x.income],
     ['ব্যয়',x.expense],
     ['মোট ছাত্র-ছাত্রী সংখ্যা',x.students],
