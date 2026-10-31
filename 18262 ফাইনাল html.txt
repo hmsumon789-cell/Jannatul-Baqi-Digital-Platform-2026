@@ -18263,3 +18263,8 @@ body.gold #toast.toast{background:#fff5c7!important;color:#4b3200!important;bord
 })();
 </script>
 <!-- ===== END ONLINE RESULT PLATFORM — CENTRAL MANAGEMENT ===== -->
+<style id="remove-gap-media-controls-to-teacher-stat-20261031">
+/* মিডিয়া কন্ট্রোল লাইন ও শিক্ষকসংখ্যার বক্সের মাঝের ফাঁকা জায়গা অপসারণ */
+.dashboard-slider .dashboard-slider-controls{bottom:0!important;}
+.dashboard-slider #summary.dashboard-slider-summary{margin-top:0!important;}
+</style>
