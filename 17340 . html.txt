@@ -1765,6 +1765,8 @@ function renderStats(x){
   const sum=$('summary');
   if(sum){
     sum.innerHTML=arr.map(a=>'<div class="stat"><b>'+((a[1]??0))+'</b>'+a[0]+'</div>').join('');
+    const teacherBox=document.querySelector('#liveSummary .live-stat');
+    if(teacherBox){teacherBox.className='stat';sum.insertBefore(teacherBox,sum.firstChild);}
     sum.classList.add('dashboard-slider-summary');
   }
   renderDashboardCharts(x);
