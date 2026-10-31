@@ -374,7 +374,7 @@ function registerMadrasa(data){
   }
   const isUpdate=!!(updateId||lookupKey);
   if(isUpdate&&!targetRow)return {ok:false,message:'পুরাতন রেকর্ডটি আর পাওয়া যাচ্ছে না। তথ্য নতুন রেকর্ড হিসেবে সংরক্ষণ করা হয়নি। আবার পুরাতন ID দিয়ে খুঁজুন।'};
-  if(!name||!year||!username||!address||!email||!mobile||(!isUpdate&&(!password||!photo)))return {ok:false,message:'সকল বাধ্যতামূলক তথ্য পূরণ করুন। নতুন নিবন্ধনে Password ও মাদ্রাসার ফটো আবশ্যক।'};
+  if(!name||!year||!username||!password||!address||!email||!mobile||(!isUpdate&&!photo))return {ok:false,message:'সকল বাধ্যতামূলক তথ্য পূরণ করুন। পুরাতন রেকর্ড আপডেটের জন্য বর্তমান Password যাচাই করতে হবে। নতুন নিবন্ধনে মাদ্রাসার ফটোও আবশ্যক।'};
   const userCol=hdr.indexOf('Username');
   for(let i=1;i<all.length;i++){
     if(targetRow&&i+1===targetRow)continue;
@@ -387,7 +387,7 @@ function registerMadrasa(data){
     const finalPhoto=photo||String(current.Photo||'');
     const oldHash=String(current.PasswordHash||'')||(current.Password?hash_(current.Password):'');
     if(!finalPhoto)return {ok:false,message:'এই পুরাতন রেকর্ডে মাদ্রাসার ফটো নেই। অনুগ্রহ করে ফটো যুক্ত করুন।'};
-    if(password===''&&!oldHash)return {ok:false,message:'এই পুরাতন রেকর্ডে Password সংরক্ষিত নেই। নতুন Password লিখুন।'};
+    if(!oldHash)return {ok:false,message:'এই পুরাতন রেকর্ডে Password যাচাইয়ের তথ্য নেই। নিরাপত্তার জন্য সুপার অ্যাডমিনের মাধ্যমে আপডেট করুন।'};if(hash_(password)!==oldHash)return {ok:false,message:'বর্তমান Password সঠিক নয়। তথ্য আপডেট করা হয়নি।'};
     const updateData={
       MadrasaID:String(current.MadrasaID||''),
       GenderType:String(data.genderType||''),
@@ -395,7 +395,7 @@ function registerMadrasa(data){
       Name:name,NameAR:String(data.nameAR||''),NameEN:String(data.nameEN||''),
       FoundedYear:year,Founder:String(data.founder||''),Muhtamim:String(data.muhtamim||''),
       Address:address,Mobile:mobile,StaffCount:Number(data.staffCount||0),StudentCount:Number(data.studentCount||0),
-      Username:username,Password:'',PasswordHash:password?hash_(password):oldHash,
+      Username:username,Password:'',PasswordHash:oldHash,
       Email:email,Photo:finalPhoto,HeaderPhoto:headerPhoto||String(current.HeaderPhoto||'')
     };
     Object.keys(updateData).forEach(function(k){
