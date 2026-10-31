@@ -312,7 +312,9 @@ function registerMadrasa(data){
   const deps=Array.isArray(data.departments)?data.departments.filter(Boolean).join(', '):String(data.departments||'');
   /* Add review columns only after the legacy Email/Photo columns exist; write by header name to avoid column shifts. */
   ensureAccountReviewColumns_();
-  const rowData={Serial:n,MadrasaID:id,GenderType:'',Name:name,FoundedYear:year,Founder:'',Muhtamim:'',Address:address,Mobile:mobile,StaffCount:0,StudentCount:0,Level:'',Status:'PENDING',CreatedAt:now_(),Username:username,Password:'',PasswordHash:hash_(password),ActiveDepartments:deps,OtherDepartment:String(data.otherDepartment||''),Ownership:String(data.ownership||''),ApprovedBy:'',ApprovedAt:'',Permissions:'',Email:email,Photo:photo,ReviewStatus:'',ReviewedBy:'',ReviewedAt:'',ReviewNote:''};
+  const hdr3=sh.getRange(1,1,1,Math.max(sh.getLastColumn(),1)).getValues()[0].map(function(x){return String(x||'').trim()});
+  if(hdr3.indexOf('BoardRegistration')<0) sh.getRange(1,hdr3.length+1).setValue('BoardRegistration');
+  const rowData={Serial:n,MadrasaID:id,GenderType:String(data.genderType||''),BoardRegistration:String(data.boardRegistration||''),Name:name,FoundedYear:year,Founder:String(data.founder||''),Muhtamim:String(data.muhtamim||''),Address:address,Mobile:mobile,StaffCount:0,StudentCount:0,Level:'',Status:'PENDING',CreatedAt:now_(),Username:username,Password:'',PasswordHash:hash_(password),ActiveDepartments:deps,OtherDepartment:String(data.otherDepartment||''),Ownership:String(data.ownership||''),ApprovedBy:'',ApprovedAt:'',Permissions:'',Email:email,Photo:photo,ReviewStatus:'',ReviewedBy:'',ReviewedAt:'',ReviewNote:''};
   const finalHeaders=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(function(x){return String(x||'').trim()});
   const row=finalHeaders.map(function(k){return rowData[k]!==undefined?rowData[k]:''});
   sh.getRange(sh.getLastRow()+1,1,1,row.length).setValues([row]);
@@ -776,6 +778,48 @@ function getStats(token) {
   const executives=countData_(SHEETS.EXECUTIVES);
   const female=countMadrasa_('মহিলা'), male=countMadrasa_('পুরুষ');
   return {income,expense,cash:income-expense,due:0,students,teachers,executives,femaleMadrasa:female,maleMadrasa:male,attendanceToday:attendanceToday_()};
+}function getStats(token) {
+  auth_(token);
+  const income=sumCol_(SHEETS.PAYMENTS,'Amount');
+  const expense=sumCol_(SHEETS.EXPENSES,'Amount');
+  const students=countData_(SHEETS.STUDENTS);
+  const teachers=countData_(SHEETS.TEACHERS);
+  const executives=countData_(SHEETS.EXECUTIVES);
+  const female=countMadrasa_('মহিলা'), male=countMadrasa_('পুরুষ');
+  return {income,expense,cash:income-expense,due:0,students,teachers,executives,femaleMadrasa:female,maleMadrasa:male,attendanceToday:attendanceToday_()};
+}
+
+/* ===== DASHBOARD LIVE ACCOUNT / DEVICE COUNTS — 2026-10-31 ===== */
+function getDashboardLiveCounts(token) {
+  auth_(token);
+  const admins = listRows_(SHEETS.ADMINS, token, 5000);
+  const madrasas = listRows_(SHEETS.MADRASAS, token, 5000);
+  const registeredAdmins = admins.filter(function(r){return String(r.AdminID||r.Username||'').trim();}).length;
+  const registeredMadrasas = madrasas.filter(function(r){return String(r.MadrasaID||r.Username||'').trim();}).length;
+  const props = PropertiesService.getScriptProperties();
+  const all = props.getProperties();
+  const now = Date.now();
+  const online = {};
+  let activeDevices = 0;
+  Object.keys(all).forEach(function(key){
+    if(key.indexOf('ACTIVE_SESSION:') !== 0) return;
+    try {
+      const rec = JSON.parse(all[key]);
+      const age = now - Number(rec.createdAt||0);
+      const sessionToken = key.substring('ACTIVE_SESSION:'.length);
+      const cached = CacheService.getScriptCache().get('SESSION:'+sessionToken);
+      if(age > 21600000 || !rec.username || !cached) {
+        props.deleteProperty(key);
+        return;
+      }
+      const accountKey = String(rec.accountType||'admin')+':'+String(rec.username);
+      online[accountKey] = true;
+      activeDevices++;
+    } catch(e) {
+      props.deleteProperty(key);
+    }
+  });
+  return {ok:true,registeredAccounts:registeredAdmins+registeredMadrasas,onlineAccounts:Object.keys(online).length,activeDevices:activeDevices};
 }
 
 function searchAll(token,signal,query) {
