@@ -424,20 +424,27 @@ function ensureAccountHeaderColor_(sheetName,rowNum){const sh=SpreadsheetApp.get
 function registerMadrasa(data){const lock=LockService.getScriptLock();lock.waitLock(30000);try{return registerMadrasaCore_(data);}finally{lock.releaseLock();}}
 function createAdmin(token,data){const lock=LockService.getScriptLock();lock.waitLock(30000);try{return createAdminCore_(token,data);}finally{lock.releaseLock();}}
 
-function loginNewAdmin(username,password){
-  setupSystem(); username=normalizeAccountUsername_(username); password=String(password||'');
-  const row=findBy_(SHEETS.ADMINS,'Username',username);
-  if(!row) return {ok:false,message:'এই Admin Username পাওয়া যায়নি।'};
+function findAccountByUsername_(sheetName,username){
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);if(!sh||sh.getLastRow()<2)return null;
+  const values=sh.getDataRange().getValues(),headers=values[0].map(function(x){return String(x||'').trim();}),ix=headers.indexOf('Username'),key=normalizeAccountUsername_(username);if(ix<0||!key)return null;
+  for(let i=1;i<values.length;i++)if(normalizeAccountUsername_(values[i][ix])===key)return objectFrom_(headers,values[i]);
+  return null;
+}
 
+function loginNewAdmin(username,password){
+  setupSystem(); password=String(password||'');
+  const row=findAccountByUsername_(SHEETS.ADMINS,username);
+  if(!row) return {ok:false,message:'এই Admin Username পাওয়া যায়নি।'};
+  username=String(row.Username||'');
   if(String(row.PasswordHash||'')!==hash_(password)) return {ok:false,message:'Password সঠিক নয়।'};
   return createDirectSession_(username,'admin');
 }
 
 function loginMadrasa(username,password){
-  setupSystem(); username=String(username||'').trim(); password=String(password||'');
-  const row=findBy_(SHEETS.MADRASAS,'Username',username);
+  setupSystem(); password=String(password||'');
+  const row=findAccountByUsername_(SHEETS.MADRASAS,username);
   if(!row) return {ok:false,message:'এই Madrasa Username পাওয়া যায়নি।'};
-
+  username=String(row.Username||'');
   if(String(row.PasswordHash||'')!==hash_(password)) return {ok:false,message:'Password সঠিক নয়।'};
   return createDirectSession_(username,'madrasa');
 }
