@@ -549,6 +549,48 @@ function getActiveLoginControlData(token){
   const accounts=safe(SHEETS.ADMINS,'admin','AdminID').concat(safe(SHEETS.MADRASAS,'madrasa','MadrasaID'));
   return {ok:true,accounts:accounts};
 }
+/**
+ * Public aggregate counters for the dashboard live-stat tiles.
+ * Only numeric totals are returned; no account names or session details are exposed.
+ */
+function getDashboardLiveStats(){
+  try{
+    setupSystem();
+    const ss=SpreadsheetApp.getActiveSpreadsheet();
+    const countRows=function(sheetName){
+      const sh=ss.getSheetByName(sheetName);
+      return sh?Math.max(0,sh.getLastRow()-1):0;
+    };
+    const registeredAdmins=countRows(SHEETS.ADMINS);
+    const registeredMadrasas=countRows(SHEETS.MADRASAS);
+    const props=PropertiesService.getScriptProperties();
+    const all=props.getProperties();
+    const now=Date.now(),onlineAccounts={},activeDevices=0;
+    Object.keys(all).forEach(function(k){
+      if(k.indexOf('ACTIVE_SESSION:')!==0)return;
+      try{
+        const rec=JSON.parse(all[k]||'{}');
+        const lastSeen=Number(rec.deviceInfo&&rec.deviceInfo.updatedAt||rec.createdAt||0);
+        if(!rec.username||!lastSeen||now-lastSeen>21600000)return;
+        const type=String(rec.accountType||'admin');
+        onlineAccounts[type+':'+String(rec.username)]=true;
+        activeDevices++;
+      }catch(e){}
+    });
+    return {
+      ok:true,
+      registeredMadrasas:registeredMadrasas,
+      registeredAdmins:registeredAdmins,
+      registeredTotal:registeredMadrasas+registeredAdmins,
+      onlineAccounts:Object.keys(onlineAccounts).length,
+      activeDevices:activeDevices,
+      updatedAt:now
+    };
+  }catch(e){
+    return {ok:false,message:String(e&&e.message||e)};
+  }
+}
+
 function forceLogoutAccount(token,type,username){
   try{
     if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin Force Logout করতে পারবেন।'};
