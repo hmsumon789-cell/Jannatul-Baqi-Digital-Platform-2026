@@ -312,7 +312,9 @@ function registerMadrasa(data){
   const deps=Array.isArray(data.departments)?data.departments.filter(Boolean).join(', '):String(data.departments||'');
   /* Add review columns only after the legacy Email/Photo columns exist; write by header name to avoid column shifts. */
   ensureAccountReviewColumns_();
-  const rowData={Serial:n,MadrasaID:id,GenderType:'',Name:name,FoundedYear:year,Founder:'',Muhtamim:'',Address:address,Mobile:mobile,StaffCount:0,StudentCount:0,Level:'',Status:'PENDING',CreatedAt:now_(),Username:username,Password:'',PasswordHash:hash_(password),ActiveDepartments:deps,OtherDepartment:String(data.otherDepartment||''),Ownership:String(data.ownership||''),ApprovedBy:'',ApprovedAt:'',Permissions:'',Email:email,Photo:photo,ReviewStatus:'',ReviewedBy:'',ReviewedAt:'',ReviewNote:''};
+  const hdr3=sh.getRange(1,1,1,Math.max(sh.getLastColumn(),1)).getValues()[0].map(function(x){return String(x||'').trim()});
+  if(hdr3.indexOf('BoardRegistration')<0) sh.getRange(1,hdr3.length+1).setValue('BoardRegistration');
+  const rowData={Serial:n,MadrasaID:id,GenderType:String(data.genderType||''),BoardRegistration:String(data.boardRegistration||''),Name:name,FoundedYear:year,Founder:String(data.founder||''),Muhtamim:String(data.muhtamim||''),Address:address,Mobile:mobile,StaffCount:0,StudentCount:0,Level:'',Status:'PENDING',CreatedAt:now_(),Username:username,Password:'',PasswordHash:hash_(password),ActiveDepartments:deps,OtherDepartment:String(data.otherDepartment||''),Ownership:String(data.ownership||''),ApprovedBy:'',ApprovedAt:'',Permissions:'',Email:email,Photo:photo,ReviewStatus:'',ReviewedBy:'',ReviewedAt:'',ReviewNote:''};
   const finalHeaders=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(function(x){return String(x||'').trim()});
   const row=finalHeaders.map(function(k){return rowData[k]!==undefined?rowData[k]:''});
   sh.getRange(sh.getLastRow()+1,1,1,row.length).setValues([row]);
