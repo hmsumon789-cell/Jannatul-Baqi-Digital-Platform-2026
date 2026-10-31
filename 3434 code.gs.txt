@@ -402,7 +402,7 @@ function registerMadrasa(data){
       const ix=hdr.indexOf(k);
       if(ix>=0)sh.getRange(targetRow,ix+1).setValue(updateData[k]);
     });
-    const keepId=String(current.MadrasaID||updateId||lookupKey);
+    const keepId=String(current.MadrasaID||'');
     log_('PUBLIC','update','MADRASA',keepId);
     return {ok:true,madrasaId:keepId,message:'পুরাতন মাদ্রাসার তথ্য একই রেকর্ডে আপডেট হয়েছে।'};
   }
