@@ -1695,20 +1695,32 @@ function watchRequestedDashboardTiles2026(){
   // Keep compatibility with the existing dashboard initialization without deleting tiles.
 }
 function renderStats(x){
-  const arr=[
-    ['মোট শিক্ষক/শিক্ষিকা',x.teachers],
-    ['আয়',x.income],
-    ['ব্যয়',x.expense],
-    ['মোট ছাত্র-ছাত্রী সংখ্যা',x.students],
-    ['মোট পরীক্ষার্থী সংখ্যা',x.examinees??x.examCandidates]
-  ];
   const sum=$('summary');
   if(sum){
-    sum.innerHTML=arr.map(a=>'<div class="stat"><b>'+((a[1]??0))+'</b>'+a[0]+'</div>').join('');
+    sum.innerHTML=
+      '<div class="stat teacher-live-stat"><b>'+((x.teachers??0))+'</b>মোট শিক্ষক/শিক্ষিকা</div>'+
+      '<div class="stat live-count-stat"><b id="dashboardRegisteredAccounts2026">—</b>নিবন্ধিত মাদ্রাসা + অ্যাডমিন সংখ্যা</div>'+
+      '<div class="stat live-count-stat"><b id="dashboardOnlineAccounts2026">—</b>মোট অনলাইন একাউন্ট</div>'+
+      '<div class="stat live-count-stat"><b id="dashboardActiveDevices2026">—</b>মূল ওয়েবসাইটে সক্রিয় ডিভাইস</div>'+
+      '<div class="stat"><b>'+((x.income??0))+'</b>আয়</div>'+
+      '<div class="stat"><b>'+((x.expense??0))+'</b>ব্যয়</div>'+
+      '<div class="stat"><b>'+((x.students??0))+'</b>মোট ছাত্র-ছাত্রী সংখ্যা</div>'+
+      '<div class="stat"><b>'+((x.examinees??x.examCandidates??0))+'</b>মোট পরীক্ষার্থী সংখ্যা</div>';
     sum.classList.add('dashboard-slider-summary');
+    refreshDashboardLiveCounts2026();
   }
   renderDashboardCharts(x);
   loadInstitutionDocumentary2026();
+}
+function refreshDashboardLiveCounts2026(){
+  if(!token)return;
+  call('getDashboardLiveCounts',token).then(function(r){
+    if(!r||!r.ok)return;
+    var a=$('dashboardRegisteredAccounts2026'),b=$('dashboardOnlineAccounts2026'),d=$('dashboardActiveDevices2026');
+    if(a)a.textContent=Number(r.registeredAccounts||0).toLocaleString('bn-BD');
+    if(b)b.textContent=Number(r.onlineAccounts||0).toLocaleString('bn-BD');
+    if(d)d.textContent=Number(r.activeDevices||0).toLocaleString('bn-BD');
+  }).catch(function(e){console.warn('Dashboard live counts:',e);});
 }
 function renderDashboardCharts(x){
   const income=Number(x.income)||0, expense=Number(x.expense)||0, cash=Number(x.cash)||0, due=Number(x.due)||0;
@@ -1750,10 +1762,11 @@ async function deleteCurrentMedia(){if(!media.length)return;const current=media[
 function openModule(key){
 const labels=Object.fromEntries(modules.map(x=>[x[0],x[1]]));
 $('winTitle').textContent=labels[key]||key;
-$('winBody').innerHTML='<div class="form-language-fixed"><span>বাংলা</span><span>العربية</span><span>English</span></div>'+moduleForm(key)+'<div class="form-signatures"><div class="signature-box"><div>আবেদনকারীর স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>অভিভাবকের স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>প্রধান শিক্ষিকার স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>প্রিন্সিপাল/মুহতামিম এর স্বাক্ষর</div><div class="signature-line"></div></div></div><div class="form-action-bar"><button type="button" class="primary" onclick="saveCurrentForm()">💾 সেভ</button><button type="button" class="secondary" onclick="printCurrentForm()">🖨️ প্রিন্ট</button><button type="button" class="secondary" onclick="enableFormEdit()">✏️ এডিট</button><button type="button" class="secondary" onclick="downloadCurrentForm()">⬇️ ডাউনলোড</button><button type="button" class="secondary" onclick="clearFormWindow()">🧹 ক্লিয়ার</button></div>';
+$('winBody').innerHTML=moduleForm(key)+'<div class="form-signatures"><div class="signature-box"><div>আবেদনকারীর স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>অভিভাবকের স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>প্রধান শিক্ষিকার স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>প্রিন্সিপাল/মুহতামিম এর স্বাক্ষর</div><div class="signature-line"></div></div></div><div class="form-action-bar"><button type="button" class="primary" onclick="saveCurrentForm()">💾 সেভ</button><button type="button" class="secondary" onclick="printCurrentForm()">🖨️ প্রিন্ট</button><button type="button" class="secondary" onclick="enableFormEdit()">✏️ এডিট</button><button type="button" class="secondary" onclick="downloadCurrentForm()">⬇️ ডাউনলোড</button><button type="button" class="secondary" onclick="clearFormWindow()">🧹 ক্লিয়ার</button></div>';
 $('formWin').classList.remove('minimized');
 $('formWin').style.height='';
 openWindow('formWin');
+if(key==='madrasa')setTimeout(loadMadrasaRegistrationId2026,80);
 if(key==='gallery')setTimeout(function(){loadPhotoGalleryData2026();},60);
 if(key==='institution')setTimeout(function(){loadInstitutionProfile2026();},60);
 if(key!=='institution')setTimeout(function(){clearFormWindow(false);},0);
@@ -1791,7 +1804,7 @@ ${locationField('fVillage','গ্রাম',['কোনাখোলা','মড
 <label class="full">ঠিকানা<textarea id="fAddress" class="field"></textarea></label></div>`;
 if(['student','teacher','donor'].includes(k))return common+`<div class="form-grid"><label>শ্রেনি/জামাত<select id="fClass" class="field">${['প্লে শ্রেনি','শিশু শ্রেনি','আউয়াল জামাত','ছানী জামাত','ছালেছ জামাত','রাবে জামাত','পঞ্চম জামাত','মিজান জামাত','নাহবেমীর জামাত','কুদুরী জামাত','শরহে বেকায়া জামাত','হেদায়া জামাত','মিশকাত জামাত','দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)'].map(x=>`<option>${x}</option>`).join('')}</select></label><label>বিভাগ<select id="fDept" class="field"><option>কিতাব বিভাগ</option><option>হিফজুল কুরআন বিভাগ</option><option>নুরানী বিভাগ</option><option>গণিত বিভাগ</option><option>ইংলিশ বিভাগ</option><option>বাংলা বিভাগ</option><option>বোর্ডিং বিভাগ</option><option>হিসাব বিভাগ</option></select></label><label>শাখা<select id="fBranch" class="field"><option>প্রধান শাখা</option><option>২য় শাখা</option><option>৩য় শাখা</option><option>বালক শাখা</option><option>বালিকা শাখা</option></select></label><label>ছবি<input id="fPhoto" class="field" type="file" accept="image/*"></label><label>জন্ম নিবন্ধন<input id="fBirth" class="field"></label><label>জাতীয় ১৭ ডিজিট NID<input id="fNid" class="field"></label></div><button class="primary" onclick="saveModule('${k}')">Save</button>`;
 if(k==='admin')return `<div class="form-grid"><label>Username<input id="aUser" class="field" required></label><label>Password<input id="aPass" class="field" type="password" required></label><label>Email<input id="aEmail" class="field" type="email" required></label><label>Mobile<input id="aMobile" class="field" required></label><label class="full">মাদ্রাসার নাম<input id="mName" class="field" required></label><label>প্রতিষ্ঠা সন<input id="mYear" class="field" required></label><label class="full">ঠিকানা<textarea id="mAddress" class="field" required></textarea></label><label class="full">মাদ্রাসার ফটো<input id="mPhoto" class="field" type="file" accept="image/*" required></label></div><button class="primary" type="button" onclick="saveMadrasaRegistration()">📄 পেজ তৈরি করুন</button>`;
-if(k==='madrasa')return `<div class="form-grid"><label>Username<input id="mUser" class="field" required></label><label>Password<input id="mPass" class="field" type="password" required></label><label>Email<input id="mEmail" class="field" type="email" required></label><label>মোবাইল নম্বর<input id="mMobile" class="field" required></label><label>প্রতিষ্ঠা সন<input id="mYear" class="field" type="number" min="1000" max="2100" required></label><label class="full">বাংলা মাদ্রাসার নাম<input id="mName" class="field" required></label><label class="full">আরবি নাম (ঐচ্ছিক)<input id="mNameAR" class="field"></label><label class="full">ইংরেজি নাম (ঐচ্ছিক)<input id="mNameEN" class="field"></label><label>প্রতিষ্ঠাতার নাম<input id="mFounder" class="field"></label><label>মুহতামিমের নাম<input id="mMuhtamim" class="field"></label><label class="full">ঠিকানা<textarea id="mAddress" class="field" required></textarea></label><label class="full">মাদ্রাসার ফটো<input id="mPhoto" class="field" type="file" accept="image/*" required></label></div><button class="primary" type="button" onclick="saveMadrasaRegistration()">📄 পেজ তৈরি করুন</button>`;
+if(k==='madrasa')return `<div style="display:flex;align-items:end;gap:8px;margin:8px 0 14px"><label style="flex:1">MR ID<input id="mMadrasaID" class="field" readonly placeholder="স্বয়ংক্রিয়ভাবে তৈরি হবে"></label><button type="button" class="secondary" onclick="copyMadrasaRegistrationId()">📋 কপি</button></div><div class="form-grid"><label>বোর্ড কর্তৃক ইলহাক/নিবন্ধন<input id="mBoardRegistration" class="field" placeholder="বোর্ডের ইলহাক/নিবন্ধন নম্বর"></label><label>মাদ্রাসার ধরন<select id="mGenderType" class="field"><option value="">নির্বাচন করুন</option><option value="পুরুষ মাদ্রাসা">পুরুষ মাদ্রাসা</option><option value="মহিলা মাদ্রাসা">মহিলা মাদ্রাসা</option></select></label><label>Username<input id="mUser" class="field" required></label><label>Password<input id="mPass" class="field" type="password" required></label><label>Email<input id="mEmail" class="field" type="email" required></label><label>মোবাইল নম্বর<input id="mMobile" class="field" required></label><label>প্রতিষ্ঠা সন<input id="mYear" class="field" type="number" min="1000" max="2100" required></label><label class="full">বাংলা মাদ্রাসার নাম<input id="mName" class="field" required></label><label class="full">আরবি নাম (ঐচ্ছিক)<input id="mNameAR" class="field"></label><label class="full">ইংরেজি নাম (ঐচ্ছিক)<input id="mNameEN" class="field"></label><label>প্রতিষ্ঠাতার নাম<input id="mFounder" class="field"></label><label>মুহতামিমের নাম<input id="mMuhtamim" class="field"></label><label class="full">ঠিকানা<textarea id="mAddress" class="field" required></textarea></label><label class="full">মাদ্রাসার ফটো<input id="mPhoto" class="field" type="file" accept="image/*" required></label></div><button class="primary" type="button" onclick="saveMadrasaRegistration()">📄 পেজ তৈরি করুন</button>`;
 if(k==='gallery')return `<div class="media-upload-note"><b>ফটো:</b> সর্বোচ্চ 20 MB, 100টি। <b>ভিডিও:</b> সর্বোচ্চ 50 MB, 20টি। <b>অডিও:</b> সর্বোচ্চ 50 MB, 50টি।<br><b>ছবির গোপনীয়তা:</b> পাবলিক ছবি সবাই দেখবে; অ্যাডমিন-শুধু ছবি কেবল গ্যালারী-অনুমোদিত অ্যাডমিন দেখবে। ভিডিও/অডিওর বর্তমান ব্যবস্থা অপরিবর্তিত।</div><div class="form-grid"><label>নতুন ফটোর অনুমতি<select id="mediaVisibility" class="field"><option value="public">🌐 পাবলিক — সবাই দেখতে পারবে</option><option value="admin">🔒 অ্যাডমিন-শুধু</option></select></label><label>ফটো/ভিডিও/অডিও নির্বাচন<input id="mediaFiles" class="field" type="file" multiple accept="image/*,video/*,audio/*"></label></div><div class="photo-gallery-tools-2026"><button class="primary" type="button" onclick="uploadMedia()">⬆ আপলোড</button><button class="secondary" type="button" onclick="openPublicPhotoGallery2026()">🌐 পাবলিক গ্যালারী খুলুন</button></div><h3>📸 ফটো গ্যালারী — গ্রিড</h3><label>ছবি ফিল্টার <select id="photoGalleryFilter2026" class="field" onchange="renderPhotoGalleryGrid2026()"><option value="all">সব অনুমোদিত ছবি</option><option value="public">পাবলিক ছবি</option><option value="admin">অ্যাডমিন-শুধু ছবি</option></select></label><div id="photoGalleryGrid2026" class="photo-gallery-grid-2026"></div><h3>📂 মিডিয়া তালিকা</h3><div id="mediaList"></div>`;
 if(k==='help')return `<button class="primary" onclick="openWindow('quickWin')">দ্রুত সেবা / হেল্প</button>`;
 if(k==='institution')return institutionProfileFormHtml2026();
@@ -1951,7 +1964,9 @@ Mobile:$('fMobile').value,WhatsApp:$('fWhatsApp').value,Email:$('fEmail').value,
 Division:getLocationValue('fDivision'),District:getLocationValue('fDistrict'),Upazila:getLocationValue('fUpazila'),Union:getLocationValue('fUnion'),Ward:getLocationValue('fWard'),Village:getLocationValue('fVillage'),
 Class:document.getElementById('fClass')?.value||'',Department:document.getElementById('fDept')?.value||'',Branch:document.getElementById('fBranch')?.value||'',Photo:await fileData('fPhoto'),BirthReg:document.getElementById('fBirth')?.value||'',NID:document.getElementById('fNid')?.value||''};
 if(k==='student')d.Gender='';const r=await call('saveRecord',token,s,d);if(r&&r.ok){const ad=r.autoDocuments||{};const row=r.row||{};const savedId=row.StudentID||row.TeacherID||row.DonorID||row.MemberID||d.StudentID||(r.studentWorkflow&&r.studentWorkflow.studentId)||'';toast('সফলভাবে সংরক্ষণ হয়েছে'+(savedId?'। ID: '+savedId:'')+(ad.ok?'। স্বয়ংক্রিয় নথি/কার্ডের খসড়া '+(ad.created||0)+'টি প্রস্তুত।':''));}else toast((r&&r.message)||'সংরক্ষণ ব্যর্থ হয়েছে')}
-async function saveMadrasaRegistration(){try{const u=$('mUser').value.trim(),p=$('mPass').value,e=$('mEmail').value.trim(),mobile=$('mMobile').value.trim(),name=$('mName').value.trim(),nameAR=$('mNameAR').value.trim(),nameEN=$('mNameEN').value.trim(),founder=$('mFounder').value.trim(),muhtamim=$('mMuhtamim').value.trim(),year=$('mYear').value.trim(),address=$('mAddress').value.trim(),photo=await fileData('mPhoto');if(!u||!p||!e||!mobile||!name||!year||!address||!photo){toast('সকল বাধ্যতামূলক ঘর পূরণ করুন।');return;}const r=await call('registerMadrasa',{username:u,password:p,email:e,mobile:mobile,name:name,nameAR:nameAR,nameEN:nameEN,founder:founder,muhtamim:muhtamim,foundedYear:year,address:address,photo:photo});if(!r||!r.ok){toast((r&&r.message)||'মাদ্রাসা একাউন্ট তৈরি হয়নি।');return;}toast('সফল হয়েছে। এখন অনুমোদনের পর Username + Password দিয়ে OTP ছাড়া লগইন করতে পারবেন।');closeWindow('formWin');openApprovedLogin();setApprovedLoginType('madrasa');$('approvedLoginUser').value=u;$('approvedLoginPass').value=p;}catch(e){toast('সার্ভার ত্রুটি: '+(e&&e.message?e.message:e));}}
+async function loadMadrasaRegistrationId2026(){var el=document.getElementById('mMadrasaID');if(!el)return;try{var r=await call('getNextMadrasaRegistrationId');if(r&&r.ok)el.value=r.id||'';}catch(e){el.placeholder='MR ID লোড হয়নি';}}
+function copyMadrasaRegistrationId(){var el=document.getElementById('mMadrasaID');if(!el||!el.value){toast('MR ID এখনো তৈরি হয়নি।');return;}if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(el.value).then(function(){toast('MR ID কপি হয়েছে।');}).catch(function(){el.select();document.execCommand('copy');toast('MR ID কপি হয়েছে।');});else{el.select();document.execCommand('copy');toast('MR ID কপি হয়েছে।');}}
+async function saveMadrasaRegistration(){try{const u=$('mUser').value.trim(),p=$('mPass').value,e=$('mEmail').value.trim(),mobile=$('mMobile').value.trim(),name=$('mName').value.trim(),nameAR=$('mNameAR').value.trim(),nameEN=$('mNameEN').value.trim(),founder=$('mFounder').value.trim(),muhtamim=$('mMuhtamim').value.trim(),year=$('mYear').value.trim(),address=$('mAddress').value.trim(),photo=await fileData('mPhoto');if(!u||!p||!e||!mobile||!name||!year||!address||!photo){toast('সকল বাধ্যতামূলক ঘর পূরণ করুন।');return;}const r=await call('registerMadrasa',{username:u,password:p,email:e,mobile:mobile,name:name,nameAR:nameAR,nameEN:nameEN,founder:founder,muhtamim:muhtamim,foundedYear:year,address:address,photo:photo,boardRegistration:$('mBoardRegistration')?.value||'',genderType:$('mGenderType')?.value||''});if(!r||!r.ok){toast((r&&r.message)||'মাদ্রাসা একাউন্ট তৈরি হয়নি।');return;}if($('mMadrasaID')&&r.madrasaId)$('mMadrasaID').value=r.madrasaId;toast('সফল হয়েছে। MR ID: '+(r.madrasaId||'')+'। এখন অনুমোদনের পর Username + Password দিয়ে OTP ছাড়া লগইন করতে পারবেন।');closeWindow('formWin');openApprovedLogin();setApprovedLoginType('madrasa');$('approvedLoginUser').value=u;$('approvedLoginPass').value=p;}catch(e){toast('সার্ভার ত্রুটি: '+(e&&e.message?e.message:e));}}
 async function saveAdmin(){const photo=await fileData('aPhoto');const d={NameBN:$('aName').value,NameAR:$('aAr').value,NameEN:$('aEn').value,Username:$('aUser').value,Password:$('aPass').value,Email:$('aEmail').value,Mobile:$('aMobile').value,WhatsApp:$('aWa').value,ApprovalID:$('aApproval').value,Address:$('aAddress').value,Photo:photo,BirthReg:$('aBirth').value,NID:$('aNid').value};const r=await call('createAdmin',token,d);toast(r.message||('Admin ID: '+r.adminId))}
 async function lookupOnlinePaymentStudent(){
   const id=String($('pStudent')?.value||'').trim();
@@ -3239,7 +3254,7 @@ body.gold #formWin select.field,body.gold #formWin input.field{border-radius:7px
   window.openModule=function(key){
     var labels=Object.fromEntries((modules||[]).map(function(x){return[x[0],x[1]]}));$('winTitle').textContent=labels[key]||key;
     var sig=key==='admission'?'<div class="form-signatures"><div class="signature-box"><div>আবেদনকারীর স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>অভিভাবকের স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>প্রধান শিক্ষিকার স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>প্রিন্সিপাল/মুহতামিম এর স্বাক্ষর</div><div class="signature-line"></div></div></div>':'';
-    $('winBody').innerHTML='<div class="form-language-fixed"><span>বাংলা</span><span>العربية</span><span>English</span></div>'+moduleForm(key)+sig+'<div class="form-action-bar"><button type="button" class="primary" onclick="saveCurrentForm()">💾 সেভ</button><button type="button" class="secondary" onclick="printCurrentForm()">🖨️ প্রিন্ট</button><button type="button" class="secondary" onclick="enableFormEdit()">✏️ এডিট</button><button type="button" class="secondary" onclick="downloadCurrentForm()">⬇️ ডাউনলোড</button><button type="button" class="secondary" onclick="clearFormWindow()">🧹 ক্লিয়ার</button></div>';
+    $('winBody').innerHTML=moduleForm(key)+sig+'<div class="form-action-bar"><button type="button" class="primary" onclick="saveCurrentForm()">💾 সেভ</button><button type="button" class="secondary" onclick="printCurrentForm()">🖨️ প্রিন্ট</button><button type="button" class="secondary" onclick="enableFormEdit()">✏️ এডিট</button><button type="button" class="secondary" onclick="downloadCurrentForm()">⬇️ ডাউনলোড</button><button type="button" class="secondary" onclick="clearFormWindow()">🧹 ক্লিয়ার</button></div>';
     $('formWin').classList.remove('minimized');$('formWin').style.height='';openWindow('formWin');setTimeout(bindAll,30);
   };
   var oldGL=window.getLocationValue;window.getLocationValue=function(id){var m=document.getElementById(id+'Manual'),s=document.getElementById(id+'Select');return(m&&m.value.trim())||(s&&s.value)||''};
@@ -9634,7 +9649,7 @@ window.saveResult=async function(k){
             var body=document.getElementById('winBody');
             if(body&&typeof window.moduleForm==='function'){
               var extra='<div class="form-signatures"><div class="signature-box"><div>আবেদনকারীর স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>অভিভাবকের স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>প্রধান শিক্ষিকার স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>প্রিন্সিপাল/মুহতামিম এর স্বাক্ষর</div><div class="signature-line"></div></div></div><div class="form-action-bar"><button type="button" class="primary" onclick="saveCurrentForm()">💾 সেভ</button><button type="button" class="secondary" onclick="printCurrentForm()">🖨️ প্রিন্ট</button><button type="button" class="secondary" onclick="enableFormEdit()">✏️ এডিট</button><button type="button" class="secondary" onclick="downloadCurrentForm()">⬇️ ডাউনলোড</button><button type="button" class="secondary" onclick="clearFormWindow()">🧹 ক্লিয়ার</button></div>';
-              body.innerHTML='<div class="form-language-fixed"><span>বাংলা</span><span>العربية</span><span>English</span></div>'+window.moduleForm('exam')+extra;
+              body.innerHTML=window.moduleForm('exam')+extra;
             }
           }
           rebuildExam();
@@ -9689,7 +9704,7 @@ window.openModule=function(k){
  if(k!=='exam')return prev(k);
  const b=$('winBody');if(!b)return;
  const t=$('winTitle');if(t)t.textContent='পরীক্ষার্থী নিবন্ধন করুন';
- b.innerHTML='<div class="form-language-fixed"><span>বাংলা</span><span>العربية</span><span>English</span></div>'+form();
+ b.innerHTML=form();
  $('formWin').classList.remove('minimized');$('formWin').style.height='';openWindow('formWin');
  const cl=$('examClass2026');if(cl)cl.onchange=subjects;
  subjects();
@@ -14442,7 +14457,7 @@ window.jbRsBuild=async function(){
     }
     var teacher=type==='teacher';
     E('winTitle').textContent=teacher?'শিক্ষক/শিক্ষিকা চাকরির আবেদন ফর্ম':'সদস্য আবেদন ফর্ম';
-    E('winBody').innerHTML=admissionBrandHeader20261010()+'<div class="form-language-fixed"><span>বাংলা</span><span>العربية</span><span>English</span></div>'+
+    E('winBody').innerHTML=admissionBrandHeader20261010()+
       '<div class="form-grid">'+
       '<label>বাংলা নাম / Name <span class="adm-required">*</span><input id="admGenericName2026" class="field" required></label>'+
       '<label>English Name<input id="admGenericNameEn2026" class="field"></label>'+
@@ -18277,4 +18292,13 @@ body.gold #toast.toast{background:#fff5c7!important;color:#4b3200!important;bord
   top:0!important;
   padding-top:0!important;
 }
+</style>
+
+<style id="dashboard-three-live-boxes-20261031">
+/* শিক্ষক বক্সের ডান পাশে তিনটি লাইভ কাউন্ট; নিচে আগের চারটি সারাংশ */
+.dashboard-slider-summary{grid-template-columns:repeat(4,minmax(0,1fr))!important;}
+.dashboard-slider-summary .stat:first-child{grid-column:auto!important;}
+.dashboard-slider-summary .stat{min-width:0!important;overflow-wrap:anywhere!important;}
+.dashboard-slider-summary .live-count-stat{border:1px solid var(--border)!important;border-radius:10px!important;background:linear-gradient(145deg,var(--panel),#ffffff12)!important;}
+@media(max-width:700px){.dashboard-slider-summary{grid-template-columns:repeat(2,minmax(0,1fr))!important;}}
 </style>
