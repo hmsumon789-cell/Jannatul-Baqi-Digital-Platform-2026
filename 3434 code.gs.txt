@@ -305,6 +305,26 @@ function getNextMadrasaRegistrationId(){
   return {ok:true,id:'MR-'+String(n).padStart(4,'0')};
 }
 
+function lookupMadrasaRegistrationByOldId(value){
+  setupSystem();
+  const key=String(value||'').trim().toLowerCase();
+  if(!key)return {ok:false,message:'পুরাতন ইলহাক/আইডি লিখুন।'};
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MADRASAS);
+  if(!sh||sh.getLastRow()<2)return {ok:false,message:'মাদ্রাসার কোনো পুরাতন তথ্য পাওয়া যায়নি।'};
+  const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(function(v){return String(v||'').trim();});
+  const values=sh.getRange(2,1,sh.getLastRow()-1,sh.getLastColumn()).getValues();
+  const keys=['MadrasaID','BoardRegistration','OldID','IlhaqID','RegistrationID','ID'];
+  const indexes=keys.map(function(k){return headers.indexOf(k);}).filter(function(i){return i>=0;});
+  for(var i=0;i<values.length;i++){
+    var row=values[i],matched=indexes.some(function(ix){return String(row[ix]||'').trim().toLowerCase()===key;});
+    if(!matched)continue;
+    var d={};
+    ['MadrasaID','BoardRegistration','GenderType','Name','NameAR','NameEN','FoundedYear','Founder','Muhtamim','Address','Mobile','StaffCount','StudentCount'].forEach(function(k){var ix=headers.indexOf(k);if(ix>=0)d[k]=row[ix];});
+    return {ok:true,madrasa:d};
+  }
+  return {ok:false,message:'এই ইলহাক/আইডির সঙ্গে মিলে এমন মাদ্রাসা পাওয়া যায়নি।'};
+}
+
 function registerMadrasa(data){
   setupSystem();
   data=data||{};
@@ -313,7 +333,7 @@ function registerMadrasa(data){
   if(findBy_(SHEETS.MADRASAS,'Username',username)||findBy_(SHEETS.ADMINS,'Username',username)) return {ok:false,message:'এই Username আগে থেকেই ব্যবহার হচ্ছে।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MADRASAS), n=nextSerial_(sh), id='MR-'+String(n).padStart(4,'0');
   let hdr=sh.getRange(1,1,1,Math.max(sh.getLastColumn(),1)).getValues()[0];
-  ['BoardRegistration','GenderType','Founder','Muhtamim'].forEach(function(k){if(hdr.indexOf(k)<0){sh.getRange(1,sh.getLastColumn()+1).setValue(k);hdr.push(k);}});
+  ['BoardRegistration','GenderType','Founder','Muhtamim','NameAR','NameEN','HeaderPhoto'].forEach(function(k){if(hdr.indexOf(k)<0){sh.getRange(1,sh.getLastColumn()+1).setValue(k);hdr.push(k);}});
   hdr=sh.getRange(1,1,1,Math.max(sh.getLastColumn(),1)).getValues()[0];
   if(hdr.indexOf('Email')<0) sh.getRange(1,hdr.length+1).setValue('Email');
   const hdr2=sh.getRange(1,1,1,Math.max(sh.getLastColumn(),1)).getValues()[0];
@@ -321,7 +341,7 @@ function registerMadrasa(data){
   const deps=Array.isArray(data.departments)?data.departments.filter(Boolean).join(', '):String(data.departments||'');
   /* Add review columns only after the legacy Email/Photo columns exist; write by header name to avoid column shifts. */
   ensureAccountReviewColumns_();
-  const rowData={Serial:n,MadrasaID:id,GenderType:String(data.genderType||''),BoardRegistration:String(data.boardRegistration||''),Name:name,FoundedYear:year,Founder:String(data.founder||''),Muhtamim:String(data.muhtamim||''),Address:address,Mobile:mobile,StaffCount:0,StudentCount:0,Level:'',Status:'PENDING',CreatedAt:now_(),Username:username,Password:'',PasswordHash:hash_(password),ActiveDepartments:deps,OtherDepartment:String(data.otherDepartment||''),Ownership:String(data.ownership||''),ApprovedBy:'',ApprovedAt:'',Permissions:'',Email:email,Photo:photo,ReviewStatus:'',ReviewedBy:'',ReviewedAt:'',ReviewNote:''};
+  const rowData={Serial:n,MadrasaID:id,GenderType:String(data.genderType||''),BoardRegistration:String(data.boardRegistration||''),Name:name,NameAR:String(data.nameAR||''),NameEN:String(data.nameEN||''),FoundedYear:year,Founder:String(data.founder||''),Muhtamim:String(data.muhtamim||''),Address:address,Mobile:mobile,StaffCount:Number(data.staffCount||0),StudentCount:Number(data.studentCount||0),Level:'',Status:'PENDING',CreatedAt:now_(),Username:username,Password:'',PasswordHash:hash_(password),ActiveDepartments:deps,OtherDepartment:String(data.otherDepartment||''),Ownership:String(data.ownership||''),ApprovedBy:'',ApprovedAt:'',Permissions:'',Email:email,Photo:photo,HeaderPhoto:String(data.headerPhoto||''),ReviewStatus:'',ReviewedBy:'',ReviewedAt:'',ReviewNote:''};
   const finalHeaders=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(function(x){return String(x||'').trim()});
   const row=finalHeaders.map(function(k){return rowData[k]!==undefined?rowData[k]:''});
   sh.getRange(sh.getLastRow()+1,1,1,row.length).setValues([row]);
