@@ -5955,11 +5955,10 @@ body #app .header-news *{
   };
   function bind(){
     var q=document.querySelectorAll('#loginPage .quick button');
-    /* Keep the six handlers aligned with the six visible login buttons. */
+    /* Keep handlers aligned with the five login-page quick buttons. */
     var handlers=[
       function(){if(typeof window.openAdmissionPanel2026==='function')window.openAdmissionPanel2026();else openPublicFeature('admission');},
       function(){openPublicFeature('payment');},
-      function(){openPublicFeature('result');},
       function(){openPublicFeature('exam');},
       function(){openPublicFeature('admin');},
       function(){openPublicFeature('madrasa');}
