@@ -18268,3 +18268,13 @@ body.gold #toast.toast{background:#fff5c7!important;color:#4b3200!important;bord
 .dashboard-slider .dashboard-slider-controls{bottom:0!important;}
 .dashboard-slider #summary.dashboard-slider-summary{margin-top:0!important;}
 </style>
+
+<style id="force-remove-summary-top-gap-20261031">
+/* পুরোনো 2in margin ও 96px translate বাতিল করে মিডিয়া কন্ট্রোলের পরই শিক্ষক বক্স */
+#app .dashboard-media-layout .dashboard-slider #summary.dashboard-summary-inside{
+  margin-top:0!important;
+  transform:none!important;
+  top:0!important;
+  padding-top:0!important;
+}
+</style>
