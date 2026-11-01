@@ -64,6 +64,13 @@ const HEADERS = {
   ONLINE_SERVICES:['Serial','ServiceID','ServiceCode','DocKey','PersonID','Name','Title','IssueDate','PdfFileId','PdfUrl','Data','HTML','Status','CreatedAt']
 };
 
+const TENANT_DATA_SHEETS_ = ['STUDENTS','TEACHERS','DONORS','ADMISSIONS','EXAM_REG','PAYMENTS','EXPENSES','INCOME','RESULTS','ATTENDANCE','MEDIA','FILES','SMS_QUEUE','CONTACTS','EXECUTIVES','ADVISERS','FOUNDERS','SALARY','CERTIFICATES','ID_CARDS','ADMIT_CARDS','RECEIPTS','ONLINE_SERVICES','DOCUMENT_BUILDER_HISTORY','SAVED_PDFS'];
+function ensureTenantColumns_(){const ss=SpreadsheetApp.getActiveSpreadsheet();TENANT_DATA_SHEETS_.forEach(function(n){const sh=ss.getSheetByName(n);if(!sh)return;const w=Math.max(1,sh.getLastColumn()),h=sh.getRange(1,1,1,w).getValues()[0].map(String);if(h.indexOf('TenantAccount')<0)sh.getRange(1,w+1).setValue('TenantAccount');});}
+function tenantContext_(token){const s=auth_(token),c={username:String(s.username||'').trim(),superAdmin:isSuperAdminSession_(token),accountType:String(s.accountType||'admin'),studentOwners:{}};const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.STUDENTS);if(sh&&sh.getLastRow()>1){const v=sh.getDataRange().getValues(),h=v[0].map(String),i=h.indexOf('StudentID'),o=h.indexOf('SourceAccount');if(i>=0&&o>=0)for(let r=1;r<v.length;r++){const id=String(v[r][i]||'').trim();if(id)c.studentOwners[id]=String(v[r][o]||'').trim();}}return c;}
+function tenantOwner_(r,n,c){r=r||{};if(n==='ADMINS'||n===SHEETS.ADMINS||n==='MADRASAS'||n===SHEETS.MADRASAS)return String(r.Username||'').trim();let o=String(r.TenantAccount||'').trim();if(n===SHEETS.STUDENTS)o=String(r.SourceAccount||o).trim();if(!o)o=String(r.SourceAccount||'').trim();if(!o){let id=String(r.StudentID||r.PersonID||'').trim();if(!id&&r.Data){try{const p=JSON.parse(String(r.Data));id=String(p.StudentID||p.studentId||p.PersonID||'').trim();}catch(e){}}if(id&&c&&c.studentOwners)o=String(c.studentOwners[id]||'').trim();}return o;}
+function tenantCanAccessRow_(r,n,c){if(!c||c.superAdmin)return true;return !!c.username&&tenantOwner_(r,n,c)===c.username;}
+function assertTenantRowAccess_(r,n,t){const c=tenantContext_(t);if(!tenantCanAccessRow_(r,n,c))throw new Error('এই রেকর্ডটি আপনার অ্যাকাউন্টের নয় অথবা অ্যাকাউন্ট-মালিকানা নির্ধারিত নেই।');return c;}
+
 function doGet(e) {
   var p = (e && e.parameter) || {};
   if (String(p.payment || '') === '1') {
@@ -161,6 +168,7 @@ function getMainWebAppUrl() {
 function setupSystem() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   Object.keys(SHEETS).forEach(k => ensureSheet_(ss, SHEETS[k], HEADERS[SHEETS[k]] || ['Value']));
+  ensureTenantColumns_();
   seedConfig_(ss);
   seedAdmin_(ss);
   seedPeople_(ss);
@@ -602,13 +610,10 @@ function getBootstrap(token) {
 
 function getStats(token) {
   auth_(token);
-  const income=sumCol_(SHEETS.PAYMENTS,'Amount');
-  const expense=sumCol_(SHEETS.EXPENSES,'Amount');
-  const students=countData_(SHEETS.STUDENTS);
-  const teachers=countData_(SHEETS.TEACHERS);
-  const executives=countData_(SHEETS.EXECUTIVES);
-  const female=countMadrasa_('মহিলা'), male=countMadrasa_('পুরুষ');
-  return {income,expense,cash:income-expense,due:0,students,teachers,executives,femaleMadrasa:female,maleMadrasa:male,attendanceToday:attendanceToday_()};
+  const income=sumCol_(SHEETS.PAYMENTS,'Amount',token),expense=sumCol_(SHEETS.EXPENSES,'Amount',token);
+  const students=countData_(SHEETS.STUDENTS,token),teachers=countData_(SHEETS.TEACHERS,token),executives=countData_(SHEETS.EXECUTIVES,token);
+  const superAdmin=isSuperAdminSession_(token),female=superAdmin?countMadrasa_('মহিলা'):0,male=superAdmin?countMadrasa_('পুরুষ'):0;
+  return {income,expense,cash:income-expense,due:0,students,teachers,executives,femaleMadrasa:female,maleMadrasa:male,attendanceToday:attendanceToday_(token)};
 }
 
 function searchAll(token,signal,query) {
@@ -812,7 +817,7 @@ function buildStudentFromAdmission_(data,form) {
   };
 }
 function syncAdmissionToStudent_(token,data) {
-  ensureStudentWorkflowColumns_();
+  ensureStudentWorkflowColumns_(); ensureTenantColumns_();
   if(!data) return {ok:true,skipped:true,message:'ভর্তি রেকর্ড পাওয়া যায়নি।'};
   let form=data && data.FormData;
   if(typeof form==='string'){try{form=JSON.parse(form);}catch(e){form={};}}
@@ -834,6 +839,7 @@ function syncAdmissionToStudent_(token,data) {
   const admissionApproved=['APPROVED','ACTIVE','ADMITTED','CONFIRMED'].includes(admissionStatus);
   if(!admissionApproved) info.status='PENDING';
   if(existing>1){
+    if(!tenantCanAccessRow_(objectFrom_(h,vals[existing-1]),SHEETS.STUDENTS,tenantContext_(token)))return {ok:false,message:'এই শিক্ষার্থী অন্য অ্যাকাউন্টের অধীনে আছে; পরিবর্তন করা যাবে না।'};
     h.forEach(function(k,j){if(Object.prototype.hasOwnProperty.call(src,k) && String(src[k]??'').trim()!=='') sh.getRange(existing,j+1).setValue(src[k]);});
     const currentStatus=h.indexOf('ApprovalStatus')>=0?String(sh.getRange(existing,h.indexOf('ApprovalStatus')+1).getValue()||'').toUpperCase():'';
     const finalExistingStatus=(currentStatus==='ACTIVE' && info.status==='PENDING')?'ACTIVE':info.status;
@@ -856,7 +862,7 @@ function syncAdmissionToStudent_(token,data) {
 }
 
 function saveAdmissionDraft2026(token,data,action) {
-  auth_(token);
+  auth_(token); ensureTenantColumns_();
   requireFeature_(token,'admission');
   data=data||{};
   action=String(action||'SAVE').toUpperCase();
@@ -948,6 +954,7 @@ function saveAdmissionDraft2026(token,data,action) {
     SpreadsheetApp.flush();
     return {ok:true,cancelled:true,admissionId:admissionId,message:'আবেদন বাতিল করা হয়েছে।'};
   }
+  if(rowNum>1)assertTenantRowAccess_(objectFrom_(headers,values[rowNum-1]),SHEETS.ADMISSIONS,token);
   const finalizing=action==='FINALIZE';
   let admissionFormData=data.FormData;
   if(typeof admissionFormData==='string'){try{admissionFormData=JSON.parse(admissionFormData);}catch(e){admissionFormData={};}}
@@ -992,7 +999,7 @@ function saveAdmissionDraft2026(token,data,action) {
   }
   data.Status=finalizing?'PENDING':'INCOMPLETE';
   data.AdmissionID=admissionId;
-  const row=headers.map(function(h){return h==='Serial'?(rowNum>1?values[rowNum-1][0]:nextSerial_(sh)):h==='CreatedAt'?(rowNum>1?values[rowNum-1][headers.indexOf('CreatedAt')]:now_()):(data[h]!==undefined?data[h]:'');});
+  const row=headers.map(function(h){return h==='Serial'?(rowNum>1?values[rowNum-1][0]:nextSerial_(sh)):h==='CreatedAt'?(rowNum>1?values[rowNum-1][headers.indexOf('CreatedAt')]:now_()):h==='TenantAccount'?sessionUser_(token):(data[h]!==undefined?data[h]:'');});
   if(rowNum>1)sh.getRange(rowNum,1,1,headers.length).setValues([row]);else{sh.appendRow(row);rowNum=sh.getLastRow();}
   SpreadsheetApp.flush();
   if(!finalizing)return {ok:true,draft:true,admissionId:admissionId,status:'INCOMPLETE',message:'অসম্পূর্ণ আবেদন খসড়া হিসেবে সংরক্ষিত হয়েছে; পরে সম্পাদনা বা বাতিল করা যাবে।'};
@@ -1050,48 +1057,49 @@ function getExamCandidateList(token,exam,className) {
   return {ok:true,exam:String(exam||''),className:String(className||''),rows:students.map(function(s){return {student:s,registered:!!registered[String(s.StudentID||'')],registration:registered[String(s.StudentID||'')]||null};}),count:students.length};
 }
 function registerExamCandidate(token,studentId,exam,className,branch) {
-  auth_(token); requireFeature_(token,'exam');
+  auth_(token); requireFeature_(token,'exam'); ensureTenantColumns_();
   const inputId=String(studentId||'').trim(), ex=String(exam||'').trim();
   if(!inputId||!ex) return {ok:false,message:'ভর্তি ফর্মের যেকোনো ID, মোবাইল/ইমেইল ও পরীক্ষা আবশ্যক।'};
-  const resolved=resolveAdmissionIdentifier_(inputId);
-  const id=String(resolved.studentId||inputId).trim();
-  const student=resolved.student||findBy_(SHEETS.STUDENTS,'StudentID',id);
-  if(!student) return {ok:false,message:'এই ID/মোবাইল/ইমেইলে অনুমোদিত Student পাওয়া যায়নি।'};
+  const resolved=resolveAdmissionIdentifier_(inputId),id=String(resolved.studentId||inputId).trim();
+  const student=listRows_(SHEETS.STUDENTS,token,10000).find(function(r){return String(r.StudentID||'').trim()===id||String(r.Mobile||'').trim()===inputId||String(r.MobileID||'').trim()===inputId||String(r.EmailID||'').trim()===inputId;});
+  if(!student)return {ok:false,message:'এই ID/মোবাইল/ইমেইলে আপনার অ্যাকাউন্টের অনুমোদিত Student পাওয়া যায়নি।'};
 
   if(String(student.ApprovalStatus||'ACTIVE').toUpperCase()!=='ACTIVE') return {ok:false,message:'Student এখনো Super Admin অনুমোদন পায়নি।'};
   const old=listRows_(SHEETS.EXAM_REG,token,10000).find(function(r){return String(r.StudentID)===id&&String(r.Exam)===ex;});
   if(old) return {ok:true,duplicate:true,examRegId:old.ExamRegID,message:'এই Student ইতিমধ্যে পরীক্ষায় যুক্ত আছে।'};
-  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.EXAM_REG);
-  const serial=nextSerial_(sh), regId='EX-'+String(serial).padStart(4,'0');
-  sh.appendRow([serial,regId,id,ex,className||student.Class||'',branch||student.Branch||'','ACTIVE','',now_()]);
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.EXAM_REG),serial=nextSerial_(sh),regId='EX-'+String(serial).padStart(4,'0');
+  const heads=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String),item={Serial:serial,ExamRegID:regId,StudentID:id,Exam:ex,Class:className||student.Class||'',Branch:branch||student.Branch||'',Status:'ACTIVE',CreatedAt:now_(),TenantAccount:sessionUser_(token)};
+  sh.appendRow(heads.map(function(k){return item[k]===undefined?'':item[k];}));
   return {ok:true,examRegId:regId,studentId:id,message:'পরীক্ষার্থী হিসেবে যুক্ত হয়েছে।'};
 }
 function createAdmitCardFromCandidate(token,studentId,exam) {
-  auth_(token); requireFeature_(token,'admit');
+  auth_(token); requireFeature_(token,'admit'); ensureTenantColumns_();
   const id=String(studentId||'').trim(), ex=String(exam||'').trim();
   if(!id||!ex) return {ok:false,message:'Student ID ও পরীক্ষা আবশ্যক।'};
-  const student=findBy_(SHEETS.STUDENTS,'StudentID',id);
-  if(!student) return {ok:false,message:'Student পাওয়া যায়নি।'};
+  const student=listRows_(SHEETS.STUDENTS,token,10000).find(function(r){return String(r.StudentID||'').trim()===id;});
+  if(!student)return {ok:false,message:'আপনার অ্যাকাউন্টের Student পাওয়া যায়নি।'};
   const reg=listRows_(SHEETS.EXAM_REG,token,10000).find(function(r){return String(r.StudentID)===id&&String(r.Exam)===ex;});
   if(!reg) return {ok:false,message:'আগে পরীক্ষার্থী হিসেবে যুক্ত করুন।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ADMIT_CARDS);
   const existing=listRows_(SHEETS.ADMIT_CARDS,token,10000).find(function(r){return String(r.StudentID)===id&&String(r.Exam)===ex;});
   if(existing) return {ok:true,duplicate:true,admitId:existing.AdmitID,message:'Admit Card আগে থেকেই তৈরি আছে।'};
-  const serial=nextSerial_(sh), aid='ADM-'+String(serial).padStart(4,'0');
+  const serial=nextSerial_(sh),aid='ADM-'+String(serial).padStart(4,'0');
   const data={studentId:id,exam:ex,name:student.NameBN||'',className:student.Class||'',branch:student.Branch||'',mobile:student.Mobile||'',createdAt:now_()};
-  sh.appendRow([serial,aid,id,ex,now_(),JSON.stringify(data)]);
+  const heads=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String),item={Serial:serial,AdmitID:aid,StudentID:id,Exam:ex,IssueDate:now_(),Data:JSON.stringify(data),TenantAccount:sessionUser_(token)};
+  sh.appendRow(heads.map(function(k){return item[k]===undefined?'':item[k];}));
   return {ok:true,admitId:aid,studentId:id,message:'Admit Card তৈরি হয়েছে।'};
 }
 function getStudent360(token,studentId) {
-  auth_(token); ensureStudentWorkflowColumns_();
+  auth_(token); ensureStudentWorkflowColumns_(); ensureTenantColumns_();
   const inputId=String(studentId||'').trim();
   const resolved=resolveAdmissionIdentifier_(inputId);
   const id=String(resolved.studentId||inputId).trim();
-  const student=resolved.student||findBy_(SHEETS.STUDENTS,'StudentID',id);
-  if(!student&&!resolved.admission) return {ok:false,message:'এই ID/মোবাইল/ইমেইলে শিক্ষার্থী পাওয়া যায়নি।'};
+  const student=listRows_(SHEETS.STUDENTS,token,10000).find(function(r){return String(r.StudentID||'').trim()===id||String(r.Mobile||'').trim()===inputId||String(r.MobileID||'').trim()===inputId||String(r.EmailID||'').trim()===inputId;});
+  const ownAdmission=listRows_(SHEETS.ADMISSIONS,token,10000).find(function(r){return String(r.AdmissionID||'').trim()===String(resolved.admission&&resolved.admission.AdmissionID||'').trim()||String(r.StudentID||'').trim()===id;});
+  if(!student&&!ownAdmission)return {ok:false,message:'এই ID/মোবাইল/ইমেইলে আপনার অ্যাকাউন্টের শিক্ষার্থী পাওয়া যায়নি।'};
   const merged=Object.assign({},resolved.formData||{},student||{});
   if(!merged.StudentID)merged.StudentID=id;
-  if(resolved.admission){merged.AdmissionID=resolved.admission.AdmissionID||'';merged.FormID=merged.FormID||resolved.admission.AdmissionID||inputId;merged.AdmissionStatus=resolved.admission.Status||'';}
+  if(ownAdmission){merged.AdmissionID=ownAdmission.AdmissionID||'';merged.FormID=merged.FormID||ownAdmission.AdmissionID||inputId;merged.AdmissionStatus=ownAdmission.Status||'';}
   const pick=function(sheet,key){return listRows_(sheet,token,10000).filter(function(r){return String(r[key]||'').trim()===id||String(r[key]||'').trim()===inputId;});};
   return {ok:true,student:merged,admissions:pick(SHEETS.ADMISSIONS,'StudentID'),exams:pick(SHEETS.EXAM_REG,'StudentID'),payments:pick(SHEETS.PAYMENTS,'StudentID'),results:pick(SHEETS.RESULTS,'StudentID'),attendance:pick(SHEETS.ATTENDANCE,'StudentID'),admitCards:pick(SHEETS.ADMIT_CARDS,'StudentID')};
 }
@@ -1239,7 +1247,7 @@ function checkUniqueHandwrittenFormId_(formId, excludeSheet, excludeSerial, iden
 /* ===== END UNIQUE HANDWRITTEN FORM ID ===== */
 
 function saveRecord(token,sheetName,data) {
-  auth_(token);
+  auth_(token); ensureTenantColumns_();
   const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
   if(!HEADERS[sheetName]) throw new Error('Invalid sheet');
   const ss=SpreadsheetApp.getActiveSpreadsheet();
@@ -1255,8 +1263,9 @@ function saveRecord(token,sheetName,data) {
     const person=Object.assign({},resolvedPaymentPerson.formData||{},resolvedPaymentPerson.student||{});
     if(!data.Name)data.Name=person.NameBN||person.NameEN||person.Name||'';
   }
-  const headers=['STUDENTS','TEACHERS'].includes(sheetName)?sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String):HEADERS[sheetName];
+  const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
   const row=headers.map(h=>data[h] ?? '');
+  if(headers.indexOf('TenantAccount')>=0)row[headers.indexOf('TenantAccount')]=sessionUser_(token);
   row[0]=nextSerial_(sh);
   if(headers.includes('CreatedAt')) row[headers.indexOf('CreatedAt')]=now_();
   if(headers.includes('StudentID') && !data.StudentID && sheetName==='STUDENTS') {
@@ -1325,7 +1334,7 @@ function saveRecord(token,sheetName,data) {
 }
 
 function updateRecord(token,sheetName,serial,data) {
-  auth_(token); const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
+  auth_(token); ensureTenantColumns_(); const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
   data=normalizeMobileFields_(data);
   const ss=SpreadsheetApp.getActiveSpreadsheet();
   if(['STUDENTS','TEACHERS'].includes(sheetName)) {
@@ -1338,6 +1347,7 @@ function updateRecord(token,sheetName,serial,data) {
   const headers=values[0].map(String);
   const idx=values.findIndex((r,i)=>i>0 && String(r[0])===String(serial));
   if(idx<1) throw new Error('Record not found');
+  assertTenantRowAccess_(objectFrom_(headers,values[idx]),sheetName,token);
   if(['STUDENTS','TEACHERS'].includes(sheetName)) {
     const formCol=headers.indexOf('FormID');
     const oldFormId=formCol>=0?String(values[idx][formCol]||'').trim():'';
@@ -1347,7 +1357,7 @@ function updateRecord(token,sheetName,serial,data) {
       if(!uniqueFormId.ok) return uniqueFormId;
     }
   }
-  headers.forEach((h,j)=>{if(Object.prototype.hasOwnProperty.call(data,h)) sh.getRange(idx+1,j+1).setValue(data[h]);});
+  headers.forEach((h,j)=>{if(['TenantAccount','SourceAccount','SourceType','ApprovedBy','ApprovedAt'].indexOf(h)>=0)return;if(Object.prototype.hasOwnProperty.call(data,h))sh.getRange(idx+1,j+1).setValue(data[h]);});
   SpreadsheetApp.flush();
   let workflow=null;
   if(sheetName==='ADMISSIONS'){
@@ -1368,11 +1378,13 @@ function updateRecord(token,sheetName,serial,data) {
 }
 
 function deleteRecord(token,sheetName,serial) {
-  auth_(token); const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
+  auth_(token); ensureTenantColumns_(); const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
   const vals=sh.getRange(2,1,Math.max(1,sh.getLastRow()-1),1).getValues();
   const idx=vals.findIndex(r=>String(r[0])===String(serial));
   if(idx<0) throw new Error('Record not found');
+  const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
+  assertTenantRowAccess_(objectFrom_(headers,sh.getRange(idx+2,1,1,headers.length).getValues()[0]),sheetName,token);
   sh.deleteRow(idx+2);
   return {ok:true};
 }
@@ -1656,12 +1668,7 @@ function findBy_(sheet,key,value){
   for(let i=1;i<v.length;i++) if(String(v[i][j]).trim()===String(value).trim()) return objectFrom_(h,v[i]);
   return null;
 }
-function listRows_(sheet,token,limit){
-  if(token) auth_(token);
-  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheet); if(!sh||sh.getLastRow()<2)return [];
-  const v=sh.getDataRange().getValues(), h=v[0];
-  return v.slice(1,Math.min(v.length,(limit||1000)+1)).map(r=>objectFrom_(h,r));
-}
+function listRows_(sheet,token,limit){const ctx=token?tenantContext_(token):null;const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheet);if(!sh||sh.getLastRow()<2)return [];const v=sh.getDataRange().getValues(),h=v[0].map(String);let rows=v.slice(1).map(function(r){return objectFrom_(h,r);});if(ctx&&!ctx.superAdmin){if(sheet===SHEETS.ADMINS||sheet==='ADMINS'||sheet===SHEETS.MADRASAS||sheet==='MADRASAS')rows=rows.filter(function(r){return String(r.Username||'').trim()===ctx.username;});else if(TENANT_DATA_SHEETS_.indexOf(sheet)>=0)rows=rows.filter(function(r){return tenantCanAccessRow_(r,sheet,ctx);});}return rows.slice(0,limit||1000);}
 function normalizeBdMobile_(value){
   let s=String(value==null?'':value).trim();
   if(!s)return '';
@@ -1685,10 +1692,10 @@ function objectFrom_(h,r){
   return normalizeMobileFields_(o);
 }
 function nextSerial_(sh){ return Math.max(0,sh.getLastRow()); }
-function countData_(s){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(s); return sh?Math.max(0,sh.getLastRow()-1):0; }
-function sumCol_(s,key){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(s); if(!sh||sh.getLastRow()<2)return 0; const h=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0],j=h.indexOf(key); if(j<0)return 0; return sh.getRange(2,j+1,sh.getLastRow()-1,1).getValues().reduce((a,r)=>a+(Number(r[0])||0),0); }
+function countData_(s,token){if(token)return listRows_(s,token,100000).length;const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(s);return sh?Math.max(0,sh.getLastRow()-1):0;}
+function sumCol_(s,key,token){if(token)return listRows_(s,token,100000).reduce(function(t,r){return t+(Number(r[key])||0);},0);const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(s);if(!sh||sh.getLastRow()<2)return 0;const h=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0],j=h.indexOf(key);if(j<0)return 0;return sh.getRange(2,j+1,sh.getLastRow()-1,1).getValues().reduce((a,r)=>a+(Number(r[0])||0),0);}
 function countMadrasa_(g){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MADRASAS); if(!sh||sh.getLastRow()<2)return 0; return sh.getRange(2,3,sh.getLastRow()-1,1).getValues().filter(r=>String(r[0])===g).length; }
-function attendanceToday_(){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ATTENDANCE); if(!sh||sh.getLastRow()<2)return {present:0,absent:0}; const h=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0],d=h.indexOf('Date'),s=h.indexOf('Status'),today=Utilities.formatDate(new Date(),APP.timezone,'yyyy-MM-dd'); let p=0,a=0; sh.getDataRange().getValues().slice(1).forEach(r=>{if(String(r[d]).slice(0,10)===today){if(String(r[s]).toLowerCase().includes('present'))p++;if(String(r[s]).toLowerCase().includes('absent'))a++;}}); return {present:p,absent:a};}
+function attendanceToday_(token){const today=Utilities.formatDate(new Date(),APP.timezone,'yyyy-MM-dd');let p=0,a=0;const rows=token?listRows_(SHEETS.ATTENDANCE,token,100000):(function(){const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ATTENDANCE);if(!sh||sh.getLastRow()<2)return [];const v=sh.getDataRange().getValues(),h=v[0].map(String);return v.slice(1).map(function(r){return objectFrom_(h,r);});})();rows.forEach(function(r){if(String(r.Date||'').slice(0,10)===today){if(String(r.Status||'').toLowerCase().includes('present'))p++;if(String(r.Status||'').toLowerCase().includes('absent'))a++;}});return {present:p,absent:a};}
 function auth_(token){ const raw=CacheService.getScriptCache().get('SESSION:'+token); if(!raw)throw new Error('SESSION_EXPIRED'); return JSON.parse(raw); }
 function sessionUser_(token){ return auth_(token).username; }
 function getAdminSafe_(u){ const x=findBy_(SHEETS.ADMINS,'Username',u)||{}; delete x.PasswordHash; return x; }
@@ -2809,18 +2816,19 @@ function saveExamDashboardCandidate(token, studentId, exam, className) {
   return {ok:true,duplicate:!!reg.duplicate,examRegId:reg.examRegId||'',admit:admit,message:reg.message||'পরীক্ষার্থী যুক্ত হয়েছে।'};
 }
 function saveExamDashboardMarks(token, exam, className, subject, marks) {
-  auth_(token); requireFeature_(token,'result');
+  auth_(token); requireFeature_(token,'result'); ensureTenantColumns_();
   const ex=String(exam||'').trim(), cl=String(className||'').trim(), sub=String(subject||'').trim();
   if(!ex||!cl||!sub||!Array.isArray(marks))return {ok:false,message:'পরীক্ষা, শ্রেণি, বিষয় ও নম্বর আবশ্যক।'};
   const ss=SpreadsheetApp.getActiveSpreadsheet(), sh=ss.getSheetByName(SHEETS.RESULTS);
-  const headers=HEADERS.RESULTS, vals=sh.getDataRange().getValues(), ix={}; headers.forEach(function(h,i){ix[h]=i;});
+  const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String),vals=sh.getDataRange().getValues(),ix={};headers.forEach(function(h,i){ix[h]=i;});
   let saved=0;
   marks.forEach(function(m){
-    const id=String(m.studentId||'').trim(); if(!id)return;
-    const student=findBy_(SHEETS.STUDENTS,'StudentID',id); if(!student)return;
+    const id=String(m.studentId||'').trim();if(!id)return;
+    const student=listRows_(SHEETS.STUDENTS,token,10000).find(function(x){return String(x.StudentID||'').trim()===id;});if(!student)return;
     let rowIndex=-1, rowObj=null;
     for(let i=1;i<vals.length;i++){
-      if(String(vals[i][ix.StudentID]||'')===id && String(vals[i][ix.Exam]||'').trim()===ex && String(vals[i][ix.Class]||'').trim()===cl){rowIndex=i+1;rowObj=objectFrom_(headers,vals[i]);break;}
+      const candidate=objectFrom_(headers,vals[i]);
+      if(tenantCanAccessRow_(candidate,SHEETS.RESULTS,tenantContext_(token))&&String(vals[i][ix.StudentID]||'')===id&&String(vals[i][ix.Exam]||'').trim()===ex&&String(vals[i][ix.Class]||'').trim()===cl){rowIndex=i+1;rowObj=candidate;break;}
     }
     let subjects=[];try{const raw=rowObj&&rowObj.SubjectData;const parsed=typeof raw==='string'?JSON.parse(raw||'[]'):raw;subjects=Array.isArray(parsed)?parsed:[];}catch(e){subjects=[];}
     subjects=subjects.filter(function(x){return String(x.subject||x.Subject||x.name||'').trim()!==sub;});
@@ -2829,7 +2837,7 @@ function saveExamDashboardMarks(token, exam, className, subject, marks) {
     const total=subjects.reduce(function(a,x){return a+Number(x.marks!=null?x.marks:(x.mark||0));},0);
     const average=subjects.length?total/subjects.length:0;
     const grade=average>=80?'A+':average>=70?'A':average>=60?'A-':average>=50?'B':average>=40?'C':average>=33?'D':'F';
-    const data={StudentID:id,Name:student.NameBN||m.name||'',Class:cl,Exam:ex,SubjectData:JSON.stringify(subjects),Total:total,GPA:Math.min(5,Math.round((average/20)*100)/100),Grade:grade,Published:'NO',Date:now_()};
+    const data={StudentID:id,Name:student.NameBN||m.name||'',Class:cl,Exam:ex,SubjectData:JSON.stringify(subjects),Total:total,GPA:Math.min(5,Math.round((average/20)*100)/100),Grade:grade,Published:'NO',Date:now_(),TenantAccount:sessionUser_(token)};
     if(rowIndex>0){
       ['Name','SubjectData','Total','GPA','Grade','Published','Date'].forEach(function(k){if(ix[k]!=null)sh.getRange(rowIndex,ix[k]+1).setValue(data[k]);});
     }else{
@@ -2846,8 +2854,10 @@ function publishExamDashboardResults(token, exam, className) {
   if(!ex||!cl)return {ok:false,message:'পরীক্ষা ও শ্রেণি আবশ্যক।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.RESULTS), vals=sh.getDataRange().getValues(), h=vals[0].map(String), ix={};h.forEach(function(k,i){ix[k]=i;});
   let rows=[];
+  const ctx=tenantContext_(token);
   for(let i=1;i<vals.length;i++){
-    if(String(vals[i][ix.Exam]||'').trim()===ex&&String(vals[i][ix.Class]||'').trim()===cl)rows.push({row:i+1,id:String(vals[i][ix.StudentID]||''),total:Number(vals[i][ix.Total]||0)});
+    const candidate=objectFrom_(h,vals[i]);
+    if(tenantCanAccessRow_(candidate,SHEETS.RESULTS,ctx)&&String(vals[i][ix.Exam]||'').trim()===ex&&String(vals[i][ix.Class]||'').trim()===cl)rows.push({row:i+1,id:String(vals[i][ix.StudentID]||''),total:Number(vals[i][ix.Total]||0)});
   }
   rows.sort(function(a,b){return b.total-a.total;});
   let rank=0,last=null;
