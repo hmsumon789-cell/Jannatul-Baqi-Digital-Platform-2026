@@ -161,6 +161,8 @@ function getMainWebAppUrl() {
 function setupSystem() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   Object.keys(SHEETS).forEach(k => ensureSheet_(ss, SHEETS[k], HEADERS[SHEETS[k]] || ['Value']));
+  ensureTenantColumns_();
+  ensureAccountAppearanceColumns_();
   seedConfig_(ss);
   seedAdmin_(ss);
   seedPeople_(ss);
@@ -288,12 +290,15 @@ function requestOtp(username) {
 function registerNewAdmin(data){
   setupSystem();
   ensureAccountReviewColumns_();
+  ensureAccountAppearanceColumns_();
   data=data||{};
   const name=String(data.name||'').trim(), mobile=String(data.mobile||'').trim(), username=String(data.username||'').trim(), password=String(data.password||''), address=String(data.address||'').trim(), photo=String(data.photo||'');
   if(!name||!mobile||!username||!password||!address||!photo) return {ok:false,message:'নাম, ঠিকানা, ফটো, মোবাইল, Username ও Password বাধ্যতামূলক।'};
-  if(findBy_(SHEETS.ADMINS,'Username',username)) return {ok:false,message:'এই Username আগে থেকেই আছে।'};
+  if(findBy_(SHEETS.ADMINS,'Username',username)||findBy_(SHEETS.MADRASAS,'Username',username)) return {ok:false,message:'এই Username আগে থেকেই ব্যবহার হচ্ছে।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ADMINS), n=nextSerial_(sh), id='M-1/'+String(n).padStart(4,'0');
-  sh.appendRow([n,id,name,'','',username,hash_(password),'',mobile,'',address,photo,'','',id,'ADMIN','PENDING',now_(),'','','','']);
+  const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(function(x){return String(x||'').trim();});
+  const rowData={Serial:n,AdminID:id,NameBN:name,NameAR:String(data.nameAR||''),NameEN:String(data.nameEN||''),Username:username,PasswordHash:hash_(password),Email:String(data.email||''),Mobile:mobile,Address:address,Photo:storeAccountImage_(photo,username,'logo'),HeaderPhoto:storeAccountImage_(data.headerPhoto,username,'header'),Wallpaper:storeAccountImage_(data.wallpaper,username,'wallpaper'),HeaderTextColor:String(data.headerTextColor||'#ffffff'),Role:'ADMIN',Status:'PENDING',CreatedAt:now_(),Password:'',Permissions:'',ApprovedBy:'',ApprovedAt:''};
+  sh.getRange(sh.getLastRow()+1,1,1,headers.length).setValues([headers.map(function(k){return rowData[k]!==undefined?rowData[k]:'';})]);
   log_('PUBLIC','register','ADMIN',id);
   return {ok:true,adminId:id,message:'নতুন অ্যাডমিন নিবন্ধন হয়েছে। অনুমোদনের পর Username + Password দিয়ে OTP ছাড়া লগইন করতে পারবেন।'};
 }
@@ -333,7 +338,7 @@ function registerMadrasa(data){
   if(findBy_(SHEETS.MADRASAS,'Username',username)||findBy_(SHEETS.ADMINS,'Username',username)) return {ok:false,message:'এই Username আগে থেকেই ব্যবহার হচ্ছে।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MADRASAS), n=nextSerial_(sh), id='MR-'+String(n).padStart(4,'0');
   let hdr=sh.getRange(1,1,1,Math.max(sh.getLastColumn(),1)).getValues()[0];
-  ['BoardRegistration','GenderType','Founder','Muhtamim','NameAR','NameEN','HeaderPhoto'].forEach(function(k){if(hdr.indexOf(k)<0){sh.getRange(1,sh.getLastColumn()+1).setValue(k);hdr.push(k);}});
+  ['BoardRegistration','GenderType','Founder','Muhtamim','NameAR','NameEN','HeaderPhoto','Wallpaper','HeaderTextColor'].forEach(function(k){if(hdr.indexOf(k)<0){sh.getRange(1,sh.getLastColumn()+1).setValue(k);hdr.push(k);}});
   hdr=sh.getRange(1,1,1,Math.max(sh.getLastColumn(),1)).getValues()[0];
   if(hdr.indexOf('Email')<0) sh.getRange(1,hdr.length+1).setValue('Email');
   const hdr2=sh.getRange(1,1,1,Math.max(sh.getLastColumn(),1)).getValues()[0];
@@ -341,7 +346,8 @@ function registerMadrasa(data){
   const deps=Array.isArray(data.departments)?data.departments.filter(Boolean).join(', '):String(data.departments||'');
   /* Add review columns only after the legacy Email/Photo columns exist; write by header name to avoid column shifts. */
   ensureAccountReviewColumns_();
-  const rowData={Serial:n,MadrasaID:id,GenderType:String(data.genderType||''),BoardRegistration:String(data.boardRegistration||''),Name:name,NameAR:String(data.nameAR||''),NameEN:String(data.nameEN||''),FoundedYear:year,Founder:String(data.founder||''),Muhtamim:String(data.muhtamim||''),Address:address,Mobile:mobile,StaffCount:Number(data.staffCount||0),StudentCount:Number(data.studentCount||0),Level:'',Status:'PENDING',CreatedAt:now_(),Username:username,Password:'',PasswordHash:hash_(password),ActiveDepartments:deps,OtherDepartment:String(data.otherDepartment||''),Ownership:String(data.ownership||''),ApprovedBy:'',ApprovedAt:'',Permissions:'',Email:email,Photo:photo,HeaderPhoto:String(data.headerPhoto||''),ReviewStatus:'',ReviewedBy:'',ReviewedAt:'',ReviewNote:''};
+  ensureAccountAppearanceColumns_();
+  const rowData={Serial:n,MadrasaID:id,GenderType:String(data.genderType||''),BoardRegistration:String(data.boardRegistration||''),Name:name,NameAR:String(data.nameAR||''),NameEN:String(data.nameEN||''),FoundedYear:year,Founder:String(data.founder||''),Muhtamim:String(data.muhtamim||''),Address:address,Mobile:mobile,StaffCount:Number(data.staffCount||0),StudentCount:Number(data.studentCount||0),Level:'',Status:'PENDING',CreatedAt:now_(),Username:username,Password:'',PasswordHash:hash_(password),ActiveDepartments:deps,OtherDepartment:String(data.otherDepartment||''),Ownership:String(data.ownership||''),ApprovedBy:'',ApprovedAt:'',Permissions:'',Email:email,Photo:storeAccountImage_(photo,username,'logo'),HeaderPhoto:storeAccountImage_(data.headerPhoto,username,'header'),Wallpaper:storeAccountImage_(data.wallpaper,username,'wallpaper'),HeaderTextColor:String(data.headerTextColor||'#ffffff'),ReviewStatus:'',ReviewedBy:'',ReviewedAt:'',ReviewNote:''};
   const finalHeaders=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(function(x){return String(x||'').trim()});
   const row=finalHeaders.map(function(k){return rowData[k]!==undefined?rowData[k]:''});
   sh.getRange(sh.getLastRow()+1,1,1,row.length).setValues([row]);
@@ -449,6 +455,45 @@ function ensureAccountReviewColumns_(){
         sh.getRange(1,sh.getLastColumn()+1).setValue(key);
         headers.push(key);
       }
+    });
+  });
+}
+function accountAssetsFolder_(){
+  const name='Jannatul Baqi Account Assets 2026';
+  const it=DriveApp.getFoldersByName(name);
+  return it.hasNext()?it.next():DriveApp.createFolder(name);
+}
+function storeAccountImage_(dataUrl,username,kind){
+  const raw=String(dataUrl||'').trim();
+  if(!raw||raw.indexOf('DRIVE:')===0)return raw;
+  const match=raw.match(/^data:([^;,]+);base64,([A-Za-z0-9+/=\r\n]+)$/);
+  if(!match)throw new Error('অ্যাকাউন্টের '+kind+' ছবির ফাইল ডাটা সঠিক নয়।');
+  const bytes=Utilities.base64Decode(match[2].replace(/\s/g,''));
+  if(!bytes.length||bytes.length>20*1024*1024)throw new Error('অ্যাকাউন্টের ছবি 20 MB-এর বেশি হতে পারবে না।');
+  const safe=String(username||'account').replace(/[^a-zA-Z0-9_-]/g,'_');
+  const ext=(match[1].split('/')[1]||'jpg').replace(/[^a-zA-Z0-9]/g,'').slice(0,8)||'jpg';
+  const file=accountAssetsFolder_().createFile(Utilities.newBlob(bytes,match[1],safe+'-'+kind+'-'+Date.now()+'.'+ext));
+  try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
+  return 'DRIVE:'+file.getId();
+}
+function accountImageUrl_(value){
+  const raw=String(value||'').trim();
+  if(raw.indexOf('DRIVE:')!==0)return raw;
+  const id=raw.slice(6);
+  try{
+    const f=DriveApp.getFileById(id);
+    try{f.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
+    let rk='';try{rk=String(f.getResourceKey()||'');}catch(e){}
+    return mediaDriveUrl_(id,rk);
+  }catch(e){return '';}
+}
+function ensureAccountAppearanceColumns_(){
+  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  [SHEETS.ADMINS,SHEETS.MADRASAS].forEach(function(name){
+    const sh=ss.getSheetByName(name); if(!sh)return;
+    let headers=sh.getRange(1,1,1,Math.max(sh.getLastColumn(),1)).getValues()[0].map(function(x){return String(x||'').trim();});
+    ['Photo','HeaderPhoto','Wallpaper','HeaderTextColor','NameAR','NameEN','Email'].forEach(function(key){
+      if(headers.indexOf(key)<0){sh.getRange(1,sh.getLastColumn()+1).setValue(key);headers.push(key);}
     });
   });
 }
@@ -789,7 +834,7 @@ function getBootstrap(token) {
   try { media = listMedia(token); } catch(e) {}
   try { notices = listRows_(SHEETS.NOTICES,token,20); } catch(e) {}
   return {
-    ok:true, institution:APP,
+    ok:true, institution:getInstitutionForSession_(token),
     stats, media, notices,
     modules,
     classes:getClasses_()
@@ -798,27 +843,22 @@ function getBootstrap(token) {
 
 function getStats(token) {
   auth_(token);
-  const income=sumCol_(SHEETS.PAYMENTS,'Amount');
-  const expense=sumCol_(SHEETS.EXPENSES,'Amount');
-  const students=countData_(SHEETS.STUDENTS);
-  const teachers=countData_(SHEETS.TEACHERS);
-  const executives=countData_(SHEETS.EXECUTIVES);
-  const female=countMadrasa_('মহিলা'), male=countMadrasa_('পুরুষ');
-  return {income,expense,cash:income-expense,due:0,students,teachers,executives,femaleMadrasa:female,maleMadrasa:male,attendanceToday:attendanceToday_()};
+  const income=sumCol_(SHEETS.PAYMENTS,'Amount',token), expense=sumCol_(SHEETS.EXPENSES,'Amount',token);
+  const students=countData_(SHEETS.STUDENTS,token), teachers=countData_(SHEETS.TEACHERS,token), executives=countData_(SHEETS.EXECUTIVES,token);
+  const female=countMadrasa_('মহিলা',token), male=countMadrasa_('পুরুষ',token);
+  return {income,expense,cash:income-expense,due:0,students,teachers,executives,femaleMadrasa:female,maleMadrasa:male,attendanceToday:attendanceToday_(token)};
 }function getStats(token) {
   auth_(token);
-  const income=sumCol_(SHEETS.PAYMENTS,'Amount');
-  const expense=sumCol_(SHEETS.EXPENSES,'Amount');
-  const students=countData_(SHEETS.STUDENTS);
-  const teachers=countData_(SHEETS.TEACHERS);
-  const executives=countData_(SHEETS.EXECUTIVES);
-  const female=countMadrasa_('মহিলা'), male=countMadrasa_('পুরুষ');
-  return {income,expense,cash:income-expense,due:0,students,teachers,executives,femaleMadrasa:female,maleMadrasa:male,attendanceToday:attendanceToday_()};
+  const income=sumCol_(SHEETS.PAYMENTS,'Amount',token), expense=sumCol_(SHEETS.EXPENSES,'Amount',token);
+  const students=countData_(SHEETS.STUDENTS,token), teachers=countData_(SHEETS.TEACHERS,token), executives=countData_(SHEETS.EXECUTIVES,token);
+  const female=countMadrasa_('মহিলা',token), male=countMadrasa_('পুরুষ',token);
+  return {income,expense,cash:income-expense,due:0,students,teachers,executives,femaleMadrasa:female,maleMadrasa:male,attendanceToday:attendanceToday_(token)};
 }
 
 /* ===== DASHBOARD LIVE ACCOUNT / DEVICE COUNTS — 2026-10-31 ===== */
 function getDashboardLiveCounts(token) {
   auth_(token);
+  const identity=tenantIdentity_(token);
   const admins = listRows_(SHEETS.ADMINS, token, 5000);
   const madrasas = listRows_(SHEETS.MADRASAS, token, 5000);
   const registeredAdmins = admins.filter(function(r){return String(r.AdminID||r.Username||'').trim();}).length;
@@ -846,6 +886,11 @@ function getDashboardLiveCounts(token) {
       props.deleteProperty(key);
     }
   });
+  if(!identity.root){
+    const ownKey=identity.type+':'+identity.username;
+    const ownDevices=Object.keys(all).filter(function(key){if(key.indexOf('ACTIVE_SESSION:')!==0)return false;try{const rec=JSON.parse(all[key]||'{}');return String(rec.accountType||'admin')+':'+String(rec.username||'')===ownKey && now-Number(rec.createdAt||0)<=21600000;}catch(e){return false;}}).length;
+    return {ok:true,registeredAccounts:registeredAdmins+registeredMadrasas,onlineAccounts:ownDevices?1:0,activeDevices:ownDevices};
+  }
   return {ok:true,registeredAccounts:registeredAdmins+registeredMadrasas,onlineAccounts:Object.keys(online).length,activeDevices:activeDevices};
 }
 
@@ -1058,13 +1103,15 @@ function syncAdmissionToStudent_(token,data) {
   if(!src.NameBN && !src.StudentID) return {ok:true,skipped:true,message:'ভর্তি রেকর্ডে Student তথ্য পাওয়া যায়নি।'};
   const ss=SpreadsheetApp.getActiveSpreadsheet();
   const sh=ensureSheet_(ss,SHEETS.STUDENTS,HEADERS[SHEETS.STUDENTS]);
+  ensureTenantSheetColumn_(sh);
   const h=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
   const vals=sh.getDataRange().getValues();
-  const idCol=h.indexOf('StudentID'), mobileCol=h.indexOf('Mobile'), birthCol=h.indexOf('BirthReg'), nidCol=h.indexOf('NID');
+  const tenant=tenantIdentity_(token);
+  const idCol=h.indexOf('StudentID'), birthCol=h.indexOf('BirthReg'), nidCol=h.indexOf('NID'), tenantCol=h.indexOf('TenantAccount');
   let existing=-1;
-  if(idCol>=0 && src.StudentID) for(let i=1;i<vals.length;i++) if(String(vals[i][idCol]).trim()===String(src.StudentID).trim()){existing=i+1;break;}
-  if(existing<0 && birthCol>=0 && src.BirthReg) for(let i=1;i<vals.length;i++) if(String(vals[i][birthCol]).trim()===String(src.BirthReg).trim()){existing=i+1;break;}
-  if(existing<0 && nidCol>=0 && src.NID) for(let i=1;i<vals.length;i++) if(String(vals[i][nidCol]).trim()===String(src.NID).trim()){existing=i+1;break;}
+  if(idCol>=0 && src.StudentID) for(let i=1;i<vals.length;i++) if(String(vals[i][idCol]).trim()===String(src.StudentID).trim() && (tenant.root || (tenantCol>=0 && String(vals[i][tenantCol]||'')===tenant.key) || (h.indexOf('SourceAccount')>=0 && String(vals[i][h.indexOf('SourceAccount')]||'')===tenant.username))){existing=i+1;break;}
+  if(existing<0 && birthCol>=0 && src.BirthReg) for(let i=1;i<vals.length;i++) if(String(vals[i][birthCol]).trim()===String(src.BirthReg).trim() && (tenant.root || (tenantCol>=0 && String(vals[i][tenantCol]||'')===tenant.key) || (h.indexOf('SourceAccount')>=0 && String(vals[i][h.indexOf('SourceAccount')]||'')===tenant.username))){existing=i+1;break;}
+  if(existing<0 && nidCol>=0 && src.NID) for(let i=1;i<vals.length;i++) if(String(vals[i][nidCol]).trim()===String(src.NID).trim() && (tenant.root || (tenantCol>=0 && String(vals[i][tenantCol]||'')===tenant.key) || (h.indexOf('SourceAccount')>=0 && String(vals[i][h.indexOf('SourceAccount')]||'')===tenant.username))){existing=i+1;break;}
   // Match legacy records by their saved form/system IDs before appending any row.
   const formLookupKeys=['FormID','HandwrittenID','handwrittenId','AdmissionFormID','SystemID','AutoID','ID'];
   const formLookupCandidates=[src.FormID,data.AdmissionID,data.FormID,data.HandwrittenID,data.SystemID,data.AutoID]
@@ -1072,6 +1119,9 @@ function syncAdmissionToStudent_(token,data) {
     .map(function(v){return String(v).trim().toLowerCase().replace(/[\s().-]/g,'');});
   if(existing<0 && formLookupCandidates.length){
     for(let i=1;i<vals.length && existing<0;i++){
+      const rowTenant=tenantCol>=0?String(vals[i][tenantCol]||''):'';
+      const rowSource=h.indexOf('SourceAccount')>=0?String(vals[i][h.indexOf('SourceAccount')]||''):'';
+      if(!tenant.root && rowTenant!==tenant.key && rowSource!==tenant.username)continue;
       const matches=formLookupKeys.some(function(key){
         const col=h.indexOf(key);
         if(col<0)return false;
@@ -1095,6 +1145,7 @@ function syncAdmissionToStudent_(token,data) {
     if(h.indexOf('ApprovalStatus')>=0) sh.getRange(existing,h.indexOf('ApprovalStatus')+1).setValue(finalExistingStatus);
     if(h.indexOf('SourceType')>=0) sh.getRange(existing,h.indexOf('SourceType')+1).setValue(info.sourceType);
     if(h.indexOf('SourceAccount')>=0) sh.getRange(existing,h.indexOf('SourceAccount')+1).setValue(info.sourceAccount);
+    if(tenantCol>=0) sh.getRange(existing,tenantCol+1).setValue(tenant.key);
     SpreadsheetApp.flush();
     const existingId=String(sh.getRange(existing,idCol+1).getValue());
     let autoDocuments=null;
@@ -1102,7 +1153,7 @@ function syncAdmissionToStudent_(token,data) {
     return {ok:true,studentId:existingId,created:false,status:info.status,autoDocuments:autoDocuments};
   }
   const serial=nextSerial_(sh), sid=src.StudentID||String(serial).padStart(3,'0');
-  const row=h.map(function(k){return k==='Serial'?serial:k==='StudentID'?sid:k==='CreatedAt'?now_():k==='ApprovalStatus'?info.status:k==='SourceType'?info.sourceType:k==='SourceAccount'?info.sourceAccount:k==='ApprovedBy'?(info.status==='ACTIVE'?info.sourceAccount:''):k==='ApprovedAt'?(info.status==='ACTIVE'?now_():''):(src[k]??'');});
+  const row=h.map(function(k){return k==='Serial'?serial:k==='StudentID'?sid:k==='CreatedAt'?now_():k==='ApprovalStatus'?info.status:k==='SourceType'?info.sourceType:k==='SourceAccount'?info.sourceAccount:k==='TenantAccount'?tenant.key:k==='ApprovedBy'?(info.status==='ACTIVE'?info.sourceAccount:''):k==='ApprovedAt'?(info.status==='ACTIVE'?now_():''):(src[k]??'');});
   sh.appendRow(row);
   SpreadsheetApp.flush();
   let autoDocuments=null;
@@ -1117,6 +1168,8 @@ function saveAdmissionDraft2026(token,data,action) {
   action=String(action||'SAVE').toUpperCase();
   const ss=SpreadsheetApp.getActiveSpreadsheet();
   const sh=ss.getSheetByName(SHEETS.ADMISSIONS)||ensureSheet_(ss,SHEETS.ADMISSIONS,HEADERS.ADMISSIONS);
+  ensureTenantSheetColumn_(sh);
+  const tenant=tenantIdentity_(token);
   const admissionId=String(data.AdmissionID||data.FormID||'').trim();
   if(!admissionId)return {ok:false,message:'আবেদন ID তৈরি হয়নি।'};
   const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
@@ -1127,6 +1180,8 @@ function saveAdmissionDraft2026(token,data,action) {
   const normAdmissionLookup_=function(v){return String(v==null?'':v).trim().toLowerCase();};
   const wantedAdmissionLookup_=normAdmissionLookup_(admissionId);
   for(let i=1;i<values.length;i++){
+    const rowTenant=headers.indexOf('TenantAccount')>=0?String(values[i][headers.indexOf('TenantAccount')]||''):'';
+    if(!tenant.root && rowTenant!==tenant.key)continue;
     if(idCol>=0&&normAdmissionLookup_(displayValues[i][idCol])===wantedAdmissionLookup_){rowNum=i+1;break;}
     if(action==='LOAD'){
       const directIdKeys=['StudentID','FormID','HandwrittenID','handwrittenId','AdmissionFormID','SystemID','AutoID','ID','MobileID','Mobile','EmailID','Email'];
@@ -1300,6 +1355,7 @@ function saveAdmissionDraft2026(token,data,action) {
   if(!admissionFormCheck.ok) return admissionFormCheck;
   data.Status=finalizing?'PENDING':'INCOMPLETE';
   data.AdmissionID=admissionId;
+  data.TenantAccount=tenant.key;
   const row=headers.map(function(h){return h==='Serial'?(rowNum>1?values[rowNum-1][0]:nextSerial_(sh)):h==='CreatedAt'?(rowNum>1?values[rowNum-1][headers.indexOf('CreatedAt')]:now_()):(data[h]!==undefined?data[h]:'');});
   if(rowNum>1)sh.getRange(rowNum,1,1,headers.length).setValues([row]);else{sh.appendRow(row);rowNum=sh.getLastRow();}
   SpreadsheetApp.flush();
@@ -1360,31 +1416,37 @@ function registerExamCandidate(token,studentId,exam,className,branch) {
   if(!inputId||!ex) return {ok:false,message:'ভর্তি ফর্মের যেকোনো ID, মোবাইল/ইমেইল ও পরীক্ষা আবশ্যক।'};
   const resolved=resolveAdmissionIdentifier_(inputId);
   const id=String(resolved.studentId||inputId).trim();
-  const student=resolved.student||findBy_(SHEETS.STUDENTS,'StudentID',id);
-  if(!student) return {ok:false,message:'এই ID/মোবাইল/ইমেইলে অনুমোদিত Student পাওয়া যায়নি।'};
+  const student=(listRows_(SHEETS.STUDENTS,token,10000).find(function(r){return String(r.StudentID||'').trim()===id;})||null);
+  if(!student) return {ok:false,message:'এই ID/মোবাইল/ইমেইলে আপনার প্রতিষ্ঠানের অনুমোদিত Student পাওয়া যায়নি।'};
 
   if(String(student.ApprovalStatus||'ACTIVE').toUpperCase()!=='ACTIVE') return {ok:false,message:'Student এখনো Super Admin অনুমোদন পায়নি।'};
   const old=listRows_(SHEETS.EXAM_REG,token,10000).find(function(r){return String(r.StudentID)===id&&String(r.Exam)===ex;});
   if(old) return {ok:true,duplicate:true,examRegId:old.ExamRegID,message:'এই Student ইতিমধ্যে পরীক্ষায় যুক্ত আছে।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.EXAM_REG);
   const serial=nextSerial_(sh), regId='EX-'+String(serial).padStart(4,'0');
-  sh.appendRow([serial,regId,id,ex,className||student.Class||'',branch||student.Branch||'','ACTIVE','',now_()]);
+  ensureTenantSheetColumn_(sh);
+  const h=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
+  const rowData={Serial:serial,ExamRegID:regId,StudentID:id,Exam:ex,Class:className||student.Class||'',Branch:branch||student.Branch||'',Status:'ACTIVE',FormData:'',CreatedAt:now_(),TenantAccount:tenantIdentity_(token).key};
+  sh.appendRow(h.map(function(k){return rowData[k]===undefined?'':rowData[k];}));
   return {ok:true,examRegId:regId,studentId:id,message:'পরীক্ষার্থী হিসেবে যুক্ত হয়েছে।'};
 }
 function createAdmitCardFromCandidate(token,studentId,exam) {
   auth_(token); requireFeature_(token,'admit');
   const id=String(studentId||'').trim(), ex=String(exam||'').trim();
   if(!id||!ex) return {ok:false,message:'Student ID ও পরীক্ষা আবশ্যক।'};
-  const student=findBy_(SHEETS.STUDENTS,'StudentID',id);
-  if(!student) return {ok:false,message:'Student পাওয়া যায়নি।'};
+  const student=listRows_(SHEETS.STUDENTS,token,10000).find(function(r){return String(r.StudentID||'').trim()===id;});
+  if(!student) return {ok:false,message:'আপনার প্রতিষ্ঠানের Student পাওয়া যায়নি।'};
   const reg=listRows_(SHEETS.EXAM_REG,token,10000).find(function(r){return String(r.StudentID)===id&&String(r.Exam)===ex;});
   if(!reg) return {ok:false,message:'আগে পরীক্ষার্থী হিসেবে যুক্ত করুন।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ADMIT_CARDS);
+  ensureTenantSheetColumn_(sh);
   const existing=listRows_(SHEETS.ADMIT_CARDS,token,10000).find(function(r){return String(r.StudentID)===id&&String(r.Exam)===ex;});
   if(existing) return {ok:true,duplicate:true,admitId:existing.AdmitID,message:'Admit Card আগে থেকেই তৈরি আছে।'};
   const serial=nextSerial_(sh), aid='ADM-'+String(serial).padStart(4,'0');
   const data={studentId:id,exam:ex,name:student.NameBN||'',className:student.Class||'',branch:student.Branch||'',mobile:student.Mobile||'',createdAt:now_()};
-  sh.appendRow([serial,aid,id,ex,now_(),JSON.stringify(data)]);
+  const h=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
+  const rowData={Serial:serial,AdmitID:aid,StudentID:id,Exam:ex,IssueDate:now_(),Data:JSON.stringify(data),TenantAccount:tenantIdentity_(token).key};
+  sh.appendRow(h.map(function(k){return rowData[k]===undefined?'':rowData[k];}));
   return {ok:true,admitId:aid,studentId:id,message:'Admit Card তৈরি হয়েছে।'};
 }
 function getStudent360(token,studentId) {
@@ -1392,8 +1454,8 @@ function getStudent360(token,studentId) {
   const inputId=String(studentId||'').trim();
   const resolved=resolveAdmissionIdentifier_(inputId);
   const id=String(resolved.studentId||inputId).trim();
-  const student=resolved.student||findBy_(SHEETS.STUDENTS,'StudentID',id);
-  if(!student&&!resolved.admission) return {ok:false,message:'এই ID/মোবাইল/ইমেইলে শিক্ষার্থী পাওয়া যায়নি।'};
+  const student=listRows_(SHEETS.STUDENTS,token,10000).find(function(r){return String(r.StudentID||'').trim()===id;})||null;
+  if(!student) return {ok:false,message:'এই ID/মোবাইল/ইমেইলে আপনার প্রতিষ্ঠানের শিক্ষার্থী পাওয়া যায়নি।'};
   const merged=Object.assign({},resolved.formData||{},student||{});
   if(!merged.StudentID)merged.StudentID=id;
   if(resolved.admission){merged.AdmissionID=resolved.admission.AdmissionID||'';merged.FormID=merged.FormID||resolved.admission.AdmissionID||inputId;merged.AdmissionStatus=resolved.admission.Status||'';}
@@ -1553,17 +1615,25 @@ function saveRecord(token,sheetName,data) {
     if(sheetName==='STUDENTS') ensureStudentWorkflowColumns_();
   }
   const sh=ss.getSheetByName(sheetName);
+  if(isTenantScopedSheet_(sheetName)) ensureTenantSheetColumn_(sh);
   data=normalizeMobileFields_(data);
   if(sheetName==='PAYMENTS'&&String(data.StudentID||'').trim()){
     const resolvedPaymentPerson=resolveAdmissionIdentifier_(data.StudentID);
     if(resolvedPaymentPerson.studentId)data.StudentID=resolvedPaymentPerson.studentId;
     const person=Object.assign({},resolvedPaymentPerson.formData||{},resolvedPaymentPerson.student||{});
+    if(!isSuperAdmin_(token)){
+      const paymentStudentId=String(data.StudentID||'').trim();
+      const ownedStudent=listRows_(SHEETS.STUDENTS,token,10000).some(function(x){return String(x.StudentID||'').trim()===paymentStudentId;});
+      const ownedAdmission=listRows_(SHEETS.ADMISSIONS,token,10000).some(function(x){return String(x.StudentID||x.AdmissionID||'').trim()===paymentStudentId || String(x.AdmissionID||'').trim()===String(data.StudentID||'').trim();});
+      if(!ownedStudent&&!ownedAdmission)return {ok:false,message:'এই শিক্ষার্থী আপনার প্রতিষ্ঠানের নয়; পেমেন্ট সংরক্ষণ করা যাবে না।'};
+    }
     if(!data.Name)data.Name=person.NameBN||person.NameEN||person.Name||'';
   }
-  const headers=['STUDENTS','TEACHERS'].includes(sheetName)?sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String):HEADERS[sheetName];
+  const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
   const row=headers.map(h=>data[h] ?? '');
   row[0]=nextSerial_(sh);
   if(headers.includes('CreatedAt')) row[headers.indexOf('CreatedAt')]=now_();
+  if(headers.includes('TenantAccount')) row[headers.indexOf('TenantAccount')]=tenantIdentity_(token).key;
   if(headers.includes('StudentID') && !data.StudentID && sheetName==='STUDENTS') {
     const s=nextSerial_(sh);
     const sidCol=headers.indexOf('StudentID'), formCol=headers.indexOf('FormID'), mobileIdCol=headers.indexOf('MobileID'), emailIdCol=headers.indexOf('EmailID');
@@ -1643,6 +1713,7 @@ function updateRecord(token,sheetName,serial,data) {
   const headers=values[0].map(String);
   const idx=values.findIndex((r,i)=>i>0 && String(r[0])===String(serial));
   if(idx<1) throw new Error('Record not found');
+  if(isTenantScopedSheet_(sheetName) && !tenantCanSeeRow_(sheetName,headers,values[idx],token)) throw new Error('এই রেকর্ডটি আপনার প্রতিষ্ঠানের নয় বা দেখার অনুমতি নেই।');
   if(['STUDENTS','TEACHERS'].includes(sheetName)) {
     const formCol=headers.indexOf('FormID');
     const oldFormId=formCol>=0?String(values[idx][formCol]||'').trim():'';
@@ -1652,7 +1723,7 @@ function updateRecord(token,sheetName,serial,data) {
       if(!uniqueFormId.ok) return uniqueFormId;
     }
   }
-  headers.forEach((h,j)=>{if(Object.prototype.hasOwnProperty.call(data,h)) sh.getRange(idx+1,j+1).setValue(data[h]);});
+  headers.forEach((h,j)=>{if(h!=='TenantAccount' && (isSuperAdmin_(token) || !['SourceAccount','SourceType'].includes(h)) && Object.prototype.hasOwnProperty.call(data,h)) sh.getRange(idx+1,j+1).setValue(data[h]);});
   SpreadsheetApp.flush();
   let workflow=null;
   if(sheetName==='ADMISSIONS'){
@@ -1675,22 +1746,24 @@ function updateRecord(token,sheetName,serial,data) {
 function deleteRecord(token,sheetName,serial) {
   auth_(token); const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
-  const vals=sh.getRange(2,1,Math.max(1,sh.getLastRow()-1),1).getValues();
-  const idx=vals.findIndex(r=>String(r[0])===String(serial));
-  if(idx<0) throw new Error('Record not found');
-  sh.deleteRow(idx+2);
+  const all=sh.getDataRange().getValues(), headers=all[0].map(String);
+  const idx=all.findIndex((r,i)=>i>0 && String(r[0])===String(serial));
+  if(idx<1) throw new Error('Record not found');
+  if(isTenantScopedSheet_(sheetName) && !tenantCanSeeRow_(sheetName,headers,all[idx],token)) throw new Error('এই রেকর্ডটি আপনার প্রতিষ্ঠানের নয় বা মুছার অনুমতি নেই।');
+  sh.deleteRow(idx+1);
   return {ok:true};
 }
 
 function createAdmin(token,data) {
-  auth_(token); requireFeature_(token,'admin');
+  auth_(token); requireFeature_(token,'admin'); data=data||{};
   if(!data.NameBN || !data.Username || !data.Password || !data.Mobile || !data.Photo || !data.Address)
     return {ok:false,message:'নাম, ইউজার নেম, পাসওয়ার্ড, মোবাইল, ছবি ও ঠিকানা বাধ্যতামূলক।'};
-  if(findBy_(SHEETS.ADMINS,'Username',data.Username)) return {ok:false,message:'এই ইউজার নেম আগে থেকেই আছে।'};
-  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ADMINS);
-  const n=nextSerial_(sh);
-  const id='M-1/'+String(n).padStart(4,'0');
-  sh.appendRow([n,id,data.NameBN||'',data.NameAR||'',data.NameEN||'',data.Username,hash_(data.Password),data.Email||'',data.Mobile,data.WhatsApp||'',data.Address,data.Photo,data.BirthReg||'',data.NID||'',data.ApprovalID||'',data.Role||'ADMIN','ACTIVE',now_(),data.Password,'','','']);
+  if(findBy_(SHEETS.ADMINS,'Username',data.Username)||findBy_(SHEETS.MADRASAS,'Username',data.Username)) return {ok:false,message:'এই ইউজার নেম আগে থেকেই আছে।'};
+  ensureAccountAppearanceColumns_();
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ADMINS), n=nextSerial_(sh), id='M-1/'+String(n).padStart(4,'0');
+  const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(function(x){return String(x||'').trim();});
+  const rowData={Serial:n,AdminID:id,NameBN:data.NameBN||'',NameAR:data.NameAR||'',NameEN:data.NameEN||'',Username:data.Username,PasswordHash:hash_(data.Password),Email:data.Email||'',Mobile:data.Mobile,WhatsApp:data.WhatsApp||'',Address:data.Address,Photo:storeAccountImage_(data.Photo,data.Username,'logo'),HeaderPhoto:storeAccountImage_(data.HeaderPhoto,data.Username,'header'),Wallpaper:storeAccountImage_(data.Wallpaper,data.Username,'wallpaper'),HeaderTextColor:String(data.HeaderTextColor||'#ffffff'),BirthReg:data.BirthReg||'',NID:data.NID||'',ApprovalID:data.ApprovalID||'',Role:data.Role||'ADMIN',Status:'ACTIVE',CreatedAt:now_(),Password:data.Password,Permissions:'',ApprovedBy:'',ApprovedAt:''};
+  sh.getRange(sh.getLastRow()+1,1,1,headers.length).setValues([headers.map(function(k){return rowData[k]!==undefined?rowData[k]:'';})]);
   log_(sessionUser_(token),'create','ADMIN',id);
   return {ok:true,adminId:id};
 }
@@ -1737,7 +1810,7 @@ function startMediaUpload(token,meta){
   const size=Number(meta.size||0);
   if(size<=0||size>rules.maxMB*1024*1024)return {ok:false,message:type==='image'?'ফটোর সর্বোচ্চ সীমা 20 MB।':'ভিডিও/অডিওর সর্বোচ্চ সীমা 50 MB।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
-  const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
+  const rows=listRows_(SHEETS.MEDIA,null,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
   if(rows.length>=rules.maxCount)return {ok:false,message:type==='image'?'সর্বোচ্চ 100টি ফটো রাখা যাবে।':'সর্বোচ্চ 50টি '+(type==='video'?'ভিডিও':'অডিও')+' রাখা যাবে।'};
   const uploadId=Utilities.getUuid();
   const folder=mediaTempFolder_();
@@ -1773,7 +1846,7 @@ function finishMediaUpload(token,uploadId){
   if(total!==Number(meta.size||0))return {ok:false,message:'ফাইলের আকার মিলছে না। '+total+' / '+meta.size};
   if(total>rules.maxMB*1024*1024)return {ok:false,message:'ফাইলের আকার অনুমোদিত সীমার বেশি।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
-  const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
+  const rows=listRows_(SHEETS.MEDIA,null,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
   if(rows.length>=rules.maxCount)return {ok:false,message:type==='image'?'সর্বোচ্চ 100টি ফটো রাখা যাবে।':'সর্বোচ্চ 50টি '+(type==='video'?'ভিডিও':'অডিও')+' রাখা যাবে।'};
   const file=mediaDriveFolder_().createFile(Utilities.newBlob(bytes,meta.mimeType||'application/octet-stream',meta.name||('media-'+Date.now())));
   try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
@@ -1794,13 +1867,14 @@ function saveMediaForm(form){
   if(size<=0)return {ok:false,message:'ফাইল খালি।'};
   if(size>rules.maxMB*1024*1024)return {ok:false,message:type==='image'?'ফটোর সর্বোচ্চ সীমা 20 MB।':'ভিডিও/অডিওর সর্বোচ্চ সীমা 50 MB।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
-  const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
+  const rows=listRows_(SHEETS.MEDIA,null,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
   if(rows.length>=rules.maxCount)return {ok:false,message:type==='image'?'সর্বোচ্চ 100টি ফটো রাখা যাবে।':'সর্বোচ্চ 50টি '+(type==='video'?'ভিডিও':'অডিও')+' রাখা যাবে।'};
   const name=String(blob.getName()||('media-'+Date.now()));
   const file=mediaDriveFolder_().createFile(blob.setName(name));
   try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
   const serial=nextSerial_(sh),mediaId='MED-'+Date.now();
-  sh.appendRow([serial,mediaId,type,name,'DRIVE:'+file.getId(),mime,size,0,'ACTIVE',now_()]);
+  ensureTenantSheetColumn_(sh);
+  sh.appendRow([serial,mediaId,type,name,'DRIVE:'+file.getId(),mime,size,0,'ACTIVE',now_(),tenantIdentity_(token).key]);
   return {ok:true,serial:serial,mediaId:mediaId};
 }
 function saveMedia(token,item) {
@@ -1811,19 +1885,20 @@ function saveMedia(token,item) {
   const size=Number(item.size||0);
   if(size>rules.maxMB*1024*1024) return {ok:false,message:type==='image'?'ফটোর সর্বোচ্চ সীমা 20 MB।':'ভিডিও/অডিওর সর্বোচ্চ সীমা 50 MB।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
-  const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
+  const rows=listRows_(SHEETS.MEDIA,null,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
   if(rows.length>=rules.maxCount) return {ok:false,message:type==='image'?'সর্বোচ্চ 100টি ফটো রাখা যাবে।':'সর্বোচ্চ 50টি '+(type==='video'?'ভিডিও':'অডিও')+' রাখা যাবে।'};
   const raw=String(item.dataUrl).split(',')[1]||''; if(!raw)return {ok:false,message:'ফাইল ডাটা পাওয়া যায়নি।'};
   const blob=Utilities.newBlob(Utilities.base64Decode(raw),item.mimeType||'application/octet-stream',item.name||('media-'+Date.now()));
   const file=mediaDriveFolder_().createFile(blob);
   try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
   const serial=nextSerial_(sh), mediaId='MED-'+Date.now();
-  sh.appendRow([serial,mediaId,type,item.name||'','DRIVE:'+file.getId(),item.mimeType||'',size,item.sort||0,'ACTIVE',now_()]);
+  ensureTenantSheetColumn_(sh);
+  sh.appendRow([serial,mediaId,type,item.name||'','DRIVE:'+file.getId(),item.mimeType||'',size,item.sort||0,'ACTIVE',now_(),tenantIdentity_(token).key]);
   return {ok:true,serial:serial,mediaId:mediaId};
 }
 function listMedia(token) {
   auth_(token);
-  return listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status||'').toUpperCase()==='ACTIVE').map(function(x){
+  return listRows_(SHEETS.MEDIA,null,1000).filter(x=>String(x.Status||'').toUpperCase()==='ACTIVE').map(function(x){
     if(String(x.DataURL||'').indexOf('DRIVE:')===0){
       const id=String(x.DataURL).slice(6);
       let rk='';
@@ -1880,7 +1955,7 @@ function uploadFile(token,item) {
   const dataUrl=String(item.dataUrl||''),stored=allDocumentsStoreDriveFile2026_(dataUrl,item.name||'document',item.mimeType||'');
   if(dataUrl.indexOf('data:')===0&&!stored.ok)return {ok:false,message:stored.message||'ফাইলটি Drive-এ সংরক্ষণ করা যায়নি।'};
   const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
-  const rowData={Serial:nextSerial_(sh),FileID:'FIL-'+Date.now(),Name:item.name||'',Type:item.type||'',MimeType:item.mimeType||'',DataURL:dataUrl.length<=40000?dataUrl:'',Size:item.size||0,Folder:item.folder||'GENERAL',Status:'ACTIVE',CreatedAt:now_(),DriveFileId:stored.fileId||'',DriveUrl:stored.url||'',DriveDownloadUrl:stored.downloadUrl||''};
+  const rowData={Serial:nextSerial_(sh),FileID:'FIL-'+Date.now(),Name:item.name||'',Type:item.type||'',MimeType:item.mimeType||'',DataURL:dataUrl.length<=40000?dataUrl:'',Size:item.size||0,Folder:item.folder||'GENERAL',Status:'ACTIVE',CreatedAt:now_(),DriveFileId:stored.fileId||'',DriveUrl:stored.url||'',DriveDownloadUrl:stored.downloadUrl||'',TenantAccount:tenantIdentity_(token).key};
   sh.appendRow(headers.map(function(h){return rowData[h]===undefined?'':rowData[h];}));
   return {ok:true,fileId:rowData.FileID,driveUrl:rowData.DriveUrl,message:rowData.DriveUrl?'ফাইল Drive-এ সংরক্ষণ হয়েছে।':'ফাইলের রেকর্ড সংরক্ষিত হয়েছে; Drive কপি তৈরি হয়নি।'};
 }
@@ -2002,11 +2077,54 @@ function findBy_(sheet,key,value){
   for(let i=1;i<v.length;i++) if(String(v[i][j]).trim()===String(value).trim()) return objectFrom_(h,v[i]);
   return null;
 }
+const TENANT_SCOPED_SHEETS_ = ['STUDENTS','TEACHERS','DONORS','ADMISSIONS','EXAM_REG','PAYMENTS','EXPENSES','INCOME','RESULTS','ATTENDANCE','MEDIA','FILES','SALARY','CERTIFICATES','ID_CARDS','ADMIT_CARDS','RECEIPTS','ONLINE_SERVICES','EXECUTIVES','ADVISERS','FOUNDERS'];
+function tenantIdentity_(token) {
+  const session=auth_(token), type=String(session.accountType||'admin'), username=String(session.username||'').trim();
+  const root=type!=='madrasa' && isSuperAdmin_(token);
+  return {type:type,username:username,key:type+':'+username,root:root};
+}
+function isTenantScopedSheet_(sheetName) { return TENANT_SCOPED_SHEETS_.indexOf(String(sheetName||''))>=0; }
+function ensureTenantSheetColumn_(sh) {
+  if(!sh)return;
+  const last=Math.max(1,sh.getLastColumn()), headers=sh.getRange(1,1,1,last).getValues()[0].map(function(x){return String(x||'').trim();});
+  if(headers.indexOf('TenantAccount')<0)sh.getRange(1,last+1).setValue('TenantAccount');
+}
+function ensureTenantColumns_() {
+  TENANT_SCOPED_SHEETS_.forEach(function(name){const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(name);if(sh)ensureTenantSheetColumn_(sh);});
+}
+function tenantCanSeeRow_(sheetName,headers,row,token) {
+  const identity=tenantIdentity_(token);
+  if(identity.root)return true;
+  const h=headers.map(function(x){return String(x||'').trim();}), tenantCol=h.indexOf('TenantAccount');
+  const tenant=tenantCol>=0?String(row[tenantCol]||'').trim():'';
+  if(tenant)return tenant===identity.key;
+  if(sheetName==='STUDENTS') {
+    const sourceCol=h.indexOf('SourceAccount');
+    return sourceCol>=0 && String(row[sourceCol]||'').trim()===identity.username;
+  }
+  if(sheetName==='ADMINS'||sheetName==='MADRASAS') {
+    const userCol=h.indexOf('Username');
+    return userCol>=0 && String(row[userCol]||'').trim()===identity.username;
+  }
+  return false;
+}
+function getInstitutionForSession_(token) {
+  const identity=tenantIdentity_(token);
+  if(identity.root)return APP;
+  const account=findBy_(identity.type==='madrasa'?SHEETS.MADRASAS:SHEETS.ADMINS,'Username',identity.username)||{};
+  const name=String(account.Name||account.NameBN||account.InstitutionName||APP.nameBn);
+  return Object.assign({},APP,{nameBn:name,nameAr:String(account.NameAR||APP.nameAr),nameEn:String(account.NameEN||name||APP.nameEn),address:String(account.Address||APP.address),hotline1:String(account.Mobile||account.Hotline||APP.hotline1),email1:String(account.Email||APP.email1),logo:accountImageUrl_(account.Photo||account.Logo||''),headerPhoto:accountImageUrl_(account.HeaderPhoto||''),wallpaper:accountImageUrl_(account.Wallpaper||account.BackgroundPhoto||''),headerTextColor:String(account.HeaderTextColor||'')});
+}
 function listRows_(sheet,token,limit){
-  if(token) auth_(token);
+  const session=token?auth_(token):null;
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheet); if(!sh||sh.getLastRow()<2)return [];
-  const v=sh.getDataRange().getValues(), h=v[0];
-  return v.slice(1,Math.min(v.length,(limit||1000)+1)).map(r=>objectFrom_(h,r));
+  const v=sh.getDataRange().getValues(), h=v[0].map(String);
+  let rows=v.slice(1).map(r=>objectFrom_(h,r));
+  if(session) {
+    if(isTenantScopedSheet_(sheet))rows=rows.filter(function(row){return tenantCanSeeRow_(sheet,h,h.map(function(k){return row[k];}),token);});
+    else if(sheet==='ADMINS'||sheet==='MADRASAS') {const identity=tenantIdentity_(token);if(!identity.root)rows=rows.filter(function(row){return String(row.Username||'').trim()===identity.username;});}
+  }
+  return rows.slice(0,limit||1000);
 }
 function normalizeBdMobile_(value){
   let s=String(value==null?'':value).trim();
@@ -2031,10 +2149,10 @@ function objectFrom_(h,r){
   return normalizeMobileFields_(o);
 }
 function nextSerial_(sh){ return Math.max(0,sh.getLastRow()); }
-function countData_(s){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(s); return sh?Math.max(0,sh.getLastRow()-1):0; }
-function sumCol_(s,key){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(s); if(!sh||sh.getLastRow()<2)return 0; const h=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0],j=h.indexOf(key); if(j<0)return 0; return sh.getRange(2,j+1,sh.getLastRow()-1,1).getValues().reduce((a,r)=>a+(Number(r[0])||0),0); }
-function countMadrasa_(g){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MADRASAS); if(!sh||sh.getLastRow()<2)return 0; return sh.getRange(2,3,sh.getLastRow()-1,1).getValues().filter(r=>String(r[0])===g).length; }
-function attendanceToday_(){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ATTENDANCE); if(!sh||sh.getLastRow()<2)return {present:0,absent:0}; const h=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0],d=h.indexOf('Date'),s=h.indexOf('Status'),today=Utilities.formatDate(new Date(),APP.timezone,'yyyy-MM-dd'); let p=0,a=0; sh.getDataRange().getValues().slice(1).forEach(r=>{if(String(r[d]).slice(0,10)===today){if(String(r[s]).toLowerCase().includes('present'))p++;if(String(r[s]).toLowerCase().includes('absent'))a++;}}); return {present:p,absent:a};}
+function countData_(s,token){ return listRows_(s,token,10000).length; }
+function sumCol_(s,key,token){ return listRows_(s,token,10000).reduce(function(total,row){return total+(Number(row[key])||0);},0); }
+function countMadrasa_(g,token){ return listRows_(SHEETS.MADRASAS,token,10000).filter(function(r){return String(r.GenderType||'')===g;}).length; }
+function attendanceToday_(token){ const today=Utilities.formatDate(new Date(),APP.timezone,'yyyy-MM-dd'); let p=0,a=0; listRows_(SHEETS.ATTENDANCE,token,10000).forEach(function(r){if(String(r.Date||'').slice(0,10)===today){if(String(r.Status||'').toLowerCase().includes('present')||String(r.Status||'').includes('উপস্থিত'))p++;if(String(r.Status||'').toLowerCase().includes('absent')||String(r.Status||'').includes('অনুপস্থিত'))a++;}}); return {present:p,absent:a}; }
 function auth_(token){
   if(!token)throw new Error('SESSION_EXPIRED');
   const cache=CacheService.getScriptCache(),raw=cache.get('SESSION:'+token);
@@ -2108,7 +2226,7 @@ function notifySuperAdminSecurity_(actor,action,target,detail){
       'সময়: '+when,
       '',
       'নিরাপত্তার কারণে কোনো পাসওয়ার্ড এই ইমেইলে পাঠানো হয়নি।'
-    ].join('\\n');
+    ].join('\n');
     MailApp.sendEmail({to:recipient,subject:subject,body:body});
   }catch(err){
     try{log_(String(actor||'unknown'),'security-alert-email-failed',String(target||''),String(action||'')+' | '+String(err&&err.message||err));}catch(ignore){}
@@ -2293,7 +2411,7 @@ function getSmsQueueHistory(token,limit){
 function resolveAdmissionIdentifier_(identifier) {
   const raw=String(identifier==null?'':identifier).trim();
   if(!raw)return {student:null,admission:null,studentId:'',formData:{}};
-  const norm=function(v){return String(v==null?'':v).trim().toLowerCase().replace(/[\\s().-]/g,'');};
+  const norm=function(v){return String(v==null?'':v).trim().toLowerCase().replace(/[\s().-]/g,'');};
   const candidate=norm(raw);
   const ss=SpreadsheetApp.getActiveSpreadsheet();
   let student=null, admission=null, formData={};
@@ -2683,32 +2801,21 @@ function getDashboardPeriodStats(token, period) {
            s.slice(0,10) <= Utilities.formatDate(end,tz,'yyyy-MM-dd');
   }
   function sumPeriod_(sheetName, amountHeader, dateHeader) {
-    const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
-    if (!sh || sh.getLastRow() < 2) return 0;
-    const vals = sh.getDataRange().getValues();
-    const h = vals[0].map(String);
-    const ai = h.indexOf(amountHeader);
-    const di = h.indexOf(dateHeader);
-    if (ai < 0) return 0;
+    const rows = listRows_(sheetName,token,10000);
     let total = 0;
-    vals.slice(1).forEach(row => {
-      if (di >= 0 && !inRange(row[di])) return;
-      const n = Number(String(row[ai] == null ? '' : row[ai]).replace(/[^0-9.-]/g,''));
+    rows.forEach(row => {
+      if (dateHeader && !inRange(row[dateHeader])) return;
+      const n = Number(String(row[amountHeader] == null ? '' : row[amountHeader]).replace(/[^0-9.-]/g,''));
       if (isFinite(n)) total += n;
     });
     return total;
   }
   function attendancePeriod_() {
-    const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ATTENDANCE);
-    if (!sh || sh.getLastRow() < 2) return {present:0,absent:0};
-    const vals = sh.getDataRange().getValues();
-    const h = vals[0].map(String);
-    const di = h.indexOf('Date'), si = h.indexOf('Status');
+    const rows = listRows_(SHEETS.ATTENDANCE,token,10000);
     let present=0, absent=0;
-    if (di < 0 || si < 0) return {present:0,absent:0};
-    vals.slice(1).forEach(row => {
-      if (!inRange(row[di])) return;
-      const s = String(row[si] == null ? '' : row[si]).toLowerCase();
+    rows.forEach(row => {
+      if (!inRange(row.Date)) return;
+      const s = String(row.Status == null ? '' : row.Status).toLowerCase();
       if (s.includes('present') || s.includes('উপস্থিত')) present++;
       else if (s.includes('absent') || s.includes('অনুপস্থিত')) absent++;
     });
@@ -2925,11 +3032,11 @@ function notifyOnlinePayment_(data,status,receiptId){
   const ref=String(data.Reference||'').trim();
   const subject=status==='PAID'?'অনলাইন পেমেন্ট সফল — '+studentId:'অনলাইন পেমেন্ট অনুরোধ — '+studentId;
   const statusText=status==='PAID'?'পেমেন্ট অনুমোদিত/সফল হয়েছে।':'পেমেন্ট অনুরোধ গ্রহণ হয়েছে এবং Super Admin অনুমোদনের অপেক্ষায় আছে।';
-  const body='জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা\\n\\n'+statusText+'\\nশিক্ষার্থী: '+name+'\\nStudent ID: '+studentId+'\\nপরিমাণ: '+amount+' টাকা\\nমাধ্যম: '+String(data.Method||'')+'\\nReference: '+ref+'\\nমাস: '+String(data.Month||'')+'\\nখাত: '+String(data.Category||'')+(receiptId?'\\nReceipt ID: '+receiptId:'')+'\\n\\nJannatul Baqi Digital Platform 2026';
+  const body='জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা\n\n'+statusText+'\nশিক্ষার্থী: '+name+'\nStudent ID: '+studentId+'\nপরিমাণ: '+amount+' টাকা\nমাধ্যম: '+String(data.Method||'')+'\nReference: '+ref+'\nমাস: '+String(data.Month||'')+'\nখাত: '+String(data.Category||'')+(receiptId?'\nReceipt ID: '+receiptId:'')+'\n\nJannatul Baqi Digital Platform 2026';
   if(payerEmail)sendOnlinePaymentEmail_(payerEmail,subject,body);
   if(payerMobile)queueOnlinePaymentSms_(payerMobile,statusText+' Student ID: '+studentId+' | Amount: '+amount+' টাকা'+(receiptId?' | Receipt: '+receiptId:''));
   targets.admins.forEach(function(a){
-    if(a.email)sendOnlinePaymentEmail_(a.email,'[Super Admin] '+subject,body+'\\n\\nপ্রদানকারী: '+payerMobile+' | '+payerEmail);
+    if(a.email)sendOnlinePaymentEmail_(a.email,'[Super Admin] '+subject,body+'\n\nপ্রদানকারী: '+payerMobile+' | '+payerEmail);
     if(a.mobile)queueOnlinePaymentSms_(a.mobile,'[Super Admin] '+statusText+' Student ID: '+studentId+' | Amount: '+amount+' টাকা'+(receiptId?' | Receipt: '+receiptId:''));
   });
 }
