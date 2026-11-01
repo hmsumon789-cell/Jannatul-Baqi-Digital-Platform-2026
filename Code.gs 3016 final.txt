@@ -1249,6 +1249,7 @@ function checkUniqueHandwrittenFormId_(formId, excludeSheet, excludeSerial, iden
 
 function saveRecord(token,sheetName,data) {
   auth_(token); ensureTenantColumns_();
+  if(['ADMINS','MADRASAS','CONFIG','AUDIT','OTP_LOG','LOCATION_MASTER'].indexOf(sheetName)>=0&&!isSuperAdmin_(token))return {ok:false,message:'এই কেন্দ্রীয় মাস্টার শিট পরিবর্তনের অনুমতি শুধু Super Admin-এর আছে।'};
   const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
   if(!HEADERS[sheetName]) throw new Error('Invalid sheet');
   const ss=SpreadsheetApp.getActiveSpreadsheet();
@@ -1336,7 +1337,8 @@ function saveRecord(token,sheetName,data) {
 }
 
 function updateRecord(token,sheetName,serial,data) {
-  auth_(token); ensureTenantColumns_(); const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
+  auth_(token); ensureTenantColumns_();
+  if(['ADMINS','MADRASAS','CONFIG','AUDIT','OTP_LOG','LOCATION_MASTER'].indexOf(sheetName)>=0&&!isSuperAdmin_(token))return {ok:false,message:'এই কেন্দ্রীয় মাস্টার শিট পরিবর্তনের অনুমতি শুধু Super Admin-এর আছে।'}; const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
   data=normalizeMobileFields_(data);
   const ss=SpreadsheetApp.getActiveSpreadsheet();
   if(['STUDENTS','TEACHERS'].includes(sheetName)) {
@@ -1380,7 +1382,8 @@ function updateRecord(token,sheetName,serial,data) {
 }
 
 function deleteRecord(token,sheetName,serial) {
-  auth_(token); ensureTenantColumns_(); const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
+  auth_(token); ensureTenantColumns_();
+  if(['ADMINS','MADRASAS','CONFIG','AUDIT','OTP_LOG','LOCATION_MASTER'].indexOf(sheetName)>=0&&!isSuperAdmin_(token))return {ok:false,message:'এই কেন্দ্রীয় মাস্টার শিট পরিবর্তনের অনুমতি শুধু Super Admin-এর আছে।'}; const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
   const vals=sh.getRange(2,1,Math.max(1,sh.getLastRow()-1),1).getValues();
   const idx=vals.findIndex(r=>String(r[0])===String(serial));
@@ -1570,7 +1573,9 @@ function uploadFile(token,item) {
 }
 
 function getSheetData(token,sheetName,limit) {
-  auth_(token); if(!isSuperAdmin_(token)) requireFeature_(token,'excel');
+  auth_(token);
+  if(['ADMINS','MADRASAS','CONFIG','AUDIT','OTP_LOG','LOCATION_MASTER'].indexOf(sheetName)>=0&&!isSuperAdmin_(token))return {ok:false,message:'এই কেন্দ্রীয় মাস্টার শিট দেখার অনুমতি শুধু Super Admin-এর আছে।'};
+  if(!isSuperAdmin_(token)) requireFeature_(token,'excel');
   return {ok:true,headers:HEADERS[sheetName],rows:listRows_(sheetName,token,limit||1000)};
 }
 
