@@ -1824,7 +1824,7 @@ function sendSmsPortal(token,recipients,message){
     if(!mobile||unique[mobile]){if(!mobile)skipped++;return;}
     unique[mobile]=1;
     const id=String(x.id||x.ID||'').trim(),name=String(x.name||x.Name||'').trim();
-    append_(SHEETS.SMS_QUEUE,[nextSerial_(sh),'SMS-'+Date.now()+'-'+Math.floor(Math.random()*100000),mobile,msg,'QUEUED','', '',now]);
+    append_(SHEETS.SMS_QUEUE,[nextSerial_(sh),'SMS-'+Date.now()+'-'+Math.floor(Math.random()*100000),mobile,msg,'QUEUED','', '',now],token);
     queued++;
   });
   return {ok:true,queued:queued,skipped:skipped,message:queued+' জনের SMS পাঠানোর queue-তে যোগ হয়েছে।'+(skipped?' '+skipped+' জনের বৈধ মোবাইল পাওয়া যায়নি।':'')};
@@ -2455,7 +2455,7 @@ function queueOnlinePaymentSms_(mobile,message){
   const m=normalizeBdMobile_(mobile);if(!m)return;
   try{
     const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.SMS_QUEUE);
-    if(sh)append_(SHEETS.SMS_QUEUE,[nextSerial_(sh),'SMS-OP-'+Date.now()+'-'+Math.floor(Math.random()*1000),m,message,'QUEUED','','',now_()]);
+    if(sh)append_(SHEETS.SMS_QUEUE,[nextSerial_(sh),'SMS-OP-'+Date.now()+'-'+Math.floor(Math.random()*1000),m,message,'QUEUED','','',now_()],token);
   }catch(e){}
 }
 function notifyOnlinePayment_(data,status,receiptId){
@@ -2498,7 +2498,7 @@ function submitOnlinePayment(data,token){
       const pay=saveRecord(token,SHEETS.PAYMENTS,{StudentID:id,Name:data.Name,Month:String(data.Month||'').trim(),Category:String(data.Category||'').trim(),Amount:amount,Method:method,Reference:ref,Date:now_(),Note:String(data.Note||'').trim()});
       if(!pay||!pay.ok)return {ok:false,message:(pay&&pay.message)||'PAYMENTS-এ সরাসরি সংরক্ষণ ব্যর্থ।'};
       const receiptId='RCT-OP-'+Date.now(),receiptData={ReceiptID:receiptId,TransactionID:pay.paymentId||'',PaymentID:pay.paymentId||'',Type:'ONLINE_PAYMENT',StudentID:id,Name:data.Name,Class:st.Class||'',Month:String(data.Month||'').trim(),Category:String(data.Category||'').trim(),Amount:amount,Method:method,Reference:ref,Mobile:payerMobile||st.Mobile||st.WhatsApp||'',PayerMobile:payerMobile,Note:String(data.Note||'').trim(),Date:now_(),Institution:APP.nameBn||'জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা',Address:APP.address||'',Hotline:APP.hotline1||'01823316630',CreatedAt:now_()};
-      const rsh=ensureSheet_(SpreadsheetApp.getActiveSpreadsheet(),SHEETS.RECEIPTS,HEADERS[SHEETS.RECEIPTS]);append_(SHEETS.RECEIPTS,[nextSerial_(rsh),receiptId,id,'ONLINE_PAYMENT',amount,receiptData.Date,JSON.stringify(receiptData)]);
+      const rsh=ensureSheet_(SpreadsheetApp.getActiveSpreadsheet(),SHEETS.RECEIPTS,HEADERS[SHEETS.RECEIPTS]);append_(SHEETS.RECEIPTS,[nextSerial_(rsh),receiptId,id,'ONLINE_PAYMENT',amount,receiptData.Date,JSON.stringify(receiptData)],token);
       log_(sessionUser_(token)||'','quick-pay','ONLINE_PAYMENT',id+' / '+amount+' / '+method+' / '+receiptId);
       notifyOnlinePayment_(data,'PAID',receiptId);
       return {ok:true,status:'PAID',receiptId:receiptId,receipt:receiptData,message:method==='হ্যান্ড ক্যাশ'?'হ্যান্ড ক্যাশ পেমেন্ট সরাসরি গ্রহণ করা হয়েছে এবং রসিদ তৈরি হয়েছে।':'দ্রুত পেমেন্ট সরাসরি PAYMENTS-এ সংরক্ষণ হয়েছে এবং রসিদ তৈরি হয়েছে।'};
@@ -2529,7 +2529,7 @@ function approveOnlinePayment(token,requestId){
   if(!pay||!pay.ok)return {ok:false,message:(pay&&pay.message)||'PAYMENTS-এ সংরক্ষণ ব্যর্থ।'};
   const receiptId='RCT-OP-'+Date.now();const receiptDate=now_();const receiptData={ReceiptID:receiptId,TransactionID:pay.paymentId||'',PaymentID:pay.paymentId||'',Type:'ONLINE_PAYMENT',StudentID:row.StudentID,Name:row.Name,Class:row.Class||student.Class||'',Month:row.Month,Category:row.Category,Amount:Number(row.Amount||0),Method:row.Method,Reference:row.Reference,Mobile:row.PayerMobile||student.Mobile||student.WhatsApp||'',PayerMobile:row.PayerMobile||'',Note:String(row.Note||'').trim(),Date:receiptDate,Institution:APP.nameBn||'জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা',Address:APP.address||'',Hotline:APP.hotline1||'01823316630',CreatedAt:receiptDate};
   const receiptSheet=ensureSheet_(SpreadsheetApp.getActiveSpreadsheet(),SHEETS.RECEIPTS,HEADERS[SHEETS.RECEIPTS]);
-  append_(SHEETS.RECEIPTS,[nextSerial_(receiptSheet),receiptId,row.StudentID,'ONLINE_PAYMENT',Number(row.Amount||0),receiptDate,JSON.stringify(receiptData)]);
+  append_(SHEETS.RECEIPTS,[nextSerial_(receiptSheet),receiptId,row.StudentID,'ONLINE_PAYMENT',Number(row.Amount||0),receiptDate,JSON.stringify(receiptData)],token);
   const user=sessionUser_(token)||'';const now=now_();
   sh.getRange(rowNo,h.indexOf('Status')+1).setValue('APPROVED');sh.getRange(rowNo,h.indexOf('ApprovedBy')+1).setValue(user);sh.getRange(rowNo,h.indexOf('ApprovedAt')+1).setValue(now);sh.getRange(rowNo,h.indexOf('ReceiptID')+1).setValue(receiptId);
   notifyOnlinePayment_({StudentID:row.StudentID,Name:row.Name,Amount:Number(row.Amount||0),Method:row.Method,Reference:row.Reference,Month:row.Month,Category:row.Category,PayerMobile:row.PayerMobile,PayerEmail:row.PayerEmail},'PAID',receiptId);
@@ -3045,7 +3045,7 @@ function saveAdmissionPdfArchive2026(token, kind, recordId, data, html) {
   const markup=String(html||'').trim();
   if(!markup) return {ok:false,message:'PDF তৈরির জন্য নথির বিষয়বস্তু পাওয়া যায়নি।'};
   const ss=SpreadsheetApp.getActiveSpreadsheet();
-  const headers=['Serial','ArchiveID','DocType','RefID','StudentID','Name','Class','PdfFileId','PdfUrl','Data','CreatedAt','UpdatedAt','Status'];
+  const headers=['Serial','ArchiveID','DocType','RefID','StudentID','Name','Class','PdfFileId','PdfUrl','Data','CreatedAt','UpdatedAt','Status','TenantAccount'];
   const sh=ensureSheet_(ss,'SAVED_PDFS',headers);
   const all=sh.getDataRange().getValues();
   const h=all[0].map(String);
@@ -3068,7 +3068,7 @@ function saveAdmissionPdfArchive2026(token, kind, recordId, data, html) {
       Class:String(data.Class||''),
       PdfFileId:pdf.fileId,PdfUrl:pdf.url,Data:JSON.stringify(data),
       CreatedAt:rowNum>1?all[rowNum-1][h.indexOf('CreatedAt')]:now_(),
-      UpdatedAt:now_(),Status:'ACTIVE'
+      UpdatedAt:now_(),Status:'ACTIVE',TenantAccount:sessionUser_(token)
     };
     return values[key]!==undefined?values[key]:'';
   });
