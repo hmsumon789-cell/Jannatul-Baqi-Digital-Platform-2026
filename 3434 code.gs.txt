@@ -1780,11 +1780,11 @@ function sendQuickService(token,data) {
     if(!message)return {ok:false,message:'মেসেজ লিখুন।'};
     if(message.length>3000)return {ok:false,message:'মেসেজ সর্বোচ্চ ৩০০০ অক্ষরের হতে পারবে।'};
     if(!name&&!mobile&&!email)return {ok:false,message:'আপনার নাম অথবা মোবাইল/ইমেইল দিন।'};
-    if(email&&!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email))return {ok:false,message:'সঠিক ইমেইল ঠিকানা দিন।'};
-    if(mobile&&!/^[0-9+()\\-\\s]{7,25}$/.test(mobile))return {ok:false,message:'মোবাইল নম্বর সঠিক নয়।'};
+    if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return {ok:false,message:'সঠিক ইমেইল ঠিকানা দিন।'};
+    if(mobile&&!/^[0-9+()\-\s]{7,25}$/.test(mobile))return {ok:false,message:'মোবাইল নম্বর সঠিক নয়।'};
 
     // Limit repeated public submissions from the same supplied contact.
-    const senderKey=hash_((email.toLowerCase()+'|'+mobile.replace(/\\D/g,'')+'|'+name.toLowerCase()));
+    const senderKey=hash_((email.toLowerCase()+'|'+mobile.replace(/\D/g,'')+'|'+name.toLowerCase()));
     const cache=CacheService.getScriptCache(), lock=LockService.getScriptLock();
     lock.waitLock(5000);
     try {
@@ -1795,7 +1795,7 @@ function sendQuickService(token,data) {
     }
 
     const subject='Digital Platform Quick Service';
-    const body='Name: '+name+'\\nMobile: '+mobile+'\\nEmail: '+email+'\\n\\nMessage:\\n'+message;
+    const body='Name: '+name+'\nMobile: '+mobile+'\nEmail: '+email+'\n\nMessage:\n'+message;
     MailApp.sendEmail(APP.email1,subject,body,{replyTo:email||APP.email1});
     const ss=SpreadsheetApp.getActiveSpreadsheet();
     const sh=ensureSheet_(ss,SHEETS.CONTACTS,HEADERS.CONTACTS);
