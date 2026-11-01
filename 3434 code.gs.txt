@@ -161,6 +161,7 @@ function getMainWebAppUrl() {
 function setupSystem() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   Object.keys(SHEETS).forEach(k => ensureSheet_(ss, SHEETS[k], HEADERS[SHEETS[k]] || ['Value']));
+  ensureTenantColumns_();
   seedConfig_(ss);
   seedAdmin_(ss);
   seedPeople_(ss);
@@ -789,7 +790,7 @@ function getBootstrap(token) {
   try { media = listMedia(token); } catch(e) {}
   try { notices = listRows_(SHEETS.NOTICES,token,20); } catch(e) {}
   return {
-    ok:true, institution:APP,
+    ok:true, institution:getInstitutionForSession_(token),
     stats, media, notices,
     modules,
     classes:getClasses_()
@@ -798,22 +799,16 @@ function getBootstrap(token) {
 
 function getStats(token) {
   auth_(token);
-  const income=sumCol_(SHEETS.PAYMENTS,'Amount');
-  const expense=sumCol_(SHEETS.EXPENSES,'Amount');
-  const students=countData_(SHEETS.STUDENTS);
-  const teachers=countData_(SHEETS.TEACHERS);
-  const executives=countData_(SHEETS.EXECUTIVES);
-  const female=countMadrasa_('মহিলা'), male=countMadrasa_('পুরুষ');
-  return {income,expense,cash:income-expense,due:0,students,teachers,executives,femaleMadrasa:female,maleMadrasa:male,attendanceToday:attendanceToday_()};
+  const income=sumCol_(SHEETS.PAYMENTS,'Amount',token), expense=sumCol_(SHEETS.EXPENSES,'Amount',token);
+  const students=countData_(SHEETS.STUDENTS,token), teachers=countData_(SHEETS.TEACHERS,token), executives=countData_(SHEETS.EXECUTIVES,token);
+  const female=countMadrasa_('মহিলা',token), male=countMadrasa_('পুরুষ',token);
+  return {income,expense,cash:income-expense,due:0,students,teachers,executives,femaleMadrasa:female,maleMadrasa:male,attendanceToday:attendanceToday_(token)};
 }function getStats(token) {
   auth_(token);
-  const income=sumCol_(SHEETS.PAYMENTS,'Amount');
-  const expense=sumCol_(SHEETS.EXPENSES,'Amount');
-  const students=countData_(SHEETS.STUDENTS);
-  const teachers=countData_(SHEETS.TEACHERS);
-  const executives=countData_(SHEETS.EXECUTIVES);
-  const female=countMadrasa_('মহিলা'), male=countMadrasa_('পুরুষ');
-  return {income,expense,cash:income-expense,due:0,students,teachers,executives,femaleMadrasa:female,maleMadrasa:male,attendanceToday:attendanceToday_()};
+  const income=sumCol_(SHEETS.PAYMENTS,'Amount',token), expense=sumCol_(SHEETS.EXPENSES,'Amount',token);
+  const students=countData_(SHEETS.STUDENTS,token), teachers=countData_(SHEETS.TEACHERS,token), executives=countData_(SHEETS.EXECUTIVES,token);
+  const female=countMadrasa_('মহিলা',token), male=countMadrasa_('পুরুষ',token);
+  return {income,expense,cash:income-expense,due:0,students,teachers,executives,femaleMadrasa:female,maleMadrasa:male,attendanceToday:attendanceToday_(token)};
 }
 
 /* ===== DASHBOARD LIVE ACCOUNT / DEVICE COUNTS — 2026-10-31 ===== */
@@ -1060,11 +1055,13 @@ function syncAdmissionToStudent_(token,data) {
   const sh=ensureSheet_(ss,SHEETS.STUDENTS,HEADERS[SHEETS.STUDENTS]);
   const h=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
   const vals=sh.getDataRange().getValues();
-  const idCol=h.indexOf('StudentID'), mobileCol=h.indexOf('Mobile'), birthCol=h.indexOf('BirthReg'), nidCol=h.indexOf('NID');
+  ensureTenantSheetColumn_(sh);
+  const tenant=tenantIdentity_(token);
+  const idCol=h.indexOf('StudentID'), birthCol=h.indexOf('BirthReg'), nidCol=h.indexOf('NID'), tenantCol=h.indexOf('TenantAccount');
   let existing=-1;
-  if(idCol>=0 && src.StudentID) for(let i=1;i<vals.length;i++) if(String(vals[i][idCol]).trim()===String(src.StudentID).trim()){existing=i+1;break;}
-  if(existing<0 && birthCol>=0 && src.BirthReg) for(let i=1;i<vals.length;i++) if(String(vals[i][birthCol]).trim()===String(src.BirthReg).trim()){existing=i+1;break;}
-  if(existing<0 && nidCol>=0 && src.NID) for(let i=1;i<vals.length;i++) if(String(vals[i][nidCol]).trim()===String(src.NID).trim()){existing=i+1;break;}
+  if(idCol>=0 && src.StudentID) for(let i=1;i<vals.length;i++) if(String(vals[i][idCol]).trim()===String(src.StudentID).trim() && (tenant.root || (tenantCol>=0 && String(vals[i][tenantCol]||'')===tenant.key) || (h.indexOf('SourceAccount')>=0 && String(vals[i][h.indexOf('SourceAccount')]||'')===tenant.username))){existing=i+1;break;}
+  if(existing<0 && birthCol>=0 && src.BirthReg) for(let i=1;i<vals.length;i++) if(String(vals[i][birthCol]).trim()===String(src.BirthReg).trim() && (tenant.root || (tenantCol>=0 && String(vals[i][tenantCol]||'')===tenant.key) || (h.indexOf('SourceAccount')>=0 && String(vals[i][h.indexOf('SourceAccount')]||'')===tenant.username))){existing=i+1;break;}
+  if(existing<0 && nidCol>=0 && src.NID) for(let i=1;i<vals.length;i++) if(String(vals[i][nidCol]).trim()===String(src.NID).trim() && (tenant.root || (tenantCol>=0 && String(vals[i][tenantCol]||'')===tenant.key) || (h.indexOf('SourceAccount')>=0 && String(vals[i][h.indexOf('SourceAccount')]||'')===tenant.username))){existing=i+1;break;}
   // Match legacy records by their saved form/system IDs before appending any row.
   const formLookupKeys=['FormID','HandwrittenID','handwrittenId','AdmissionFormID','SystemID','AutoID','ID'];
   const formLookupCandidates=[src.FormID,data.AdmissionID,data.FormID,data.HandwrittenID,data.SystemID,data.AutoID]
@@ -1072,6 +1069,9 @@ function syncAdmissionToStudent_(token,data) {
     .map(function(v){return String(v).trim().toLowerCase().replace(/[\s().-]/g,'');});
   if(existing<0 && formLookupCandidates.length){
     for(let i=1;i<vals.length && existing<0;i++){
+      const rowTenant=tenantCol>=0?String(vals[i][tenantCol]||''):'';
+      const rowSource=h.indexOf('SourceAccount')>=0?String(vals[i][h.indexOf('SourceAccount')]||''):'';
+      if(!tenant.root && rowTenant!==tenant.key && rowSource!==tenant.username)continue;
       const matches=formLookupKeys.some(function(key){
         const col=h.indexOf(key);
         if(col<0)return false;
@@ -1095,6 +1095,7 @@ function syncAdmissionToStudent_(token,data) {
     if(h.indexOf('ApprovalStatus')>=0) sh.getRange(existing,h.indexOf('ApprovalStatus')+1).setValue(finalExistingStatus);
     if(h.indexOf('SourceType')>=0) sh.getRange(existing,h.indexOf('SourceType')+1).setValue(info.sourceType);
     if(h.indexOf('SourceAccount')>=0) sh.getRange(existing,h.indexOf('SourceAccount')+1).setValue(info.sourceAccount);
+    if(tenantCol>=0) sh.getRange(existing,tenantCol+1).setValue(tenant.key);
     SpreadsheetApp.flush();
     const existingId=String(sh.getRange(existing,idCol+1).getValue());
     let autoDocuments=null;
@@ -1102,7 +1103,7 @@ function syncAdmissionToStudent_(token,data) {
     return {ok:true,studentId:existingId,created:false,status:info.status,autoDocuments:autoDocuments};
   }
   const serial=nextSerial_(sh), sid=src.StudentID||String(serial).padStart(3,'0');
-  const row=h.map(function(k){return k==='Serial'?serial:k==='StudentID'?sid:k==='CreatedAt'?now_():k==='ApprovalStatus'?info.status:k==='SourceType'?info.sourceType:k==='SourceAccount'?info.sourceAccount:k==='ApprovedBy'?(info.status==='ACTIVE'?info.sourceAccount:''):k==='ApprovedAt'?(info.status==='ACTIVE'?now_():''):(src[k]??'');});
+  const row=h.map(function(k){return k==='Serial'?serial:k==='StudentID'?sid:k==='CreatedAt'?now_():k==='ApprovalStatus'?info.status:k==='SourceType'?info.sourceType:k==='SourceAccount'?info.sourceAccount:k==='TenantAccount'?tenant.key:k==='ApprovedBy'?(info.status==='ACTIVE'?info.sourceAccount:''):k==='ApprovedAt'?(info.status==='ACTIVE'?now_():''):(src[k]??'');});
   sh.appendRow(row);
   SpreadsheetApp.flush();
   let autoDocuments=null;
@@ -1553,6 +1554,7 @@ function saveRecord(token,sheetName,data) {
     if(sheetName==='STUDENTS') ensureStudentWorkflowColumns_();
   }
   const sh=ss.getSheetByName(sheetName);
+  if(isTenantScopedSheet_(sheetName)) ensureTenantSheetColumn_(sh);
   data=normalizeMobileFields_(data);
   if(sheetName==='PAYMENTS'&&String(data.StudentID||'').trim()){
     const resolvedPaymentPerson=resolveAdmissionIdentifier_(data.StudentID);
@@ -1560,10 +1562,11 @@ function saveRecord(token,sheetName,data) {
     const person=Object.assign({},resolvedPaymentPerson.formData||{},resolvedPaymentPerson.student||{});
     if(!data.Name)data.Name=person.NameBN||person.NameEN||person.Name||'';
   }
-  const headers=['STUDENTS','TEACHERS'].includes(sheetName)?sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String):HEADERS[sheetName];
+  const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
   const row=headers.map(h=>data[h] ?? '');
   row[0]=nextSerial_(sh);
   if(headers.includes('CreatedAt')) row[headers.indexOf('CreatedAt')]=now_();
+  if(headers.includes('TenantAccount')) row[headers.indexOf('TenantAccount')]=tenantIdentity_(token).key;
   if(headers.includes('StudentID') && !data.StudentID && sheetName==='STUDENTS') {
     const s=nextSerial_(sh);
     const sidCol=headers.indexOf('StudentID'), formCol=headers.indexOf('FormID'), mobileIdCol=headers.indexOf('MobileID'), emailIdCol=headers.indexOf('EmailID');
@@ -1643,6 +1646,7 @@ function updateRecord(token,sheetName,serial,data) {
   const headers=values[0].map(String);
   const idx=values.findIndex((r,i)=>i>0 && String(r[0])===String(serial));
   if(idx<1) throw new Error('Record not found');
+  if(isTenantScopedSheet_(sheetName) && !tenantCanSeeRow_(sheetName,headers,values[idx],token)) throw new Error('এই রেকর্ডটি আপনার প্রতিষ্ঠানের নয় বা দেখার অনুমতি নেই।');
   if(['STUDENTS','TEACHERS'].includes(sheetName)) {
     const formCol=headers.indexOf('FormID');
     const oldFormId=formCol>=0?String(values[idx][formCol]||'').trim():'';
@@ -1652,7 +1656,7 @@ function updateRecord(token,sheetName,serial,data) {
       if(!uniqueFormId.ok) return uniqueFormId;
     }
   }
-  headers.forEach((h,j)=>{if(Object.prototype.hasOwnProperty.call(data,h)) sh.getRange(idx+1,j+1).setValue(data[h]);});
+  headers.forEach((h,j)=>{if(h!=='TenantAccount' && Object.prototype.hasOwnProperty.call(data,h)) sh.getRange(idx+1,j+1).setValue(data[h]);});
   SpreadsheetApp.flush();
   let workflow=null;
   if(sheetName==='ADMISSIONS'){
@@ -1675,10 +1679,11 @@ function updateRecord(token,sheetName,serial,data) {
 function deleteRecord(token,sheetName,serial) {
   auth_(token); const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
-  const vals=sh.getRange(2,1,Math.max(1,sh.getLastRow()-1),1).getValues();
-  const idx=vals.findIndex(r=>String(r[0])===String(serial));
-  if(idx<0) throw new Error('Record not found');
-  sh.deleteRow(idx+2);
+  const all=sh.getDataRange().getValues(), headers=all[0].map(String);
+  const idx=all.findIndex((r,i)=>i>0 && String(r[0])===String(serial));
+  if(idx<1) throw new Error('Record not found');
+  if(isTenantScopedSheet_(sheetName) && !tenantCanSeeRow_(sheetName,headers,all[idx],token)) throw new Error('এই রেকর্ডটি আপনার প্রতিষ্ঠানের নয় বা মুছার অনুমতি নেই।');
+  sh.deleteRow(idx+1);
   return {ok:true};
 }
 
@@ -1800,7 +1805,8 @@ function saveMediaForm(form){
   const file=mediaDriveFolder_().createFile(blob.setName(name));
   try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
   const serial=nextSerial_(sh),mediaId='MED-'+Date.now();
-  sh.appendRow([serial,mediaId,type,name,'DRIVE:'+file.getId(),mime,size,0,'ACTIVE',now_()]);
+  ensureTenantSheetColumn_(sh);
+  sh.appendRow([serial,mediaId,type,name,'DRIVE:'+file.getId(),mime,size,0,'ACTIVE',now_(),tenantIdentity_(token).key]);
   return {ok:true,serial:serial,mediaId:mediaId};
 }
 function saveMedia(token,item) {
@@ -1818,7 +1824,8 @@ function saveMedia(token,item) {
   const file=mediaDriveFolder_().createFile(blob);
   try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
   const serial=nextSerial_(sh), mediaId='MED-'+Date.now();
-  sh.appendRow([serial,mediaId,type,item.name||'','DRIVE:'+file.getId(),item.mimeType||'',size,item.sort||0,'ACTIVE',now_()]);
+  ensureTenantSheetColumn_(sh);
+  sh.appendRow([serial,mediaId,type,item.name||'','DRIVE:'+file.getId(),item.mimeType||'',size,item.sort||0,'ACTIVE',now_(),tenantIdentity_(token).key]);
   return {ok:true,serial:serial,mediaId:mediaId};
 }
 function listMedia(token) {
@@ -1880,7 +1887,7 @@ function uploadFile(token,item) {
   const dataUrl=String(item.dataUrl||''),stored=allDocumentsStoreDriveFile2026_(dataUrl,item.name||'document',item.mimeType||'');
   if(dataUrl.indexOf('data:')===0&&!stored.ok)return {ok:false,message:stored.message||'ফাইলটি Drive-এ সংরক্ষণ করা যায়নি।'};
   const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
-  const rowData={Serial:nextSerial_(sh),FileID:'FIL-'+Date.now(),Name:item.name||'',Type:item.type||'',MimeType:item.mimeType||'',DataURL:dataUrl.length<=40000?dataUrl:'',Size:item.size||0,Folder:item.folder||'GENERAL',Status:'ACTIVE',CreatedAt:now_(),DriveFileId:stored.fileId||'',DriveUrl:stored.url||'',DriveDownloadUrl:stored.downloadUrl||''};
+  const rowData={Serial:nextSerial_(sh),FileID:'FIL-'+Date.now(),Name:item.name||'',Type:item.type||'',MimeType:item.mimeType||'',DataURL:dataUrl.length<=40000?dataUrl:'',Size:item.size||0,Folder:item.folder||'GENERAL',Status:'ACTIVE',CreatedAt:now_(),DriveFileId:stored.fileId||'',DriveUrl:stored.url||'',DriveDownloadUrl:stored.downloadUrl||'',TenantAccount:tenantIdentity_(token).key};
   sh.appendRow(headers.map(function(h){return rowData[h]===undefined?'':rowData[h];}));
   return {ok:true,fileId:rowData.FileID,driveUrl:rowData.DriveUrl,message:rowData.DriveUrl?'ফাইল Drive-এ সংরক্ষণ হয়েছে।':'ফাইলের রেকর্ড সংরক্ষিত হয়েছে; Drive কপি তৈরি হয়নি।'};
 }
@@ -2002,11 +2009,54 @@ function findBy_(sheet,key,value){
   for(let i=1;i<v.length;i++) if(String(v[i][j]).trim()===String(value).trim()) return objectFrom_(h,v[i]);
   return null;
 }
+const TENANT_SCOPED_SHEETS_ = ['STUDENTS','TEACHERS','DONORS','ADMISSIONS','EXAM_REG','PAYMENTS','EXPENSES','INCOME','RESULTS','ATTENDANCE','MEDIA','FILES','SALARY','CERTIFICATES','ID_CARDS','ADMIT_CARDS','RECEIPTS','ONLINE_SERVICES','EXECUTIVES','ADVISERS','FOUNDERS'];
+function tenantIdentity_(token) {
+  const session=auth_(token), type=String(session.accountType||'admin'), username=String(session.username||'').trim();
+  const root=type!=='madrasa' && isSuperAdmin_(token);
+  return {type:type,username:username,key:type+':'+username,root:root};
+}
+function isTenantScopedSheet_(sheetName) { return TENANT_SCOPED_SHEETS_.indexOf(String(sheetName||''))>=0; }
+function ensureTenantSheetColumn_(sh) {
+  if(!sh)return;
+  const last=Math.max(1,sh.getLastColumn()), headers=sh.getRange(1,1,1,last).getValues()[0].map(function(x){return String(x||'').trim();});
+  if(headers.indexOf('TenantAccount')<0)sh.getRange(1,last+1).setValue('TenantAccount');
+}
+function ensureTenantColumns_() {
+  TENANT_SCOPED_SHEETS_.forEach(function(name){const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(name);if(sh)ensureTenantSheetColumn_(sh);});
+}
+function tenantCanSeeRow_(sheetName,headers,row,token) {
+  const identity=tenantIdentity_(token);
+  if(identity.root)return true;
+  const h=headers.map(function(x){return String(x||'').trim();}), tenantCol=h.indexOf('TenantAccount');
+  const tenant=tenantCol>=0?String(row[tenantCol]||'').trim():'';
+  if(tenant)return tenant===identity.key;
+  if(sheetName==='STUDENTS') {
+    const sourceCol=h.indexOf('SourceAccount');
+    return sourceCol>=0 && String(row[sourceCol]||'').trim()===identity.username;
+  }
+  if(sheetName==='ADMINS'||sheetName==='MADRASAS') {
+    const userCol=h.indexOf('Username');
+    return userCol>=0 && String(row[userCol]||'').trim()===identity.username;
+  }
+  return false;
+}
+function getInstitutionForSession_(token) {
+  const identity=tenantIdentity_(token);
+  if(identity.root)return APP;
+  const account=findBy_(identity.type==='madrasa'?SHEETS.MADRASAS:SHEETS.ADMINS,'Username',identity.username)||{};
+  const name=String(account.Name||account.NameBN||account.InstitutionName||APP.nameBn);
+  return Object.assign({},APP,{nameBn:name,nameAr:String(account.NameAR||APP.nameAr),nameEn:String(account.NameEN||name||APP.nameEn),address:String(account.Address||APP.address),hotline1:String(account.Mobile||account.Hotline||APP.hotline1),email1:String(account.Email||APP.email1),logo:String(account.Photo||account.Logo||''),headerPhoto:String(account.HeaderPhoto||''),wallpaper:String(account.Wallpaper||account.BackgroundPhoto||''),headerTextColor:String(account.HeaderTextColor||'')});
+}
 function listRows_(sheet,token,limit){
-  if(token) auth_(token);
+  const session=token?auth_(token):null;
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheet); if(!sh||sh.getLastRow()<2)return [];
-  const v=sh.getDataRange().getValues(), h=v[0];
-  return v.slice(1,Math.min(v.length,(limit||1000)+1)).map(r=>objectFrom_(h,r));
+  const v=sh.getDataRange().getValues(), h=v[0].map(String);
+  let rows=v.slice(1).map(r=>objectFrom_(h,r));
+  if(session) {
+    if(isTenantScopedSheet_(sheet))rows=rows.filter(function(row){return tenantCanSeeRow_(sheet,h,h.map(function(k){return row[k];}),token);});
+    else if(sheet==='ADMINS'||sheet==='MADRASAS') {const identity=tenantIdentity_(token);if(!identity.root)rows=rows.filter(function(row){return String(row.Username||'').trim()===identity.username;});}
+  }
+  return rows.slice(0,limit||1000);
 }
 function normalizeBdMobile_(value){
   let s=String(value==null?'':value).trim();
@@ -2031,10 +2081,10 @@ function objectFrom_(h,r){
   return normalizeMobileFields_(o);
 }
 function nextSerial_(sh){ return Math.max(0,sh.getLastRow()); }
-function countData_(s){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(s); return sh?Math.max(0,sh.getLastRow()-1):0; }
-function sumCol_(s,key){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(s); if(!sh||sh.getLastRow()<2)return 0; const h=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0],j=h.indexOf(key); if(j<0)return 0; return sh.getRange(2,j+1,sh.getLastRow()-1,1).getValues().reduce((a,r)=>a+(Number(r[0])||0),0); }
-function countMadrasa_(g){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MADRASAS); if(!sh||sh.getLastRow()<2)return 0; return sh.getRange(2,3,sh.getLastRow()-1,1).getValues().filter(r=>String(r[0])===g).length; }
-function attendanceToday_(){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ATTENDANCE); if(!sh||sh.getLastRow()<2)return {present:0,absent:0}; const h=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0],d=h.indexOf('Date'),s=h.indexOf('Status'),today=Utilities.formatDate(new Date(),APP.timezone,'yyyy-MM-dd'); let p=0,a=0; sh.getDataRange().getValues().slice(1).forEach(r=>{if(String(r[d]).slice(0,10)===today){if(String(r[s]).toLowerCase().includes('present'))p++;if(String(r[s]).toLowerCase().includes('absent'))a++;}}); return {present:p,absent:a};}
+function countData_(s,token){ return listRows_(s,token,10000).length; }
+function sumCol_(s,key,token){ return listRows_(s,token,10000).reduce(function(total,row){return total+(Number(row[key])||0);},0); }
+function countMadrasa_(g,token){ return listRows_(SHEETS.MADRASAS,token,10000).filter(function(r){return String(r.GenderType||'')===g;}).length; }
+function attendanceToday_(token){ const today=Utilities.formatDate(new Date(),APP.timezone,'yyyy-MM-dd'); let p=0,a=0; listRows_(SHEETS.ATTENDANCE,token,10000).forEach(function(r){if(String(r.Date||'').slice(0,10)===today){if(String(r.Status||'').toLowerCase().includes('present')||String(r.Status||'').includes('উপস্থিত'))p++;if(String(r.Status||'').toLowerCase().includes('absent')||String(r.Status||'').includes('অনুপস্থিত'))a++;}}); return {present:p,absent:a}; }
 function auth_(token){
   if(!token)throw new Error('SESSION_EXPIRED');
   const cache=CacheService.getScriptCache(),raw=cache.get('SESSION:'+token);
@@ -2683,32 +2733,21 @@ function getDashboardPeriodStats(token, period) {
            s.slice(0,10) <= Utilities.formatDate(end,tz,'yyyy-MM-dd');
   }
   function sumPeriod_(sheetName, amountHeader, dateHeader) {
-    const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
-    if (!sh || sh.getLastRow() < 2) return 0;
-    const vals = sh.getDataRange().getValues();
-    const h = vals[0].map(String);
-    const ai = h.indexOf(amountHeader);
-    const di = h.indexOf(dateHeader);
-    if (ai < 0) return 0;
+    const rows = listRows_(sheetName,token,10000);
     let total = 0;
-    vals.slice(1).forEach(row => {
-      if (di >= 0 && !inRange(row[di])) return;
-      const n = Number(String(row[ai] == null ? '' : row[ai]).replace(/[^0-9.-]/g,''));
+    rows.forEach(row => {
+      if (dateHeader && !inRange(row[dateHeader])) return;
+      const n = Number(String(row[amountHeader] == null ? '' : row[amountHeader]).replace(/[^0-9.-]/g,''));
       if (isFinite(n)) total += n;
     });
     return total;
   }
   function attendancePeriod_() {
-    const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ATTENDANCE);
-    if (!sh || sh.getLastRow() < 2) return {present:0,absent:0};
-    const vals = sh.getDataRange().getValues();
-    const h = vals[0].map(String);
-    const di = h.indexOf('Date'), si = h.indexOf('Status');
+    const rows = listRows_(SHEETS.ATTENDANCE,token,10000);
     let present=0, absent=0;
-    if (di < 0 || si < 0) return {present:0,absent:0};
-    vals.slice(1).forEach(row => {
-      if (!inRange(row[di])) return;
-      const s = String(row[si] == null ? '' : row[si]).toLowerCase();
+    rows.forEach(row => {
+      if (!inRange(row.Date)) return;
+      const s = String(row.Status == null ? '' : row.Status).toLowerCase();
       if (s.includes('present') || s.includes('উপস্থিত')) present++;
       else if (s.includes('absent') || s.includes('অনুপস্থিত')) absent++;
     });
