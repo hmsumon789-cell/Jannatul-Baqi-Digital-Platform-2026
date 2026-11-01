@@ -1769,13 +1769,41 @@ function createAdmin(token,data) {
 }
 
 function sendQuickService(token,data) {
-  // Sends directly to the configured institutional help address.
-  auth_(token);
-  const subject='Digital Platform Quick Service';
-  const body='Name: '+(data.name||'')+'\nMobile: '+(data.mobile||'')+'\n\n'+(data.message||'');
-  MailApp.sendEmail(APP.email1,subject,body,{replyTo:data.email||APP.email1});
-  append_(SHEETS.CONTACTS,[nextSerial_(SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.CONTACTS)),'C-'+Date.now(),data.name||'',data.mobile||'',data.whatsapp||'',data.email||'','QUICK_SERVICE',data.message||'',now_()]);
-  return {ok:true,message:'মেসেজ পাঠানো হয়েছে।'};
+  try {
+    // Public login-page help form; authenticated dashboard use remains supported.
+    if(token) auth_(token);
+    data=data||{};
+    const name=String(data.name||'').trim().slice(0,100);
+    const mobile=String(data.mobile||'').trim().slice(0,25);
+    const email=String(data.email||'').trim().slice(0,150);
+    const message=String(data.message||'').trim();
+    if(!message)return {ok:false,message:'মেসেজ লিখুন।'};
+    if(message.length>3000)return {ok:false,message:'মেসেজ সর্বোচ্চ ৩০০০ অক্ষরের হতে পারবে।'};
+    if(!name&&!mobile&&!email)return {ok:false,message:'আপনার নাম অথবা মোবাইল/ইমেইল দিন।'};
+    if(email&&!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email))return {ok:false,message:'সঠিক ইমেইল ঠিকানা দিন।'};
+    if(mobile&&!/^[0-9+()\\-\\s]{7,25}$/.test(mobile))return {ok:false,message:'মোবাইল নম্বর সঠিক নয়।'};
+
+    // Limit repeated public submissions from the same supplied contact.
+    const senderKey=hash_((email.toLowerCase()+'|'+mobile.replace(/\\D/g,'')+'|'+name.toLowerCase()));
+    const cache=CacheService.getScriptCache(), lock=LockService.getScriptLock();
+    lock.waitLock(5000);
+    try {
+      if(cache.get('QUICK_SERVICE:'+senderKey))return {ok:false,message:'এক মিনিট পর আবার মেসেজ পাঠান।'};
+      cache.put('QUICK_SERVICE:'+senderKey,'1',60);
+    } finally {
+      lock.releaseLock();
+    }
+
+    const subject='Digital Platform Quick Service';
+    const body='Name: '+name+'\\nMobile: '+mobile+'\\nEmail: '+email+'\\n\\nMessage:\\n'+message;
+    MailApp.sendEmail(APP.email1,subject,body,{replyTo:email||APP.email1});
+    const ss=SpreadsheetApp.getActiveSpreadsheet();
+    const sh=ensureSheet_(ss,SHEETS.CONTACTS,HEADERS.CONTACTS);
+    sh.appendRow([nextSerial_(sh),'C-'+Date.now(),name,mobile,mobile,email,'QUICK_SERVICE',message,now_()]);
+    return {ok:true,message:'মেসেজ পাঠানো হয়েছে।'};
+  } catch(e) {
+    return {ok:false,message:'মেসেজ পাঠানো যায়নি: '+String(e&&e.message||e)};
+  }
 }
 
 function getMediaRules_(){

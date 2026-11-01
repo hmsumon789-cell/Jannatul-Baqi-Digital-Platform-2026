@@ -1268,7 +1268,14 @@ async function fillSheets(){const r=await call('getPublicConfig');$('sheetSelect
 async function sendQuick(){
   const data={name:$('qName').value.trim(),mobile:$('qMobile').value.trim(),email:$('qEmail').value.trim(),message:$('qMsg').value.trim()};
   if(!data.message)return toast('মেসেজ লিখুন।');
-  try{const r=await call('sendQuickService',token,data);toast(r.message);if(r.ok)closeWindow('quickWin');}catch(e){toast('মেসেজ পাঠাতে সার্ভার ত্রুটি হয়েছে।');}
+  if(!data.name&&!data.mobile&&!data.email)return toast('আপনার নাম অথবা মোবাইল/ইমেইল দিন।');
+  try{
+    const r=await call('sendQuickService',token,data);
+    toast(r&&r.message?r.message:'সার্ভার থেকে সাড়া পাওয়া যায়নি।');
+    if(r&&r.ok)closeWindow('quickWin');
+  }catch(e){
+    toast('মেসেজ পাঠানো যায়নি: '+String(e&&e.message||e||'সার্ভার ত্রুটি'));
+  }
 }
 function normalizeQuickPhone(v){
   var x=String(v||'').replace(/[^0-9+]/g,'');
