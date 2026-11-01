@@ -1097,7 +1097,8 @@ function getStudent360(token,studentId) {
   const student=listRows_(SHEETS.STUDENTS,token,10000).find(function(r){return String(r.StudentID||'').trim()===id||String(r.Mobile||'').trim()===inputId||String(r.MobileID||'').trim()===inputId||String(r.EmailID||'').trim()===inputId;});
   const ownAdmission=listRows_(SHEETS.ADMISSIONS,token,10000).find(function(r){return String(r.AdmissionID||'').trim()===String(resolved.admission&&resolved.admission.AdmissionID||'').trim()||String(r.StudentID||'').trim()===id;});
   if(!student&&!ownAdmission)return {ok:false,message:'এই ID/মোবাইল/ইমেইলে আপনার অ্যাকাউন্টের শিক্ষার্থী পাওয়া যায়নি।'};
-  const merged=Object.assign({},resolved.formData||{},student||{});
+  let ownForm={};try{ownForm=ownAdmission&&ownAdmission.FormData?JSON.parse(String(ownAdmission.FormData)):{}}catch(e){}
+  const merged=Object.assign({},ownForm,student||{});
   if(!merged.StudentID)merged.StudentID=id;
   if(ownAdmission){merged.AdmissionID=ownAdmission.AdmissionID||'';merged.FormID=merged.FormID||ownAdmission.AdmissionID||inputId;merged.AdmissionStatus=ownAdmission.Status||'';}
   const pick=function(sheet,key){return listRows_(sheet,token,10000).filter(function(r){return String(r[key]||'').trim()===id||String(r[key]||'').trim()===inputId;});};
@@ -1408,7 +1409,7 @@ function sendQuickService(token,data) {
   const subject='Digital Platform Quick Service';
   const body='Name: '+(data.name||'')+'\nMobile: '+(data.mobile||'')+'\n\n'+(data.message||'');
   MailApp.sendEmail(APP.email1,subject,body,{replyTo:data.email||APP.email1});
-  append_(SHEETS.CONTACTS,[nextSerial_(SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.CONTACTS)),'C-'+Date.now(),data.name||'',data.mobile||'',data.whatsapp||'',data.email||'','QUICK_SERVICE',data.message||'',now_()]);
+  append_(SHEETS.CONTACTS,[nextSerial_(SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.CONTACTS)),'C-'+Date.now(),data.name||'',data.mobile||'',data.whatsapp||'',data.email||'','QUICK_SERVICE',data.message||'',now_()],token);
   return {ok:true,message:'মেসেজ পাঠানো হয়েছে।'};
 }
 
@@ -1485,7 +1486,7 @@ function finishMediaUpload(token,uploadId){
   const file=mediaDriveFolder_().createFile(Utilities.newBlob(bytes,meta.mimeType||'application/octet-stream',meta.name||('media-'+Date.now())));
   try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
   const serial=nextSerial_(sh),mediaId='MED-'+Date.now();
-  sh.appendRow([serial,mediaId,type,meta.name||'','DRIVE:'+file.getId(),meta.mimeType||'',total,0,'ACTIVE',now_()]);
+  append_(SHEETS.MEDIA,[serial,mediaId,type,meta.name||'','DRIVE:'+file.getId(),meta.mimeType||'',total,0,'ACTIVE',now_()],token);
   chunks.forEach(function(f){try{f.setTrashed(true);}catch(e){}}); metas.forEach(function(f){try{f.setTrashed(true);}catch(e){}});
   return {ok:true,serial:serial,mediaId:mediaId};
 }
@@ -1507,7 +1508,7 @@ function saveMediaForm(form){
   const file=mediaDriveFolder_().createFile(blob.setName(name));
   try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
   const serial=nextSerial_(sh),mediaId='MED-'+Date.now();
-  sh.appendRow([serial,mediaId,type,name,'DRIVE:'+file.getId(),mime,size,0,'ACTIVE',now_()]);
+  append_(SHEETS.MEDIA,[serial,mediaId,type,name,'DRIVE:'+file.getId(),mime,size,0,'ACTIVE',now_()],token);
   return {ok:true,serial:serial,mediaId:mediaId};
 }
 function saveMedia(token,item) {
@@ -1525,7 +1526,7 @@ function saveMedia(token,item) {
   const file=mediaDriveFolder_().createFile(blob);
   try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
   const serial=nextSerial_(sh), mediaId='MED-'+Date.now();
-  sh.appendRow([serial,mediaId,type,item.name||'','DRIVE:'+file.getId(),item.mimeType||'',size,item.sort||0,'ACTIVE',now_()]);
+  append_(SHEETS.MEDIA,[serial,mediaId,type,item.name||'','DRIVE:'+file.getId(),item.mimeType||'',size,item.sort||0,'ACTIVE',now_()],token);
   return {ok:true,serial:serial,mediaId:mediaId};
 }
 function listMedia(token) {
@@ -1634,7 +1635,7 @@ function ensureSheet_(ss,name,headers) {
   return sh;
 }
 
-function append_(name,row){ SpreadsheetApp.getActiveSpreadsheet().getSheetByName(name).appendRow(row); }
+function append_(name,row,token){ensureTenantColumns_();const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(name);if(!sh)throw new Error('Sheet not found: '+name);const h=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String),v=new Array(h.length).fill('');(row||[]).forEach(function(x,i){if(i<v.length)v[i]=x;});if(token&&h.indexOf('TenantAccount')>=0)v[h.indexOf('TenantAccount')]=sessionUser_(token);sh.appendRow(v);}
 function now_(){ return Utilities.formatDate(new Date(),APP.timezone,'yyyy-MM-dd HH:mm:ss'); }
 function generateOtp_(){ return String(Math.floor(100000+Math.random()*900000)); }
 function hash_(s){ return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256,String(s),Utilities.Charset.UTF_8).map(b=>('0'+(b&255).toString(16)).slice(-2)).join(''); }
@@ -2239,35 +2240,13 @@ function getDashboardPeriodStats(token, period) {
            s.slice(0,10) <= Utilities.formatDate(end,tz,'yyyy-MM-dd');
   }
   function sumPeriod_(sheetName, amountHeader, dateHeader) {
-    const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
-    if (!sh || sh.getLastRow() < 2) return 0;
-    const vals = sh.getDataRange().getValues();
-    const h = vals[0].map(String);
-    const ai = h.indexOf(amountHeader);
-    const di = h.indexOf(dateHeader);
-    if (ai < 0) return 0;
-    let total = 0;
-    vals.slice(1).forEach(row => {
-      if (di >= 0 && !inRange(row[di])) return;
-      const n = Number(String(row[ai] == null ? '' : row[ai]).replace(/[^0-9.-]/g,''));
-      if (isFinite(n)) total += n;
-    });
+    const rows=listRows_(sheetName,token,100000);let total=0;
+    rows.forEach(function(row){if(!inRange(row[dateHeader]))return;const n=Number(String(row[amountHeader]==null?'':row[amountHeader]).replace(/[^0-9.-]/g,''));if(isFinite(n))total+=n;});
     return total;
   }
   function attendancePeriod_() {
-    const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ATTENDANCE);
-    if (!sh || sh.getLastRow() < 2) return {present:0,absent:0};
-    const vals = sh.getDataRange().getValues();
-    const h = vals[0].map(String);
-    const di = h.indexOf('Date'), si = h.indexOf('Status');
-    let present=0, absent=0;
-    if (di < 0 || si < 0) return {present:0,absent:0};
-    vals.slice(1).forEach(row => {
-      if (!inRange(row[di])) return;
-      const s = String(row[si] == null ? '' : row[si]).toLowerCase();
-      if (s.includes('present') || s.includes('উপস্থিত')) present++;
-      else if (s.includes('absent') || s.includes('অনুপস্থিত')) absent++;
-    });
+    const rows=listRows_(SHEETS.ATTENDANCE,token,100000);let present=0,absent=0;
+    rows.forEach(function(row){if(!inRange(row.Date))return;const st=String(row.Status||'').toLowerCase();if(st.includes('present')||st.includes('উপস্থিত'))present++;else if(st.includes('absent')||st.includes('অনুপস্থিত'))absent++;});
     return {present,absent};
   }
 
@@ -2641,7 +2620,7 @@ function saveFinanceEntry(token,data){
   var sh=ensureSheet_(ss,sheetName,HEADERS[sheetName]);
   var transactionId=(type==='INCOME'?'INC-':'EXP-')+Utilities.getUuid().slice(0,8).toUpperCase();
   var createdAt=now_();
-  append_(sheetName,[nextSerial_(sh),transactionId,category,amount,method,date,note,createdAt]);
+  append_(sheetName,[nextSerial_(sh),transactionId,category,amount,method,date,note,createdAt],token);
   var receiptId='RC-'+Utilities.getUuid().replace(/-/g,'').slice(0,10).toUpperCase();
   var receipt={
     ReceiptID:receiptId,TransactionID:transactionId,Type:type,
@@ -2651,7 +2630,7 @@ function saveFinanceEntry(token,data){
     Address:APP.address,Hotline:APP.hotline1,CreatedAt:createdAt
   };
   var receiptSheet=ensureSheet_(ss,SHEETS.RECEIPTS,HEADERS[SHEETS.RECEIPTS]);
-  append_(SHEETS.RECEIPTS,[nextSerial_(receiptSheet),receiptId,transactionId,type,amount,date,JSON.stringify(receipt)]);
+  append_(SHEETS.RECEIPTS,[nextSerial_(receiptSheet),receiptId,transactionId,type,amount,date,JSON.stringify(receipt)],token);
   log_(sessionUser_(token)||'','finance-'+type.toLowerCase(),sheetName,transactionId+' / '+amount+' / '+receiptId);
   return {ok:true,message:(type==='INCOME'?'আয়ের':'ব্যয়ের')+' হিসাব সংরক্ষণ হয়েছে এবং রসিদ তৈরি হয়েছে।',id:transactionId,transactionId:transactionId,receiptId:receiptId,receipt:receipt};
 }
@@ -2934,7 +2913,7 @@ function saveContactEmailRecord(token, data) {
     if (sameEmail || (sameMobile && sameName)) return {ok:false, message:'এই ইমেইল বা একই নাম-মোবাইলের কন্টাক্ট আগে থেকেই আছে।'};
   }
   const id = 'C-' + Date.now();
-  append_(SHEETS.CONTACTS, [nextSerial_(sh), id, name, mobile, whatsapp, email, role, note, now_()]);
+  append_(SHEETS.CONTACTS, [nextSerial_(sh), id, name, mobile, whatsapp, email, role, note, now_()],token);
   log_(sessionUser_(token), 'create', 'CONTACTS', JSON.stringify({ContactID:id,Name:name,Mobile:mobile,Email:email}).slice(0,500));
   return {ok:true, contactId:id, message:'কন্টাক্ট সফলভাবে সংরক্ষণ হয়েছে।'};
 }
