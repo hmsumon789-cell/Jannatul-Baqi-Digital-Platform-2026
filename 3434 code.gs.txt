@@ -466,9 +466,9 @@ function accountAssetsFolder_(){
 function storeAccountImage_(dataUrl,username,kind){
   const raw=String(dataUrl||'').trim();
   if(!raw||raw.indexOf('DRIVE:')===0)return raw;
-  const match=raw.match(/^data:([^;,]+);base64,([A-Za-z0-9+/=\\r\\n]+)$/);
+  const match=raw.match(/^data:([^;,]+);base64,([A-Za-z0-9+/=\r\n]+)$/);
   if(!match)throw new Error('অ্যাকাউন্টের '+kind+' ছবির ফাইল ডাটা সঠিক নয়।');
-  const bytes=Utilities.base64Decode(match[2].replace(/\\s/g,''));
+  const bytes=Utilities.base64Decode(match[2].replace(/\s/g,''));
   if(!bytes.length||bytes.length>20*1024*1024)throw new Error('অ্যাকাউন্টের ছবি 20 MB-এর বেশি হতে পারবে না।');
   const safe=String(username||'account').replace(/[^a-zA-Z0-9_-]/g,'_');
   const ext=(match[1].split('/')[1]||'jpg').replace(/[^a-zA-Z0-9]/g,'').slice(0,8)||'jpg';
@@ -2226,7 +2226,7 @@ function notifySuperAdminSecurity_(actor,action,target,detail){
       'সময়: '+when,
       '',
       'নিরাপত্তার কারণে কোনো পাসওয়ার্ড এই ইমেইলে পাঠানো হয়নি।'
-    ].join('\\n');
+    ].join('\n');
     MailApp.sendEmail({to:recipient,subject:subject,body:body});
   }catch(err){
     try{log_(String(actor||'unknown'),'security-alert-email-failed',String(target||''),String(action||'')+' | '+String(err&&err.message||err));}catch(ignore){}
@@ -2411,7 +2411,7 @@ function getSmsQueueHistory(token,limit){
 function resolveAdmissionIdentifier_(identifier) {
   const raw=String(identifier==null?'':identifier).trim();
   if(!raw)return {student:null,admission:null,studentId:'',formData:{}};
-  const norm=function(v){return String(v==null?'':v).trim().toLowerCase().replace(/[\\s().-]/g,'');};
+  const norm=function(v){return String(v==null?'':v).trim().toLowerCase().replace(/[\s().-]/g,'');};
   const candidate=norm(raw);
   const ss=SpreadsheetApp.getActiveSpreadsheet();
   let student=null, admission=null, formData={};
@@ -3032,11 +3032,11 @@ function notifyOnlinePayment_(data,status,receiptId){
   const ref=String(data.Reference||'').trim();
   const subject=status==='PAID'?'অনলাইন পেমেন্ট সফল — '+studentId:'অনলাইন পেমেন্ট অনুরোধ — '+studentId;
   const statusText=status==='PAID'?'পেমেন্ট অনুমোদিত/সফল হয়েছে।':'পেমেন্ট অনুরোধ গ্রহণ হয়েছে এবং Super Admin অনুমোদনের অপেক্ষায় আছে।';
-  const body='জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা\\n\\n'+statusText+'\\nশিক্ষার্থী: '+name+'\\nStudent ID: '+studentId+'\\nপরিমাণ: '+amount+' টাকা\\nমাধ্যম: '+String(data.Method||'')+'\\nReference: '+ref+'\\nমাস: '+String(data.Month||'')+'\\nখাত: '+String(data.Category||'')+(receiptId?'\\nReceipt ID: '+receiptId:'')+'\\n\\nJannatul Baqi Digital Platform 2026';
+  const body='জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা\n\n'+statusText+'\nশিক্ষার্থী: '+name+'\nStudent ID: '+studentId+'\nপরিমাণ: '+amount+' টাকা\nমাধ্যম: '+String(data.Method||'')+'\nReference: '+ref+'\nমাস: '+String(data.Month||'')+'\nখাত: '+String(data.Category||'')+(receiptId?'\nReceipt ID: '+receiptId:'')+'\n\nJannatul Baqi Digital Platform 2026';
   if(payerEmail)sendOnlinePaymentEmail_(payerEmail,subject,body);
   if(payerMobile)queueOnlinePaymentSms_(payerMobile,statusText+' Student ID: '+studentId+' | Amount: '+amount+' টাকা'+(receiptId?' | Receipt: '+receiptId:''));
   targets.admins.forEach(function(a){
-    if(a.email)sendOnlinePaymentEmail_(a.email,'[Super Admin] '+subject,body+'\\n\\nপ্রদানকারী: '+payerMobile+' | '+payerEmail);
+    if(a.email)sendOnlinePaymentEmail_(a.email,'[Super Admin] '+subject,body+'\n\nপ্রদানকারী: '+payerMobile+' | '+payerEmail);
     if(a.mobile)queueOnlinePaymentSms_(a.mobile,'[Super Admin] '+statusText+' Student ID: '+studentId+' | Amount: '+amount+' টাকা'+(receiptId?' | Receipt: '+receiptId:''));
   });
 }
