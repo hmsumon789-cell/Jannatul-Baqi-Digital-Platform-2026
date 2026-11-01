@@ -824,37 +824,7 @@ function accountScopedRows_(sheetName,session,account){
   const candidates=[session.username,account.Username,account.MadrasaID,account.AdminID,account.Name,account.NameBN].map(function(v){return String(v||'').trim().toLowerCase()}).filter(Boolean);
   if(!candidates.length)return [];
   return values.slice(1).filter(function(row){return indexes.some(function(i){return candidates.indexOf(String(row[i]||'').trim().toLowerCase())>=0})}).map(function(row){return objectFrom_(headers,row)});
-}function getStats(token) {
-  const session=auth_(token),type=String(session.accountType||'admin'),username=String(session.username||'');
-  const account=type==='madrasa'?findBy_(SHEETS.MADRASAS,'Username',username)||{}:findBy_(SHEETS.ADMINS,'Username',username)||{};
-  const role=String(account.Role||'').toUpperCase().replace(/\\s+/g,'_');
-  const root=type!=='madrasa'&&(role==='SUPER_ADMIN'||role==='SUPERADMIN'||username.toLowerCase()==='superadmin');
-  if(root){
-    const income=sumCol_(SHEETS.PAYMENTS,'Amount'),expense=sumCol_(SHEETS.EXPENSES,'Amount');
-    return {income:income,expense:expense,cash:income-expense,due:0,students:countData_(SHEETS.STUDENTS),teachers:countData_(SHEETS.TEACHERS),executives:countData_(SHEETS.EXECUTIVES),femaleMadrasa:countMadrasa_('মহিলা'),maleMadrasa:countMadrasa_('পুরুষ'),examinees:countData_(SHEETS.EXAM_REG),attendanceToday:attendanceToday_()};
-  }
-  const own=function(sheet){return accountScopedRows_(sheet,session,account)};
-  const total=function(sheet,key){return own(sheet).reduce(function(sum,r){return sum+(Number(r[key])||0)},0)};
-  const count=function(sheet){return own(sheet).length};
-  const income=total(SHEETS.PAYMENTS,'Amount'),expense=total(SHEETS.EXPENSES,'Amount');
-  const students=count(SHEETS.STUDENTS)||Number(account.StudentCount||0),teachers=count(SHEETS.TEACHERS)||Number(account.StaffCount||0);
-  const today=Utilities.formatDate(new Date(),APP.timezone,'yyyy-MM-dd');let present=0,absent=0;
-  own(SHEETS.ATTENDANCE).forEach(function(r){if(String(r.Date||'').slice(0,10)===today){if(String(r.Status||'').toLowerCase().indexOf('present')>=0)present++;if(String(r.Status||'').toLowerCase().indexOf('absent')>=0)absent++;}});
-  return {income:income,expense:expense,cash:income-expense,due:0,students:students,teachers:teachers,executives:count(SHEETS.EXECUTIVES),examinees:count(SHEETS.EXAM_REG),femaleMadrasa:0,maleMadrasa:0,attendanceToday:{present:present,absent:absent}};
-}
-function accountScopedRows_(sheetName,session,account){
-  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
-  if(!sh||sh.getLastRow()<2)return [];
-  const values=sh.getDataRange().getValues(),headers=values[0].map(function(v){return String(v||'').trim()});
-  const keys=['SourceAccount','AccountUsername','MadrasaID','SchoolID','InstitutionID','AdminID','CreatedBy','OwnerUsername','Username'];
-  const indexes=keys.map(function(k){return headers.indexOf(k)}).filter(function(i){return i>=0});
-  if(!indexes.length)return [];
-  const candidates=[session.username,account.Username,account.MadrasaID,account.AdminID,account.Name,account.NameBN].map(function(v){return String(v||'').trim().toLowerCase()}).filter(Boolean);
-  if(!candidates.length)return [];
-  return values.slice(1).filter(function(row){return indexes.some(function(i){return candidates.indexOf(String(row[i]||'').trim().toLowerCase())>=0})}).map(function(row){return objectFrom_(headers,row)});
-}
-
-/* ===== DASHBOARD LIVE ACCOUNT / DEVICE COUNTS — 2026-10-31 ===== */
+}/* ===== DASHBOARD LIVE ACCOUNT / DEVICE COUNTS — 2026-10-31 ===== */
 function getDashboardLiveCounts(token) {
   auth_(token);
   const admins = listRows_(SHEETS.ADMINS, token, 5000);
