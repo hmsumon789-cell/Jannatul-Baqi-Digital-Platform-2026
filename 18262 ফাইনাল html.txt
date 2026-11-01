@@ -2128,7 +2128,7 @@ function printOnlineReceipt(){
 <style id="account-dashboard-isolation-20261101">
 body.jb-custom-account #summary .live-count-stat{display:none!important}
 body.jb-custom-account #institutionDocumentary2026{display:none!important}
-body.jb-custom-account #app .header-slides,body.jb-custom-account #app #headerSlides,body.jb-custom-account #app .dashboard-slider .media-stage,body.jb-custom-account #app .dashboard-slider .dashboard-slider-controls{display:none!important}
+body.jb-custom-account #app .header-slides,body.jb-custom-account #app #headerSlides,body.jb-custom-account #app #headerBackgroundSlides,body.jb-custom-account #app .header-background-slides,body.jb-custom-account #app .header-photo-load,body.jb-custom-account #app .dashboard-slider .media-stage,body.jb-custom-account #app .dashboard-slider .dashboard-slider-controls{display:none!important}
 </style>
 </body></html>');
   w.document.close();w.focus();setTimeout(function(){w.print()},250);
