@@ -2125,11 +2125,7 @@ function printOnlineReceipt(){
   const b=$('onlineReceiptBody');if(!b)return;
   const w=window.open('','_blank','width=850,height=750');if(!w)return;
   w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>মানি রসিদ</title><style>@page{size:A4 portrait;margin:14mm}body{font-family:Arial,"Noto Sans Bengali",sans-serif;padding:0;color:#111}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:9px;text-align:left}h2,h3{text-align:center}</style></head><body>'+b.outerHTML+'
-<style id="account-dashboard-isolation-20261101">
-body.jb-custom-account #summary .live-count-stat{display:none!important}
-body.jb-custom-account #institutionDocumentary2026{display:none!important}
-body.jb-custom-account #app .header-slides,body.jb-custom-account #app #headerSlides,body.jb-custom-account #app #headerBackgroundSlides,body.jb-custom-account #app .header-background-slides,body.jb-custom-account #app .header-photo-load,body.jb-custom-account #app .dashboard-slider .media-stage,body.jb-custom-account #app .dashboard-slider .dashboard-slider-controls{display:none!important}
-</style>
+
 </body></html>');
   w.document.close();w.focus();setTimeout(function(){w.print()},250);
 }
@@ -18335,4 +18331,9 @@ body.jb-custom-account .dashboard-slider{background:transparent!important}
 #madrasaAccountContactHeader20261101 .madrasa-account-contact-name-20261101{font-size:20px;font-weight:1000;margin:5px 0}
 #madrasaAccountContactHeader20261101 .madrasa-account-contact-qr-20261101{font-size:12px;font-weight:900}
 @media(max-width:620px){#madrasaAccountContactHeader20261101 .madrasa-account-contact-layout-20261101{grid-template-columns:64px minmax(0,1fr) 64px;gap:6px}#madrasaAccountContactHeader20261101 img{width:60px;height:60px}#madrasaAccountContactHeader20261101 .madrasa-account-contact-name-20261101{font-size:15px}#madrasaAccountContactHeader20261101 .madrasa-account-contact-center-20261101{font-size:12px}}
+
+body.jb-custom-account #summary .live-count-stat{display:none!important}
+body.jb-custom-account #institutionDocumentary2026{display:none!important}
+body.jb-custom-account #app .header-slides,body.jb-custom-account #app #headerSlides,body.jb-custom-account #app #headerBackgroundSlides,body.jb-custom-account #app .header-background-slides,body.jb-custom-account #app .header-photo-load,body.jb-custom-account #app .dashboard-slider .media-stage,body.jb-custom-account #app .dashboard-slider .dashboard-slider-controls{display:none!important}
+
 </style>
