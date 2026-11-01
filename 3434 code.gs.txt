@@ -1577,6 +1577,12 @@ function saveRecord(token,sheetName,data) {
     const resolvedPaymentPerson=resolveAdmissionIdentifier_(data.StudentID);
     if(resolvedPaymentPerson.studentId)data.StudentID=resolvedPaymentPerson.studentId;
     const person=Object.assign({},resolvedPaymentPerson.formData||{},resolvedPaymentPerson.student||{});
+    if(!isSuperAdmin_(token)){
+      const paymentStudentId=String(data.StudentID||'').trim();
+      const ownedStudent=listRows_(SHEETS.STUDENTS,token,10000).some(function(x){return String(x.StudentID||'').trim()===paymentStudentId;});
+      const ownedAdmission=listRows_(SHEETS.ADMISSIONS,token,10000).some(function(x){return String(x.StudentID||x.AdmissionID||'').trim()===paymentStudentId || String(x.AdmissionID||'').trim()===String(data.StudentID||'').trim();});
+      if(!ownedStudent&&!ownedAdmission)return {ok:false,message:'এই শিক্ষার্থী আপনার প্রতিষ্ঠানের নয়; পেমেন্ট সংরক্ষণ করা যাবে না।'};
+    }
     if(!data.Name)data.Name=person.NameBN||person.NameEN||person.Name||'';
   }
   const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
@@ -1673,7 +1679,7 @@ function updateRecord(token,sheetName,serial,data) {
       if(!uniqueFormId.ok) return uniqueFormId;
     }
   }
-  headers.forEach((h,j)=>{if(h!=='TenantAccount' && Object.prototype.hasOwnProperty.call(data,h)) sh.getRange(idx+1,j+1).setValue(data[h]);});
+  headers.forEach((h,j)=>{if(h!=='TenantAccount' && (isSuperAdmin_(token) || !['SourceAccount','SourceType'].includes(h)) && Object.prototype.hasOwnProperty.call(data,h)) sh.getRange(idx+1,j+1).setValue(data[h]);});
   SpreadsheetApp.flush();
   let workflow=null;
   if(sheetName==='ADMISSIONS'){
