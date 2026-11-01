@@ -297,7 +297,7 @@ function registerNewAdmin(data){
   if(findBy_(SHEETS.ADMINS,'Username',username)||findBy_(SHEETS.MADRASAS,'Username',username)) return {ok:false,message:'এই Username আগে থেকেই ব্যবহার হচ্ছে।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ADMINS), n=nextSerial_(sh), id='M-1/'+String(n).padStart(4,'0');
   const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(function(x){return String(x||'').trim();});
-  const rowData={Serial:n,AdminID:id,NameBN:name,NameAR:String(data.nameAR||''),NameEN:String(data.nameEN||''),Username:username,PasswordHash:hash_(password),Email:String(data.email||''),Mobile:mobile,Address:address,Photo:photo,HeaderPhoto:String(data.headerPhoto||''),Wallpaper:String(data.wallpaper||''),HeaderTextColor:String(data.headerTextColor||'#ffffff'),Role:'ADMIN',Status:'PENDING',CreatedAt:now_(),Password:'',Permissions:'',ApprovedBy:'',ApprovedAt:''};
+  const rowData={Serial:n,AdminID:id,NameBN:name,NameAR:String(data.nameAR||''),NameEN:String(data.nameEN||''),Username:username,PasswordHash:hash_(password),Email:String(data.email||''),Mobile:mobile,Address:address,Photo:storeAccountImage_(photo,username,'logo'),HeaderPhoto:storeAccountImage_(data.headerPhoto,username,'header'),Wallpaper:storeAccountImage_(data.wallpaper,username,'wallpaper'),HeaderTextColor:String(data.headerTextColor||'#ffffff'),Role:'ADMIN',Status:'PENDING',CreatedAt:now_(),Password:'',Permissions:'',ApprovedBy:'',ApprovedAt:''};
   sh.getRange(sh.getLastRow()+1,1,1,headers.length).setValues([headers.map(function(k){return rowData[k]!==undefined?rowData[k]:'';})]);
   log_('PUBLIC','register','ADMIN',id);
   return {ok:true,adminId:id,message:'নতুন অ্যাডমিন নিবন্ধন হয়েছে। অনুমোদনের পর Username + Password দিয়ে OTP ছাড়া লগইন করতে পারবেন।'};
@@ -347,7 +347,7 @@ function registerMadrasa(data){
   /* Add review columns only after the legacy Email/Photo columns exist; write by header name to avoid column shifts. */
   ensureAccountReviewColumns_();
   ensureAccountAppearanceColumns_();
-  const rowData={Serial:n,MadrasaID:id,GenderType:String(data.genderType||''),BoardRegistration:String(data.boardRegistration||''),Name:name,NameAR:String(data.nameAR||''),NameEN:String(data.nameEN||''),FoundedYear:year,Founder:String(data.founder||''),Muhtamim:String(data.muhtamim||''),Address:address,Mobile:mobile,StaffCount:Number(data.staffCount||0),StudentCount:Number(data.studentCount||0),Level:'',Status:'PENDING',CreatedAt:now_(),Username:username,Password:'',PasswordHash:hash_(password),ActiveDepartments:deps,OtherDepartment:String(data.otherDepartment||''),Ownership:String(data.ownership||''),ApprovedBy:'',ApprovedAt:'',Permissions:'',Email:email,Photo:photo,HeaderPhoto:String(data.headerPhoto||''),Wallpaper:String(data.wallpaper||''),HeaderTextColor:String(data.headerTextColor||'#ffffff'),ReviewStatus:'',ReviewedBy:'',ReviewedAt:'',ReviewNote:''};
+  const rowData={Serial:n,MadrasaID:id,GenderType:String(data.genderType||''),BoardRegistration:String(data.boardRegistration||''),Name:name,NameAR:String(data.nameAR||''),NameEN:String(data.nameEN||''),FoundedYear:year,Founder:String(data.founder||''),Muhtamim:String(data.muhtamim||''),Address:address,Mobile:mobile,StaffCount:Number(data.staffCount||0),StudentCount:Number(data.studentCount||0),Level:'',Status:'PENDING',CreatedAt:now_(),Username:username,Password:'',PasswordHash:hash_(password),ActiveDepartments:deps,OtherDepartment:String(data.otherDepartment||''),Ownership:String(data.ownership||''),ApprovedBy:'',ApprovedAt:'',Permissions:'',Email:email,Photo:storeAccountImage_(photo,username,'logo'),HeaderPhoto:storeAccountImage_(data.headerPhoto,username,'header'),Wallpaper:storeAccountImage_(data.wallpaper,username,'wallpaper'),HeaderTextColor:String(data.headerTextColor||'#ffffff'),ReviewStatus:'',ReviewedBy:'',ReviewedAt:'',ReviewNote:''};
   const finalHeaders=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(function(x){return String(x||'').trim()});
   const row=finalHeaders.map(function(k){return rowData[k]!==undefined?rowData[k]:''});
   sh.getRange(sh.getLastRow()+1,1,1,row.length).setValues([row]);
@@ -457,6 +457,35 @@ function ensureAccountReviewColumns_(){
       }
     });
   });
+}
+function accountAssetsFolder_(){
+  const name='Jannatul Baqi Account Assets 2026';
+  const it=DriveApp.getFoldersByName(name);
+  return it.hasNext()?it.next():DriveApp.createFolder(name);
+}
+function storeAccountImage_(dataUrl,username,kind){
+  const raw=String(dataUrl||'').trim();
+  if(!raw||raw.indexOf('DRIVE:')===0)return raw;
+  const match=raw.match(/^data:([^;,]+);base64,([A-Za-z0-9+/=\\r\\n]+)$/);
+  if(!match)throw new Error('অ্যাকাউন্টের '+kind+' ছবির ফাইল ডাটা সঠিক নয়।');
+  const bytes=Utilities.base64Decode(match[2].replace(/\\s/g,''));
+  if(!bytes.length||bytes.length>20*1024*1024)throw new Error('অ্যাকাউন্টের ছবি 20 MB-এর বেশি হতে পারবে না।');
+  const safe=String(username||'account').replace(/[^a-zA-Z0-9_-]/g,'_');
+  const ext=(match[1].split('/')[1]||'jpg').replace(/[^a-zA-Z0-9]/g,'').slice(0,8)||'jpg';
+  const file=accountAssetsFolder_().createFile(Utilities.newBlob(bytes,match[1],safe+'-'+kind+'-'+Date.now()+'.'+ext));
+  try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
+  return 'DRIVE:'+file.getId();
+}
+function accountImageUrl_(value){
+  const raw=String(value||'').trim();
+  if(raw.indexOf('DRIVE:')!==0)return raw;
+  const id=raw.slice(6);
+  try{
+    const f=DriveApp.getFileById(id);
+    try{f.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
+    let rk='';try{rk=String(f.getResourceKey()||'');}catch(e){}
+    return mediaDriveUrl_(id,rk);
+  }catch(e){return '';}
 }
 function ensureAccountAppearanceColumns_(){
   const ss=SpreadsheetApp.getActiveSpreadsheet();
@@ -1733,7 +1762,7 @@ function createAdmin(token,data) {
   ensureAccountAppearanceColumns_();
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ADMINS), n=nextSerial_(sh), id='M-1/'+String(n).padStart(4,'0');
   const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(function(x){return String(x||'').trim();});
-  const rowData={Serial:n,AdminID:id,NameBN:data.NameBN||'',NameAR:data.NameAR||'',NameEN:data.NameEN||'',Username:data.Username,PasswordHash:hash_(data.Password),Email:data.Email||'',Mobile:data.Mobile,WhatsApp:data.WhatsApp||'',Address:data.Address,Photo:data.Photo,HeaderPhoto:String(data.HeaderPhoto||''),Wallpaper:String(data.Wallpaper||''),HeaderTextColor:String(data.HeaderTextColor||'#ffffff'),BirthReg:data.BirthReg||'',NID:data.NID||'',ApprovalID:data.ApprovalID||'',Role:data.Role||'ADMIN',Status:'ACTIVE',CreatedAt:now_(),Password:data.Password,Permissions:'',ApprovedBy:'',ApprovedAt:''};
+  const rowData={Serial:n,AdminID:id,NameBN:data.NameBN||'',NameAR:data.NameAR||'',NameEN:data.NameEN||'',Username:data.Username,PasswordHash:hash_(data.Password),Email:data.Email||'',Mobile:data.Mobile,WhatsApp:data.WhatsApp||'',Address:data.Address,Photo:storeAccountImage_(data.Photo,data.Username,'logo'),HeaderPhoto:storeAccountImage_(data.HeaderPhoto,data.Username,'header'),Wallpaper:storeAccountImage_(data.Wallpaper,data.Username,'wallpaper'),HeaderTextColor:String(data.HeaderTextColor||'#ffffff'),BirthReg:data.BirthReg||'',NID:data.NID||'',ApprovalID:data.ApprovalID||'',Role:data.Role||'ADMIN',Status:'ACTIVE',CreatedAt:now_(),Password:data.Password,Permissions:'',ApprovedBy:'',ApprovedAt:''};
   sh.getRange(sh.getLastRow()+1,1,1,headers.length).setValues([headers.map(function(k){return rowData[k]!==undefined?rowData[k]:'';})]);
   log_(sessionUser_(token),'create','ADMIN',id);
   return {ok:true,adminId:id};
@@ -2084,7 +2113,7 @@ function getInstitutionForSession_(token) {
   if(identity.root)return APP;
   const account=findBy_(identity.type==='madrasa'?SHEETS.MADRASAS:SHEETS.ADMINS,'Username',identity.username)||{};
   const name=String(account.Name||account.NameBN||account.InstitutionName||APP.nameBn);
-  return Object.assign({},APP,{nameBn:name,nameAr:String(account.NameAR||APP.nameAr),nameEn:String(account.NameEN||name||APP.nameEn),address:String(account.Address||APP.address),hotline1:String(account.Mobile||account.Hotline||APP.hotline1),email1:String(account.Email||APP.email1),logo:String(account.Photo||account.Logo||''),headerPhoto:String(account.HeaderPhoto||''),wallpaper:String(account.Wallpaper||account.BackgroundPhoto||''),headerTextColor:String(account.HeaderTextColor||'')});
+  return Object.assign({},APP,{nameBn:name,nameAr:String(account.NameAR||APP.nameAr),nameEn:String(account.NameEN||name||APP.nameEn),address:String(account.Address||APP.address),hotline1:String(account.Mobile||account.Hotline||APP.hotline1),email1:String(account.Email||APP.email1),logo:accountImageUrl_(account.Photo||account.Logo||''),headerPhoto:accountImageUrl_(account.HeaderPhoto||''),wallpaper:accountImageUrl_(account.Wallpaper||account.BackgroundPhoto||''),headerTextColor:String(account.HeaderTextColor||'')});
 }
 function listRows_(sheet,token,limit){
   const session=token?auth_(token):null;
