@@ -1118,6 +1118,8 @@ function saveAdmissionDraft2026(token,data,action) {
   action=String(action||'SAVE').toUpperCase();
   const ss=SpreadsheetApp.getActiveSpreadsheet();
   const sh=ss.getSheetByName(SHEETS.ADMISSIONS)||ensureSheet_(ss,SHEETS.ADMISSIONS,HEADERS.ADMISSIONS);
+  ensureTenantSheetColumn_(sh);
+  const tenant=tenantIdentity_(token);
   const admissionId=String(data.AdmissionID||data.FormID||'').trim();
   if(!admissionId)return {ok:false,message:'আবেদন ID তৈরি হয়নি।'};
   const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
@@ -1128,6 +1130,8 @@ function saveAdmissionDraft2026(token,data,action) {
   const normAdmissionLookup_=function(v){return String(v==null?'':v).trim().toLowerCase();};
   const wantedAdmissionLookup_=normAdmissionLookup_(admissionId);
   for(let i=1;i<values.length;i++){
+    const rowTenant=headers.indexOf('TenantAccount')>=0?String(values[i][headers.indexOf('TenantAccount')]||''):'';
+    if(!tenant.root && rowTenant!==tenant.key)continue;
     if(idCol>=0&&normAdmissionLookup_(displayValues[i][idCol])===wantedAdmissionLookup_){rowNum=i+1;break;}
     if(action==='LOAD'){
       const directIdKeys=['StudentID','FormID','HandwrittenID','handwrittenId','AdmissionFormID','SystemID','AutoID','ID','MobileID','Mobile','EmailID','Email'];
@@ -1301,6 +1305,7 @@ function saveAdmissionDraft2026(token,data,action) {
   if(!admissionFormCheck.ok) return admissionFormCheck;
   data.Status=finalizing?'PENDING':'INCOMPLETE';
   data.AdmissionID=admissionId;
+  data.TenantAccount=tenant.key;
   const row=headers.map(function(h){return h==='Serial'?(rowNum>1?values[rowNum-1][0]:nextSerial_(sh)):h==='CreatedAt'?(rowNum>1?values[rowNum-1][headers.indexOf('CreatedAt')]:now_()):(data[h]!==undefined?data[h]:'');});
   if(rowNum>1)sh.getRange(rowNum,1,1,headers.length).setValues([row]);else{sh.appendRow(row);rowNum=sh.getLastRow();}
   SpreadsheetApp.flush();
@@ -1361,31 +1366,37 @@ function registerExamCandidate(token,studentId,exam,className,branch) {
   if(!inputId||!ex) return {ok:false,message:'ভর্তি ফর্মের যেকোনো ID, মোবাইল/ইমেইল ও পরীক্ষা আবশ্যক।'};
   const resolved=resolveAdmissionIdentifier_(inputId);
   const id=String(resolved.studentId||inputId).trim();
-  const student=resolved.student||findBy_(SHEETS.STUDENTS,'StudentID',id);
-  if(!student) return {ok:false,message:'এই ID/মোবাইল/ইমেইলে অনুমোদিত Student পাওয়া যায়নি।'};
+  const student=(listRows_(SHEETS.STUDENTS,token,10000).find(function(r){return String(r.StudentID||'').trim()===id;})||null);
+  if(!student) return {ok:false,message:'এই ID/মোবাইল/ইমেইলে আপনার প্রতিষ্ঠানের অনুমোদিত Student পাওয়া যায়নি।'};
 
   if(String(student.ApprovalStatus||'ACTIVE').toUpperCase()!=='ACTIVE') return {ok:false,message:'Student এখনো Super Admin অনুমোদন পায়নি।'};
   const old=listRows_(SHEETS.EXAM_REG,token,10000).find(function(r){return String(r.StudentID)===id&&String(r.Exam)===ex;});
   if(old) return {ok:true,duplicate:true,examRegId:old.ExamRegID,message:'এই Student ইতিমধ্যে পরীক্ষায় যুক্ত আছে।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.EXAM_REG);
   const serial=nextSerial_(sh), regId='EX-'+String(serial).padStart(4,'0');
-  sh.appendRow([serial,regId,id,ex,className||student.Class||'',branch||student.Branch||'','ACTIVE','',now_()]);
+  ensureTenantSheetColumn_(sh);
+  const h=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
+  const rowData={Serial:serial,ExamRegID:regId,StudentID:id,Exam:ex,Class:className||student.Class||'',Branch:branch||student.Branch||'',Status:'ACTIVE',FormData:'',CreatedAt:now_(),TenantAccount:tenantIdentity_(token).key};
+  sh.appendRow(h.map(function(k){return rowData[k]===undefined?'':rowData[k];}));
   return {ok:true,examRegId:regId,studentId:id,message:'পরীক্ষার্থী হিসেবে যুক্ত হয়েছে।'};
 }
 function createAdmitCardFromCandidate(token,studentId,exam) {
   auth_(token); requireFeature_(token,'admit');
   const id=String(studentId||'').trim(), ex=String(exam||'').trim();
   if(!id||!ex) return {ok:false,message:'Student ID ও পরীক্ষা আবশ্যক।'};
-  const student=findBy_(SHEETS.STUDENTS,'StudentID',id);
-  if(!student) return {ok:false,message:'Student পাওয়া যায়নি।'};
+  const student=listRows_(SHEETS.STUDENTS,token,10000).find(function(r){return String(r.StudentID||'').trim()===id;});
+  if(!student) return {ok:false,message:'আপনার প্রতিষ্ঠানের Student পাওয়া যায়নি।'};
   const reg=listRows_(SHEETS.EXAM_REG,token,10000).find(function(r){return String(r.StudentID)===id&&String(r.Exam)===ex;});
   if(!reg) return {ok:false,message:'আগে পরীক্ষার্থী হিসেবে যুক্ত করুন।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ADMIT_CARDS);
+  ensureTenantSheetColumn_(sh);
   const existing=listRows_(SHEETS.ADMIT_CARDS,token,10000).find(function(r){return String(r.StudentID)===id&&String(r.Exam)===ex;});
   if(existing) return {ok:true,duplicate:true,admitId:existing.AdmitID,message:'Admit Card আগে থেকেই তৈরি আছে।'};
   const serial=nextSerial_(sh), aid='ADM-'+String(serial).padStart(4,'0');
   const data={studentId:id,exam:ex,name:student.NameBN||'',className:student.Class||'',branch:student.Branch||'',mobile:student.Mobile||'',createdAt:now_()};
-  sh.appendRow([serial,aid,id,ex,now_(),JSON.stringify(data)]);
+  const h=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
+  const rowData={Serial:serial,AdmitID:aid,StudentID:id,Exam:ex,IssueDate:now_(),Data:JSON.stringify(data),TenantAccount:tenantIdentity_(token).key};
+  sh.appendRow(h.map(function(k){return rowData[k]===undefined?'':rowData[k];}));
   return {ok:true,admitId:aid,studentId:id,message:'Admit Card তৈরি হয়েছে।'};
 }
 function getStudent360(token,studentId) {
@@ -1393,8 +1404,8 @@ function getStudent360(token,studentId) {
   const inputId=String(studentId||'').trim();
   const resolved=resolveAdmissionIdentifier_(inputId);
   const id=String(resolved.studentId||inputId).trim();
-  const student=resolved.student||findBy_(SHEETS.STUDENTS,'StudentID',id);
-  if(!student&&!resolved.admission) return {ok:false,message:'এই ID/মোবাইল/ইমেইলে শিক্ষার্থী পাওয়া যায়নি।'};
+  const student=listRows_(SHEETS.STUDENTS,token,10000).find(function(r){return String(r.StudentID||'').trim()===id;})||null;
+  if(!student) return {ok:false,message:'এই ID/মোবাইল/ইমেইলে আপনার প্রতিষ্ঠানের শিক্ষার্থী পাওয়া যায়নি।'};
   const merged=Object.assign({},resolved.formData||{},student||{});
   if(!merged.StudentID)merged.StudentID=id;
   if(resolved.admission){merged.AdmissionID=resolved.admission.AdmissionID||'';merged.FormID=merged.FormID||resolved.admission.AdmissionID||inputId;merged.AdmissionStatus=resolved.admission.Status||'';}
