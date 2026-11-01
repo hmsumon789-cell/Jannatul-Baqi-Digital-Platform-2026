@@ -1695,22 +1695,31 @@ function watchRequestedDashboardTiles2026(){
   // Keep compatibility with the existing dashboard initialization without deleting tiles.
 }
 function renderStats(x){
-  const sum=$('summary');
+  const sum=$('summary'),u=window.currentUser||currentUser||{};
+  const role=String(u.Role||u.role||'').toUpperCase().replace(/\\s+/g,'_');
+  const custom=String(u.accountType||u.AccountType||'').toLowerCase()==='madrasa'||(role!=='SUPER_ADMIN'&&role!=='SUPERADMIN'&&String(u.Username||u.username||'').toLowerCase()!=='superadmin');
   if(sum){
-    sum.innerHTML=
-      '<div class="stat teacher-live-stat"><b>'+((x.teachers??0))+'</b>মোট শিক্ষক/শিক্ষিকা</div>'+
-      '<div class="stat live-count-stat"><b id="dashboardRegisteredAccounts2026">—</b>নিবন্ধিত মাদ্রাসা + অ্যাডমিন সংখ্যা</div>'+
-      '<div class="stat live-count-stat"><b id="dashboardOnlineAccounts2026">—</b>মোট অনলাইন একাউন্ট</div>'+
-      '<div class="stat live-count-stat"><b id="dashboardActiveDevices2026">—</b>মূল ওয়েবসাইটে সক্রিয় ডিভাইস</div>'+
-      '<div class="stat"><b>'+((x.income??0))+'</b>আয়</div>'+
-      '<div class="stat"><b>'+((x.expense??0))+'</b>ব্যয়</div>'+
-      '<div class="stat"><b>'+((x.students??0))+'</b>মোট ছাত্র-ছাত্রী সংখ্যা</div>'+
-      '<div class="stat"><b>'+((x.examinees??x.examCandidates??0))+'</b>মোট পরীক্ষার্থী সংখ্যা</div>';
+    if(custom){
+      sum.innerHTML='<div class="stat"><b>'+((x.teachers??0))+'</b>মোট শিক্ষক/শিক্ষিকা</div>'+
+        '<div class="stat"><b>'+((x.income??0))+'</b>আয়</div>'+
+        '<div class="stat"><b>'+((x.expense??0))+'</b>ব্যয়</div>'+
+        '<div class="stat"><b>'+((x.students??0))+'</b>মোট ছাত্র-ছাত্রী সংখ্যা</div>'+
+        '<div class="stat"><b>'+((x.examinees??x.examCandidates??0))+'</b>মোট পরীক্ষার্থী সংখ্যা</div>';
+    }else{
+      sum.innerHTML='<div class="stat teacher-live-stat"><b>'+((x.teachers??0))+'</b>মোট শিক্ষক/শিক্ষিকা</div>'+
+        '<div class="stat live-count-stat"><b id="dashboardRegisteredAccounts2026">—</b>নিবন্ধিত মাদ্রাসা + অ্যাডমিন সংখ্যা</div>'+
+        '<div class="stat live-count-stat"><b id="dashboardOnlineAccounts2026">—</b>মোট অনলাইন একাউন্ট</div>'+
+        '<div class="stat live-count-stat"><b id="dashboardActiveDevices2026">—</b>মূল ওয়েবসাইটে সক্রিয় ডিভাইস</div>'+
+        '<div class="stat"><b>'+((x.income??0))+'</b>আয়</div>'+
+        '<div class="stat"><b>'+((x.expense??0))+'</b>ব্যয়</div>'+
+        '<div class="stat"><b>'+((x.students??0))+'</b>মোট ছাত্র-ছাত্রী সংখ্যা</div>'+
+        '<div class="stat"><b>'+((x.examinees??x.examCandidates??0))+'</b>মোট পরীক্ষার্থী সংখ্যা</div>';
+      refreshDashboardLiveCounts2026();
+    }
     sum.classList.add('dashboard-slider-summary');
-    refreshDashboardLiveCounts2026();
   }
   renderDashboardCharts(x);
-  loadInstitutionDocumentary2026();
+  if(!custom)loadInstitutionDocumentary2026();
 }
 function refreshDashboardLiveCounts2026(){
   if(!token)return;
@@ -2115,7 +2124,13 @@ async function searchOnlinePaymentReceipt(){
 function printOnlineReceipt(){
   const b=$('onlineReceiptBody');if(!b)return;
   const w=window.open('','_blank','width=850,height=750');if(!w)return;
-  w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>মানি রসিদ</title><style>@page{size:A4 portrait;margin:14mm}body{font-family:Arial,"Noto Sans Bengali",sans-serif;padding:0;color:#111}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:9px;text-align:left}h2,h3{text-align:center}</style></head><body>'+b.outerHTML+'</body></html>');
+  w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>মানি রসিদ</title><style>@page{size:A4 portrait;margin:14mm}body{font-family:Arial,"Noto Sans Bengali",sans-serif;padding:0;color:#111}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:9px;text-align:left}h2,h3{text-align:center}</style></head><body>'+b.outerHTML+'
+<style id="account-dashboard-isolation-20261101">
+body.jb-custom-account #summary .live-count-stat{display:none!important}
+body.jb-custom-account #institutionDocumentary2026{display:none!important}
+body.jb-custom-account #app .header-slides,body.jb-custom-account #app #headerSlides,body.jb-custom-account #app .dashboard-slider .media-stage,body.jb-custom-account #app .dashboard-slider .dashboard-slider-controls{display:none!important}
+</style>
+</body></html>');
   w.document.close();w.focus();setTimeout(function(){w.print()},250);
 }
 
@@ -9994,7 +10009,7 @@ body.jb-custom-account .header-content .header-identity-contact{color:#fff!impor
   function isCustom(u){var t=String((u||{}).accountType||(u||{}).AccountType||'').toLowerCase();return t==='madrasa'||(t==='admin'&&!isSuper(u))}
   function isPending(u){return isCustom(u)&&String((u||{}).Status||(u||{}).status||'PENDING').toUpperCase()!=='ACTIVE'}
   function photoOf(u){return String((u||{}).Photo||(u||{}).photo||(u||{}).PhotoURL||(u||{}).ImageURL||'').trim()}
-  function headerPhotoOf(u){return String((u||{}).HeaderPhoto||(u||{}).headerPhoto||'').trim()}
+  function headerPhotoOf(u){return String((u||{}).HeaderPhoto||(u||{}).headerPhoto||(u||{}).Photo||(u||{}).photo||(u||{}).PhotoURL||'').trim()}
   function applyCustomHeader(){
     var u=window.currentUser||currentUser||{};
     if(!isCustom(u))return;
