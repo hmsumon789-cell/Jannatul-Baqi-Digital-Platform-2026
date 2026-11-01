@@ -10022,6 +10022,11 @@ body.jb-custom-account .header-content .header-identity-contact{color:#fff!impor
     if(accountColor){document.querySelectorAll('#app .header-content,#app .header-content .title-bn,#app .header-content .title-ar,#app .header-content .title-en,#app .header-content .header-identity-contact').forEach(function(el){el.style.setProperty('color',accountColor,'important');el.style.setProperty('text-shadow','0 2px 4px rgba(0,0,0,.9)','important');});}
     var title=String(u.accountType||'').toLowerCase()==='madrasa'?String(u.Name||u.MadrasaName||'').trim():String(u.NameBN||u.Name||'').trim();
     if(title){var el=document.querySelector('#app .header-content .title-bn');if(el)el.textContent=title;}
+    var address=String(u.Address||u.address||'').trim(),mobile=String(u.Mobile||u.mobile||u.WhatsApp||'').trim(),email=String(u.Email||u.email||'').trim();
+    var addressEl=document.querySelector('#app .header-content .header-address-line');
+    if(addressEl&&address)addressEl.textContent='ঠিকানা: '+address;
+    var contactEl=document.querySelector('#app .header-content .header-hotline-email-line');
+    if(contactEl&&(mobile||email))contactEl.textContent='হটলাইন: '+(mobile||'—')+(email?' · ইমেইল: '+email:'');
   }
   function ensureGate(){
     var w=document.getElementById('jbApprovalGateWin');if(w)return w;
