@@ -666,7 +666,7 @@ body.gold #formWin .signature-box{border-radius:0!important;}
 }
 #formWin .form-grid{
   display:grid!important;
-  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
   gap:9px!important;
   align-items:start!important;
 }
@@ -8252,7 +8252,7 @@ body.gold #headerCalendarWindow .hc-weekday{background:#f4d56b;color:#111;border
 }
 #searchProfilePrint .sp-data{
   display:grid!important;
-  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
   gap:6px!important;
   margin-top:8px!important;
 }
@@ -8716,7 +8716,7 @@ body.dark #searchProfilePrint .sp-bottom-actions button{
 #searchProfilePrint .sp-photo-wrap{display:none!important}
 #searchProfilePrint .sp-data{
   display:grid!important;
-  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
   gap:4px!important;
   margin:0!important;
 }
@@ -9168,7 +9168,7 @@ body.gold #searchProfilePrint .sp-field{border-color:#d40000!important}
 }
 </style>
 <style id="final-8089-fixes">
-.student-meta-row-2026{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important;width:100%!important;margin:0 0 10px!important;padding:0!important;box-sizing:border-box!important}
+.student-meta-row-2026{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;width:100%!important;margin:0 0 10px!important;padding:0!important;box-sizing:border-box!important}
 .student-meta-row-2026 label{display:flex!important;flex-direction:column!important;gap:4px!important;font-weight:900!important}
 .student-meta-row-2026 .field{width:100%!important;min-height:42px!important}
 @media(max-width:700px){.student-meta-row-2026{grid-template-columns:1fr!important}}
@@ -13046,6 +13046,51 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 </style>
 <!-- ===== END MOBILE + ONLINE EXAM RESULT VIEWER — 2026-10-08 ===== -->
 
+<!-- ===== LOGIN-FREE ONLINE PAYMENT ENTRY — 2026-10-08 ===== -->
+<style id="jb-login-online-payment-2026">
+#jbLoginOnlinePayment2026{
+  display:block!important;width:min(820px,92vw)!important;margin:10px auto 0!important;
+  min-height:54px!important;padding:11px 18px!important;border:3px solid #8b5e00!important;
+  border-radius:999px!important;background:linear-gradient(135deg,#8b5e00,#d4af37)!important;
+  color:#111!important;font-weight:900!important;font-size:17px!important;cursor:pointer!important;
+  box-shadow:0 7px 18px #0003!important;
+}
+</style>
+<script id="jb-login-online-payment-2026-js">
+(function(){
+  function add(){
+    var lp=document.getElementById('loginPage');
+    if(!lp||document.getElementById('jbLoginOnlinePayment2026'))return;
+    var b=document.createElement('button');
+    b.id='jbLoginOnlinePayment2026';b.type='button';
+    b.textContent='💳 অনলাইন পেমেন্ট করুন ঝামেলাহিন';
+    b.onclick=function(){
+      var w=window.open('about:blank','_blank');
+      if(!w){alert('নতুন পেমেন্ট উইন্ডো খোলা যাচ্ছে না। Browser popup অনুমতি দিন।');return;}
+      try{
+        if(typeof google!=='undefined'&&google.script&&google.script.run){
+          google.script.run.withSuccessHandler(function(r){
+            var u=String(r&&r.ok&&r.url?r.url:location.href).split('#')[0].split('?')[0];
+            w.location.href=u+'?payment=1';
+          }).withFailureHandler(function(){
+            w.location.href=location.href.split('#')[0].split('?')[0]+'?payment=1';
+          }).getMainWebAppUrl();
+        }else{
+          w.location.href=location.href.split('#')[0].split('?')[0]+'?payment=1';
+        }
+      }catch(e){w.location.href=location.href.split('#')[0].split('?')[0]+'?payment=1';}
+    };
+    var q=lp.querySelector('.quick');
+    if(q)q.insertAdjacentElement('afterend',b);else lp.appendChild(b);
+  }
+  add();
+  if(document.body)new MutationObserver(add).observe(document.body,{childList:true,subtree:true});
+})();
+</script>
+<!-- ===== END LOGIN-FREE ONLINE PAYMENT ENTRY ===== -->
+
+
+
 
 
 <style id="jb-login-layout-fix-2026-10-08">
@@ -13057,7 +13102,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 <style id="jb-login-service-payment-row-2026">
 #loginPage .login .jb-login-service-payment-row-2026{
   display:grid!important;
-  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
   gap:12px!important;
   width:100%!important;
   max-width:none!important;
@@ -13078,7 +13123,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 }
 @media(max-width:700px){
   #loginPage .login .jb-login-service-payment-row-2026{
-    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
     gap:8px!important;
     width:100%!important;
     max-width:none!important;
@@ -13092,8 +13137,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     var lp=document.getElementById('loginPage'),
         panel=lp&&lp.querySelector('.login'),
         p=document.getElementById('jbLoginOnlinePayment2026'),
-        s=document.getElementById('jbLoginOnlineService2026');
-    if(!lp||!p||!s)return;
+    if(!lp||!p)return;
     panel=panel||lp;
     var row=document.getElementById('jbLoginServicePaymentRow2026');
     if(!row){
@@ -13118,7 +13162,6 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       });
     }
     if(row.parentNode!==panel)panel.appendChild(row);
-    if(s.parentNode!==row)row.appendChild(s);
     if(p.parentNode!==row)row.appendChild(p);
     if(r.parentNode!==row)row.appendChild(r);
     row.style.position='relative';
