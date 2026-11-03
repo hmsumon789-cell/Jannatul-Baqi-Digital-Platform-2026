@@ -188,6 +188,7 @@ function create28SignalDropdownSheet2026() {
 
   // Keep this tab in the second position without deleting or changing other tabs.
   sh.setIndex(2);
+  render28SignalRecords_(sh, String(sh.getRange('B2').getDisplayValue()||'STD').trim().toUpperCase());
   return {ok:true, sheetName:sheetName, position:2, signalCount:signalCodes.length};
 }
 
@@ -220,7 +221,7 @@ function render28SignalRecords_(viewSheet,signalCode) {
     TCP:'STUDENTS',SJS:'STUDENTS',TID:'ONLINE_SERVICES',AFM:'ONLINE_SERVICES',
     LAF:'ONLINE_SERVICES',EXR:'ONLINE_SERVICES',TCC:'ONLINE_SERVICES',
     APC:'ONLINE_SERVICES',LMF:'ONLINE_SERVICES',LMC:'ONLINE_SERVICES',
-    TRA:'ONLINE_SERVICES',TAP:'ONLINE_SERVICES',EXF:'ONLINE_SERVICES',EID:'ONLINE_SERVICES'
+    TRA:'ONLINE_SERVICES',TAP:'ONLINE_SERVICES',EXF:'ONLINE_SERVICES',EID:'EXECUTIVES'
   };
   const sourceName=map[signalCode];
   const startRow=4;
