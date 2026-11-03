@@ -1951,9 +1951,9 @@ function signalServiceSheetName_(code){return 'SIG_'+String(code||'').trim().toU
 function refreshSignalServiceSheet_(code){
   const ss=SpreadsheetApp.getActiveSpreadsheet(),name=signalServiceSheetName_(code);
   const sh=ensureSheet_(ss,name,signalServiceHeaders_()),defs={
-    std:[['STUDENTS']],thr:[['TEACHERS']],olp:[['PAYMENTS']],mrs:[['RESULTS']],rjt:[['RESULTS']],
+    std:[['STUDENTS']],thr:[['TEACHERS']],olp:[['ONLINE_PAYMENT_REQUESTS'],['PAYMENTS']],mrs:[['RESULTS']],rjt:[['RESULTS']],
     adm:[['ADMINS']],npn:[['EXAM_REG']],npt:[['MADRASAS','GenderType','পুরুষ']],nmt:[['MADRASAS','GenderType','মহিলা']],
-    ofd:[['RESULTS']],cft:[['CERTIFICATES'],['ONLINE_SERVICES','DocKey','certificates']],
+    ofd:[['RESULTS'],['ONLINE_SERVICES','DocKey','result']],cft:[['CERTIFICATES'],['ONLINE_SERVICES','DocKey','certificates']],
     idc:[['ID_CARDS'],['ONLINE_SERVICES','DocKey','id_cards']],adc:[['ADMIT_CARDS'],['ONLINE_SERVICES','DocKey','admit_cards']],
     rct:[['RECEIPTS'],['ONLINE_SERVICES','DocKey','receipts']],tcp:[['ONLINE_SERVICES','DocKey','tc']],
     sjs:[['STUDENTS']],ti:[['ONLINE_SERVICES','DocKey','teacher_id']],af:[['ADMISSIONS'],['ONLINE_SERVICES','DocKey','admission_form']],
@@ -1968,7 +1968,6 @@ function refreshSignalServiceSheet_(code){
     const source=def[0],records=listRows_(source,null,10000);
     records.forEach(function(r,index){
       if(def.length>1&&String(r[def[1]]||'').trim()!==String(def[2]))return;
-      if(code==='olp'&&!/online/i.test(String(r.PaymentMode||r.Method||r.Type||''))&&!String(r.RequestID||'').startsWith('OP-'))return;
       if(code==='npt'&&!/পুরুষ|male/i.test(String(r.GenderType||'')))return;
       if(code==='nmt'&&!/মহিলা|female/i.test(String(r.GenderType||'')))return;
       const safe={};Object.keys(r||{}).forEach(function(k){
