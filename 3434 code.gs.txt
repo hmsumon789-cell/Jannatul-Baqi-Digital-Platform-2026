@@ -191,6 +191,72 @@ function create28SignalDropdownSheet2026() {
   return {ok:true, sheetName:sheetName, position:2, signalCount:signalCodes.length};
 }
 
+
+/* ===== 28-SIGNAL SHEET: SHOW MATCHING RECORDS ON SELECTION ===== */
+function onEdit(e) {
+  // Preserve the existing Super Admin direct-edit security notification.
+  try { superAdminSecurityOnEdit_(e); } catch(ignore) {}
+  try {
+    if (!e || !e.range) return;
+    const sh=e.range.getSheet();
+    if (sh.getName()!=='২৮ সংকেতের শিট' || e.range.getA1Notation()!=='B2') return;
+    render28SignalRecords_(sh,String(e.range.getDisplayValue()||'').trim().toUpperCase());
+  } catch(err) {
+    try {
+      const target=e&&e.range?e.range.getSheet():null;
+      if(target && target.getName()==='২৮ সংকেতের শিট') {
+        target.getRange('A4').setValue('রেকর্ড দেখাতে সমস্যা হয়েছে: '+String(err&&err.message||err));
+      }
+    } catch(ignore) {}
+  }
+}
+
+function render28SignalRecords_(viewSheet,signalCode) {
+  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  const map={
+    STD:'STUDENTS',THR:'TEACHERS',OLP:'PAYMENTS',MRS:'RESULTS',RJT:'RESULTS',
+    ADM:'ADMINS',NPN:'EXAM_REG',NPT:'MADRASAS',NMT:'MADRASAS',OFD:'RESULTS',
+    CFT:'CERTIFICATES',IDC:'ID_CARDS',ADC:'ADMIT_CARDS',RCT:'RECEIPTS',
+    TCP:'STUDENTS',SJS:'STUDENTS',TID:'ONLINE_SERVICES',AFM:'ONLINE_SERVICES',
+    LAF:'ONLINE_SERVICES',EXR:'ONLINE_SERVICES',TCC:'ONLINE_SERVICES',
+    APC:'ONLINE_SERVICES',LMF:'ONLINE_SERVICES',LMC:'ONLINE_SERVICES',
+    TRA:'ONLINE_SERVICES',TAP:'ONLINE_SERVICES',EXF:'ONLINE_SERVICES',EID:'ONLINE_SERVICES'
+  };
+  const sourceName=map[signalCode];
+  const startRow=4;
+  const maxCols=Math.max(viewSheet.getMaxColumns(),1);
+  const clearRows=Math.max(viewSheet.getMaxRows()-startRow+1,1);
+  viewSheet.getRange(startRow,1,clearRows,maxCols).clearContent();
+  if(!sourceName) {
+    viewSheet.getRange('A4').setValue('অনুগ্রহ করে B2 থেকে ২৮টি সংকেতের একটি নির্বাচন করুন।');
+    return;
+  }
+  const source=ss.getSheetByName(sourceName);
+  if(!source || source.getLastRow()<2) {
+    viewSheet.getRange('A4').setValue(signalCode+' সংকেতের জন্য কোনো রেকর্ড পাওয়া যায়নি।');
+    return;
+  }
+  const values=source.getDataRange().getDisplayValues();
+  const headers=values[0].map(function(h){return String(h||'').trim();});
+  const hidden=/^(password|passwordhash|data|html|photo|documents|pdfurl|pdffileid|otp|codehash)$/i;
+  const keep=[];
+  headers.forEach(function(h,i){if(h && !hidden.test(h.replace(/[_\s-]/g,''))) keep.push(i);});
+  let rows=values.slice(1).filter(function(row){return row.some(function(v){return String(v||'').trim()!=='';});});
+  if(signalCode==='NPT') rows=rows.filter(function(r){const i=headers.indexOf('GenderType');return /পুরুষ|male/i.test(String(i>=0?r[i]:''));});
+  if(signalCode==='NMT') rows=rows.filter(function(r){const i=headers.indexOf('GenderType');return /মহিলা|female/i.test(String(i>=0?r[i]:''));});
+  const displayHeaders=keep.map(function(i){return headers[i];});
+  const displayRows=rows.slice(0,5000).map(function(r){return keep.map(function(i){return r[i]||'';});});
+  viewSheet.getRange('A4').setValue('সংকেত: '+signalCode+' | উৎস: '+sourceName+' | মোট রেকর্ড: '+rows.length+(rows.length>5000?' | প্রথম ৫০০০টি দেখানো হয়েছে':''));
+  if(!displayRows.length) {
+    viewSheet.getRange('A5').setValue('এই সংকেতের জন্য কোনো রেকর্ড পাওয়া যায়নি।');
+    return;
+  }
+  viewSheet.getRange(5,1,1,displayHeaders.length).setValues([displayHeaders]).setFontWeight('bold');
+  viewSheet.getRange(6,1,displayRows.length,displayHeaders.length).setValues(displayRows);
+  viewSheet.setFrozenRows(5);
+  viewSheet.getRange(5,1,displayRows.length+1,displayHeaders.length).setWrap(true);
+}
+
 function setupSystem() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   Object.keys(SHEETS).forEach(k => ensureSheet_(ss, SHEETS[k], HEADERS[SHEETS[k]] || ['Value']));
