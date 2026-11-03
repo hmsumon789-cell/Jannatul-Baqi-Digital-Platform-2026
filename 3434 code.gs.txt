@@ -1890,8 +1890,10 @@ function getSheetData(token,sheetName,limit) {
   auth_(token);
   if(!isSuperAdmin_(token)) return {ok:false,message:'মূল Google Sheet-এর তথ্য দেখার অনুমতি শুধু Super Admin-এর।'};
   const allowedSheets=Object.keys(SHEETS).map(function(k){return SHEETS[k];});
-  const isSignalSheet=getSignals_().some(function(item){return signalServiceSheetName_(item[0])===sheetName;});
+  const signalItem=getSignals_().filter(function(item){return signalServiceSheetName_(item[0])===sheetName;})[0];
+  const isSignalSheet=!!signalItem;
   if(allowedSheets.indexOf(sheetName)<0&&!isSignalSheet)return {ok:false,message:'অজানা Sheet নির্বাচন করা হয়েছে।'};
+  if(isSignalSheet) refreshSignalServiceSheet_(signalItem[0]);
   const rows=listRows_(sheetName,token,limit||1000).map(function(r){delete r.Password;delete r.PasswordHash;delete r.password;delete r.passwordHash;return r;});
   const headers=(isSignalSheet?signalServiceHeaders_():(HEADERS[sheetName]||[])).filter(function(h){return !/^(password|passwordhash)$/i.test(String(h));});
   return {ok:true,headers:headers,rows:rows};
@@ -1941,7 +1943,47 @@ function getPublicConfig() {
 /* ---------- helpers ---------- */
 
 function signalServiceHeaders_(){return ['Serial','RecordID','SignalCode','ServiceName','PersonID','Name','Mobile','Email','RecordType','SourceSheet','SourceID','Data','HTML','PdfUrl','Status','CreatedAt','UpdatedAt'];}
+
 function signalServiceSheetName_(code){return 'SIG_'+String(code||'').trim().toUpperCase();}
+
+/* Build each signal sheet as a read-only view of its original source data.
+   Original application save flows and source sheets remain unchanged. */
+function refreshSignalServiceSheet_(code){
+  const ss=SpreadsheetApp.getActiveSpreadsheet(),name=signalServiceSheetName_(code);
+  const sh=ensureSheet_(ss,name,signalServiceHeaders_()),defs={
+    std:[['STUDENTS']],thr:[['TEACHERS']],olp:[['ONLINE_PAYMENT_REQUESTS'],['PAYMENTS']],mrs:[['RESULTS']],rjt:[['RESULTS']],
+    adm:[['ADMINS']],npn:[['EXAM_REG']],npt:[['MADRASAS','GenderType','পুরুষ']],nmt:[['MADRASAS','GenderType','মহিলা']],
+    ofd:[['RESULTS'],['ONLINE_SERVICES','DocKey','result']],cft:[['CERTIFICATES'],['ONLINE_SERVICES','DocKey','certificates']],
+    idc:[['ID_CARDS'],['ONLINE_SERVICES','DocKey','id_cards']],adc:[['ADMIT_CARDS'],['ONLINE_SERVICES','DocKey','admit_cards']],
+    rct:[['RECEIPTS'],['ONLINE_SERVICES','DocKey','receipts']],tcp:[['ONLINE_SERVICES','DocKey','tc']],
+    sjs:[['STUDENTS']],ti:[['ONLINE_SERVICES','DocKey','teacher_id']],af:[['ADMISSIONS'],['ONLINE_SERVICES','DocKey','admission_form']],
+    lf:[['ONLINE_SERVICES','DocKey','leave_form']],er:[['ONLINE_SERVICES','DocKey','exam_routine']],
+    tc:[['ONLINE_SERVICES','DocKey','tc']],ap:[['ONLINE_SERVICES','DocKey','attestation']],
+    lm:[['ONLINE_SERVICES','DocKey','lifetime_member_form']],lc:[['ONLINE_SERVICES','DocKey','lifetime_member_certificate']],
+    tr:[['ONLINE_SERVICES','DocKey','teacher_recruitment_form']],ta:[['ONLINE_SERVICES','DocKey','teacher_appointment']],
+    ef:[['ONLINE_SERVICES','DocKey','executive_form']],ei:[['ONLINE_SERVICES','DocKey','executive_id']]
+  };
+  const selected=defs[String(code||'').toLowerCase()]||[],headers=signalServiceHeaders_(),out=[];
+  selected.forEach(function(def){
+    const source=def[0],records=listRows_(source,null,10000);
+    records.forEach(function(r,index){
+      if(def.length>1&&String(r[def[1]]||'').trim()!==String(def[2]))return;
+      if(code==='npt'&&!/পুরুষ|male/i.test(String(r.GenderType||'')))return;
+      if(code==='nmt'&&!/মহিলা|female/i.test(String(r.GenderType||'')))return;
+      const safe={};Object.keys(r||{}).forEach(function(k){
+        if(!/password|otp|token|secret|hash/i.test(k))safe[k]=r[k];
+      });
+      const id=safe.StudentID||safe.TeacherID||safe.AdminID||safe.MadrasaID||safe.PaymentID||safe.ResultID||safe.AdmissionID||safe.ExamRegID||safe.ReceiptID||safe.CertificateID||safe.CardID||safe.AdmitID||safe.ServiceID||safe.Serial||('ROW-'+(index+1));
+      const nameValue=safe.NameBN||safe.Name||safe.NameEN||safe.TitleBN||safe.Title||safe.ServiceName||'';
+      const stamp=safe.CreatedAt||safe.Date||safe.IssueDate||'';
+      const recordType=source==='ONLINE_SERVICES'?'ONLINE_SERVICE':'SOURCE_DATA';
+      out.push([out.length+1,String(id),String(code).toUpperCase(),String(def[2]||source),String(safe.StudentID||safe.TeacherID||safe.PersonID||safe.AdminID||safe.MadrasaID||''),String(nameValue),String(safe.Mobile||safe.WhatsApp||''),String(safe.Email||''),recordType,source,String(id),JSON.stringify(safe),'',String(safe.PdfUrl||''),String(safe.Status||safe.ApprovalStatus||'ACTIVE'),String(stamp||''),now_()]);
+    });
+  });
+  if(sh.getLastRow()>1)sh.getRange(2,1,sh.getLastRow()-1,sh.getLastColumn()).clearContent();
+  if(out.length)sh.getRange(2,1,out.length,headers.length).setValues(out);
+  return out.length;
+}
 function ensureSignalServiceSheets_(ss){
   const book=ss||SpreadsheetApp.getActiveSpreadsheet();
   getSignals_().forEach(function(item){ensureSheet_(book,signalServiceSheetName_(item[0]),signalServiceHeaders_());});
