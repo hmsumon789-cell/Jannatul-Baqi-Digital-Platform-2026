@@ -1441,7 +1441,7 @@ body.gold #loginContactStrip20261013{background:#fff9e7!important;color:#4a3300!
       <div class="header-date-button" id="appDate">--</div>
     </div>
     <div class="header-running-row header-mainline header-mainline-v2" id="headerMainline">
-      <button type="button" class="sheet-btn header-sheet-v2" onclick="openProtectedSheet2026()">📊 মূল শীটে প্রবেশ</button>
+      <button type="button" class="sheet-btn header-sheet-v2" onclick="openSignalSheetManager2026()">📊 ২৮ সংকেতের শিট</button>
       <div class="news header-news" data-news="জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম">
         <span class="running-news-text"><span class="news-full-run">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম</span></span>
         <button type="button" class="news-mic" title="নতুন নিউজ যোগ করুন" aria-label="নতুন নিউজ যোগ করুন">🎙️</button>
@@ -1685,7 +1685,7 @@ function startSessionWatch(){
 }
 async function logout(){await call('logout',token);location.reload()}
 async function loadApp(){const r=await call('getBootstrap',token);if(!r||!r.ok)return;var ub=currentUser||r.currentAdmin||{};var rr=String(ub.Role||ub.role||'').toUpperCase().replace(/\s+/g,'_');var isSuper=(rr==='SUPER_ADMIN'||rr==='SUPERADMIN'||String(ub.Username||ub.username||'').toLowerCase()==='superadmin');if($('accountManagerBtn'))$('accountManagerBtn').style.display=isSuper?'inline-block':'none';if($('sheetWin'))$('sheetWin').dataset.allowed=isSuper?'yes':'no';var sheetBtn=document.querySelector('.sheet-btn');if(sheetBtn)sheetBtn.style.display=isSuper?'inline-block':'none';modules=r.modules||[];renderModules();renderStats(r.stats||{});renderNotices(r.notices||[]);media=r.media||[];renderMedia();fillFeatureSelect();if(isSuper)fillSheets();else if($('sheetSelect'))$('sheetSelect').innerHTML='';dragWindow($('formWin'));startSessionWatch();collectSessionDeviceInfo()}
-function renderModules(){const l=$('leftModules'),r=$('rightModules');l.innerHTML='';r.innerHTML='';modules.forEach((m,i)=>{const b=document.createElement('button');b.className='module';b.textContent=m[1];b.onclick=()=>openModule(m[0]);(i<Math.ceil(modules.length/2)?l:r).appendChild(b)});window.openAllSettings=function(){var w=$('allSettingsWin');if(!w){w=document.createElement('div');w.id='allSettingsWin';w.className='window';w.style.cssText='width:min(900px,94vw);z-index:1000100;';w.innerHTML='<div class="win-head"><b>⚙️ অল সেটিংস</b><button class="secondary" type="button" onclick="closeWindow(\'allSettingsWin\')">✕</button></div><div class="win-body"><h3>সকল সেটিংস</h3><div class="form-grid"><div><b>🎨 থিম</b><p><select class="field jb-mode-select-20261017" aria-label="মোড নির্বাচন" onchange="setMode(this.value)"><option value="offwhite">🤍 Off-White</option><option value="dark">🌙 Dark</option><option value="light">☀️ Light</option><option value="gold">🟡 Golden</option></select></p></div><div><b>🌐 ভাষা</b><select class="field" onchange="setLang(this.value)"><option value="bn">বাংলা</option><option value="ar">العربية</option><option value="en">English</option><option value="ur">اردو</option></select></div><div><b>🔎 সংকেত / All Search</b><p>উপরের সংকেত নির্বাচন করে ID / মোবাইল / ইমেইল দিয়ে All Search ব্যবহার করুন।</p><button class="secondary" onclick="document.getElementById(\'appSignal\').focus();closeWindow(\'allSettingsWin\')">🔎 Search Settings</button></div><div><b>📊 সরাসরি শিট</b><p><button class="secondary" onclick="openWindow(\'sheetWin\')">📊 সরাসরি শিট</button></p></div><div><b>🔐 Account অনুমোদন</b><p><button class="secondary" onclick="openAccountManager()">🔐 Account Approval</button></p></div><div><b>🖥️ Header / Taskbar</b><p>হোম + ৩ মোড + সংকেত + All Search + লগআউট লাইনটি Taskbar-এর ঠিক উপরে থাকবে।</p></div><div><b>🎬 Media</b><p>ভিডিও 50 MB/50টি · ফটো 20 MB/100টি · অডিও 50 MB/50টি।</p></div><div><b>🇧🇩 সময়</b><p>বাংলাদেশ সময় (Asia/Dhaka) অনুযায়ী ঘড়ি ও তারিখ দেখানো হবে।</p></div></div></div>';document.body.appendChild(w)}openWindow('allSettingsWin')};var bs=[...document.querySelectorAll('#leftModules .module,#rightModules .module')],target=bs.find(function(x){var t=(x.textContent||'').replace(/\s+/g,'');return t.indexOf('পরামর্শ')>=0&&(t.indexOf('অভিযোগ')>=0||t.indexOf('যোগ')>=0)});if(!target)target=bs.find(function(x){return (x.textContent||'').indexOf('পরামর্শ')>=0});if(target&&!document.getElementById('allSettingsBtn')){var z=document.createElement('button');z.id='allSettingsBtn';z.className='module';z.type='button';z.textContent='⚙️ অল সেটিংস';z.onclick=window.openAllSettings;target.insertAdjacentElement('afterend',z)}else if(!target&&!document.getElementById('allSettingsBtn')){var z2=document.createElement('button');z2.id='allSettingsBtn';z2.className='module';z2.type='button';z2.textContent='⚙️ অল সেটিংস';z2.onclick=window.openAllSettings;l.appendChild(z2)}if(typeof window.jbSetLang2026==="function")window.jbSetLang2026(localStorage.lang||"bn")}
+function renderModules(){const l=$('leftModules'),r=$('rightModules');l.innerHTML='';r.innerHTML='';modules.forEach((m,i)=>{const b=document.createElement('button');b.className='module';b.textContent=m[1];b.onclick=()=>openModule(m[0]);(i<Math.ceil(modules.length/2)?l:r).appendChild(b)});window.openAllSettings=function(){var w=$('allSettingsWin');if(!w){w=document.createElement('div');w.id='allSettingsWin';w.className='window';w.style.cssText='width:min(900px,94vw);z-index:1000100;';w.innerHTML='<div class="win-head"><b>⚙️ অল সেটিংস</b><button class="secondary" type="button" onclick="closeWindow(\'allSettingsWin\')">✕</button></div><div class="win-body"><h3>সকল সেটিংস</h3><div class="form-grid"><div><b>🎨 থিম</b><p><select class="field jb-mode-select-20261017" aria-label="মোড নির্বাচন" onchange="setMode(this.value)"><option value="offwhite">🤍 Off-White</option><option value="dark">🌙 Dark</option><option value="light">☀️ Light</option><option value="gold">🟡 Golden</option></select></p></div><div><b>🌐 ভাষা</b><select class="field" onchange="setLang(this.value)"><option value="bn">বাংলা</option><option value="ar">العربية</option><option value="en">English</option><option value="ur">اردو</option></select></div><div><b>🔎 সংকেত / All Search</b><p>উপরের সংকেত নির্বাচন করে ID / মোবাইল / ইমেইল দিয়ে All Search ব্যবহার করুন।</p><button class="secondary" onclick="document.getElementById(\'appSignal\').focus();closeWindow(\'allSettingsWin\')">🔎 Search Settings</button></div><div><b>📊 সরাসরি শিট</b><p><button class="secondary" onclick="openSignalSheetManager2026()">📊 ২৮ সংকেতের শিট</button></p></div><div><b>🔐 Account অনুমোদন</b><p><button class="secondary" onclick="openAccountManager()">🔐 Account Approval</button></p></div><div><b>🖥️ Header / Taskbar</b><p>হোম + ৩ মোড + সংকেত + All Search + লগআউট লাইনটি Taskbar-এর ঠিক উপরে থাকবে।</p></div><div><b>🎬 Media</b><p>ভিডিও 50 MB/50টি · ফটো 20 MB/100টি · অডিও 50 MB/50টি।</p></div><div><b>🇧🇩 সময়</b><p>বাংলাদেশ সময় (Asia/Dhaka) অনুযায়ী ঘড়ি ও তারিখ দেখানো হবে।</p></div></div></div>';document.body.appendChild(w)}openWindow('allSettingsWin')};var bs=[...document.querySelectorAll('#leftModules .module,#rightModules .module')],target=bs.find(function(x){var t=(x.textContent||'').replace(/\s+/g,'');return t.indexOf('পরামর্শ')>=0&&(t.indexOf('অভিযোগ')>=0||t.indexOf('যোগ')>=0)});if(!target)target=bs.find(function(x){return (x.textContent||'').indexOf('পরামর্শ')>=0});if(target&&!document.getElementById('allSettingsBtn')){var z=document.createElement('button');z.id='allSettingsBtn';z.className='module';z.type='button';z.textContent='⚙️ অল সেটিংস';z.onclick=window.openAllSettings;target.insertAdjacentElement('afterend',z)}else if(!target&&!document.getElementById('allSettingsBtn')){var z2=document.createElement('button');z2.id='allSettingsBtn';z2.className='module';z2.type='button';z2.textContent='⚙️ অল সেটিংস';z2.onclick=window.openAllSettings;l.appendChild(z2)}if(typeof window.jbSetLang2026==="function")window.jbSetLang2026(localStorage.lang||"bn")}
 function fillFeatureSelect(){const s=$('featureSelect');modules.forEach(m=>{const o=document.createElement('option');o.value=m[0];o.textContent=m[1];s.appendChild(o)})}
 function removeRequestedDashboardTiles2026(){
   // The requested dashboard tiles are now intentionally displayed below the media controls.
@@ -2187,14 +2187,21 @@ async function deleteMediaByIndex(i){if(!media[i])return;const r=await call('del
 async function fileData(id){const f=$(id)?.files?.[0];return f?await readFile(f):''}function readFile(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f)})}
 async function doSearch(where){const sig=$(where==='login'?'loginSignal':'appSignal').value,q=$(where==='login'?'loginSearch':'appSearch').value.trim();if(!sig)return toast('প্রথমে সংকেত নির্বাচন করুন।');if(!q)return toast('ID / মোবাইল / ইমেইল দিন।');const r=await call('searchAll',token,sig,q);if(!r.ok)return toast(r.message);$('searchBody').innerHTML=`<h3>${r.signal} / ${r.query} — ${r.count} ফলাফল</h3>`+table(r.matches);openWindow('searchWin')}
 function table(rows){if(!rows.length)return '<p>কোন তথ্য পাওয়া যায়নি।</p>';const h=Object.keys(rows[0]);return '<div class="table-wrap"><table class="data-table"><thead><tr>'+h.map(x=>`<th>${x}</th>`).join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+h.map(x=>`<td>${String(r[x]??'')}</td>`).join('')+'</tr>').join('')+'</tbody></table></div>'}
-const JB_SHEET_LIST_28_2026=[
-  ['ADMINS','অ্যাডমিন'],['STUDENTS','ছাত্র/ছাত্রী'],['TEACHERS','শিক্ষক/শিক্ষিকা'],['DONORS','দাতা'],
-  ['ADMISSIONS','ভর্তি'],['EXAM_REG','পরীক্ষার্থী নিবন্ধন'],['PAYMENTS','পেমেন্ট'],['EXPENSES','ব্যয়'],
-  ['INCOME','আয়'],['RESULTS','ফলাফল'],['NOTICES','নোটিশ'],['ATTENDANCE','উপস্থিতি'],
-  ['MEDIA','মিডিয়া'],['FILES','ফাইল'],['SMS_QUEUE','SMS Queue'],['CONTACTS','যোগাযোগ'],
-  ['AUDIT','কার্যক্রম লগ'],['EXECUTIVES','নির্বাহী'],['ADVISERS','উপদেষ্টা'],['FOUNDERS','প্রতিষ্ঠাতা'],
-  ['LOCATION_MASTER','অবস্থান ডাটাবেজ'],['MADRASAS','মাদ্রাসা'],['SALARY','বেতন'],['CERTIFICATES','সনদ'],
-  ['ID_CARDS','আইডি কার্ড'],['ADMIT_CARDS','প্রবেশপত্র'],['RECEIPTS','রসিদ'],['ONLINE_SERVICES','অনলাইন সেবা']
+const JB_SIGNAL_SHEET_LIST_28_2026=[
+['STD','ছাত্র/ছাত্রী','std','STUDENTS'],['THR','শিক্ষক/শিক্ষিকা','thr','TEACHERS'],
+['OLP','অনলাইন পেমেন্ট','olp','PAYMENTS'],['MRS','মার্কশিট','mrs','RESULTS'],
+['RJT','রেজাল্ট','rjt','RESULTS'],['ADM','নতুন অ্যাডমিন','adm','ADMINS'],
+['NPN','নতুন পরীক্ষার্থী নিবন্ধন','npn','EXAM_REG'],['NPT','নিবন্ধনকৃত পুরুষ মাদ্রাসা','npt','MADRASAS'],
+['NMT','নিবন্ধনকৃত মহিলা মাদ্রাসা','nmt','MADRASAS'],['OFD','অনলাইন + মোবাইল ফলাফল','ofd','RESULTS'],
+['CFT','সার্টিফিকেট / সনদপত্র','cft','CERTIFICATES'],['IDC','আইডি কার্ড','idc','ID_CARDS'],
+['ADC','এডমিট কার্ড','adc','ADMIT_CARDS'],['RCT','রিসিট','rct','RECEIPTS'],
+['TCP','টিসি / ছাড়পত্র','tcp','STUDENTS'],['SJS','শ্রেণি / ক্লাশ','sjs','STUDENTS'],
+['TID','শিক্ষক আইডি','ti','TEACHERS'],['AFM','ভর্তি ফর্ম','af','ONLINE_SERVICES'],
+['LAF','ছুটির আবেদন','lf','ONLINE_SERVICES'],['EXR','পরীক্ষার রুটিন','er','ONLINE_SERVICES'],
+['TCC','টিসি / ছাড়পত্র আবেদন','tc','ONLINE_SERVICES'],['APC','প্রত্যয়নপত্র','ap','ONLINE_SERVICES'],
+['LMF','আজীবন সদস্য ফর্ম','lm','ONLINE_SERVICES'],['LMC','আজীবন সদস্য সনদ','lc','ONLINE_SERVICES'],
+['TRA','শিক্ষক নিয়োগ আবেদন','tr','ONLINE_SERVICES'],['TAP','শিক্ষক নিয়োগ পত্র','ta','ONLINE_SERVICES'],
+['EXF','নির্বাহী পরিষদ ফর্ম','ef','ONLINE_SERVICES'],['EID','নির্বাহী পরিষদ সদস্য আইডি','ei','EXECUTIVES']
 ];
 function isSheetSuperAdmin2026(){
   var u=window.currentUser||currentUser||{};
@@ -2228,17 +2235,22 @@ function renderSafeSheetTable2026(result){
   html+='</tbody></table></div>';
   out.innerHTML=html;
 }
+function openSignalSheetManager2026(){
+  if(!isSheetSuperAdmin2026()){toast('এই সুবিধা শুধু Super Admin-এর জন্য।');return;}
+  fillSheets();
+  openWindow('sheetWin');
+}
 async function loadSheet(){
   if(!isSheetSuperAdmin2026()){closeWindow('sheetWin');return toast('শুধু Super Admin মূল শিটের তথ্য দেখতে পারবেন।');}
-  var select=$('sheetSelect'),name=select&&select.value,status=$('sheetStatus'),body=$('sheetBody');
-  if(!name){if(body)body.innerHTML='';if(status)status.textContent='শিট নির্বাচন করুন।';return;}
-  if(status)status.textContent=name+' — মূল শিট থেকে তথ্য লোড হচ্ছে…';
+  var select=$('sheetSelect'),opt=select&&select.options[select.selectedIndex],signal=opt&&opt.value,sheet=opt&&opt.getAttribute('data-sheet'),label=opt&&opt.textContent,status=$('sheetStatus'),body=$('sheetBody');
+  if(!signal||!sheet){if(body)body.innerHTML='';if(status)status.textContent='২৮টি সংকেত থেকে একটি নির্বাচন করুন।';return;}
+  if(status)status.textContent=label+' — '+sheet+' মূল শিট থেকে তথ্য লোড হচ্ছে…';
   if(body)body.innerHTML='<p>তথ্য লোড হচ্ছে…</p>';
   try{
-    var r=await call('getSheetData',token,name,300);
+    var r=await call('getSheetData',token,sheet,300);
     if(!r||!r.ok){if(body)body.innerHTML='';if(status)status.textContent=(r&&r.message)||'শিট ডাটা পাওয়া যায়নি।';return toast((r&&r.message)||'শিট ডাটা পাওয়া যায়নি।');}
     renderSafeSheetTable2026(r);
-    if(status)status.textContent=name+' — মোট '+((r.rows||[]).length)+'টি রেকর্ড দেখানো হচ্ছে (সর্বোচ্চ ৩০০টি)। গোপন Password / OTP / Token / Hash কলাম আড়াল রাখা হয়েছে।';
+    if(status)status.textContent=label+' — মূল শিট: '+sheet+' — '+((r.rows||[]).length)+'টি রেকর্ড (সর্বোচ্চ ৩০০টি)।';
   }catch(e){
     if(body)body.innerHTML='';
     if(status)status.textContent='শিট ডাটা লোড করা যায়নি।';
@@ -2249,9 +2261,9 @@ async function fillSheets(){
   var select=$('sheetSelect');
   if(!select)return;
   if(!isSheetSuperAdmin2026()){select.innerHTML='<option value="">শুধু Super Admin</option>';return;}
-  select.innerHTML='<option value="">শিট নির্বাচন করুন — মোট ২৮টি</option>'+JB_SHEET_LIST_28_2026.map(function(item){return '<option value="'+item[0]+'">'+item[0]+' — '+item[1]+'</option>';}).join('');
+  select.innerHTML='<option value="">২৮টি সংকেতের একটি নির্বাচন করুন</option>'+JB_SIGNAL_SHEET_LIST_28_2026.map(function(item){return '<option value="'+item[2]+'" data-sheet="'+item[3]+'">'+item[0]+' — '+item[1]+'</option>';}).join('');
   var status=$('sheetStatus');
-  if(status)status.textContent='২৮টি মূল শিটের তালিকা প্রস্তুত। ছাত্র, শিক্ষক, পেমেন্ট, অ্যাডমিন ও মাদ্রাসার তথ্য বিদ্যমান মূল শিট থেকেই পড়া হবে; কোনো SIG_ mirror sheet তৈরি বা ব্যবহার করা হবে না।';
+  if(status)status.textContent='একটি ড্রপডাউনে ২৮টি সংকেত। নির্বাচন করলে সংশ্লিষ্ট বিদ্যমান মূল শিটের তথ্য নিচে দেখা যাবে; কোনো SIG_ কপি শিট তৈরি হবে না।';
 }
 async function sendQuick(){
   const data={name:$('qName').value.trim(),mobile:$('qMobile').value.trim(),email:$('qEmail').value.trim(),message:$('qMsg').value.trim()};
