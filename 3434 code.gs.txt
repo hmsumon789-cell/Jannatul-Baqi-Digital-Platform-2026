@@ -161,6 +161,7 @@ function getMainWebAppUrl() {
 function setupSystem() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   Object.keys(SHEETS).forEach(k => ensureSheet_(ss, SHEETS[k], HEADERS[SHEETS[k]] || ['Value']));
+  ensureSignalServiceSheets_(ss);
   seedConfig_(ss);
   seedAdmin_(ss);
   seedPeople_(ss);
@@ -1889,9 +1890,10 @@ function getSheetData(token,sheetName,limit) {
   auth_(token);
   if(!isSuperAdmin_(token)) return {ok:false,message:'মূল Google Sheet-এর তথ্য দেখার অনুমতি শুধু Super Admin-এর।'};
   const allowedSheets=Object.keys(SHEETS).map(function(k){return SHEETS[k];});
-  if(allowedSheets.indexOf(sheetName)<0)return {ok:false,message:'অজানা Sheet নির্বাচন করা হয়েছে।'};
+  const isSignalSheet=getSignals_().some(function(item){return signalServiceSheetName_(item[0])===sheetName;});
+  if(allowedSheets.indexOf(sheetName)<0&&!isSignalSheet)return {ok:false,message:'অজানা Sheet নির্বাচন করা হয়েছে।'};
   const rows=listRows_(sheetName,token,limit||1000).map(function(r){delete r.Password;delete r.PasswordHash;delete r.password;delete r.passwordHash;return r;});
-  const headers=(HEADERS[sheetName]||[]).filter(function(h){return !/^(password|passwordhash)$/i.test(String(h));});
+  const headers=(isSignalSheet?signalServiceHeaders_():(HEADERS[sheetName]||[])).filter(function(h){return !/^(password|passwordhash)$/i.test(String(h));});
   return {ok:true,headers:headers,rows:rows};
 }
 
@@ -1937,6 +1939,21 @@ function getPublicConfig() {
 }
 
 /* ---------- helpers ---------- */
+
+function signalServiceHeaders_(){return ['Serial','RecordID','SignalCode','ServiceName','PersonID','Name','Mobile','Email','RecordType','SourceSheet','SourceID','Data','HTML','PdfUrl','Status','CreatedAt','UpdatedAt'];}
+function signalServiceSheetName_(code){return 'SIG_'+String(code||'').trim().toUpperCase();}
+function ensureSignalServiceSheets_(ss){
+  const book=ss||SpreadsheetApp.getActiveSpreadsheet();
+  getSignals_().forEach(function(item){ensureSheet_(book,signalServiceSheetName_(item[0]),signalServiceHeaders_());});
+}
+function appendSignalServiceRecord_(code,record){
+  const ss=SpreadsheetApp.getActiveSpreadsheet(),name=signalServiceSheetName_(code),sh=ensureSheet_(ss,name,signalServiceHeaders_()),d=record||{};
+  sh.appendRow([nextSerial_(sh),d.RecordID||'',String(code||'').toUpperCase(),d.ServiceName||'',d.PersonID||'',d.Name||'',d.Mobile||'',d.Email||'',d.RecordType||'ONLINE_SERVICE',d.SourceSheet||'ONLINE_SERVICES',d.SourceID||'',d.Data||'',d.HTML||'',d.PdfUrl||'',d.Status||'ACTIVE',d.CreatedAt||now_(),now_()]);
+}
+function onlineServiceSignalCode_(key){
+  const map={marks:'mrs',result:'rjt',id_cards:'idc',admit_cards:'adc',certificates:'cft',receipts:'rct',teacher_id:'ti',admission_form:'af',leave_form:'lf',exam_routine:'er',tc:'tc',attestation:'ap',lifetime_member_form:'lm',lifetime_member_certificate:'lc',teacher_recruitment_form:'tr',teacher_appointment:'ta',executive_form:'ef',executive_id:'ei'};
+  return map[String(key||'').trim()]||'';
+}
 
 function ensureSheet_(ss,name,headers) {
   let sh=ss.getSheetByName(name);
@@ -2518,6 +2535,8 @@ function saveOnlineServiceRecord(token,docKey,personId,data,html) {
     data.NameBN||data.NameEN||'',title,data.IssueDate||data.Date||now_(),
     pdf.fileId||'',pdf.url||'',JSON.stringify(data),clean,'ACTIVE',now_()];
   sh.appendRow(row);
+  const signalCode=onlineServiceSignalCode_(key);
+  if(signalCode) appendSignalServiceRecord_(signalCode,{RecordID:serviceId,ServiceName:title,PersonID:pid,Name:data.NameBN||data.NameEN||'',Mobile:data.Mobile||'',Email:data.Email||'',RecordType:'ONLINE_SERVICE',SourceSheet:SHEETS.ONLINE_SERVICES,SourceID:serviceId,Data:JSON.stringify(data),HTML:clean,PdfUrl:pdf.url||'',Status:'ACTIVE'});
   return {ok:true,serviceId,serviceCode:onlineServiceCode_(key),personId:pid,pdfUrl:pdf.url||'',pdfFileId:pdf.fileId||'',
     publicUrl:(getMainWebAppUrl().url||'')+'?online=1&code='+encodeURIComponent(onlineServiceCode_(key))+'&id='+encodeURIComponent(pid),
     message:pdf.url?'অনলাইন সেবা + PDF সংরক্ষণ হয়েছে।':'অনলাইন সেবা সংরক্ষণ হয়েছে; PDF লিংক তৈরি হয়নি, প্রিন্ট থেকে PDF নেওয়া যাবে।'};
@@ -2580,6 +2599,8 @@ function getOnlineServicePublic_(code,personId) {
         const out=[nextSerial_(sh),serviceId,c,docKey,pid,fields.NameBN||fields.NameEN||'',title,fields.IssueDate||fields.Date||now_(),pdfFileId,pdfUrl,JSON.stringify(fields),html,'ACTIVE',now_()];
         sh.appendRow(out);
       }
+      const signalCode=onlineServiceSignalCode_(docKey);
+      if(signalCode) appendSignalServiceRecord_(signalCode,{RecordID:serviceId,ServiceName:title,PersonID:pid,Name:fields.NameBN||fields.NameEN||'',Mobile:fields.Mobile||'',Email:fields.Email||'',RecordType:'AUTO_DOCUMENT',SourceSheet:'DOCUMENT_BUILDER_HISTORY',SourceID:String(vals[i][ii>=0?ii:0]||''),Data:JSON.stringify(fields),HTML:html,PdfUrl:pdfUrl,Status:'ACTIVE'});
       return {ok:true,serviceId:serviceId,serviceCode:c,personId:pid,title:title,html:html,pdfUrl:pdfUrl,message:pdfUrl?'স্বয়ংক্রিয় নথি পাওয়া গেছে; প্রিন্ট ও PDF ডাউনলোড করতে পারবেন।':'স্বয়ংক্রিয় নথি পাওয়া গেছে; প্রিন্ট থেকে PDF সংরক্ষণ করুন।',autoGenerated:true};
     }
   }
