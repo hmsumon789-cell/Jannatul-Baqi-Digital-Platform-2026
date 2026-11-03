@@ -80,9 +80,39 @@ function getMainWebAppUrl() {
   }
 }
 
+function ensureSignalSheet2026_(ss) {
+  const sheetName = '২৮ সংকেতের শিট';
+  let sh = ss.getSheetByName(sheetName);
+  const isNew = !sh;
+  if (!sh) sh = ss.insertSheet(sheetName);
+  sh.setIndex(2);
+
+  const signalCodes = [
+    'STD','THR','OLP','MRS','RJT','ADM','NPN','NPT','NMT','OFD',
+    'CFT','IDC','ADC','RCT','TCP','SJS','TID','AFM','LAF','EXR',
+    'TCC','APC','LMF','LMC','TRA','TAP','EXF','EID'
+  ];
+
+  if (isNew) {
+    sh.getRange('A1').setValue('২৮ সংকেতের শিট');
+    sh.getRange('A2').setValue('সংকেত নির্বাচন করুন');
+    sh.getRange('A1:B1').setFontWeight('bold');
+    sh.getRange('A2').setFontWeight('bold');
+    sh.setFrozenRows(2);
+    sh.setColumnWidth(1, 220);
+    sh.setColumnWidth(2, 220);
+  }
+
+  const validation = SpreadsheetApp.newDataValidation()
+    .requireValueInList(signalCodes, true)
+    .setAllowInvalid(false)
+    .build();
+  sh.getRange('B2').setDataValidation(validation);
+}
 function setupSystem() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   Object.keys(SHEETS).forEach(k => ensureSheet_(ss, SHEETS[k], HEADERS[SHEETS[k]] || ['Value']));
+  ensureSignalSheet2026_(ss);
   seedConfig_(ss);
   seedAdmin_(ss);
   seedPeople_(ss);
