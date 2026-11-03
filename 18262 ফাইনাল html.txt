@@ -666,7 +666,7 @@ body.gold #formWin .signature-box{border-radius:0!important;}
 }
 #formWin .form-grid{
   display:grid!important;
-  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
   gap:9px!important;
   align-items:start!important;
 }
@@ -8252,7 +8252,7 @@ body.gold #headerCalendarWindow .hc-weekday{background:#f4d56b;color:#111;border
 }
 #searchProfilePrint .sp-data{
   display:grid!important;
-  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
   gap:6px!important;
   margin-top:8px!important;
 }
@@ -8716,7 +8716,7 @@ body.dark #searchProfilePrint .sp-bottom-actions button{
 #searchProfilePrint .sp-photo-wrap{display:none!important}
 #searchProfilePrint .sp-data{
   display:grid!important;
-  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
   gap:4px!important;
   margin:0!important;
 }
@@ -9168,7 +9168,7 @@ body.gold #searchProfilePrint .sp-field{border-color:#d40000!important}
 }
 </style>
 <style id="final-8089-fixes">
-.student-meta-row-2026{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;width:100%!important;margin:0 0 10px!important;padding:0!important;box-sizing:border-box!important}
+.student-meta-row-2026{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important;width:100%!important;margin:0 0 10px!important;padding:0!important;box-sizing:border-box!important}
 .student-meta-row-2026 label{display:flex!important;flex-direction:column!important;gap:4px!important;font-weight:900!important}
 .student-meta-row-2026 .field{width:100%!important;min-height:42px!important}
 @media(max-width:700px){.student-meta-row-2026{grid-template-columns:1fr!important}}
@@ -13136,7 +13136,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   function arrange(){
     var lp=document.getElementById('loginPage'),
         panel=lp&&lp.querySelector('.login'),
-        p=document.getElementById('jbLoginOnlinePayment2026'),
+        p=document.getElementById('jbLoginOnlinePayment2026');
     if(!lp||!p)return;
     panel=panel||lp;
     var row=document.getElementById('jbLoginServicePaymentRow2026');
