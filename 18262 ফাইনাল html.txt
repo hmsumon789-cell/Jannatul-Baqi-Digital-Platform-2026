@@ -13102,7 +13102,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 <style id="jb-login-service-payment-row-2026">
 #loginPage .login .jb-login-service-payment-row-2026{
   display:grid!important;
-  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
   gap:12px!important;
   width:100%!important;
   max-width:none!important;
@@ -13123,7 +13123,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 }
 @media(max-width:700px){
   #loginPage .login .jb-login-service-payment-row-2026{
-    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
     gap:8px!important;
     width:100%!important;
     max-width:none!important;
@@ -13136,8 +13136,9 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   function arrange(){
     var lp=document.getElementById('loginPage'),
         panel=lp&&lp.querySelector('.login'),
-        p=document.getElementById('jbLoginOnlinePayment2026');
-    if(!lp||!p)return;
+        p=document.getElementById('jbLoginOnlinePayment2026'),
+        service=document.getElementById('jbLoginOnlineService2026');
+    if(!lp||!p||!service)return;
     panel=panel||lp;
     var row=document.getElementById('jbLoginServicePaymentRow2026');
     if(!row){
@@ -13162,8 +13163,9 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       });
     }
     if(row.parentNode!==panel)panel.appendChild(row);
-    if(p.parentNode!==row)row.appendChild(p);
     if(r.parentNode!==row)row.appendChild(r);
+    if(p.parentNode!==row)row.appendChild(p);
+    if(service.parentNode!==row)row.appendChild(service);
     row.style.position='relative';
     row.style.left='auto';
     row.style.right='auto';
@@ -13382,8 +13384,12 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 <!-- ===== FINAL SAFE UI POLISH — LOGIN 3x2 + ONLINE SERVICE + ICON ACTIONS — 2026-10-08 ===== -->
 <style id="jb-final-safe-ui-polish-2026-10-08">
 #loginPage .quick{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:8px!important}
-#loginPage .quick button{font-weight:900!important;min-width:0!important;white-space:normal!important;line-height:1.25!important;padding:10px 6px!important}
-@media(max-width:700px){#loginPage .quick{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:5px!important}#loginPage .quick button{font-size:11px!important;min-height:58px!important;padding:7px 3px!important}}
+#loginPage .quick button{font-weight:900!important;min-width:0!important;white-space:normal!important;line-height:1.25!important;padding:20px 6px!important;border:2px solid #222!important;box-shadow:0 5px 12px #0003!important}
+#loginPage .quick button:nth-child(1){background:linear-gradient(135deg,#0d47a1,#42a5f5)!important;color:#fff!important}
+#loginPage .quick button:nth-child(2){background:linear-gradient(135deg,#6a1b9a,#ba68c8)!important;color:#fff!important}
+#loginPage .quick button:nth-child(3){background:linear-gradient(135deg,#00695c,#4db6ac)!important;color:#fff!important}
+#loginPage .quick button:nth-child(4){background:linear-gradient(135deg,#ad1457,#f06292)!important;color:#fff!important}
+@media(max-width:700px){#loginPage .quick{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:5px!important}#loginPage .quick button{font-size:11px!important;min-height:78px!important;padding:17px 3px!important}}
 #loginPage .quick button{min-width:0!important}
 #jbLoginOnlineService2026{display:block!important;width:min(820px,92vw)!important;margin:10px auto 0!important;min-height:54px!important;padding:11px 18px!important}
 #jbDocBuilderWin .jb-doc-preview > .jb-doc-actions{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;grid-template-rows:repeat(2,auto)!important;align-items:center!important;justify-items:center!important;gap:3px!important;width:calc(100% - 40px)!important;overflow:hidden!important;margin:5px auto!important}
