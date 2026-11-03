@@ -18034,8 +18034,7 @@ function institutionDocumentaryToggle2026(){
 }
 /* Remove the four requested buttons from the login page quick-action row only. */
 #loginPage .quick > button[onclick="openModule('payment')"],
-#loginPage .quick > button[onclick="openOnlineExamResult2026()"],
-#loginPage .quick > button[onclick="openModule('admin')"]{
+#loginPage .quick > button[onclick="openOnlineExamResult2026()"]{
   display:none!important;
 }
 </style>
