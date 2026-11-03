@@ -1572,7 +1572,7 @@ body.gold #loginContactStrip20261013{background:#fff9e7!important;color:#4a3300!
 <div id="resetWin" class="window"><div class="win-head"><b>Password Reset</b><button class="secondary" onclick="closeWindow('resetWin')">✕</button></div><div class="win-body"><p>ইউজার নেম দিন এবং OTP পুনরায় পাঠান। নতুন পাসওয়ার্ড পরিবর্তনের জন্য প্রশাসনিক অনুমোদন প্রয়োজন।</p><input id="resetUser" class="field" placeholder="Username"><button class="primary" onclick="resetOtp()">OTP পাঠান</button></div></div>
 <div id="examDashboardWin" class="window" style="display:none"><div class="windowHead"><b>📝 পরীক্ষা ড্যাশবোর্ড</b><button onclick="document.getElementById('examDashboardWin').style.display='none';document.getElementById('examDashboardWin').classList.remove('show')">✕</button></div><div class="windowBody"><div class="jb-exam-grid"><div class="jb-exam-card"><h3>পরীক্ষা</h3><div id="examStatTotal">০</div></div><div class="jb-exam-card"><h3>প্রকাশিত ফলাফল</h3><div id="examStatPublished">০</div></div><div class="jb-exam-card"><h3>ড্রাফট</h3><div id="examStatDraft">০</div></div></div><div class="jb-exam-actions"><button onclick="openExamManager()">➕ পরীক্ষা তৈরি/ব্যবস্থাপনা</button><button onclick="examComing('📄 প্রশ্নপত্র')">📄 প্রশ্নপত্র</button><button onclick="examComing('📅 পরীক্ষার রুটিন')">📅 পরীক্ষার রুটিন</button><button onclick="examComing('👩‍🎓 পরীক্ষার্থী')">👩‍🎓 পরীক্ষার্থী</button><button onclick="examComing('📝 ফলাফল তৈরি')">📝 ফলাফল তৈরি</button><button onclick="examComing('🏆 ফলাফল ও মেধাক্রম')">🏆 ফলাফল ও মেধাক্রম</button><button onclick="examComing('📱 অনলাইন ফলাফল')">📱 অনলাইন ফলাফল</button><button onclick="examComing('🎫 Admit Card / Seat Plan')">🎫 Admit Card / Seat Plan</button><button onclick="examComing('🖨️ মার্কশিট / রিপোর্ট')">🖨️ মার্কশিট / রিপোর্ট</button></div></div></div>
 <div id="examManagerWin" class="window" style="display:none"><div class="windowHead"><b>➕ পরীক্ষা তৈরি/ব্যবস্থাপনা</b><button onclick="closeWindow('examManagerWin')">✕</button></div><div class="windowBody"><div class="jb-exam-form"><input id="examName" placeholder="পরীক্ষার নাম"><input id="examYear" placeholder="শিক্ষাবর্ষ" value="2026"><select id="examType"><option>সাময়িক পরীক্ষা</option><option>অর্ধবার্ষিক পরীক্ষা</option><option>বার্ষিক পরীক্ষা</option><option>মডেল টেস্ট</option><option>বোর্ড/কেন্দ্রীয় পরীক্ষা</option></select><select id="examStatus"><option value="draft">ড্রাফট</option><option value="published">প্রকাশিত</option></select><label>শুরু <input id="examStart" type="date"></label><label>শেষ <input id="examEnd" type="date"></label><textarea id="examNote" placeholder="নির্দেশনা/নোট"></textarea></div><div style="margin-top:10px"><button onclick="saveExamDraft()">💾 সংরক্ষণ</button> <button onclick="clearExamForm()">♻️ পরিষ্কার</button></div><div id="examList" class="jb-exam-list"></div></div></div>
-<div id="jbQuestionPaperWin2026" class="window" style="display:none"><div class="windowHead"><b>📄 প্রশ্নপত্র তৈরি</b><button type="button" onclick="closeWindow('jbQuestionPaperWin2026');document.getElementById('jbQuestionPaperWin2026').style.display='none'">✕</button></div><div class="windowBody"><div class="jb-qp-form"><input id="jbQpExam" placeholder="পরীক্ষার নাম"><select id="jbQpClass"><option value="">শ্রেণি/জামাত নির্বাচন</option><option>প্লে শ্রেনি</option><option>শিশু শ্রেনি</option><option>আউয়াল জামাত</option><option>ছানী জামাত</option><option>ছালেছ জামাত</option><option>রাবে জামাত</option><option>পঞ্চম জামাত</option><option>মিজান জামাত</option><option>নাহবেমীর জামাত</option><option>কুদুরী জামাত</option><option>শরহে বেকায়া জামাত</option><option>হেদায়া জামাত</option><option>মিশকাত জামাত</option><option>দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)</option></select><input id="jbQpSubject" placeholder="বিষয়ের নাম"><input id="jbQpDate" type="date"><input id="jbQpMarks" type="number" min="1" placeholder="পূর্ণমান"><input id="jbQpTime" placeholder="সময় (যেমন: ৩ ঘণ্টা)"></div><textarea id="jbQpQuestions" placeholder="প্রশ্ন লিখুন — প্রতিটি প্রশ্ন নতুন লাইনে"></textarea><div class="jb-qp-actions"><button class="primary" onclick="jbQpPreview()">👁️ প্রশ্নপত্র তৈরি</button><button class="secondary" onclick="jbQpPrint()">🖨️ প্রিন্ট</button><button class="secondary" onclick="jbQpClear()">♻️ পরিষ্কার</button></div><div id="jbQpPreview" class="jb-qp-preview"><div style="text-align:center">প্রশ্নপত্রের পূর্বরূপ এখানে দেখা যাবে</div></div></div></div><div id="sheetWin" class="window"><div class="win-head"><b>শিট ডাটা</b><button class="secondary" onclick="closeWindow('sheetWin')">✕</button></div><div class="win-body"><select id="sheetSelect" class="field" onchange="loadSheet()"></select><div id="sheetBody"></div></div></div>
+<div id="jbQuestionPaperWin2026" class="window" style="display:none"><div class="windowHead"><b>📄 প্রশ্নপত্র তৈরি</b><button type="button" onclick="closeWindow('jbQuestionPaperWin2026');document.getElementById('jbQuestionPaperWin2026').style.display='none'">✕</button></div><div class="windowBody"><div class="jb-qp-form"><input id="jbQpExam" placeholder="পরীক্ষার নাম"><select id="jbQpClass"><option value="">শ্রেণি/জামাত নির্বাচন</option><option>প্লে শ্রেনি</option><option>শিশু শ্রেনি</option><option>আউয়াল জামাত</option><option>ছানী জামাত</option><option>ছালেছ জামাত</option><option>রাবে জামাত</option><option>পঞ্চম জামাত</option><option>মিজান জামাত</option><option>নাহবেমীর জামাত</option><option>কুদুরী জামাত</option><option>শরহে বেকায়া জামাত</option><option>হেদায়া জামাত</option><option>মিশকাত জামাত</option><option>দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)</option></select><input id="jbQpSubject" placeholder="বিষয়ের নাম"><input id="jbQpDate" type="date"><input id="jbQpMarks" type="number" min="1" placeholder="পূর্ণমান"><input id="jbQpTime" placeholder="সময় (যেমন: ৩ ঘণ্টা)"></div><textarea id="jbQpQuestions" placeholder="প্রশ্ন লিখুন — প্রতিটি প্রশ্ন নতুন লাইনে"></textarea><div class="jb-qp-actions"><button class="primary" onclick="jbQpPreview()">👁️ প্রশ্নপত্র তৈরি</button><button class="secondary" onclick="jbQpPrint()">🖨️ প্রিন্ট</button><button class="secondary" onclick="jbQpClear()">♻️ পরিষ্কার</button></div><div id="jbQpPreview" class="jb-qp-preview"><div style="text-align:center">প্রশ্নপত্রের পূর্বরূপ এখানে দেখা যাবে</div></div></div></div><div id="sheetWin" class="window" style="width:min(1450px,98vw)"><div class="win-head"><b>📊 Super Admin — ২৮টি মূল শিটের ডাটা</b><button class="secondary" type="button" onclick="closeWindow('sheetWin')">✕</button></div><div class="win-body"><div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center"><select id="sheetSelect" class="field" onchange="loadSheet()"><option value="">শিট নির্বাচন করুন</option></select><button class="secondary" type="button" onclick="loadSheet()">↻ রিফ্রেশ</button></div><div id="sheetStatus" class="small" role="status" style="margin:8px 0;font-weight:800">শুধু Super Admin-এর জন্য। শিট নির্বাচন করলে মূল শিটের তথ্য নিচে টেবিলে দেখা যাবে।</div><div id="sheetBody" class="table-wrap"></div></div></div>
 <div id="toast" class="toast"></div>
 
 <script>
@@ -2187,8 +2187,72 @@ async function deleteMediaByIndex(i){if(!media[i])return;const r=await call('del
 async function fileData(id){const f=$(id)?.files?.[0];return f?await readFile(f):''}function readFile(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f)})}
 async function doSearch(where){const sig=$(where==='login'?'loginSignal':'appSignal').value,q=$(where==='login'?'loginSearch':'appSearch').value.trim();if(!sig)return toast('প্রথমে সংকেত নির্বাচন করুন।');if(!q)return toast('ID / মোবাইল / ইমেইল দিন।');const r=await call('searchAll',token,sig,q);if(!r.ok)return toast(r.message);$('searchBody').innerHTML=`<h3>${r.signal} / ${r.query} — ${r.count} ফলাফল</h3>`+table(r.matches);openWindow('searchWin')}
 function table(rows){if(!rows.length)return '<p>কোন তথ্য পাওয়া যায়নি।</p>';const h=Object.keys(rows[0]);return '<div class="table-wrap"><table class="data-table"><thead><tr>'+h.map(x=>`<th>${x}</th>`).join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+h.map(x=>`<td>${String(r[x]??'')}</td>`).join('')+'</tr>').join('')+'</tbody></table></div>'}
-async function loadSheet(){var u=window.currentUser||{};var role=String(u.Role||u.role||'').toUpperCase().replace(/\s+/g,'_');if(role!=='SUPER_ADMIN'&&role!=='SUPERADMIN'){closeWindow('sheetWin');return toast('শুধু Super Admin মূল শিটে প্রবেশ করতে পারবেন।')}const s=$('sheetSelect').value;if(!s)return;const r=await call('getSheetData',token,s,300);if(!r||!r.ok)return toast((r&&r.message)||'শিট ডাটা পাওয়া যায়নি।');$('sheetBody').innerHTML=table(r.rows)}
-async function fillSheets(){const r=await call('getPublicConfig');$('sheetSelect').innerHTML=['ADMINS','STUDENTS','TEACHERS','DONORS','PAYMENTS','EXPENSES','RESULTS','ATTENDANCE','NOTICES','MEDIA','FILES','MADRASAS'].map(s=>`<option>${s}</option>`).join('')}
+const JB_SHEET_LIST_28_2026=[
+  ['ADMINS','অ্যাডমিন'],['STUDENTS','ছাত্র/ছাত্রী'],['TEACHERS','শিক্ষক/শিক্ষিকা'],['DONORS','দাতা'],
+  ['ADMISSIONS','ভর্তি'],['EXAM_REG','পরীক্ষার্থী নিবন্ধন'],['PAYMENTS','পেমেন্ট'],['EXPENSES','ব্যয়'],
+  ['INCOME','আয়'],['RESULTS','ফলাফল'],['NOTICES','নোটিশ'],['ATTENDANCE','উপস্থিতি'],
+  ['MEDIA','মিডিয়া'],['FILES','ফাইল'],['SMS_QUEUE','SMS Queue'],['CONTACTS','যোগাযোগ'],
+  ['AUDIT','কার্যক্রম লগ'],['EXECUTIVES','নির্বাহী'],['ADVISERS','উপদেষ্টা'],['FOUNDERS','প্রতিষ্ঠাতা'],
+  ['LOCATION_MASTER','অবস্থান ডাটাবেজ'],['MADRASAS','মাদ্রাসা'],['SALARY','বেতন'],['CERTIFICATES','সনদ'],
+  ['ID_CARDS','আইডি কার্ড'],['ADMIT_CARDS','প্রবেশপত্র'],['RECEIPTS','রসিদ'],['ONLINE_SERVICES','অনলাইন সেবা']
+];
+function isSheetSuperAdmin2026(){
+  var u=window.currentUser||currentUser||{};
+  var role=String(u.Role||u.role||'').toUpperCase().replace(/\s+/g,'_');
+  return role==='SUPER_ADMIN'||role==='SUPERADMIN'||String(u.Username||u.username||'').toLowerCase()==='superadmin';
+}
+function escapeSheetCell2026(v){
+  return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]});
+}
+function isSensitiveSheetField2026(k){
+  return /(password|passcode|otp|token|hash|secret|api.?key|authorization|credential|session)/i.test(String(k||''));
+}
+function renderSafeSheetTable2026(result){
+  var rows=Array.isArray(result&&result.rows)?result.rows:[];
+  var headers=Array.isArray(result&&result.headers)?result.headers.slice():[];
+  rows.forEach(function(row){Object.keys(row||{}).forEach(function(k){if(headers.indexOf(k)<0)headers.push(k);});});
+  headers=headers.filter(function(k){return !isSensitiveSheetField2026(k);});
+  var out=document.getElementById('sheetBody');
+  if(!out)return;
+  if(!headers.length){out.innerHTML='<p>এই শিটে প্রদর্শনের মতো কোনো কলাম নেই।</p>';return;}
+  var html='<div class="table-wrap"><table class="data-table"><thead><tr>'+headers.map(function(k){return '<th>'+escapeSheetCell2026(k)+'</th>';}).join('')+'</tr></thead><tbody>';
+  if(!rows.length)html+='<tr><td colspan="'+headers.length+'">এই শিটে এখনো কোনো রেকর্ড নেই।</td></tr>';
+  rows.forEach(function(row){
+    html+='<tr>'+headers.map(function(k){
+      var value=row&&row[k]!==undefined?row[k]:'';
+      var full=String(value==null?'':value);
+      var shown=full.length>240?full.slice(0,240)+'…':full;
+      return '<td title="'+escapeSheetCell2026(full)+'">'+escapeSheetCell2026(shown)+'</td>';
+    }).join('')+'</tr>';
+  });
+  html+='</tbody></table></div>';
+  out.innerHTML=html;
+}
+async function loadSheet(){
+  if(!isSheetSuperAdmin2026()){closeWindow('sheetWin');return toast('শুধু Super Admin মূল শিটের তথ্য দেখতে পারবেন।');}
+  var select=$('sheetSelect'),name=select&&select.value,status=$('sheetStatus'),body=$('sheetBody');
+  if(!name){if(body)body.innerHTML='';if(status)status.textContent='শিট নির্বাচন করুন।';return;}
+  if(status)status.textContent=name+' — মূল শিট থেকে তথ্য লোড হচ্ছে…';
+  if(body)body.innerHTML='<p>তথ্য লোড হচ্ছে…</p>';
+  try{
+    var r=await call('getSheetData',token,name,300);
+    if(!r||!r.ok){if(body)body.innerHTML='';if(status)status.textContent=(r&&r.message)||'শিট ডাটা পাওয়া যায়নি।';return toast((r&&r.message)||'শিট ডাটা পাওয়া যায়নি।');}
+    renderSafeSheetTable2026(r);
+    if(status)status.textContent=name+' — মোট '+((r.rows||[]).length)+'টি রেকর্ড দেখানো হচ্ছে (সর্বোচ্চ ৩০০টি)। গোপন Password / OTP / Token / Hash কলাম আড়াল রাখা হয়েছে।';
+  }catch(e){
+    if(body)body.innerHTML='';
+    if(status)status.textContent='শিট ডাটা লোড করা যায়নি।';
+    toast('শিট ডাটা লোড ত্রুটি: '+String(e&&e.message||e));
+  }
+}
+async function fillSheets(){
+  var select=$('sheetSelect');
+  if(!select)return;
+  if(!isSheetSuperAdmin2026()){select.innerHTML='<option value="">শুধু Super Admin</option>';return;}
+  select.innerHTML='<option value="">শিট নির্বাচন করুন — মোট ২৮টি</option>'+JB_SHEET_LIST_28_2026.map(function(item){return '<option value="'+item[0]+'">'+item[0]+' — '+item[1]+'</option>';}).join('');
+  var status=$('sheetStatus');
+  if(status)status.textContent='২৮টি মূল শিটের তালিকা প্রস্তুত। ছাত্র, শিক্ষক, পেমেন্ট, অ্যাডমিন ও মাদ্রাসার তথ্য বিদ্যমান মূল শিট থেকেই পড়া হবে; কোনো SIG_ mirror sheet তৈরি বা ব্যবহার করা হবে না।';
+}
 async function sendQuick(){
   const data={name:$('qName').value.trim(),mobile:$('qMobile').value.trim(),email:$('qEmail').value.trim(),message:$('qMsg').value.trim()};
   if(!data.message)return toast('মেসেজ লিখুন।');
