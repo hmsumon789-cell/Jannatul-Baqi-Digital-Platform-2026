@@ -1332,7 +1332,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       <select id="loginSignal" class="field" onchange="syncSearchSignal('login')"><option value="">সংকেত নির্বাচন করুন</option></select><input id="loginSearch" class="field" placeholder="সংকেত নির্বাচন করে ID / মোবাইল / ইমেইল লিখুন" onkeydown="if(event.key==='Enter')doSearch('login')"><button class="primary" onclick="doSearch('login')">🔎</button>
     </div>
     <div class="quick">
-      <button type="button" class="primary" onclick="openModule('admission')">📝 অনলাইন ভর্তি ফর্ম</button><button onclick="openModule('payment')">অনলাইন পেমেন্ট</button><button onclick="openModule('exam')">পরীক্ষার্থী নিবন্ধন</button><button onclick="openModule('admin')">নতুন মাদ্রাসা নিবন্ধন</button><button onclick="openModule('madrasa')">নতুন অ্যাডমিন নিবন্ধন</button></div>
+      <button type="button" class="primary" onclick="openModule('admission')">📝 অনলাইন ভর্তি ফর্ম</button><button type="button" onclick="openModule('exam')">পরীক্ষার্থী নিবন্ধন</button><button type="button" onclick="openModule('madrasa')">নতুন মাদ্রাসা নিবন্ধন</button><button type="button" onclick="openModule('admin')">নতুন অ্যাডমিন নিবন্ধন</button></div>
     <section id="loginContactStrip20261013" aria-label="মাদ্রাসার যোগাযোগ">
   
   <div class="lc-layout">
@@ -5963,13 +5963,12 @@ body #app .header-news *{
   };
   function bind(){
     var q=document.querySelectorAll('#loginPage .quick button');
-    /* Keep handlers aligned with the five login-page quick buttons. */
+    /* Keep handlers aligned with the four login-page quick buttons. */
     var handlers=[
       function(){if(typeof window.openAdmissionPanel2026==='function')window.openAdmissionPanel2026();else openPublicFeature('admission');},
-      function(){openPublicFeature('payment');},
       function(){openPublicFeature('exam');},
-      function(){openPublicFeature('admin');},
-      function(){openPublicFeature('madrasa');}
+      function(){openPublicFeature('madrasa');},
+      function(){openPublicFeature('admin');}
     ];
     q.forEach(function(b,i){
       b.setAttribute('type','button');
@@ -13047,48 +13046,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 </style>
 <!-- ===== END MOBILE + ONLINE EXAM RESULT VIEWER — 2026-10-08 ===== -->
 
-<!-- ===== LOGIN-FREE ONLINE PAYMENT ENTRY — 2026-10-08 ===== -->
-<style id="jb-login-online-payment-2026">
-#jbLoginOnlinePayment2026{
-  display:block!important;width:min(820px,92vw)!important;margin:10px auto 0!important;
-  min-height:54px!important;padding:11px 18px!important;border:3px solid #8b5e00!important;
-  border-radius:999px!important;background:linear-gradient(135deg,#8b5e00,#d4af37)!important;
-  color:#111!important;font-weight:900!important;font-size:17px!important;cursor:pointer!important;
-  box-shadow:0 7px 18px #0003!important;
-}
-</style>
-<script id="jb-login-online-payment-2026-js">
-(function(){
-  function add(){
-    var lp=document.getElementById('loginPage');
-    if(!lp||document.getElementById('jbLoginOnlinePayment2026'))return;
-    var b=document.createElement('button');
-    b.id='jbLoginOnlinePayment2026';b.type='button';
-    b.textContent='💳 অনলাইন পেমেন্ট করুন ঝামেলাহিন';
-    b.onclick=function(){
-      var w=window.open('about:blank','_blank');
-      if(!w){alert('নতুন পেমেন্ট উইন্ডো খোলা যাচ্ছে না। Browser popup অনুমতি দিন।');return;}
-      try{
-        if(typeof google!=='undefined'&&google.script&&google.script.run){
-          google.script.run.withSuccessHandler(function(r){
-            var u=String(r&&r.ok&&r.url?r.url:location.href).split('#')[0].split('?')[0];
-            w.location.href=u+'?payment=1';
-          }).withFailureHandler(function(){
-            w.location.href=location.href.split('#')[0].split('?')[0]+'?payment=1';
-          }).getMainWebAppUrl();
-        }else{
-          w.location.href=location.href.split('#')[0].split('?')[0]+'?payment=1';
-        }
-      }catch(e){w.location.href=location.href.split('#')[0].split('?')[0]+'?payment=1';}
-    };
-    var q=lp.querySelector('.quick');
-    if(q)q.insertAdjacentElement('afterend',b);else lp.appendChild(b);
-  }
-  add();
-  if(document.body)new MutationObserver(add).observe(document.body,{childList:true,subtree:true});
-})();
-</script>
-<!-- ===== END LOGIN-FREE ONLINE PAYMENT ENTRY ===== -->
+
 
 <style id="jb-login-layout-fix-2026-10-08">
 #loginPage{min-height:100vh!important;height:auto!important;overflow-x:hidden!important;overflow-y:auto!important;display:flex!important;align-items:flex-start!important;justify-content:center!important;padding:22px 12px 40px!important}
@@ -13380,7 +13338,9 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 
 <!-- ===== FINAL SAFE UI POLISH — LOGIN 3x2 + ONLINE SERVICE + ICON ACTIONS — 2026-10-08 ===== -->
 <style id="jb-final-safe-ui-polish-2026-10-08">
-#loginPage .quick{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
+#loginPage .quick{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:8px!important}
+#loginPage .quick button{font-weight:900!important;min-width:0!important;white-space:normal!important;line-height:1.25!important;padding:10px 6px!important}
+@media(max-width:700px){#loginPage .quick{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:5px!important}#loginPage .quick button{font-size:11px!important;min-height:58px!important;padding:7px 3px!important}}
 #loginPage .quick button{min-width:0!important}
 #jbLoginOnlineService2026{display:block!important;width:min(820px,92vw)!important;margin:10px auto 0!important;min-height:54px!important;padding:11px 18px!important}
 #jbDocBuilderWin .jb-doc-preview > .jb-doc-actions{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;grid-template-rows:repeat(2,auto)!important;align-items:center!important;justify-items:center!important;gap:3px!important;width:calc(100% - 40px)!important;overflow:hidden!important;margin:5px auto!important}
