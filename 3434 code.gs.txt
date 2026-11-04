@@ -592,9 +592,14 @@ function ensureAccountAppearanceColumns_(){
   [SHEETS.ADMINS,SHEETS.MADRASAS].forEach(function(name){
     const sh=ss.getSheetByName(name); if(!sh)return;
     let headers=sh.getRange(1,1,1,Math.max(sh.getLastColumn(),1)).getValues()[0].map(function(x){return String(x||'').trim();});
-    ['Photo','HeaderPhoto','Wallpaper','HeaderTextColor','NameAR','NameEN','Email','BusinessName','FoundedYear','TradeLicense'].forEach(function(key){
+    ['Photo','HeaderPhoto','Wallpaper','HeaderTextColor','NameAR','NameEN','Email'].forEach(function(key){
       if(headers.indexOf(key)<0){sh.getRange(1,sh.getLastColumn()+1).setValue(key);headers.push(key);}
     });
+    if(name===SHEETS.ADMINS){
+      ['BusinessName','FoundedYear','TradeLicense'].forEach(function(key){
+        if(headers.indexOf(key)<0){sh.getRange(1,sh.getLastColumn()+1).setValue(key);headers.push(key);}
+      });
+    }
   });
 }
 function getOwnAccountReviewStatus(token){
@@ -1871,8 +1876,15 @@ function createAdmin(token,data) {
   const address=String(data.Address||'').trim();
   if(!businessName||!username||!password||!mobile||!address)
     return {ok:false,message:'প্রতিষ্ঠানের নাম, Username, Password, Mobile ও ঠিকানা বাধ্যতামূলক।'};
-  if(findBy_(SHEETS.ADMINS,'Username',username)||findBy_(SHEETS.MADRASAS,'Username',username))
-    return {ok:false,message:'এই Username আগে থেকেই ব্যবহার করা হয়েছে।'};
+  const usernameTaken=[SHEETS.ADMINS,SHEETS.MADRASAS].some(function(sheetName){
+    const sheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
+    if(!sheet||sheet.getLastRow()<2)return false;
+    const values=sheet.getDataRange().getValues(),headers=values[0].map(function(x){return String(x||'').trim();});
+    const col=headers.indexOf('Username');if(col<0)return false;
+    for(let i=1;i<values.length;i++)if(String(values[i][col]||'').trim().toLowerCase()===username)return true;
+    return false;
+  });
+  if(usernameTaken)return {ok:false,message:'এই Username আগে থেকেই ব্যবহার করা হয়েছে।'};
   ensureAccountAppearanceColumns_();
   const ss=SpreadsheetApp.getActiveSpreadsheet();
   const sh=ss.getSheetByName(SHEETS.ADMINS);
