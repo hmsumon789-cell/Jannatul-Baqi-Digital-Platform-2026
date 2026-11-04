@@ -32,7 +32,7 @@ const SHEETS = {
 };
 
 const HEADERS = {
-  ADMINS:['Serial','AdminID','NameBN','NameAR','NameEN','Username','PasswordHash','Email','Mobile','WhatsApp','Address','Photo','BirthReg','NID','ApprovalID','Role','Status','CreatedAt','Password','Permissions','ApprovedBy','ApprovedAt'],
+  ADMINS:['Serial','AdminID','NameBN','NameAR','NameEN','Username','PasswordHash','Email','Mobile','WhatsApp','Address','Photo','BirthReg','NID','ApprovalID','Role','Status','CreatedAt','Password','Permissions','ApprovedBy','ApprovedAt','BusinessName','FoundedYear','TradeLicense','HeaderPhoto','HeaderTextColor','Wallpaper'],
   STUDENTS:['Serial','StudentID','FormID','MobileID','EmailID','NameBN','NameAR','NameEN','FatherBN','FatherAR','FatherEN','MotherBN','MotherAR','MotherEN','DOB','Gender','Class','Department','Branch','Residence','Mobile','WhatsApp','Email','Address','Photo','BirthReg','NID','Documents','CreatedAt','ApprovalStatus','SourceType','SourceAccount','ApprovedBy','ApprovedAt','AcademicYear'],
   TEACHERS:['Serial','TeacherID','NameBN','NameAR','NameEN','FatherBN','FatherAR','FatherEN','Mobile','WhatsApp','Email','Department','Branch','Gender','Address','Photo','BirthReg','NID','Documents','CreatedAt','FormID'],
   DONORS:['Serial','DonorID','NameBN','NameAR','NameEN','Mobile','WhatsApp','Email','Address','Amount','Fund','Photo','CreatedAt'],
@@ -156,6 +156,106 @@ function getMainWebAppUrl() {
   } catch(e) {
     return {ok:false,url:'',message:String(e && e.message ? e.message : e)};
   }
+}
+
+function create28SignalDropdownSheet2026() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheetName = '২৮ সংকেতের শিট';
+  let sh = ss.getSheetByName(sheetName);
+  const isNew = !sh;
+  if (!sh) sh = ss.insertSheet(sheetName);
+
+  const signalCodes = [
+    'STD','THR','OLP','MRS','RJT','ADM','NPN','NPT','NMT','OFD','CFT','IDC',
+    'ADC','RCT','TCP','SJS','TID','AFM','LAF','EXR','TCC','APC','LMF','LMC',
+    'TRA','TAP','EXF','EID'
+  ];
+
+  if (isNew) {
+    sh.getRange('A1').setValue('২৮ সংকেতের শিট');
+    sh.getRange('A2').setValue('সংকেত নির্বাচন করুন');
+    sh.setFrozenRows(2);
+    sh.setColumnWidth(1, 220);
+    sh.setColumnWidth(2, 220);
+  }
+
+  const rule = SpreadsheetApp.newDataValidation()
+    .requireValueInList(signalCodes, true)
+    .setAllowInvalid(false)
+    .build();
+  sh.getRange('B2').setDataValidation(rule);
+  if (isNew) sh.getRange('B2').setValue('STD');
+
+  // Keep this tab in the second position without deleting or changing other tabs.
+  sh.setIndex(2);
+  render28SignalRecords_(sh, String(sh.getRange('B2').getDisplayValue()||'STD').trim().toUpperCase());
+  return {ok:true, sheetName:sheetName, position:2, signalCount:signalCodes.length};
+}
+
+
+/* ===== 28-SIGNAL SHEET: SHOW MATCHING RECORDS ON SELECTION ===== */
+function onEdit(e) {
+  // Preserve the existing Super Admin direct-edit security notification.
+  try { superAdminSecurityOnEdit_(e); } catch(ignore) {}
+  try {
+    if (!e || !e.range) return;
+    const sh=e.range.getSheet();
+    if (sh.getName()!=='২৮ সংকেতের শিট' || e.range.getA1Notation()!=='B2') return;
+    render28SignalRecords_(sh,String(e.range.getDisplayValue()||'').trim().toUpperCase());
+  } catch(err) {
+    try {
+      const target=e&&e.range?e.range.getSheet():null;
+      if(target && target.getName()==='২৮ সংকেতের শিট') {
+        target.getRange('A4').setValue('রেকর্ড দেখাতে সমস্যা হয়েছে: '+String(err&&err.message||err));
+      }
+    } catch(ignore) {}
+  }
+}
+
+function render28SignalRecords_(viewSheet,signalCode) {
+  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  const map={
+    STD:'STUDENTS',THR:'TEACHERS',OLP:'PAYMENTS',MRS:'RESULTS',RJT:'RESULTS',
+    ADM:'ADMINS',NPN:'EXAM_REG',NPT:'MADRASAS',NMT:'MADRASAS',OFD:'RESULTS',
+    CFT:'CERTIFICATES',IDC:'ID_CARDS',ADC:'ADMIT_CARDS',RCT:'RECEIPTS',
+    TCP:'STUDENTS',SJS:'STUDENTS',TID:'ONLINE_SERVICES',AFM:'ONLINE_SERVICES',
+    LAF:'ONLINE_SERVICES',EXR:'ONLINE_SERVICES',TCC:'ONLINE_SERVICES',
+    APC:'ONLINE_SERVICES',LMF:'ONLINE_SERVICES',LMC:'ONLINE_SERVICES',
+    TRA:'ONLINE_SERVICES',TAP:'ONLINE_SERVICES',EXF:'ONLINE_SERVICES',EID:'EXECUTIVES'
+  };
+  const sourceName=map[signalCode];
+  const startRow=4;
+  const maxCols=Math.max(viewSheet.getMaxColumns(),1);
+  const clearRows=Math.max(viewSheet.getMaxRows()-startRow+1,1);
+  viewSheet.getRange(startRow,1,clearRows,maxCols).clearContent();
+  if(!sourceName) {
+    viewSheet.getRange('A4').setValue('অনুগ্রহ করে B2 থেকে ২৮টি সংকেতের একটি নির্বাচন করুন।');
+    return;
+  }
+  const source=ss.getSheetByName(sourceName);
+  if(!source || source.getLastRow()<2) {
+    viewSheet.getRange('A4').setValue(signalCode+' সংকেতের জন্য কোনো রেকর্ড পাওয়া যায়নি।');
+    return;
+  }
+  const values=source.getDataRange().getDisplayValues();
+  const headers=values[0].map(function(h){return String(h||'').trim();});
+  const hidden=/^(password|passwordhash|data|html|photo|documents|pdfurl|pdffileid|otp|codehash)$/i;
+  const keep=[];
+  headers.forEach(function(h,i){if(h && !hidden.test(h.replace(/[_\s-]/g,''))) keep.push(i);});
+  let rows=values.slice(1).filter(function(row){return row.some(function(v){return String(v||'').trim()!=='';});});
+  if(signalCode==='NPT') rows=rows.filter(function(r){const i=headers.indexOf('GenderType');return /পুরুষ|male/i.test(String(i>=0?r[i]:''));});
+  if(signalCode==='NMT') rows=rows.filter(function(r){const i=headers.indexOf('GenderType');return /মহিলা|female/i.test(String(i>=0?r[i]:''));});
+  const displayHeaders=keep.map(function(i){return headers[i];});
+  const displayRows=rows.slice(0,5000).map(function(r){return keep.map(function(i){return r[i]||'';});});
+  viewSheet.getRange('A4').setValue('সংকেত: '+signalCode+' | উৎস: '+sourceName+' | মোট রেকর্ড: '+rows.length+(rows.length>5000?' | প্রথম ৫০০০টি দেখানো হয়েছে':''));
+  if(!displayRows.length) {
+    viewSheet.getRange('A5').setValue('এই সংকেতের জন্য কোনো রেকর্ড পাওয়া যায়নি।');
+    return;
+  }
+  viewSheet.getRange(5,1,1,displayHeaders.length).setValues([displayHeaders]).setFontWeight('bold');
+  viewSheet.getRange(6,1,displayRows.length,displayHeaders.length).setValues(displayRows);
+  viewSheet.setFrozenRows(5);
+  viewSheet.getRange(5,1,displayRows.length+1,displayHeaders.length).setWrap(true);
 }
 
 function setupSystem() {
@@ -496,6 +596,11 @@ function ensureAccountAppearanceColumns_(){
     ['Photo','HeaderPhoto','Wallpaper','HeaderTextColor','NameAR','NameEN','Email'].forEach(function(key){
       if(headers.indexOf(key)<0){sh.getRange(1,sh.getLastColumn()+1).setValue(key);headers.push(key);}
     });
+    if(name===SHEETS.ADMINS){
+      ['BusinessName','FoundedYear','TradeLicense'].forEach(function(key){
+        if(headers.indexOf(key)<0){sh.getRange(1,sh.getLastColumn()+1).setValue(key);headers.push(key);}
+      });
+    }
   });
 }
 function getOwnAccountReviewStatus(token){
@@ -1765,13 +1870,41 @@ function deleteRecord(token,sheetName,serial) {
 
 function createAdmin(token,data) {
   auth_(token); requireFeature_(token,'admin'); data=data||{};
-  if(!data.NameBN || !data.Username || !data.Password || !data.Mobile || !data.Photo || !data.Address)
-    return {ok:false,message:'নাম, ইউজার নেম, পাসওয়ার্ড, মোবাইল, ছবি ও ঠিকানা বাধ্যতামূলক।'};
-  if(findBy_(SHEETS.ADMINS,'Username',data.Username)||findBy_(SHEETS.MADRASAS,'Username',data.Username)) return {ok:false,message:'এই ইউজার নেম আগে থেকেই আছে।'};
+  const username=String(data.Username||'').trim().toLowerCase();
+  const password=String(data.Password||'');
+  const businessName=String(data.BusinessName||data.NameBN||'').trim();
+  const mobile=String(data.Mobile||'').trim();
+  const address=String(data.Address||'').trim();
+  if(!businessName||!username||!password||!mobile||!address)
+    return {ok:false,message:'প্রতিষ্ঠানের নাম, Username, Password, Mobile ও ঠিকানা বাধ্যতামূলক।'};
+  const usernameTaken=[SHEETS.ADMINS,SHEETS.MADRASAS].some(function(sheetName){
+    const sheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
+    if(!sheet||sheet.getLastRow()<2)return false;
+    const values=sheet.getDataRange().getValues(),headers=values[0].map(function(x){return String(x||'').trim();});
+    const col=headers.indexOf('Username');if(col<0)return false;
+    for(let i=1;i<values.length;i++)if(String(values[i][col]||'').trim().toLowerCase()===username)return true;
+    return false;
+  });
+  if(usernameTaken)return {ok:false,message:'এই Username আগে থেকেই ব্যবহার করা হয়েছে।'};
   ensureAccountAppearanceColumns_();
-  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ADMINS), n=nextSerial_(sh), id='M-1/'+String(n).padStart(4,'0');
+  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  const sh=ss.getSheetByName(SHEETS.ADMINS);
+  const n=nextSerial_(sh), id='M-1/'+String(n).padStart(4,'0');
   const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(function(x){return String(x||'').trim();});
-  const rowData={Serial:n,AdminID:id,NameBN:data.NameBN||'',NameAR:data.NameAR||'',NameEN:data.NameEN||'',Username:data.Username,PasswordHash:hash_(data.Password),Email:data.Email||'',Mobile:data.Mobile,WhatsApp:data.WhatsApp||'',Address:data.Address,Photo:storeAccountImage_(data.Photo,data.Username,'logo'),HeaderPhoto:storeAccountImage_(data.HeaderPhoto,data.Username,'header'),Wallpaper:storeAccountImage_(data.Wallpaper,data.Username,'wallpaper'),HeaderTextColor:String(data.HeaderTextColor||'#ffffff'),BirthReg:data.BirthReg||'',NID:data.NID||'',ApprovalID:data.ApprovalID||'',Role:data.Role||'ADMIN',Status:'ACTIVE',CreatedAt:now_(),Password:data.Password,Permissions:'',ApprovedBy:'',ApprovedAt:''};
+  const rowData={
+    Serial:n,AdminID:id,NameBN:businessName,NameAR:'',NameEN:'',
+    Username:username,PasswordHash:hash_(password),Email:String(data.Email||'').trim(),
+    Mobile:mobile,WhatsApp:String(data.WhatsApp||'').trim(),Address:address,
+    Photo:data.Photo?storeAccountImage_(data.Photo,username,'logo'):'',
+    HeaderPhoto:data.HeaderPhoto?storeAccountImage_(data.HeaderPhoto,username,'header'):'',
+    Wallpaper:data.Wallpaper?storeAccountImage_(data.Wallpaper,username,'wallpaper'):'',
+    HeaderTextColor:String(data.HeaderTextColor||'').trim()||'#ffffff',
+    BirthReg:'',NID:String(data.NID||'').trim(),ApprovalID:String(data.ApprovalID||'').trim(),
+    Role:'ADMIN',Status:'ACTIVE',CreatedAt:now_(),Password:password,
+    Permissions:'',ApprovedBy:'',ApprovedAt:'',
+    BusinessName:businessName,FoundedYear:String(data.FoundedYear||'').trim(),
+    TradeLicense:String(data.TradeLicense||'').trim()
+  };
   sh.getRange(sh.getLastRow()+1,1,1,headers.length).setValues([headers.map(function(k){return rowData[k]!==undefined?rowData[k]:'';})]);
   log_(sessionUser_(token),'create','ADMIN',id);
   return {ok:true,adminId:id};
