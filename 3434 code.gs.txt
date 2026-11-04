@@ -1862,6 +1862,42 @@ function deleteRecord(token,sheetName,serial) {
   return {ok:true};
 }
 
+function registerAdmin(data) {
+  setupSystem();
+  data=data||{};
+  const name=String(data.NameBN||'').trim();
+  const username=String(data.Username||'').trim();
+  const password=String(data.Password||'');
+  const mobile=String(data.Mobile||'').trim();
+  const address=String(data.Address||'').trim();
+  const photo=String(data.Photo||'');
+  if(!name||!username||!password||!mobile||!photo||!address)
+    return {ok:false,message:'নাম, ইউজার নেম, পাসওয়ার্ড, মোবাইল, ছবি ও ঠিকানা বাধ্যতামূলক।'};
+  if(findBy_(SHEETS.ADMINS,'Username',username)||findBy_(SHEETS.MADRASAS,'Username',username))
+    return {ok:false,message:'এই ইউজার নেম আগে থেকেই আছে।'};
+  ensureAccountReviewColumns_();
+  ensureAccountAppearanceColumns_();
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ADMINS);
+  const n=nextSerial_(sh), id='M-1/'+String(n).padStart(4,'0');
+  const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(function(x){return String(x||'').trim();});
+  const rowData={
+    Serial:n,AdminID:id,NameBN:name,NameAR:String(data.NameAR||''),NameEN:String(data.NameEN||''),
+    Username:username,PasswordHash:hash_(password),Email:String(data.Email||''),Mobile:mobile,
+    WhatsApp:String(data.WhatsApp||''),Address:address,
+    Photo:storeAccountImage_(photo,username,'logo'),
+    HeaderPhoto:storeAccountImage_(data.HeaderPhoto,username,'header'),
+    Wallpaper:storeAccountImage_(data.Wallpaper,username,'wallpaper'),
+    HeaderTextColor:String(data.HeaderTextColor||'#ffffff'),
+    BirthReg:String(data.BirthReg||''),NID:String(data.NID||''),ApprovalID:String(data.ApprovalID||''),
+    Role:'ADMIN',Status:'PENDING',CreatedAt:now_(),Password:'',
+    Permissions:'',ApprovedBy:'',ApprovedAt:'',ReviewStatus:'PENDING',
+    ReviewedBy:'',ReviewedAt:'',ReviewNote:''
+  };
+  sh.getRange(sh.getLastRow()+1,1,1,headers.length).setValues([headers.map(function(k){return rowData[k]!==undefined?rowData[k]:'';})]);
+  log_('PUBLIC','register','ADMIN',id);
+  return {ok:true,adminId:id,message:'নতুন অ্যাডমিন নিবন্ধন জমা হয়েছে। Super Admin অনুমোদনের পর Username + Password দিয়ে লগইন করতে পারবেন।'};
+}
+
 function createAdmin(token,data) {
   auth_(token); requireFeature_(token,'admin'); data=data||{};
   if(!data.NameBN || !data.Username || !data.Password || !data.Mobile || !data.Photo || !data.Address)
