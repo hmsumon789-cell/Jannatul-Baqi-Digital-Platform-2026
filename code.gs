@@ -32,7 +32,7 @@ const SHEETS = {
 };
 
 const HEADERS = {
-  ADMINS:['Serial','AdminID','NameBN','BusinessName','NameAR','NameEN','FoundedYear','TradeLicense','Username','PasswordHash','Email','Mobile','WhatsApp','Address','Photo','HeaderPhoto','HeaderTextColor','BirthReg','NID','ApprovalID','Role','Status','CreatedAt','Password','Permissions','ApprovedBy','ApprovedAt'],
+  ADMINS:['Serial','AdminID','NameBN','NameAR','NameEN','Username','PasswordHash','Email','Mobile','WhatsApp','Address','Photo','BirthReg','NID','ApprovalID','Role','Status','CreatedAt','Password','Permissions','ApprovedBy','ApprovedAt','BusinessName','FoundedYear','TradeLicense','HeaderPhoto','HeaderTextColor'],
   STUDENTS:['Serial','StudentID','FormID','MobileID','EmailID','NameBN','NameAR','NameEN','FatherBN','FatherAR','FatherEN','MotherBN','MotherAR','MotherEN','DOB','Gender','Class','Department','Branch','Residence','Mobile','WhatsApp','Email','Address','Photo','BirthReg','NID','Documents','CreatedAt'],
   TEACHERS:['Serial','TeacherID','NameBN','NameAR','NameEN','FatherBN','FatherAR','FatherEN','Mobile','WhatsApp','Email','Department','Branch','Gender','Address','Photo','BirthReg','NID','Documents','CreatedAt'],
   DONORS:['Serial','DonorID','NameBN','NameAR','NameEN','Mobile','WhatsApp','Email','Address','Amount','Fund','Photo','CreatedAt'],
@@ -586,25 +586,32 @@ function deleteRecord(token,sheetName,serial) {
 function createAdmin(token,data) {
   auth_(token); requireFeature_(token,'admin');
   data=data||{};
-  const businessName=String(data.BusinessName||data.NameBN||'').trim();
   const username=String(data.Username||'').trim().toLowerCase();
+  const password=String(data.Password||'');
+  const businessName=String(data.BusinessName||data.NameBN||'').trim();
   const mobile=String(data.Mobile||'').trim();
   const address=String(data.Address||'').trim();
-  if(!businessName || !username || !data.Password || !mobile || !address)
+  if(!businessName||!username||!password||!mobile||!address)
     return {ok:false,message:'প্রতিষ্ঠানের নাম, Username, Password, Mobile ও ঠিকানা বাধ্যতামূলক।'};
-  if(findBy_(SHEETS.ADMINS,'Username',username)) return {ok:false,message:'এই ইউজার নেম আগে থেকেই আছে।'};
+  if(findBy_(SHEETS.ADMINS,'Username',username))
+    return {ok:false,message:'এই Username আগে থেকেই ব্যবহার করা হয়েছে।'};
   const ss=SpreadsheetApp.getActiveSpreadsheet();
-  const sh=ensureSheet_(ss,SHEETS.ADMINS,HEADERS[SHEETS.ADMINS]);
+  const sh=ensureSheet_(ss,SHEETS.ADMINS,HEADERS.ADMINS);
   const n=nextSerial_(sh);
   const id='M-1/'+String(n).padStart(4,'0');
-  const record={Serial:n,AdminID:id,NameBN:businessName,BusinessName:businessName,NameAR:'',NameEN:'',
-    FoundedYear:data.FoundedYear||'',TradeLicense:data.TradeLicense||'',Username:username,
-    PasswordHash:hash_(data.Password),Email:data.Email||'',Mobile:mobile,WhatsApp:data.WhatsApp||'',
-    Address:address,Photo:data.Photo||'',HeaderPhoto:data.HeaderPhoto||'',HeaderTextColor:data.HeaderTextColor||'',
-    BirthReg:'',NID:data.NID||'',ApprovalID:data.ApprovalID||'',Role:data.Role||'ADMIN',Status:'ACTIVE',
-    CreatedAt:now_(),Password:data.Password,Permissions:'',ApprovedBy:'',ApprovedAt:''};
-  const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
-  sh.appendRow(headers.map(h=>record[h]===undefined?'':record[h]));
+  const record={
+    Serial:n,AdminID:id,NameBN:businessName,NameAR:'',NameEN:'',
+    Username:username,PasswordHash:hash_(password),Email:String(data.Email||'').trim(),
+    Mobile:mobile,WhatsApp:String(data.WhatsApp||'').trim(),Address:address,
+    Photo:data.Photo||'',BirthReg:'',NID:String(data.NID||'').trim(),
+    ApprovalID:String(data.ApprovalID||'').trim(),Role:'ADMIN',Status:'ACTIVE',
+    CreatedAt:now_(),Password:password,Permissions:'',ApprovedBy:'',ApprovedAt:'',
+    BusinessName:businessName,FoundedYear:String(data.FoundedYear||'').trim(),
+    TradeLicense:String(data.TradeLicense||'').trim(),HeaderPhoto:data.HeaderPhoto||'',
+    HeaderTextColor:String(data.HeaderTextColor||'').trim()
+  };
+  const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(x=>String(x).trim());
+  sh.appendRow(headers.map(key=>Object.prototype.hasOwnProperty.call(record,key)?record[key]:''));
   log_(sessionUser_(token),'create','ADMIN',id);
   return {ok:true,adminId:id};
 }
