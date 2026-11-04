@@ -2350,6 +2350,27 @@ function invalidateUserSessions_(type,username){
   });
 }
 function sessionUser_(token){ return auth_(token).username; }
+function getAccountBranding20261104(token){
+  const session=auth_(token);
+  const type=String(session.accountType||'admin');
+  const username=String(session.username||'').trim();
+  const sheet=type==='madrasa'?SHEETS.MADRASAS:SHEETS.ADMINS;
+  const account=findBy_(sheet,'Username',username)||{};
+  const role=String(account.Role||'').toUpperCase().replace(/\s+/g,'_');
+  const isRoot=type!=='madrasa'&&(role==='SUPER_ADMIN'||role==='SUPERADMIN'||username.toLowerCase()==='superadmin');
+  if(isRoot)return {ok:true,skip:true,accountType:type};
+  return {
+    ok:true,
+    skip:false,
+    accountType:type,
+    name:String(account.NameBN||account.Name||account.InstitutionName||''),
+    logo:String(account.Photo||account.photo||account.Logo||account.logo||''),
+    address:String(account.Address||''),
+    mobile:String(account.Mobile||account.Hotline||''),
+    email:String(account.Email||'')
+  };
+}
+
 function getAdminSafe_(u){ const x=findBy_(SHEETS.ADMINS,'Username',u)||{}; delete x.Password;delete x.PasswordHash;delete x.password;delete x.passwordHash;return x; }
 function log_(u,a,t,d){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.AUDIT); if(sh)sh.appendRow([nextSerial_(sh),now_(),u,a,t,d]); }
 
