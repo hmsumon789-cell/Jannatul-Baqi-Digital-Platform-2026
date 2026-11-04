@@ -367,6 +367,29 @@ function loginMadrasa(username,password){
   return createDirectSession_(username,'madrasa');
 }
 
+function getAccountBranding20261104(token){
+  const session=auth_(token);
+  const type=String(session.accountType||'admin');
+  const username=String(session.username||'');
+  const row=type==='madrasa'
+    ? findBy_(SHEETS.MADRASAS,'Username',username)
+    : findBy_(SHEETS.ADMINS,'Username',username);
+  if(!row)return {ok:false,message:'অ্যাকাউন্টের তথ্য পাওয়া যায়নি।'};
+  const role=String(row.Role||'').toUpperCase().replace(/\s+/g,'_');
+  if(type!=='madrasa'&&(role==='SUPER_ADMIN'||role==='SUPERADMIN'||username.toLowerCase()==='superadmin'))
+    return {ok:true,skip:true,accountType:type};
+  return {
+    ok:true,
+    skip:false,
+    accountType:type,
+    name:String(type==='madrasa'?(row.Name||row.NameBN||'মাদ্রাসা'):(row.NameBN||row.Name||'অ্যাডমিন')),
+    logo:String(row.Photo||row.photo||row.Logo||row.logo||''),
+    address:String(row.Address||''),
+    mobile:String(row.Mobile||''),
+    email:String(row.Email||'')
+  };
+}
+
 function createDirectSession_(username,type){
   const account=type==='admin'?findBy_(SHEETS.ADMINS,'Username',username):findBy_(SHEETS.MADRASAS,'Username',username);
   if(!account)return {ok:false,message:'Account পাওয়া যায়নি।'};
