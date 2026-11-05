@@ -433,8 +433,19 @@ function lookupMadrasaRegistrationByOldId(value){
 function registerMadrasa(data){
   setupSystem();
   data=data||{};
-  const name=String(data.name||'').trim(), year=String(data.foundedYear||'').trim(), username=String(data.username||'').trim(), password=String(data.password||''), address=String(data.address||'').trim(), email=String(data.email||'').trim(), mobile=String(data.mobile||'').trim(), photo=String(data.photo||'');
-  if(!name||!year||!username||!password||!address||!email||!mobile) return {ok:false,message:'সকল বাধ্যতামূলক তথ্য পূরণ করুন।'};
+  // Normalize incoming values defensively; public login-page registration and
+  // dashboard registration must be treated identically for every account.
+  const pick=function(){for(let i=0;i<arguments.length;i++){const v=data[arguments[i]];if(v!==undefined&&v!==null&&String(v).trim()!=='')return v;}return '';};
+  const name=String(pick('name','Name','NameBN')).trim(), year=String(pick('foundedYear','FoundedYear','year')).trim(), username=String(pick('username','Username')).trim(), password=String(data.password!==undefined?data.password:(data.Password||'')), address=String(pick('address','Address')).trim(), email=String(pick('email','Email')).trim(), mobile=String(pick('mobile','Mobile')).trim(), photo=String(pick('photo','Photo'));
+  const missing=[];
+  if(!username)missing.push('Username');
+  if(!password)missing.push('Password');
+  if(!email)missing.push('Email');
+  if(!mobile)missing.push('মোবাইল নম্বর');
+  if(!name)missing.push('বাংলা মাদ্রাসার নাম');
+  if(!year)missing.push('প্রতিষ্ঠা সন');
+  if(!address)missing.push('ঠিকানা');
+  if(missing.length)return {ok:false,message:'নিচের বাধ্যতামূলক ঘরগুলো পূরণ করুন: '+missing.join(', ')};
   if(findBy_(SHEETS.MADRASAS,'Username',username)||findBy_(SHEETS.ADMINS,'Username',username)) return {ok:false,message:'এই Username আগে থেকেই ব্যবহার হচ্ছে।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MADRASAS), n=nextSerial_(sh), id='MR-'+String(n).padStart(4,'0');
   let hdr=sh.getRange(1,1,1,Math.max(sh.getLastColumn(),1)).getValues()[0];
