@@ -18607,3 +18607,31 @@ body.jb-custom-account #institutionDocumentary2026{display:none!important}
 body.jb-custom-account #app .header-slides,body.jb-custom-account #app #headerSlides,body.jb-custom-account #app #headerBackgroundSlides,body.jb-custom-account #app .header-background-slides,body.jb-custom-account #app .header-photo-load{display:none!important}
 
 </style>
+
+<style id="login-logo-clarity-refinement-20261105">
+/* মূল লোগোর অনুপাত ও রং অক্ষুণ্ণ রেখে দৃশ্যমানতা বাড়ানো */
+#loginPage .loginLogoWrap{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-height:126px!important;
+}
+#loginPage #loginLogo{
+  width:100px!important;
+  height:126px!important;
+  max-width:100px!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  image-rendering:auto!important;
+  filter:drop-shadow(0 4px 5px rgba(91,54,0,.28)) contrast(1.06) saturate(1.05)!important;
+  animation:logoFloat 4s ease-in-out infinite, loginLogoGlow20261105 3.6s ease-in-out infinite!important;
+}
+@keyframes loginLogoGlow20261105{
+  0%,100%{filter:drop-shadow(0 3px 4px rgba(91,54,0,.22)) contrast(1.06) saturate(1.05)}
+  50%{filter:drop-shadow(0 5px 9px rgba(191,143,26,.48)) contrast(1.08) saturate(1.07)}
+}
+@media(max-width:700px){
+  #loginPage .loginLogoWrap{min-height:108px!important}
+  #loginPage #loginLogo{width:86px!important;height:108px!important;max-width:86px!important}
+}
+</style>
