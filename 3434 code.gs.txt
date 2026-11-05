@@ -449,7 +449,7 @@ function registerMadrasa(data){
   if(findBy_(SHEETS.MADRASAS,'Username',username)||findBy_(SHEETS.ADMINS,'Username',username)) return {ok:false,message:'এই Username আগে থেকেই ব্যবহার হচ্ছে।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MADRASAS), n=nextSerial_(sh), id='MR-'+String(n).padStart(4,'0');
   let hdr=sh.getRange(1,1,1,Math.max(sh.getLastColumn(),1)).getValues()[0];
-  ['BoardRegistration','GenderType','Founder','Muhtamim','NameAR','NameEN','HeaderPhoto','Wallpaper','HeaderTextColor'].forEach(function(k){if(hdr.indexOf(k)<0){sh.getRange(1,sh.getLastColumn()+1).setValue(k);hdr.push(k);}});
+  ['BoardRegistration','GenderType','Founder','Muhtamim','NameAR','NameEN','HeaderPhoto','Wallpaper','HeaderTextColor','HeaderBackgroundColor'].forEach(function(k){if(hdr.indexOf(k)<0){sh.getRange(1,sh.getLastColumn()+1).setValue(k);hdr.push(k);}});
   hdr=sh.getRange(1,1,1,Math.max(sh.getLastColumn(),1)).getValues()[0];
   if(hdr.indexOf('Email')<0) sh.getRange(1,hdr.length+1).setValue('Email');
   const hdr2=sh.getRange(1,1,1,Math.max(sh.getLastColumn(),1)).getValues()[0];
@@ -458,7 +458,7 @@ function registerMadrasa(data){
   /* Add review columns only after the legacy Email/Photo columns exist; write by header name to avoid column shifts. */
   ensureAccountReviewColumns_();
   ensureAccountAppearanceColumns_();
-  const rowData={Serial:n,MadrasaID:id,GenderType:String(data.genderType||''),BoardRegistration:String(data.boardRegistration||''),Name:name,NameAR:String(data.nameAR||''),NameEN:String(data.nameEN||''),FoundedYear:year,Founder:String(data.founder||''),Muhtamim:String(data.muhtamim||''),Address:address,Mobile:mobile,StaffCount:Number(data.staffCount||0),StudentCount:Number(data.studentCount||0),Level:'',Status:'PENDING',CreatedAt:now_(),Username:username,Password:'',PasswordHash:hash_(password),ActiveDepartments:deps,OtherDepartment:String(data.otherDepartment||''),Ownership:String(data.ownership||''),ApprovedBy:'',ApprovedAt:'',Permissions:'',Email:email,Photo:storeAccountImage_(photo,username,'logo'),HeaderPhoto:storeAccountImage_(data.headerPhoto,username,'header'),Wallpaper:storeAccountImage_(data.wallpaper,username,'wallpaper'),HeaderTextColor:String(data.headerTextColor||'#ffffff'),ReviewStatus:'',ReviewedBy:'',ReviewedAt:'',ReviewNote:''};
+  const rowData={Serial:n,MadrasaID:id,GenderType:String(data.genderType||''),BoardRegistration:String(data.boardRegistration||''),Name:name,NameAR:String(data.nameAR||''),NameEN:String(data.nameEN||''),FoundedYear:year,Founder:String(data.founder||''),Muhtamim:String(data.muhtamim||''),Address:address,Mobile:mobile,StaffCount:Number(data.staffCount||0),StudentCount:Number(data.studentCount||0),Level:'',Status:'PENDING',CreatedAt:now_(),Username:username,Password:'',PasswordHash:hash_(password),ActiveDepartments:deps,OtherDepartment:String(data.otherDepartment||''),Ownership:String(data.ownership||''),ApprovedBy:'',ApprovedAt:'',Permissions:'',Email:email,Photo:storeAccountImage_(photo,username,'logo'),HeaderPhoto:storeAccountImage_(data.headerPhoto,username,'header'),Wallpaper:storeAccountImage_(data.wallpaper,username,'wallpaper'),HeaderTextColor:String(data.headerTextColor||'#ffffff'),HeaderBackgroundColor:String(data.headerBackgroundColor||'#1e3a8a'),ReviewStatus:'',ReviewedBy:'',ReviewedAt:'',ReviewNote:''};
   const finalHeaders=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(function(x){return String(x||'').trim()});
   const row=finalHeaders.map(function(k){return rowData[k]!==undefined?rowData[k]:''});
   sh.getRange(sh.getLastRow()+1,1,1,row.length).setValues([row]);
@@ -603,7 +603,7 @@ function ensureAccountAppearanceColumns_(){
   [SHEETS.ADMINS,SHEETS.MADRASAS].forEach(function(name){
     const sh=ss.getSheetByName(name); if(!sh)return;
     let headers=sh.getRange(1,1,1,Math.max(sh.getLastColumn(),1)).getValues()[0].map(function(x){return String(x||'').trim();});
-    ['Photo','HeaderPhoto','Wallpaper','HeaderTextColor','NameAR','NameEN','Email'].forEach(function(key){
+    ['Photo','HeaderPhoto','Wallpaper','HeaderTextColor','HeaderBackgroundColor','NameAR','NameEN','Email'].forEach(function(key){
       if(headers.indexOf(key)<0){sh.getRange(1,sh.getLastColumn()+1).setValue(key);headers.push(key);}
     });
   });
