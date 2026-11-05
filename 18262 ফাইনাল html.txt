@@ -1331,7 +1331,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 /* লোগো ছোট, নাম-ঠিকানা নিচে এবং সব কক্ষপথ লগইন কার্ডের ভেতরে */
 #loginPage .loginLogoWrap{
  display:block!important;position:relative!important;
- width:320px!important;height:116px!important;
+ width:320px!important;height:166px!important;
  max-width:100%!important;margin:0 auto 13px!important;
  overflow:visible!important;
 }
@@ -1340,23 +1340,24 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  width:68px!important;height:68px!important;
  margin:0!important;translate:-50% -50%;
 }
-#loginPage .orbit-planet.p1{--orbit-radius:48px}
-#loginPage .orbit-planet.p2{--orbit-radius:60px}
-#loginPage .orbit-planet.p3{--orbit-radius:72px}
-#loginPage .orbit-planet.p4{--orbit-radius:84px}
-#loginPage .orbit-planet.p5{--orbit-radius:96px}
-#loginPage .orbit-planet.p6{--orbit-radius:108px}
-#loginPage .orbit-planet.p7{--orbit-radius:120px}
+#loginPage .orbit-planet.p1{--orbit-radius:32px}
+#loginPage .orbit-planet.p2{--orbit-radius:39px}
+#loginPage .orbit-planet.p3{--orbit-radius:46px}
+#loginPage .orbit-planet.p4{--orbit-radius:53px}
+#loginPage .orbit-planet.p5{--orbit-radius:60px}
+#loginPage .orbit-planet.p6{--orbit-radius:67px}
+#loginPage .orbit-planet.p7{--orbit-radius:74px}
 #loginPage .orbit-moon{animation-name:loginMoonOrbit20261105;animation-duration:23s}
+@keyframes loginMoonOrbit20261105{from{transform:rotate(180deg) translateX(80px) rotate(-180deg)}to{transform:rotate(540deg) translateX(80px) rotate(-540deg)}}
 #loginPage .title-bn{margin-top:8px!important}
 #loginPage .title-ar{margin-top:7px!important}
 #loginPage .title-en{margin-top:5px!important}
 #loginPage .login-address{margin-top:10px!important}
 @media(max-width:700px){
- #loginPage .loginLogoWrap{width:280px!important;height:108px!important;margin-bottom:12px!important}
+ #loginPage .loginLogoWrap{width:280px!important;height:166px!important;margin-bottom:12px!important}
  #loginPage #loginLogo{width:60px!important;height:60px!important}
- #loginPage .orbit-planet.p6{--orbit-radius:96px}
- #loginPage .orbit-planet.p7{--orbit-radius:106px}
+ #loginPage .orbit-planet.p6{--orbit-radius:60px}
+ #loginPage .orbit-planet.p7{--orbit-radius:66px}
  #loginPage .orbit-moon{font-size:17px!important}
  #loginPage .orbit-sun{font-size:18px!important}
 }
