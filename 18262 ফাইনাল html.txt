@@ -17712,6 +17712,43 @@ function institutionDocumentaryToggle2026(){
 </script>
 
 
+<!-- ===== OFF-WHITE INTRO SLIDE READABILITY FIX — 2026-11-05 ===== -->
+<style id="offwhite-institution-intro-readability-20261105">
+/* Off-White mode only: ensure designation, name and tribute text have strong contrast. */
+body.offwhite #institutionDocumentary2026 .institution-documentary-heading .institution-documentary-kicker{
+  color:#59416f!important;text-shadow:none!important;font-weight:950!important;
+}
+body.offwhite #institutionDocumentary2026 .institution-documentary-heading h2{
+  color:#49345f!important;text-shadow:none!important;
+}
+body.offwhite #institutionDocumentary2026 .institution-documentary-heading p{
+  color:#51465d!important;text-shadow:none!important;opacity:1!important;
+}
+body.offwhite #institutionDocumentary2026 .institution-documentary-slide{
+  background:linear-gradient(135deg,#fffdf7 0%,#f4eee4 55%,#f9f1e8 100%)!important;
+  border:2px solid #b99a68!important;
+  box-shadow:inset 0 0 0 1px #ffffff,0 5px 16px rgba(73,52,95,.12)!important;
+}
+body.offwhite #institutionDocumentary2026 .institution-documentary-role{
+  background:linear-gradient(135deg,#eadcf5,#d8c5eb)!important;
+  color:#352344!important;border:1px solid #9b7bb5!important;
+  text-shadow:none!important;box-shadow:none!important;font-weight:950!important;
+}
+body.offwhite #institutionDocumentary2026 .institution-documentary-name{
+  color:#242033!important;text-shadow:none!important;font-weight:950!important;
+}
+body.offwhite #institutionDocumentary2026 .institution-documentary-years{
+  color:#51445f!important;text-shadow:none!important;font-weight:800!important;
+}
+body.offwhite #institutionDocumentary2026 .institution-documentary-quote{
+  color:#3f3549!important;text-shadow:none!important;border-color:#a987bd!important;
+  font-weight:700!important;
+}
+body.offwhite #institutionDocumentary2026 .institution-documentary-footnote{
+  color:#51445f!important;text-shadow:none!important;font-weight:750!important;
+}
+</style>
+
 <!-- ===== REPURPOSE EXISTING FILES BUTTON AS ALL DOCUMENTS — 2026-10-23 ===== -->
 <script id="jbRestoreAllDocumentsDashboardButton2026">
 (function(){
