@@ -15852,7 +15852,7 @@ function rebuild(type){
  addSection('৫. স্থায়ী ঠিকানা',['division','district','upazila','union','ward','village'],['postcode','birth','nid','copy','photo','current'],'admPermanentAddressSection2026');
  // Contact inputs keep their original IDs so existing save/load logic continues to work.
  addSection('৬. পূর্ববর্তী শিক্ষা ও যোগাযোগ',['mobile','wa','email'],['guardianemail'],'admPreviousEducationContact2026');
- var prevSection=el('admPreviousEducationContact2026');if(prevSection){var prevRow=document.createElement('div');prevRow.className='adm-prev-education-row';prevRow.innerHTML=(extraLabels.prev||'')+(extraLabels.prevInstitution||'');prevSection.querySelector('.adm-grid').appendChild(prevRow)}
+ var prevSection=el('admPreviousEducationContact2026');if(prevSection){var prevRow=document.createElement('div');prevRow.className='adm-prev-education-row';prevRow.innerHTML=(extraLabels.prev||'')+(extraLabels.prevInstitution||'');var prevGrid=prevSection.querySelector('.adm-grid');prevGrid.insertBefore(prevRow,prevGrid.firstChild)}
  // Remove the visible “ঠিকানা / Address” box but retain its original field hidden for legacy save/load compatibility.
  var addressHidden=document.createElement('div');addressHidden.className='adm-hidden-internal';addressHidden.setAttribute('aria-hidden','true');
  if(fieldLabels.address)addressHidden.appendChild(fieldLabels.address);
