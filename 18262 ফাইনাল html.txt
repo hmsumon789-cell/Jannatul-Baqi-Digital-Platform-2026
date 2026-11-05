@@ -1372,7 +1372,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  #loginPage .orbit-moon.moon-crescent{animation-name:loginCrescentOrbit20261105;animation-duration:34s}
  #loginPage .orbit-moon.moon-full{animation-name:loginFullMoonOrbitMobile20261105}
  #loginPage .orbit-moon.moon-crescent{animation-name:loginCrescentOrbitMobile20261105}
- #loginPage .orbit-sun{font-size:18px!important;--orbit-radius:132px}
+ #loginPage .orbit-sun{font-size:18px!important;--orbit-radius:126px}
  @keyframes loginFullMoonOrbitMobile20261105{from{transform:rotate(15deg) translateX(104px) rotate(-15deg)}to{transform:rotate(375deg) translateX(104px) rotate(-375deg)}}
  @keyframes loginCrescentOrbitMobile20261105{from{transform:rotate(195deg) translateX(118px) rotate(-195deg)}to{transform:rotate(555deg) translateX(118px) rotate(-555deg)}}
 }
