@@ -18565,6 +18565,64 @@ body.gold #toast.toast{background:#fff5c7!important;color:#4b3200!important;bord
 })();
 </script>
 <!-- ===== END ONLINE RESULT PLATFORM — CENTRAL MANAGEMENT ===== -->
+
+<!-- ===== ADMISSION FORM DIRECT SAVE + REQUIRED FIELD + SAVE MODE 2026-11-05 ===== -->
+<style id="jb-admission-direct-save-20261105">
+#admAdmissionRedesign20261011 .jb-adm-invalid-20261105{border:2px solid #d00000!important;outline:2px solid #d0000022!important;background:#fff0f0!important}
+#admAdmissionRedesign20261011 .jb-adm-save-mode-20261105{display:flex;flex-direction:column;gap:5px;min-width:190px;max-width:260px}
+#admAdmissionRedesign20261011 .jb-adm-save-mode-20261105 select{width:100%;min-height:42px;border:2px solid #b58a25;border-radius:8px;padding:7px;background:#fff;color:#222;font-weight:700}
+#admAdmissionRedesign20261011 .adm-fee-actions{align-items:flex-start}
+</style>
+<script id="jb-admission-direct-save-20261105">
+(function(){
+ 'use strict';
+ var rootId='admAdmissionRedesign20261011',modeId='jbAdmissionSaveMode20261105';
+ var requiredIds=['admManualID2026','adNameBN','adDob','adFatherBN','adMobile','adClass','admStudentCategory2026'];
+ function root(){return document.getElementById(rootId)}
+ function mark(el,bad){if(!el)return;el.classList.toggle('jb-adm-invalid-20261105',!!bad);if(bad)el.setAttribute('aria-invalid','true');else el.removeAttribute('aria-invalid')}
+ function bindRequired(){
+  var r=root();if(!r)return;
+  requiredIds.forEach(function(id){var x=document.getElementById(id);if(!x||x.dataset.jbRequiredBound20261105==='1')return;x.dataset.jbRequiredBound20261105='1';var update=function(){mark(x,!String(x.value||'').trim())};x.addEventListener('input',update);x.addEventListener('change',update)});
+  var addr=['adCurrentAddress2026','adVillageSelect','adVillageManual','adDistrictSelect','adAddress'].map(function(id){return document.getElementById(id)}).filter(Boolean);
+  addr.forEach(function(x){if(x.dataset.jbRequiredBound20261105==='1')return;x.dataset.jbRequiredBound20261105='1';var u=function(){var ok=addr.some(function(a){return String(a.value||'').trim()});addr.forEach(function(a){mark(a,!ok&&a===x)})};x.addEventListener('input',u);x.addEventListener('change',u)});
+  r.addEventListener('input',function(e){if(e.target&&e.target.classList.contains('jb-adm-invalid-20261105')&&String(e.target.value||'').trim())mark(e.target,false)},true);
+ }
+ function install(){
+  var r=root();if(!r)return;
+  var preview=r.querySelector('button[onclick="previewAdmissionApplication2026()"]');if(preview)preview.remove();
+  var finalBtn=document.getElementById('admFinalSaveButton2026');if(finalBtn){finalBtn.disabled=false;finalBtn.textContent='💾 ভর্তি আবেদন সংরক্ষণ করুন'}
+  var actions=r.querySelector('#admissionMandatoryPanel2026 .adm-fee-actions');
+  if(actions&&!document.getElementById(modeId)){
+   var wrap=document.createElement('label');wrap.className='jb-adm-save-mode-20261105';wrap.innerHTML='<b>পূরণকৃত ফর্ম সংরক্ষণের ধরন</b><select id="'+modeId+'" aria-label="পূরণকৃত ফর্ম সংরক্ষণের ধরন"><option value="LATER">পেমেন্ট ছাড়া সংরক্ষণ করুন</option><option value="PAY">পেমেন্ট করে সংরক্ষণ করুন</option></select>';
+   actions.insertBefore(wrap,actions.firstChild);
+   var pay=actions.querySelector('button[onclick*="openAdmissionDialog2026(\'payment\')"]');
+   var update=function(){if(pay){pay.style.display=document.getElementById(modeId).value==='PAY'?'':'none'}};
+   wrap.querySelector('select').addEventListener('change',update);update();
+  }
+  bindRequired();
+ }
+ var originalSave=window.saveAdmissionApplication2026;
+ window.saveAdmissionApplication2026=async function(){
+  install();
+  var r=root();if(r){
+   var missing=null;
+   requiredIds.some(function(id){var x=document.getElementById(id);if(x&&!String(x.value||'').trim()){missing=x;mark(x,true);return true}return false});
+   var addrOk=['adCurrentAddress2026','adVillageSelect','adVillageManual','adDistrictSelect','adAddress'].some(function(id){var x=document.getElementById(id);return x&&String(x.value||'').trim()});
+   if(!addrOk){missing=document.getElementById('adCurrentAddress2026')||document.getElementById('adVillageSelect')||document.getElementById('adAddress');mark(missing,true)}
+   if(missing){try{missing.scrollIntoView({behavior:'smooth',block:'center'});missing.focus()}catch(e){}return}
+  }
+  var mode=document.getElementById(modeId);
+  if(mode&&mode.value==='LATER'&&typeof window.chooseAdmissionPayLater2026==='function')return await window.chooseAdmissionPayLater2026();
+  if(mode&&mode.value==='PAY'&&typeof window.openAdmissionDialog2026==='function'&&!window.jbAdmissionPaymentDialogOpened20261105){window.jbAdmissionPaymentDialogOpened20261105=true;window.openAdmissionDialog2026('payment');return}
+  window.jbAdmissionPaymentDialogOpened20261105=false;
+  if(typeof originalSave==='function')return await originalSave.apply(this,arguments);
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){install();new MutationObserver(install).observe(document.body,{childList:true,subtree:true})},{once:true});
+ else {install();if(document.body)new MutationObserver(install).observe(document.body,{childList:true,subtree:true})}
+})();
+</script>
+<!-- ===== END ADMISSION FORM DIRECT SAVE + SAVE MODE ===== -->
+
 <style id="remove-gap-media-controls-to-teacher-stat-20261031">
 /* মিডিয়া কন্ট্রোল লাইন ও শিক্ষকসংখ্যার বক্সের মাঝের ফাঁকা জায়গা অপসারণ */
 .dashboard-slider .dashboard-slider-controls{bottom:0!important;}
