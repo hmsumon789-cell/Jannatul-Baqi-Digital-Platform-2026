@@ -1111,18 +1111,18 @@ body.gold #loginPage .main-qr-802268e{background:#fff!important;border-color:#11
 }
 #formWin:has(.jb-admission-brand-header-20261010) .win-body>*{position:relative;z-index:1}
 /* Active online admission form positioning: original logo right/up; main QR left/up */
-#formWin .jb-admission-brand-header-20261010 .jb-adm-original-logo-20261010{transform:translate(2in,-20px)!important}
-#formWin .jb-admission-brand-header-20261010 #jbAdmissionMainQR20261010{transform:translate(-2in,-20px)!important}
+#formWin .jb-admission-brand-header-20261010 .jb-adm-original-logo-20261010{transform:translate(-1in,-20px)!important}
+#formWin .jb-admission-brand-header-20261010 #jbAdmissionMainQR20261010{transform:translate(1in,-20px)!important}
 @media print{
- #formWin .jb-admission-brand-header-20261010 .jb-adm-original-logo-20261010{transform:translate(2in,-20px)!important}
- #formWin .jb-admission-brand-header-20261010 #jbAdmissionMainQR20261010{transform:translate(-2in,-20px)!important}
+ #formWin .jb-admission-brand-header-20261010 .jb-adm-original-logo-20261010{transform:translate(-1in,-20px)!important}
+ #formWin .jb-admission-brand-header-20261010 #jbAdmissionMainQR20261010{transform:translate(1in,-20px)!important}
 }
 /* Dashboard > Online Admission > Student Admission: actual redesigned header image positioning */
-#formWin:has(#admAdmissionRedesign20261011) #admAdmissionRedesign20261011 #admAdmissionRedesignLogo2026{transform:translate(2in,-20px)!important;position:relative!important;z-index:5!important}
-#formWin:has(#admAdmissionRedesign20261011) #admAdmissionRedesign20261011 #admAdmissionRedesignQR2026{transform:translate(-2in,-20px)!important;position:relative!important;z-index:5!important}
+#formWin:has(#admAdmissionRedesign20261011) #admAdmissionRedesign20261011 #admAdmissionRedesignLogo2026{transform:translate(-1in,-20px)!important;position:relative!important;z-index:5!important}
+#formWin:has(#admAdmissionRedesign20261011) #admAdmissionRedesign20261011 #admAdmissionRedesignQR2026{transform:translate(1in,-20px)!important;position:relative!important;z-index:5!important}
 @media print{
- #formWin:has(#admAdmissionRedesign20261011) #admAdmissionRedesign20261011 #admAdmissionRedesignLogo2026{transform:translate(2in,-20px)!important}
- #formWin:has(#admAdmissionRedesign20261011) #admAdmissionRedesign20261011 #admAdmissionRedesignQR2026{transform:translate(-2in,-20px)!important}
+ #formWin:has(#admAdmissionRedesign20261011) #admAdmissionRedesign20261011 #admAdmissionRedesignLogo2026{transform:translate(-1in,-20px)!important}
+ #formWin:has(#admAdmissionRedesign20261011) #admAdmissionRedesign20261011 #admAdmissionRedesignQR2026{transform:translate(1in,-20px)!important}
 }
 .jb-admission-brand-header-20261010{position:relative;z-index:2;display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:auto auto;gap:8px 12px;align-items:center;margin:0 0 18px;padding:14px 12px;border:2px solid #c79a28;border-radius:15px;background:linear-gradient(115deg,#f2faf3 0%,#fffdf5 52%,#fff6d9 100%);box-shadow:0 5px 16px rgba(16,75,50,.10);color:#183327}
 .jb-admission-brand-header-20261010 img{display:block;object-fit:contain;max-width:100%}
@@ -14681,8 +14681,8 @@ window.jbRsBuild=async function(){
       var panel='<section id="admissionMandatoryPanel2026"><h3>ভর্তি ও ফি-সংক্রান্ত তথ্য <span class="adm-required">*</span></h3>'+
         '<div class="form-grid" style="margin:10px 0">'+
         '<label><span style="white-space:nowrap">ভর্তির ধরন <span class="adm-required">*</span></span><select id="admEntryType2026" class="field"><option value="">নির্বাচন করুন</option><option value="নতুন ভর্তি">নতুন ভর্তি</option><option value="পুনঃভর্তি">পুনঃভর্তি</option><option value="স্থানান্তর">স্থানান্তর</option></select></label>'+
-        '<label>শিক্ষার্থীর ধরন <span class="adm-required">*</span><select id="admStudentCategory2026" class="field"><option value="">নির্বাচন করুন</option><option value="সাধারণ">সাধারণ</option><option value="এতিম">এতিম</option><option value="গোরাবা">গোরাবা</option></select></label>'+
-        '<label>বেতন/ফ্রি/ছাড়ের ধরন<select id="admInlineAdmissionType2026" class="field" onchange="selectAdmissionTypeInline2026(this.value)"><option value="">নির্বাচন করুন</option><option value="FULL">পূর্ণ বেতন</option><option value="HALF">অর্ধেক বেতন</option><option value="PARTIAL">আংশিক ছাড়</option><option value="FREE_SCHOLARSHIP">ফ্রি স্কলারশিপ</option></select><div id="admTypeState2026" class="adm-state">এখনো ধরন নির্বাচন হয়নি</div></label></div>'+
+        '<label><span style="white-space:nowrap">শিক্ষার্থীর ধরন <span class="adm-required">*</span></span><select id="admStudentCategory2026" class="field"><option value="">নির্বাচন করুন</option><option value="সাধারণ">সাধারণ</option><option value="এতিম">এতিম</option><option value="গোরাবা">গোরাবা</option></select></label>'+
+        '<label>বেতন/ফ্রি/ছাড়ের ধরন<select id="admInlineAdmissionType2026" class="field" onchange="selectAdmissionTypeInline2026(this.value)"><option value="">নির্বাচন করুন</option><option value="FULL">পূর্ণ বেতন</option><option value="HALF">অর্ধেক বেতন</option><option value="PARTIAL">আংশিক ছাড়</option><option value="FREE_SCHOLARSHIP">ফ্রি স্কলারশিপ</option></select><div id="admTypeState2026" class="adm-state"></div></label></div>'+
         '<div class="adm-fee-actions">'+
         '<div><button type="button" class="primary" onclick="openAdmissionDialog2026(\'fees\')">💰 ফি খাত নির্বাচন</button><div id="admFeeState2026" class="adm-state">এক বা একাধিক ফি খাত নির্বাচন করুন</div></div>'+
         
@@ -15822,7 +15822,7 @@ function rebuild(type){
   guardianemail:labelHtml('অভিভাবকের ইমেইল','adGuardianEmail2026','email',''),
   current:labelHtml('বর্তমান ঠিকানা','adCurrentAddress2026','text','', 'full'),
   postcode:labelHtml('পোস্ট কোড','adPostCode2026','text','inputmode="numeric"'),
-  copy:'<label>জন্ম নিবন্ধন / জাতীয় কার্ডের কপি<input id="adIdentityCopy2026" class="field" type="file" accept="image/*,application/pdf"><span class="adm-file-note">সর্বোচ্চ ২০ MB। বড় ফাইল হলে crop/ছোট করে আবার লোড করুন।</span><img id="adIdentityCopyThumb2026" class="adm-preview-thumb" alt="নথির প্রিভিউ"><span id="adIdentityCopyFeedback2026" class="adm-file-note"></span></label>'
+  copy:'<label>জন্ম নিবন্ধন / জাতীয় কার্ডের কপি<input id="adIdentityCopy2026" class="field" type="file" accept="image/*,application/pdf"><img id="adIdentityCopyThumb2026" class="adm-preview-thumb" alt="নথির প্রিভিউ"><span id="adIdentityCopyFeedback2026" class="adm-file-note"></span></label>'
  };
  // Pull existing labels out of their original grid; no location database, dropdown, or cascade code is replaced.
  var allLabels=Array.prototype.slice.call(oldGrid.querySelectorAll(':scope > label'));
@@ -16715,9 +16715,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
    var title=String((document.getElementById('jbDocBuilderTitle')||{}).textContent||'Document').replace(/[<>&"]/g,'');
    var html='<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>'+title+'</title><style>'+cssFor(fmt)+'</style>'+
 '<style id="jb-admission-header-position-urdu-20261016">/* অনলাইন ভর্তি ফর্মের লোগো ও QR অবস্থান */'+
-'#formWin .jb-admission-brand-header-20261010 .jb-adm-original-logo-20261010{transform:translate(2in,-20px)!important}'+
-'#formWin .jb-admission-brand-header-20261010 #jbAdmissionMainQR20261010{transform:translate(-2in,-20px)!important}'+
-'@media print{#formWin .jb-admission-brand-header-20261010 .jb-adm-original-logo-20261010{transform:translate(2in,-20px)!important}#formWin .jb-admission-brand-header-20261010 #jbAdmissionMainQR20261010{transform:translate(-2in,-20px)!important}}</style>'+
+'#formWin .jb-admission-brand-header-20261010 .jb-adm-original-logo-20261010{transform:translate(-1in,-20px)!important}'+
+'#formWin .jb-admission-brand-header-20261010 #jbAdmissionMainQR20261010{transform:translate(1in,-20px)!important}'+
+'@media print{#formWin .jb-admission-brand-header-20261010 .jb-adm-original-logo-20261010{transform:translate(-1in,-20px)!important}#formWin .jb-admission-brand-header-20261010 #jbAdmissionMainQR20261010{transform:translate(1in,-20px)!important}}</style>'+
 '</head><body>'+node.outerHTML+'</body>
 <!-- ===== FINAL PLACEMENT: player controls → dashboard boxes → institution slideshow; compact slideshow by ~3 inches ===== -->
 <style id="dashboard-boxes-before-institution-slideshow-20261018">
