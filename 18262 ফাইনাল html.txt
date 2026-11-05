@@ -2896,7 +2896,7 @@ function renderMediaWithPlayState(){
 .approved-login-actions button{flex:1;min-width:150px}
 </style>
 <style id="account-approval-manager-style">
-.account-manager-wrap{padding:10px}.account-manager-title{text-align:center;font-size:22px;font-weight:900;margin-bottom:8px}.account-manager-note{padding:8px;border:2px dashed var(--border);margin-bottom:10px;font-weight:800}.account-tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}.account-tab{padding:9px 14px;border:2px solid var(--border);border-radius:12px;background:var(--panel);font-weight:900;cursor:pointer}.account-list{display:grid;gap:10px}.account-card{border:3px solid var(--border);padding:10px;background:var(--panel);border-radius:14px}.account-card.pending{box-shadow:0 0 0 3px #e5a10055 inset}.account-card-head{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap;font-weight:900}.account-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}.account-meta div{border:1px solid var(--border);padding:6px}.perm-grid-ui{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}.perm-grid-ui label{display:flex;gap:5px;align-items:center;border:1px solid var(--border);padding:6px;border-radius:8px;font-size:13px}.account-actions-ui{display:flex;gap:6px;flex-wrap:wrap}.all-account-actions{justify-content:flex-end;margin-top:10px}.all-account-actions button:disabled{opacity:.45;cursor:not-allowed}.all-device-info{margin-top:7px;overflow-wrap:anywhere;font-size:12px}.account-actions-ui button{padding:8px 12px;border:2px solid var(--border);border-radius:10px;font-weight:900}.account-actions-ui .approve{background:#198754;color:#fff}.account-actions-ui .stop{background:#dc3545;color:#fff}.account-actions-ui .active{background:#0d6efd;color:#fff}.account-actions-ui .reset{background:#ffc107;color:#111}@media(max-width:800px){.account-meta,.perm-grid-ui{grid-template-columns:1fr}}
+.account-manager-wrap{padding:10px}.account-manager-title{text-align:center;font-size:22px;font-weight:900;margin-bottom:8px}.account-manager-note{padding:8px;border:2px dashed var(--border);margin-bottom:10px;font-weight:800}.account-tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}.account-tab{padding:9px 14px;border:2px solid var(--border);border-radius:12px;background:var(--panel);font-weight:900;cursor:pointer}.account-list{display:grid;gap:10px}.account-card{border:3px solid var(--border);padding:10px;background:var(--panel);border-radius:14px}.account-card.pending{box-shadow:0 0 0 3px #e5a10055 inset}.account-card-head{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap;font-weight:900}.account-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}.account-meta div{border:1px solid var(--border);padding:6px}.perm-grid-ui{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}.perm-grid-ui label{display:flex;gap:5px;align-items:center;border:1px solid var(--border);padding:6px;border-radius:8px;font-size:13px}.perm-dropdown-ui{margin:8px 0;border:1px solid var(--border);border-radius:10px;background:var(--panel);overflow:hidden}.perm-dropdown-summary{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;cursor:pointer;font-weight:900;list-style:none}.perm-dropdown-summary::-webkit-details-marker{display:none}.perm-dropdown-summary:after{content:'▾';font-size:18px}.perm-dropdown-ui[open] .perm-dropdown-summary:after{content:'▴'}.perm-dropdown-ui .perm-grid-ui{padding:8px;margin:0;border-top:1px solid var(--border)}.account-actions-ui{display:flex;gap:6px;flex-wrap:wrap}.all-account-actions{justify-content:flex-end;margin-top:10px}.all-account-actions button:disabled{opacity:.45;cursor:not-allowed}.all-device-info{margin-top:7px;overflow-wrap:anywhere;font-size:12px}.account-actions-ui button{padding:8px 12px;border:2px solid var(--border);border-radius:10px;font-weight:900}.account-actions-ui .approve{background:#198754;color:#fff}.account-actions-ui .stop{background:#dc3545;color:#fff}.account-actions-ui .active{background:#0d6efd;color:#fff}.account-actions-ui .reset{background:#ffc107;color:#111}@media(max-width:800px){.account-meta,.perm-grid-ui{grid-template-columns:1fr}}
 body.gold .account-card,body.gold .account-tab,body.gold .account-actions-ui button,body.gold .perm-grid-ui label{border-radius:999px!important}
 </style>
 <script id="approved-account-login-js">
@@ -3046,9 +3046,23 @@ window.renderAccountList=function(type){
       var sb=document.createElement('button');sb.type='button';sb.className='approve';sb.textContent='✅ ভর্তি অনুমোদন';sb.onclick=function(){approvePendingStudent2026(sb)};sa.appendChild(sb);card.appendChild(sa);
       box.appendChild(card);return;
     }
-    var label=document.createElement('div');label.innerHTML='<b>অনুমোদিত কাজ নির্বাচন করুন:</b>';card.appendChild(label);
+    var label=document.createElement('div');label.innerHTML='<b>অনুমোদিত মডিউল নির্বাচন করুন:</b>';card.appendChild(label);
+    var drop=document.createElement('details');drop.className='perm-dropdown-ui';
+    var summary=document.createElement('summary');summary.className='perm-dropdown-summary';
+    var summaryText=document.createElement('span');summaryText.className='perm-summary-text';
+    function updatePermSummary(){
+      var count=drop.querySelectorAll('.perm-ui:checked').length;
+      summaryText.textContent=count?('☑️ '+count+'টি মডিউল নির্বাচিত — তালিকা খুলুন/বন্ধ করুন'):'☑️ মডিউল নির্বাচন করুন';
+    }
+    summary.appendChild(summaryText);drop.appendChild(summary);
     var pg=document.createElement('div');pg.className='perm-grid-ui';
-    ACCOUNT_PERMS.forEach(function(p){var l=document.createElement('label');var cb=document.createElement('input');cb.className='perm-ui';cb.type='checkbox';cb.dataset.key=p[0];cb.checked=checked.indexOf(p[0])>=0;l.appendChild(cb);l.appendChild(document.createTextNode(' '+p[1]));pg.appendChild(l)});card.appendChild(pg);
+    ACCOUNT_PERMS.forEach(function(p){
+      var l=document.createElement('label');var cb=document.createElement('input');
+      cb.className='perm-ui';cb.type='checkbox';cb.dataset.key=p[0];cb.checked=checked.indexOf(p[0])>=0;
+      cb.addEventListener('change',updatePermSummary);
+      l.appendChild(cb);l.appendChild(document.createTextNode(' '+p[1]));pg.appendChild(l);
+    });
+    drop.appendChild(pg);card.appendChild(drop);updatePermSummary();
     var acts=document.createElement('div');acts.className='account-actions-ui';
     var ap=document.createElement('button');ap.type='button';ap.className='approve';ap.textContent='✅ অনুমোদন + Permission Save';ap.onclick=function(){saveAccountApproval(ap)};acts.appendChild(ap);
     var st=document.createElement('button');st.type='button';st.className='stop';st.textContent='⛔ Suspend';st.onclick=function(){changeAccountStatus(st,'SUSPENDED')};acts.appendChild(st);
