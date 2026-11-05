@@ -2019,7 +2019,6 @@ async function lookupOldMadrasaRegistration(){var key=window.prompt('পুর�
     }
     const photo=await fileData('mPhoto');
     const headerPhoto=await fileData('mHeaderPhoto');
-    const wallpaper=await fileData('mWallpaper');
     const payload={
       madrasaId:readMadrasaField('mMadrasaID'),
       updateMadrasaID:updateMadrasaID,
@@ -2030,8 +2029,9 @@ async function lookupOldMadrasaRegistration(){var key=window.prompt('পুর�
       founder:readMadrasaField('mFounder'),
       muhtamim:readMadrasaField('mMuhtamim'),
       foundedYear:year,address:address,
-      photo:photo,headerPhoto:headerPhoto,wallpaper:wallpaper,
+      photo:photo,headerPhoto:headerPhoto,
       headerTextColor:readMadrasaField('mHeaderTextColor')||'#ffffff',
+      headerBackgroundColor:readMadrasaField('mHeaderBackgroundColor')||'#1e3a8a',
       staffCount:readMadrasaField('mStaffCount')||'0',
       studentCount:readMadrasaField('mStudentCount')||'0',
       boardRegistration:readMadrasaField('mBoardRegistration'),
