@@ -1773,6 +1773,17 @@ function openModule(key){
 const labels=Object.fromEntries(modules.map(x=>[x[0],x[1]]));
 $('winTitle').textContent=labels[key]||key;
 $('winBody').innerHTML=moduleForm(key)+'<div class="form-signatures"><div class="signature-box"><div>আবেদনকারীর স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>অভিভাবকের স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>প্রধান শিক্ষিকার স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>প্রিন্সিপাল/মুহতামিম এর স্বাক্ষর</div><div class="signature-line"></div></div></div>';
+if(key==='madrasa'){
+  const loginContact=document.getElementById('loginContactStrip20261013');
+  if(loginContact){
+    const madrasaTopContact=loginContact.cloneNode(true);
+    madrasaTopContact.removeAttribute('id');
+    madrasaTopContact.querySelector('.jb-contact-quick-button-20261026')?.remove();
+    madrasaTopContact.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
+    madrasaTopContact.style.margin='0 auto 14px';
+    $('winBody').insertBefore(madrasaTopContact,$('winBody').firstChild);
+  }
+}
 if(key==='madrasa')$('winBody').insertAdjacentHTML('beforeend',`<div style="margin:18px 0 4px;text-align:center"><button type="button" class="jb-contact-quick-button-20261026" onclick="openWindow('quickWin')">যোগাযোগ + দ্রুত সেবা</button></div>`);
 if(key==='madrasa'){syncMadrasaAccountContactHeader20261101();requestAnimationFrame(syncMadrasaAccountContactHeader20261101);}
 $('formWin').classList.remove('minimized');
