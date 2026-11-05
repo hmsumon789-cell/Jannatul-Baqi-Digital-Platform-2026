@@ -1331,7 +1331,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 /* লোগো ছোট, নাম-ঠিকানা নিচে এবং সব কক্ষপথ লগইন কার্ডের ভেতরে */
 #loginPage .loginLogoWrap{
  display:block!important;position:relative!important;
- width:320px!important;height:166px!important;
+ width:320px!important;height:100px!important;
  max-width:100%!important;margin:0 auto 13px!important;
  overflow:visible!important;
 }
