@@ -18540,7 +18540,7 @@ body.gold #toast.toast{background:#fff5c7!important;color:#4b3200!important;bord
  window.jbORPPrint20261027=function(){var box=el('jbORPList20261027');if(!box||!box.innerHTML){note('প্রিন্টের আগে তালিকা লোড করুন।');return}var w=window.open('','_blank');if(!w){note('প্রিন্ট উইন্ডো খোলা যায়নি; ব্রাউজারের pop-up অনুমতি দিন।');return}w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>অনলাইন ফলাফল প্লাটফর্ম</title><style>body{font-family:Arial,sans-serif;padding:16px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #555;padding:5px;text-align:center}input{border:0;width:60px}.jborp-tools,button{display:none!important}</style></head><body><h2>অনলাইন ফলাফল প্লাটফর্ম</h2><p>'+esc(val('jbORPExam20261027'))+' | '+esc(val('jbORPClass20261027'))+' | '+esc(val('jbORPYear20261027'))+'</p>'+box.innerHTML+'
 <!-- ADMISSION FORM REPAIR 2026-11-05 -->
 <style id="jb-admission-repair-style-20261105">
-#admAdmissionRedesign20261011 .jb-adm-required-error-20261105{border:2px solid #d00000!important;outline:2px solid #d0000022!important;background:#fff0f0!important}
+#formWin .jb-adm-required-error-20261105,#admAdmissionRedesign20261011 .jb-adm-required-error-20261105{border:2px solid #d00000!important;outline:2px solid #d0000022!important;background:#fff0f0!important}
 #admAdmissionRedesign20261105 .jb-adm-save-choice-20261105{display:flex;flex-direction:column;gap:6px;min-width:190px;max-width:260px}
 #admAdmissionRedesign20261011 .jb-adm-save-choice-20261105 select{width:100%;min-height:40px;padding:7px;border:2px solid #b58a25;border-radius:8px;background:#fff;color:#222;font-weight:700}
 </style>
