@@ -1977,7 +1977,84 @@ if(k==='student')d.Gender='';const r=await call('saveRecord',token,s,d);if(r&&r.
 async function loadMadrasaRegistrationId2026(){var el=document.getElementById('mMadrasaID');if(!el||el.value||document.getElementById('mUpdateMadrasaID')?.value||document.getElementById('mUpdateLookupKey')?.value)return;try{var r=await call('getNextMadrasaRegistrationId');if(r&&r.ok&&!document.getElementById('mUpdateMadrasaID')?.value&&!document.getElementById('mUpdateLookupKey')?.value)el.value=r.id||'';}catch(e){el.placeholder='MR ID লোড হয়নি';}}
 function copyMadrasaRegistrationId(){var el=document.getElementById('mMadrasaID');if(!el||!el.value){toast('MR ID এখনো তৈরি হয়নি।');return;}if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(el.value).then(function(){toast('MR ID কপি হয়েছে।');}).catch(function(){el.select();document.execCommand('copy');toast('MR ID কপি হয়েছে।');});else{el.select();document.execCommand('copy');toast('MR ID কপি হয়েছে।');}}
 function showMadrasaHeaderPhotoName(){var f=document.getElementById('mHeaderPhoto')?.files?.[0],n=document.getElementById('mHeaderPhotoName');if(n)n.textContent=f?f.name:'ঐচ্ছিক হেডার ফটো';}
-async function lookupOldMadrasaRegistration(){var key=window.prompt('পুরাতন ইলহাক/মাদ্রাসা আইডি লিখুন:');if(!key||!key.trim())return;key=key.trim();try{var r=await call('lookupMadrasaRegistrationByOldId',key);if(!r||!r.ok){toast((r&&r.message)||'এই ইলহাক/আইডির তথ্য পাওয়া যায়নি।');return;}var d=r.madrasa||{};var map={mBoardRegistration:d.BoardRegistration,mGenderType:d.GenderType,mYear:d.FoundedYear,mName:d.Name,mNameAR:d.NameAR,mNameEN:d.NameEN,mFounder:d.Founder,mMuhtamim:d.Muhtamim,mAddress:d.Address,mMobile:d.Mobile,mStaffCount:d.StaffCount,mStudentCount:d.StudentCount,mUser:d.Username,mEmail:d.Email};Object.keys(map).forEach(function(id){var el=document.getElementById(id);if(el&&map[id]!==undefined&&map[id]!==null)el.value=map[id];});var mid=document.getElementById('mMadrasaID');if(mid)mid.value=d.MadrasaID||'';var uid=document.getElementById('mUpdateMadrasaID');if(uid)uid.value=d.MadrasaID||'';var uk=document.getElementById('mUpdateLookupKey');if(uk)uk.value=key;var pass=document.getElementById('mPass');if(pass){pass.value='';pass.required=true;pass.placeholder='তথ্য আপডেটের জন্য বর্তমান Password লিখুন';}var photo=document.getElementById('mPhoto');if(photo)photo.required=false;toast('পুরাতন রেকর্ড আনা হয়েছে। সম্পাদনা করে সেভ করলে একই রেকর্ড আপডেট হবে। Password পরিবর্তন না করলে ঘরটি খালি রাখুন।');}catch(e){toast('তথ্য আনতে সমস্যা হয়েছে: '+(e&&e.message?e.message:e));}}async function saveMadrasaRegistration(){try{const u=$('mUser').value.trim(),p=$('mPass').value,e=$('mEmail').value.trim(),mobile=$('mMobile').value.trim(),name=$('mName').value.trim(),nameAR=$('mNameAR').value.trim(),nameEN=$('mNameEN').value.trim(),founder=$('mFounder').value.trim(),muhtamim=$('mMuhtamim').value.trim(),year=$('mYear').value.trim(),address=$('mAddress').value.trim(),photo=await fileData('mPhoto'),headerPhoto=$('mHeaderPhoto')&&$('mHeaderPhoto').files&&$('mHeaderPhoto').files[0]?await fileData('mHeaderPhoto'):'',wallpaper=$('mWallpaper')&&$('mWallpaper').files&&$('mWallpaper').files[0]?await fileData('mWallpaper'):'';const updateMadrasaID=$('mUpdateMadrasaID')?.value||'',updateLookupKey=$('mUpdateLookupKey')?.value||'',isUpdate=!!(updateMadrasaID||updateLookupKey);if(!u||!p||!e||!mobile||!name||!year||!address){toast(isUpdate?'Username, Email, মোবাইল, নাম, প্রতিষ্ঠা সন ও ঠিকানা পূরণ করুন।':'সকল বাধ্যতামূলক ঘর পূরণ করুন।');return;}const r=await call('registerMadrasa',{madrasaId:$('mMadrasaID')?.value||'',updateMadrasaID:updateMadrasaID,updateLookupKey:updateLookupKey,username:u,password:p,email:e,mobile:mobile,name:name,nameAR:nameAR,nameEN:nameEN,founder:founder,muhtamim:muhtamim,foundedYear:year,address:address,photo:photo,headerPhoto:headerPhoto,wallpaper:wallpaper,headerTextColor:$('mHeaderTextColor')?.value||'#ffffff',staffCount:$('mStaffCount')?.value||'0',studentCount:$('mStudentCount')?.value||'0',boardRegistration:$('mBoardRegistration')?.value||'',genderType:$('mGenderType')?.value||''});if(!r||!r.ok){toast((r&&r.message)||(isUpdate?'পুরাতন মাদ্রাসার তথ্য আপডেট হয়নি।':'মাদ্রাসা একাউন্ট তৈরি হয়নি।'));return;}if($('mMadrasaID')&&r.madrasaId)$('mMadrasaID').value=r.madrasaId;if(isUpdate){toast('সফল হয়েছে। পুরাতন মাদ্রাসা রেকর্ড একই ID-তে আপডেট হয়েছে: '+(r.madrasaId||updateMadrasaID||updateLookupKey));return;}toast('সফল হয়েছে। MR ID: '+(r.madrasaId||'')+'। এখন অনুমোদনের পর Username + Password দিয়ে OTP ছাড়া লগইন করতে পারবেন।');closeWindow('formWin');openApprovedLogin();setApprovedLoginType('madrasa');$('approvedLoginUser').value=u;$('approvedLoginPass').value=p;}catch(e){toast('সার্ভার ত্রুটি: '+(e&&e.message?e.message:e));}}async function saveAdmin(){try{const photo=await fileData('aPhoto'),headerPhoto=await fileData('aHeaderPhoto');const businessName=$('aBusinessName').value.trim(),username=$('aUser').value.trim().toLowerCase(),password=$('aPass').value,mobile=$('aMobile').value.trim(),address=$('aAddress').value.trim();if(!businessName||!username||!password||!mobile||!address){toast('প্রতিষ্ঠানের নাম, Username, Password, Mobile ও ঠিকানা পূরণ করুন।');return;}const d={NameBN:businessName,BusinessName:businessName,Username:username,Password:password,Email:$('aEmail').value.trim(),Mobile:mobile,WhatsApp:$('aWa').value.trim(),ApprovalID:$('aApproval').value.trim(),FoundedYear:$('aFoundedYear').value,TradeLicense:$('aTradeLicense').value.trim(),Address:address,Photo:photo,HeaderPhoto:headerPhoto,HeaderTextColor:$('aUseHeaderTextColor').value==='custom'?$('aHeaderTextColor').value:'',NID:$('aNid').value.trim()};const r=token?await call('createAdmin',token,d):await call('registerNewAdmin',{name:businessName,mobile:mobile,username:username,password:password,address:address,photo:photo});if(!r||!r.ok){toast((r&&r.message)||'অ্যাডমিন অ্যাকাউন্ট তৈরি হয়নি।');return;}toast(r.message||'নতুন অ্যাডমিন অ্যাকাউন্ট তৈরি হয়েছে। Admin ID: '+(r.adminId||''));}catch(e){toast('সার্ভার ত্রুটি: '+(e&&e.message?e.message:e));}}
+async function lookupOldMadrasaRegistration(){var key=window.prompt('পুরাতন ইলহাক/মাদ্রাসা আইডি লিখুন:');if(!key||!key.trim())return;key=key.trim();try{var r=await call('lookupMadrasaRegistrationByOldId',key);if(!r||!r.ok){toast((r&&r.message)||'এই ইলহাক/আইডির তথ্য পাওয়া যায়নি।');return;}var d=r.madrasa||{};var map={mBoardRegistration:d.BoardRegistration,mGenderType:d.GenderType,mYear:d.FoundedYear,mName:d.Name,mNameAR:d.NameAR,mNameEN:d.NameEN,mFounder:d.Founder,mMuhtamim:d.Muhtamim,mAddress:d.Address,mMobile:d.Mobile,mStaffCount:d.StaffCount,mStudentCount:d.StudentCount,mUser:d.Username,mEmail:d.Email};Object.keys(map).forEach(function(id){var el=document.getElementById(id);if(el&&map[id]!==undefined&&map[id]!==null)el.value=map[id];});var mid=document.getElementById('mMadrasaID');if(mid)mid.value=d.MadrasaID||'';var uid=document.getElementById('mUpdateMadrasaID');if(uid)uid.value=d.MadrasaID||'';var uk=document.getElementById('mUpdateLookupKey');if(uk)uk.value=key;var pass=document.getElementById('mPass');if(pass){pass.value='';pass.required=true;pass.placeholder='তথ্য আপডেটের জন্য বর্তমান Password লিখুন';}var photo=document.getElementById('mPhoto');if(photo)photo.required=false;toast('পুরাতন রেকর্ড আনা হয়েছে। সম্পাদনা করে সেভ করলে একই রেকর্ড আপডেট হবে। Password পরিবর্তন না করলে ঘরটি খালি রাখুন।');}catch(e){toast('তথ্য আনতে সমস্যা হয়েছে: '+(e&&e.message?e.message:e));}}async function saveMadrasaRegistration(){
+  try{
+    // Read directly from the active registration form. This avoids relying on
+    // any account/session-specific global selector state.
+    const readMadrasaField=id=>{
+      const el=document.getElementById(id);
+      return el ? String(el.value==null?'':el.value).trim() : '';
+    };
+    const u=readMadrasaField('mUser');
+    const p=(document.getElementById('mPass')||{}).value||'';
+    const e=readMadrasaField('mEmail');
+    const mobile=readMadrasaField('mMobile');
+    const name=readMadrasaField('mName');
+    const year=readMadrasaField('mYear');
+    const address=readMadrasaField('mAddress');
+    const updateMadrasaID=readMadrasaField('mUpdateMadrasaID');
+    const updateLookupKey=readMadrasaField('mUpdateLookupKey');
+    const isUpdate=!!(updateMadrasaID||updateLookupKey);
+    const required=[
+      ['mUser','Username',u],
+      ['mPass','Password',p],
+      ['mEmail','Email',e],
+      ['mMobile','মোবাইল নম্বর',mobile],
+      ['mName','বাংলা মাদ্রাসার নাম',name],
+      ['mYear','প্রতিষ্ঠা সন',year],
+      ['mAddress','ঠিকানা',address]
+    ];
+    const missing=required.filter(x=>!String(x[2]||'').trim());
+    if(missing.length){
+      const labels=missing.map(x=>x[1]).join(', ');
+      toast((isUpdate?'আপডেটের জন্য ':'নিবন্ধনের জন্য ')+
+        'নিচের ঘরগুলো পূরণ করুন: '+labels);
+      const first=document.getElementById(missing[0][0]);
+      if(first){first.focus();first.scrollIntoView({behavior:'smooth',block:'center'});}
+      return;
+    }
+    const photo=await fileData('mPhoto');
+    const headerPhoto=await fileData('mHeaderPhoto');
+    const wallpaper=await fileData('mWallpaper');
+    const payload={
+      madrasaId:readMadrasaField('mMadrasaID'),
+      updateMadrasaID:updateMadrasaID,
+      updateLookupKey:updateLookupKey,
+      username:u,password:p,email:e,mobile:mobile,name:name,
+      nameAR:readMadrasaField('mNameAR'),
+      nameEN:readMadrasaField('mNameEN'),
+      founder:readMadrasaField('mFounder'),
+      muhtamim:readMadrasaField('mMuhtamim'),
+      foundedYear:year,address:address,
+      photo:photo,headerPhoto:headerPhoto,wallpaper:wallpaper,
+      headerTextColor:readMadrasaField('mHeaderTextColor')||'#ffffff',
+      staffCount:readMadrasaField('mStaffCount')||'0',
+      studentCount:readMadrasaField('mStudentCount')||'0',
+      boardRegistration:readMadrasaField('mBoardRegistration'),
+      genderType:readMadrasaField('mGenderType')
+    };
+    const r=await call('registerMadrasa',payload);
+    if(!r||!r.ok){
+      toast((r&&r.message)||(isUpdate?'পুরাতন মাদ্রাসার তথ্য আপডেট হয়নি।':'মাদ্রাসা একাউন্ট তৈরি হয়নি।'));
+      return;
+    }
+    const id=document.getElementById('mMadrasaID');
+    if(id&&r.madrasaId)id.value=r.madrasaId;
+    if(isUpdate){
+      toast('সফল হয়েছে। পুরাতন মাদ্রাসা রেকর্ড একই ID-তে আপডেট হয়েছে: '+(r.madrasaId||updateMadrasaID||updateLookupKey));
+      return;
+    }
+    toast('সফল হয়েছে। MR ID: '+(r.madrasaId||'')+'। এখন অনুমোদনের পর Username + Password দিয়ে OTP ছাড়া লগইন করতে পারবেন।');
+    closeWindow('formWin');
+    openApprovedLogin();
+    setApprovedLoginType('madrasa');
+    $('approvedLoginUser').value=u;
+    $('approvedLoginPass').value=p;
+  }catch(e){
+    toast('সার্ভার ত্রুটি: '+(e&&e.message?e.message:e));
+  }
+}
+async function saveAdmin(){try{const photo=await fileData('aPhoto'),headerPhoto=await fileData('aHeaderPhoto');const businessName=$('aBusinessName').value.trim(),username=$('aUser').value.trim().toLowerCase(),password=$('aPass').value,mobile=$('aMobile').value.trim(),address=$('aAddress').value.trim();if(!businessName||!username||!password||!mobile||!address){toast('প্রতিষ্ঠানের নাম, Username, Password, Mobile ও ঠিকানা পূরণ করুন।');return;}const d={NameBN:businessName,BusinessName:businessName,Username:username,Password:password,Email:$('aEmail').value.trim(),Mobile:mobile,WhatsApp:$('aWa').value.trim(),ApprovalID:$('aApproval').value.trim(),FoundedYear:$('aFoundedYear').value,TradeLicense:$('aTradeLicense').value.trim(),Address:address,Photo:photo,HeaderPhoto:headerPhoto,HeaderTextColor:$('aUseHeaderTextColor').value==='custom'?$('aHeaderTextColor').value:'',NID:$('aNid').value.trim()};const r=token?await call('createAdmin',token,d):await call('registerNewAdmin',{name:businessName,mobile:mobile,username:username,password:password,address:address,photo:photo});if(!r||!r.ok){toast((r&&r.message)||'অ্যাডমিন অ্যাকাউন্ট তৈরি হয়নি।');return;}toast(r.message||'নতুন অ্যাডমিন অ্যাকাউন্ট তৈরি হয়েছে। Admin ID: '+(r.adminId||''));}catch(e){toast('সার্ভার ত্রুটি: '+(e&&e.message?e.message:e));}}
 async function lookupOnlinePaymentStudent(){
   const id=String($('pStudent')?.value||'').trim();
   if(!id)return;
