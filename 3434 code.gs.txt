@@ -2375,7 +2375,7 @@ function getAccountBranding20261104(token){
     skip:false,
     accountType:type,
     name:String(account.NameBN||account.Name||account.InstitutionName||''),
-    logo:String(account.Photo||account.photo||account.Logo||account.logo||''),
+    logo:accountImageUrl_(account.Photo||account.photo||account.Logo||account.logo||''),
     address:String(account.Address||''),
     mobile:String(account.Mobile||account.Hotline||''),
     email:String(account.Email||'')
