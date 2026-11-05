@@ -18408,6 +18408,32 @@ body.offwhite #institutionDocumentary2026 .institution-documentary-footnote{
 }
 </style>
 <!-- ===== END STATIONARY NEWS BOX FIX ===== -->
+<style id="login-news-remove-lower-white-strip-20261105">
+/* লগইন পেজের চলমান নিউজ বক্সে লেখার নিচের অতিরিক্ত সাদা ফাঁকা অংশ বাদ */
+#loginPage .ticker{
+  box-sizing:border-box!important;
+  height:43px!important;
+  min-height:43px!important;
+  padding:0 12px!important;
+  margin:9px 0 11px!important;
+  display:flex!important;
+  align-items:center!important;
+  overflow:hidden!important;
+  background:linear-gradient(90deg,#b77b00,#f4d56b,#b77b00)!important;
+}
+#loginPage .ticker-text{
+  box-sizing:border-box!important;
+  height:auto!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:0!important;
+  line-height:1.2!important;
+  background:transparent!important;
+}
+@media(max-width:700px){
+  #loginPage .ticker{height:40px!important;min-height:40px!important}
+}
+</style>
 
 
 <!-- ===== LOGIN PAGE: REMOVE FOUR REQUESTED OPTIONS — 2026-10-26 ===== -->
