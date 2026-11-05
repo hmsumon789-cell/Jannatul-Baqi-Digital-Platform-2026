@@ -1278,6 +1278,28 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 }
 </style>
 
+<script id="login-logo-transparent-bg-20261105">
+(function(){
+ function cleanLoginLogo(){
+  var img=document.getElementById('loginLogo');
+  if(!img||img.dataset.bgCleaned==='1')return;
+  if(!img.complete||!img.naturalWidth){img.addEventListener('load',cleanLoginLogo,{once:true});return;}
+  try{
+   var w=img.naturalWidth,h=img.naturalHeight,cv=document.createElement('canvas');cv.width=w;cv.height=h;
+   var cx=cv.getContext('2d',{willReadFrequently:true});cx.drawImage(img,0,0,w,h);
+   var im=cx.getImageData(0,0,w,h),d=im.data,n=w*h,seen=new Uint8Array(n),q=new Int32Array(n),hd=0,tl=0;
+   function bg(k){var p=k*4,R=d[p],G=d[p+1],B=d[p+2];return Math.min(R,G,B)>218&&Math.max(R,G,B)-Math.min(R,G,B)<24;}
+   function add(k){if(k>=0&&k<n&&!seen[k]&&bg(k)){seen[k]=1;q[tl++]=k;}}
+   for(var x=0;x<w;x++){add(x);add((h-1)*w+x);}
+   for(var y=1;y<h-1;y++){add(y*w);add(y*w+w-1);}
+   while(hd<tl){var k=q[hd++],x=k%w,y=(k/w)|0;if(x)add(k-1);if(x<w-1)add(k+1);if(y)add(k-w);if(y<h-1)add(k+w);}
+   for(var k=0;k<n;k++)if(seen[k]){var p=k*4,v=(d[p]+d[p+1]+d[p+2])/3;d[p+3]=Math.min(d[p+3],Math.max(0,Math.round((255-v)*7)));}
+   cx.putImageData(im,0,0);img.src=cv.toDataURL('image/png');img.dataset.bgCleaned='1';img.style.background='transparent';
+  }catch(e){img.style.mixBlendMode='multiply';}
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',cleanLoginLogo,{once:true});else cleanLoginLogo();
+})();
+</script>
 </head>
 <body>
 <div id="welcomeScreen">
@@ -18537,38 +18559,7 @@ body.gold #toast.toast{background:#fff5c7!important;color:#4b3200!important;bord
    note('প্রকাশ সম্পন্ন: '+done+' | ব্যর্থ: '+failed.length+(failed.length?' — '+failed.slice(0,5).join('; '):''));busy=false;await window.jbORPLoad20261027();
   }finally{busy=false}
  };
- window.jbORPPrint20261027=function(){var box=el('jbORPList20261027');if(!box||!box.innerHTML){note('প্রিন্টের আগে তালিকা লোড করুন।');return}var w=window.open('','_blank');if(!w){note('প্রিন্ট উইন্ডো খোলা যায়নি; ব্রাউজারের pop-up অনুমতি দিন।');return}w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>অনলাইন ফলাফল প্লাটফর্ম</title><style>body{font-family:Arial,sans-serif;padding:16px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #555;padding:5px;text-align:center}input{border:0;width:60px}.jborp-tools,button{display:none!important}</style></head><body><h2>অনলাইন ফলাফল প্লাটফর্ম</h2><p>'+esc(val('jbORPExam20261027'))+' | '+esc(val('jbORPClass20261027'))+' | '+esc(val('jbORPYear20261027'))+'</p>'+box.innerHTML+'<script id="login-logo-transparent-bg-20261105">
-(function(){
-  function cleanLoginLogo(){
-    var img=document.getElementById('loginLogo');
-    if(!img || img.dataset.bgCleaned==='1') return;
-    if(!img.complete || !img.naturalWidth){img.addEventListener('load',cleanLoginLogo,{once:true});return;}
-    try{
-      var w=img.naturalWidth,h=img.naturalHeight,cv=document.createElement('canvas');
-      cv.width=w;cv.height=h;
-      var cx=cv.getContext('2d',{willReadFrequently:true});
-      cx.drawImage(img,0,0,w,h);
-      var im=cx.getImageData(0,0,w,h),d=im.data,n=w*h,seen=new Uint8Array(n),q=new Int32Array(n),head=0,tail=0;
-      function isBg(k){var p=k*4,rr=d[p],gg=d[p+1],bb=d[p+2],mx=Math.max(rr,gg,bb),mn=Math.min(rr,gg,bb);return mn>218 && mx-mn<24;}
-      function add(k){if(k>=0&&k<n&&!seen[k]&&isBg(k)){seen[k]=1;q[tail++]=k;}}
-      for(var x=0;x<w;x++){add(x);add((h-1)*w+x);}
-      for(var y=1;y<h-1;y++){add(y*w);add(y*w+w-1);}
-      while(head<tail){var k=q[head++],x=k%w,y=(k/w)|0;if(x)add(k-1);if(x<w-1)add(k+1);if(y)add(k-w);if(y<h-1)add(k+w);}
-      for(var k=0;k<n;k++)if(seen[k]){
-        var p=k*4,bright=(d[p]+d[p+1]+d[p+2])/3;
-        d[p+3]=Math.min(d[p+3],Math.max(0,Math.round((255-bright)*7)));
-      }
-      cx.putImageData(im,0,0);
-      img.src=cv.toDataURL('image/png');
-      img.dataset.bgCleaned='1';
-      img.style.background='transparent';
-      img.style.mixBlendMode='normal';
-    }catch(e){img.style.mixBlendMode='multiply';}
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',cleanLoginLogo,{once:true});
-  else cleanLoginLogo();
-})();
-</script>
+ window.jbORPPrint20261027=function(){var box=el('jbORPList20261027');if(!box||!box.innerHTML){note('প্রিন্টের আগে তালিকা লোড করুন।');return}var w=window.open('','_blank');if(!w){note('প্রিন্ট উইন্ডো খোলা যায়নি; ব্রাউজারের pop-up অনুমতি দিন।');return}w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>অনলাইন ফলাফল প্লাটফর্ম</title><style>body{font-family:Arial,sans-serif;padding:16px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #555;padding:5px;text-align:center}input{border:0;width:60px}.jborp-tools,button{display:none!important}</style></head><body><h2>অনলাইন ফলাফল প্লাটফর্ম</h2><p>'+esc(val('jbORPExam20261027'))+' | '+esc(val('jbORPClass20261027'))+' | '+esc(val('jbORPYear20261027'))+'</p>'+box.innerHTML+'
 </body></html>');w.document.close();w.focus();w.print()};
  function enableDrag(){
   var w=el(wid),h=el('jbORPDragHandle20261027');if(!w||!h||h.dataset.dragReady==='1')return;h.dataset.dragReady='1';
