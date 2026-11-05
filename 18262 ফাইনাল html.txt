@@ -10213,8 +10213,8 @@ body.jb-custom-account .header-content .header-identity-contact{color:#fff!impor
     document.body.classList.add('jb-custom-account');
     var logo=photoOf(u),logoEl=document.getElementById('headerLogo');
     if(logoEl){if(logo){logoEl.src=logo;logoEl.alt=String(u.Name||u.NameBN||'প্রতিষ্ঠানের লোগো');logoEl.style.removeProperty('display');}else{logoEl.removeAttribute('src');logoEl.style.setProperty('display','none','important');}}
-    var p=headerPhotoOf(u),wallpaper=String(u.Wallpaper||u.wallpaper||u.BackgroundPhoto||u.backgroundPhoto||p||'').trim(),h=document.querySelector('#app .header-top');
-    if(h){var bg=p?'url("'+p.replace(/"/g,'%22')+'")':'linear-gradient(135deg,#26364b,#465a70)';h.style.setProperty('background-image',bg,'important');h.style.setProperty('background-size','cover','important');h.style.setProperty('background-position','center center','important');h.style.setProperty('background-repeat','no-repeat','important');}
+    var p=headerPhotoOf(u),wallpaper=String(u.Wallpaper||u.wallpaper||u.BackgroundPhoto||u.backgroundPhoto||p||'').trim(),h=document.querySelector('#app .header-top'),headerBg=String(u.HeaderBackgroundColor||u.headerBackgroundColor||'#1e3a8a').trim();
+    if(h){var bg=p?'url("'+p.replace(/"/g,'%22')+'")':'none';h.style.setProperty('background-image',bg,'important');h.style.setProperty('background-color',headerBg,'important');h.style.setProperty('background-size','cover','important');h.style.setProperty('background-position','center center','important');h.style.setProperty('background-repeat','no-repeat','important');}
     document.body.style.setProperty('background-image',wallpaper?'linear-gradient(rgba(0,0,0,.12),rgba(0,0,0,.12)),url("'+wallpaper.replace(/"/g,'%22')+'")':'none','important');
     document.body.style.setProperty('background-color','var(--bg,#f4f6f8)','important');
     if(wallpaper){document.body.style.setProperty('background-size','cover','important');document.body.style.setProperty('background-position','center center','important');document.body.style.setProperty('background-attachment','fixed','important');}
