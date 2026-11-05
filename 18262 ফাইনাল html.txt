@@ -18645,3 +18645,86 @@ body.jb-custom-account #institutionDocumentary2026{display:none!important}
 body.jb-custom-account #app .header-slides,body.jb-custom-account #app #headerSlides,body.jb-custom-account #app #headerBackgroundSlides,body.jb-custom-account #app .header-background-slides,body.jb-custom-account #app .header-photo-load{display:none!important}
 
 </style>
+
+
+<!-- ADMISSION UPLOAD + SAVE MODE TARGET FIX 2026-11-05 -->
+<style id="jb-admission-target-fix-style-20261105">
+#formWin #admissionMandatoryPanel2026 .jb-adm-save-choice-20261105{display:flex!important;flex-direction:column;gap:7px;min-width:190px;max-width:260px;padding:10px;border:1px solid #d9bf70;border-radius:10px;background:#fff}
+#formWin #admissionMandatoryPanel2026 .jb-adm-save-choice-20261105 select{width:100%;min-height:42px;padding:8px;border:2px solid #b58a25;border-radius:8px;background:#fff;color:#222;font-weight:700}
+#formWin #admissionMandatoryPanel2026 .jb-adm-save-choice-20261105 button{width:100%;min-height:44px}
+#formWin #admissionMandatoryPanel2026 .adm-fee-actions{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+@media(max-width:760px){#formWin #admissionMandatoryPanel2026 .adm-fee-actions{grid-template-columns:1fr!important}}
+</style>
+<script id="jb-admission-target-fix-20261105">
+(function(){
+'use strict';
+var byId=function(id){return document.getElementById(id)};
+/* Older import handlers used an unscoped el() helper. Supply a safe global alias. */
+if(typeof window.el!=='function')window.el=byId;
+window.jbAdmissionHandwrittenUpload2026=function(){
+ var root=byId('winBody')||byId('formWin');
+ if(!root){alert('ভর্তি ফর্মটি আগে খুলুন।');return}
+ var input=byId('jbHandwrittenFormUpload2026');
+ if(!input){
+  input=document.createElement('input');input.type='file';input.id='jbHandwrittenFormUpload2026';
+  input.accept='image/*,.pdf,.txt,.csv,.json,.xlsx,.xls,.docx';
+  input.style.cssText='position:absolute;width:1px;height:1px;opacity:0;pointer-events:none';
+  input.addEventListener('change',async function(){
+   var file=input.files&&input.files[0];if(!file)return;
+   var fb=byId('admAdmissionRedesignFeedback2026');
+   if(!fb){fb=document.createElement('div');fb.id='admAdmissionRedesignFeedback2026';fb.style.cssText='padding:8px;margin:8px 0;color:#174b32;font-weight:700';root.appendChild(fb)}
+   try{
+    if(typeof window.jbAdmissionImportFile2026!=='function')throw new Error('ফাইল/OCR পাঠক লোড হয়নি। পেজটি রিফ্রেশ করে আবার চেষ্টা করুন।');
+    await window.jbAdmissionImportFile2026(file);
+   }catch(err){fb.textContent='❌ আপলোডে সমস্যা: '+(err&&err.message?err.message:String(err))}
+   finally{input.value=''}
+  });
+  root.appendChild(input);
+ }
+ input.click();
+};
+function install(){
+ var root=byId('winBody'),panel=byId('admissionMandatoryPanel2026');
+ if(!root||!panel)return;
+ var actions=panel.querySelector('.adm-fee-actions');if(!actions)return;
+ var choice=byId('jbAdmissionSaveMode20261105');
+ if(!choice){
+  var wrap=document.createElement('div');wrap.className='jb-adm-save-choice-20261105';
+  wrap.innerHTML='<b>সংরক্ষণের ধরন নির্বাচন</b><select id="jbAdmissionSaveMode20261105" aria-label="সংরক্ষণের ধরন"><option value="LATER">পেমেন্ট ছাড়া সংরক্ষণ</option><option value="PAY">পেমেন্ট করে সংরক্ষণ</option></select><button type="button" class="primary" id="jbAdmissionSaveModeAction20261105">নির্বাচিত পদ্ধতিতে সংরক্ষণ</button>';
+  actions.insertBefore(wrap,actions.firstChild);
+  byId('jbAdmissionSaveModeAction20261105').addEventListener('click',async function(){
+   var mode=byId('jbAdmissionSaveMode20261105').value;
+   if(typeof window.saveAdmissionApplication2026==='function' && typeof window.jbAdmissionValidateRequired20261105==='function' && !window.jbAdmissionValidateRequired20261105())return;
+   if(mode==='PAY'){
+    if(typeof window.openAdmissionDialog2026==='function')window.openAdmissionDialog2026('payment');
+    else alert('পেমেন্ট ফর্ম খোলা যাচ্ছে না।');
+    return;
+   }
+   if(typeof window.chooseAdmissionPayLater2026==='function'){
+    await window.chooseAdmissionPayLater2026();
+   }else if(typeof window.saveAdmissionApplication2026==='function'){
+    window.saveAdmissionApplication2026();
+   }else alert('সংরক্ষণ ব্যবস্থা পাওয়া যায়নি।');
+  });
+ }
+ var oldPreview=root.querySelector('button[onclick="previewAdmissionApplication2026()"]');if(oldPreview)oldPreview.remove();
+ var direct=root.querySelector('button[onclick="saveAdmissionApplication2026()"]');
+ if(direct){direct.disabled=false;direct.textContent='💾 ভর্তি আবেদন সংরক্ষণ করুন'}
+}
+window.jbAdmissionValidateRequired20261105=function(){
+ var ids=['admManualID2026','adNameBN','adDob','adFatherBN','adMobile','adClass','admEntryType2026','admStudentCategory2026'];
+ var bad=null;
+ ids.some(function(id){var x=byId(id);if(x&&!String(x.value||'').trim()){bad=x;return true}return false});
+ if(!bad){
+  var addressIds=['adCurrentAddress2026','adVillageSelect','adVillageManual','adAddress'];
+  if(!addressIds.some(function(id){var x=byId(id);return x&&String(x.value||'').trim()}))bad=addressIds.map(byId).find(Boolean);
+ }
+ if(bad){bad.classList.add('jb-adm-required-error-20261105');bad.setAttribute('aria-invalid','true');bad.scrollIntoView({behavior:'smooth',block:'center'});bad.focus();return false}
+ return true;
+};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){
+ install();new MutationObserver(install).observe(byId('winBody')||document.body,{childList:true,subtree:true});
+},{once:true});
+else{install();new MutationObserver(install).observe(document.body,{childList:true,subtree:true})}
+})();
+</script>
