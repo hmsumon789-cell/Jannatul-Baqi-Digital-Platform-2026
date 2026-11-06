@@ -3501,7 +3501,7 @@ function submitPayment(){var months=selected("month"),categories=selected("categ
         "sharePublicPaymentReceipt":sharePublicPaymentReceipt
       };
       document.querySelectorAll("button[onclick]").forEach(function(btn){
-        var call=(btn.getAttribute("onclick")||"").replace(/\\(.*$/,"").trim();
+        var call=(btn.getAttribute("onclick")||"").split("(")[0].trim();
         if(actions[call]){
           btn.addEventListener("click",function(ev){
             ev.preventDefault();
