@@ -2348,7 +2348,75 @@ async function searchOnlinePaymentReceipt(){
 function printOnlineReceipt(){
   const b=$('onlineReceiptBody');if(!b)return;
   const w=window.open('','_blank','width=850,height=750');if(!w)return;
-  w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>মানি রসিদ</title><style>@page{size:A4 portrait;margin:14mm}body{font-family:Arial,"Noto Sans Bengali",sans-serif;padding:0;color:#111}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:9px;text-align:left}h2,h3{text-align:center}</style></head><body>'+b.outerHTML+'\n\n</body></html>');
+  w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>মানি রসিদ</title><style>@page{size:A4 portrait;margin:14mm}body{font-family:Arial,"Noto Sans Bengali",sans-serif;padding:0;color:#111}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:9px;text-align:left}h2,h3{text-align:center}</style></head><body>'+b.outerHTML+'\n\n</body>
+<!-- ===== UNIVERSAL MONEY RECEIPT DESIGN: ONLINE + ADMISSION + FINANCE + DOCUMENT BUILDER — 2026-11-06 ===== -->
+<style id="jb-universal-money-receipt-20261106">
+.jb-universal-money-paper-20261106{position:relative!important;isolation:isolate!important;overflow:hidden!important;background:#fff!important;color:#111!important}
+.jb-universal-money-paper-20261106>.jb-universal-money-watermark-20261106{position:absolute!important;z-index:0!important;left:50%!important;top:54%!important;width:58%!important;height:58%!important;max-width:58%!important;max-height:58%!important;object-fit:contain!important;transform:translate(-50%,-50%)!important;opacity:.075!important;pointer-events:none!important}
+.jb-universal-money-paper-20261106>*:not(.jb-universal-money-watermark-20261106){position:relative;z-index:1}
+.jb-universal-money-header-20261106{display:grid!important;grid-template-columns:18mm minmax(0,1fr) 18mm!important;gap:3mm!important;align-items:center!important;width:100%!important;box-sizing:border-box!important;padding:0 0 3mm!important;margin:0 0 4mm!important;border-bottom:1.5px solid #222!important;background:#fff!important;color:#111!important;direction:ltr!important}
+.jb-universal-money-header-20261106 img{display:block!important;width:16mm!important;height:16mm!important;max-width:16mm!important;max-height:16mm!important;object-fit:contain!important;margin:auto!important}
+.jb-universal-money-header-20261106 .jb-universal-money-center-20261106{text-align:center!important;line-height:1.3!important;font-family:Arial,"Noto Sans Bengali",sans-serif!important}
+.jb-universal-money-name-20261106{font-size:12pt!important;font-weight:900!important}
+.jb-universal-money-address-20261106,.jb-universal-money-hotline-20261106{font-size:8pt!important;font-weight:800!important;margin-top:2px!important}
+.jb-universal-paid-wrap-20261106{text-align:center!important;margin:2mm auto 4mm!important}
+.jb-universal-paid-20261106{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:22mm!important;height:22mm!important;box-sizing:border-box!important;border:1.2mm double #16803c!important;border-radius:50%!important;color:#16803c!important;background:rgba(255,255,255,.72)!important;font-family:Arial,sans-serif!important;font-size:13pt!important;font-weight:900!important;letter-spacing:1px!important;transform:rotate(-12deg)!important}
+.jb-universal-receipt-actions-20261106{display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;margin:12px auto}
+.jb-universal-receipt-actions-20261106 button{padding:9px 14px;font-weight:900}
+@media print{.jb-universal-receipt-actions-20261106,.adm-receipt-actions,#onlineReceiptActions,.jb-finance-actions,.jb-doc-actions{display:none!important}.jb-universal-money-paper-20261106{overflow:visible!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}
+</style>
+<script id="jb-universal-money-receipt-20261106-js">
+(function(){
+ 'use strict';
+ function el(id){return document.getElementById(id)}
+ function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+ function contact(){
+  var logo=el('contactLoginLogo2026')||el('loginLogo')||el('headerLogo'),qr=el('contactMainQR2026')||el('loginMainQR802268e');
+  var name=document.querySelector('#contactFooter .contact-name'),address=document.querySelector('#contactFooter .contact-address'),info=document.querySelector('#contactFooter .contact-info'),hotline='01823316630';
+  if(info){var m=String(info.innerText||info.textContent||'').match(/হটলাইন\s*:\s*([+0-9০-৯ -]+)/);if(m)hotline=m[1].trim()}
+  return {logo:logo&&logo.src||'',qr:qr&&qr.src||'',name:name&&String(name.textContent||'').trim()||'জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা',address:address&&String(address.textContent||'').trim()||'উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০',hotline:hotline};
+ }
+ function headerHTML(c){
+  var qr=c.qr||('https://quickchart.io/qr?size=220&margin=2&text='+encodeURIComponent(location.origin+location.pathname));
+  return '<div class="jb-universal-money-header-20261106"><div><img src="'+esc(c.logo)+'" alt="মূল লোগো"></div><div class="jb-universal-money-center-20261106"><div class="jb-universal-money-name-20261106">'+esc(c.name)+'</div><div class="jb-universal-money-address-20261106">'+esc(c.address)+'</div><div class="jb-universal-money-hotline-20261106">হটলাইন: '+esc(c.hotline)+'</div></div><div><img src="'+esc(qr)+'" alt="মূল পেজের QR কোড"></div></div>';
+ }
+ function decorate(paper){
+  if(!paper)return;
+  var c=contact();paper.classList.add('jb-universal-money-paper-20261106');
+  var header=paper.querySelector('.jb-universal-money-header-20261106,.or-top,.adm-receipt-header-20261010,.jb-institution-header-2026,.jb-print-institution-header-20261010');
+  if(!header){paper.insertAdjacentHTML('afterbegin',headerHTML(c));header=paper.firstElementChild}
+  if(header){
+   var imgs=header.querySelectorAll('img');if(imgs.length){if(c.logo)imgs[0].src=c.logo;if(c.qr)imgs[imgs.length-1].src=c.qr}
+   if(header.classList.contains('or-top')){var center=header.querySelector('.or-title');if(center){var n=center.children;if(n[0])n[0].textContent=c.name;if(n[1])n[1].textContent=c.address;if(n[2])n[2].textContent='হটলাইন: '+c.hotline}}
+  }
+  if(!paper.querySelector('.jb-universal-money-watermark-20261106')&&c.logo){var wm=document.createElement('img');wm.className='jb-universal-money-watermark-20261106';wm.src=c.logo;wm.alt='';paper.insertBefore(wm,paper.firstChild)}
+  if(!paper.querySelector('.or-paid,.jb-universal-paid-wrap-20261106')){var paid=document.createElement('div');paid.className='jb-universal-paid-wrap-20261106';paid.innerHTML='<span class="jb-universal-paid-20261106">PAID</span>';var h=paper.querySelector('h2,h3');if(h&&h.parentNode===paper)paper.insertBefore(paid,h);else if(header&&header.nextSibling)paper.insertBefore(paid,header.nextSibling);else paper.insertBefore(paid,paper.firstChild)}
+ }
+ function getPaper(k){if(k==='online')return el('onlineReceiptBody');if(k==='finance')return el('jbFinanceReceiptPrint2026');if(k==='admission'){var x=el('admReceiptOverlay2026');return x&&x.querySelector('.adm-receipt-paper')}if(k==='document'){var x=el('jbDocPreviewWrap');return x&&x.querySelector('.jb-doc-preview')}return null}
+ function htmlFor(p,title){var n=p.cloneNode(true);n.querySelectorAll('.jb-universal-receipt-actions-20261106,#onlineReceiptActions,.adm-receipt-actions,.jb-finance-actions,.jb-doc-actions').forEach(function(x){x.remove()});return '<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>'+esc(title)+'</title><style>@page{size:A5 portrait;margin:7mm}*{box-sizing:border-box}html,body{margin:0;padding:0;background:#fff;color:#111;font-family:Arial,"Noto Sans Bengali",sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}.jb-universal-money-paper-20261106{position:relative;isolation:isolate;overflow:hidden;background:#fff;color:#111;border:2px double #222;padding:6mm;margin:0 auto;max-width:148mm}.jb-universal-money-paper-20261106>.jb-universal-money-watermark-20261106{position:absolute;z-index:0;left:50%;top:54%;width:58%;height:58%;object-fit:contain;transform:translate(-50%,-50%);opacity:.075}.jb-universal-money-paper-20261106>*:not(.jb-universal-money-watermark-20261106){position:relative;z-index:1}.jb-universal-money-header-20261106,.adm-receipt-header-20261010,.or-top,.jb-institution-header-2026{display:grid;grid-template-columns:18mm minmax(0,1fr) 18mm;gap:3mm;align-items:center;border-bottom:1px solid #222;padding-bottom:3mm;margin-bottom:4mm}.jb-universal-money-header-20261106 img,.adm-receipt-header-20261010 img,.or-top img{width:16mm;height:16mm;object-fit:contain}.jb-universal-money-center-20261106,.adm-rh-center,.or-title{text-align:center;line-height:1.3}.jb-universal-money-name-20261106,.adm-rh-name{font-size:12pt;font-weight:900}.jb-universal-money-address-20261106,.jb-universal-money-hotline-20261106,.adm-rh-address,.adm-rh-hotline{font-size:8pt;font-weight:800}.jb-universal-paid-wrap-20261106,.or-paid-wrap{text-align:center;margin:2mm auto 4mm}.jb-universal-paid-20261106,.or-paid{display:inline-flex;align-items:center;justify-content:center;width:22mm;height:22mm;border:1.2mm double #16803c;border-radius:50%;color:#16803c;font-size:13pt;font-weight:900;transform:rotate(-12deg)}table{width:100%;border-collapse:collapse}th,td{border:1px solid #555;padding:5px;text-align:left}.adm-receipt-actions,#onlineReceiptActions,.jb-finance-actions,.jb-doc-actions{display:none!important}</style></head><body>'+n.outerHTML+'</body></html>'}
+ function print(k){var p=getPaper(k);if(!p)return;decorate(p);var w=window.open('','_blank','width=900,height=800');if(!w){alert('প্রিন্ট উইন্ডো খোলা যায়নি। Browser popup অনুমতি দিন।');return}w.document.open();w.document.write(htmlFor(p,'জান্নাতুল বাক্বী — মানি রসিদ'));w.document.close();w.focus();setTimeout(function(){w.print()},400)}
+ function download(k){var p=getPaper(k);if(!p)return;decorate(p);var b=new Blob([htmlFor(p,'জান্নাতুল বাক্বী — মানি রসিদ')],{type:'text/html;charset=utf-8'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='Jannatul_Baqi_Money_Receipt.html';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},1200)}
+ async function share(k){var p=getPaper(k);if(!p)return;var r=window.__jbOnlineReceipt2026||window.__jbAdmissionReceiptData20261106||{},msg='জান্নাতুল বাক্বী — মানি রসিদ'+(r.ReceiptID?' | রসিদ আইডি: '+r.ReceiptID:'')+(r.Amount?' | পরিমাণ: '+Number(r.Amount).toLocaleString('bn-BD')+' টাকা':'');try{if(navigator.share){await navigator.share({title:'জান্নাতুল বাক্বী — মানি রসিদ',text:msg,url:location.href});return}if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(msg+'\n'+location.href);alert('রসিদের তথ্য কপি হয়েছে। এখন শেয়ার করতে পারবেন।');return}alert('এই ব্রাউজারে সরাসরি শেয়ার সুবিধা নেই।')}catch(e){if(e&&e.name!=='AbortError')alert('শেয়ার করা যায়নি: '+(e.message||e))}}
+ function bar(parent,k){if(!parent||parent.querySelector('.jb-universal-receipt-actions-20261106'))return;var x=document.createElement('div');x.className='jb-universal-receipt-actions-20261106';x.innerHTML='<button type="button" class="primary" onclick="jbUniversalPrintReceipt20261106(\''+k+'\')">🖨️ প্রিন্ট</button><button type="button" class="secondary" onclick="jbUniversalDownloadReceipt20261106(\''+k+'\')">⬇️ ডাউনলোড</button><button type="button" class="secondary" onclick="jbUniversalShareReceipt20261106(\''+k+'\')">↗️ শেয়ার</button>';parent.appendChild(x)}
+ window.jbUniversalPrintReceipt20261106=print;window.jbUniversalDownloadReceipt20261106=download;window.jbUniversalShareReceipt20261106=share;
+ function apply(){
+  var p=getPaper('online');if(p){decorate(p);var a=el('onlineReceiptActions');if(a&&!a.querySelector('[onclick*="jbUniversalShareReceipt"]'))a.insertAdjacentHTML('beforeend','<button class="secondary" type="button" onclick="jbUniversalShareReceipt20261106(\'online\')">↗️ শেয়ার</button>')}
+  p=getPaper('finance');if(p){decorate(p);bar(el('jbFinanceReceipt2026'),'finance')}
+  p=getPaper('admission');if(p){decorate(p);var a=el('admReceiptOverlay2026').querySelector('.adm-receipt-actions');if(a&&!a.querySelector('[onclick*="jbUniversalDownloadReceipt"]'))a.insertAdjacentHTML('beforeend','<button type="button" onclick="jbUniversalDownloadReceipt20261106(\'admission\')">⬇️ ডাউনলোড</button><button type="button" onclick="jbUniversalShareReceipt20261106(\'admission\')">↗️ শেয়ার</button>')}
+  var w=el('jbDocPreviewWrap'),d=w&&w.querySelector('.jb-doc-preview'),t=String((el('jbDocBuilderTitle')||{}).textContent||'');if(d&&/রিসিট|রসিদ/i.test(t)){decorate(d);bar(w.querySelector('.jb-doc-actions'),'document')}
+ }
+ var oldO=window.showOnlinePaymentReceipt;if(typeof oldO==='function'&&!oldO.__jbUniversalReceipt20261106){var f=function(r){var v=oldO.apply(this,arguments);setTimeout(apply,40);return v};f.__jbUniversalReceipt20261106=true;window.showOnlinePaymentReceipt=f}
+ var oldA=window.showAdmissionReceipt2026;if(typeof oldA==='function'&&!oldA.__jbUniversalReceipt20261106){var f2=function(r){window.__jbAdmissionReceiptData20261106=r||{};var v=oldA.apply(this,arguments);setTimeout(apply,40);return v};f2.__jbUniversalReceipt20261106=true;window.showAdmissionReceipt2026=f2}
+ window.printOnlineReceipt=function(){print('online')};window.downloadOnlineReceipt=function(){download('online')};
+ window.jbFinancePrintReceipt2026=function(){print('finance')};window.jbFinanceDownloadReceipt2026=function(){download('finance')};
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply);else apply();
+ if(document.body)new MutationObserver(apply).observe(document.body,{childList:true,subtree:true});
+ [250,700,1400,2600].forEach(function(ms){setTimeout(apply,ms)});
+})();
+</script>
+<!-- ===== END UNIVERSAL MONEY RECEIPT DESIGN 2026-11-06 ===== -->
+
+</html>');
   w.document.close();w.focus();setTimeout(function(){w.print()},250);
 }
 
