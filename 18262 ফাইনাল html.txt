@@ -3095,11 +3095,39 @@ window.refreshAccountManager=async function(){
     [['admin','Admin Account',pendingCounts.admin],['madrasa','Madrasa Account',pendingCounts.madrasa],['students','Pending Student ভর্তি',pendingCounts.students],['payments','💳 পেমেন্ট অনুমোদন',pendingCounts.payments],['all','সব Account',pendingCounts.admin+pendingCounts.madrasa+pendingCounts.students],['allcontrol','🌐 অল একাউন্ট কন্ট্রল',null]].forEach(function(t){
       var b=document.createElement('button');b.type='button';b.className='account-tab';b.textContent=t[1];
       if(t[2]!==null){var badge=document.createElement('span');badge.textContent=' '+t[2];badge.style.cssText='color:#d00000;font-weight:1000;margin-left:5px';b.appendChild(badge);}
-      b.onclick=function(){if(t[0]==='allcontrol')refreshAllAccountControl();else if(t[0]==='payments')openPendingPayments();else renderAccountList(t[0])};tabs.appendChild(b)
+      b.onclick=function(){if(t[0]==='allcontrol')refreshAllAccountControl();else if(t[0]==='payments')renderAccountPaymentList();else renderAccountList(t[0])};tabs.appendChild(b)
     });
     wrap.appendChild(tabs);var list=document.createElement('div');list.id='accountListUi';list.className='account-list';wrap.appendChild(list);body.appendChild(wrap);
     window._accountData=r;window._accountPendingCounts=pendingCounts;renderAccountList('all');
   }catch(e){toast('Account Manager সার্ভার ত্রুটি: '+(e&&e.message?e.message:e))}
+};
+window.renderAccountPaymentList=async function(){
+  var box=$('accountListUi');if(!box)return;
+  box.innerHTML='<div class="card" style="padding:14px;text-align:center;font-weight:900">⏳ পেমেন্ট তালিকা লোড হচ্ছে...</div>';
+  try{
+    var r=await call('getPendingOnlinePayments',token);
+    if(!r||!r.ok){box.innerHTML='<div class="card" style="padding:14px;color:#b00020">'+escA((r&&r.message)||'পেমেন্ট তালিকা পাওয়া যায়নি।')+'</div>';return;}
+    var rows=r.rows||[];
+    var out='<div class="account-manager-title">💳 Pending পেমেন্ট তালিকা ('+rows.length+')</div><div class="table-wrap"><table class="data-table"><thead><tr><th>Request ID</th><th>শিক্ষার্থী</th><th>Student ID</th><th>পরিমাণ</th><th>মাধ্যম</th><th>Reference</th><th>প্রদানকারীর মোবাইল</th><th>Action</th></tr></thead><tbody>';
+    rows.forEach(function(x){
+      out+='<tr><td>'+escA(x.RequestID||'')+'</td><td>'+escA(x.Name||'')+'</td><td>'+escA(x.StudentID||'')+'</td><td>'+Number(x.Amount||0).toLocaleString('bn-BD')+' টাকা</td><td>'+escA(x.Method||'')+'</td><td>'+escA(x.Reference||'')+'</td><td>'+escA(x.PayerMobile||'')+'</td><td><button class="primary" type="button" onclick="approveAccountPayment(\''+String(x.RequestID||'').replace(/'/g,"\\\\'")+'\')">✅ অনুমোদন</button> <button class="secondary" type="button" onclick="rejectAccountPayment(\''+String(x.RequestID||'').replace(/'/g,"\\\\'")+'\')">❌ বাতিল</button></td></tr>';
+    });
+    out+='</tbody></table></div>';
+    if(!rows.length)out+='<div class="card" style="padding:16px;text-align:center">কোনো Pending পেমেন্ট নেই।</div>';
+    box.innerHTML=out;
+  }catch(e){box.innerHTML='<div class="card" style="padding:14px;color:#b00020">পেমেন্ট তালিকা লোডে ত্রুটি: '+escA(e&&e.message||e)+'</div>';}
+};
+window.approveAccountPayment=async function(id){
+  var r=await call('approveOnlinePayment',token,id);
+  toast(r&&r.ok?'পেমেন্ট অনুমোদিত হয়েছে। Receipt ID: '+(r.receiptId||''):(r&&r.message||'অনুমোদন ব্যর্থ।'));
+  await renderAccountPaymentList();
+  if(r&&r.ok&&r.receipt)showOnlinePaymentReceipt(r.receipt);
+};
+window.rejectAccountPayment=async function(id){
+  var reason=prompt('Reject করার কারণ লিখুন:','Transaction যাচাই হয়নি');if(reason===null)return;
+  var r=await call('rejectOnlinePayment',token,id,reason);
+  toast(r&&r.ok?'পেমেন্ট Reject করা হয়েছে।':(r&&r.message||'Reject ব্যর্থ।'));
+  await renderAccountPaymentList();
 };
 window.refreshAllAccountControl=async function(){
   try{
