@@ -2303,7 +2303,7 @@ function showOnlinePaymentReceipt(x){
     '<table>'+fields.map(function(a){return '<tr><th>'+e(a[0])+'</th><td>'+e(a[1]||'—')+'</td></tr>'}).join('')+'</table>'+
     '<div class="or-sign"><span>গ্রহণকারীর স্বাক্ষর: __________________</span><span>প্রদানকারীর স্বাক্ষর: __________________</span></div>'+
     '<div class="or-footer" style="text-align:center;font-size:11px;margin-top:18px;padding-top:10px;border-top:1px dashed #8b5e00">Jannatul Baqi Digital Platform 2026</div></div>'+
-    '<div id="onlineReceiptActions" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px"><button class="primary" type="button" onclick="printOnlineReceipt()">🖨️ প্রিন্ট</button><button class="secondary" type="button" onclick="downloadOnlineReceipt()">⬇️ ডাউনলোড</button><button class="secondary" type="button" onclick="shareOnlineReceipt2026()">↗️ শেয়ার</button><button class="secondary" type="button" onclick="closeWindow(\'onlinePaymentReceiptWin\')">বন্ধ করুন</button></div></div>';
+    '<div id="onlineReceiptActions" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px"><button class="primary" type="button" onclick="printOnlineReceipt()">🖨️ প্রিন্ট / PDF</button><button class="secondary" type="button" onclick="downloadOnlineReceipt()">⬇️ ডাউনলোড</button><button class="secondary" type="button" onclick="shareOnlineReceipt2026()">↗️ শেয়ার</button><button class="secondary" type="button" onclick="closeWindow(\'onlinePaymentReceiptWin\')">বন্ধ করুন</button></div></div>';
   openWindow('onlinePaymentReceiptWin');
 }
 window.shareOnlineReceipt2026=async function(){
@@ -2348,11 +2348,12 @@ async function searchOnlinePaymentReceipt(){
 function printOnlineReceipt(){
   const b=$('onlineReceiptBody');if(!b)return;
   const w=window.open('','_blank','width=850,height=750');if(!w)return;
-  w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>মানি রসিদ</title><style>@page{size:A4 portrait;margin:14mm}body{font-family:Arial,"Noto Sans Bengali",sans-serif;padding:0;color:#111}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:9px;text-align:left}h2,h3{text-align:center}</style></head><body>'+b.outerHTML+'\n\n</body></html>');
-  w.document.close();w.focus();setTimeout(function(){w.print()},250);
+  w.document.open();
+  w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>মানি রসিদ</title><style>@page{size:A4 portrait;margin:12mm}html,body{margin:0;padding:0;background:#fff;color:#111;font-family:Arial,"Noto Sans Bengali",sans-serif}#onlineReceiptBody{width:100%;max-width:none!important;box-sizing:border-box;margin:0 auto!important;border:1px solid #222!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}#onlineReceiptBody table{width:100%;border-collapse:collapse}#onlineReceiptBody th,#onlineReceiptBody td{border:1px solid #333;padding:9px;text-align:left}#onlineReceiptActions{display:none!important}</style></head><body>'+b.outerHTML+'</body></html>');
+  w.document.close();w.focus();
+  const imgs=Array.from(w.document.images),wait=Promise.all(imgs.map(function(im){return im.complete?Promise.resolve():new Promise(function(resolve){im.onload=im.onerror=resolve})}));
+  wait.then(function(){setTimeout(function(){w.print()},250)});
 }
-
-
 function downloadOnlineReceipt(){
   const b=$('onlineReceiptBody'),x=window.__jbOnlineReceipt2026||{};if(!b)return;
   const html='<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>মানি রসিদ '+String(x.ReceiptID||'')+'</title><style>body{font-family:Arial,"Noto Sans Bengali",sans-serif;padding:18px;color:#111}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:9px;text-align:left}h2,h3{text-align:center}</style></head><body>'+b.outerHTML+'</body></html>';
