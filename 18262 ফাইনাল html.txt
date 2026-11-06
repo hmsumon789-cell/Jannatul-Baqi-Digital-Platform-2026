@@ -3084,10 +3084,21 @@ window.refreshAccountManager=async function(){
     body.innerHTML='';
     var wrap=document.createElement('div');wrap.className='account-manager-wrap';
     wrap.innerHTML='<div class="account-manager-title">🔐 Account Approval & Permission Control</div><div class="account-manager-note">এখান থেকে Super Admin নতুন Admin/Madrasa Account অনুমোদন করবেন, কোন কোন কাজ করতে পারবে তা টিক দেবেন, প্রয়োজনে Suspend/Active করবেন এবং Password Reset করতে পারবেন।</div>';
+    var paymentPending=await call('getPendingOnlinePayments',token);
+    var pendingCounts={
+      admin:(r.admins||[]).filter(function(x){return String(x.Status||'PENDING').toUpperCase()==='PENDING'}).length,
+      madrasa:(r.madrasas||[]).filter(function(x){return String(x.Status||'PENDING').toUpperCase()==='PENDING'}).length,
+      students:(r.admissions||[]).filter(function(x){return ['PENDING','SUBMITTED','SUBMITTED_TO_SUPER_ADMIN','PENDING_PAYMENT'].indexOf(String(x.Status||x.ApprovalStatus||'PENDING').toUpperCase())>=0}).length,
+      payments:paymentPending&&paymentPending.ok?(paymentPending.rows||[]).length:0
+    };
     var tabs=document.createElement('div');tabs.className='account-tabs';
-    [['admin','Admin Account'],['madrasa','Madrasa Account'],['students','Pending Student ভর্তি'],['all','সব Account'],['allcontrol','🌐 অল একাউন্ট কন্ট্রল']].forEach(function(t){var b=document.createElement('button');b.type='button';b.className='account-tab';b.textContent=t[1];b.onclick=function(){if(t[0]==='allcontrol')refreshAllAccountControl();else renderAccountList(t[0])};tabs.appendChild(b)});
+    [['admin','Admin Account',pendingCounts.admin],['madrasa','Madrasa Account',pendingCounts.madrasa],['students','Pending Student ভর্তি',pendingCounts.students],['payments','💳 পেমেন্ট অনুমোদন',pendingCounts.payments],['all','সব Account',pendingCounts.admin+pendingCounts.madrasa+pendingCounts.students],['allcontrol','🌐 অল একাউন্ট কন্ট্রল',null]].forEach(function(t){
+      var b=document.createElement('button');b.type='button';b.className='account-tab';b.textContent=t[1];
+      if(t[2]!==null){var badge=document.createElement('span');badge.textContent=' '+t[2];badge.style.cssText='color:#d00000;font-weight:1000;margin-left:5px';b.appendChild(badge);}
+      b.onclick=function(){if(t[0]==='allcontrol')refreshAllAccountControl();else if(t[0]==='payments')openPendingPayments();else renderAccountList(t[0])};tabs.appendChild(b)
+    });
     wrap.appendChild(tabs);var list=document.createElement('div');list.id='accountListUi';list.className='account-list';wrap.appendChild(list);body.appendChild(wrap);
-    window._accountData=r;renderAccountList('all');
+    window._accountData=r;window._accountPendingCounts=pendingCounts;renderAccountList('all');
   }catch(e){toast('Account Manager সার্ভার ত্রুটি: '+(e&&e.message?e.message:e))}
 };
 window.refreshAllAccountControl=async function(){
