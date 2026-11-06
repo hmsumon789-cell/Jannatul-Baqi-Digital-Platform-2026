@@ -2347,6 +2347,20 @@ async function searchOnlinePaymentReceipt(){
 }
 
 /* Shared logo + QR + watermark + PAID layout for dashboard receipts */
+window.jbReceiptExportAction2026=function(id,title,filename,mode){
+ var p=document.getElementById(id);if(!p)return;
+ if(mode==='print'){window.print();return}
+ var css='<style>@page{size:A5 portrait;margin:8mm}body{font-family:Arial,"Noto Sans Bengali",sans-serif;color:#111}.jb-money-paper-2026{position:relative;isolation:isolate;overflow:hidden;background:#fff;border:2px double #222;padding:6mm}.jb-money-watermark-2026{position:absolute;z-index:0;left:50%;top:54%;width:58%;height:58%;object-fit:contain;transform:translate(-50%,-50%);opacity:.075}.jb-money-paper-2026>*:not(.jb-money-watermark-2026){position:relative;z-index:1}.jb-money-head-2026{display:grid;grid-template-columns:18mm minmax(0,1fr) 18mm;gap:3mm;align-items:center;text-align:center}.jb-money-head-2026 img{width:16mm;height:16mm;object-fit:contain}.jb-money-paid-wrap-2026{text-align:center}.jb-money-paid-2026{display:inline-flex;width:22mm;height:22mm;align-items:center;justify-content:center;border:1.2mm double #16803c;border-radius:50%;color:#16803c;font-weight:900}</style>';
+ var clone=p.cloneNode(true);clone.querySelectorAll('.adm-receipt-actions,.jb-finance-actions').forEach(function(x){x.remove()});
+ var html='<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>'+title+'</title>'+css+'</head><body>'+clone.outerHTML+'</body></html>';
+ var blob=new Blob([html],{type:'text/html;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename||'Money_Receipt.html';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url)},1200);
+};
+window.jbReceiptShareAction2026=async function(id,title){
+ var p=document.getElementById(id);if(!p)return;var msg=String(p.innerText||p.textContent||'মানি রসিদ').replace(/\\s+/g,' ').trim().slice(0,1800);
+ try{if(navigator.share){await navigator.share({title:title||'জান্নাতুল বাক্বী — মানি রসিদ',text:msg,url:location.href});return}
+ if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText((title||'মানি রসিদ')+'\\n'+msg+'\\n'+location.href);alert('রসিদের তথ্য কপি হয়েছে।');return}
+ alert('শেয়ার সুবিধা পাওয়া যায়নি।')}catch(e){if(e&&e.name!=='AbortError')alert('শেয়ার করা যায়নি।')}
+};
 window.jbMoneyReceiptBrandMarkup2026=function(){
  var le=document.getElementById('loginLogo')||document.getElementById('headerLogo'),logo=le&&le.src?le.src:'';
  var qr='https://quickchart.io/qr?size=220&margin=2&text='+encodeURIComponent(location.origin+location.pathname);
