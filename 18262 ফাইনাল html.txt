@@ -2345,20 +2345,35 @@ async function searchOnlinePaymentReceipt(){
     if(msg)msg.textContent='❌ সার্চে ত্রুটি: '+(e&&e.message?e.message:e);
   }
 }
-function printOnlineReceipt(){
-  const b=$('onlineReceiptBody');if(!b)return;
-  const w=window.open('','_blank','width=850,height=750');if(!w)return;
-  w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>মানি রসিদ</title><style>@page{size:A4 portrait;margin:14mm}body{font-family:Arial,"Noto Sans Bengali",sans-serif;padding:0;color:#111}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:9px;text-align:left}h2,h3{text-align:center}</style></head><body>'+b.outerHTML+'\n\n</body></html>');
-  w.document.close();w.focus();setTimeout(function(){w.print()},250);
+function openOnlineReceiptPrint2026(){
+  const b=$('onlineReceiptBody'),x=window.__jbOnlineReceipt2026||{};
+  if(!b)return;
+  const w=window.open('','_blank','width=900,height=800');
+  if(!w){toast('প্রিন্ট উইন্ডো খুলতে অনুমতি দিন।');return;}
+  const receiptId=String(x.ReceiptID||'receipt').replace(/[^a-zA-Z0-9_-]/g,'_');
+  const printCss='@page{size:A4 portrait;margin:12mm}*{box-sizing:border-box}html,body{margin:0;padding:0;background:#fff!important;color:#111!important;font-family:Arial,"Noto Sans Bengali",sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}#onlineReceiptBody{display:block!important;position:relative!important;isolation:isolate!important;overflow:hidden!important;width:100%!important;max-width:none!important;margin:0 auto!important;padding:16px!important;background:#fff!important;color:#111!important;border:2px solid #222!important}#onlineReceiptBody .or-top{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;position:relative!important;z-index:2!important;border-bottom:2px solid #222!important;padding-bottom:10px!important;margin-bottom:14px!important;min-height:86px!important}#onlineReceiptBody .or-top img{display:block!important;width:82px!important;height:82px!important;object-fit:contain!important;flex:0 0 82px!important}#onlineReceiptBody .or-title{display:block!important;text-align:center!important;flex:1 1 auto!important;font-weight:800!important;line-height:1.65!important}#onlineReceiptBody .or-qr{display:block!important;width:82px!important;height:82px!important;object-fit:contain!important;flex:0 0 82px!important}#onlineReceiptBody .or-watermark{display:block!important;position:absolute!important;z-index:0!important;left:50%!important;top:52%!important;width:58%!important;max-height:58%!important;object-fit:contain!important;transform:translate(-50%,-50%)!important;opacity:.11!important;pointer-events:none!important}#onlineReceiptBody .or-paid-wrap,#onlineReceiptBody table,#onlineReceiptBody .or-sign,#onlineReceiptBody>.or-footer{position:relative!important;z-index:2!important}#onlineReceiptBody .or-paid-wrap{text-align:center!important}#onlineReceiptBody .or-paid{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:76px!important;height:76px!important;border:4px double #16803c!important;border-radius:50%!important;color:#16803c!important;font-size:17px!important;font-weight:900!important;transform:rotate(-12deg)!important;margin:8px auto 14px!important}#onlineReceiptBody table{width:100%!important;border-collapse:collapse!important}#onlineReceiptBody th,#onlineReceiptBody td{border:1px solid #333!important;padding:9px!important;text-align:left!important}#onlineReceiptBody th{width:38%!important;background:#f3f3f3!important}#onlineReceiptBody .or-sign{display:flex!important;justify-content:space-between!important;gap:20px!important;margin-top:30px!important}#onlineReceiptBody>.or-footer{display:block!important;text-align:center!important}@media print{#onlineReceiptBody{break-inside:avoid}#onlineReceiptBody .or-top{break-inside:avoid}}';
+  w.document.open();
+  w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Money_Receipt_'+receiptId+'</title><style>'+printCss+'</style></head><body>'+b.outerHTML+'</body></html>');
+  w.document.close();
+  const doPrint=function(){
+    try{w.focus();w.print();}catch(err){toast('প্রিন্ট চালু করা যায়নি: '+(err&&err.message?err.message:err));}
+  };
+  const waitForImages=function(){
+    const imgs=Array.from(w.document.images||[]);
+    return Promise.all(imgs.map(function(img){
+      if(img.complete)return Promise.resolve();
+      return new Promise(function(resolve){img.onload=resolve;img.onerror=resolve;setTimeout(resolve,5000);});
+    }));
+  };
+  const ready=(w.document.fonts&&w.document.fonts.ready)?w.document.fonts.ready:Promise.resolve();
+  Promise.resolve(ready).then(waitForImages).then(function(){setTimeout(doPrint,250);});
 }
-
-
+function printOnlineReceipt(){
+  openOnlineReceiptPrint2026();
+}
 function downloadOnlineReceipt(){
-  const b=$('onlineReceiptBody'),x=window.__jbOnlineReceipt2026||{};if(!b)return;
-  const html='<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>মানি রসিদ '+String(x.ReceiptID||'')+'</title><style>body{font-family:Arial,"Noto Sans Bengali",sans-serif;padding:18px;color:#111}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:9px;text-align:left}h2,h3{text-align:center}</style></head><body>'+b.outerHTML+'</body></html>';
-  const u=URL.createObjectURL(new Blob([html],{type:'text/html;charset=utf-8'})),a=document.createElement('a');
-  a.href=u;a.download='Money_Receipt_'+String(x.ReceiptID||'receipt').replace(/[^a-zA-Z0-9_-]/g,'_')+'.html';
-  document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},1000);
+  // ব্রাউজারের Print ডায়ালগে "Save as PDF" নির্বাচন করলেই PDF তৈরি হবে।
+  openOnlineReceiptPrint2026();
 }
 async function saveResult(k){const d={StudentID:$('rStudent').value,Name:$('rName').value,Class:$('rClass').value,Exam:$('rExam').value,SubjectData:$('rSubjects').value,Published:'NO',Date:new Date().toISOString()};const r=await call('saveRecord',token,'RESULTS',d);toast(r.ok?'Saved':'Failed')}
 async function uploadMedia(){
