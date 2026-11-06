@@ -3476,7 +3476,43 @@ function sharePublicPaymentReceipt(){
   alert(message);
 }
 function submitPayment(){var months=selected("month"),categories=selected("category"),d={StudentID:(g("sid").value||"").trim(),Name:g("name").value,Month:months.join(", "),Months:months,Category:categories.join(", "),Categories:categories,Amount:Number(g("amount").value),Method:g("method").value,Reference:(g("ref").value||"").trim(),PayerMobile:(g("mobile").value||"").trim(),PayerEmail:(g("email").value||"").trim(),Note:g("note").value,PaymentMode:g("paymentMode").value};if(!d.StudentID||!d.Amount||d.Amount<=0){show("Student ID ও সঠিক Amount দিন।",false);return}if(!months.length||!categories.length){show("অন্তত একটি মাস ও একটি ফি খাত নির্বাচন করুন।",false);return}if(!d.Reference){show("Transaction / Reference ID দিন।",false);return}show("⏳ পেমেন্ট অনুরোধ পাঠানো হচ্ছে...",true);google.script.run.withSuccessHandler(function(r){if(r&&r.ok&&r.status==="PAID"&&r.receipt)showPublicPaymentReceipt(r.receipt);else show((r&&r.message)||"অনুরোধ সম্পন্ন হয়েছে।",!!(r&&r.ok));if(r&&r.ok){g("amount").value="";g("ref").value=makePaymentTransactionId();g("note").value="";document.querySelectorAll('input[name="month"],input[name="category"]').forEach(function(x){x.checked=false})}}).withFailureHandler(function(e){show("সার্ভার ত্রুটি: "+(e&&e.message||e),false)}).submitOnlinePayment(d)}function showPublicPaymentList(){var sid=(g("listSid").value||g("sid").value||"").trim(),contact=(g("listContact").value||g("mobile").value||g("email").value||"").trim(),box=g("paymentListResult");if(!sid||!contact){box.style.display="block";box.textContent="Student ID এবং ভর্তি সময়ের মোবাইল/ইমেইল দিন।";return}box.style.display="block";box.textContent="⏳ পেমেন্ট তালিকা খোঁজা হচ্ছে...";google.script.run.withSuccessHandler(function(r){if(!r||!r.ok){box.textContent=(r&&r.message)||"তালিকা পাওয়া যায়নি।";return}if(!r.rows.length){box.textContent="কোনো পেমেন্ট রেকর্ড পাওয়া যায়নি।";return}box.innerHTML="<b>আপনার পেমেন্ট তালিকা</b>"+r.rows.map(function(x){return "<div>"+escHtml(x.Date||x.SubmittedAt||"")+" | "+escHtml(x.Month||"")+" | "+escHtml(x.Category||"")+" | "+escHtml(x.Amount||"")+" টাকা | "+escHtml(x.Status||"")+"</div>"}).join("")}).withFailureHandler(function(e){box.textContent="সার্ভার ত্রুটি: "+(e&&e.message||e)}).getPublicOnlinePaymentList(sid,contact)}
-  document.addEventListener("DOMContentLoaded",function(){g("ref").value=makePaymentTransactionId();loadPaymentHeader()});
+  // Explicitly expose public portal actions for HtmlService iframe button handlers.
+  window.lookup=lookup;
+  window.submitPayment=submitPayment;
+  window.showPublicPaymentList=showPublicPaymentList;
+  window.printPublicPaymentReceipt=printPublicPaymentReceipt;
+  window.downloadPublicPaymentReceipt=downloadPublicPaymentReceipt;
+  window.sharePublicPaymentReceipt=sharePublicPaymentReceipt;
+  window.updateMultiSummary=updateMultiSummary;
+  window.addEventListener("error",function(ev){
+    try{show("পেজের স্ক্রিপ্টে ত্রুটি: "+(ev.message||"অজানা JavaScript ত্রুটি"),false);}catch(ignore){}
+  });
+  document.addEventListener("DOMContentLoaded",function(){
+    try{
+      g("ref").value=makePaymentTransactionId();
+      loadPaymentHeader();
+      // Attach click handlers directly so the portal does not depend only on inline onclick.
+      var actions={
+        "lookup":lookup,
+        "submitPayment":submitPayment,
+        "showPublicPaymentList":showPublicPaymentList,
+        "printPublicPaymentReceipt":printPublicPaymentReceipt,
+        "downloadPublicPaymentReceipt":downloadPublicPaymentReceipt,
+        "sharePublicPaymentReceipt":sharePublicPaymentReceipt
+      };
+      document.querySelectorAll("button[onclick]").forEach(function(btn){
+        var call=(btn.getAttribute("onclick")||"").replace(/\\(.*$/,"").trim();
+        if(actions[call]){
+          btn.addEventListener("click",function(ev){
+            ev.preventDefault();
+            try{actions[call]();}catch(err){show("বাটন চালাতে সমস্যা: "+(err&&err.message||err),false);}
+          });
+        }
+      });
+    }catch(err){
+      try{show("পেমেন্ট পেজ চালু করতে সমস্যা: "+(err&&err.message||err),false);}catch(ignore){}
+    }
+  });
   </script></body></html>`;
 }
 function getOnlinePaymentManagerData(token){
