@@ -90,7 +90,7 @@ function extractObjectKeys(server, objectName) {
   const end = server.indexOf('\n};', start);
   if (end < 0) return [];
   const block = server.slice(start, end);
-  return unique([...block.matchAll(/^\s*([A-Z][A-Z0-9_]*)\s*:/gm)].map(match => match[1])).sort();
+  return unique([...block.matchAll(/\b([A-Z][A-Z0-9_]*)\s*:/g)].map(match => match[1])).sort();
 }
 
 function declaredOrExposedNames(scripts) {
