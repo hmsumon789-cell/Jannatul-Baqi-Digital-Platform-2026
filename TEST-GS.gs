@@ -1924,12 +1924,14 @@ function createAdmin(token,data) {
 }
 
 function sendQuickService(token,data) {
+  let senderKey='',contactSaved=false;
   try {
     // Public login-page help form; authenticated dashboard use remains supported.
     if(token) auth_(token);
     data=data||{};
     const name=String(data.name||'').trim().slice(0,100);
     const mobile=String(data.mobile||'').trim().slice(0,25);
+    const whatsapp=String(data.whatsapp||'').trim().slice(0,25);
     const email=String(data.email||'').trim().slice(0,150);
     const message=String(data.message||'').trim();
     if(!message)return {ok:false,message:'মেসেজ লিখুন।'};
@@ -1937,9 +1939,10 @@ function sendQuickService(token,data) {
     if(!name&&!mobile&&!email)return {ok:false,message:'আপনার নাম অথবা মোবাইল/ইমেইল দিন।'};
     if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return {ok:false,message:'সঠিক ইমেইল ঠিকানা দিন।'};
     if(mobile&&!/^[0-9+()\-\s]{7,25}$/.test(mobile))return {ok:false,message:'মোবাইল নম্বর সঠিক নয়।'};
+    if(whatsapp&&!/^[0-9+()\-\s]{7,25}$/.test(whatsapp))return {ok:false,message:'WhatsApp নম্বর সঠিক নয়।'};
 
     // Limit repeated public submissions from the same supplied contact.
-    const senderKey=hash_((email.toLowerCase()+'|'+mobile.replace(/\D/g,'')+'|'+name.toLowerCase()));
+    senderKey=hash_((email.toLowerCase()+'|'+mobile.replace(/\D/g,'')+'|'+name.toLowerCase()));
     const cache=CacheService.getScriptCache(), lock=LockService.getScriptLock();
     lock.waitLock(5000);
     try {
@@ -1949,14 +1952,23 @@ function sendQuickService(token,data) {
       lock.releaseLock();
     }
 
-    const subject='Digital Platform Quick Service';
-    const body='Name: '+name+'\nMobile: '+mobile+'\nEmail: '+email+'\n\nMessage:\n'+message;
-    MailApp.sendEmail(APP.email1,subject,body,{replyTo:email||APP.email1});
+    // Save the inquiry first so an email-service failure cannot lose the user's message.
     const ss=SpreadsheetApp.getActiveSpreadsheet();
     const sh=ensureSheet_(ss,SHEETS.CONTACTS,HEADERS.CONTACTS);
-    sh.appendRow([nextSerial_(sh),'C-'+Date.now(),name,mobile,mobile,email,'QUICK_SERVICE',message,now_()]);
-    return {ok:true,message:'মেসেজ পাঠানো হয়েছে।'};
+    sh.appendRow([nextSerial_(sh),'C-'+Date.now(),name,mobile,whatsapp,email,'QUICK_SERVICE',message,now_()]);
+    contactSaved=true;
+
+    const subject='Digital Platform Quick Service';
+    const body='Name: '+name+'\nMobile: '+mobile+'\nWhatsApp: '+whatsapp+'\nEmail: '+email+'\n\nMessage:\n'+message;
+    try {
+      MailApp.sendEmail(APP.email1,subject,body,{replyTo:email||APP.email1});
+      return {ok:true,message:'মেসেজ পাঠানো হয়েছে।'};
+    } catch(mailError) {
+      return {ok:true,message:'আপনার মেসেজ সংরক্ষণ হয়েছে, তবে ইমেইল নোটিফিকেশন পাঠানো যায়নি।'};
+    }
   } catch(e) {
+    if(senderKey&&!contactSaved)CacheService.getScriptCache().remove('QUICK_SERVICE:'+senderKey);
+    if(contactSaved)return {ok:true,message:'আপনার মেসেজ সংরক্ষণ হয়েছে।'};
     return {ok:false,message:'মেসেজ পাঠানো যায়নি: '+String(e&&e.message||e)};
   }
 }
