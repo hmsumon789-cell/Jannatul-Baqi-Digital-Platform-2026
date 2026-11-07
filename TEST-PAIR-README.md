@@ -39,5 +39,7 @@ This is a source-level review only. No Apps Script runtime, spreadsheet, email d
   2. Mail service failure: inquiry still saved; response clearly reports notification failure.
   3. Empty message: rejected; no row saved.
   4. Invalid supplied token: rejected; no row saved.
-- A basic extraction/parse pass over all 181 HTML script elements reported 8 syntax errors in other script blocks. These are outside the Quick Service script and were not modified. They require separate inspection before claiming the entire HTML page is syntax-clean.
+- Initially, 8 additional HTML script blocks failed syntax parsing. These were repaired in the isolated `TEST-HTML.html` copy only: broken print-document string assembly, over-escaped Drive URL regular expressions, nested quotes in the exam-registration button, two incomplete script wrappers that swallowed CSS blocks, and a malformed online-results print string.
+- After repair, all 185 JavaScript script blocks in `TEST-HTML.html` passed `new Function` syntax compilation (0 failures). This is a syntax check, not a full browser execution test.
+- Print-preview/download strings in the affected blocks were simplified to valid standalone HTML; the misplaced CSS fragments were not applied as page styles and were excluded from those generated print/download documents.
 - No Apps Script deployment, live spreadsheet, actual email delivery, or real browser test was performed.
