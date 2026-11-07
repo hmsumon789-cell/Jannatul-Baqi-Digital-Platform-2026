@@ -9500,7 +9500,7 @@ body.dark #jbDocBuilderWin{background:#000;color:#ffe95c;border-color:#ff1f2f}bo
 </style>
 <script id="central-document-builder-2026-10-06-js">
 (function(){
-  var DOC_KEYS={marks:{title:'মার্কশিট',size:'a4'},result:{title:'ফলাফল / মার্কশিট',size:'a4'},id_cards:{title:'আইডি কার্ড',size:'idcard'},admit_cards:{title:'অ্যাডমিট কার্ড',size:'a4'},certificates:{title:'সার্টিফিকেট',size:'a4'},receipts:{title:'মানি রিসিট',size:'half'}};
+  var DOC_KEYS={marks:{title:'মার্কশিট',size:'a4'},result:{title:'ফলাফল / মার্কশিট',size:'a4'},id_cards:{title:'আইডি কার্ড',size:'idcard'},admit_cards:{title:'অ্যাডমিট কার্ড',size:'a4'},certificates:{title:'সনদপত্র',size:'a4'},admission_forms:{title:'ভর্তি ফর্ম',size:'a4'},receipts:{title:'মানি রিসিট',size:'half'},general:{title:'অন্যান্য ডকুমেন্ট',size:'a4'}};
   var currentDoc=null,currentRows=[],selected={};
   function E(id){return document.getElementById(id)}
   function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
@@ -9985,3 +9985,118 @@ body.dark #jbDocBuilderWin{background:#000;color:#ffe95c;border-color:#ff1f2f}bo
 })();
 </script>
 <!-- ===== END HISTORY EDIT NEW VERSION + QR CYCLE SAFETY ===== -->
+
+
+<!-- ===== UNIFIED PRINT / PDF / QR TEMPLATE FOR ALL DOCUMENTS — 2026-11-07 ===== -->
+<style id="jb-unified-document-print-style-2026">
+.jb-unified-header{display:grid;grid-template-columns:24mm 1fr 24mm;gap:4mm;align-items:center;text-align:center;border-bottom:2px solid #222;padding:0 0 4mm;margin:0 0 5mm;position:relative;z-index:2;color:#111;background:#fff}
+.jb-unified-header .jb-uh-logo,.jb-unified-header .jb-uh-mainqr{width:22mm;height:22mm;object-fit:contain;display:block;margin:auto}
+.jb-unified-header .jb-uh-center{font-weight:800;line-height:1.25}
+.jb-unified-header .jb-uh-bn{font-size:17px;font-weight:900}
+.jb-unified-header .jb-uh-ar{font-size:13px;direction:rtl}
+.jb-unified-header .jb-uh-en{font-size:12px}
+.jb-unified-header .jb-uh-address,.jb-unified-header .jb-uh-hotline{font-size:10px}
+.jb-unified-header .jb-uh-side{font-size:9px;font-weight:800;text-align:center}
+.jb-unified-watermark{position:absolute!important;left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important;width:92mm!important;height:92mm!important;object-fit:contain!important;opacity:.095!important;z-index:0!important;pointer-events:none!important}
+.jb-unified-footer{display:grid;grid-template-columns:24mm 1fr 24mm;gap:4mm;align-items:center;border-top:1.5px solid #333;padding-top:3mm;margin-top:7mm;position:relative;z-index:2;background:#fff;color:#111;text-align:center}
+.jb-unified-footer img{width:20mm;height:20mm;object-fit:contain;display:block;margin:auto}
+.jb-unified-footer small{font-size:8px;font-weight:800;display:block;margin-top:1mm}
+.jb-unified-footer .jb-uf-powered{font-size:10px;font-weight:900;letter-spacing:.2px}
+.jb-unified-print-content{position:relative;z-index:1}
+@media print{
+ .jb-unified-header,.jb-unified-footer{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ .jb-unified-watermark{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+ .jb-doc-actions,.sp-bottom-actions,.form-action-bar{display:none!important}
+}
+</style>
+<script id="jb-unified-document-print-qr-2026">
+(function(){
+ 'use strict';
+ function byId(id){return document.getElementById(id)}
+ function escU(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+ function logoSource(){var x=byId('loginLogo');return x?(x.currentSrc||x.src||x.getAttribute('src')||''):''}
+ function mainQrSource(){var x=byId('contactMainQR2026')||byId('loginMainQR802268e');return x?(x.currentSrc||x.src||x.getAttribute('src')||''):''}
+ function qrSource(payload){return 'https://quickchart.io/qr?size=240&margin=2&text='+encodeURIComponent(String(payload||''))}
+ function institutionHeader(){
+  var logo=logoSource(),qr=mainQrSource()||qrSource((location.href||'').split('#')[0]);
+  return '<div class="jb-unified-header"><div class="jb-uh-side">'+(logo?'<img class="jb-uh-logo" src="'+escU(logo)+'" alt="মূল লোগো">':'')+'<small>মূল লোগো</small></div><div class="jb-uh-center"><div class="jb-uh-bn">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div><div class="jb-uh-ar">المدرسة الجنة الباقية للبنات ودار الايتام</div><div class="jb-uh-en">Jannatul Baky Mohila Madrasha &amp; Eatimkhana</div><div class="jb-uh-address">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div><div class="jb-uh-hotline">হটলাইন: 01823316630</div></div><div class="jb-uh-side"><img class="jb-uh-mainqr" src="'+escU(qr)+'" alt="মূল ওয়েবসাইট QR"><small>মূল ওয়েবসাইট</small></div></div>';
+ }
+ function nodeData(node){
+  var out={};
+  if(!node)return out;
+  node.querySelectorAll('.jb-doc-row,.sp-field').forEach(function(r){
+   var k=r.querySelector('b'),v=r.querySelector('span');
+   if(k)out[k.textContent.trim()]=v?v.textContent.trim():r.textContent.trim();
+  });
+  node.querySelectorAll('#jbDocFields [data-key]').forEach(function(x){out[x.dataset.key]=x.value||''});
+  return out;
+ }
+ function identityPayload(data){
+  var pick={};
+  ['StudentID','ID','স্টুডেন্ট ID','NameBN','নাম','Mobile','মোবাইল','Class','শ্রেণি','Department','বিভাগ'].forEach(function(k){if(data[k])pick[k]=data[k]});
+  return JSON.stringify(Object.keys(pick).length?pick:data).slice(0,1800);
+ }
+ function documentPayload(data,title){
+  return JSON.stringify({platform:'JANNATULA BAKY DIGITAL PLATFORM-2026',form:title||'Document',data:data||{}}).slice(0,1800);
+ }
+ function verificationPayload(data,title){
+  var key=typeof window.jbDocCurrentKey==='function'?window.jbDocCurrentKey():'document';
+  var id=(byId('jbDocId')&&byId('jbDocId').value)||data.StudentID||data.ID||'';
+  var base=(location.href||'').split('#')[0].split('?')[0];
+  if(id)return base+'?verify=1&doc='+encodeURIComponent(key)+'&id='+encodeURIComponent(id);
+  return documentPayload(data,title);
+ }
+ function decorate(node,opts){
+  opts=opts||{};if(!node)return node;
+  node.querySelectorAll('.jb-unified-header,.jb-unified-watermark,.jb-unified-footer').forEach(function(x){x.remove()});
+  var oldHead=node.querySelector('.search-profile-head');if(oldHead)oldHead.remove();
+  var data=nodeData(node),title=opts.title||((byId('jbDocBuilderTitle')&&byId('jbDocBuilderTitle').textContent)||'Document');
+  var logo=logoSource();
+  node.style.position='relative';
+  node.insertAdjacentHTML('afterbegin',institutionHeader());
+  if(logo){var wm=document.createElement('img');wm.className='jb-unified-watermark';wm.src=logo;wm.alt='লোগো ওয়াটারমার্ক';node.insertBefore(wm,node.children[1]||null)}
+  var left=qrSource(identityPayload(data));
+  var right=qrSource(opts.rightPayload||verificationPayload(data,title));
+  var foot=document.createElement('div');foot.className='jb-unified-footer';
+  foot.innerHTML='<div><img src="'+escU(left)+'" alt="নিজ তথ্যের QR"><small>নিজ তথ্য</small></div><div class="jb-uf-powered">POWERED BY JANNATULA BAKY DIGITAL PLATFORM-2026</div><div><img src="'+escU(right)+'" alt="নিজ ফর্মের QR"><small>নিজ ফর্ম</small></div>';
+  node.appendChild(foot);
+  return node;
+ }
+ function printNode(source,title,opts){
+  if(!source)return;
+  var clone=source.cloneNode(true);
+  clone.querySelectorAll('.jb-doc-actions,.sp-bottom-actions,.form-action-bar').forEach(function(x){x.remove()});
+  clone.querySelectorAll('.jb-unified-header,.jb-unified-watermark,.jb-unified-footer').forEach(function(x){x.remove()});
+  if(clone.id==='searchProfilePrint')clone.querySelectorAll('.search-profile-head').forEach(function(x){x.remove()});
+  decorate(clone,{title:title,rightPayload:opts&&opts.rightPayload});
+  var w=window.open('','_blank','width=1100,height=900');
+  if(!w){if(typeof window.toast==='function')toast('প্রিন্ট উইন্ডো খোলা যায়নি। Browser popup অনুমতি দিন।');return}
+  var css='@page{size:A4 portrait;margin:8mm}*{box-sizing:border-box}body{margin:0;background:#fff;color:#111;font-family:Arial,"Noto Sans Bengali",sans-serif}.jb-doc-preview,.search-profile{width:194mm!important;min-height:280mm;max-width:none!important;margin:0 auto!important;padding:7mm!important;position:relative!important;overflow:visible!important;background:#fff!important;color:#111!important}.jb-doc-preview.idcard{width:86mm!important;min-height:54mm!important;padding:4mm!important}.jb-doc-preview.half{min-height:135mm!important}.jb-doc-head{text-align:center}.jb-doc-row{display:flex;gap:8px;padding:4px 0;border-bottom:1px dotted #999}.jb-doc-row b{min-width:35mm}.sp-student{border:1px solid #222;margin-top:5mm;padding:3mm;break-inside:avoid}.sp-data{display:grid;grid-template-columns:repeat(3,1fr);gap:2mm}.sp-field{border:1px solid #777;padding:2mm}.sp-field b{display:block;font-size:9px}.sp-field span{font-size:11px}.jb-unified-header{grid-template-columns:24mm 1fr 24mm}.jb-unified-watermark{position:absolute!important}.jb-unified-footer{break-inside:avoid}.jb-doc-photo,.sp-photo{object-fit:cover}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}';
+  w.document.open();w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>'+escU(title)+'</title><style>'+css+'</style></head><body>'+clone.outerHTML+'</body></html>');w.document.close();
+  setTimeout(function(){try{w.focus();w.print()}catch(e){}},700);
+ }
+ function pdfNotice(){if(typeof window.toast==='function')toast('PDF তৈরি করতে Print ডায়ালগে Destination থেকে “Save as PDF” নির্বাচন করুন।')}
+ function bindBuilder(){
+  if(typeof window.jbCreatePreview==='function'&&!window.jbCreatePreview.__unified2026){
+   var old=window.jbCreatePreview;var wrap=function(){var r=old.apply(this,arguments);setTimeout(function(){var p=document.querySelector('#jbDocPreviewWrap .jb-doc-preview');if(p)decorate(p,{title:(byId('jbDocBuilderTitle')||{}).textContent})},30);return r};wrap.__unified2026=true;window.jbCreatePreview=wrap;
+  }
+  window.jbPrint=function(){var p=document.querySelector('#jbDocPreviewWrap .jb-doc-preview');if(!p)return;if(typeof window.jbCreatePreview==='function')decorate(p,{title:(byId('jbDocBuilderTitle')||{}).textContent});printNode(p,(byId('jbDocBuilderTitle')||{}).textContent||'Document')};
+  window.jbDownload=function(){var p=document.querySelector('#jbDocPreviewWrap .jb-doc-preview');if(!p)return;if(typeof window.jbCreatePreview==='function')decorate(p,{title:(byId('jbDocBuilderTitle')||{}).textContent});printNode(p,(byId('jbDocBuilderTitle')||{}).textContent||'Document');pdfNotice()};
+ }
+ function bindSearch(){
+  var oldRender=window.renderSearchProfiles;
+  if(typeof oldRender==='function'&&!oldRender.__unified2026){var wrap=function(){var r=oldRender.apply(this,arguments);setTimeout(function(){var p=byId('searchProfilePrint');if(p)decorate(p,{title:'সার্চ প্রোফাইল',rightPayload:documentPayload(nodeData(p),'সার্চ প্রোফাইল')})},30);return r};wrap.__unified2026=true;window.renderSearchProfiles=wrap}
+  window.printSearchProfile=function(){var p=byId('searchProfilePrint');if(p)printNode(p,'সার্চ প্রোফাইল',{rightPayload:documentPayload(nodeData(p),'সার্চ প্রোফাইল')})};
+  window.downloadSearchProfile=function(){var p=byId('searchProfilePrint');if(p){printNode(p,'সার্চ প্রোফাইল',{rightPayload:documentPayload(nodeData(p),'সার্চ প্রোফাইল')});pdfNotice()}};
+ }
+ function bindForms(){
+  window.printCurrentForm=function(){var p=byId('winBody');if(!p)return;var c=p.cloneNode(true);c.querySelectorAll('.form-action-bar,button').forEach(function(x){x.remove()});c.querySelectorAll('input,textarea,select').forEach(function(el){var span=document.createElement('span');span.textContent=el.value||'';span.style.cssText='display:inline-block;min-width:25mm;border-bottom:1px solid #777;padding:2px';el.replaceWith(span)});printNode(c,(byId('winTitle')||{}).textContent||'ফর্ম')};
+  window.downloadCurrentForm=function(){window.printCurrentForm();pdfNotice()};
+ }
+ function start(){bindBuilder();bindSearch();bindForms()}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
+ setTimeout(start,800);setTimeout(start,1800);
+})();
+</script>
+<!-- ===== END UNIFIED DOCUMENT PRINT / PDF / QR TEMPLATE ===== -->
+
