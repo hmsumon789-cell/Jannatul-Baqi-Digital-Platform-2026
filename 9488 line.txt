@@ -9999,6 +9999,7 @@ body.dark #jbDocBuilderWin{background:#000;color:#ffe95c;border-color:#ff1f2f}bo
 .jb-unified-header .jb-uh-en{font-size:12px}
 .jb-unified-header .jb-uh-address,.jb-unified-header .jb-uh-hotline{font-size:10px}
 .jb-unified-header .jb-uh-side{font-size:9px;font-weight:800;text-align:center}
+.jb-unified-doc-title{position:relative;z-index:2;text-align:center;font-size:18px;font-weight:900;margin:0 0 4mm;color:#111}
 .jb-unified-watermark{position:absolute!important;left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important;width:92mm!important;height:92mm!important;object-fit:contain!important;opacity:.095!important;z-index:0!important;pointer-events:none!important}
 .jb-unified-footer{display:grid;grid-template-columns:24mm 1fr 24mm;gap:4mm;align-items:center;border-top:1.5px solid #333;padding-top:3mm;margin-top:7mm;position:relative;z-index:2;background:#fff;color:#111;text-align:center}
 .jb-unified-footer img{width:20mm;height:20mm;object-fit:contain;display:block;margin:auto}
@@ -10051,7 +10052,8 @@ body.dark #jbDocBuilderWin{background:#000;color:#ffe95c;border-color:#ff1f2f}bo
   var logo=logoSource();
   node.style.position='relative';
   node.insertAdjacentHTML('afterbegin',institutionHeader());
-  if(logo){var wm=document.createElement('img');wm.className='jb-unified-watermark';wm.src=logo;wm.alt='লোগো ওয়াটারমার্ক';node.insertBefore(wm,node.children[1]||null)}
+  var titleBox=document.createElement('div');titleBox.className='jb-unified-doc-title';titleBox.textContent=title;node.insertBefore(titleBox,node.children[1]||null);
+  if(logo){var wm=document.createElement('img');wm.className='jb-unified-watermark';wm.src=logo;wm.alt='লোগো ওয়াটারমার্ক';node.insertBefore(wm,node.children[2]||null)}
   var left=qrSource(identityPayload(data));
   var right=qrSource(opts.rightPayload||verificationPayload(data,title));
   var foot=document.createElement('div');foot.className='jb-unified-footer';
@@ -10075,7 +10077,7 @@ body.dark #jbDocBuilderWin{background:#000;color:#ffe95c;border-color:#ff1f2f}bo
  function pdfNotice(){if(typeof window.toast==='function')toast('PDF তৈরি করতে Print ডায়ালগে Destination থেকে “Save as PDF” নির্বাচন করুন।')}
  function bindBuilder(){
   if(typeof window.jbCreatePreview==='function'&&!window.jbCreatePreview.__unified2026){
-   var old=window.jbCreatePreview;var wrap=function(){var r=old.apply(this,arguments);setTimeout(function(){var p=document.querySelector('#jbDocPreviewWrap .jb-doc-preview');if(p)decorate(p,{title:(byId('jbDocBuilderTitle')||{}).textContent})},30);return r};wrap.__unified2026=true;window.jbCreatePreview=wrap;
+   var old=window.jbCreatePreview;var wrap=function(){var r=old.apply(this,arguments);setTimeout(function(){var p=document.querySelector('#jbDocPreviewWrap .jb-doc-preview');if(p){decorate(p,{title:(byId('jbDocBuilderTitle')||{}).textContent});var b=document.querySelector('#jbDocPreviewWrap .jb-doc-actions button[onclick*="jbDownload"]');if(b)b.textContent='📄 PDF ডাউনলোড'}},30);return r};wrap.__unified2026=true;window.jbCreatePreview=wrap;
   }
   window.jbPrint=function(){var p=document.querySelector('#jbDocPreviewWrap .jb-doc-preview');if(!p)return;decorate(p,{title:(byId('jbDocBuilderTitle')||{}).textContent});printNode(p,(byId('jbDocBuilderTitle')||{}).textContent||'Document')};
   window.jbDownload=function(){var p=document.querySelector('#jbDocPreviewWrap .jb-doc-preview');if(!p)return;decorate(p,{title:(byId('jbDocBuilderTitle')||{}).textContent});printNode(p,(byId('jbDocBuilderTitle')||{}).textContent||'Document');pdfNotice()};
@@ -10087,7 +10089,7 @@ body.dark #jbDocBuilderWin{background:#000;color:#ffe95c;border-color:#ff1f2f}bo
   window.downloadSearchProfile=function(){var p=byId('searchProfilePrint');if(p){printNode(p,'সার্চ প্রোফাইল',{rightPayload:documentPayload(nodeData(p),'সার্চ প্রোফাইল')});pdfNotice()}};
  }
  function bindForms(){
-  window.printCurrentForm=function(){var p=byId('winBody');if(!p)return;var c=p.cloneNode(true);c.querySelectorAll('.form-action-bar,button').forEach(function(x){x.remove()});c.querySelectorAll('input,textarea,select').forEach(function(el){var span=document.createElement('span');span.textContent=el.value||'';span.style.cssText='display:inline-block;min-width:25mm;border-bottom:1px solid #777;padding:2px';el.replaceWith(span)});printNode(c,(byId('winTitle')||{}).textContent||'ফর্ম')};
+  window.printCurrentForm=function(){var p=byId('winBody');if(!p)return;var dl=byId('formWin')&&byId('formWin').querySelector('button[onclick*="downloadCurrentForm"]');if(dl)dl.textContent='📄 PDF ডাউনলোড';var c=p.cloneNode(true);c.querySelectorAll('.form-action-bar,button').forEach(function(x){x.remove()});c.querySelectorAll('input,textarea,select').forEach(function(el){var span=document.createElement('span');span.textContent=el.value||'';span.style.cssText='display:inline-block;min-width:25mm;border-bottom:1px solid #777;padding:2px';el.replaceWith(span)});printNode(c,(byId('winTitle')||{}).textContent||'ফর্ম')};
   window.downloadCurrentForm=function(){window.printCurrentForm();pdfNotice()};
  }
  function start(){bindBuilder();bindSearch();bindForms()}
