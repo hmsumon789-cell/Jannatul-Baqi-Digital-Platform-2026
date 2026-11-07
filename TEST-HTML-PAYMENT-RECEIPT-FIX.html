@@ -14066,8 +14066,8 @@ function jbA5Receipt2026(x,kind){
   var logo=escv(x.Logo||pick(['loginContactLogo20261013','contactLoginLogo2026','loginLogo','headerLogo','paymentSchoolLogo']));
   var mainUrl=location.origin+location.pathname;
   var mainQr=escv(x.MainQR||pick(['loginContactQR20261013','contactMainQR2026','paymentMainQR'])||('https://quickchart.io/qr?size=180&margin=1&text='+encodeURIComponent(mainUrl)));
-  var admissionUrl=location.origin+location.pathname+'?page=admission';
-  var paymentUrl=location.origin+location.pathname+'?page=payment';
+  var admissionUrl=location.origin+location.pathname;
+  var paymentUrl=location.origin+location.pathname+'?payment=1';
   var admissionQr=escv(x.AdmissionQR||('https://quickchart.io/qr?size=150&margin=1&text='+encodeURIComponent(admissionUrl)));
   var paymentQr=escv(x.PaymentQR||('https://quickchart.io/qr?size=150&margin=1&text='+encodeURIComponent(paymentUrl)));
   var paidRaw=x.Months||x.PaidMonths||x.Month||x.PaidMonth||'';
