@@ -48,7 +48,7 @@ This is a source-level review only. No Apps Script runtime, spreadsheet, email d
 
 The repaired HTML was checked for literal server-function calls against both TEST-GS.gs and the repository's LocationData.gs in this branch.
 
-Six HTML-called server endpoints were not found in either supplied server file:
+Seven HTML-called server endpoints were not found in either supplied server file:
 - approveStudentAdmission — Super Admin admission approval button.
 - getPrivateGalleryPhoto — loading admin-only gallery photos.
 - listGalleryPhotos — loading the photo gallery.
