@@ -81,16 +81,16 @@ function extractModuleKeys(server) {
   if (start < 0) return [];
   const end = server.indexOf('/* =====', start);
   const block = server.slice(start, end < 0 ? server.length : end);
-  return unique([...block.matchAll(/\\[['"]([^'"]+)['"]\\s*,/g)].map(match => match[1])).sort();
+  return unique([...block.matchAll(/\[['"]([^'"]+)['"]\s*,/g)].map(match => match[1])).sort();
 }
 
 function extractObjectKeys(server, objectName) {
   const start = server.indexOf('const ' + objectName + ' = {');
   if (start < 0) return [];
-  const end = server.indexOf('\\n};', start);
+  const end = server.indexOf('\n};', start);
   if (end < 0) return [];
   const block = server.slice(start, end);
-  return unique([...block.matchAll(/^\\s*([A-Z][A-Z0-9_]*)\\s*:/gm)].map(match => match[1])).sort();
+  return unique([...block.matchAll(/^\s*([A-Z][A-Z0-9_]*)\s*:/gm)].map(match => match[1])).sort();
 }
 
 function declaredOrExposedNames(scripts) {
