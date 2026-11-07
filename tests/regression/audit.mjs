@@ -43,7 +43,7 @@ export function runAudit() {
   const syntax = [];
   for (const script of scripts) {
     try { new vm.Script(script.source, { filename: 'Index.html:inline-script-' + script.index + '.js' }); syntax.push({ file: 'Index.html', block: script.index, ok: true }); }
-    catch (e) { syntax.push({ file: 'Index.html', block: script.index, ok: false, error: e.message }); }
+    catch (e) { syntax.push({ file: 'Index.html', block: script.index, ok: false, error: e.stack || e.message }); }
   }
   for (const [file, source] of [['code.gs', server], ['LocationData.gs', locations]]) {
     try { new vm.Script(source, { filename: file }); syntax.push({ file, ok: true }); }
