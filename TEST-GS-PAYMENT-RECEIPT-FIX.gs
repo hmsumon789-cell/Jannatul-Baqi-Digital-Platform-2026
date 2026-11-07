@@ -2623,7 +2623,7 @@ function resolveAdmissionIdentifier_(identifier) {
   const stSh=ss.getSheetByName(SHEETS.STUDENTS);
   if(stSh&&stSh.getLastRow()>1){
     const vals=stSh.getDataRange().getValues(),heads=vals[0].map(String);
-    const idKeys=['StudentID','FormID','MobileID','Mobile','WhatsApp','EmailID','Email'];
+    const idKeys=['StudentID','studentId','Student Id','student_id','FormID','formId','Form Id','form_id','HandwrittenID','handwrittenId','AdmissionFormID','SystemID','systemId','AutoID','autoId','ID','AdmissionID','AdmissionNo','Roll','MobileID','Mobile','mobile','Phone','MobileNo','WhatsApp','EmailID','Email','email','GuardianEmail'];
     for(let i=1;i<vals.length&&!student;i++){
       const obj=objectFrom_(heads,vals[i]);
       if(idKeys.some(k=>norm(obj[k])===candidate)){student=obj;break;}
@@ -2640,7 +2640,7 @@ function resolveAdmissionIdentifier_(identifier) {
       const flat={};
       const merge=function(o){Object.keys(o||{}).forEach(function(k){const v=o[k];if(v&&typeof v==='object'&&!Array.isArray(v))merge(v);else if(v!==''&&v!=null)flat[k]=v;});};
       merge(payload);
-      const keys=['AdmissionID','StudentID','FormID','HandwrittenID','handwrittenId','AdmissionFormID','MobileID','Mobile','Phone','MobileNo','WhatsApp','EmailID','Email','GuardianEmail'];
+      const keys=['AdmissionID','AdmissionNo','StudentID','studentId','Student Id','student_id','FormID','formId','Form Id','form_id','HandwrittenID','handwrittenId','AdmissionFormID','SystemID','systemId','AutoID','autoId','ID','Roll','MobileID','Mobile','mobile','Phone','MobileNo','WhatsApp','EmailID','Email','email','GuardianEmail'];
       const match=keys.some(function(k){return norm(obj[k])===candidate||norm(flat[k])===candidate;});
       if(match){admission=obj;formData=flat;break;}
     }
