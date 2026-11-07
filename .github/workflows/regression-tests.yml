@@ -26,7 +26,9 @@ jobs:
 
       - name: Generate static audit report
         if: always()
-        run: npm run test:audit > regression-audit.txt 2>&1 || true
+        run: |
+          npm run test:audit > regression-audit.txt 2>&1 || true
+          cat regression-audit.txt >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload audit report
         if: always()
