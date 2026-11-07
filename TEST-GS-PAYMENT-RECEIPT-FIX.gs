@@ -3436,7 +3436,8 @@ function buildPublicOnlinePaymentHtml_(){
   function updateMultiSummary(name,id){var vals=Array.from(document.querySelectorAll('input[name="'+name+'"]:checked')).map(function(x){return x.value}),el=document.getElementById(id);if(el)el.textContent=vals.length?vals.length+"টি নির্বাচিত: "+vals.slice(0,3).join(", ")+(vals.length>3?" …":""):(name==="month"?"মাস নির্বাচন করুন":"বিষয় / ফি খাত নির্বাচন করুন")}function escHtml(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}function selected(name){return Array.from(document.querySelectorAll('input[name="'+name+'"]:checked')).map(function(x){return x.value})}function showPublicPaymentReceipt(x){
   x=x||{};
   var safe=function(v){return escHtml(v==null?"":v)};
-  var logo=logoData;
+  var logoEl=g("paymentSchoolLogo");
+  var logo=logoEl?(logoEl.currentSrc||logoEl.getAttribute("src")||logoEl.src||""):"";
   var qrEl=g("paymentMainQR");
   var qr=qrEl?(qrEl.currentSrc||qrEl.getAttribute("src")||qrEl.src||""):"";
   if(!qr||qr==="about:blank"){
