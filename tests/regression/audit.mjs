@@ -115,7 +115,10 @@ export function runAudit() {
   const serverCalls = extractServerCalls(html);
   const ids = extractIds(html);
   const handlers = extractEventHandlers(html);
-  const exposed = declaredOrExposedNames(scripts);\n  const moduleKeys = extractModuleKeys(server);\n  const sheetKeys = extractObjectKeys(server, 'SHEETS');\n  const headerKeys = extractObjectKeys(server, 'HEADERS');
+  const exposed = declaredOrExposedNames(scripts);
+  const moduleKeys = extractModuleKeys(server);
+  const sheetKeys = extractObjectKeys(server, 'SHEETS');
+  const headerKeys = extractObjectKeys(server, 'HEADERS');
 
   const syntax = [];
   for (const script of scripts) {
