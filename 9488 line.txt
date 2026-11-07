@@ -9514,7 +9514,7 @@ body.dark #jbDocBuilderWin{background:#000;color:#ffe95c;border-color:#ff1f2f}bo
   function label(k){var m={StudentID:'ID',NameBN:'নাম',NameAR:'আরবি নাম',NameEN:'ইংরেজি নাম',FatherNameBN:'পিতা',FatherNameAR:'পিতা — আরবি',FatherNameEN:'পিতা — English',MotherNameBN:'মাতা',MotherNameAR:'মাতা — আরবি',MotherNameEN:'মাতা — English',DOB:'জন্ম তারিখ',Mobile:'মোবাইল',WhatsApp:'WhatsApp',Email:'ইমেইল',Address:'ঠিকানা',Division:'বিভাগ',District:'জেলা',Upazila:'উপজেলা',Union:'ইউনিয়ন',Post:'ডাকঘর',PostCode:'পোস্ট কোড',Ward:'ওয়ার্ড',Village:'গ্রাম',Class:'শ্রেণি/জামাত',Department:'বিভাগ/ডিপার্টমেন্ট',Branch:'শাখা',Roll:'রোল',BirthReg:'জন্ম নিবন্ধন',NID:'NID',Exam:'পরীক্ষা',ExamYear:'পরীক্ষা সাল',Photo:'ছবি'};return m[k]||k}
   function editPreview(){document.querySelectorAll('#jbDocPreviewWrap .jb-doc-preview [contenteditable]').forEach(function(x){x.style.outline='2px dashed #1976d2';x.focus()});toast('✏️ প্রিভিউ Edit mode চালু হয়েছে।')}
   async function saveDraft(){var p=E('jbDocPreviewWrap').querySelector('.jb-doc-preview');if(!p)return toast('আগে Document তৈরি করুন।');var data={};document.querySelectorAll('#jbDocFields [data-key]').forEach(function(x){data[x.dataset.key]=x.value||''});localStorage.setItem('jbDocDraft2026',JSON.stringify({key:currentDoc.key,title:currentDoc.title,html:p.outerHTML,id:E('jbDocId').value,data:data}));try{var r=await call('saveDocumentBuilderRecord',token,currentDoc.key,E('jbDocId').value,data,p.outerHTML);toast(r&&r.ok?'💾 Document + History-তে সংরক্ষণ হয়েছে।':((r&&r.message)||'সংরক্ষণ হয়নি।'))}catch(e){toast('সার্ভারে সংরক্ষণ হয়নি: '+(e&&e.message?e.message:e))}}
-  async function jbShowHistory(){var sid=(E('jbDocId').value||'').trim();if(!sid)return toast('প্রথমে Student ID দিন।');try{var r=await call('getDocumentBuilderHistory',token,sid,currentDoc.key);if(!r||!r.ok)return toast((r&&r.message)||'History পাওয়া যায়নি।');var box=E('jbDocPreviewWrap');var rows=r.rows||[];var d=document.createElement('div');d.className='jb-doc-note';d.innerHTML='<b>📚 Document History — '+esc(sid)+'</b><br><br>'+(rows.length?rows.map(function(x){return '<div style="padding:8px;border-bottom:1px solid #ccc"><b>'+esc(String(x.ResultID||x.CardID||x.AdmitID||x.CertificateID||x.ReceiptID||''))+'</b> — '+esc(String(x.IssueDate||x.Date||x.CreatedAt||''))+'</div>'}).join(''):'কোনো সংরক্ষিত Document নেই।');box.appendChild(d)}catch(e){toast('History লোড হয়নি: '+(e&&e.message?e.message:e))}}
+  async function jbShowHistory(){var sid=(E('jbDocId').value||'').trim();if(!sid)return toast('প্রথমে Student ID দিন।');try{var r=await call('getDocumentBuilderHistory',token,sid,currentDoc.key);if(!r||!r.ok)return toast((r&&r.message)||'History পাওয়া যায়নি।');var box=E('jbDocPreviewWrap');var rows=r.rows||[];var d=document.createElement('div');d.className='jb-doc-note';d.innerHTML='<b>📚 Document History — '+esc(sid)+'</b><br><br>'+(rows.length?rows.map(function(x){return '<div style="padding:8px;border-bottom:1px solid #ccc"><b>'+esc(String(x.ResultID||x.CardID||x.AdmitID||x.CertificateID||x.ReceiptID||x.DocumentID||''))+'</b> — '+esc(String(x.IssueDate||x.Date||x.CreatedAt||''))+'</div>'}).join(''):'কোনো সংরক্ষিত Document নেই।');box.appendChild(d)}catch(e){toast('History লোড হয়নি: '+(e&&e.message?e.message:e))}}
 
   function download(){var p=E('jbDocPreviewWrap').querySelector('.jb-doc-preview');if(!p)return toast('আগে Document তৈরি করুন।');var html='<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>'+esc(currentDoc.title)+'</title><style>body{margin:0}.jb-doc-preview{margin:0 auto;background:#fff;color:#111;border:8px solid #8b5e00;box-shadow:inset 0 0 0 5px #1976d2,inset 0 0 0 10px #2e7d32;padding:20px}.a4{width:210mm;min-height:297mm}.half{width:210mm;min-height:148mm}.idcard{width:86mm;min-height:54mm}</style></head><body>'+p.outerHTML+'</body></html>';var blob=new Blob([html],{type:'text/html;charset=utf-8'}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=(currentDoc.title||'document')+'-'+(E('jbDocId').value||'ID')+'.html';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},1000);toast('⬇️ Document ডাউনলোড হয়েছে।')}
   function print(){window.print()}
@@ -9537,9 +9537,10 @@ body.dark #jbDocBuilderWin{background:#000;color:#ffe95c;border-color:#ff1f2f}bo
       t.indexOf('আইডি কার্ড')>=0?'id_cards':
       t.indexOf('অ্যাডমিট কার্ড')>=0?'admit_cards':
       t.indexOf('সার্টিফিকেট')>=0?'certificates':
+      t.indexOf('ভর্তি ফর্ম')>=0?'admission_forms':t.indexOf('অন্যান্য ডকুমেন্ট')>=0?'general':
       t.indexOf('মানি রিসিট')>=0?'receipts':'marks';
   }
-  function rid(x){return x.ResultID||x.CardID||x.AdmitID||x.CertificateID||x.ReceiptID||''}
+  function rid(x){return x.ResultID||x.CardID||x.AdmitID||x.CertificateID||x.ReceiptID||x.DocumentID||''}
   function dt(x){return x.IssueDate||x.Date||x.CreatedAt||''}
   function fill(data){
     Object.keys(data||{}).forEach(function(k){
@@ -9672,7 +9673,7 @@ body.dark #jbDocBuilderWin{background:#000;color:#ffe95c;border-color:#ff1f2f}bo
   function E(id){return document.getElementById(id)}
   function key(){
     var t=E('jbDocBuilderTitle')?.textContent||'';
-    return t.indexOf('মার্কশিট')>=0?'marks':t.indexOf('ফলাফল')>=0?'result':t.indexOf('আইডি কার্ড')>=0?'id_cards':t.indexOf('অ্যাডমিট কার্ড')>=0?'admit_cards':t.indexOf('সার্টিফিকেট')>=0?'certificates':t.indexOf('মানি রিসিট')>=0?'receipts':'marks';
+    return t.indexOf('মার্কশিট')>=0?'marks':t.indexOf('ফলাফল')>=0?'result':t.indexOf('আইডি কার্ড')>=0?'id_cards':t.indexOf('অ্যাডমিট কার্ড')>=0?'admit_cards':t.indexOf('সার্টিফিকেট')>=0?'certificates':t.indexOf('ভর্তি ফর্ম')>=0?'admission_forms':t.indexOf('অন্যান্য ডকুমেন্ট')>=0?'general':t.indexOf('মানি রিসিট')>=0?'receipts':'marks';
   }
   function collect(){
     var data={};document.querySelectorAll('#jbDocFields [data-key]').forEach(function(x){data[x.dataset.key]=x.value||''});
@@ -9719,7 +9720,7 @@ body.dark #jbDocBuilderWin{background:#000;color:#ffe95c;border-color:#ff1f2f}bo
   var DKEY='jbDocAutoDraft2026';
   function currentKey(){
     var t=document.getElementById('jbDocBuilderTitle')?.textContent||'';
-    return t.indexOf('মার্কশিট')>=0?'marks':t.indexOf('ফলাফল')>=0?'result':t.indexOf('আইডি কার্ড')>=0?'id_cards':t.indexOf('অ্যাডমিট কার্ড')>=0?'admit_cards':t.indexOf('সার্টিফিকেট')>=0?'certificates':t.indexOf('মানি রিসিট')>=0?'receipts':'marks';
+    return t.indexOf('মার্কশিট')>=0?'marks':t.indexOf('ফলাফল')>=0?'result':t.indexOf('আইডি কার্ড')>=0?'id_cards':t.indexOf('অ্যাডমিট কার্ড')>=0?'admit_cards':t.indexOf('সার্টিফিকেট')>=0?'certificates':t.indexOf('ভর্তি ফর্ম')>=0?'admission_forms':t.indexOf('অন্যান্য ডকুমেন্ট')>=0?'general':t.indexOf('মানি রিসিট')>=0?'receipts':'marks';
   }
   function clearStored(){try{localStorage.removeItem(DKEY)}catch(e){}}
   var oldSave=window.jbSaveDraft;
@@ -9755,7 +9756,7 @@ body.dark #jbDocBuilderWin{background:#000;color:#ffe95c;border-color:#ff1f2f}bo
   var DKEY='jbDocAutoDraft2026';
   function key(){
     var t=document.getElementById('jbDocBuilderTitle')?.textContent||'';
-    return t.indexOf('মার্কশিট')>=0?'marks':t.indexOf('ফলাফল')>=0?'result':t.indexOf('আইডি কার্ড')>=0?'id_cards':t.indexOf('অ্যাডমিট কার্ড')>=0?'admit_cards':t.indexOf('সার্টিফিকেট')>=0?'certificates':t.indexOf('মানি রিসিট')>=0?'receipts':'marks';
+    return t.indexOf('মার্কশিট')>=0?'marks':t.indexOf('ফলাফল')>=0?'result':t.indexOf('আইডি কার্ড')>=0?'id_cards':t.indexOf('অ্যাডমিট কার্ড')>=0?'admit_cards':t.indexOf('সার্টিফিকেট')>=0?'certificates':t.indexOf('ভর্তি ফর্ম')>=0?'admission_forms':t.indexOf('অন্যান্য ডকুমেন্ট')>=0?'general':t.indexOf('মানি রিসিট')>=0?'receipts':'marks';
   }
   function clearStored(){try{localStorage.removeItem(DKEY)}catch(e){}}
   function saveSafely(){
@@ -9846,6 +9847,7 @@ body.dark #jbDocBuilderWin{background:#000;color:#ffe95c;border-color:#ff1f2f}bo
       t.indexOf('আইডি কার্ড')>=0?'id_cards':
       t.indexOf('অ্যাডমিট কার্ড')>=0?'admit_cards':
       t.indexOf('সার্টিফিকেট')>=0?'certificates':
+      t.indexOf('ভর্তি ফর্ম')>=0?'admission_forms':t.indexOf('অন্যান্য ডকুমেন্ট')>=0?'general':
       t.indexOf('মানি রিসিট')>=0?'receipts':'marks';
   }
   function addSavedQR(docId){
@@ -10029,6 +10031,7 @@ body.dark #jbDocBuilderWin{background:#000;color:#ffe95c;border-color:#ff1f2f}bo
    if(k)out[k.textContent.trim()]=v?v.textContent.trim():r.textContent.trim();
   });
   node.querySelectorAll('#jbDocFields [data-key]').forEach(function(x){out[x.dataset.key]=x.value||''});
+  if(!Object.keys(out).length){var txt=(node.innerText||node.textContent||'').trim();if(txt)out.Content=txt.slice(0,1500)}
   return out;
  }
  function identityPayload(data){
@@ -10039,17 +10042,11 @@ body.dark #jbDocBuilderWin{background:#000;color:#ffe95c;border-color:#ff1f2f}bo
  function documentPayload(data,title){
   return JSON.stringify({platform:'JANNATULA BAKY DIGITAL PLATFORM-2026',form:title||'Document',data:data||{}}).slice(0,1800);
  }
- function verificationPayload(data,title){
-  var key=typeof window.jbDocCurrentKey==='function'?window.jbDocCurrentKey():'document';
-  var id=(byId('jbDocId')&&byId('jbDocId').value)||data.StudentID||data.ID||'';
-  var base=(location.href||'').split('#')[0].split('?')[0];
-  if(id)return base+'?verify=1&doc='+encodeURIComponent(key)+'&id='+encodeURIComponent(id);
-  return documentPayload(data,title);
- }
+ function verificationPayload(data,title){return documentPayload(data,title)}
  function decorate(node,opts){
   opts=opts||{};if(!node)return node;
   node.querySelectorAll('.jb-unified-header,.jb-unified-watermark,.jb-unified-footer').forEach(function(x){x.remove()});
-  var oldHead=node.querySelector('.search-profile-head');if(oldHead)oldHead.remove();
+  node.querySelectorAll('.search-profile-head,.jb-doc-head').forEach(function(x){x.remove()});
   var data=nodeData(node),title=opts.title||((byId('jbDocBuilderTitle')&&byId('jbDocBuilderTitle').textContent)||'Document');
   var logo=logoSource();
   node.style.position='relative';
@@ -10080,12 +10077,12 @@ body.dark #jbDocBuilderWin{background:#000;color:#ffe95c;border-color:#ff1f2f}bo
   if(typeof window.jbCreatePreview==='function'&&!window.jbCreatePreview.__unified2026){
    var old=window.jbCreatePreview;var wrap=function(){var r=old.apply(this,arguments);setTimeout(function(){var p=document.querySelector('#jbDocPreviewWrap .jb-doc-preview');if(p)decorate(p,{title:(byId('jbDocBuilderTitle')||{}).textContent})},30);return r};wrap.__unified2026=true;window.jbCreatePreview=wrap;
   }
-  window.jbPrint=function(){var p=document.querySelector('#jbDocPreviewWrap .jb-doc-preview');if(!p)return;if(typeof window.jbCreatePreview==='function')decorate(p,{title:(byId('jbDocBuilderTitle')||{}).textContent});printNode(p,(byId('jbDocBuilderTitle')||{}).textContent||'Document')};
-  window.jbDownload=function(){var p=document.querySelector('#jbDocPreviewWrap .jb-doc-preview');if(!p)return;if(typeof window.jbCreatePreview==='function')decorate(p,{title:(byId('jbDocBuilderTitle')||{}).textContent});printNode(p,(byId('jbDocBuilderTitle')||{}).textContent||'Document');pdfNotice()};
+  window.jbPrint=function(){var p=document.querySelector('#jbDocPreviewWrap .jb-doc-preview');if(!p)return;decorate(p,{title:(byId('jbDocBuilderTitle')||{}).textContent});printNode(p,(byId('jbDocBuilderTitle')||{}).textContent||'Document')};
+  window.jbDownload=function(){var p=document.querySelector('#jbDocPreviewWrap .jb-doc-preview');if(!p)return;decorate(p,{title:(byId('jbDocBuilderTitle')||{}).textContent});printNode(p,(byId('jbDocBuilderTitle')||{}).textContent||'Document');pdfNotice()};
  }
  function bindSearch(){
   var oldRender=window.renderSearchProfiles;
-  if(typeof oldRender==='function'&&!oldRender.__unified2026){var wrap=function(){var r=oldRender.apply(this,arguments);setTimeout(function(){var p=byId('searchProfilePrint');if(p)decorate(p,{title:'সার্চ প্রোফাইল',rightPayload:documentPayload(nodeData(p),'সার্চ প্রোফাইল')})},30);return r};wrap.__unified2026=true;window.renderSearchProfiles=wrap}
+  if(typeof oldRender==='function'&&!oldRender.__unified2026){var wrap=function(){var r=oldRender.apply(this,arguments);setTimeout(function(){var p=byId('searchProfilePrint');if(p){decorate(p,{title:'সার্চ প্রোফাইল',rightPayload:documentPayload(nodeData(p),'সার্চ প্রোফাইল')});var b=p.querySelector('.sp-bottom-actions button[onclick*="downloadSearchProfile"]');if(b)b.textContent='📄 PDF ডাউনলোড'}},30);return r};wrap.__unified2026=true;window.renderSearchProfiles=wrap}
   window.printSearchProfile=function(){var p=byId('searchProfilePrint');if(p)printNode(p,'সার্চ প্রোফাইল',{rightPayload:documentPayload(nodeData(p),'সার্চ প্রোফাইল')})};
   window.downloadSearchProfile=function(){var p=byId('searchProfilePrint');if(p){printNode(p,'সার্চ প্রোফাইল',{rightPayload:documentPayload(nodeData(p),'সার্চ প্রোফাইল')});pdfNotice()}};
  }
