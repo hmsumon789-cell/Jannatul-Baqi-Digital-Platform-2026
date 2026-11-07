@@ -1,8 +1,16 @@
-HTML TEST COPY NOT CREATED
+HTML TEST COPY CREATED SUCCESSFULLY
 
-Source requested: 18262 ফাইনাল html.txt
+Source: 18262 ফাইনাল html.txt
 Source commit: d2442c12c0d56671f94596110138c10a52a15074
-Fetched source content length: 0 bytes
 Source blob SHA: 3d1e2ae9fdab6304359547c7170eeb75de4f2f47
+Fetched via Git blob API because the file-content wrapper returned an empty string.
+Exact source content length: 1,483,276 characters
+Test copy: TEST-HTML.html
 
-This source is empty. Do not treat this branch as a complete HTML + Code.gs test pair. Restore/provide a non-empty HTML source before HTML/GS integration testing or deployment.
+Code.gs source: 3434 code.gs.txt
+Source commit: d046eb45ed0193218c40d5e72e97988375c4c772
+Source blob SHA: c0e0b7957dd359f9b4f5dc752380efab3eb42290
+Test copy: TEST-GS.gs
+Exact source content length: 340,370 characters
+
+Both test copies are stored on this isolated test branch. No live/default branch file was changed and nothing was deployed.
