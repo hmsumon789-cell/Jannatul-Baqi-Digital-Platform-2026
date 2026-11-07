@@ -2225,6 +2225,7 @@ document.addEventListener('change',function(e){
  if(e.target.name==='pCat')updatePaymentDropdownSummary('pCat','pCatSummary','বিষয় / ফি খাত নির্বাচন করুন');
 });
 async function savePayment(){
+  if(!$('pName').value.trim()){const found=await lookupOnlinePaymentStudent();if(!found)return;}
   const method=$('pMethod').value,mode=$('pMode').value,ref=String($('pReference').value||'').trim();
   const months=Array.from(document.querySelectorAll('input[name="pMonth"]:checked')).map(o=>o.value.trim()).filter(Boolean),categories=Array.from(document.querySelectorAll('input[name="pCat"]:checked')).map(o=>o.value.trim()).filter(Boolean);const d={StudentID:$('pStudent').value.trim(),Name:$('pName').value.trim(),Month:months.join(', '),Months:months,Category:categories.join(', '),Categories:categories,Amount:Number($('pAmount').value),Method:method,PaymentMode:String($('pMode').value||'PRINCIPAL_APPROVAL'),Reference:ref,PayerMobile:$('pPayerMobile').value.trim(),Note:$('pNote').value.trim()};
   if(!d.StudentID||!d.Amount||d.Amount<=0||!d.Method||!months.length||!categories.length){toast('Student ID, অন্তত একটি মাস, অন্তত একটি ফি খাত, Amount ও পেমেন্ট মাধ্যম নির্বাচন করুন।');return;}
