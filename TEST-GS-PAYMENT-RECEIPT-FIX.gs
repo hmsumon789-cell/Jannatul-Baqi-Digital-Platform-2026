@@ -2072,29 +2072,30 @@ function saveMedia(token,item) {
   const raw=String(item.dataUrl).split(',')[1]||''; if(!raw)return {ok:false,message:'ফাইল ডাটা পাওয়া যায়নি।'};
   const blob=Utilities.newBlob(Utilities.base64Decode(raw),item.mimeType||'application/octet-stream',item.name||('media-'+Date.now()));
   const file=mediaDriveFolder_().createFile(blob);
-  try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
+  const visibility=type==='image'&&String(item.visibility||'public').toLowerCase()==='admin'?'admin':'public';
+  try{if(visibility==='admin')file.setSharing(DriveApp.Access.PRIVATE,DriveApp.Permission.NONE);else file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
   const serial=nextSerial_(sh), mediaId='MED-'+Date.now();
   ensureTenantSheetColumn_(sh);
-  sh.appendRow([serial,mediaId,type,item.name||'','DRIVE:'+file.getId(),item.mimeType||'',size,item.sort||0,'ACTIVE',now_(),tenantIdentity_(token).key]);
+  const mediaHeaders=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
+  if(mediaHeaders.indexOf('Visibility')<0)sh.getRange(1,sh.getLastColumn()+1).setValue('Visibility');
+  const mediaRow={Serial:serial,MediaID:mediaId,Type:type,Name:item.name||'',DataURL:'DRIVE:'+file.getId(),MimeType:item.mimeType||'',Size:size,Sort:item.sort||0,Status:'ACTIVE',CreatedAt:now_(),TenantAccount:tenantIdentity_(token).key,Visibility:visibility};
+  const finalHeaders=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
+  sh.appendRow(finalHeaders.map(function(k){return mediaRow[k]===undefined?'':mediaRow[k];}));
   return {ok:true,serial:serial,mediaId:mediaId};
 }
 function listMedia(token) {
   auth_(token);
-  return listRows_(SHEETS.MEDIA,null,1000).filter(x=>String(x.Status||'').toUpperCase()==='ACTIVE').map(function(x){
+  const identity=tenantIdentity_(token);
+  return listRows_(SHEETS.MEDIA,null,1000).filter(function(x){
+    if(String(x.Status||'').toUpperCase()!=='ACTIVE')return false;
+    if(!identity.root&&String(x.TenantAccount||'')!==identity.key)return false;
+    return String(x.Visibility||'public').toLowerCase()!=='admin';
+  }).map(function(x){
     if(String(x.DataURL||'').indexOf('DRIVE:')===0){
       const id=String(x.DataURL).slice(6);
       let rk='';
-      try{
-        const f=DriveApp.getFileById(id);
-        try{f.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
-        try{rk=String(f.getResourceKey()||'');}catch(e){}
-      }catch(e){}
-      x.DriveFileId=id;
-      x.FileID=id;
-      x.ResourceKey=rk;
-      x.DataURL=mediaDriveUrl_(id,rk);
-      x.DirectURL=x.DataURL;
-      x.PreviewURL=mediaPreviewUrl_(id,rk);
+      try{const f=DriveApp.getFileById(id);try{f.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}try{rk=String(f.getResourceKey()||'');}catch(e){}}catch(e){}
+      x.DriveFileId=id;x.FileID=id;x.ResourceKey=rk;x.DataURL=mediaDriveUrl_(id,rk);x.DirectURL=x.DataURL;x.PreviewURL=mediaPreviewUrl_(id,rk);
     }
     return x;
   });
@@ -4215,3 +4216,116 @@ function saveInstitutionProfile2026(token,payload){
   log_(sessionUser_(token),'update','INSTITUTION_PROFILE_2026','প্রতিষ্ঠান পরিচিতি ও ব্যক্তিদের ছবি/তথ্য সংরক্ষণ');
   return {ok:true,message:'প্রতিষ্ঠান পরিচিতি সংরক্ষণ হয়েছে।'};
 }
+
+
+/* ===== RESTORE MISSING HTML RPC ENDPOINTS — BASE b8b8866 ===== */
+function approveStudentAdmission(token,studentId){
+  return approveStudent(token,studentId,'ACTIVE');
+}
+function jb2026MediaRow_(token,serial){
+  const identity=tenantIdentity_(token),sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
+  if(!sh||sh.getLastRow()<2)return null;
+  const values=sh.getDataRange().getValues(),headers=values[0].map(String);
+  const idx=headers.indexOf('Serial'),tenantCol=headers.indexOf('TenantAccount');
+  for(let i=1;i<values.length;i++){
+    if(String(values[i][idx])!==String(serial))continue;
+    if(!identity.root&&tenantCol>=0&&String(values[i][tenantCol]||'')!==identity.key)return null;
+    return {sheet:sh,row:i+1,headers:headers,data:objectFrom_(headers,values[i])};
+  }
+  return null;
+}
+function listGalleryPhotos(token){
+  auth_(token);requireFeature_(token,'gallery');
+  const identity=tenantIdentity_(token);
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
+  if(!sh||sh.getLastRow()<2)return [];
+  const values=sh.getDataRange().getValues(),headers=values[0].map(String),tenantCol=headers.indexOf('TenantAccount');
+  return values.slice(1).map(function(row){return objectFrom_(headers,row);}).filter(function(x){
+    if(String(x.Type||'').toLowerCase()!=='image'||String(x.Status||'').toUpperCase()!=='ACTIVE')return false;
+    if(!identity.root&&tenantCol>=0&&String(x.TenantAccount||'')!==identity.key)return false;
+    return true;
+  }).map(function(x){
+    const visibility=String(x.Visibility||'public').toLowerCase()==='admin'?'admin':'public';
+    const out={Serial:x.Serial,MediaID:x.MediaID,Name:x.Name,MimeType:x.MimeType,Size:x.Size,CreatedAt:x.CreatedAt,Visibility:visibility};
+    if(visibility!=='admin'){
+      const raw=String(x.DataURL||'');
+      if(raw.indexOf('DRIVE:')===0){try{const f=DriveApp.getFileById(raw.slice(6));out.DataURL=mediaDriveUrl_(f.getId(),f.getResourceKey?f.getResourceKey():'');}catch(e){out.DataURL='';}}
+      else out.DataURL=raw;
+    }
+    return out;
+  });
+}
+function getPrivateGalleryPhoto(token,serial){
+  auth_(token);requireFeature_(token,'gallery');
+  const rec=jb2026MediaRow_(token,serial);
+  if(!rec)return {ok:false,message:'ছবি পাওয়া যায়নি বা দেখার অনুমতি নেই।'};
+  if(String(rec.data.Type||'').toLowerCase()!=='image'||String(rec.data.Status||'').toUpperCase()!=='ACTIVE'||String(rec.data.Visibility||'').toLowerCase()!=='admin')return {ok:false,message:'ব্যক্তিগত ছবি পাওয়া যায়নি।'};
+  const raw=String(rec.data.DataURL||'');let blob;
+  try{
+    if(raw.indexOf('DRIVE:')===0)blob=DriveApp.getFileById(raw.slice(6)).getBlob();
+    else if(raw.indexOf('data:')===0){const m=raw.match(/^data:([^;,]+);base64,([\s\S]+)$/);if(!m)throw new Error('ফাইল ডাটা সঠিক নয়।');blob=Utilities.newBlob(Utilities.base64Decode(m[2]),m[1]);}
+    else throw new Error('ছবির ফাইল পাওয়া যায়নি।');
+    return {ok:true,dataUrl:'data:'+blob.getContentType()+';base64,'+Utilities.base64Encode(blob.getBytes())};
+  }catch(e){return {ok:false,message:'ব্যক্তিগত ছবি লোড হয়নি: '+String(e&&e.message||e)};}
+}
+function jb2026QuestionSheet_(name,headers){
+  return ensureSheet_(SpreadsheetApp.getActiveSpreadsheet(),name,headers.concat(['TenantAccount']));
+}
+function jb2026QuestionAccess_(token,feature){
+  auth_(token);requireFeature_(token,feature);
+  return tenantIdentity_(token);
+}
+function jb2026QuestionRows_(sheetName,headers,token){
+  const identity=jb2026QuestionAccess_(token,'exam');
+  const sh=jb2026QuestionSheet_(sheetName,headers),values=sh.getDataRange().getValues(),h=values[0].map(String),tenantCol=h.indexOf('TenantAccount');
+  return values.slice(1).map(function(r){return objectFrom_(h,r);}).filter(function(x){
+    return identity.root||String(x.TenantAccount||'')===identity.key;
+  });
+}
+function saveQuestionBank2026(token,item){
+  const identity=jb2026QuestionAccess_(token,'exam');item=item||{};
+  const text=String(item.QuestionText||'').trim(),className=String(item.Class||'').trim(),subject=String(item.Subject||'').trim();
+  if(!text||!className||!subject)return {ok:false,message:'শ্রেণি, বিষয় ও প্রশ্ন আবশ্যক।'};
+  const headers=['QuestionID','Class','Subject','QuestionType','QuestionText','Marks','Tags','Status','CreatedAt'];
+  const sh=jb2026QuestionSheet_('QUESTION_BANK_2026',headers);
+  const id='QB-'+Utilities.formatDate(new Date(),APP.timezone,'yyyyMMdd')+'-'+Utilities.getUuid().slice(0,8).toUpperCase();
+  const row={QuestionID:id,Class:className,Subject:subject,QuestionType:String(item.QuestionType||'সাধারণ'),QuestionText:text,Marks:Number(item.Marks)||0,Tags:String(item.Tags||''),Status:'ACTIVE',CreatedAt:now_(),TenantAccount:identity.key};
+  const h=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
+  sh.appendRow(h.map(function(k){return row[k]===undefined?'':row[k];}));
+  return {ok:true,questionId:id,message:'প্রশ্নব্যাংকে সংরক্ষণ হয়েছে।'};
+}
+function listQuestionBank2026(token,filter){
+  filter=filter||{};
+  const rows=jb2026QuestionRows_('QUESTION_BANK_2026',['QuestionID','Class','Subject','QuestionType','QuestionText','Marks','Tags','Status','CreatedAt'],token);
+  const cls=String(filter.Class||'').trim(),sub=String(filter.Subject||'').trim(),q=String(filter.Search||'').trim().toLowerCase();
+  const found=rows.filter(function(x){
+    return String(x.Status||'ACTIVE').toUpperCase()==='ACTIVE'&&(!cls||String(x.Class||'').trim()===cls)&&(!sub||String(x.Subject||'').trim()===sub)&&(!q||(String(x.QuestionText||'')+' '+String(x.Tags||'')+' '+String(x.Subject||'')).toLowerCase().indexOf(q)>=0);
+  }).sort(function(a,b){return String(b.CreatedAt||'').localeCompare(String(a.CreatedAt||''));}).slice(0,500);
+  return {ok:true,rows:found,count:found.length};
+}
+function saveQuestionPaper2026(token,paper){
+  const identity=jb2026QuestionAccess_(token,'exam');paper=paper||{};
+  const exam=String(paper.Exam||'').trim(),cls=String(paper.Class||'').trim(),subject=String(paper.Subject||'').trim(),questions=String(paper.QuestionText||'').trim();
+  if(!exam||!cls||!subject||!questions)return {ok:false,message:'পরীক্ষা, শ্রেণি, বিষয় ও প্রশ্ন আবশ্যক।'};
+  const headers=['PaperID','Exam','Class','Subject','ExamDate','FullMarks','Duration','Instructions','QuestionText','Status','CreatedAt','UpdatedAt'];
+  const sh=jb2026QuestionSheet_('QUESTION_PAPERS_2026',headers);
+  const h=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String),values=sh.getDataRange().getValues();
+  const idCol=h.indexOf('PaperID'),tenantCol=h.indexOf('TenantAccount');
+  let paperId=String(paper.PaperID||'').trim(),rowNo=0;
+  if(paperId){
+    for(let i=1;i<values.length;i++){
+      if(String(values[i][idCol]||'')===paperId&&(identity.root||String(values[i][tenantCol]||'')===identity.key)){rowNo=i+1;break;}
+    }
+    if(!rowNo)return {ok:false,message:'এই প্রশ্নপত্রের ID আপনার অ্যাকাউন্টে পাওয়া যায়নি।'};
+  }else paperId='QP-'+Utilities.formatDate(new Date(),APP.timezone,'yyyyMMdd')+'-'+Utilities.getUuid().slice(0,8).toUpperCase();
+  const row={PaperID:paperId,Exam:exam,Class:cls,Subject:subject,ExamDate:String(paper.ExamDate||''),FullMarks:Number(paper.FullMarks)||0,Duration:String(paper.Duration||''),Instructions:String(paper.Instructions||''),QuestionText:questions,Status:String(paper.Status||'DRAFT').toUpperCase(),CreatedAt:rowNo?String(values[rowNo-1][h.indexOf('CreatedAt')]||now_()):now_(),UpdatedAt:now_(),TenantAccount:identity.key};
+  const data=h.map(function(k){return row[k]===undefined?'':row[k];});
+  if(rowNo)sh.getRange(rowNo,1,1,h.length).setValues([data]);else sh.appendRow(data);
+  return {ok:true,paperId:paperId,message:rowNo?'প্রশ্নপত্র হালনাগাদ হয়েছে।':'প্রশ্নপত্র সংরক্ষণ হয়েছে।'};
+}
+function getQuestionPaper2026(token,paperId){
+  const rows=jb2026QuestionRows_('QUESTION_PAPERS_2026',['PaperID','Exam','Class','Subject','ExamDate','FullMarks','Duration','Instructions','QuestionText','Status','CreatedAt','UpdatedAt'],token);
+  const id=String(paperId||'').trim(),paper=rows.find(function(x){return String(x.PaperID||'')===id;});
+  return paper?{ok:true,paper:paper}:{ok:false,message:'প্রশ্নপত্র পাওয়া যায়নি বা দেখার অনুমতি নেই。'};
+}
+/* ===== END RESTORED RPC ENDPOINTS ===== */
