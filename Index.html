@@ -1095,6 +1095,7 @@ const LOCATION_WARDS=['১ নং ওয়ার্ড','২ নং ওয়ার�
 const LOCATION_VILLAGES=['কোনাখোলা','মডেল টাউন','জিঞ্জিরা','শুভাঢ্যা','আগানগর','বাস্তা','তেঘরিয়া'];
 function getLocationValue(id){const m=document.getElementById(id+'Manual')?.value.trim();const s=document.getElementById(id+'Select')?.value||'';return m||s||'';}
 function moduleForm(k){
+if(k==='payment'&&!token)return publicOnlinePaymentForm();
 const common=`<div class="form-grid">
 <label>বাংলা নাম<input id="fNameBN" class="field"></label>
 <label>العربية الاسم<input id="fNameAR" class="field" dir="rtl"></label>
@@ -1152,6 +1153,30 @@ ${locationField('adVillage','গ্রাম',['কোনাখোলা','ম�
 if(['result','marks','exam'].includes(k))return `<div class="form-grid"><label>Student ID<input id="rStudent" class="field"></label><label>নাম<input id="rName" class="field"></label><label>শ্রেনি<input id="rClass" class="field"></label><label>পরীক্ষা<input id="rExam" class="field"></label><label class="full">Subject/Marks JSON<textarea id="rSubjects" class="field" placeholder='{"বাংলা":80,"আরবি":85}'></textarea></label></div><button class="primary" onclick="saveResult('${k}')">Save</button>`;
 return `<p>এই ফিচারের জন্য ৩ ভাষা, A4, ৩ কলাম উইন্ডো কাঠামো প্রস্তুত। প্রয়োজনীয় তথ্য পূরণ করুন।</p><div class="form-grid"><label class="full">বিবরণ<textarea class="field" rows="8" id="genericData"></textarea></label></div><button class="primary" onclick="toast('ফিচার উইন্ডো প্রস্তুত')">Save</button>`;
 }
+
+function publicOnlinePaymentForm(){
+const months=['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+const categories=['ভর্তি ফি','মাসিক বেতন','মাসিক খোরাকী','মাসিক আবাসিক ফি','পরীক্ষার ফি','নিবন্ধন ফি','সেশন ফি','সভা-সেমিনার ফি','জেনারেটর/আইপিএস বিল','সনদপত্র','আইডি কার্ড','মার্কশীট','অনলাইন সেবা','বিবিধ'];
+return `<div class="form-grid">
+<label>Student ID / ভর্তি ID<div style="display:flex;gap:6px"><input id="pubPayStudent" class="field" placeholder="Student ID / মোবাইল / ইমেইল"><button type="button" class="primary" onclick="lookupPublicOnlinePaymentStudent()">🔎 তথ্য খুঁজুন</button></div></label>
+<label>শিক্ষার্থীর নাম<input id="pubPayName" class="field" readonly></label>
+<label>শ্রেণি / জামাত<input id="pubPayClass" class="field" readonly></label>
+<label>ভর্তি সময়ের মোবাইল<input id="pubPayAdmissionMobile" class="field" readonly></label>
+<label>ভর্তি সময়ের ইমেইল<input id="pubPayAdmissionEmail" class="field" readonly></label>
+<label>বর্তমান মোবাইল (SMS)<input id="pubPayMobile" class="field" type="tel" placeholder="01XXXXXXXXX"></label>
+<label>বর্তমান ইমেইল<input id="pubPayEmail" class="field" type="email" placeholder="example@email.com"></label>
+<div class="full"><b>মাস / বকেয়া মাস নির্বাচন</b><div class="form-grid" style="grid-template-columns:repeat(3,minmax(0,1fr));gap:6px">${months.map(x=>`<label style="display:flex;gap:6px;align-items:center"><input type="checkbox" name="pubPayMonth" value="${x}">${x}</label>`).join('')}</div></div>
+<div class="full"><b>বিষয় / ফি খাত নির্বাচন</b><div class="form-grid" style="grid-template-columns:repeat(2,minmax(0,1fr));gap:6px">${categories.map(x=>`<label style="display:flex;gap:6px;align-items:center"><input type="checkbox" name="pubPayCategory" value="${x}">${x}</label>`).join('')}</div></div>
+<label>পেমেন্টের ধরন<select id="pubPayMode" class="field"><option value="PRINCIPAL_APPROVAL">প্রিন্সিপাল-মুহতামিমের অনুমোদন</option><option value="AUTO_12H">১২ ঘন্টার মধ্যে অটো পেমেন্ট</option><option value="AUTO_24H">২৪ ঘন্টার মধ্যে অটো পেমেন্ট</option><option value="AUTO_48H">৪৮ ঘন্টার মধ্যে অটো পেমেন্ট</option><option value="AUTO_72H">৭২ ঘন্টার মধ্যে অটো পেমেন্ট</option></select></label>
+<label>Amount / টাকার পরিমাণ<input id="pubPayAmount" class="field" type="number" min="1" step="0.01"></label>
+<label>পেমেন্ট মাধ্যম<select id="pubPayMethod" class="field"><option value="bKash">বিকাশ</option><option value="Nagad">নগদ</option><option value="mCash">এমক্যাশ</option><option value="Rocket">রকেট</option><option value="ব্যাংকিং">ব্যাংকিং</option><option value="হ্যান্ড ক্যাশ">হ্যান্ড ক্যাশ</option></select></label>
+<label>Transaction / Reference ID<input id="pubPayReference" class="field" placeholder="লেনদেনের রেফারেন্স লিখুন"></label>
+<label class="full">Note / বিবরণ<textarea id="pubPayNote" class="field" rows="3"></textarea></label>
+</div>
+<div id="pubPayMessage" class="info" style="margin-top:12px">Student ID / ভর্তি ID দিয়ে তথ্য খুঁজুন। পেমেন্ট অনুরোধ পাঠাতে বর্তমান মোবাইল অথবা ইমেইল দিতে হবে।</div>
+<button type="button" class="primary" style="width:100%;margin-top:12px" onclick="submitPublicOnlinePayment()">📤 পেমেন্ট অনুরোধ পাঠান</button>`;
+}
+
 async function saveModule(k){
 const map={student:'STUDENTS',teacher:'TEACHERS',donor:'DONORS'};const s=map[k];
 const d={NameBN:$('fNameBN').value,NameAR:$('fNameAR').value,NameEN:$('fNameEN').value,
@@ -1162,6 +1187,28 @@ Division:getLocationValue('fDivision'),District:getLocationValue('fDistrict'),Up
 Class:document.getElementById('fClass')?.value||'',Department:document.getElementById('fDept')?.value||'',Branch:document.getElementById('fBranch')?.value||'',Photo:await fileData('fPhoto'),BirthReg:document.getElementById('fBirth')?.value||'',NID:document.getElementById('fNid')?.value||''};
 if(k==='student')d.Gender='';const r=await call('saveRecord',token,s,d);toast(r.ok?'সফলভাবে সংরক্ষণ হয়েছে':'ব্যর্থ')}
 async function saveAdmin(){const photo=await fileData('aPhoto');const d={NameBN:$('aName').value,NameAR:$('aAr').value,NameEN:$('aEn').value,Username:$('aUser').value,Password:$('aPass').value,Email:$('aEmail').value,Mobile:$('aMobile').value,WhatsApp:$('aWa').value,ApprovalID:$('aApproval').value,Address:$('aAddress').value,Photo:photo,BirthReg:$('aBirth').value,NID:$('aNid').value};const r=await call('createAdmin',token,d);toast(r.message||('Admin ID: '+r.adminId))}
+
+async function lookupPublicOnlinePaymentStudent(){
+const id=$('pubPayStudent')?.value.trim();if(!id)return toast('Student ID / ভর্তি ID দিন।');
+const box=$('pubPayMessage');if(box)box.textContent='তথ্য খোঁজা হচ্ছে...';
+try{const r=await call('getOnlinePaymentStudent',id);if(!r||!r.ok){if(box)box.textContent=(r&&r.message)||'শিক্ষার্থীর তথ্য পাওয়া যায়নি।';return;}
+const s=r.student||{};$('pubPayName').value=s.NameBN||s.NameEN||'';$('pubPayClass').value=s.Class||'';$('pubPayAdmissionMobile').value=s.Mobile||'';$('pubPayAdmissionEmail').value=s.Email||'';
+if(!$('pubPayMobile').value)$('pubPayMobile').value=s.Mobile||'';
+if(!$('pubPayEmail').value)$('pubPayEmail').value=s.Email||'';
+if(box)box.textContent='শিক্ষার্থীর তথ্য পাওয়া গেছে। পূর্বে জমাকৃত পেমেন্ট: '+Number(r.paid||0)+' টাকা।';
+}catch(e){if(box)box.textContent='সার্ভার ত্রুটি: '+(e&&e.message?e.message:e);}
+}
+async function submitPublicOnlinePayment(){
+const id=$('pubPayStudent').value.trim(),months=[...document.querySelectorAll('input[name="pubPayMonth"]:checked')].map(x=>x.value),categories=[...document.querySelectorAll('input[name="pubPayCategory"]:checked')].map(x=>x.value),amount=Number($('pubPayAmount').value),method=$('pubPayMethod').value,reference=$('pubPayReference').value.trim(),mobile=$('pubPayMobile').value.trim(),email=$('pubPayEmail').value.trim(),box=$('pubPayMessage');
+if(!id)return toast('আগে শিক্ষার্থীর ID দিন।');if(!$('pubPayName').value)return toast('আগে 🔎 তথ্য খুঁজুন।');if(!months.length)return toast('কমপক্ষে একটি মাস নির্বাচন করুন।');if(!categories.length)return toast('কমপক্ষে একটি ফি খাত নির্বাচন করুন।');if(!Number.isFinite(amount)||amount<=0)return toast('সঠিক টাকার পরিমাণ লিখুন।');if(method!=='হ্যান্ড ক্যাশ'&&!reference)return toast('Transaction / Reference ID লিখুন।');if(!mobile&&!email)return toast('বর্তমান মোবাইল অথবা ইমেইল দিন।');
+const data={StudentID:id,Name:$('pubPayName').value,Month:months.join(', '),Category:categories.join(', '),Months:months,Categories:categories,Amount:amount,Method:method,Reference:reference,PayerMobile:mobile,PayerEmail:email,PaymentMode:$('pubPayMode').value,Note:$('pubPayNote').value};
+const btn=document.querySelector('#winBody button[onclick="submitPublicOnlinePayment()"]');if(btn){btn.disabled=true;btn.textContent='অনুরোধ পাঠানো হচ্ছে...';}
+if(box)box.textContent='পেমেন্ট অনুরোধ পাঠানো হচ্ছে...';
+try{const r=await call('submitOnlinePayment',data,'');if(box)box.textContent=(r&&r.message)||'পেমেন্ট অনুরোধের উত্তর পাওয়া যায়নি।';if(r&&r.ok){if(box)box.style.background='#e8f5e9';toast(r.message||'পেমেন্ট অনুরোধ গ্রহণ হয়েছে।');}else{if(box)box.style.background='#ffebee';}}
+catch(e){if(box)box.textContent='সার্ভার ত্রুটি: '+(e&&e.message?e.message:e);if(box)box.style.background='#ffebee';}
+finally{if(btn){btn.disabled=false;btn.textContent='📤 পেমেন্ট অনুরোধ পাঠান';}}
+}
+
 async function savePayment(){const d={StudentID:$('pStudent').value,Name:$('pName').value,Month:$('pMonth').value,Category:$('pCat').value,Amount:Number($('pAmount').value),Method:$('pMethod').value,Date:new Date().toISOString(),Note:$('pNote').value};const r=await call('saveRecord',token,'PAYMENTS',d);toast(r.ok?'Payment saved':'Failed');}
 async function saveResult(k){const d={StudentID:$('rStudent').value,Name:$('rName').value,Class:$('rClass').value,Exam:$('rExam').value,SubjectData:$('rSubjects').value,Published:'NO',Date:new Date().toISOString()};const r=await call('saveRecord',token,'RESULTS',d);toast(r.ok?'Saved':'Failed')}
 async function uploadMedia(){
