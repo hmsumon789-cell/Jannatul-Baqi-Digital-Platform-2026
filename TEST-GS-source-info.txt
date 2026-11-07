@@ -1,0 +1,11 @@
+Source file: 3434 code.gs.txt
+Source commit: d046eb45ed0193218c40d5e72e97988375c4c772
+Exact copied test file: TEST-GS.gs
+Source blob SHA: c0e0b7957dd359f9b4f5dc752380efab3eb42290
+
+HTML source: 18262 ফাইনাল html.txt
+HTML commit: d2442c12c0d56671f94596110138c10a52a15074
+HTML blob SHA: 3d1e2ae9fdab6304359547c7170eeb75de4f2f47
+HTML bytes/chars fetched from Git blob: 1483276
+
+This test branch contains the exact requested HTML and Code.gs sources under clear TEST-* names. No live/default branch deployment was changed.
