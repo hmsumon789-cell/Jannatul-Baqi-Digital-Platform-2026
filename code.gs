@@ -28,7 +28,7 @@ const SHEETS = {
   CONFIG:'CONFIG', AUDIT:'AUDIT', OTP_LOG:'OTP_LOG', EXECUTIVES:'EXECUTIVES',
   ADVISERS:'ADVISERS', FOUNDERS:'FOUNDERS', LOCATION_MASTER:'LOCATION_MASTER',
   MADRASAS:'MADRASAS', SALARY:'SALARY', CERTIFICATES:'CERTIFICATES',
-  ID_CARDS:'ID_CARDS', ADMIT_CARDS:'ADMIT_CARDS', RECEIPTS:'RECEIPTS'
+  ID_CARDS:'ID_CARDS', ADMIT_CARDS:'ADMIT_CARDS', RECEIPTS:'RECEIPTS', DOCUMENTS:'DOCUMENTS'
 };
 
 const HEADERS = {
@@ -59,7 +59,8 @@ const HEADERS = {
   CERTIFICATES:['Serial','CertificateID','StudentID','Type','IssueDate','Data'],
   ID_CARDS:['Serial','CardID','StudentID','IssueDate','Data'],
   ADMIT_CARDS:['Serial','AdmitID','StudentID','Exam','IssueDate','Data'],
-  RECEIPTS:['Serial','ReceiptID','RefID','Type','Amount','Date','Data']
+  RECEIPTS:['Serial','ReceiptID','RefID','Type','Amount','Date','Data'],
+  DOCUMENTS:['Serial','DocumentID','StudentID','Type','IssueDate','Data']
 };
 
 function doGet() {
@@ -867,6 +868,9 @@ function saveDocumentBuilderRecord(token, docKey, studentId, data, html) {
   } else if(key==='receipts') {
     sheetName=SHEETS.RECEIPTS;
     row={ReceiptID:data.ReceiptNo||('RCT-'+stamp+'-'+sid),RefID:sid,Type:data.Category||'মানি রিসিট',Amount:data.Amount||'',Date:data.Date||now,Data:payload};
+  } else if(key==='admission_forms'||key==='general') {
+    sheetName=SHEETS.DOCUMENTS;
+    row={DocumentID:'DOC-'+stamp+'-'+sid,StudentID:sid,Type:key,IssueDate:data.IssueDate||now,Data:payload};
   } else return {ok:false,message:'এই Document type-এর Save এখনো সংযুক্ত হয়নি।'};
   const saved=saveRecord(token,sheetName,row);
   return {ok:true,sheet:sheetName,record:saved.row,documentId:row.ResultID||row.CardID||row.AdmitID||row.CertificateID||row.ReceiptID,message:'Document History-তে সংরক্ষণ হয়েছে।'};
@@ -881,6 +885,7 @@ function getDocumentBuilderHistory(token, studentId, docKey) {
   else if(key==='admit_cards') sheet=SHEETS.ADMIT_CARDS;
   else if(key==='certificates') sheet=SHEETS.CERTIFICATES;
   else if(key==='receipts') sheet=SHEETS.RECEIPTS;
+  else if(key==='admission_forms'||key==='general') sheet=SHEETS.DOCUMENTS;
   else return {ok:false,message:'Document type সঠিক নয়।'};
   rows=listRows_(sheet,token,5000).filter(r=>!sid||String(r.StudentID||r.RefID||'').trim()===sid);
   return {ok:true,sheet,rows:rows.slice().reverse(),count:rows.length};
@@ -983,6 +988,7 @@ function getDocumentBuilderRecord(token, docKey, recordId) {
   else if(key==='admit_cards'){sheet=SHEETS.ADMIT_CARDS;idField='AdmitID';}
   else if(key==='certificates'){sheet=SHEETS.CERTIFICATES;idField='CertificateID';}
   else if(key==='receipts'){sheet=SHEETS.RECEIPTS;idField='ReceiptID';}
+  else if(key==='admission_forms'||key==='general'){sheet=SHEETS.DOCUMENTS;idField='DocumentID';}
   else return {ok:false,message:'Document type সঠিক নয়।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheet);
   if(!sh||sh.getLastRow()<2) return {ok:false,message:'History record পাওয়া যায়নি।'};
@@ -1031,6 +1037,7 @@ function getDocumentVerification(token, docKey, recordId) {
   else if(key==='admit_cards'){sheet=SHEETS.ADMIT_CARDS;idField='AdmitID';}
   else if(key==='certificates'){sheet=SHEETS.CERTIFICATES;idField='CertificateID';}
   else if(key==='receipts'){sheet=SHEETS.RECEIPTS;idField='ReceiptID';}
+  else if(key==='admission_forms'||key==='general'){sheet=SHEETS.DOCUMENTS;idField='DocumentID';}
   else return {ok:false,verified:false,message:'Document type সঠিক নয়।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheet);
   if(!sh||sh.getLastRow()<2) return {ok:true,verified:false,message:'রেকর্ড পাওয়া যায়নি।'};
