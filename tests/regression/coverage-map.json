@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "sourceCommit": "8852ac4eb83db73b628640f2670bdb1ef574c21d",
+  "sourceFiles": ["Index.html", "code.gs", "LocationData.gs"],
+  "areas": {
+    "authentication": ["login", "verifyLoginOtp", "requestOtp", "logout"],
+    "dashboard": ["getBootstrap", "getModuleList", "getSheetData"],
+    "students_and_records": ["saveRecord", "updateRecord", "searchAll"],
+    "media": ["saveMedia", "listMedia", "deleteMedia"],
+    "location": ["getLocations"],
+    "quick_service": ["sendQuickService"],
+    "account_control": ["getAccountControlData", "approveAccountDirect", "setAccountStatus", "resetAccountPassword"]
+  },
+  "limits": [
+    "Static source regression only; it does not execute Apps Script functions.",
+    "It does not perform browser UI or end-to-end tests.",
+    "It does not write to the Test Copy spreadsheet or send email/SMS.",
+    "The deployed web app URL is not called by this workflow."
+  ]
+}
