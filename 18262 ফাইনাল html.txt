@@ -2299,7 +2299,7 @@ function showOnlinePaymentReceipt(x){
   ];
   const monthNames=['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
   const rawMonths=Array.isArray(x.Months)?x.Months:String(x.Month||'').split(/[,;|]/);
-  const paidMonths=new Set(rawMonths.map(function(v){return String(v||'').trim().toLowerCase().replace(/\\s+/g,' ')}));
+  const paidMonths=new Set(rawMonths.map(function(v){return String(v||'').trim().toLowerCase().replace(/\s+/g,' ')}));
   const monthAliases={
     'জানুয়ারি':['জানুয়ারি','জানুয়ারি','january','jan'],'ফেব্রুয়ারি':['ফেব্রুয়ারি','ফেব্রুয়ারি','february','feb'],
     'মার্চ':['মার্চ','march','mar'],'এপ্রিল':['এপ্রিল','april','apr'],'মে':['মে','may'],
