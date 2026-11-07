@@ -106,7 +106,7 @@ export function runAudit() {
       new vm.Script(script.source, { filename: 'Index.html:inline-script-' + (script.index + 1) + '.js' });
       syntax.push({ file: 'Index.html', block: script.index + 1, ok: true });
     } catch (error) {
-      syntax.push({ file: 'Index.html', block: script.index + 1, ok: false, error: error.message });
+      syntax.push({ file: 'Index.html', block: script.index + 1, ok: false, error: error.stack || error.message });
     }
   }
 
