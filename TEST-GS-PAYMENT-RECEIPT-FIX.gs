@@ -2804,13 +2804,13 @@ function onlineServiceCleanHtml_(html) {
 function onlineServiceUnifiedPrintHtml2026_(title,html,serviceId) {
   const clean=onlineServiceCleanHtml_(html);
   const base=String(ScriptApp.getService().getUrl()||'');
-  const logoMatch=clean.match(/<img\\b[^>]*\\bsrc\\s*=\\s*["']([^"']+)["'][^>]*>/i);
+  const logoMatch=clean.match(/<img\b[^>]*\bsrc\s*=\s*["']([^"']+)["'][^>]*>/i);
   const logo=logoMatch?logoMatch[1]:'';
   const esc=function(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');};
   const qr=function(v){return 'https://quickchart.io/qr?size=130&text='+encodeURIComponent(String(v||''));};
   const mainQr=qr(base||APP.nameEn), infoQr=qr(APP.nameBn+' | '+title+' | '+serviceId);
   const formQr=qr((base||APP.nameEn)+'?verify=1&doc='+encodeURIComponent(title)+'&id='+encodeURIComponent(serviceId));
-  const body=clean.replace(/<div[^>]*class=["'][^"']*jb-institution-header-2026[^"']*["'][^>]*>[\\s\\S]*?<\\/div>/i,'');
+  const body=clean.replace(/<div[^>]*class=["'][^"']*jb-institution-header-2026[^"']*["'][^>]*>[\s\S]*?<\/div>/i,'');
   const header='<header class="jb-unified-print-head"><div class="jb-up-logo">'+(logo?'<img src="'+esc(logo)+'" alt="মূল লোগো">':'')+'</div><div class="jb-up-inst"><b>'+esc(APP.nameBn)+'</b><div>'+esc(APP.nameAr)+'</div><div>'+esc(APP.nameEn)+'</div><small>'+esc(APP.address)+'<br>হটলাইন: '+esc(APP.hotline1)+'</small></div><div class="jb-up-mainqr"><img src="'+mainQr+'" alt="মূল ওয়েবসাইট QR"><small>মূল ওয়েবসাইট</small></div></header>';
   const footer='<footer class="jb-unified-print-foot"><div><img src="'+infoQr+'" alt="নিজ তথ্য QR"><small>নিজ তথ্য</small></div><b>POWERED BY JANNATULA BAKY DIGITAL PLATFORM-2026</b><div><img src="'+formQr+'" alt="নিজ ফর্ম QR"><small>নিজ ফর্ম</small></div></footer>';
   const watermark=logo?'<img class="jb-up-watermark" src="'+esc(logo)+'" alt="">':'';
