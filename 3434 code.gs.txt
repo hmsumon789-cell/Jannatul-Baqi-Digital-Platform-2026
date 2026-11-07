@@ -3156,34 +3156,7 @@ function ensureOnlinePaymentRequestSheet_(){
   }
   return sh;
 }
-function getOnlinePaymentStudent(studentId){
-  try{
-    const inputId=String(studentId||'').trim();
-    if(!inputId)return {ok:false,message:'Student ID / ভর্তি ফর্মের ID লিখুন।'};
-    const resolved=resolveAdmissionIdentifier_(inputId)||{};
-    const st=resolved.student||findBy_(SHEETS.STUDENTS,'StudentID',String(resolved.studentId||inputId).trim());
-    const admission=resolved.admission||null;
-    if(!st&&!admission)return {ok:false,message:'এই ID/মোবাইল/ইমেইলে শিক্ষার্থীর ভর্তি তথ্য পাওয়া যায়নি।'};
-    // Keep useful admission-form values when the master-student row has blank cells.
-    const person={};
-    [resolved.formData||{},admission||{},st||{}].forEach(function(source){
-      Object.keys(source).forEach(function(key){
-        const value=source[key];
-        if(value!==undefined&&value!==null&&String(value).trim()!=='')person[key]=value;
-      });
-    });
-    const id=String((st&&st.StudentID)||(admission&&admission.StudentID)||person.StudentID||resolved.studentId||inputId).trim();
-    const nameBn=person.NameBN||person.StudentNameBN||person.Name||person.StudentName||person.NameEN||'';
-    const mobile=person.Mobile||person.Phone||person.WhatsApp||person.GuardianMobile||person.FatherMobile||person.MotherMobile||'';
-    const email=person.Email||person.EmailID||person.GuardianEmail||'';
-    const pays=listRows_(SHEETS.PAYMENTS,'',10000).filter(function(row){return String(row.StudentID||'').trim()===id;});
-    let paid=0;
-    pays.forEach(function(row){const amount=Number(String(row.Amount||'').replace(/[^0-9.-]/g,''));if(isFinite(amount))paid+=amount;});
-    return {ok:true,student:{StudentID:id,NameBN:nameBn,NameEN:person.NameEN||'',Class:person.Class||person.ClassName||person.Jamaat||'',Mobile:mobile,WhatsApp:person.WhatsApp||mobile,Email:email},paid:paid};
-  }catch(e){
-    return {ok:false,message:'শিক্ষার্থীর তথ্য আনতে সার্ভার ত্রুটি: '+String(e&&e.message||e)};
-  }
-}
+function getOnlinePaymentStudent(studentId){try{const inputId=String(studentId||'').trim();if(!inputId)return {ok:false,message:'Student ID / ভর্তি ফর্মের ID লিখুন।'};const resolved=resolveAdmissionIdentifier_(inputId)||{},st=resolved.student||findBy_(SHEETS.STUDENTS,'StudentID',String(resolved.studentId||inputId).trim()),admission=resolved.admission||null;if(!st&&!admission)return {ok:false,message:'এই ID/মোবাইল/ইমেইলে শিক্ষার্থীর ভর্তি তথ্য পাওয়া যায়নি।'};const person={};[resolved.formData||{},admission||{},st||{}].forEach(function(source){Object.keys(source).forEach(function(key){const value=source[key];if(value!==undefined&&value!==null&&String(value).trim()!=='')person[key]=value;});});const id=String((st&&st.StudentID)||(admission&&admission.StudentID)||person.StudentID||resolved.studentId||inputId).trim(),nameBn=person.NameBN||person.StudentNameBN||person.Name||person.StudentName||person.NameEN||'',mobile=person.Mobile||person.Phone||person.WhatsApp||person.GuardianMobile||person.FatherMobile||person.MotherMobile||'',email=person.Email||person.EmailID||person.GuardianEmail||'',pays=listRows_(SHEETS.PAYMENTS,'',10000).filter(function(row){return String(row.StudentID||'').trim()===id;});let paid=0;pays.forEach(function(row){const amount=Number(String(row.Amount||'').replace(/[^0-9.-]/g,''));if(isFinite(amount))paid+=amount;});return {ok:true,student:{StudentID:id,NameBN:nameBn,NameEN:person.NameEN||'',Class:person.Class||person.ClassName||person.Jamaat||'',Mobile:mobile,WhatsApp:person.WhatsApp||mobile,Email:email},paid:paid};}catch(e){return {ok:false,message:'শিক্ষার্থীর তথ্য আনতে সার্ভার ত্রুটি: '+String(e&&e.message||e)};}}
 function getOnlinePaymentNotifyTargets_(){
   const out={admins:[]};
   try{
@@ -3420,26 +3393,7 @@ function buildPublicOnlinePaymentHtml_(){
       }).getMainWebAppUrl();
     }catch(e){}
   }
-  function lookup(){
-    var id=(g("sid").value||"").trim(),info=g("info"),btn=document.querySelector(".student-search-btn");
-    if(!id){info.textContent="আগে Student ID / ভর্তি ফর্মের ID লিখুন।";g("sid").focus();return;}
-    if(typeof google==="undefined"||!google.script||!google.script.run){info.textContent="সার্ভারের সঙ্গে সংযোগ পাওয়া যায়নি। পেজটি মূল Web App লিংক থেকে খুলুন।";return;}
-    info.textContent="⏳ শিক্ষার্থীর তথ্য খোঁজা হচ্ছে...";
-    if(btn){btn.disabled=true;btn.textContent="…";}
-    google.script.run.withSuccessHandler(function(r){
-      if(btn){btn.disabled=false;btn.textContent="⌕";}
-      if(!r||!r.ok){info.textContent=(r&&r.message)||"এই ID-তে শিক্ষার্থীর তথ্য পাওয়া যায়নি।";show(info.textContent,false);return;}
-      var st=r.student||{};
-      g("sid").value=st.StudentID||id;g("name").value=st.NameBN||st.NameEN||"";
-      g("cls").value=st.Class||"";g("admissionMobile").value=st.Mobile||st.WhatsApp||"";
-      g("admissionEmail").value=st.Email||"";g("mobile").value="";g("email").value="";
-      info.textContent="✅ শিক্ষার্থীর তথ্য পাওয়া গেছে। পেমেন্টের সময় বর্তমান মোবাইল/ইমেইল দিন—সেখানেই মেসেজ যাবে।";
-    }).withFailureHandler(function(e){
-      if(btn){btn.disabled=false;btn.textContent="⌕";}
-      info.textContent="সার্ভার ত্রুটি: "+(e&&e.message||e);
-      show(info.textContent,false);
-    }).getOnlinePaymentStudent(id);
-  }
+  function lookup(){var id=(g("sid").value||"").trim(),info=g("info"),btn=document.querySelector(".student-search-btn");if(!id){info.textContent="আগে Student ID / ভর্তি ফর্মের ID লিখুন।";g("sid").focus();return;}if(typeof google==="undefined"||!google.script||!google.script.run){info.textContent="সার্ভারের সঙ্গে সংযোগ পাওয়া যায়নি। পেজটি মূল Web App লিংক থেকে খুলুন।";return;}info.textContent="⏳ শিক্ষার্থীর তথ্য খোঁজা হচ্ছে...";if(btn){btn.disabled=true;btn.textContent="…";}google.script.run.withSuccessHandler(function(r){if(btn){btn.disabled=false;btn.textContent="⌕";}if(!r||!r.ok){info.textContent=(r&&r.message)||"এই ID-তে শিক্ষার্থীর তথ্য পাওয়া যায়নি।";show(info.textContent,false);return;}var st=r.student||{};g("sid").value=st.StudentID||id;g("name").value=st.NameBN||st.NameEN||"";g("cls").value=st.Class||"";g("admissionMobile").value=st.Mobile||st.WhatsApp||"";g("admissionEmail").value=st.Email||"";g("mobile").value="";g("email").value="";info.textContent="✅ শিক্ষার্থীর তথ্য পাওয়া গেছে। পেমেন্টের সময় বর্তমান মোবাইল/ইমেইল দিন—সেখানেই মেসেজ যাবে।";}).withFailureHandler(function(e){if(btn){btn.disabled=false;btn.textContent="⌕";}info.textContent="সার্ভার ত্রুটি: "+(e&&e.message||e);show(info.textContent,false);}).getOnlinePaymentStudent(id);}
   function updateMultiSummary(name,id){var vals=Array.from(document.querySelectorAll('input[name="'+name+'"]:checked')).map(function(x){return x.value}),el=document.getElementById(id);if(el)el.textContent=vals.length?vals.length+"টি নির্বাচিত: "+vals.slice(0,3).join(", ")+(vals.length>3?" …":""):(name==="month"?"মাস নির্বাচন করুন":"বিষয় / ফি খাত নির্বাচন করুন")}function escHtml(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}function selected(name){return Array.from(document.querySelectorAll('input[name="'+name+'"]:checked')).map(function(x){return x.value})}function showPublicPaymentReceipt(x){
   var safe=function(v){return escHtml(v==null?"":v)};
   var fields=[["রসিদ আইডি",x.ReceiptID],["লেনদেন আইডি",x.TransactionID||x.PaymentID],["শিক্ষার্থী আইডি",x.StudentID],["নাম",x.Name],["শ্রেণি/জামাত",x.Class],["মাস",x.Month],["ফি খাত",x.Category],["পরিমাণ",Number(x.Amount||0).toLocaleString("bn-BD")+" টাকা"],["মাধ্যম",x.Method],["Reference",x.Reference],["তারিখ",x.Date]];
@@ -3447,8 +3401,7 @@ function buildPublicOnlinePaymentHtml_(){
   box.innerHTML='<div id="publicReceiptPrint" style="background:#fff;color:#111;border:2px solid #222;border-radius:10px;padding:16px;text-align:left"><style>@media print{body *{visibility:hidden}#publicReceiptPrint,#publicReceiptPrint *{visibility:visible}#publicReceiptPrint{position:absolute;left:0;top:0;width:100%;box-sizing:border-box}.no-print{display:none!important}}</style><h2 style="text-align:center;margin:0 0 6px">মানি রসিদ — পেমেন্ট সফল</h2><div style="text-align:center">'+safe(x.Institution||"জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা")+'</div><div style="text-align:center">'+safe(x.Address||"")+'</div><hr>'+fields.map(function(a){return '<div style="display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #ddd;padding:7px 0"><b>'+safe(a[0])+'</b><span>'+safe(a[1])+'</span></div>'}).join("")+'<p style="text-align:center;font-weight:800">পেমেন্ট সফলভাবে সম্পন্ন হয়েছে।</p><div class="no-print" style="text-align:center"><button class="btn" type="button" onclick="window.print()">🖨️ মানি রসিদ প্রিন্ট করুন</button></div></div>';
 }
 function submitPayment(){var months=selected("month"),categories=selected("category"),d={StudentID:(g("sid").value||"").trim(),Name:g("name").value,Month:months.join(", "),Months:months,Category:categories.join(", "),Categories:categories,Amount:Number(g("amount").value),Method:g("method").value,Reference:(g("ref").value||"").trim(),PayerMobile:(g("mobile").value||"").trim(),PayerEmail:(g("email").value||"").trim(),Note:g("note").value,PaymentMode:g("paymentMode").value};if(!d.StudentID||!d.Amount||d.Amount<=0){show("Student ID ও সঠিক Amount দিন।",false);return}if(!months.length||!categories.length){show("অন্তত একটি মাস ও একটি ফি খাত নির্বাচন করুন।",false);return}if(!d.Reference){show("Transaction / Reference ID দিন।",false);return}show("⏳ পেমেন্ট অনুরোধ পাঠানো হচ্ছে...",true);google.script.run.withSuccessHandler(function(r){if(r&&r.ok&&r.status==="PAID"&&r.receipt)showPublicPaymentReceipt(r.receipt);else show((r&&r.message)||"অনুরোধ সম্পন্ন হয়েছে।",!!(r&&r.ok));if(r&&r.ok){g("amount").value="";g("ref").value=makePaymentTransactionId();g("note").value="";document.querySelectorAll('input[name="month"],input[name="category"]').forEach(function(x){x.checked=false})}}).withFailureHandler(function(e){show("সার্ভার ত্রুটি: "+(e&&e.message||e),false)}).submitOnlinePayment(d)}function showPublicPaymentList(){var sid=(g("listSid").value||g("sid").value||"").trim(),contact=(g("listContact").value||g("mobile").value||g("email").value||"").trim(),box=g("paymentListResult");if(!sid||!contact){box.style.display="block";box.textContent="Student ID এবং ভর্তি সময়ের মোবাইল/ইমেইল দিন।";return}box.style.display="block";box.textContent="⏳ পেমেন্ট তালিকা খোঁজা হচ্ছে...";google.script.run.withSuccessHandler(function(r){if(!r||!r.ok){box.textContent=(r&&r.message)||"তালিকা পাওয়া যায়নি।";return}if(!r.rows.length){box.textContent="কোনো পেমেন্ট রেকর্ড পাওয়া যায়নি।";return}box.innerHTML="<b>আপনার পেমেন্ট তালিকা</b>"+r.rows.map(function(x){return "<div>"+escHtml(x.Date||x.SubmittedAt||"")+" | "+escHtml(x.Month||"")+" | "+escHtml(x.Category||"")+" | "+escHtml(x.Amount||"")+" টাকা | "+escHtml(x.Status||"")+"</div>"}).join("")}).withFailureHandler(function(e){box.textContent="সার্ভার ত্রুটি: "+(e&&e.message||e)}).getPublicOnlinePaymentList(sid,contact)}
-  window.lookup=lookup;window.submitPayment=submitPayment;window.showPublicPaymentList=showPublicPaymentList;window.updateMultiSummary=updateMultiSummary;
-  document.addEventListener("DOMContentLoaded",function(){g("ref").value=makePaymentTransactionId();loadPaymentHeader()});
+  document.addEventListener("DOMContentLoaded",function(){window.lookup=lookup;g("ref").value=makePaymentTransactionId();loadPaymentHeader()});
   </script></body></html>`;
 }
 function getOnlinePaymentManagerData(token){
