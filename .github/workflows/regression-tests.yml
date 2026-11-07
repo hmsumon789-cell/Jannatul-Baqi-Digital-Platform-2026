@@ -1,0 +1,37 @@
+name: Platform Regression Tests
+
+on:
+  push:
+    branches: [regression-testing-8852ac4]
+  pull_request:
+    branches: [regression-testing-8852ac4]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    name: Read-only source regression checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Run regression tests
+        run: npm test
+      - name: Generate static audit report
+        if: always()
+        run: |
+          npm run test:audit > regression-audit.txt 2>&1 || true
+          cat regression-audit.txt >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-audit-8852ac4
+          path: regression-audit.txt
+          if-no-files-found: warn
