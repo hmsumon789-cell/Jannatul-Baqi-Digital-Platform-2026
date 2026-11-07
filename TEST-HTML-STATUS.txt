@@ -1,0 +1,8 @@
+HTML TEST COPY NOT CREATED
+
+Source requested: 18262 ফাইনাল html.txt
+Source commit: d2442c12c0d56671f94596110138c10a52a15074
+Fetched source content length: 0 bytes
+Source blob SHA: 3d1e2ae9fdab6304359547c7170eeb75de4f2f47
+
+This source is empty. Do not treat this branch as a complete HTML + Code.gs test pair. Restore/provide a non-empty HTML source before HTML/GS integration testing or deployment.
