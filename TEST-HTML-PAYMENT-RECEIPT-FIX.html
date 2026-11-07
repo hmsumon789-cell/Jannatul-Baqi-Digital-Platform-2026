@@ -18812,8 +18812,8 @@ body.gold #toast.toast{background:#fff5c7!important;color:#4b3200!important;bord
     else if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(function(){if(typeof toast==='function')toast('শেয়ার লিংক কপি হয়েছে।');});}
     else if(typeof toast==='function')toast('এই ব্রাউজারে Share সুবিধা পাওয়া যায়নি।');
   }
-  window.jbPrint=function(){var p=document.querySelector('#jbDocPreviewWrap .jb-doc-preview');if(!p)return;openPrint(p,document.getElementById('winTitle')?.textContent||document.title,document.getElementById('jbDocId')?.value||'document');};
-  window.jbDownload=function(){var p=document.querySelector('#jbDocPreviewWrap .jb-doc-preview');if(!p)return;if(typeof toast==='function')toast('PDF সংরক্ষণ করতে Print ডায়ালগে “Save as PDF” নির্বাচন করুন।');openPrint(p,document.getElementById('winTitle')?.textContent||document.title,document.getElementById('jbDocId')?.value||'document');};
+  window.jbPrint=function(){var p=document.querySelector('#jbDocPreviewWrap .jb-doc-preview');if(!p)return;var t=p.querySelector('h1,h2,h3')?.textContent||'Document';openPrint(p,t,'document');};
+  window.jbDownload=function(){var p=document.querySelector('#jbDocPreviewWrap .jb-doc-preview');if(!p)return;var t=p.querySelector('h1,h2,h3')?.textContent||'Document';if(typeof toast==='function')toast('PDF সংরক্ষণ করতে Print ডায়ালগে “Save as PDF” নির্বাচন করুন।');openPrint(p,t,'document');};
   window.jbShare=function(){share(document.getElementById('winTitle')?.textContent||'Document');};
   window.printSearchProfile=function(){var p=document.getElementById('searchProfilePrint');if(p)openPrint(p,'সার্চ প্রোফাইল','search_profile');};
   window.downloadSearchProfile=function(){var p=document.getElementById('searchProfilePrint');if(p){if(typeof toast==='function')toast('PDF সংরক্ষণ করতে Print ডায়ালগে “Save as PDF” নির্বাচন করুন।');openPrint(p,'সার্চ প্রোফাইল','search_profile');}};
