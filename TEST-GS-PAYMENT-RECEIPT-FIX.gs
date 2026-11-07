@@ -3572,7 +3572,43 @@ async function savePayment(){
     g("pReference").value="";g("pPayerMobile").value="";g("pAmount").value="";g("pNote").value="";
     document.querySelectorAll('input[name="pMonth"],input[name="pCat"]').forEach(function(x){x.checked=false;});
     updatePaymentDropdownSummary("pMonth","pMonthSummary","মাস নির্বাচন করুন");
-    updatePaymentDropdownSummary("pCat","pCatSummary","বিষয় /   function bindPublicPaymentEvents(){
+    updatePaymentDropdownSummary("pCat","pCatSummary","বিষয় / ফি খাত নির্বাচন করুন");
+    updatePaymentMethodLogo();
+  }catch(e){show("পেমেন্টে সার্ভার ত্রুটি: "+(e&&e.message?e.message:e),false);}
+  finally{if(button){button.disabled=false;button.textContent="📤 পেমেন্ট দিন";}}
+}
+async function showPublicPaymentList(filter){
+  var sid=String(g("pStudent").value||"").trim();
+  var contact=String(g("pMobile").value||g("pRegisteredEmail").value||"").trim();
+  var box=g("onlinePaymentReceiptSearchMessage");
+  if(!sid||!contact){if(box)box.textContent="প্রথমে Student ID দিয়ে শিক্ষার্থীর তথ্য খুঁজুন; ভর্তি সময়ের নিবন্ধিত মোবাইল/ইমেইল প্রয়োজন।";return;}
+  if(box)box.textContent="⏳ পেমেন্ট তালিকা খোঁজা হচ্ছে...";
+  try{
+    var r=await publicCall("getPublicOnlinePaymentList",[sid,contact]);
+    if(!r||!r.ok){if(box)box.textContent="❌ "+((r&&r.message)||"পেমেন্ট তালিকা পাওয়া যায়নি।");return;}
+    var rows=(r.rows||[]).filter(function(x){return !filter||filter==="ALL"||String(x.Status||"").toUpperCase()===filter;});
+    if(!rows.length){if(box)box.textContent=filter==="PENDING"?"কোনো Pending পেমেন্ট পাওয়া যায়নি।":"কোনো পেমেন্ট রেকর্ড পাওয়া যায়নি।";return;}
+    if(box)box.innerHTML="<b>আপনার পেমেন্ট তালিকা</b><div class='table-wrap'><table style='width:100%;border-collapse:collapse;margin-top:7px'><thead><tr><th>তারিখ</th><th>মাস</th><th>ফি খাত</th><th>পরিমাণ</th><th>অবস্থা</th></tr></thead><tbody>"+rows.map(function(x){return "<tr><td>"+escHtml(x.Date||x.SubmittedAt||"")+"</td><td>"+escHtml(x.Month||"")+"</td><td>"+escHtml(x.Category||"")+"</td><td>"+Number(x.Amount||0).toLocaleString("bn-BD")+" টাকা</td><td>"+escHtml(x.Status||"")+"</td></tr>";}).join("")+"</tbody></table></div>";
+  }catch(e){if(box)box.textContent="❌ তালিকা আনতে সার্ভার ত্রুটি: "+(e&&e.message?e.message:e);}
+}
+function openPendingPayments(){return showPublicPaymentList("PENDING");}
+function openPaymentList(){return showPublicPaymentList("ALL");}
+async function searchOnlinePaymentReceipt(){
+  var receiptId=String(g("onlinePaymentReceiptSearchId").value||"").trim();
+  var sid=String(g("pStudent").value||"").trim();
+  var contact=String(g("pMobile").value||g("pRegisteredEmail").value||"").trim();
+  var box=g("onlinePaymentReceiptSearchMessage");
+  if(!receiptId){if(box)box.textContent="Receipt ID অথবা Student ID লিখুন।";return;}
+  if(!sid||!contact){if(box)box.textContent="প্রথমে Student ID দিয়ে শিক্ষার্থীর তথ্য খুঁজুন।";return;}
+  if(box)box.textContent="⏳ মানিরিসিট খোঁজা হচ্ছে...";
+  try{
+    var r=await publicCall("getPublicOnlinePaymentReceipt",[sid,contact,receiptId]);
+    if(!r||!r.ok){if(box)box.textContent="❌ "+((r&&r.message)||"এই শিক্ষার্থীর রসিদ পাওয়া যায়নি।");return;}
+    if(box)box.textContent="✅ রসিদ পাওয়া গেছে: "+(r.receipt.ReceiptID||receiptId);
+    showPublicPaymentReceipt(r.receipt);
+  }catch(e){if(box)box.textContent="❌ রসিদ সার্চে ত্রুটি: "+(e&&e.message?e.message:e);}
+}
+  function bindPublicPaymentEvents(){
     document.addEventListener("click",function(e){
       var target=e.target,button=target&&target.closest?target.closest("[data-action]"):null;if(!button)return;
       var action=button.getAttribute("data-action");
