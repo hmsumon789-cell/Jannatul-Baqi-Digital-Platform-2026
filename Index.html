@@ -1262,7 +1262,7 @@ function downloadCurrentForm(){
     span.style.padding='3px';
     el.replaceWith(span);
   });
-  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title></head><body><h2>'+($('winTitle').textContent||'ফর্ম')+'</h2>'+body.innerHTML+'\n<style id="clean-media-controls-fix">
+  var html=String.raw`<!doctype html><html><head><meta charset="utf-8"><title>${title}</title></head><body><h2>${$('winTitle').textContent||'ফর্ম'}</h2>${body.innerHTML}\n<style id="clean-media-controls-fix">
 .media-player-controls{display:none!important;height:0!important;padding:0!important;margin:0!important;border:0!important;box-shadow:none!important;background:transparent!important}
 .dashboard-slider .slider-controls{display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;margin-top:8px!important;padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important}
 .dashboard-slider .slider-center-controls{display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important}
@@ -1304,7 +1304,7 @@ function downloadCurrentForm(){
   document.addEventListener('DOMContentLoaded',bindMediaButtons);
   setTimeout(bindMediaButtons,300);setTimeout(bindMediaButtons,1000);
 })();
-</script>
+<${'/' }script>
 
 <style id="final-media-only-controls">
 /* শুধু dashboard-এর Load / Play / Delete থাকবে; নিচের অতিরিক্ত হলুদ box থাকবে না */
@@ -1356,7 +1356,7 @@ function downloadCurrentForm(){
   document.addEventListener('DOMContentLoaded',wire);
   setTimeout(wire,300);setTimeout(wire,1000);
 })();
-</script>
+<${'/' }script>
 
 <style id="brand-new-media-player-only-2026-09-20">
 /* পুরোনো Load/Play/Delete controls ও পুরোনো player UI সম্পূর্ণ নিষ্ক্রিয় */
@@ -1416,7 +1416,7 @@ function downloadCurrentForm(){
   document.addEventListener('DOMContentLoaded',function(){setTimeout(draw,300);setTimeout(draw,1000);});
   setTimeout(draw,1500);
 })();
-</script>
+<${'/' }script>
 
 <script id="login-main-qr-2026-10-05">
 (function(){
@@ -1434,8 +1434,8 @@ function downloadCurrentForm(){
   setTimeout(setLoginMainQR2026,800);
   setTimeout(setLoginMainQR2026,1800);
 })();
-</script>
-</body></html>';
+<${'/' }script>
+</body></html>`;
   var blob=new Blob([html],{type:'text/html;charset=utf-8'});
   var url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url;a.download=title+'.html';document.body.appendChild(a);a.click();a.remove();
@@ -1456,7 +1456,7 @@ function escExam(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/<
 function clearExamDraftForm(){['examNameNew','examYearNew','examStartNew','examEndNew','examNoteNew'].forEach(id=>{if($(id))$(id).value=id==='examYearNew'?'২০২৬':''});if($('examTypeNew'))$('examTypeNew').selectedIndex=0;if($('examPublishNew'))$('examPublishNew').value='NO'}
 function saveExamDraft(){const name=$('examNameNew')?.value.trim()||'',year=$('examYearNew')?.value.trim()||'',type=$('examTypeNew')?.value||'',start=$('examStartNew')?.value||'',end=$('examEndNew')?.value||'',publish=$('examPublishNew')?.value||'NO',note=$('examNoteNew')?.value.trim()||'';if(!name)return toast('পরীক্ষার নাম দিন।');if(start&&end&&end<start)return toast('শেষ তারিখ শুরুর তারিখের আগে হতে পারবে না।');const a=examDrafts();a.push({id:'EX-'+Date.now(),name,year,type,start,end,publish,note,createdAt:new Date().toISOString()});setExamDrafts(a);clearExamDraftForm();renderExamManager();renderExamDashboard();toast('পরীক্ষার খসড়া সংরক্ষণ হয়েছে।')}
 function deleteExamDraft(id){const a=examDrafts().filter(x=>x.id!==id);setExamDrafts(a);renderExamManager();renderExamDashboard();toast('পরীক্ষাটি মুছে ফেলা হয়েছে।')}
-\nfunction goHome(){window.scrollTo({top:0,behavior:'smooth'})}
+function goHome(){window.scrollTo({top:0,behavior:'smooth'})}
 function setMode(m){document.body.classList.remove('dark','gold');if(m==='dark')document.body.classList.add('dark');if(m==='gold')document.body.classList.add('gold');localStorage.mode=m}
 function setLang(l){localStorage.lang=l;document.documentElement.dir=l==='ar'?'rtl':'ltr'}
 function toast(t){
