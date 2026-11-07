@@ -183,7 +183,8 @@ export function runAudit() {
       syntaxErrors: syntax.filter(item => !item.ok),
       missingServerCalls,
       duplicateServerFunctionNames: duplicates(serverFunctions),
-      doGetDoesNotServeIndex: !doGetServesIndex,\n      sheetsWithoutHeaders: sheetKeys.filter(key => !headerKeys.includes(key))
+      doGetDoesNotServeIndex: !doGetServesIndex,
+      sheetsWithoutHeaders: sheetKeys.filter(key => !headerKeys.includes(key))
     }
   };
 }
