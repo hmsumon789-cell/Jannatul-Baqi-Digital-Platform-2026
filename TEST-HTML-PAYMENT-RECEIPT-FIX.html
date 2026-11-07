@@ -18759,6 +18759,81 @@ body.gold #toast.toast{background:#fff5c7!important;color:#4b3200!important;bord
   }finally{busy=false}
  };
  window.jbORPPrint20261027=function(){var box=el('jbORPList20261027');if(!box||!box.innerHTML){note('প্রিন্টের আগে তালিকা লোড করুন।');return}var w=window.open('','_blank');if(!w){note('প্রিন্ট উইন্ডো খোলা যায়নি; ব্রাউজারের pop-up অনুমতি দিন।');return}w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>অনলাইন ফলাফল প্লাটফর্ম</title><style>body{font-family:Arial,sans-serif;padding:16px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #555;padding:5px;text-align:center}input{border:0;width:60px}.jborp-tools,button{display:none!important}</style></head><body><h2>অনলাইন ফলাফল প্লাটফর্ম</h2><p>'+esc(val('jbORPExam20261027'))+' | '+esc(val('jbORPClass20261027'))+' | '+esc(val('jbORPYear20261027'))+'</p>'+box.innerHTML+'
+
+<script id="unified-print-profile-2026-11-07">
+(function(){
+  var INST={
+    bn:'জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা',
+    ar:'المدرسة الجنة الباقية للبنات ودار الايتام',
+    en:'Jannatul Baky Mohila Madrasha & Eatimkhana',
+    address:'উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০',
+    phone:'01823316630'
+  };
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function logoSrc(){
+    var el=document.getElementById('headerLogo')||document.getElementById('loginLogo');
+    return el&&el.src?el.src:'';
+  }
+  function qr(text,size){return 'https://quickchart.io/qr?size='+(size||120)+'&text='+encodeURIComponent(String(text||''));}
+  function mainUrl(){return location.origin+location.pathname;}
+  function personId(){
+    var el=document.getElementById('jbDocId');
+    if(el&&el.value)return el.value.trim();
+    var sp=document.querySelector('#searchProfilePrint .sp-field span');
+    return sp?sp.textContent.trim():'';
+  }
+  function buildPrintHtml(node,title,kind){
+    var copy=node.cloneNode(true);
+    copy.querySelectorAll('.jb-doc-actions,.sp-bottom-actions,.form-action-bar,button').forEach(function(x){x.remove();});
+    copy.querySelectorAll('.jb-institution-header-2026,.search-profile-head').forEach(function(x){x.remove();});
+    var id=personId(), logo=logoSrc(), base=mainUrl();
+    var infoText=INST.bn+' | ID: '+id;
+    var formUrl=base+'?verify=1&doc='+encodeURIComponent(kind||'document')+'&id='+encodeURIComponent(id);
+    var head='<header class="unified-head"><div class="unified-logo">'+(logo?'<img src="'+esc(logo)+'" alt="মূল লোগো">':'')+'</div><div class="unified-inst"><b>'+INST.bn+'</b><div>'+INST.ar+'</div><div>'+INST.en+'</div><small>'+INST.address+'<br>হটলাইন: '+INST.phone+'</small></div><div class="unified-mainqr"><img src="'+qr(base)+'" alt="মূল ওয়েবসাইট QR"><small>মূল ওয়েবসাইট</small></div></header>';
+    var footer='<footer class="unified-foot"><div><img src="'+qr(infoText,90)+'" alt="নিজ তথ্য QR"><small>নিজ তথ্য</small></div><b>POWERED BY JANNATULA BAKY DIGITAL PLATFORM-2026</b><div><img src="'+qr(formUrl,90)+'" alt="নিজ ফর্ম QR"><small>নিজ ফর্ম</small></div></footer>';
+    return '<!doctype html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(title)+'</title><style>'+
+      '@page{size:A4 portrait;margin:8mm}*{box-sizing:border-box}body{margin:0;color:#111;background:#fff;font-family:Arial,"Noto Sans Bengali",sans-serif}.unified-page{position:relative;min-height:260mm;display:flex;flex-direction:column;background:#fff}.unified-head{display:grid;grid-template-columns:20mm minmax(0,1fr) 20mm;gap:3mm;align-items:center;border-bottom:2px solid #333;padding:0 0 3mm;margin-bottom:4mm;position:relative;z-index:2}.unified-logo img{width:19mm;height:19mm;object-fit:contain}.unified-inst{text-align:center;font-weight:800;line-height:1.35;min-width:0}.unified-inst b{font-size:15pt}.unified-inst div{font-size:10pt}.unified-inst small{font-size:8pt}.unified-mainqr{text-align:right}.unified-mainqr img{width:18mm;height:18mm;object-fit:contain}.unified-mainqr small,.unified-foot small{display:block;font-size:6.5pt;text-align:center}.unified-content{position:relative;z-index:1;flex:1;min-height:30mm}.unified-watermark{position:absolute;z-index:0;left:50%;top:50%;transform:translate(-50%,-50%);width:58%;max-height:70%;object-fit:contain;opacity:.09;pointer-events:none}.unified-content>*{position:relative;z-index:1}.unified-foot{display:grid;grid-template-columns:20mm minmax(0,1fr) 20mm;gap:3mm;align-items:center;border-top:1px solid #555;margin-top:5mm;padding-top:2mm;position:relative;z-index:2}.unified-foot img{width:16mm;height:16mm;object-fit:contain;display:block;margin:auto}.unified-foot>b{text-align:center;font-size:8pt;letter-spacing:.2px}.jb-doc-preview{margin:0 auto!important;box-shadow:none!important}.jb-doc-preview.idcard{width:86mm;min-height:54mm}.sp-student{break-inside:avoid}.sp-data{break-inside:avoid}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}.unified-page{min-height:260mm}.unified-foot{break-inside:avoid}}'+
+      '</style></head><body><main class="unified-page">'+head+'<section class="unified-content">'+(logo?'<img class="unified-watermark" src="'+esc(logo)+'" alt="">':'')+copy.outerHTML+'</section>'+footer+'</main></body></html>';
+  }
+  function openPrint(node,title,kind){
+    if(!node)return;
+    var w=window.open('','_blank','width=1100,height=900');
+    if(!w){if(typeof toast==='function')toast('প্রিন্ট উইন্ডো খুলতে ব্রাউজারের Popup অনুমতি দিন।');return;}
+    w.document.open();w.document.write(buildPrintHtml(node,title,kind));w.document.close();
+    var imgs=Array.from(w.document.images||[]);
+    Promise.all(imgs.map(function(im){return im.complete?Promise.resolve():new Promise(function(res){im.onload=res;im.onerror=res;setTimeout(res,5000);});})).then(function(){
+      setTimeout(function(){try{w.focus();w.print();}catch(e){}},300);
+    });
+  }
+  function share(title){
+    var id=personId(),url=mainUrl()+(id?'?online=1&code=MS&id='+encodeURIComponent(id):'');
+    var data={title:title||'Jannatul Baqi Document',text:INST.bn+' — '+(id?'ID: '+id:'ডকুমেন্ট'),url:url};
+    if(navigator.share){navigator.share(data).catch(function(){});}
+    else if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(function(){if(typeof toast==='function')toast('শেয়ার লিংক কপি হয়েছে।');});}
+    else if(typeof toast==='function')toast('এই ব্রাউজারে Share সুবিধা পাওয়া যায়নি।');
+  }
+  window.jbPrint=function(){var p=document.querySelector('#jbDocPreviewWrap .jb-doc-preview');if(!p)return;openPrint(p,document.getElementById('winTitle')?.textContent||document.title,document.getElementById('jbDocId')?.value||'document');};
+  window.jbDownload=function(){var p=document.querySelector('#jbDocPreviewWrap .jb-doc-preview');if(!p)return;if(typeof toast==='function')toast('PDF সংরক্ষণ করতে Print ডায়ালগে “Save as PDF” নির্বাচন করুন।');openPrint(p,document.getElementById('winTitle')?.textContent||document.title,document.getElementById('jbDocId')?.value||'document');};
+  window.jbShare=function(){share(document.getElementById('winTitle')?.textContent||'Document');};
+  window.printSearchProfile=function(){var p=document.getElementById('searchProfilePrint');if(p)openPrint(p,'সার্চ প্রোফাইল','search_profile');};
+  window.downloadSearchProfile=function(){var p=document.getElementById('searchProfilePrint');if(p){if(typeof toast==='function')toast('PDF সংরক্ষণ করতে Print ডায়ালগে “Save as PDF” নির্বাচন করুন।');openPrint(p,'সার্চ প্রোফাইল','search_profile');}};
+  window.shareSearchProfile=function(){share('সার্চ প্রোফাইল');};
+  function addButtons(){
+    document.querySelectorAll('#jbDocPreviewWrap .jb-doc-actions').forEach(function(bar){
+      if(!bar.querySelector('[data-unified-pdf]')){var b=document.createElement('button');b.type='button';b.className='secondary';b.dataset.unifiedPdf='1';b.textContent='📄 PDF ডাউনলোড';b.onclick=window.jbDownload;bar.appendChild(b);}
+      if(!bar.querySelector('[data-unified-share]')){var b2=document.createElement('button');b2.type='button';b2.className='secondary';b2.dataset.unifiedShare='1';b2.textContent='🔗 শেয়ার';b2.onclick=window.jbShare;bar.appendChild(b2);}
+    });
+    var sp=document.querySelector('#searchProfilePrint .sp-bottom-actions');
+    if(sp&&!sp.querySelector('[data-unified-pdf]')){var p=document.createElement('button');p.type='button';p.className='secondary';p.dataset.unifiedPdf='1';p.textContent='📄 PDF ডাউনলোড';p.onclick=window.downloadSearchProfile;sp.appendChild(p);}
+    if(sp&&!sp.querySelector('[data-unified-share]')){var s=document.createElement('button');s.type='button';s.className='secondary';s.dataset.unifiedShare='1';s.textContent='🔗 শেয়ার';s.onclick=window.shareSearchProfile;sp.appendChild(s);}
+  }
+  var target=document.getElementById('jbDocPreviewWrap');
+  if(target&&window.MutationObserver)new MutationObserver(addButtons).observe(target,{childList:true,subtree:true});
+  var search=document.getElementById('searchBody');
+  if(search&&window.MutationObserver)new MutationObserver(addButtons).observe(search,{childList:true,subtree:true});
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',addButtons);else addButtons();
+})();
+</script>
 </body></html>');w.document.close();w.focus();w.print()};
  function enableDrag(){
   var w=el(wid),h=el('jbORPDragHandle20261027');if(!w||!h||h.dataset.dragReady==='1')return;h.dataset.dragReady='1';
