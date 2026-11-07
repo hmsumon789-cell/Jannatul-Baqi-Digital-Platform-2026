@@ -166,6 +166,11 @@ export function runAudit() {
     checks: {
       syntax,
       doGetServesIndex,
+      moduleKeys,
+      sheetKeys,
+      headerKeys,
+      serverFunctionNames: [...serverFunctionSet].sort(),
+      sheetsWithoutHeaders: sheetKeys.filter(key => !headerKeys.includes(key)),
       serverCalls: serverCalls.map(name => ({ name, exists: serverFunctionSet.has(name) }))
     },
     warnings: {
