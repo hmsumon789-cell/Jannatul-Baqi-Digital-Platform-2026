@@ -2641,7 +2641,7 @@ function resolveAdmissionIdentifier_(identifier) {
       const merge=function(o){Object.keys(o||{}).forEach(function(k){const v=o[k];if(v&&typeof v==='object'&&!Array.isArray(v))merge(v);else if(v!==''&&v!=null)flat[k]=v;});};
       merge(payload);
       const keys=['AdmissionID','StudentID','FormID','HandwrittenID','handwrittenId','AdmissionFormID','MobileID','Mobile','Phone','MobileNo','WhatsApp','EmailID','Email','GuardianEmail'];
-      const match=keys.some(function(k){return norm(obj[k]||flat[k])===candidate;});
+      const match=keys.some(function(k){return norm(obj[k])===candidate||norm(flat[k])===candidate;});
       if(match){admission=obj;formData=flat;break;}
     }
   }
