@@ -1,0 +1,11 @@
+{
+  "name": "jannatul-baqi-regression-tests",
+  "private": true,
+  "version": "2.0.0",
+  "description": "Read-only static regression checks for the Jannatul Baqi Apps Script platform at 8852ac4",
+  "scripts": {
+    "test": "node --test tests/regression/*.test.mjs",
+    "test:audit": "node tests/regression/audit.mjs"
+  },
+  "engines": { "node": ">=20" }
+}
