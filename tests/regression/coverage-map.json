@@ -1,0 +1,203 @@
+{
+  "version": 1,
+  "note": "Coverage inventory derived from the current main-branch source at baseline commit 964e2e1. It lists modules and server-side entry points that regression checks should cover; it does not claim live workflow success.",
+  "areas": {
+    "authentication": {
+      "moduleKeys": [],
+      "serverFunctions": [
+        "login",
+        "verifyLoginOtp",
+        "requestOtp",
+        "registerNewAdmin",
+        "loginNewAdmin",
+        "registerMadrasa",
+        "loginMadrasa",
+        "logout"
+      ]
+    },
+    "dashboard": {
+      "moduleKeys": [],
+      "serverFunctions": [
+        "getBootstrap",
+        "getStats",
+        "getDashboardPeriodStats",
+        "getModuleList"
+      ]
+    },
+    "institution": {
+      "moduleKeys": [
+        "institution"
+      ],
+      "serverFunctions": [
+        "getPublicConfig",
+        "getMainWebAppUrl",
+        "getRunningNews_",
+        "setRunningNews"
+      ]
+    },
+    "students": {
+      "moduleKeys": [
+        "student",
+        "students",
+        "admission"
+      ],
+      "serverFunctions": [
+        "saveRecord",
+        "updateRecord",
+        "deleteRecord",
+        "getModuleList",
+        "approveStudentAdmission"
+      ]
+    },
+    "teachers": {
+      "moduleKeys": [
+        "teacher",
+        "teachers"
+      ],
+      "serverFunctions": [
+        "saveRecord",
+        "updateRecord",
+        "deleteRecord",
+        "getModuleList"
+      ]
+    },
+    "donors": {
+      "moduleKeys": [
+        "donor"
+      ],
+      "serverFunctions": [
+        "saveRecord",
+        "updateRecord",
+        "deleteRecord"
+      ]
+    },
+    "payments": {
+      "moduleKeys": [
+        "fees",
+        "payment",
+        "receipt"
+      ],
+      "serverFunctions": [
+        "saveRecord",
+        "updateRecord",
+        "deleteRecord",
+        "searchFinanceReceipt"
+      ]
+    },
+    "finance": {
+      "moduleKeys": [
+        "finance",
+        "salary"
+      ],
+      "serverFunctions": [
+        "saveFinanceEntry",
+        "getFinanceRecords",
+        "searchFinanceReceipt",
+        "saveRecord"
+      ]
+    },
+    "exams_and_results": {
+      "moduleKeys": [
+        "exam",
+        "exams",
+        "marks",
+        "result",
+        "admit",
+        "entry",
+        "certificate",
+        "idcard",
+        "tc"
+      ],
+      "serverFunctions": [
+        "getPublicExamResult",
+        "getExamDashboardOptions",
+        "findExamDashboardStudent",
+        "saveExamDashboardCandidate",
+        "getExamDashboardData",
+        "saveExamDashboardMarks",
+        "publishExamDashboardStudentResult",
+        "publishExamDashboardResults",
+        "saveRecord"
+      ]
+    },
+    "attendance": {
+      "moduleKeys": [
+        "attendance"
+      ],
+      "serverFunctions": [
+        "saveRecord",
+        "updateRecord",
+        "deleteRecord",
+        "getStats"
+      ]
+    },
+    "notices": {
+      "moduleKeys": [
+        "notice"
+      ],
+      "serverFunctions": [
+        "saveRecord",
+        "updateRecord",
+        "deleteRecord"
+      ]
+    },
+    "media": {
+      "moduleKeys": [
+        "gallery"
+      ],
+      "serverFunctions": [
+        "startMediaUpload",
+        "uploadMediaChunk",
+        "finishMediaUpload",
+        "saveMediaForm",
+        "saveMedia",
+        "listMedia",
+        "deleteMedia"
+      ]
+    },
+    "documents": {
+      "moduleKeys": [
+        "files",
+        "excel"
+      ],
+      "serverFunctions": [
+        "uploadFile",
+        "getSheetData"
+      ]
+    },
+    "accounts_and_madrasas": {
+      "moduleKeys": [
+        "admin",
+        "madrasa",
+        "admins",
+        "madrasas",
+        "accountControl",
+        "maleMadrasa",
+        "femaleMadrasa"
+      ],
+      "serverFunctions": [
+        "createAdmin",
+        "registerNewAdmin",
+        "registerMadrasa",
+        "getAccountControlData",
+        "approveAccount",
+        "approveAccountDirect",
+        "setAccountStatus",
+        "resetAccountPassword",
+        "getModuleList"
+      ]
+    },
+    "search_and_quick_service": {
+      "moduleKeys": [
+        "contact",
+        "help",
+        "sms"
+      ],
+      "serverFunctions": [
+        "searchAll",
+        "listSignalRecords",
+        "sendQuickService"
+      ]
+    }
+  }
+}

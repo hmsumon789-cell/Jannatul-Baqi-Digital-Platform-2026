@@ -1,0 +1,13 @@
+{
+  "name": "jannatul-baqi-regression-tests",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Read-only regression checks for the Jannatul Baqi Google Apps Script platform",
+  "scripts": {
+    "test": "node --test tests/regression/*.test.mjs",
+    "test:audit": "node tests/regression/audit.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
