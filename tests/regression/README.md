@@ -18,9 +18,11 @@ npm run test:audit
 - Confirmation that `doGet()` serves the actual `Index` HTML file.
 - Mapping of client `call('serverFunction', ...)` endpoints to server declarations.
 - Duplicate server-function declaration detection.
+- Module coverage inventory for dashboard module keys and server-side entry points.
+- Spreadsheet sheet/header consistency checks.
 - Diagnostic warnings for duplicate HTML IDs, repeated client function names across script blocks, and inline handler names that static analysis cannot resolve.
 
-Warnings are deliberately non-blocking in the first baseline. The current application contains repeated IDs and repeated helper names in separate script blocks; a static scanner cannot safely decide whether each is a live defect. Do not auto-rename or rewrite these items.
+Warnings are deliberately non-blocking in the first baseline. The current source also has one explicitly recorded baseline syntax defect: `doSearch()` contains `await` but is not declared `async`. The test suite permits only this exact known finding; any different/new syntax finding fails the gate. Fixing this source defect will remove the baseline exception. The current application contains repeated IDs and repeated helper names in separate script blocks; a static scanner cannot safely decide whether each is a live defect. Do not auto-rename or rewrite these items.
 
 ## CI
 
@@ -31,6 +33,10 @@ GitHub Actions runs the read-only checks on pushes, pull requests, and manual wo
 A static pass does **not** prove that a button works, that a spreadsheet has the expected headers/data, that permissions and OTP delivery work, or that a payment/receipt workflow completes. Those checks require a dedicated non-production Apps Script deployment and a separate test spreadsheet with synthetic records.
 
 Do not point destructive or write tests at the live madrasa spreadsheet. Before enabling end-to-end tests, provision a staging deployment, test accounts, and synthetic records. Runtime tests must clean up only their own test data and must never send real SMS/email or alter production account/payment data.
+
+## Current baseline finding
+
+The initial CI run found `Index.html` inline script block 1, in `function doSearch(where)`, with `await is only valid in async functions`. This finding is recorded as a known baseline issue and is not fixed by this test-only branch. The first syntax error in a script block can mask later syntax errors in that same block; rerun after the first one is corrected.
 
 ## Planned expansion
 
