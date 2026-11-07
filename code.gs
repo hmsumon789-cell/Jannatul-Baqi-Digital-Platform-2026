@@ -872,8 +872,9 @@ function saveDocumentBuilderRecord(token, docKey, studentId, data, html) {
     sheetName=SHEETS.DOCUMENTS;
     row={DocumentID:'DOC-'+stamp+'-'+sid,StudentID:sid,Type:key,IssueDate:data.IssueDate||now,Data:payload};
   } else return {ok:false,message:'এই Document type-এর Save এখনো সংযুক্ত হয়নি।'};
+  if(sheetName==='DOCUMENTS') ensureSheet_(SpreadsheetApp.getActiveSpreadsheet(),SHEETS.DOCUMENTS,HEADERS.DOCUMENTS);
   const saved=saveRecord(token,sheetName,row);
-  return {ok:true,sheet:sheetName,record:saved.row,documentId:row.ResultID||row.CardID||row.AdmitID||row.CertificateID||row.ReceiptID,message:'Document History-তে সংরক্ষণ হয়েছে।'};
+  return {ok:true,sheet:sheetName,record:saved.row,documentId:row.ResultID||row.CardID||row.AdmitID||row.CertificateID||row.ReceiptID||row.DocumentID,message:'Document History-তে সংরক্ষণ হয়েছে।'};
 }
 
 function getDocumentBuilderHistory(token, studentId, docKey) {
