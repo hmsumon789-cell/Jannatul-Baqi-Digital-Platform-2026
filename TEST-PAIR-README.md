@@ -43,3 +43,19 @@ This is a source-level review only. No Apps Script runtime, spreadsheet, email d
 - After repair, all 185 JavaScript script blocks in `TEST-HTML.html` passed `new Function` syntax compilation (0 failures). This is a syntax check, not a full browser execution test.
 - Print-preview/download strings in the affected blocks were simplified to valid standalone HTML; the misplaced CSS fragments were not applied as page styles and were excluded from those generated print/download documents.
 - No Apps Script deployment, live spreadsheet, actual email delivery, or real browser test was performed.
+
+## HTML-to-GS integration audit (2026-11-07)
+
+The repaired HTML was checked for literal server-function calls against both TEST-GS.gs and the repository's LocationData.gs in this branch.
+
+Six HTML-called server endpoints were not found in either supplied server file:
+- approveStudentAdmission — Super Admin admission approval button.
+- getPrivateGalleryPhoto — loading admin-only gallery photos.
+- listGalleryPhotos — loading the photo gallery.
+- getQuestionPaper2026 — question-paper lookup.
+- listQuestionBank2026 — loading the question bank.
+- saveQuestionBank2026 and saveQuestionPaper2026 — saving question-bank and question-paper data.
+
+These are unresolved server-side dependencies, not HTML syntax errors. No replacement functions were invented because the sheet schemas, permission rules, and validation requirements are not established by this pair. Treat these features as unverified and potentially nonfunctional until the intended server implementations are supplied or confirmed from the matching project source.
+
+A separate code.gs exists in this branch but is a different, older source file and is NOT part of commit d046eb45; it was not mixed into TEST-GS.gs. The two selected source commits also have different parent histories.
