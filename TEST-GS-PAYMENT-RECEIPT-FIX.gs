@@ -3444,33 +3444,50 @@ function buildPublicOnlinePaymentHtml_(){
     var mainUrl=String(location.href||"").split("?")[0];
     qr="https://quickchart.io/qr?size=220&margin=2&text="+encodeURIComponent(mainUrl);
   }
-  var fields=[["রসিদ আইডি",x.ReceiptID],["লেনদেন আইডি",x.TransactionID||x.PaymentID||""],["শিক্ষার্থী আইডি",x.StudentID],["নাম",x.Name],["শ্রেণি/জামাত",x.Class],["মাস",x.Month],["ফি খাত",x.Category],["পরিমাণ",Number(x.Amount||0).toLocaleString("bn-BD")+" টাকা"],["মাধ্যম",x.Method],["Reference",x.Reference],["তারিখ",x.Date]];
+  var fields=[
+    ["রসিদ আইডি",x.ReceiptID],["লেনদেন আইডি",x.TransactionID||x.PaymentID||""],
+    ["শিক্ষার্থী আইডি",x.StudentID],["শিক্ষার্থীর নাম",x.Name],
+    ["শ্রেণি/জামাত",x.Class],["বিভাগ",x.Department||x.Branch||""],
+    ["শিক্ষাবর্ষ",x.AcademicYear||x.Session||""],["মাস",x.Month],
+    ["ফি খাত",x.Category],["মোট পরিমাণ",Number(x.Amount||0).toLocaleString("bn-BD")+" টাকা"],
+    ["পেমেন্ট মাধ্যম",x.Method],["ট্রানজেকশন / Reference",x.Reference],
+    ["পেমেন্টের তারিখ",x.Date],["পেমেন্টের সময়",x.Time||x.PaidAt||""],
+    ["পেমেন্ট অবস্থা",x.Status||"PAID"],["পেমেন্ট ধরন",x.PaymentMode||""],
+    ["প্রদানকারীর মোবাইল",x.PayerMobile||""],["প্রদানকারীর ইমেইল",x.PayerEmail||""],
+    ["মাদ্রাসার নাম",institution],["হটলাইন",hotline],
+    ["ঠিকানা",address],["শাখা",x.Branch||""],
+    ["অতিরিক্ত নোট",x.Note||""],["রসিদ প্রস্তুতের সময়",x.ReceiptDate||x.CreatedAt||x.Date||""]
+  ];
+  var fieldRows=Array.from({length:12},function(_,i){
+    var a=fields[i*2]||["",""],b=fields[i*2+1]||["",""];
+    return "<tr><th>"+safe(a[0])+"</th><td>"+safe(a[1]||"—")+"</td><th>"+safe(b[0])+"</th><td>"+safe(b[1]||"—")+"</td></tr>";
+  }).join("");
   var institution=safe(x.Institution||g("paymentNameBN").textContent||"জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা");
   var address=safe(x.Address||g("paymentAddress").textContent||"");
   var hotline=safe(x.Hotline||g("paymentHotline").textContent||"01823316630");
   var box=g("msg");box.style.display="block";box.style.background="#fff";box.style.padding="10px";
   box.innerHTML='<style>'+
     '#publicReceiptPrint{position:relative;isolation:isolate;overflow:hidden;width:100%;max-width:760px;height:277mm;min-height:277mm;margin:0 auto;padding:16px;background:#fff;color:#111;border:2px solid #222;box-sizing:border-box;font-family:Arial,"Noto Sans Bengali",sans-serif}'+
-    '#publicReceiptPrint .pr-head{display:grid;grid-template-columns:78px minmax(0,1fr) 78px;gap:10px;align-items:center;text-align:center;border:2px solid #8b5e00;border-radius:10px;padding:9px;margin-bottom:16px;position:relative;z-index:2;background:#fff}'+
-    '#publicReceiptPrint .pr-logo,#publicReceiptPrint .pr-qr{display:block;width:72px;height:72px;object-fit:contain;margin:auto}'+
+    '#publicReceiptPrint .pr-head{display:grid;grid-template-columns:92px minmax(0,1fr) 92px;gap:10px;align-items:center;text-align:center;border:2px solid #8b5e00;border-radius:10px;padding:9px;margin-bottom:16px;position:relative;z-index:2;background:#fff}'+
+    '#publicReceiptPrint .pr-logo,#publicReceiptPrint .pr-qr{display:block;width:84px;height:84px;object-fit:contain;margin:auto}'+
     '#publicReceiptPrint .pr-name{font-size:18px;font-weight:900;line-height:1.4}#publicReceiptPrint .pr-address{font-size:13px;font-weight:700;margin-top:4px}#publicReceiptPrint .pr-hotline{font-size:13px;font-weight:800;margin-top:4px}#publicReceiptPrint .pr-qr-label{font-size:10px;font-weight:800;margin-top:2px}'+
     '#publicReceiptPrint .pr-title{text-align:center;font-size:20px;font-weight:900;margin:12px 0 16px;position:relative;z-index:2}'+
     '#publicReceiptPrint .pr-watermark{position:absolute;z-index:0;left:50%;top:52%;width:58%;max-height:58%;object-fit:contain;transform:translate(-50%,-50%);opacity:.11;pointer-events:none}'+
-    '#publicReceiptPrint table{position:relative;z-index:1;width:100%;border-collapse:collapse}#publicReceiptPrint th,#publicReceiptPrint td{border:1px solid #333;padding:9px;text-align:left;font-size:14px}#publicReceiptPrint th{width:38%;background:#f3f3f3}'+
+    '#publicReceiptPrint table{position:relative;z-index:1;width:100%;border-collapse:collapse;table-layout:fixed}#publicReceiptPrint th,#publicReceiptPrint td{border:1px solid #333;padding:7px 6px;text-align:left;font-size:12px;overflow-wrap:anywhere}#publicReceiptPrint th{width:19%;background:#f3f3f3;font-weight:800}#publicReceiptPrint td{width:31%}'++
     '#publicReceiptPrint .pr-paid-wrap{position:absolute;z-index:3;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}#publicReceiptPrint .pr-paid{display:flex;align-items:center;justify-content:center;width:78px;height:78px;border:4px double #16803c;border-radius:50%;color:#16803c;font-size:17px;font-weight:900;letter-spacing:1px;transform:rotate(-12deg);background:#ffffff18}'+
     '#publicReceiptPrint .pr-sign{position:relative;z-index:2;display:flex;justify-content:space-between;gap:15px;margin-top:30px;font-size:13px}#publicReceiptPrint .pr-foot{position:relative;z-index:2;text-align:center;font-size:11px;margin-top:20px;padding-top:10px;border-top:1px dashed #8b5e00}'+
     '#publicReceiptActions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:12px auto;max-width:760px}#publicReceiptActions button{padding:10px 16px;border:2px solid #8b5e00;border-radius:9px;background:#fff;color:#222;font-weight:800;cursor:pointer}'+
-    '@media(max-width:560px){#publicReceiptPrint{height:auto;min-height:277mm;padding:9px}#publicReceiptPrint .pr-head{grid-template-columns:52px minmax(0,1fr) 52px;gap:5px;padding:6px}#publicReceiptPrint .pr-logo,#publicReceiptPrint .pr-qr{width:48px;height:48px}#publicReceiptPrint .pr-name{font-size:14px}#publicReceiptPrint th,#publicReceiptPrint td{padding:6px;font-size:12px}}'+
+    '@media(max-width:560px){#publicReceiptPrint{height:auto;min-height:277mm;padding:9px}#publicReceiptPrint .pr-head{grid-template-columns:52px minmax(0,1fr) 52px;gap:5px;padding:6px}#publicReceiptPrint .pr-logo,#publicReceiptPrint .pr-qr{width:54px;height:54px}#publicReceiptPrint .pr-name{font-size:14px}#publicReceiptPrint th,#publicReceiptPrint td{padding:4px;font-size:10px}}'+
     '@media print{@page{size:A4 portrait;margin:10mm}body *{visibility:hidden!important}#publicReceiptPrint,#publicReceiptPrint *{visibility:visible!important}#publicReceiptPrint{position:absolute!important;left:0!important;top:0!important;width:100%!important;height:277mm!important;min-height:277mm!important;margin:0!important;border:1px solid #222!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}#publicReceiptActions{display:none!important}#msg{display:block!important;background:#fff!important;padding:0!important}}'+
     '</style>'+
     '<div id="publicReceiptPrint">'+
     '<header class="pr-head"><div><img class="pr-logo" src="'+safe(logo)+'" alt="মূল লোগো"></div>'+
     '<div><div class="pr-name">'+institution+'</div><div class="pr-address">'+address+'</div><div class="pr-hotline">হটলাইন: '+hotline+'</div></div>'+
     '<div><img class="pr-qr" src="'+safe(qr)+'" alt="মূল পেজের QR কোড"><div class="pr-qr-label">মূল পেজ</div></div></header>'+
-    '<div class="pr-title">মানি রসিদ — অনলাইন পেমেন্ট</div>'+
+    '<div class="pr-title">তথ্য + মানিরিসিট + পেমেন্ট সফল হয়েছে</div>'+
     '<img class="pr-watermark" src="'+safe(logo)+'" alt="">'+
     '<div class="pr-paid-wrap"><div class="pr-paid">PAID</div></div>'+
-    '<table>'+fields.map(function(a){return "<tr><th>"+safe(a[0])+"</th><td>"+safe(a[1]||"—")+"</td></tr>"}).join("")+'</table>'+
+    '<table><tbody>'+fieldRows+'</tbody></table>'+
     '<div class="pr-sign"><span>গ্রহণকারীর স্বাক্ষর: __________________</span><span>প্রদানকারীর স্বাক্ষর: __________________</span></div>'+
     '<div class="pr-foot">পেমেন্ট সফলভাবে সম্পন্ন হয়েছে।<br>Jannatul Baqi Digital Platform 2026</div></div>'+
     '<div id="publicReceiptActions" class="no-print"><button type="button" onclick="window.print()">🖨️ প্রিন্ট</button><button type="button" onclick="window.print()">⬇️ ডাউনলোড / Save as PDF</button><button type="button" onclick="sharePublicPaymentReceipt()">↗️ শেয়ার</button></div>';
