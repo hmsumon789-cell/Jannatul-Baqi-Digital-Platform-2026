@@ -3454,8 +3454,8 @@ function buildPublicOnlinePaymentHtml_(){
     ["পেমেন্টের তারিখ",x.Date],["পেমেন্টের সময়",x.Time||x.PaidAt||""],
     ["পেমেন্ট অবস্থা",x.Status||"PAID"],["পেমেন্ট ধরন",x.PaymentMode||""],
     ["প্রদানকারীর মোবাইল",x.PayerMobile||""],["প্রদানকারীর ইমেইল",x.PayerEmail||""],
-    ["মাদ্রাসার নাম",institution],["হটলাইন",hotline],
-    ["ঠিকানা",address],["শাখা",x.Branch||""],
+    ["মাদ্রাসার নাম",x.Institution||g("paymentNameBN").textContent||"জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা"],["হটলাইন",x.Hotline||g("paymentHotline").textContent||"01823316630"],
+    ["ঠিকানা",x.Address||g("paymentAddress").textContent||""],["শাখা",x.Branch||""],
     ["অতিরিক্ত নোট",x.Note||""],["রসিদ প্রস্তুতের সময়",x.ReceiptDate||x.CreatedAt||x.Date||""]
   ];
   var fieldRows=Array.from({length:12},function(_,i){
@@ -3473,7 +3473,7 @@ function buildPublicOnlinePaymentHtml_(){
     '#publicReceiptPrint .pr-name{font-size:18px;font-weight:900;line-height:1.4}#publicReceiptPrint .pr-address{font-size:13px;font-weight:700;margin-top:4px}#publicReceiptPrint .pr-hotline{font-size:13px;font-weight:800;margin-top:4px}#publicReceiptPrint .pr-qr-label{font-size:10px;font-weight:800;margin-top:2px}'+
     '#publicReceiptPrint .pr-title{text-align:center;font-size:20px;font-weight:900;margin:12px 0 16px;position:relative;z-index:2}'+
     '#publicReceiptPrint .pr-watermark{position:absolute;z-index:0;left:50%;top:52%;width:58%;max-height:58%;object-fit:contain;transform:translate(-50%,-50%);opacity:.11;pointer-events:none}'+
-    '#publicReceiptPrint table{position:relative;z-index:1;width:100%;border-collapse:collapse;table-layout:fixed}#publicReceiptPrint th,#publicReceiptPrint td{border:1px solid #333;padding:7px 6px;text-align:left;font-size:12px;overflow-wrap:anywhere}#publicReceiptPrint th{width:19%;background:#f3f3f3;font-weight:800}#publicReceiptPrint td{width:31%}'++
+    '#publicReceiptPrint table{position:relative;z-index:1;width:100%;border-collapse:collapse;table-layout:fixed}#publicReceiptPrint th,#publicReceiptPrint td{border:1px solid #333;padding:7px 6px;text-align:left;font-size:12px;overflow-wrap:anywhere}#publicReceiptPrint th{width:19%;background:#f3f3f3;font-weight:800}#publicReceiptPrint td{width:31%}'+
     '#publicReceiptPrint .pr-paid-wrap{position:absolute;z-index:3;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}#publicReceiptPrint .pr-paid{display:flex;align-items:center;justify-content:center;width:78px;height:78px;border:4px double #16803c;border-radius:50%;color:#16803c;font-size:17px;font-weight:900;letter-spacing:1px;transform:rotate(-12deg);background:#ffffff18}'+
     '#publicReceiptPrint .pr-sign{position:relative;z-index:2;display:flex;justify-content:space-between;gap:15px;margin-top:30px;font-size:13px}#publicReceiptPrint .pr-foot{position:relative;z-index:2;text-align:center;font-size:11px;margin-top:20px;padding-top:10px;border-top:1px dashed #8b5e00}'+
     '#publicReceiptActions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:12px auto;max-width:760px}#publicReceiptActions button{padding:10px 16px;border:2px solid #8b5e00;border-radius:9px;background:#fff;color:#222;font-weight:800;cursor:pointer}'+
