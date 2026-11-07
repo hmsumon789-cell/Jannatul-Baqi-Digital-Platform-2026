@@ -3449,8 +3449,8 @@ function buildPublicOnlinePaymentHtml_(){
   var institution=safe(x.Institution||g("paymentNameBN").textContent||"জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা");
   var address=safe(x.Address||g("paymentAddress").textContent||"");
   var hotline=safe(x.Hotline||g("paymentHotline").textContent||"01823316630");
-  var admissionQr="https://quickchart.io/qr?size=150&margin=1&text="+encodeURIComponent(baseUrl+"?page=admission");
-  var paymentQr="https://quickchart.io/qr?size=150&margin=1&text="+encodeURIComponent(baseUrl+"?page=payment");
+  var admissionQr="https://quickchart.io/qr?size=150&margin=1&text="+encodeURIComponent(baseUrl);
+  var paymentQr="https://quickchart.io/qr?size=150&margin=1&text="+encodeURIComponent(baseUrl+"?payment=1");
   var box=g("msg");box.style.display="block";box.style.background="#fff";box.style.padding="10px";
   box.innerHTML='<style>'+
     '#publicReceiptPrint{position:relative;isolation:isolate;overflow:hidden;width:138mm;min-height:200mm;height:200mm;margin:0 auto;padding:4mm;background:#fff;color:#111;border:1px solid #222;box-sizing:border-box;font-family:Arial,"Noto Sans Bengali",sans-serif}'+
