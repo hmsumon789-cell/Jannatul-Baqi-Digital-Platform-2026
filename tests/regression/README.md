@@ -25,3 +25,7 @@ Requires Node.js 20 or newer:
 npm test
 npm run test:audit
 ```
+
+## Current baseline finding (8852ac4)
+
+The first inline script in `Index.html` fails JavaScript parsing. The parser points to script line 300, corresponding to `Index.html` line 1265: a single-quoted `var html='...'` string is followed by a literal line break after `body.innerHTML+'`, before the `<style>` markup. This causes a syntax error (`Invalid or unexpected token`) and the syntax regression test correctly fails. The application source is intentionally left unchanged in this testing branch.
