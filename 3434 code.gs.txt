@@ -3407,7 +3407,24 @@ function buildPublicOnlinePaymentHtml_(){
       }).getMainWebAppUrl();
     }catch(e){}
   }
-  function lookup(){var id=(g("sid").value||"").trim();if(!id)return;g("info").textContent="⏳ তথ্য খোঁজা হচ্ছে...";google.script.run.withSuccessHandler(function(r){if(!r||!r.ok){show((r&&r.message)||"Student পাওয়া যায়নি।",false);return}g("sid").value=r.student.StudentID||id;g("name").value=r.student.NameBN||r.student.NameEN||"";g("cls").value=r.student.Class||"";g("admissionMobile").value=r.student.Mobile||r.student.WhatsApp||"";g("admissionEmail").value=r.student.Email||"";g("mobile").value="";g("email").value="";g("info").textContent="✅ শিক্ষার্থীর তথ্য পাওয়া গেছে। পেমেন্টের সময় বর্তমান মোবাইল/ইমেইল দিন—সেখানেই মেসেজ যাবে।"}).withFailureHandler(function(e){show("সার্ভার ত্রুটি: "+(e&&e.message||e),false)}).getOnlinePaymentStudent(id)}
+  function lookup(){
+ var id=(g("sid").value||"").trim(),info=g("info"),btn=document.querySelector(".student-search-btn");
+ if(!id){info.textContent="⚠️ আগে Student ID লিখুন, তারপর সার্চ বাটনে চাপুন।";show("Student ID লিখুন।",false);g("sid").focus();return}
+ if(!window.google||!google.script||!google.script.run){info.textContent="⚠️ সার্ভারের সঙ্গে সংযোগ পাওয়া যাচ্ছে না। পেজটি রিফ্রেশ করে আবার চেষ্টা করুন।";show("সার্ভার সংযোগ পাওয়া যায়নি।",false);return}
+ info.textContent="⏳ তথ্য খোঁজা হচ্ছে...";if(btn){btn.disabled=true;btn.textContent="…"}
+ try{
+  google.script.run.withSuccessHandler(function(r){
+   if(btn){btn.disabled=false;btn.textContent="⌕"}
+   if(!r||!r.ok){info.textContent=(r&&r.message)||"Student পাওয়া যায়নি।";show(info.textContent,false);return}
+   if(!r.student){info.textContent="⚠️ শিক্ষার্থীর তথ্যের উত্তর অসম্পূর্ণ এসেছে।";show(info.textContent,false);return}
+   g("sid").value=r.student.StudentID||id;g("name").value=r.student.NameBN||r.student.NameEN||"";g("cls").value=r.student.Class||"";g("admissionMobile").value=r.student.Mobile||r.student.WhatsApp||"";g("admissionEmail").value=r.student.Email||"";g("mobile").value="";g("email").value="";
+   info.textContent="✅ শিক্ষার্থীর তথ্য পাওয়া গেছে। পেমেন্টের সময় বর্তমান মোবাইল/ইমেইল দিন—সেখানেই মেসেজ যাবে।";show("শিক্ষার্থীর তথ্য পাওয়া গেছে।",true)
+  }).withFailureHandler(function(e){
+   if(btn){btn.disabled=false;btn.textContent="⌕"}
+   info.textContent="❌ সার্ভার ত্রুটি: "+(e&&e.message||e);show(info.textContent,false)
+  }).getOnlinePaymentStudent(id)
+ }catch(e){if(btn){btn.disabled=false;btn.textContent="⌕"}info.textContent="❌ সার্চ চালাতে সমস্যা হয়েছে: "+(e&&e.message||e);show(info.textContent,false)}
+}
   function showPublicPaymentReceipt(x){
 var months=['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'],paid=String(x.Months||x.Month||'').split(/[,،]/).map(function(v){return v.trim()}).filter(Boolean);
 var fields=[['রসিদ ID',x.ReceiptID],['Transaction ID',x.TransactionID||x.PaymentID],['শিক্ষার্থী ID',x.StudentID],['শিক্ষার্থীর নাম',x.Name],['শ্রেণি/জামাত',x.Class],['মোবাইল',x.Mobile||x.PayerMobile],['ইমেইল',x.Email||x.PayerEmail],['ফি খাত',x.Category],['পরিমাণ',String(x.Amount||'')+' টাকা'],['পেমেন্ট মাধ্যম',x.Method],['রেফারেন্স',x.Reference],['তারিখ',x.Date||x.CreatedAt]];
