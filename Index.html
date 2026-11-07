@@ -1262,8 +1262,7 @@ function downloadCurrentForm(){
     span.style.padding='3px';
     el.replaceWith(span);
   });
-  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title></head><body><h2>'+($('winTitle').textContent||'ফর্ম')+'</h2>'+body.innerHTML+'
-<style id="clean-media-controls-fix">
+  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title></head><body><h2>'+($('winTitle').textContent||'ফর্ম')+'</h2>'+body.innerHTML+'\n<style id="clean-media-controls-fix">
 .media-player-controls{display:none!important;height:0!important;padding:0!important;margin:0!important;border:0!important;box-shadow:none!important;background:transparent!important}
 .dashboard-slider .slider-controls{display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;margin-top:8px!important;padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important}
 .dashboard-slider .slider-center-controls{display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important}
