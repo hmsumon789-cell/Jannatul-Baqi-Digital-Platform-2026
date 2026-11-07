@@ -18,10 +18,26 @@ These two source commits have different parent commits. They are being paired he
 - HTML calls `sendQuickService` with arguments `(token, data)`; its public login-page token is initially an empty string.
 - GS permits an empty token for this public endpoint and authenticates only when a token is supplied.
 - GS validates name/mobile/email/message, limits message length, applies a one-minute cache throttle, emails the configured address, and appends a CONTACTS row.
-- **Issue found:** the GS appends `mobile` into both the CONTACTS `Mobile` and `WhatsApp` columns. The HTML form does not collect a separate WhatsApp number. The WhatsApp column should be blank unless a separate WhatsApp value is supplied.
-- If email sending succeeds but CONTACTS append fails, the function can return an error even though the email was already sent; the one-minute throttle may also prevent an immediate retry.
+- **Fixed in TEST-GS.gs:** the CONTACTS `WhatsApp` column now receives only `data.whatsapp`; because the current HTML form has no separate WhatsApp field, it remains blank rather than duplicating the mobile number.
+- **Fixed in TEST-GS.gs:** the inquiry is saved to CONTACTS before attempting email notification. If email delivery fails after saving, the endpoint returns `ok:true` with a clear notice that the inquiry was saved but email notification failed. If saving fails before the record is stored, the temporary one-minute throttle key is removed so the user can retry.
+- WhatsApp input is optional and validated if a future caller supplies it.
 - The HTML source blob is 1,483,276 characters / 18,900 lines. GS source is 340,370 characters / 4,144 lines.
 
 ## Validation boundary
 
 This is a source-level review only. No Apps Script runtime, spreadsheet, email delivery, browser interaction, or print output has been tested. Do not deploy this branch until the remaining checks and fixes are approved.
+
+
+## Changes and test results (2026-11-07)
+
+- Updated only `TEST-GS.gs`; the source GS backup and source HTML were not modified.
+- Whole GS file syntax check: PASS.
+- `sendQuickService` isolated syntax check: PASS.
+- HTML script containing `sendQuick()` syntax check: PASS.
+- Mocked behavior checks:
+  1. Public request with empty token: saved successfully; WhatsApp column blank.
+  2. Mail service failure: inquiry still saved; response clearly reports notification failure.
+  3. Empty message: rejected; no row saved.
+  4. Invalid supplied token: rejected; no row saved.
+- A basic extraction/parse pass over all 181 HTML script elements reported 8 syntax errors in other script blocks. These are outside the Quick Service script and were not modified. They require separate inspection before claiming the entire HTML page is syntax-clean.
+- No Apps Script deployment, live spreadsheet, actual email delivery, or real browser test was performed.
