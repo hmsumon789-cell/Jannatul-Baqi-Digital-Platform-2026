@@ -18788,7 +18788,7 @@ body.gold #toast.toast{background:#fff5c7!important;color:#4b3200!important;bord
     copy.querySelectorAll('.jb-institution-header-2026,.search-profile-head').forEach(function(x){x.remove();});
     var id=personId(), logo=logoSrc(), base=mainUrl();
     var infoText=INST.bn+' | ID: '+id;
-    var formUrl=base+'?verify=1&doc='+encodeURIComponent(kind||'document')+'&id='+encodeURIComponent(id);
+    var code=/মার্কশিট|নম্বর/.test(title)?'MS':/অ্যাডমিট|প্রবেশ/.test(title)?'AC':/সনদ|সার্টিফিকেট/.test(title)?'CT':/আইডি/.test(title)?'ID':/রিসিট|রসিদ/.test(title)?'RC':/ভর্তি/.test(title)?'AF':'MS'; var formUrl=base+'?online=1&code='+code+'&id='+encodeURIComponent(id);
     var head='<header class="unified-head"><div class="unified-logo">'+(logo?'<img src="'+esc(logo)+'" alt="মূল লোগো">':'')+'</div><div class="unified-inst"><b>'+INST.bn+'</b><div>'+INST.ar+'</div><div>'+INST.en+'</div><small>'+INST.address+'<br>হটলাইন: '+INST.phone+'</small></div><div class="unified-mainqr"><img src="'+qr(base)+'" alt="মূল ওয়েবসাইট QR"><small>মূল ওয়েবসাইট</small></div></header>';
     var footer='<footer class="unified-foot"><div><img src="'+qr(infoText,90)+'" alt="নিজ তথ্য QR"><small>নিজ তথ্য</small></div><b>POWERED BY JANNATULA BAKY DIGITAL PLATFORM-2026</b><div><img src="'+qr(formUrl,90)+'" alt="নিজ ফর্ম QR"><small>নিজ ফর্ম</small></div></footer>';
     return '<!doctype html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(title)+'</title><style>'+
@@ -18806,7 +18806,7 @@ body.gold #toast.toast{background:#fff5c7!important;color:#4b3200!important;bord
     });
   }
   function share(title){
-    var id=personId(),url=mainUrl()+(id?'?online=1&code=MS&id='+encodeURIComponent(id):'');
+    var id=personId(),ttl=String(title||''),code=/মার্কশিট|নম্বর/.test(ttl)?'MS':/অ্যাডমিট|প্রবেশ/.test(ttl)?'AC':/সনদ|সার্টিফিকেট/.test(ttl)?'CT':/আইডি/.test(ttl)?'ID':/রিসিট|রসিদ/.test(ttl)?'RC':/ভর্তি/.test(ttl)?'AF':'MS',url=mainUrl()+(id?'?online=1&code='+code+'&id='+encodeURIComponent(id):'');
     var data={title:title||'Jannatul Baqi Document',text:INST.bn+' — '+(id?'ID: '+id:'ডকুমেন্ট'),url:url};
     if(navigator.share){navigator.share(data).catch(function(){});}
     else if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(function(){if(typeof toast==='function')toast('শেয়ার লিংক কপি হয়েছে।');});}
