@@ -66,6 +66,11 @@ const HEADERS = {
 
 function doGet(e) {
   var p = (e && e.parameter) || {};
+  if (String(p.result || '') === '1') {
+    return HtmlService.createHtmlOutput(buildPublicExamResultPage_())
+      .setTitle('অনলাইন পরীক্ষার ফলাফল | Jannatul Baqi')
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  }
   if (String(p.payment || '') === '1') {
     return HtmlService.createHtmlOutput(buildPublicOnlinePaymentHtml_())
       .setTitle(APP.nameEn + ' | Online Payment')
@@ -3819,6 +3824,45 @@ function publishExamDashboardStudentResult(token, studentId, exam, className, ac
     return {ok:true,published:1,studentId:id,message:'শিক্ষার্থীর ফলাফল অনলাইন প্ল্যাটফর্মে প্রকাশ করা হয়েছে।'};
   }
   return {ok:false,message:'নির্বাচিত পরীক্ষা, শ্রেণি ও শিক্ষাবর্ষে এই শিক্ষার্থীর সংরক্ষিত ফলাফল পাওয়া যায়নি।'};
+}
+
+
+function buildPublicExamResultPage_() {
+  return `<!doctype html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>অনলাইন পরীক্ষার ফলাফল</title>
+  <style>
+  *{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#f4f7fb,#e9eff7);font-family:Arial,"Noto Sans Bengali",sans-serif;color:#172033}
+  .wrap{max-width:920px;margin:28px auto;padding:16px}.head{background:linear-gradient(120deg,#123d32,#17664e);color:#fff;border-radius:22px;padding:26px 18px;text-align:center;box-shadow:0 12px 30px #102a2430}
+  .head h1{font-size:clamp(22px,4vw,34px);margin:0 0 8px}.head p{margin:5px 0;color:#e4f4ed}
+  .panel{background:#fff;border-radius:20px;padding:22px;margin-top:20px;box-shadow:0 8px 28px #1c355015}
+  .search{display:flex;gap:10px;flex-wrap:wrap}.search input{flex:1;min-width:220px;padding:15px;border:2px solid #d6e0e8;border-radius:12px;font-size:17px}
+  button{border:0;border-radius:12px;padding:14px 20px;font-size:16px;font-weight:800;cursor:pointer}.go{background:#d5ad42;color:#18251d}.print{background:#e9eef3;color:#263746}
+  #status{padding:12px 2px;color:#536477}.student,.exam{border:1px solid #e1e8ee;border-radius:15px;padding:16px;margin-top:14px}
+  .student h2,.exam h3{margin:0 0 10px;color:#14513e}.meta{display:flex;gap:8px 22px;flex-wrap:wrap;color:#4a5a68}
+  table{width:100%;border-collapse:collapse;margin-top:12px}th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left}th{background:#f1f6f4}
+  .totals{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.totals span{background:#f0f5f3;padding:10px 14px;border-radius:10px;font-weight:700}
+  .foot{text-align:center;color:#657486;font-size:13px;padding:22px}
+  @media(max-width:560px){.wrap{margin:8px auto;padding:10px}.panel{padding:14px}.search button{width:100%}th,td{padding:8px;font-size:14px}}
+  @media print{body{background:#fff}.wrap{margin:0;max-width:none}.panel,.head{box-shadow:none}.search,.print,.foot{display:none!important}}
+  </style></head><body><main class="wrap">
+  <header class="head"><h1>জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</h1><p>অনলাইন পরীক্ষার ফলাফল</p><p>উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</p><p>হটলাইন: 01823316630</p></header>
+  <section class="panel"><h2>📘 শিক্ষার্থীর ফলাফল খুঁজুন</h2><p>Student ID / ভর্তি আইডি / নিবন্ধিত মোবাইল নম্বর লিখুন।</p>
+  <div class="search"><input id="query" autocomplete="off" placeholder="শিক্ষার্থীর আইডি বা মোবাইল নম্বর" aria-label="শিক্ষার্থীর আইডি বা মোবাইল নম্বর"><button class="go" onclick="searchResult()">🔎 ফলাফল দেখুন</button></div>
+  <div id="status" role="status">শুধু প্রকাশিত ফলাফল এখানে দেখা যাবে।</div><div id="results"></div></section>
+  <div class="foot">Jannatul Baqi Digital Platform 2026</div></main>
+  <script>
+  const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  function searchResult(){const q=document.getElementById('query').value.trim(),status=document.getElementById('status'),box=document.getElementById('results');if(!q){status.textContent='অনুগ্রহ করে শিক্ষার্থীর আইডি বা মোবাইল নম্বর লিখুন।';return}
+  status.textContent='⏳ প্রকাশিত ফলাফল খোঁজা হচ্ছে…';box.innerHTML='';
+  google.script.run.withSuccessHandler(r=>{if(!r||!r.ok){status.textContent=(r&&r.message)||'প্রকাশিত ফলাফল পাওয়া যায়নি।';return}
+  const s=r.student||{},rows=r.results||[];if(!rows.length){status.textContent='কোনো প্রকাশিত ফলাফল পাওয়া যায়নি।';return}
+  let html='<section class="student"><h2>'+esc(s.nameBN||s.name||'শিক্ষার্থীর তথ্য')+'</h2><div class="meta"><span>আইডি: '+esc(s.studentId||q)+'</span><span>শ্রেণি: '+esc(s.className||'—')+'</span></div></section>';
+  rows.forEach(x=>{html+='<section class="exam"><h3>'+esc(x.exam||'পরীক্ষার ফলাফল')+'</h3><div class="meta"><span>মোট নম্বর: '+esc(x.total==null?'—':x.total)+'</span><span>গ্রেড: '+esc(x.grade||'—')+'</span><span>GPA: '+esc(x.gpa==null?'—':x.gpa)+'</span></div><table><thead><tr><th>বিষয়</th><th>প্রাপ্ত নম্বর</th></tr></thead><tbody>';
+  (x.subjects||[]).forEach(y=>{const m=y.marks!=null?y.marks:(y.mark!=null?y.mark:'—');html+='<tr><td>'+esc(y.subject||y.name||'')+'</td><td>'+esc(m)+'</td></tr>'});html+='</tbody></table></section>'});
+  box.innerHTML=html;status.textContent='মোট '+rows.length+'টি প্রকাশিত পরীক্ষার ফলাফল পাওয়া গেছে।';
+  }).withFailureHandler(e=>{status.textContent='সার্ভার সংযোগে সমস্যা: '+esc(e&&e.message||e)}).getPublicExamResult(q);
+  }
+  document.getElementById('query').addEventListener('keydown',e=>{if(e.key==='Enter')searchResult()});
+  </script></body></html>`;
 }
 
 function getPublicExamResult(query) {
