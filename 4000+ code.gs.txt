@@ -3994,9 +3994,9 @@ function getPublicInstitutionResults(ilhak,academicYear,exam,className,branchNam
     return linked&&String(st.Class||'').trim()===cl&&allowedBranches.indexOf(studentBranch)>=0&&(!br||studentBranch===br);
   });
   if(!students.length)return {ok:false,message:'এই অনুমোদিত মাদ্রাসা/শাখা ও শ্রেণির কোনো শিক্ষার্থী রেকর্ড পাওয়া যায়নি।'};
-  const suspended=students.map(function(st){return publicResultRestrictionForStudent_(st);}).find(function(x){return !!x;});
-  if(suspended)return {ok:false,suspended:true,message:publicResultRestrictionNotice_(suspended)};
-  const ids={};students.forEach(x=>ids[String(x.StudentID||'').trim()]=x);
+  const activeStudents=students.filter(function(st){return !publicResultRestrictionForStudent_(st);});
+  if(!activeStudents.length){const suspended=students.map(function(st){return publicResultRestrictionForStudent_(st);}).find(function(x){return !!x;});return {ok:false,suspended:true,message:publicResultRestrictionNotice_(suspended)};}
+  const ids={};activeStudents.forEach(x=>ids[String(x.StudentID||'').trim()]=x);
   const rows=listRows_(SHEETS.RESULTS,'',30000).filter(function(r){
     return ids[String(r.StudentID||'').trim()]&&String(r.AcademicYear||'').trim()===year&&String(r.Exam||'').trim()===ex&&String(r.Class||'').trim()===cl&&/^(YES|TRUE|1|PUBLISHED|প্রকাশিত)$/i.test(String(r.Published||'').trim());
   }).map(function(r){
