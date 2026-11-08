@@ -3927,6 +3927,8 @@ function getPublicExamResult(query, rollNo, academicYear, exam, className) {
   const students=listRows_(SHEETS.STUDENTS,'',10000);
   const student=students.find(function(x){return [x.StudentID,x.FormID,x.AdmissionID,x.HandwrittenID,x.Mobile,x.MobileID].some(function(v){return String(v||'').trim()===q;});});
   if(!student)return {ok:false,message:'শিক্ষার্থী পাওয়া যায়নি।'};
+  const restriction=publicResultRestrictionForStudent_(student);
+  if(restriction)return {ok:false,suspended:true,message:publicResultRestrictionNotice_(restriction)};
   const rows=listRows_(SHEETS.RESULTS,'',10000).filter(function(x){
     return String(x.StudentID||'').trim()===String(student.StudentID||'').trim() && /^(YES|TRUE|1|PUBLISHED|প্রকাশিত)$/i.test(String(x.Published||'').trim());
   });
