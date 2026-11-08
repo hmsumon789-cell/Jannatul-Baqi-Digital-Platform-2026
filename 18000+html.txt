@@ -19221,3 +19221,51 @@ body.jb-custom-account #app .header-slides,body.jb-custom-account #app #headerSl
 })();
 </script>
 <!-- ===== END RESULT SLIDE PUBLISHER WINDOW CONTROLS ===== -->
+
+
+<!-- ===== FIX INSTITUTION PROFILE WINDOW OPEN — 2026-11-09 ===== -->
+<script id="jb-institution-profile-open-fix-20261109">
+(function(){
+  'use strict';
+  function openInstitutionProfile2026(){
+    var title=document.getElementById('winTitle');
+    var body=document.getElementById('winBody');
+    var win=document.getElementById('formWin');
+    if(!title||!body||!win){
+      if(typeof window.toast==='function')window.toast('প্রতিষ্ঠান পরিচিতি উইন্ডো পাওয়া যায়নি। পেজ রিফ্রেশ করে আবার চেষ্টা করুন।');
+      return;
+    }
+    try{
+      if(typeof window.moduleForm!=='function')throw new Error('প্রতিষ্ঠান পরিচিতি ফর্ম লোড হয়নি।');
+      var html=window.moduleForm('institution');
+      if(!html)throw new Error('প্রতিষ্ঠান পরিচিতি ফর্ম খালি পাওয়া গেছে।');
+      title.textContent='প্রতিষ্ঠান পরিচিতি';
+      body.innerHTML=html;
+      win.classList.remove('minimized');
+      win.style.display='block';
+      win.style.height='';
+      if(typeof window.openWindow==='function')window.openWindow('formWin');
+      else win.classList.add('show');
+      if(typeof window.loadInstitutionProfile2026==='function')setTimeout(window.loadInstitutionProfile2026,80);
+      else if(typeof loadInstitutionProfile2026==='function')setTimeout(loadInstitutionProfile2026,80);
+    }catch(e){
+      title.textContent='প্রতিষ্ঠান পরিচিতি';
+      body.innerHTML='<div class="card" style="padding:18px;color:#a11"><b>প্রতিষ্ঠান পরিচিতি ফর্ম খোলা যায়নি</b><p></p></div>';
+      body.querySelector('p').textContent=String(e&&e.message||e);
+      win.classList.remove('minimized');
+      win.style.display='block';
+      if(typeof window.openWindow==='function')window.openWindow('formWin');
+      else win.classList.add('show');
+      if(typeof window.toast==='function')window.toast('প্রতিষ্ঠান পরিচিতি খোলার সময় ত্রুটি হয়েছে।');
+    }
+  }
+  window.openInstitutionProfile2026=openInstitutionProfile2026;
+  window.loadInstitutionProfile2026=window.loadInstitutionProfile2026||loadInstitutionProfile2026;
+  var previous=window.openModule;
+  window.openModule=function(key){
+    if(String(key||'').trim()==='institution')return openInstitutionProfile2026();
+    return typeof previous==='function'?previous.apply(this,arguments):undefined;
+  };
+})();
+</script>
+<!-- ===== END INSTITUTION PROFILE WINDOW OPEN FIX ===== -->
