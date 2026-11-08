@@ -66,6 +66,11 @@ const HEADERS = {
 
 function doGet(e) {
   var p = (e && e.parameter) || {};
+  if (String(p.result || '') === '1') {
+    return HtmlService.createHtmlOutput(buildPublicExamResultPage_())
+      .setTitle(APP.nameBn + ' | অনলাইন ফলাফল')
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  }
   if (String(p.payment || '') === '1') {
     return HtmlService.createHtmlOutput(buildPublicOnlinePaymentHtml_())
       .setTitle(APP.nameEn + ' | Online Payment')
@@ -3821,21 +3826,41 @@ function publishExamDashboardStudentResult(token, studentId, exam, className, ac
   return {ok:false,message:'নির্বাচিত পরীক্ষা, শ্রেণি ও শিক্ষাবর্ষে এই শিক্ষার্থীর সংরক্ষিত ফলাফল পাওয়া যায়নি।'};
 }
 
-function getPublicExamResult(query) {
-  const q=String(query||'').trim(); if(!q)return {ok:false,message:'Student ID / মোবাইল নম্বর দিন।'};
+
+function getPublicExamResultOptions(query) {
+  const q=String(query||'').trim();if(!q)return {ok:false,message:'শিক্ষার্থী ID / রেজিস্ট্রেশন / মোবাইল নম্বর দিন।'};
   const students=listRows_(SHEETS.STUDENTS,'',10000);
   const student=students.find(function(x){return [x.StudentID,x.FormID,x.AdmissionID,x.HandwrittenID,x.Mobile,x.MobileID].some(function(v){return String(v||'').trim()===q;});});
-  if(!student)return {ok:false,message:'শিক্ষার্থী পাওয়া যায়নি।'};
-  const rows=listRows_(SHEETS.RESULTS,'',10000).filter(function(x){
-    return String(x.StudentID||'').trim()===String(student.StudentID||'').trim() && /^(YES|TRUE|1|PUBLISHED|প্রকাশিত)$/i.test(String(x.Published||'').trim());
-  });
-  if(!rows.length)return {ok:false,message:'এই শিক্ষার্থীর প্রকাশিত ফলাফল পাওয়া যায়নি।'};
-  return {ok:true,student:{studentId:student.StudentID,nameBN:student.NameBN||'',nameAR:student.NameAR||'',className:student.Class||'',mobile:student.Mobile||''},results:rows.map(function(x){
-    let subjects=[];try{const p=JSON.parse(String(x.SubjectData||'[]'));subjects=Array.isArray(p)?p:Object.keys(p||{}).map(function(k){return {subject:k,marks:p[k]};});}catch(e){}
-    return {exam:x.Exam,total:x.Total,gpa:x.GPA,grade:x.Grade,subjects:subjects};
-  })};
+  if(!student)return {ok:false,message:'এই পরিচয়ে কোনো শিক্ষার্থী পাওয়া যায়নি।'};
+  const rows=listRows_(SHEETS.RESULTS,'',10000).filter(function(x){return String(x.StudentID||'').trim()===String(student.StudentID||'').trim()&&/^(YES|TRUE|1|PUBLISHED|প্রকাশিত)$/i.test(String(x.Published||'').trim());});
+  if(!rows.length)return {ok:false,message:'এই শিক্ষার্থীর কোনো প্রকাশিত ফলাফল নেই।'};
+  const unique=function(k){const seen={};return rows.map(function(x){return String(x[k]||'').trim();}).filter(function(v){if(!v||seen[v])return false;seen[v]=true;return true;}).sort(function(a,b){return a.localeCompare(b,'bn');});};
+  return {ok:true,student:{studentId:student.StudentID,nameBN:student.NameBN||'',nameAR:student.NameAR||'',className:student.Class||'',mobile:student.Mobile||''},years:unique('AcademicYear'),exams:unique('Exam'),classes:unique('Class')};
 }
-
+function getPublicExamResult(query, academicYear, examName, className) {
+  const q=String(query||'').trim(),year=String(academicYear||'').trim(),exam=String(examName||'').trim(),cl=String(className||'').trim();
+  if(!q)return {ok:false,message:'শিক্ষার্থী ID / রেজিস্ট্রেশন / মোবাইল নম্বর দিন।'};
+  const students=listRows_(SHEETS.STUDENTS,'',10000);
+  const student=students.find(function(x){return [x.StudentID,x.FormID,x.AdmissionID,x.HandwrittenID,x.Mobile,x.MobileID].some(function(v){return String(v||'').trim()===q;});});
+  if(!student)return {ok:false,message:'এই পরিচয়ে কোনো শিক্ষার্থী পাওয়া যায়নি।'};
+  const rows=listRows_(SHEETS.RESULTS,'',10000).filter(function(x){return String(x.StudentID||'').trim()===String(student.StudentID||'').trim()&&/^(YES|TRUE|1|PUBLISHED|প্রকাশিত)$/i.test(String(x.Published||'').trim())&&(!year||String(x.AcademicYear||'').trim()===year)&&(!exam||String(x.Exam||'').trim()===exam)&&(!cl||String(x.Class||'').trim()===cl);});
+  if(!rows.length)return {ok:false,message:'নির্বাচিত পরীক্ষা, শ্রেণি ও শিক্ষাবর্ষে প্রকাশিত ফলাফল পাওয়া যায়নি।'};
+  return {ok:true,student:{studentId:student.StudentID,nameBN:student.NameBN||'',nameAR:student.NameAR||'',className:student.Class||'',mobile:student.Mobile||''},results:rows.map(function(x){let subjects=[];try{const p=JSON.parse(String(x.SubjectData||'[]'));subjects=Array.isArray(p)?p:Object.keys(p||{}).map(function(k){return {subject:k,marks:p[k]};});}catch(e){}return {exam:x.Exam,academicYear:x.AcademicYear||'',className:x.Class||'',total:x.Total,gpa:x.GPA,grade:x.Grade,meritRank:x.MeritRank||'',rollNo:x.RollNo||'',subjects:subjects};})};
+}
+function buildPublicExamResultPage_() {
+  const esc=function(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');};
+  return '<!doctype html><html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>অনলাইন ফলাফল</title>'+
+  '<style>*{box-sizing:border-box}body{margin:0;background:#f3f5f8;color:#202535;font-family:Arial,"Noto Sans Bengali",sans-serif;padding:16px}.wrap{max-width:980px;margin:18px auto;background:#fff;border:1px solid #e3e7ef;border-radius:18px;box-shadow:0 12px 38px #15233b18;overflow:hidden}.head{display:grid;grid-template-columns:78px 1fr;gap:14px;align-items:center;padding:20px;background:linear-gradient(120deg,#fffdf5,#f5f8ff);border-bottom:3px solid #a77b16}.logo{width:72px;height:72px;border-radius:50%;display:grid;place-items:center;background:#8b5e00;color:#fff;font-size:25px;font-weight:900;border:4px solid #e7cf8a}.brand{text-align:center}.brand h1{font-size:clamp(18px,3vw,27px);margin:0 0 5px;color:#805900}.brand p{margin:3px 0;font-size:13px}.content{padding:20px}.search{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr auto;gap:9px;align-items:end}.field label{display:block;font-size:13px;font-weight:800;margin:0 0 6px}.field input,.field select{width:100%;min-width:0;padding:12px;border:1px solid #cbd2df;border-radius:10px;background:#fff;font-size:15px}.btn{padding:12px 18px;border:0;border-radius:10px;background:#8b5e00;color:#fff;font-weight:900;cursor:pointer}.msg{margin:14px 0;padding:12px;border-radius:10px;background:#f3f6fa;min-height:42px}.student{padding:14px;border:1px solid #e0e5ed;border-radius:12px;margin:12px 0}.meta{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0}.meta div{padding:10px;background:#f7f8fb;border-radius:9px;text-align:center}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;margin:10px 0}th,td{padding:9px;border:1px solid #d4d9e2;text-align:center}th{background:#f2f4f8}.actions{display:flex;gap:9px;justify-content:center;margin:14px 0;flex-wrap:wrap}.secondary{background:#27364d}@media(max-width:760px){.search{grid-template-columns:1fr 1fr}.field:first-child,.search .btn{grid-column:1/-1}.meta{grid-template-columns:1fr 1fr}.head{grid-template-columns:1fr}.logo{margin:auto}}@media print{body{padding:0;background:#fff}.wrap{margin:0;border:0;box-shadow:none}.search,.actions,.msg{display:none!important}.content{padding:8px}}</style></head><body><main class="wrap"><header class="head"><div class="logo">JB</div><div class="brand"><h1>'+esc(APP.nameBn)+'</h1><p>المدرسة الجنة الباقية للبنات ودار الايتام</p><p>Jannatul Baky Mohila Madrasha &amp; Eatimkhana</p><p>'+esc(APP.address)+'</p><p>হটলাইন: '+esc(APP.hotline1)+'</p></div></header><section class="content"><h2 style="text-align:center">শিক্ষার্থীর অনলাইন ফলাফল</h2><div class="search"><div class="field"><label>শিক্ষার্থী ID / রেজিস্ট্রেশন / মোবাইল</label><input id="studentQuery" autocomplete="off" placeholder="শিক্ষার্থীর পরিচিতি নম্বর"></div><div class="field"><label>শিক্ষাবর্ষ</label><select id="yearFilter" disabled><option value="">সব শিক্ষাবর্ষ</option></select></div><div class="field"><label>পরীক্ষা</label><select id="examFilter" disabled><option value="">সব পরীক্ষা</option></select></div><div class="field"><label>শ্রেণি/জামাত</label><select id="classFilter" disabled><option value="">সব শ্রেণি</option></select></div><button class="btn" id="searchBtn" type="button">🔎 খুঁজুন</button></div><div id="status" class="msg">প্রথমে শিক্ষার্থীর ID বা রেজিস্ট্রেশন নম্বর লিখে খুঁজুন।</div><div id="result"></div><div class="actions"><button class="btn secondary" type="button" onclick="window.print()">🖨️ প্রিন্ট / PDF</button></div></section></main><script>(function(){var q=document.getElementById("studentQuery"),y=document.getElementById("yearFilter"),e=document.getElementById("examFilter"),c=document.getElementById("classFilter"),st=document.getElementById("status"),out=document.getElementById("result"),loaded="";
+function esc(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");}
+function fill(sel,items,label){sel.innerHTML="<option value=\"\">"+label+"</option>";(items||[]).forEach(function(v){var o=document.createElement("option");o.value=v;o.textContent=v;sel.appendChild(o);});sel.disabled=false;}
+function options(){var id=String(q.value||"").trim();if(!id){st.textContent="শিক্ষার্থী ID / রেজিস্ট্রেশন নম্বর লিখুন।";return;}st.textContent="প্রকাশিত ফলাফল খোঁজা হচ্ছে...";out.innerHTML="";
+google.script.run.withSuccessHandler(function(r){if(!r||!r.ok){st.textContent=(r&&r.message)||"প্রকাশিত ফলাফল পাওয়া যায়নি।";[y,e,c].forEach(function(x){x.disabled=true;});return;}loaded=id;fill(y,r.years,"সব শিক্ষাবর্ষ");fill(e,r.exams,"সব পরীক্ষা");fill(c,r.classes,"সব শ্রেণি");st.textContent="শিক্ষার্থী পাওয়া গেছে: "+(r.student.nameBN||r.student.studentId);search();}).withFailureHandler(function(x){st.textContent="সার্ভার ত্রুটি: "+(x&&x.message||x);}).getPublicExamResultOptions(id);}
+function search(){var id=String(q.value||"").trim();if(!id){st.textContent="শিক্ষার্থী ID / রেজিস্ট্রেশন নম্বর লিখুন।";return;}st.textContent="প্রকাশিত ফলাফল লোড হচ্ছে...";out.innerHTML="";
+google.script.run.withSuccessHandler(function(r){if(!r||!r.ok){st.textContent=(r&&r.message)||"ফলাফল পাওয়া যায়নি।";return;}st.textContent="প্রকাশিত ফলাফল পাওয়া গেছে।";var s=r.student||{},h="<section class=\"student\"><h3>"+esc(s.nameBN||"শিক্ষার্থী")+"</h3><div>"+esc(s.nameAR||"")+"</div><div class=\"meta\"><div><b>ID</b><br>"+esc(s.studentId)+"</div><div><b>শ্রেণি</b><br>"+esc(s.className)+"</div><div><b>মোবাইল</b><br>"+esc(s.mobile)+"</div><div><b>প্রকাশিত ফলাফল</b><br>"+r.results.length+"</div></div>";
+r.results.forEach(function(x){h+="<h3 style=\"text-align:center\">"+esc(x.exam)+" — "+esc(x.academicYear)+"</h3><div class=\"meta\"><div><b>শ্রেণি</b><br>"+esc(x.className)+"</div><div><b>মোট নম্বর</b><br>"+esc(x.total)+"</div><div><b>মেধাক্রম</b><br>"+esc(x.meritRank||"—")+"</div><div><b>গ্রেড / GPA</b><br>"+esc(x.grade)+" / "+esc(x.gpa)+"</div></div><div class=\"table-wrap\"><table><thead><tr><th>বিষয়</th><th>প্রাপ্ত নম্বর</th><th>পূর্ণমান</th></tr></thead><tbody>";(x.subjects||[]).forEach(function(z){h+="<tr><td>"+esc(z.subject||z.name||z.Subject||z.SubjectName||"")+"</td><td>"+esc(z.marks!=null?z.marks:(z.mark!=null?z.mark:""))+"</td><td>"+esc(z.maxMark||"—")+"</td></tr>";});h+="</tbody></table></div>";});h+="</section>";out.innerHTML=h;
+}).withFailureHandler(function(x){st.textContent="সার্ভার ত্রুটি: "+(x&&x.message||x);}).getPublicExamResult(id,y.value,e.value,c.value);}
+document.getElementById("searchBtn").addEventListener("click",function(){if(loaded!==String(q.value||"").trim())options();else search();});q.addEventListener("keydown",function(x){if(x.key==="Enter"){loaded="";options();}});[y,e,c].forEach(function(x){x.addEventListener("change",search);});})();</script></body></html>';
+}
 
 /* ===== EXAM DASHBOARD CONFIG PERSISTENCE — 2026-10-09 ===== */
 function getExamDashboardItems(token, kind) {
