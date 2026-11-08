@@ -17882,7 +17882,7 @@ async function previewInstitutionNewMemberPhoto2026(input){
  try{const data=await compressInstitutionPhoto2026(file);input.dataset.photoDataUrl=data;if(img){img.src=data;img.style.display='block';}if(status)status.textContent='ছবি প্রস্তুত — সদস্য সংরক্ষণ করুন';}
  catch(e){if(status)status.textContent='ছবি প্রস্তুত করা যায়নি: '+(e.message||e);}
 }
-async function addInstitutionMember2026(){
+async async function addInstitutionMember2026(){
  const name=$('institutionNewMemberName2026'),role=$('institutionNewMemberRole2026'),contribution=$('institutionNewMemberContribution2026'),file=$('institutionNewMemberFile2026'),status=$('institutionNewMemberPhotoStatus2026'),msg=$('institutionProfileMessage2026');
  if(!name||!name.value.trim()){if(msg)msg.textContent='নতুন সদস্যের নাম লিখুন।';return;}
  if(!role||!role.value.trim()){if(msg)msg.textContent='সদস্যের পদবি লিখুন।';return;}
