@@ -4386,7 +4386,7 @@ function institutionPhotoFolder2026_(){
 function getInstitutionProfile2026(token){
   auth_(token);if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin প্রতিষ্ঠান পরিচিতি সম্পাদনা করতে পারবেন।'};
   const sh=institutionProfileSheet2026_(),rows=sh.getDataRange().getValues();let history='';const people=[];
-  for(let i=1;i<rows.length;i++){const row=rows[i],key=String(row[0]||'');if(key==='HISTORY')history=String(row[5]||'');else if(key)people.push({id:key,name:String(row[1]||''),group:String(row[2]||''),photoUrl:String(row[3]||'')});}
+  for(let i=1;i<rows.length;i++){const row=rows[i],key=String(row[0]||'');if(key==='HISTORY')history=String(row[5]||'');else if(key)people.push({id:key,name:String(row[1]||''),group:String(row[2]||''),photoUrl:String(row[3]||''),contribution:String(row[5]||'')});}
   return {ok:true,history:history,people:people};
 }
 
@@ -4398,7 +4398,7 @@ function getInstitutionDocumentary2026(token){
   for(let i=1;i<rows.length;i++){
     const row=rows[i],key=String(row[0]||'');
     if(key&&key!=='HISTORY'&&String(row[1]||'').trim()){
-      people.push({id:key,name:String(row[1]||''),group:String(row[2]||''),photoUrl:String(row[3]||'')});
+      people.push({id:key,name:String(row[1]||''),group:String(row[2]||''),photoUrl:String(row[3]||''),contribution:String(row[5]||'')});
     }
   }
   return {ok:true,people:people};
@@ -4415,11 +4415,28 @@ function saveInstitutionPhoto2026(token,personId,dataUrl,fileName,mimeType){
   const file=institutionPhotoFolder2026_().createFile(blob);try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
   return {ok:true,url:'https://drive.google.com/uc?export=view&id='+encodeURIComponent(file.getId()),fileId:file.getId()};
 }
+function saveInstitutionMember2026(token,payload){
+  auth_(token);if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin নতুন সদস্য যুক্ত করতে পারবেন।'};
+  payload=payload||{};
+  const id=String(payload.id||'').replace(/[^a-zA-Z0-9_-]/g,'');
+  const name=String(payload.name||'').trim().slice(0,160);
+  const role=String(payload.group||'').trim().slice(0,100);
+  const contribution=String(payload.contribution||'').trim().slice(0,1200);
+  const photoUrl=String(payload.photoUrl||'').trim();
+  if(!/^member_[0-9]+$/.test(id)||!name||!role||!contribution||!photoUrl)return {ok:false,message:'নাম, পদবী, ফটো ও অবদান—সব তথ্য দিতে হবে।'};
+  const sh=institutionProfileSheet2026_(),values=sh.getDataRange().getValues();
+  if(values.some(function(row){return String(row[0]||'')===id;}))return {ok:false,message:'এই সদস্য আইডি আগে থেকেই রয়েছে।'};
+  sh.appendRow([id,name,role,photoUrl,now_(),contribution]);
+  log_(sessionUser_(token),'create','INSTITUTION_PROFILE_2026',name+' — '+role+' নতুন সদস্য যুক্ত');
+  return {ok:true,message:'নতুন সদস্য সংরক্ষণ হয়েছে।'};
+}
+
 function saveInstitutionProfile2026(token,payload){
   auth_(token);if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin প্রতিষ্ঠান পরিচিতি সংরক্ষণ করতে পারবেন।'};
   payload=payload||{};const history=String(payload.history||'').trim(),people=Array.isArray(payload.people)?payload.people:[];
-  const sh=institutionProfileSheet2026_(),now=now_(),rows=[['HISTORY','প্রতিষ্ঠানের সংক্ষিপ্ত ইতিহাস','পরিচিতি','',now,history]];
+  const sh=institutionProfileSheet2026_(),now=now_(),existing=sh.getDataRange().getValues(),rows=[['HISTORY','প্রতিষ্ঠানের সংক্ষিপ্ত ইতিহাস','পরিচিতি','',now,history]];
   people.forEach(function(p){p=p||{};const id=String(p.id||'').replace(/[^a-zA-Z0-9_-]/g,'');if(!id)return;rows.push([id,String(p.name||'').trim(),String(p.group||''),String(p.photoUrl||''),now,'']);});
+  existing.slice(1).forEach(function(row){const id=String(row[0]||'');if(id.indexOf('member_')===0)rows.push(row.slice(0,6));});
   if(sh.getLastRow()>1)sh.getRange(2,1,sh.getLastRow()-1,sh.getLastColumn()).clearContent();
   sh.getRange(2,1,rows.length,6).setValues(rows);
   log_(sessionUser_(token),'update','INSTITUTION_PROFILE_2026','প্রতিষ্ঠান পরিচিতি ও ব্যক্তিদের ছবি/তথ্য সংরক্ষণ');
