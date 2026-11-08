@@ -19161,3 +19161,63 @@ body.jb-custom-account #app .header-slides,body.jb-custom-account #app #headerSl
 })();
 </script>
 <!-- ===== END DASHBOARD FEATURE ROUTER ===== -->
+
+
+<!-- ===== RESULT SLIDE PUBLISHER WINDOW CONTROLS — isolated 2026 ===== -->
+<style id="jbResultSlideWinControlsStyle2026">
+#resultSlidePublisherWin2026{box-sizing:border-box!important;max-width:97vw;max-height:94vh;overflow:hidden!important}
+#resultSlidePublisherWin2026 .windowHead{display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:move;user-select:none;touch-action:none}
+#resultSlidePublisherWin2026 .windowBody{max-height:calc(94vh - 58px);overflow:auto;overscroll-behavior:contain}
+#resultSlidePublisherWin2026.jbResultSlideFull2026{position:fixed!important;inset:0!important;left:0!important;top:0!important;transform:none!important;width:100vw!important;height:100vh!important;max-width:100vw!important;max-height:100vh!important;border-radius:0!important;margin:0!important;z-index:2147482000!important}
+#resultSlidePublisherWin2026.jbResultSlideFull2026 .windowBody{max-height:calc(100vh - 58px)!important}
+#resultSlidePublisherWin2026 .jbResultSlideTools2026{display:flex;align-items:center;gap:5px;flex-shrink:0}
+#resultSlidePublisherWin2026 .jbResultSlideTools2026 button{min-width:34px;min-height:32px;cursor:pointer;font-weight:900}
+.jbResultSlideRestore2026{position:fixed!important;right:14px!important;bottom:14px!important;z-index:2147482500!important;display:none;padding:10px 14px!important;border:2px solid #b68b22!important;border-radius:10px!important;background:#fff3bf!important;color:#382900!important;font-weight:900!important;cursor:pointer}
+@media(max-width:600px){#resultSlidePublisherWin2026{max-width:100vw!important;width:100vw!important;left:0!important;top:0!important;border-radius:0!important}#resultSlidePublisherWin2026 .windowBody{max-height:calc(100vh - 58px)!important}}
+</style>
+<script>
+(function(){
+ var id='resultSlidePublisherWin2026',saved=null,restoreBtn=null;
+ function el(){return document.getElementById(id)}
+ function ensureRestore(){
+   if(restoreBtn)return restoreBtn;
+   restoreBtn=document.createElement('button');restoreBtn.type='button';restoreBtn.className='jbResultSlideRestore2026';restoreBtn.textContent='↗ অনলাইন ফলাফল স্লাইড প্রকাশনা ফিরিয়ে আনুন';
+   restoreBtn.onclick=function(){var w=el();if(!w)return;w.style.display='block';w.classList.add('show');restoreBtn.style.display='none'};
+   document.body.appendChild(restoreBtn);return restoreBtn;
+ }
+ function closeWin(){var w=el();if(!w)return;w.classList.remove('show','jbResultSlideFull2026');w.style.display='none';ensureRestore().style.display='none';if(saved){w.style.left=saved.left;w.style.top=saved.top;w.style.width=saved.width;w.style.height=saved.height;w.style.maxWidth=saved.maxWidth;w.style.maxHeight=saved.maxHeight;w.style.transform=saved.transform;saved=null;}}
+ function minimize(){var w=el();if(!w)return;w.classList.remove('show');w.style.display='none';ensureRestore().style.display='block'}
+ function toggleFull(){var w=el();if(!w)return;if(!saved){saved={left:w.style.left,top:w.style.top,width:w.style.width,height:w.style.height,maxWidth:w.style.maxWidth,maxHeight:w.style.maxHeight,transform:w.style.transform};w.classList.add('jbResultSlideFull2026')}else{w.classList.remove('jbResultSlideFull2026');w.style.left=saved.left;w.style.top=saved.top;w.style.width=saved.width;w.style.height=saved.height;w.style.maxWidth=saved.maxWidth;w.style.maxHeight=saved.maxHeight;w.style.transform=saved.transform;saved=null;}}
+ function drag(head){
+   var w=el();if(!w||head.dataset.jbResultSlideDrag==='1')return;head.dataset.jbResultSlideDrag='1';
+   head.addEventListener('pointerdown',function(e){
+     if(e.button!==0||(e.target.closest&&e.target.closest('button'))||w.classList.contains('jbResultSlideFull2026'))return;
+     var r=w.getBoundingClientRect(),sx=e.clientX,sy=e.clientY;
+     w.style.transform='none';w.style.left=r.left+'px';w.style.top=r.top+'px';
+     try{head.setPointerCapture(e.pointerId)}catch(ignore){}
+     function move(ev){var x=Math.max(0,Math.min(window.innerWidth-r.width,r.left+ev.clientX-sx));var y=Math.max(0,Math.min(window.innerHeight-55,r.top+ev.clientY-sy));w.style.left=x+'px';w.style.top=y+'px'}
+     function up(){head.removeEventListener('pointermove',move);head.removeEventListener('pointerup',up);head.removeEventListener('pointercancel',up)}
+     head.addEventListener('pointermove',move);head.addEventListener('pointerup',up);head.addEventListener('pointercancel',up);e.preventDefault();
+   });
+ }
+ function setup(){
+   var w=el();if(!w||w.dataset.jbResultSlideControls2026==='1')return;
+   var head=w.querySelector('.windowHead');if(!head)return;
+   w.dataset.jbResultSlideControls2026='1';
+   var close=head.querySelector('button');if(close){close.type='button';close.onclick=function(e){e.preventDefault();e.stopPropagation();closeWin()};}
+   var tools=document.createElement('span');tools.className='jbResultSlideTools2026';
+   var min=document.createElement('button');min.type='button';min.title='মিনিমাইজ';min.textContent='—';min.onclick=function(e){e.preventDefault();e.stopPropagation();minimize()};
+   var full=document.createElement('button');full.type='button';full.title='ফুলস্ক্রিন / আগের আকার';full.textContent='□';full.onclick=function(e){e.preventDefault();e.stopPropagation();toggleFull()};
+   tools.appendChild(min);tools.appendChild(full);head.appendChild(tools);drag(head);ensureRestore();
+   var body=w.querySelector('.windowBody');if(body){body.style.overflowY='auto';body.style.overscrollBehavior='contain'}
+ }
+ var oldOpen=window.openResultSlidePublisher2026;
+ if(typeof oldOpen==='function'&&!window._jbResultSlideOpenWrapped2026){
+   window.openResultSlidePublisher2026=function(){setup();var w=el();if(w){w.style.display='block';w.classList.add('show');ensureRestore().style.display='none'}return oldOpen.apply(this,arguments)};
+   window._jbResultSlideOpenWrapped2026=true;
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup);else setup();
+ setTimeout(setup,500);setTimeout(setup,1400);
+})();
+</script>
+<!-- ===== END RESULT SLIDE PUBLISHER WINDOW CONTROLS ===== -->
