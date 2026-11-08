@@ -19266,6 +19266,24 @@ body.jb-custom-account #app .header-slides,body.jb-custom-account #app #headerSl
     if(String(key||'').trim()==='institution')return openInstitutionProfile2026();
     return typeof previous==='function'?previous.apply(this,arguments):undefined;
   };
+  // The institution opener sets inline display:block; explicitly hide formWin on close.
+  var priorCloseWindow=window.closeWindow;
+  if(typeof priorCloseWindow==='function'&&!priorCloseWindow._jbInstitutionCloseFix20261109){
+    var closeWindowFixed=function(id){
+      var result=priorCloseWindow.apply(this,arguments);
+      if(String(id||'')==='formWin'){
+        var formWindow=document.getElementById('formWin');
+        if(formWindow){
+          formWindow.classList.remove('show','minimized');
+          formWindow.style.display='none';
+          formWindow.style.height='';
+        }
+      }
+      return result;
+    };
+    closeWindowFixed._jbInstitutionCloseFix20261109=true;
+    window.closeWindow=closeWindowFixed;
+  }
 })();
 </script>
 <!-- ===== END INSTITUTION PROFILE WINDOW OPEN FIX ===== -->
