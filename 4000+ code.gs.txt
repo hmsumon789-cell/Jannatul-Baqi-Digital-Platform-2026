@@ -3912,7 +3912,7 @@ function savePublicResultIlhak(token,data){
   const username=String(data.username||'').trim();
   const branches=Array.isArray(data.branches)?data.branches.map(x=>String(x||'').trim()).filter(Boolean):String(data.branches||'').split(/[;,،]/).map(x=>x.trim()).filter(Boolean);
   const status=String(data.status||'APPROVED').toUpperCase();
-  if(!code||!name||!madrasaId||!username)return {ok:false,message:'ইলহাক নম্বর, মাদ্রাসার নাম, Madrasa ID ও Username আবশ্যক।'};
+  if(!code||!name||!madrasaId||!username||!branches.length)return {ok:false,message:'ইলহাক নম্বর, মাদ্রাসার নাম, Madrasa ID, Username ও অন্তত একটি শাখার নাম আবশ্যক।'};
   if(!['APPROVED','SUSPENDED','REVOKED'].includes(status))return {ok:false,message:'অনুমোদনের Status সঠিক নয়।'};
   const madrasa=findBy_(SHEETS.MADRASAS,'MadrasaID',madrasaId);
   if(!madrasa||String(madrasa.Username||'').trim()!==username)return {ok:false,message:'Madrasa ID ও Username-এর মিল পাওয়া যায়নি।'};
@@ -3931,7 +3931,9 @@ function getPublicInstitutionResults(ilhak,academicYear,exam,className,branchNam
   const students=listRows_(SHEETS.STUDENTS,'',20000).filter(function(st){
     const source=String(st.SourceAccount||'').trim();
     const linked=source===String(reg.username||'')||source===String(reg.madrasaId||'')||String(st.MadrasaID||'').trim()===String(reg.madrasaId||'');
-    return linked&&String(st.Class||'').trim()===cl&&(!br||String(st.Branch||'').trim()===br);
+    const studentBranch=String(st.Branch||'').trim();
+    const allowedBranches=Array.isArray(reg.branches)?reg.branches:[];
+    return linked&&String(st.Class||'').trim()===cl&&allowedBranches.indexOf(studentBranch)>=0&&(!br||studentBranch===br);
   });
   if(!students.length)return {ok:false,message:'এই অনুমোদিত মাদ্রাসা/শাখা ও শ্রেণির কোনো শিক্ষার্থী রেকর্ড পাওয়া যায়নি।'};
   const ids={};students.forEach(x=>ids[String(x.StudentID||'').trim()]=x);
