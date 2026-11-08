@@ -990,8 +990,28 @@ body{background-color:#f4f6f8;}
       <button class="secondary" type="button" onclick="toast('অনলাইন/মোবাইল ফলাফল পরবর্তী ধাপে যুক্ত হবে।')">📱 অনলাইন ফলাফল</button>
       <button class="secondary" type="button" onclick="toast('Admit Card ও Seat Plan পরবর্তী ধাপে যুক্ত হবে।')">🎫 Admit Card / Seat Plan</button>
       <button class="secondary" type="button" onclick="toast('মার্কশিট/রিপোর্ট মডিউল পরবর্তী ধাপে যুক্ত হবে।')">🖨️ মার্কশিট / রিপোর্ট</button>
+      <button id="resultRestrictionBtn" class="secondary" type="button" style="display:none" onclick="openResultRestrictionPanel()">🔐 সুপার অ্যাডমিন ফলাফল নিয়ন্ত্রণ</button>
     </div>
     <div id="examDashboardList"></div>
+  </div>
+</div>
+
+<div id="resultRestrictionWin" class="window" style="width:min(1050px,96vw)">
+  <div class="win-head"><b>🔐 সুপার অ্যাডমিন ফলাফল নিয়ন্ত্রণ</b><span><button class="secondary" type="button" onclick="loadResultRestrictions()">↻ রিফ্রেশ</button> <button class="secondary" type="button" onclick="closeWindow('resultRestrictionWin')">✕</button></span></div>
+  <div class="win-body">
+    <p class="small">শুধু Super Admin এই নিয়ন্ত্রণ ব্যবহার করতে পারবেন। এখানে শিক্ষার্থী, সম্পূর্ণ মাদ্রাসা অথবা নির্দিষ্ট শাখার অনলাইন ফলাফল স্থগিত/পুনরায় চালু করা যাবে।</p>
+    <div class="exam-form-grid">
+      <label>নিয়ন্ত্রণের ধরন<select id="rrScope" class="field" onchange="updateResultRestrictionFields()"><option value="STUDENT">নির্দিষ্ট শিক্ষার্থী</option><option value="MADRASA">সম্পূর্ণ মাদ্রাসা</option><option value="BRANCH">নির্দিষ্ট শাখা</option></select></label>
+      <label id="rrStudentWrap">শিক্ষার্থী ID<input id="rrStudent" class="field" placeholder="Student ID"></label>
+      <label id="rrMadrasaWrap" style="display:none">মাদ্রাসা ID / Username<input id="rrMadrasa" class="field" placeholder="Madrasa ID / Username"></label>
+      <label id="rrBranchWrap" style="display:none">শাখার সঠিক নাম<input id="rrBranch" class="field" placeholder="শাখার নাম"></label>
+      <label>অবস্থা<select id="rrStatus" class="field"><option value="SUSPENDED">ফলাফল বন্ধ / স্থগিত</option><option value="ACTIVE">পুনরায় চালু</option></select></label>
+      <label>স্থগিতের কারণ<textarea id="rrReason" class="field" rows="2" placeholder="ফলাফল স্থগিতের কারণ লিখুন"></textarea></label>
+      <label>শিক্ষার্থী / মাদ্রাসার জন্য বার্তা<textarea id="rrMessage" class="field" rows="2" placeholder="ঐচ্ছিক বার্তা"></textarea></label>
+    </div>
+    <div class="form-action-bar" style="margin-top:10px"><button id="rrSaveBtn" class="primary" type="button" onclick="saveResultRestriction()">💾 নিয়ন্ত্রণ সংরক্ষণ</button><button class="secondary" type="button" onclick="loadResultRestrictions()">স্থগিত তালিকা দেখুন</button></div>
+    <div id="rrStatusBox" class="small" role="status" style="margin:12px 0">নিয়ন্ত্রণের তথ্য লোড করুন।</div>
+    <div id="rrList"></div>
   </div>
 </div>
 
@@ -1077,7 +1097,7 @@ async function resendOtp(){const r=await call('requestOtp',$('username').value.t
 function clearOtp(){document.querySelectorAll('.otp-box').forEach(x=>x.value='');$('otpBoxes').firstElementChild.focus()}
 async function resetOtp(){const r=await call('requestOtp',$('resetUser').value.trim());toast(r.message)}
 async function logout(){await call('logout',token);location.reload()}
-async function loadApp(){const r=await call('getBootstrap',token);if(!r||!r.ok)return;applyInstitutionSettings(r.institution||{});var ub=currentUser||r.currentAdmin||{};var rr=String(ub.Role||ub.role||'').toUpperCase().replace(/\s+/g,'_');var isSuper=(rr==='SUPER_ADMIN'||rr==='SUPERADMIN');if($('accountManagerBtn'))$('accountManagerBtn').style.display=isSuper?'inline-block':'none';if($('sheetWin'))$('sheetWin').dataset.allowed=isSuper?'yes':'no';var sheetBtn=document.querySelector('.sheet-btn');if(sheetBtn)sheetBtn.style.display=isSuper?'inline-block':'none';modules=r.modules||[];renderModules();renderStats(r.stats||{});renderNotices(r.notices||[]);media=r.media||[];renderMedia();fillFeatureSelect();if(isSuper)fillSheets();else if($('sheetSelect'))$('sheetSelect').innerHTML='';dragWindow($('formWin'))}
+async function loadApp(){const r=await call('getBootstrap',token);if(!r||!r.ok)return;applyInstitutionSettings(r.institution||{});var ub=currentUser||r.currentAdmin||{};var rr=String(ub.Role||ub.role||'').toUpperCase().replace(/\s+/g,'_');var isSuper=(rr==='SUPER_ADMIN'||rr==='SUPERADMIN');if($('accountManagerBtn'))$('accountManagerBtn').style.display=isSuper?'inline-block':'none';if($('resultRestrictionBtn'))$('resultRestrictionBtn').style.display=isSuper?'inline-flex':'none';if($('sheetWin'))$('sheetWin').dataset.allowed=isSuper?'yes':'no';var sheetBtn=document.querySelector('.sheet-btn');if(sheetBtn)sheetBtn.style.display=isSuper?'inline-block':'none';modules=r.modules||[];renderModules();renderStats(r.stats||{});renderNotices(r.notices||[]);media=r.media||[];renderMedia();fillFeatureSelect();if(isSuper)fillSheets();else if($('sheetSelect'))$('sheetSelect').innerHTML='';dragWindow($('formWin'))}
 function applyInstitutionSettings(inst){
   inst=inst||{};
   var logo=document.getElementById('headerLogo');
@@ -1581,6 +1601,46 @@ function downloadCurrentForm(){
 const EXAM_DRAFT_KEY='jb_exam_dashboard_drafts_2026';
 function examDrafts(){try{return JSON.parse(localStorage.getItem(EXAM_DRAFT_KEY)||'[]')}catch(e){return[]}}
 function setExamDrafts(a){localStorage.setItem(EXAM_DRAFT_KEY,JSON.stringify(a||[]))}
+
+function openResultRestrictionPanel(){
+  var rr=String((currentUser||{}).Role||(currentUser||{}).role||'').toUpperCase().replace(/\s+/g,'_');
+  if(rr!=='SUPER_ADMIN'&&rr!=='SUPERADMIN'){toast('শুধু Super Admin এই প্যানেল ব্যবহার করতে পারবেন।');return;}
+  updateResultRestrictionFields();openWindow('resultRestrictionWin');loadResultRestrictions();
+}
+function updateResultRestrictionFields(){
+  var scope=$('rrScope')?.value||'STUDENT';
+  if($('rrStudentWrap'))$('rrStudentWrap').style.display=scope==='STUDENT'?'':'none';
+  if($('rrMadrasaWrap'))$('rrMadrasaWrap').style.display=scope==='STUDENT'?'none':'';
+  if($('rrBranchWrap'))$('rrBranchWrap').style.display=scope==='BRANCH'?'':'none';
+}
+function resultRestrictionStatus(t){if($('rrStatusBox'))$('rrStatusBox').textContent=t;}
+async function loadResultRestrictions(){
+  if(!token){resultRestrictionStatus('লগইন সেশন পাওয়া যায়নি। আবার লগইন করুন।');return;}
+  resultRestrictionStatus('⏳ স্থগিত ফলাফলের তালিকা লোড হচ্ছে...');
+  try{
+    var r=await call('getPublicResultRestrictions',token);
+    if(!r||!r.ok){resultRestrictionStatus((r&&r.message)||'অনুমতি পাওয়া যায়নি।');return;}
+    var a=r.items||[],html='<h3>ফলাফল নিয়ন্ত্রণের তালিকা</h3>';
+    if(!a.length)html+='<p>এখনও কোনো ফলাফল স্থগিত করা হয়নি।</p>';
+    else{
+      html+='<div style="overflow:auto"><table><thead><tr><th>ধরন</th><th>পরিচয়</th><th>অবস্থা</th><th>কারণ</th><th>বার্তা</th><th>সর্বশেষ</th></tr></thead><tbody>';
+      a.slice().reverse().forEach(function(x){html+='<tr><td>'+escExam(x.scope)+'</td><td>'+escExam(x.studentId||x.madrasaId||'')+' '+escExam(x.branch||'')+'</td><td>'+escExam(x.status)+'</td><td>'+escExam(x.reason||'—')+'</td><td>'+escExam(x.message||'—')+'</td><td>'+escExam(x.updatedAt||'')+'</td></tr>';});
+      html+='</tbody></table></div>';
+    }
+    $('rrList').innerHTML=html;resultRestrictionStatus(a.length+'টি নিয়ন্ত্রণ রেকর্ড পাওয়া গেছে।');
+  }catch(e){resultRestrictionStatus('সার্ভার ত্রুটি: '+(e&&e.message||e));}
+}
+async function saveResultRestriction(){
+  var data={scope:$('rrScope').value,studentId:$('rrStudent').value.trim(),madrasaId:$('rrMadrasa').value.trim(),branch:$('rrBranch').value.trim(),status:$('rrStatus').value,reason:$('rrReason').value.trim(),message:$('rrMessage').value.trim()};
+  var b=$('rrSaveBtn');if(b)b.disabled=true;resultRestrictionStatus('⏳ সংরক্ষণ হচ্ছে...');
+  try{
+    var r=await call('savePublicResultRestriction',token,data);
+    resultRestrictionStatus((r&&r.message)||'সংরক্ষণ সম্পন্ন হয়নি।');
+    if(r&&r.ok){$('rrReason').value='';loadResultRestrictions();}
+  }catch(e){resultRestrictionStatus('সার্ভার ত্রুটি: '+(e&&e.message||e));}
+  finally{if(b)b.disabled=false;}
+}
+
 function openExamDashboard(){renderExamDashboard();openWindow('examDashboardWin')}
 function openExamManager(){renderExamManager();openWindow('examManagerWin')}
 function renderExamDashboard(){const a=examDrafts();const pub=a.filter(x=>x.publish==='YES').length;const d=a.filter(x=>x.publish!=='YES').length;if($('examDashCount'))$('examDashCount').textContent=a.length;if($('examDashPublished'))$('examDashPublished').textContent=pub;if($('examDashDraft'))$('examDashDraft').textContent=d;const box=$('examDashboardList');if(!box)return;box.innerHTML='<h3>সাম্প্রতিক পরীক্ষা</h3>'+(a.length?a.slice().reverse().map(x=>'<div class="card" style="padding:9px;margin:6px 0"><b>'+escExam(x.name)+'</b> — '+escExam(x.type)+' — '+escExam(x.year)+' <span>('+escExam(x.start||'তারিখ নেই')+' → '+escExam(x.end||'')+')</span></div>').join(''):'<div class="exam-empty">এখনও কোনো পরীক্ষা তৈরি হয়নি। “পরীক্ষা তৈরি/ব্যবস্থাপনা” থেকে শুরু করুন।</div>')}
