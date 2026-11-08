@@ -17831,21 +17831,75 @@ const INSTITUTION_PEOPLE_2026 = [
  {id:'donor4',group:'দাতা সদস্য',name:'হাফেজ মিজানুর রহমান সিদ্দিকি'}
 ];
 function institutionHtmlEscape2026(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function institutionDynamicPersonRow2026(p){
+ const id=institutionHtmlEscape2026(p.id),name=institutionHtmlEscape2026(p.name||''),role=institutionHtmlEscape2026(p.group||''),contribution=institutionHtmlEscape2026(p.contribution||'');
+ return `<div class="inst-person-row inst-person-row-new" data-inst-person="${id}">
+  <img id="instPhoto-${id}" class="inst-person-photo" alt="ব্যক্তির ছবি" src="" onerror="this.style.visibility='hidden'">
+  <div class="inst-person-fields">
+   <label>নতুন সদস্যের নাম<input class="field inst-person-name" id="instName-${id}" value="${name}"></label>
+   <label>পদবি<input class="field" id="instRole-${id}" value="${role}"></label>
+   <label>অবদান / খেদমতের বিবরণ<textarea class="field" id="instContribution-${id}" rows="3">${contribution}</textarea></label>
+  </div>
+  <div class="inst-photo-controls"><label>সদস্যের ফটো<input class="field inst-photo-input" type="file" accept="image/*" id="instFile-${id}" onchange="previewInstitutionPhoto2026('${id}',this)"></label><div class="inst-photo-status" id="instStatus-${id}">ছবি নির্বাচন করা হয়নি</div></div>
+ </div>`;
+}
 function institutionProfileFormHtml2026(){
  const groups=[...new Set(INSTITUTION_PEOPLE_2026.map(p=>p.group))];
  return `<div class="institution-profile-2026">
   <div class="inst-history-card"><h3>🏫 প্রতিষ্ঠান পরিচিতি + মাদ্রাসার সংক্ষিপ্ত ইতিহাস</h3>
    <label>প্রতিষ্ঠানের ইতিহাস<textarea id="institutionHistory2026" class="field">${institutionHtmlEscape2026(INSTITUTION_HISTORY_DEFAULT_2026)}</textarea></label>
-   <p class="small">প্রত্যেক ব্যক্তির নামের বামে নিজস্ব ছবি নির্বাচন করুন; এরপর সংরক্ষণ বাটনে চাপুন।</p>
+   <p class="small">প্রত্যেক ব্যক্তির নামের বামে নিজস্ব ছবি নির্বাচন করুন; এরপর সংরক্ষণ বাটনে চাপুন। নতুন সদস্য যুক্ত করতে নিচের বাটন ব্যবহার করুন।</p>
   </div>
   ${groups.map(g=>`<section class="inst-group"><h4>${institutionHtmlEscape2026(g)}</h4><div>${INSTITUTION_PEOPLE_2026.filter(p=>p.group===g).map(p=>`<div class="inst-person-row" data-inst-person="${p.id}">
    <img id="instPhoto-${p.id}" class="inst-person-photo" alt="ব্যক্তির ছবি" src="" onerror="this.style.visibility='hidden'">
    <label>নাম / পরিচিতি<input class="field inst-person-name" id="instName-${p.id}" value="${institutionHtmlEscape2026(p.name)}"></label>
    <div class="inst-photo-controls"><label>নিজস্ব ছবি নির্বাচন<input class="field inst-photo-input" type="file" accept="image/*" id="instFile-${p.id}" onchange="previewInstitutionPhoto2026('${p.id}',this)"></label><div class="inst-photo-status" id="instStatus-${p.id}">ছবি নির্বাচন করা হয়নি</div></div>
   </div>`).join('')}</div></section>`).join('')}
-  <div class="inst-actions"><button class="primary" type="button" onclick="loadInstitutionProfile2026()">↻ সংরক্ষিত তথ্য/ছবি দেখুন</button><button class="primary" type="button" onclick="saveInstitutionProfile2026()">💾 সব তথ্য ও ছবি সংরক্ষণ করুন</button></div>
+  <section class="inst-group" id="instDynamicGroup2026"><h4>➕ নতুন সদস্যবৃন্দ</h4><div id="instDynamicPeople2026"></div></section>
+  <div class="inst-actions"><button class="secondary" type="button" onclick="toggleInstitutionNewMemberForm2026()">➕ নতুন সদস্য অ্যাড করুন</button><button class="primary" type="button" onclick="loadInstitutionProfile2026()">↻ সংরক্ষিত তথ্য/ছবি দেখুন</button><button class="primary" type="button" onclick="saveInstitutionProfile2026()">💾 সব তথ্য ও ছবি সংরক্ষণ করুন</button></div>
+  <div id="institutionNewMemberPanel2026" class="inst-history-card" style="display:none;margin-top:12px">
+   <h3>➕ নতুন সদস্য যুক্ত করুন</h3>
+   <div class="form-grid">
+    <label>সদস্যের নাম<input id="institutionNewMemberName2026" class="field" placeholder="পূর্ণ নাম লিখুন"></label>
+    <label>পদবি / পরিচয়<input id="institutionNewMemberRole2026" class="field" placeholder="যেমন: উপদেষ্টা, দাতা সদস্য, শিক্ষক"></label>
+    <label style="grid-column:1/-1">প্রতিষ্ঠানে তাঁর অবদান<textarea id="institutionNewMemberContribution2026" class="field" rows="4" placeholder="প্রতিষ্ঠানের জন্য তাঁর অবদান, খেদমত বা সহযোগিতার বিবরণ লিখুন"></textarea></label>
+    <div class="inst-photo-controls"><label>সদস্যের ফটো যুক্ত করুন<input id="institutionNewMemberFile2026" class="field" type="file" accept="image/*" onchange="previewInstitutionNewMemberPhoto2026(this)"></label><img id="institutionNewMemberPreview2026" class="inst-person-photo" alt="নতুন সদস্যের ফটো" style="display:none"><div id="institutionNewMemberPhotoStatus2026" class="inst-photo-status">ছবি নির্বাচন করা হয়নি</div></div>
+   </div>
+   <div class="inst-actions"><button class="primary" type="button" onclick="addInstitutionMember2026()">💾 সদস্য যুক্ত ও সংরক্ষণ করুন</button><button class="secondary" type="button" onclick="toggleInstitutionNewMemberForm2026(false)">বাতিল</button></div>
+  </section>
   <div id="institutionProfileMessage2026" class="small" role="status"></div>
  </div>`;
+}
+function toggleInstitutionNewMemberForm2026(force){
+ const panel=$('institutionNewMemberPanel2026');if(!panel)return;
+ const show=typeof force==='boolean'?force:panel.style.display==='none';
+ panel.style.display=show?'block':'none';
+ if(show&&$('institutionNewMemberName2026'))$('institutionNewMemberName2026').focus();
+}
+async function previewInstitutionNewMemberPhoto2026(input){
+ const file=input&&input.files&&input.files[0],img=$('institutionNewMemberPreview2026'),status=$('institutionNewMemberPhotoStatus2026');if(!file)return;
+ if(!/^image\\//i.test(file.type)){if(status)status.textContent='শুধু ছবি নির্বাচন করুন';input.value='';return;}
+ try{const data=await compressInstitutionPhoto2026(file);input.dataset.photoDataUrl=data;if(img){img.src=data;img.style.display='block';}if(status)status.textContent='ছবি প্রস্তুত — সদস্য সংরক্ষণ করুন';}
+ catch(e){if(status)status.textContent='ছবি প্রস্তুত করা যায়নি: '+(e.message||e);}
+}
+async function addInstitutionMember2026(){
+ const name=$('institutionNewMemberName2026'),role=$('institutionNewMemberRole2026'),contribution=$('institutionNewMemberContribution2026'),file=$('institutionNewMemberFile2026'),status=$('institutionNewMemberPhotoStatus2026'),msg=$('institutionProfileMessage2026');
+ if(!name||!name.value.trim()){if(msg)msg.textContent='নতুন সদস্যের নাম লিখুন।';return;}
+ if(!role||!role.value.trim()){if(msg)msg.textContent='সদস্যের পদবি লিখুন।';return;}
+ if(!contribution||!contribution.value.trim()){if(msg)msg.textContent='সদস্যের অবদান / খেদমতের বিবরণ লিখুন।';return;}
+ if(!file||!file.files||!file.files[0]){if(msg)msg.textContent='নতুন সদস্যের ফটো নির্বাচন করুন।';return;}
+ if(!file.dataset.photoDataUrl){await previewInstitutionNewMemberPhoto2026(file);if(!file.dataset.photoDataUrl){if(msg)msg.textContent='সদস্যের ফটো প্রস্তুত হয়নি।';return;}}
+ const id='member_'+Date.now();
+ const person={id:id,group:role.value.trim(),name:name.value.trim(),contribution:contribution.value.trim(),photoUrl:'',newPhotoDataUrl:file.dataset.photoDataUrl,newPhotoName:file.files[0].name};
+ INSTITUTION_PEOPLE_2026.push(person);
+ const host=$('instDynamicPeople2026');if(host)host.insertAdjacentHTML('beforeend',institutionDynamicPersonRow2026(person));
+ const row=document.querySelector('[data-inst-person="'+id+'"]'),photoInput=$('instFile-'+id),photo=$('instPhoto-'+id);
+ if(photoInput){photoInput.dataset.photoDataUrl=person.newPhotoDataUrl;photoInput.dataset.originalName=person.newPhotoName;}
+ if(photo){photo.src=person.newPhotoDataUrl;photo.style.visibility='visible';}
+ if(status)status.textContent='ছবি প্রস্তুত';
+ toggleInstitutionNewMemberForm2026(false);
+ if(name)name.value='';if(role)role.value='';if(contribution)contribution.value='';if(file){file.value='';delete file.dataset.photoDataUrl;}
+ await saveInstitutionProfile2026();
 }
 function compressInstitutionPhoto2026(file){
  return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onerror=()=>reject(new Error('ছবিটি পড়া যায়নি'));reader.onload=()=>{const img=new Image();img.onerror=()=>reject(new Error('ছবির ফরম্যাট পড়া যায়নি'));img.onload=()=>{const max=640,scale=Math.min(1,max/Math.max(img.width,img.height));const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0,canvas.width,canvas.height);resolve(canvas.toDataURL('image/jpeg',0.76));};img.src=reader.result;};reader.readAsDataURL(file);});
@@ -17859,7 +17913,15 @@ async function loadInstitutionProfile2026(){
  const msg=$('institutionProfileMessage2026');if(msg)msg.textContent='তথ্য লোড হচ্ছে…';
  try{const r=await call('getInstitutionProfile2026',token);if(!r||!r.ok)throw new Error(r&&r.message||'তথ্য লোড হয়নি');
   if($('institutionHistory2026')&&r.history)$('institutionHistory2026').value=r.history;
-  (r.people||[]).forEach(p=>{const n=$('instName-'+p.id),im=$('instPhoto-'+p.id),st=$('instStatus-'+p.id);if(n&&p.name)n.value=p.name;if(im&&p.photoUrl){im.src=p.photoUrl;im.dataset.savedUrl=p.photoUrl;im.style.visibility='visible';}if(st&&p.photoUrl)st.textContent='সংরক্ষিত ছবি';});
+  (r.people||[]).forEach(p=>{
+   let person=INSTITUTION_PEOPLE_2026.find(x=>x.id===p.id);
+   if(!person){person={id:p.id,group:p.group||'নতুন সদস্য',name:p.name||'',contribution:p.contribution||'',photoUrl:p.photoUrl||''};INSTITUTION_PEOPLE_2026.push(person);const host=$('instDynamicPeople2026');if(host)host.insertAdjacentHTML('beforeend',institutionDynamicPersonRow2026(person));}
+   person.name=p.name||person.name;person.group=p.group||person.group;person.contribution=p.contribution||person.contribution||'';person.photoUrl=p.photoUrl||person.photoUrl||'';
+   const n=$('instName-'+p.id),im=$('instPhoto-'+p.id),st=$('instStatus-'+p.id),c=$('instContribution-'+p.id);
+   if(n&&p.name)n.value=p.name;if(c)c.value=person.contribution;
+   if(im&&p.photoUrl){im.src=p.photoUrl;im.dataset.savedUrl=p.photoUrl;im.style.visibility='visible';}
+   if(st&&p.photoUrl)st.textContent='সংরক্ষিত ছবি';
+  });
   if(msg)msg.textContent='সংরক্ষিত তথ্য ও ছবি লোড হয়েছে।';
  }catch(e){if(msg)msg.textContent='লোড করা যায়নি: '+(e.message||e);}
 }
@@ -17867,8 +17929,9 @@ async function saveInstitutionProfile2026(){
  const msg=$('institutionProfileMessage2026');if(msg)msg.textContent='তথ্য ও ছবি সংরক্ষণ হচ্ছে…';
  try{const people=[];
   for(const p of INSTITUTION_PEOPLE_2026){const n=$('instName-'+p.id),input=$('instFile-'+p.id),status=$('instStatus-'+p.id),img=$('instPhoto-'+p.id);let photoUrl=img&&img.dataset.savedUrl?img.dataset.savedUrl:'';
-   if(input&&input.dataset.photoDataUrl){if(status)status.textContent='ছবি আপলোড হচ্ছে…';const r=await call('saveInstitutionPhoto2026',token,p.id,input.dataset.photoDataUrl,(input.files[0]&&input.files[0].name)||p.id+'.jpg','image/jpeg');if(!r||!r.ok)throw new Error((n&&n.value||p.name)+' ছবিটি সংরক্ষণ হয়নি: '+(r&&r.message||'অজানা ত্রুটি'));photoUrl=r.url||'';if(img){img.dataset.savedUrl=photoUrl;img.src=photoUrl;img.style.visibility='visible';}input.dataset.photoDataUrl='';if(status)status.textContent='ছবি সংরক্ষিত';}
-   people.push({id:p.id,group:p.group,name:n?n.value:p.name,photoUrl:photoUrl});
+   if(input&&input.dataset.photoDataUrl){if(status)status.textContent='ছবি আপলোড হচ্ছে…';const r=await call('saveInstitutionPhoto2026',token,p.id,input.dataset.photoDataUrl,(input.files[0]&&input.files[0].name)||input.dataset.originalName||p.id+'.jpg','image/jpeg');if(!r||!r.ok)throw new Error((n&&n.value||p.name)+' ছবিটি সংরক্ষণ হয়নি: '+(r&&r.message||'অজানা ত্রুটি'));photoUrl=r.url||'';if(img){img.dataset.savedUrl=photoUrl;img.src=photoUrl;img.style.visibility='visible';}input.dataset.photoDataUrl='';if(status)status.textContent='ছবি সংরক্ষিত';}
+   const role=$('instRole-'+p.id),contribution=$('instContribution-'+p.id);
+   people.push({id:p.id,group:role?role.value:(p.group||''),name:n?n.value:p.name,photoUrl:photoUrl,contribution:contribution?contribution.value:(p.contribution||'')});
   }
   const r=await call('saveInstitutionProfile2026',token,{history:$('institutionHistory2026')?$('institutionHistory2026').value:INSTITUTION_HISTORY_DEFAULT_2026,people:people});
   if(!r||!r.ok)throw new Error(r&&r.message||'তথ্য সংরক্ষণ হয়নি');if(msg)msg.textContent='প্রতিষ্ঠান পরিচিতি, সকল নাম ও ছবি সংরক্ষিত হয়েছে।';if(typeof toast==='function')toast('প্রতিষ্ঠান পরিচিতি সংরক্ষণ হয়েছে');await loadInstitutionDocumentary2026();
@@ -17920,7 +17983,7 @@ function institutionDocumentaryRender2026(){
  var selectedPhotoUrl=institutionPhotoDisplayUrl2026(p.photoUrl)||defaultPhotoUrl;
  var photo='<img class="institution-documentary-photo" src="'+institutionHtmlEscape2026(selectedPhotoUrl)+'" alt="'+name+'" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\'">';
  var fallback='<div class="institution-documentary-placeholder" style="display:none">✦</div>';
- stage.innerHTML='<article class="institution-documentary-slide"><div class="institution-documentary-photo-wrap">'+photo+fallback+'</div><div class="institution-documentary-person-info"><div class="institution-documentary-role">'+role+'</div><div class="institution-documentary-name">'+name+'</div>'+(years?'<div class="institution-documentary-years">খেদমতের সময়: '+years+'</div>':'')+'<div class="institution-documentary-quote">অত্র প্রতিষ্ঠানের দ্বীনি শিক্ষা ও মানবসেবার পথচলায় তাঁর অবদান শ্রদ্ধার সঙ্গে স্মরণ করা হয়।</div></div></article>';
+ stage.innerHTML='<article class="institution-documentary-slide"><div class="institution-documentary-photo-wrap">'+photo+fallback+'</div><div class="institution-documentary-person-info"><div class="institution-documentary-role">'+role+'</div><div class="institution-documentary-name">'+name+'</div>'+(years?'<div class="institution-documentary-years">খেদমতের সময়: '+years+'</div>':'')+'<div class="institution-documentary-quote">'+institutionHtmlEscape2026(p.contribution||'অত্র প্রতিষ্ঠানের দ্বীনি শিক্ষা ও মানবসেবার পথচলায় তাঁর অবদান শ্রদ্ধার সঙ্গে স্মরণ করা হয়।')+'</div></div></article>';
  if(counter)counter.textContent=(institutionDocumentaryIndex2026+1)+' / '+list.length;
 }
 async function loadInstitutionDocumentary2026(){
