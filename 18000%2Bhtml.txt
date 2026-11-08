@@ -13163,15 +13163,16 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     html+='<div class="jb-or-note">ফলাফল প্রকাশিত হলে এখানে প্রদর্শিত হবে।</div></div>';
     box.innerHTML=html;
   }
-  window.openOnlineResult2026=async function(){
-    var w=E('jbOnlineResultWin2026');
-    if(!w){
-      w=document.createElement('div');w.id='jbOnlineResultWin2026';w.className='window';
-      w.innerHTML='<div class="windowHead"><b>📱 অনলাইন রেজাল্ট</b><button type="button" onclick="closeOnlineResult2026()">✕</button></div><div class="windowBody"><div class="jb-or-search"><input id="jbOnlineResultQuery2026" class="field" placeholder="Student ID / মোবাইল নম্বর"><button class="primary" type="button" onclick="searchOnlineResult2026()">🔎 ফলাফল দেখুন</button></div><div id="jbOnlineResultBody2026" class="jb-or-body"><p>আইডি বা মোবাইল নম্বর দিয়ে ফলাফল খুঁজুন।</p></div></div>';
-      document.body.appendChild(w);
-    }
-    w.style.display='block';w.classList.add('show');
-    var q=E('jbOnlineResultQuery2026');if(q){q.focus();q.onkeydown=function(e){if(e.key==='Enter')searchOnlineResult2026()}}
+  window.openOnlineResult2026=function(){
+    var tab=window.open('about:blank','_blank');
+    if(!tab){toast('নতুন ট্যাব খুলতে ব্রাউজারের Pop-up অনুমতি দিন।');return}
+    tab.document.write('<!doctype html><html lang="bn"><meta charset="utf-8"><title>অনলাইন ফলাফল</title><body style="font:16px sans-serif;padding:30px;text-align:center">অনলাইন ফলাফল পেজ খোলা হচ্ছে…</body></html>');
+    try{
+      google.script.run.withSuccessHandler(function(r){
+        if(r&&r.ok&&r.url)tab.location.href=r.url+'?result=1';
+        else{tab.document.body.innerHTML='ফলাফল পেজের ঠিকানা পাওয়া যায়নি। এই ট্যাব বন্ধ করে আবার চেষ্টা করুন।';}
+      }).withFailureHandler(function(){tab.document.body.innerHTML='সার্ভারের সঙ্গে সংযোগ করা যায়নি। আবার চেষ্টা করুন।'}).getMainWebAppUrl();
+    }catch(e){tab.document.body.innerHTML='নতুন ফলাফল পেজ খোলা যায়নি।'}
   };
   window.closeOnlineResult2026=function(){var w=E('jbOnlineResultWin2026');if(w){w.classList.remove('show');w.style.display='none'}};
   window.searchOnlineResult2026=async function(){
