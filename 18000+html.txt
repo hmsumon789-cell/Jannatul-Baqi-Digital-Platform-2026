@@ -19260,7 +19260,7 @@ body.jb-custom-account #app .header-slides,body.jb-custom-account #app #headerSl
     }
   }
   window.openInstitutionProfile2026=openInstitutionProfile2026;
-  window.loadInstitutionProfile2026=window.loadInstitutionProfile2026||loadInstitutionProfile2026;
+  if(!window.loadInstitutionProfile2026&&typeof loadInstitutionProfile2026==='function')window.loadInstitutionProfile2026=loadInstitutionProfile2026;
   var previous=window.openModule;
   window.openModule=function(key){
     if(String(key||'').trim()==='institution')return openInstitutionProfile2026();
