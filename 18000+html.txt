@@ -19283,7 +19283,9 @@ body.jb-custom-account #app .header-slides,body.jb-custom-account #app #headerSl
     }
     try{
       if(typeof window.moduleForm!=='function')throw new Error('প্রতিষ্ঠান পরিচিতি ফর্ম লোড হয়নি।');
-      var html=window.moduleForm('institution');
+      var html=(typeof institutionProfileFormHtml2026==='function')
+        ? institutionProfileFormHtml2026()
+        : window.moduleForm('institution');
       if(!html)throw new Error('প্রতিষ্ঠান পরিচিতি ফর্ম খালি পাওয়া গেছে।');
       title.textContent='প্রতিষ্ঠান পরিচিতি';
       body.innerHTML=html;
