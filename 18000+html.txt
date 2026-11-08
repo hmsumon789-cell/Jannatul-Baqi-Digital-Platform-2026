@@ -18941,6 +18941,7 @@ body.jb-custom-account #app .header-slides,body.jb-custom-account #app #headerSl
   max-width:96vw!important;
   max-height:88vh!important;
   overflow:hidden!important;
+  touch-action:pan-y!important;
   left:50%;
   top:6vh;
   transform:translateX(-50%);
