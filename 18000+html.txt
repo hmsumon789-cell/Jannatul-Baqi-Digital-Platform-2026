@@ -18931,3 +18931,193 @@ body.jb-custom-account #app .header-slides,body.jb-custom-account #app #headerSl
   else autoStart();
 })();
 </script>
+
+<!-- ===== SUPER ADMIN RESULT CONTROL WINDOW: FULLSCREEN / MINIMIZE / SCROLL / MOVE 2026-11-08 ===== -->
+<style id="jb-result-restriction-window-controls-css-20261108">
+#resultRestrictionWin{
+  box-sizing:border-box!important;
+  width:min(1040px,96vw)!important;
+  height:min(88vh,820px)!important;
+  max-width:96vw!important;
+  max-height:88vh!important;
+  overflow:hidden!important;
+  left:50%;
+  top:6vh;
+  transform:translateX(-50%);
+  border-radius:14px!important;
+  z-index:1000200!important;
+}
+#resultRestrictionWin .windowHead{
+  min-height:48px;
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  position:relative!important;
+  top:auto!important;
+  flex-shrink:0!important;
+  cursor:move!important;
+  user-select:none!important;
+  touch-action:none!important;
+}
+#resultRestrictionWin .windowBody{
+  height:calc(min(88vh,820px) - 52px)!important;
+  max-height:calc(min(88vh,820px) - 52px)!important;
+  overflow:auto!important;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  touch-action:pan-y!important;
+}
+#resultRestrictionWin.jb-result-fullscreen-20261108{
+  position:fixed!important;
+  inset:0!important;
+  left:0!important;
+  top:0!important;
+  width:100vw!important;
+  height:100vh!important;
+  max-width:100vw!important;
+  max-height:100vh!important;
+  transform:none!important;
+  margin:0!important;
+  border-radius:0!important;
+  overflow:hidden!important;
+}
+#resultRestrictionWin.jb-result-fullscreen-20261108 .windowBody{
+  height:calc(100dvh - 54px)!important;
+  max-height:calc(100dvh - 54px)!important;
+  overflow:auto!important;
+}
+#resultRestrictionWin.jb-result-minimized-20261108{display:none!important}
+#jbResultRestrictionTaskbar20261108{
+  position:fixed!important;
+  left:10px!important;
+  right:10px!important;
+  bottom:8px!important;
+  display:flex!important;
+  justify-content:flex-start!important;
+  z-index:2147483000!important;
+  pointer-events:none!important;
+}
+#jbResultRestrictionTaskbar20261108 button{
+  pointer-events:auto!important;
+  max-width:min(340px,90vw);
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  padding:9px 14px!important;
+  border:2px solid var(--border,#333)!important;
+  border-radius:9px!important;
+  background:var(--panel,#fff)!important;
+  color:var(--text,#111)!important;
+  font-weight:900!important;
+  box-shadow:0 3px 14px #0004;
+}
+#resultRestrictionWin .jb-result-window-tools-20261108{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  margin-left:auto;
+  flex-shrink:0;
+}
+#resultRestrictionWin .jb-result-window-tools-20261108 button{
+  min-width:34px;
+  min-height:32px;
+  padding:3px 9px;
+  cursor:pointer;
+  font-weight:900;
+}
+@media(max-width:600px){
+  #resultRestrictionWin{width:98vw!important;height:92vh!important;max-height:92vh!important;top:3vh}
+  #resultRestrictionWin:not(.jb-result-fullscreen-20261108) .windowBody{height:calc(92vh - 52px)!important;max-height:calc(92vh - 52px)!important}
+  #resultRestrictionWin .windowHead{padding:7px!important}
+  #resultRestrictionWin .windowHead>b{font-size:13px;line-height:1.35}
+}
+</style>
+<script id="jb-result-restriction-window-controls-20261108">
+(function(){
+  'use strict';
+  var id='resultRestrictionWin', taskId='jbResultRestrictionTaskbar20261108';
+  function el(x){return document.getElementById(x)}
+  function init(){
+    var w=el(id);if(!w||w.dataset.jbResultWindowControls20261108==='1')return;
+    var head=w.querySelector('.windowHead'),body=w.querySelector('.windowBody');
+    if(!head||!body)return;
+    w.dataset.jbResultWindowControls20261108='1';
+    var close=head.querySelector('button');
+    var tools=document.createElement('span');
+    tools.className='jb-result-window-tools-20261108';
+    function addButton(label,title,fn){
+      var b=document.createElement('button');b.type='button';b.textContent=label;b.title=title;b.setAttribute('aria-label',title);
+      b.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();fn()});
+      tools.appendChild(b);return b;
+    }
+    function clearTask(){var t=el(taskId);if(t)t.remove()}
+    function restore(){
+      clearTask();w.classList.remove('jb-result-minimized-20261108');
+      w.style.display='block';w.classList.add('show');w.style.zIndex='1000200';
+    }
+    function fullscreen(){
+      w.classList.remove('jb-result-minimized-20261108');clearTask();
+      w.classList.add('jb-result-fullscreen-20261108');
+      w.style.display='block';w.classList.add('show');
+    }
+    function normalSize(){
+      w.classList.remove('jb-result-fullscreen-20261108');
+      w.style.width='min(1040px,96vw)';w.style.height='min(88vh,820px)';
+      w.style.left='50%';w.style.top='6vh';w.style.transform='translateX(-50%)';
+    }
+    function toggleSize(){
+      if(w.classList.contains('jb-result-fullscreen-20261108'))normalSize();
+      else fullscreen();
+    }
+    function minimize(){
+      w.classList.remove('jb-result-fullscreen-20261108');
+      w.classList.add('jb-result-minimized-20261108');
+      clearTask();
+      var bar=document.createElement('div');bar.id=taskId;
+      var b=document.createElement('button');b.type='button';b.textContent='▣ 🔐 ফলাফল নিয়ন্ত্রণ ফিরিয়ে আনুন';
+      b.title='সুপার অ্যাডমিন ফলাফল নিয়ন্ত্রণ উইন্ডো ফিরিয়ে আনুন';b.onclick=restore;
+      bar.appendChild(b);document.body.appendChild(bar);
+    }
+    addButton('—','মিনিমাইজ',minimize);
+    addButton('⛶','ফুলস্ক্রিন / স্বাভাবিক আকার',toggleSize);
+    if(close)head.insertBefore(tools,close);else head.appendChild(tools);
+    // Header drag works with mouse, pen and touch; dragging exits fullscreen.
+    var active=null;
+    head.addEventListener('pointerdown',function(e){
+      if(e.target.closest('button,input,select,textarea,a,.jb-result-window-tools-20261108'))return;
+      if(e.button!==undefined&&e.button!==0)return;
+      active={x:e.clientX,y:e.clientY,left:w.getBoundingClientRect().left,top:w.getBoundingClientRect().top};
+      try{head.setPointerCapture(e.pointerId)}catch(_){}
+      e.preventDefault();
+    });
+    head.addEventListener('pointermove',function(e){
+      if(!active)return;
+      if(w.classList.contains('jb-result-fullscreen-20261108')){
+        w.classList.remove('jb-result-fullscreen-20261108');
+        w.style.width='min(1040px,96vw)';w.style.height='min(88vh,820px)';
+      }
+      w.style.transform='none';
+      var maxX=Math.max(0,window.innerWidth-w.offsetWidth);
+      var maxY=Math.max(0,window.innerHeight-65);
+      var x=Math.max(0,Math.min(maxX,active.left+e.clientX-active.x));
+      var y=Math.max(0,Math.min(maxY,active.top+e.clientY-active.y));
+      w.style.left=x+'px';w.style.top=y+'px';
+    });
+    function stop(){active=null}
+    head.addEventListener('pointerup',stop);head.addEventListener('pointercancel',stop);
+    // Keep taskbar clean when the existing close button is used.
+    if(typeof window.closeWindow==='function'&&!window.closeWindow._jbResultWrapped20261108){
+      var oldClose=window.closeWindow;
+      var wrapped=function(which){if(which===id)clearTask();return oldClose.apply(this,arguments)};
+      wrapped._jbResultWrapped20261108=true;window.closeWindow=wrapped;
+    }
+    // Open in fullscreen by default; users can switch to a movable window.
+    var oldOpen=window.openResultRestrictionPanel;
+    if(typeof oldOpen==='function'&&!oldOpen._jbResultWrapped20261108){
+      var openWrapped=function(){var out=oldOpen.apply(this,arguments);if(w.classList.contains('show'))fullscreen();return out};
+      openWrapped._jbResultWrapped20261108=true;window.openResultRestrictionPanel=openWrapped;
+    }
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+})();
+</script>
