@@ -17867,6 +17867,8 @@ function institutionProfileFormHtml2026(){
   <div id="institutionProfileMessage2026" class="small" role="status"></div>
  </div>`;
 }
+// Expose the form renderer for the isolated Super Admin window opener.
+window.institutionProfileFormHtml2026=institutionProfileFormHtml2026;
 function compressInstitutionPhoto2026(file){
  return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onerror=()=>reject(new Error('ছবিটি পড়া যায়নি'));reader.onload=()=>{const img=new Image();img.onerror=()=>reject(new Error('ছবির ফরম্যাট পড়া যায়নি'));img.onload=()=>{const max=640,scale=Math.min(1,max/Math.max(img.width,img.height));const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0,canvas.width,canvas.height);resolve(canvas.toDataURL('image/jpeg',0.76));};img.src=reader.result;};reader.readAsDataURL(file);});
 }
@@ -19282,8 +19284,8 @@ body.jb-custom-account #app .header-slides,body.jb-custom-account #app #headerSl
       return;
     }
     try{
-      if(typeof institutionProfileFormHtml2026!=='function')throw new Error('প্রতিষ্ঠান পরিচিতি ফর্মের মূল ফাংশন পাওয়া যায়নি।');
-      var html=institutionProfileFormHtml2026();
+      if(typeof window.institutionProfileFormHtml2026!=='function')throw new Error('প্রতিষ্ঠান পরিচিতি ফর্মের মূল ফাংশন পাওয়া যায়নি।');
+      var html=window.institutionProfileFormHtml2026();
       if(!html)throw new Error('প্রতিষ্ঠান পরিচিতি ফর্ম খালি পাওয়া গেছে।');
       title.textContent='প্রতিষ্ঠান পরিচিতি';
       body.innerHTML=html;
