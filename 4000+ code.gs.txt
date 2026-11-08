@@ -4334,7 +4334,9 @@ function listAllDocuments2026(token,query){
 /* ===== Institution introduction, committee and per-person photos — 2026 ===== */
 function institutionProfileSheet2026_(){
   const ss=SpreadsheetApp.getActiveSpreadsheet();
-  return ensureSheet_(ss,'INSTITUTION_PROFILE_2026',['Key','Name','Role','PhotoUrl','UpdatedAt','Text']);
+  const sh=ensureSheet_(ss,'INSTITUTION_PROFILE_2026',['Key','Name','Role','PhotoUrl','UpdatedAt','Text','Contribution']);
+  if(!String(sh.getRange(1,7).getValue()||'').trim())sh.getRange(1,7).setValue('Contribution');
+  return sh;
 }
 function institutionPhotoFolder2026_(){
   const props=PropertiesService.getScriptProperties(),key='INSTITUTION_PROFILE_PHOTO_FOLDER_ID_2026',existing=props.getProperty(key);
@@ -4344,7 +4346,7 @@ function institutionPhotoFolder2026_(){
 function getInstitutionProfile2026(token){
   auth_(token);if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin প্রতিষ্ঠান পরিচিতি সম্পাদনা করতে পারবেন।'};
   const sh=institutionProfileSheet2026_(),rows=sh.getDataRange().getValues();let history='';const people=[];
-  for(let i=1;i<rows.length;i++){const row=rows[i],key=String(row[0]||'');if(key==='HISTORY')history=String(row[5]||'');else if(key)people.push({id:key,name:String(row[1]||''),group:String(row[2]||''),photoUrl:String(row[3]||'')});}
+  for(let i=1;i<rows.length;i++){const row=rows[i],key=String(row[0]||'');if(key==='HISTORY')history=String(row[5]||'');else if(key)people.push({id:key,name:String(row[1]||''),group:String(row[2]||''),photoUrl:String(row[3]||''),contribution:String(row[6]||'')});}
   return {ok:true,history:history,people:people};
 }
 
@@ -4356,7 +4358,7 @@ function getInstitutionDocumentary2026(token){
   for(let i=1;i<rows.length;i++){
     const row=rows[i],key=String(row[0]||'');
     if(key&&key!=='HISTORY'&&String(row[1]||'').trim()){
-      people.push({id:key,name:String(row[1]||''),group:String(row[2]||''),photoUrl:String(row[3]||'')});
+      people.push({id:key,name:String(row[1]||''),group:String(row[2]||''),photoUrl:String(row[3]||''),contribution:String(row[6]||'')});
     }
   }
   return {ok:true,people:people};
@@ -4376,10 +4378,10 @@ function saveInstitutionPhoto2026(token,personId,dataUrl,fileName,mimeType){
 function saveInstitutionProfile2026(token,payload){
   auth_(token);if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin প্রতিষ্ঠান পরিচিতি সংরক্ষণ করতে পারবেন।'};
   payload=payload||{};const history=String(payload.history||'').trim(),people=Array.isArray(payload.people)?payload.people:[];
-  const sh=institutionProfileSheet2026_(),now=now_(),rows=[['HISTORY','প্রতিষ্ঠানের সংক্ষিপ্ত ইতিহাস','পরিচিতি','',now,history]];
-  people.forEach(function(p){p=p||{};const id=String(p.id||'').replace(/[^a-zA-Z0-9_-]/g,'');if(!id)return;rows.push([id,String(p.name||'').trim(),String(p.group||''),String(p.photoUrl||''),now,'']);});
-  if(sh.getLastRow()>1)sh.getRange(2,1,sh.getLastRow()-1,sh.getLastColumn()).clearContent();
-  sh.getRange(2,1,rows.length,6).setValues(rows);
+  const sh=institutionProfileSheet2026_(),now=now_(),rows=[['HISTORY','প্রতিষ্ঠানের সংক্ষিপ্ত ইতিহাস','পরিচিতি','',now,history,'']];
+  people.forEach(function(p){p=p||{};const id=String(p.id||'').replace(/[^a-zA-Z0-9_-]/g,'');if(!id)return;rows.push([id,String(p.name||'').trim(),String(p.group||''),String(p.photoUrl||''),now,'',String(p.contribution||'').trim()]);});
+  if(sh.getLastRow()>1)sh.getRange(2,1,sh.getLastRow()-1,Math.max(7,sh.getLastColumn())).clearContent();
+  sh.getRange(2,1,rows.length,7).setValues(rows);
   log_(sessionUser_(token),'update','INSTITUTION_PROFILE_2026','প্রতিষ্ঠান পরিচিতি ও ব্যক্তিদের ছবি/তথ্য সংরক্ষণ');
   return {ok:true,message:'প্রতিষ্ঠান পরিচিতি সংরক্ষণ হয়েছে।'};
 }
