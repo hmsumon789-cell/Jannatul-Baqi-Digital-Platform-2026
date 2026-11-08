@@ -13332,8 +13332,22 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     return w;
   }
   function open(){
-    var w=ensure();w.style.display='block';w.classList.add('show');
-    setTimeout(function(){var x=document.getElementById('jbOnlineExamResultQuery2026');if(x)x.focus();},80);
+    /* The login-page button calls openOnlineExamResult2026; open the dedicated public result page in a new tab. */
+    var tab=window.open('about:blank','_blank');
+    if(!tab){if(typeof toast==='function')toast('নতুন ট্যাব খুলতে Pop-up অনুমতি দিন।');return;}
+    tab.document.open();
+    tab.document.write('<!doctype html><html lang="bn"><meta charset="utf-8"><title>অনলাইন ফলাফল</title><body style="font:16px sans-serif;padding:28px;text-align:center">অনলাইন ফলাফল পেজ খোলা হচ্ছে…</body></html>');
+    tab.document.close();
+    try{
+      google.script.run.withSuccessHandler(function(r){
+        if(r&&r.ok&&r.url){
+          var base=String(r.url).split('#')[0].split('?')[0];
+          tab.location.replace(base+'?result=1');
+        }else{tab.document.body.textContent='ফলাফল পেজের ঠিকানা পাওয়া যায়নি।';}
+      }).withFailureHandler(function(e){
+        tab.document.body.textContent='সার্ভারের সঙ্গে সংযোগ করা যায়নি: '+String(e&&e.message||'আবার চেষ্টা করুন।');
+      }).getMainWebAppUrl();
+    }catch(e){tab.document.body.textContent='নতুন ফলাফল পেজ খোলা যায়নি: '+String(e&&e.message||e);}
   }
   function escResult(r){return r;}
   function render(r){
