@@ -939,22 +939,29 @@ function logout(token) {
 }
 
 function getBootstrap(token) {
+  // Keep the first response small: permissions/modules and account branding
+  // are required to activate the dashboard; stats, media and notices load later.
   auth_(token);
-  // Dashboard bootstrap must never lose the Feature buttons because one
-  // optional dashboard component (stats/media/notices) failed.
-  const modules = getModulesForSession_(token);
-  let stats = {income:0,expense:0,cash:0,due:0,students:0,teachers:0,executives:0,femaleMadrasa:0,maleMadrasa:0,attendanceToday:{present:0,absent:0}};
-  let media = [];
-  let notices = [];
-  try { stats = getStats(token); } catch(e) {}
-  try { media = listMedia(token); } catch(e) {}
-  try { notices = listRows_(SHEETS.NOTICES,token,20); } catch(e) {}
   return {
-    ok:true, institution:getInstitutionForSession_(token),
-    stats, media, notices,
-    modules,
-    classes:getClasses_()
+    ok:true,
+    institution:getInstitutionForSession_(token),
+    modules:getModulesForSession_(token),
+    classes:getClasses_(),
+    stats:{income:0,expense:0,cash:0,due:0,students:0,teachers:0,executives:0,femaleMadrasa:0,maleMadrasa:0,attendanceToday:{present:0,absent:0}},
+    media:[],
+    notices:[]
   };
+}
+
+function getDashboardExtras(token) {
+  auth_(token);
+  let stats={income:0,expense:0,cash:0,due:0,students:0,teachers:0,executives:0,femaleMadrasa:0,maleMadrasa:0,attendanceToday:{present:0,absent:0}};
+  let media=[];
+  let notices=[];
+  try{stats=getStats(token);}catch(e){}
+  try{media=listMedia(token);}catch(e){}
+  try{notices=listRows_(SHEETS.NOTICES,token,20);}catch(e){}
+  return {ok:true,stats:stats,media:media,notices:notices};
 }
 
 function getStats(token) {
