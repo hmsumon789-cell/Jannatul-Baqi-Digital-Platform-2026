@@ -13413,7 +13413,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     var lp=document.getElementById('loginPage');
     if(lp){
       Array.prototype.forEach.call(lp.querySelectorAll('button'),function(b){
-        if(!/অনলাইন ফলাফল/.test(String(b.textContent||''))||b.id==='jbExamOnlineResult2026')return;
+        if(!/অনলাইন ফলাফল/.test(String(b.textContent||''))||b.id==='jbExamOnlineResult2026'||b.id==='jbLoginOnlineResult20261028')return;
         if(b.dataset.jbPublicResultBound==='1')return;
         b.dataset.jbPublicResultBound='1';b.type='button';
         b.addEventListener('click',function(ev){ev.preventDefault();open();});
@@ -13589,7 +13589,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       if(r.parentNode)r.parentNode.replaceChild(fresh,r);
       r=fresh;
       r.addEventListener('click',function(ev){
-        if(ev)ev.preventDefault();
+        if(ev){ev.preventDefault();ev.stopImmediatePropagation();ev.stopPropagation();}
         var w=window.open('about:blank','_blank');
         if(!w){alert('নতুন ফলাফল পেজ খোলা যাচ্ছে না। Browser popup অনুমতি দিন।');return;}
         ['jbOnlineExamResultWin2026','jbOnlineResultWin2026'].forEach(function(id){
