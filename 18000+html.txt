@@ -13535,7 +13535,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   align-items:stretch!important;
 }
 #loginPage .login .jb-login-service-payment-row-2026 > *{
-  width:100%!important;min-width:0!important;height:48px!important;min-height:48px!important;
+  width:100%!important;min-width:0!important;height:68px!important;min-height:68px!important;
   margin:0!important;padding:7px 5px!important;box-sizing:border-box!important;
   display:flex!important;align-items:center!important;justify-content:center!important;
   text-align:center!important;line-height:1.15!important;font-size:clamp(10px,1.15vw,14px)!important;
@@ -13552,7 +13552,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 }
 @media(max-width:700px){
   #loginPage .login .jb-login-service-payment-row-2026 > *{
-    height:48px!important;min-height:48px!important;padding:6px 3px!important;
+    height:68px!important;min-height:68px!important;padding:6px 3px!important;
     font-size:10px!important;line-height:1.1!important;
   }
 }
@@ -19364,11 +19364,51 @@ function setupBoardPage(){
  stats();
 }
 function openPortal(){
+var boardUrl=new URL(location.href);boardUrl.searchParams.set('board','1');
+var boardQR='https://quickchart.io/qr?size=220&margin=2&text='+encodeURIComponent(boardUrl.toString());
 var page=`<!doctype html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>কেরাণীগঞ্জ আঞ্চলিক শিক্ষাবোর্ড</title><link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Hind+Siliguri:wght@400;600;700;800&display=swap" rel="stylesheet"><style>
 *{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#eef5e9,#fff8e6);color:#183b2b;font-family:"Hind Siliguri",sans-serif}.wrap{max-width:1450px;margin:auto;padding:14px}.frame{border:4px double #c49a36;border-radius:20px;padding:9px;background:#fffdf4;box-shadow:0 8px 28px #153c241a}.head{display:grid;grid-template-columns:85px 1fr 85px;gap:12px;align-items:center;text-align:center;padding:13px;background:linear-gradient(110deg,#f6ebc9,#fffdf3,#e5f1e5);border:2px solid #176044;border-radius:14px}.logo{width:76px;height:76px;border-radius:50%;border:3px double #c49a36;background:#fff8df;display:grid;place-items:center;color:#176044;font-size:38px;margin:auto}.ar{font-family:Amiri,serif;direction:rtl;color:#785510;font-size:clamp(18px,2.5vw,29px)}.en{font-size:clamp(10px,1.4vw,15px);font-weight:800;color:#315b3c}.bn{font-size:clamp(19px,2.7vw,31px);font-weight:800;color:#075338}.sub{font-weight:700;color:#8a6415}.meta{font-size:13px}.hot{font-weight:800;color:#a04b15}.ticker{margin:10px 0;padding:9px;border:2px solid #c49a36;border-radius:10px;background:#fff1c7;display:flex;gap:10px}.ticker b{background:#075b3d;color:white;padding:3px 9px;border-radius:6px;white-space:nowrap}.layout{display:grid;grid-template-columns:180px minmax(0,1fr) 215px;gap:12px}.side{background:#fffdf5;border:2px solid #d2b768;border-radius:13px;padding:10px}.side h3{text-align:center;color:#075b3d;margin:3px 0 10px}.nav{width:100%;padding:10px 8px;margin:5px 0;border:1px solid #c5a85b;border-radius:9px;background:linear-gradient(120deg,#fff,#f5edcf);color:#214832;font-weight:700;text-align:left}.nav.active,.nav:hover{background:#075b3d;color:white}.nav.right{text-align:center}.hero{background:linear-gradient(125deg,#075b3d,#10452f 70%,#8b6a21);color:white;text-align:center;padding:23px 12px;border:3px double #d4b354;border-radius:14px}.hero h1{margin:0 0 7px;font-size:clamp(21px,3vw,33px)}.hero p{margin:4px}.panel{display:none;margin-top:12px;padding:16px;border:2px solid #d2b768;border-radius:13px;background:#fffef9}.panel.show{display:block}.panel h2{text-align:center;color:#075b3d;margin:0 0 12px}.members{display:flex;gap:8px;margin-top:12px;padding:0 0 8px;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain}.bp-member{flex:0 0 min(31%,260px);scroll-snap-align:start}.bp-member{border:1px solid #d7c17d;border-radius:10px;background:#fff8e3;padding:10px;text-align:center;min-width:0}.bp-avatar{width:58px;height:58px;border:2px solid #c49a36;border-radius:50%;margin:auto auto 5px;display:grid;place-items:center;font-size:28px;background:#fff}.bp-avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover}.bp-member b,.bp-member small{display:block}.bp-member small{color:#755718}.bp-member p{font-size:12px;margin:5px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}.stat{border:2px solid #c49a36;border-radius:10px;background:#edf5e9;text-align:center;padding:11px 5px}.stat strong{display:block;color:#075b3d;font-size:24px}.stat span{font-weight:700;font-size:13px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.field{display:flex;flex-direction:column;gap:4px}.field.full{grid-column:1/-1}.field label{font-weight:700}.field input,.field textarea,.field select{width:100%;padding:10px;border:1px solid #c5a85b;border-radius:8px;font:inherit}.field textarea{min-height:72px}.actions{text-align:center;margin-top:12px}.act{padding:10px 17px;border:1px solid #bd952f;border-radius:9px;background:linear-gradient(120deg,#075b3d,#146a49);color:white;font-weight:800}.note,.bp-note{background:#fff5d9;border-left:4px solid #c49a36;padding:9px;margin-top:10px;font-size:13px}.tablebox{overflow:auto}table{width:100%;border-collapse:collapse;min-width:480px}td,th{border:1px solid #d4c38d;padding:7px;text-align:left;font-size:13px}th{background:#e7f0e3}.footer{text-align:center;margin-top:12px;padding:13px;background:#f5ebcc;border:2px double #c49a36;border-radius:11px}.toast{display:none;position:fixed;bottom:15px;left:50%;transform:translateX(-50%);background:#103f2c;color:white;padding:12px 18px;border-radius:9px;z-index:5;max-width:90vw}
 @media(max-width:900px){.layout{grid-template-columns:150px minmax(0,1fr)}.rightside{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,1fr)}.rightside h3{grid-column:1/-1}.nav.right{margin:3px 0}.stats{grid-template-columns:repeat(2,1fr)}}@media(max-width:620px){.wrap{padding:6px}.head{grid-template-columns:48px 1fr;padding:8px 4px;gap:5px}.head .rightlogo{display:none}.logo{width:45px;height:45px;font-size:24px}.ar{font-size:15px}.bn{font-size:17px}.en{font-size:9px}.meta{font-size:10px}.layout{grid-template-columns:1fr}.leftside{display:grid;grid-template-columns:repeat(2,1fr)}.leftside h3{grid-column:1/-1}.leftside .nav{margin:3px 0;font-size:13px}.bp-member{flex:0 0 86%;display:grid;grid-template-columns:54px 1fr;align-items:center;text-align:left}.bp-avatar{grid-row:span 3;width:48px;height:48px}.bp-member p{grid-column:2}.grid{grid-template-columns:1fr}.field.full{grid-column:auto}.hero{padding:17px 7px}}
-</style></head><body><div class="wrap"><header class="frame"><div class="head"><div class="logo">۞</div><div><div class="ar">اتفاق المدارس القومية كراني غنج داكا بنغلاديش</div><div class="en">ITTEFAQUL MADARISIL QAWMIA KERANIGANJ DHAKA</div><div class="bn">ইত্তেফাকুল মাদারিসিল ক্বাওমিয়্যাহ কেরাণীগঞ্জ ঢাকা</div><div class="sub">(কেরাণীগঞ্জ কওমি মাদ্রাসা আঞ্চলিক শিক্ষাবোর্ড)</div><div class="meta">অস্থায়ী কার্যালয়: রসুলপুর জামিয়‘আ ইলামিয়া, আব্দুল্লাহপুর, কেরাণীগঞ্জ ঢাকা</div><div class="hot">হটলাইন: 01823316630 - 01726358370</div></div><div class="logo rightlogo">۞</div></div></header>
+
+.board-qr-wrap{width:76px;height:76px;margin:auto;padding:4px;display:flex;align-items:center;justify-content:center;background:#fff;border:3px double #c49a36;border-radius:12px;box-shadow:0 2px 8px #173b2518}
+.board-qr-wrap img{display:block;width:100%;height:100%;object-fit:contain}
+.board-display-controls{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:center;margin:0 0 12px;padding:8px 10px;border:2px solid #d2b768;border-radius:12px;background:#fffdf5}
+.board-control-left{justify-self:start}.board-control-right{justify-self:end}
+.board-display-controls label{display:flex;align-items:center;gap:7px;font-weight:800;color:#075b3d}
+.board-display-controls select{min-width:150px;max-width:220px;width:clamp(150px,24vw,220px);height:40px;padding:6px 12px;border:2px solid #c5a85b;border-radius:999px;background:#fff;color:#214832;font:inherit;font-weight:800}
+body.bp-mode-dark{background:#171313!important;color:#ffe78a!important}
+body.bp-mode-dark .frame,body.bp-mode-dark .side,body.bp-mode-dark .panel,body.bp-mode-dark .board-display-controls{background:#211818!important;color:#ffe78a!important;border-color:#c62828!important}
+body.bp-mode-dark .head{background:linear-gradient(110deg,#211818,#302020,#211818)!important;border-color:#c62828!important}
+body.bp-mode-dark .ar,body.bp-mode-dark .en,body.bp-mode-dark .bn,body.bp-mode-dark .sub,body.bp-mode-dark .meta,body.bp-mode-dark .hot,body.bp-mode-dark .side h3,body.bp-mode-dark .panel h2,body.bp-mode-dark .board-display-controls label{color:#ffe78a!important}
+body.bp-mode-dark .board-display-controls select{background:#000!important;color:#fff!important;border-color:#c62828!important}
+body.bp-mode-gold{background:#d5a52b!important;color:#111!important}
+body.bp-mode-gold .frame,body.bp-mode-gold .side,body.bp-mode-gold .panel,body.bp-mode-gold .board-display-controls{background:#efc64e!important;color:#111!important;border-color:#111!important}
+body.bp-mode-gold .head{background:linear-gradient(110deg,#d5a52b,#f4d56b,#d5a52b)!important;border-color:#111!important}
+body.bp-mode-gold .ar,body.bp-mode-gold .en,body.bp-mode-gold .bn,body.bp-mode-gold .sub,body.bp-mode-gold .meta,body.bp-mode-gold .hot,body.bp-mode-gold .side h3,body.bp-mode-gold .panel h2,body.bp-mode-gold .board-display-controls label{color:#111!important}
+body.bp-mode-offwhite{background:#f8f5ec!important;color:#292b35!important}
+body.bp-mode-offwhite .frame,body.bp-mode-offwhite .side,body.bp-mode-offwhite .panel,body.bp-mode-offwhite .board-display-controls{background:#fffdf7!important;color:#292b35!important;border-color:#d58b6a!important}
+body.bp-mode-offwhite .head{background:linear-gradient(110deg,#fff4e8,#fffdf7,#e9f3ed)!important;border-color:#d58b6a!important}
+body.bp-mode-offwhite .ar,body.bp-mode-offwhite .en,body.bp-mode-offwhite .bn,body.bp-mode-offwhite .sub,body.bp-mode-offwhite .meta,body.bp-mode-offwhite .hot,body.bp-mode-offwhite .side h3,body.bp-mode-offwhite .panel h2,body.bp-mode-offwhite .board-display-controls label{color:#292b35!important}
+@media(max-width:620px){
+ .head{grid-template-columns:48px minmax(0,1fr) 48px!important}
+ .board-qr-wrap{width:46px;height:46px;padding:2px;border-width:2px}
+ .board-display-controls{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:5px;padding:7px 5px}
+ .board-display-controls label{display:flex;flex-direction:column;align-items:stretch;gap:3px;font-size:12px}
+ .board-display-controls select{width:100%;min-width:0;max-width:none;height:38px;padding:5px 6px;font-size:12px}
+}</style></head><body><div class="wrap"><header class="frame"><div class="head"><div class="logo">۞</div><div><div class="ar">اتفاق المدارس القومية كراني غنج داكا بنغلاديش</div><div class="en">ITTEFAQUL MADARISIL QAWMIA KERANIGANJ DHAKA</div><div class="bn">ইত্তেফাকুল মাদারিসিল ক্বাওমিয়্যাহ কেরাণীগঞ্জ ঢাকা</div><div class="sub">(কেরাণীগঞ্জ কওমি মাদ্রাসা আঞ্চলিক শিক্ষাবোর্ড)</div><div class="meta">অস্থায়ী কার্যালয়: রসুলপুর জামিয়‘আ ইলামিয়া, আব্দুল্লাহপুর, কেরাণীগঞ্জ ঢাকা</div><div class="hot">হটলাইন: 01823316630 - 01726358370</div></div><div class="board-qr-wrap"><img id="bpBoardQR" src="${boardQR}" alt="আঞ্চলিক শিক্ষাবোর্ড পোর্টালের QR কোড"></div></div></header>
 <div class="ticker"><b>সর্বশেষ সংবাদ</b><marquee id="bpNews">কেরাণীগঞ্জ আঞ্চলিক শিক্ষাবোর্ডের ডিজিটাল পোর্টালে আপনাকে স্বাগতম</marquee></div>
+<div class="board-display-controls" aria-label="ভাষা ও রং নির্বাচন">
+ <label class="board-control-left">🎨 মোড
+  <select id="bpMode" aria-label="মোড নির্বাচন">
+   <option value="light">☀️ লাইট মোড</option><option value="dark">🌙 ডার্ক মোড</option><option value="gold">🌟 গোল্ডেন মোড</option><option value="offwhite">🤍 অফ হোয়াইট মোড</option>
+  </select>
+ </label>
+ <label class="board-control-right">🌐 ভাষা
+  <select id="bpLanguage" aria-label="ভাষা নির্বাচন">
+   <option value="bn">বাংলা</option><option value="ar">العربية</option><option value="en">English</option><option value="ur">اردو</option>
+  </select>
+ </label>
+</div>
 <div class="layout"><aside class="side leftside"><h3>প্রধান মেনু</h3><button class="nav active" data-bp="bpHome">⌂ হোম</button><button class="nav" data-bp="bpExam">পরীক্ষা প্যানেল</button><button class="nav" data-bp="bpResults">অনলাইন ফলাফল দেখুন</button><button class="nav" data-bp="bpDocs">ডকুমেন্টস</button><button class="nav" data-bp="bpContact">যোগাযোগ + দ্রুত সেবা</button></aside>
 <main><section class="panel show" id="bpHome"><div class="hero"><h1>আঞ্চলিক শিক্ষাবোর্ডের ডিজিটাল পোর্টাল</h1><p>মাদ্রাসা নিবন্ধন • পরীক্ষার্থী নিবন্ধন • পরীক্ষা • ফলাফল</p><p>اتحاد المدارس القومية — العلم والعمل والإخلاص</p></div><div class="panel" style="display:block"><h2>বোর্ড পরিচালনা পরিষদ • উপদেষ্টা • প্রতিষ্ঠাতা</h2><div class="members" id="bpMembers"><p class="bp-note">বোর্ডের সদস্যদের তথ্য লোড হচ্ছে…</p></div></div><div class="stats"><div class="stat"><strong id="bpMadrasaCount">০</strong><span>নিবন্ধিত মাদ্রাসা</span></div><div class="stat"><strong id="bpExamineeCount">০</strong><span>মোট পরীক্ষার্থী</span></div><div class="stat"><strong id="bpPassRate">০%</strong><span>পাসের হার</span></div><div class="stat"><strong id="bpFinance">৳০ / ৳০</strong><span>বোর্ডের আয় / ব্যয়</span></div></div></section>
 <section class="panel" id="bpMadrasaReg"><h2>নতুন মাদ্রাসা নিবন্ধন করুন</h2><form id="bpMadrasaForm"><div class="grid"><div class="field full"><label>মাদ্রাসার নাম *</label><input name="name" required></div><div class="field"><label>বোর্ড/ইলহাক নম্বর</label><input name="boardRegNo"></div><div class="field"><label>মুহতামিম/প্রধানের নাম *</label><input name="principal" required></div><div class="field full"><label>ঠিকানা *</label><textarea name="address" required></textarea></div><div class="field"><label>মোবাইল *</label><input name="mobile" required></div><div class="field"><label>ইমেইল</label><input name="email" type="email"></div></div><div class="actions"><button class="act">নিবন্ধনের আবেদন জমা দিন</button></div></form></section>
@@ -19380,6 +19420,16 @@ var page=`<!doctype html><html lang="bn"><head><meta charset="utf-8"><meta name=
 <section class="panel" id="bpDocs"><h2>ডকুমেন্টস</h2><p class="note">বোর্ডের বিজ্ঞপ্তি, নিবন্ধন নির্দেশিকা, পরীক্ষার রুটিন ও প্রয়োজনীয় ডকুমেন্ট এখানে প্রকাশ করা হবে।</p></section><section class="panel" id="bpContact"><h2>যোগাযোগ + দ্রুত সেবা</h2><p>অস্থায়ী কার্যালয়: রসুলপুর জামিয়‘আ ইলামিয়া, আব্দুল্লাহপুর, কেরাণীগঞ্জ ঢাকা</p><p>হটলাইন: 01823316630 - 01726358370</p></section></main>
 <aside class="side rightside"><h3>নিবন্ধন ও সেবা</h3><button class="nav right" data-bp="bpMadrasaReg">＋ নতুন মাদ্রাসা নিবন্ধন করুন</button><button class="nav right" data-bp="bpExamineeReg">＋ নতুন পরীক্ষার্থী নিবন্ধন করুন</button><button class="nav right" data-bp="bpMadrasaList">▤ নিবন্ধনকৃত মাদ্রাসার তালিকা দেখুন</button><button class="nav right" data-bp="bpExamineeList">▤ নিবন্ধনকৃত পরীক্ষার্থী তালিকা দেখুন</button><button class="nav right" data-bp="bpPayment">৳ অনলাইন পেমেন্ট করুন</button></aside></div><div class="footer">© ইত্তেফাকুল মাদারিসিল ক্বাওমিয়্যাহ কেরাণীগঞ্জ ঢাকা • আঞ্চলিক শিক্ষাবোর্ড</div></div><div id="boardToast" class="toast"></div></body></html>`;
 document.open();document.write(page);document.close();setupBoardPage();
+var bpMode=document.getElementById('bpMode'),bpLanguage=document.getElementById('bpLanguage');
+if(bpMode)bpMode.addEventListener('change',function(){
+ document.body.classList.remove('bp-mode-dark','bp-mode-gold','bp-mode-offwhite');
+ if(this.value!=='light')document.body.classList.add('bp-mode-'+this.value);
+});
+if(bpLanguage)bpLanguage.addEventListener('change',function(){
+ var lang=this.value;document.documentElement.lang=lang;
+ document.documentElement.dir=(lang==='ar'||lang==='ur')?'rtl':'ltr';
+ document.body.dataset.selectedLanguage=lang;
+});
 }
 function addButton(){
 var lp=document.getElementById('loginPage');
@@ -19391,11 +19441,11 @@ b.type='button';
 b.className='primary';
 b.textContent='🏛️ কেরাণীগঞ্জ আঞ্চলিক শিক্ষাবোর্ড';
 b.title='কেরাণীগঞ্জ আঞ্চলিক শিক্ষাবোর্ডের ডিজিটাল পোর্টাল';
-b.style.cssText='display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;height:48px!important;min-height:48px!important;margin:0!important;padding:7px 5px!important;border:3px double #b68b22!important;border-radius:999px!important;background:linear-gradient(135deg,#0a6846,#d6b34a)!important;color:#fff!important;font-weight:900!important;font-size:clamp(10px,1.15vw,14px)!important;line-height:1.15!important;cursor:pointer!important;white-space:normal!important;overflow-wrap:anywhere!important;';
+b.style.cssText='display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;height:68px!important;min-height:68px!important;margin:0!important;padding:7px 5px!important;border:3px double #b68b22!important;border-radius:999px!important;background:linear-gradient(135deg,#0a6846,#d6b34a)!important;color:#fff!important;font-weight:900!important;font-size:clamp(10px,1.15vw,14px)!important;line-height:1.15!important;cursor:pointer!important;white-space:normal!important;overflow-wrap:anywhere!important;';
 b.onclick=function(){openPortal();};
 row.appendChild(b);
 }
-function scan(){addButton()}
+function scan(){if(new URLSearchParams(location.search).get('board')==='1'){openPortal();return;}addButton()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
 if(document.body)new MutationObserver(function(){if(new URLSearchParams(location.search).get('board')!=='1')addButton()}).observe(document.body,{childList:true,subtree:true});
 })();
