@@ -939,22 +939,28 @@ function logout(token) {
 }
 
 function getBootstrap(token) {
+  // Keep the OTP-to-dashboard path lean: only identity, permissions and
+  // the small class list are required before the feature buttons can work.
   auth_(token);
-  // Dashboard bootstrap must never lose the Feature buttons because one
-  // optional dashboard component (stats/media/notices) failed.
   const modules = getModulesForSession_(token);
-  let stats = {income:0,expense:0,cash:0,due:0,students:0,teachers:0,executives:0,femaleMadrasa:0,maleMadrasa:0,attendanceToday:{present:0,absent:0}};
-  let media = [];
-  let notices = [];
-  try { stats = getStats(token); } catch(e) {}
-  try { media = listMedia(token); } catch(e) {}
-  try { notices = listRows_(SHEETS.NOTICES,token,20); } catch(e) {}
   return {
-    ok:true, institution:getInstitutionForSession_(token),
-    stats, media, notices,
+    ok:true,
+    institution:getInstitutionForSession_(token),
     modules,
     classes:getClasses_()
   };
+}
+
+// Optional dashboard data is loaded only after the dashboard buttons render.
+function getDashboardExtras2026(token) {
+  auth_(token);
+  let stats = {income:0,expense:0,cash:0,due:0,students:0,teachers:0,executives:0,femaleMadrasa:0,maleMadrasa:0,attendanceToday:{present:0,absent:0}};
+  let media = [];
+  let notices = [];
+  try { stats = getStats(token); } catch(e) { console.warn('Dashboard stats:',e); }
+  try { media = listMedia(token); } catch(e) { console.warn('Dashboard media:',e); }
+  try { notices = listRows_(SHEETS.NOTICES,token,20); } catch(e) { console.warn('Dashboard notices:',e); }
+  return {ok:true,stats,media,notices};
 }
 
 function getStats(token) {
