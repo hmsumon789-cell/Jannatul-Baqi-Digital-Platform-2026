@@ -1188,7 +1188,7 @@ function getBoardPortalData(){
     var exams=boardPortalRows_20261109('BOARD_EXAMINEES');
     var pays=boardPortalRows_20261109('BOARD_PAYMENTS');
     var expenses=boardPortalRows_20261109('BOARD_EXPENSES');
-    var passed=exams.filter(function(x){return /^(PASS|PASSED|উত্তীর্ণ)$/i.test(String(x.Status||x.Result||'').trim())}).length;
+    var passed=exams.filter(function(x){return /^(PASS|PASSED|উত্তীর্ণ)$/i.test(String(x.Result||x.Status||'').trim())}).length;
     var paid=pays.filter(function(x){return /^(PAID|SUCCESS|সফল)$/i.test(String(x.Status||''))});
     var income=paid.reduce(function(a,x){return a+(Number(x.Amount)||0)},0);
     var expense=expenses.reduce(function(a,x){return a+(Number(x.Amount)||0)},0);
