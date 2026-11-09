@@ -724,15 +724,21 @@ function saveMedia(token,item) {
 }
 function listMedia(token) {
   auth_(token);
+  // Sharing is already enabled when media is uploaded. Never rewrite Drive
+  // permissions during dashboard startup; cache resource keys between sessions.
+  const cache=CacheService.getScriptCache();
   return listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status||'').toUpperCase()==='ACTIVE').map(function(x){
     if(String(x.DataURL||'').indexOf('DRIVE:')===0){
       const id=String(x.DataURL).slice(6);
-      let rk='';
-      try{
-        const f=DriveApp.getFileById(id);
-        try{f.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
-        try{rk=String(f.getResourceKey()||'');}catch(e){}
-      }catch(e){}
+      const cacheKey='MEDIA_RK:'+id;
+      let rk=cache.get(cacheKey)||'';
+      if(!rk){
+        try{
+          const f=DriveApp.getFileById(id);
+          rk=String(f.getResourceKey()||'');
+          if(rk)cache.put(cacheKey,rk,21600);
+        }catch(e){}
+      }
       x.DriveFileId=id;
       x.FileID=id;
       x.ResourceKey=rk;
