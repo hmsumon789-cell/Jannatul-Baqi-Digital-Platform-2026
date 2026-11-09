@@ -17823,6 +17823,10 @@ body.offwhite .media-stage {
   window.openModule=wrappedOpenModule;
 })();
 
+</script>
+
+<!-- Institution profile module isolated from payment header script -->
+<script id="jb-institution-profile-module-20261109">
 const INSTITUTION_HISTORY_DEFAULT_2026 = 'প্রতিষ্ঠানটি সালাতুল এস্তেখারার মাধ্যমে মহান আল্লাহ তায়ালার উপর পূর্ণ আস্থা রেখে খালেছ নিয়তে মানব জাতিকে অন্ধকার থেকে আলোর পথে আনার জন্য এবং সহি দ্বিনি ইলম শিক্ষা দেয়ার উদ্দেশ্যে 10-10-2005 ইংরেজী সনে প্রতিষ্ঠিত হয়।';
 const INSTITUTION_PEOPLE_2026 = [
  {id:'founder1',group:'প্রতিষ্ঠাতা সদস্য',name:'হাফেজ মাওলানা মু. আতিকুর রহমান (ফরিদপুরী)'},
@@ -18001,7 +18005,7 @@ function institutionDocumentaryToggle2026(){
  var b=document.getElementById('institutionDocumentaryPause2026');
  if(b)b.textContent=institutionDocumentaryPaused2026?'▶ চালু করুন':'⏸ বিরতি';
 }
-
+window.institutionProfileFormHtml2026=institutionProfileFormHtml2026;
 </script>
 
 
