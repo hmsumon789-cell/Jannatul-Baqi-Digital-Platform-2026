@@ -4442,3 +4442,107 @@ function saveInstitutionProfile2026(token,payload){
   log_(sessionUser_(token),'update','INSTITUTION_PROFILE_2026','প্রতিষ্ঠান পরিচিতি ও ব্যক্তিদের ছবি/তথ্য সংরক্ষণ');
   return {ok:true,message:'প্রতিষ্ঠান পরিচিতি সংরক্ষণ হয়েছে।'};
 }
+
+
+/* ===== KERANIGANJ REGIONAL BOARD PORTAL DATA — 2026-11-09 ===== */
+const BOARD_PORTAL_HEADERS_20261109 = {
+  BOARD_MADRASAS:['Serial','MadrasaID','Name','BoardRegNo','Principal','Address','Mobile','Email','Status','CreatedAt'],
+  BOARD_EXAMINEES:['Serial','ExamRegID','Name','Father','Madrasa','ClassName','Exam','Mobile','Status','Result','CreatedAt'],
+  BOARD_PAYMENTS:['Serial','PaymentID','Name','Type','Amount','Method','Reference','Status','CreatedAt'],
+  BOARD_EXPENSES:['Serial','ExpenseID','Category','Amount','Note','CreatedAt'],
+  BOARD_MEMBERS:['Serial','MemberID','Group','Name','Role','Photo','Contribution','Sort','Status','CreatedAt'],
+  BOARD_NEWS:['Serial','NewsID','Title','Body','Status','CreatedAt']
+};
+function ensureBoardPortalSheets_20261109(){
+  var ss=SpreadsheetApp.getActiveSpreadsheet();
+  Object.keys(BOARD_PORTAL_HEADERS_20261109).forEach(function(n){ensureSheet_(ss,n,BOARD_PORTAL_HEADERS_20261109[n])});
+  return ss;
+}
+function boardPortalRows_20261109(name){
+  var sh=ensureBoardPortalSheets_20261109().getSheetByName(name);
+  if(!sh||sh.getLastRow()<2)return [];
+  var values=sh.getDataRange().getValues(),headers=values[0].map(String);
+  return values.slice(1).map(function(row){var o={};headers.forEach(function(h,i){o[h]=row[i] instanceof Date?Utilities.formatDate(row[i],APP.timezone,'yyyy-MM-dd HH:mm:ss'):row[i]});return o});
+}
+function boardPortalText_20261109(v,max){
+  return String(v==null?'':v).trim().replace(/[<>]/g,'').slice(0,max||250);
+}
+function boardPortalNextId_20261109(prefix,sh){
+  return prefix+'-'+String(Math.max(1,sh.getLastRow())).padStart(5,'0');
+}
+function getBoardPortalData(){
+  try{
+    ensureBoardPortalSheets_20261109();
+    var mad=boardPortalRows_20261109('BOARD_MADRASAS');
+    var exams=boardPortalRows_20261109('BOARD_EXAMINEES');
+    var pays=boardPortalRows_20261109('BOARD_PAYMENTS');
+    var expenses=boardPortalRows_20261109('BOARD_EXPENSES');
+    var passed=exams.filter(function(x){return /^(PASS|PASSED|উত্তীর্ণ)$/i.test(String(x.Result||x.Status||'').trim())}).length;
+    var paid=pays.filter(function(x){return /^(PAID|SUCCESS|সফল)$/i.test(String(x.Status||''))});
+    var income=paid.reduce(function(a,x){return a+(Number(x.Amount)||0)},0);
+    var expense=expenses.reduce(function(a,x){return a+(Number(x.Amount)||0)},0);
+    var members=boardPortalRows_20261109('BOARD_MEMBERS').filter(function(x){return String(x.Status||'ACTIVE').toUpperCase()!=='HIDDEN'}).sort(function(a,b){return (Number(a.Sort)||999)-(Number(b.Sort)||999)}).map(function(x){return {group:x.Group||'বোর্ড',name:x.Name||'',role:x.Role||'',photo:x.Photo||'',contribution:x.Contribution||''}});
+    var news=boardPortalRows_20261109('BOARD_NEWS').filter(function(x){return String(x.Status||'ACTIVE').toUpperCase()==='ACTIVE'}).slice(-10).reverse().map(function(x){return {title:x.Title||''}});
+    return {ok:true,stats:{madrasas:mad.length,examinees:exams.length,passRate:exams.length?Math.round(passed*100/exams.length):0,income:income,expense:expense},members:members,news:news};
+  }catch(e){return {ok:false,message:String(e&&e.message||e)}}
+}
+function registerBoardMadrasa(data){
+  try{
+    data=data||{};
+    var name=boardPortalText_20261109(data.name,180),principal=boardPortalText_20261109(data.principal,120),address=boardPortalText_20261109(data.address,500),mobile=boardPortalText_20261109(data.mobile,30);
+    if(!name||!principal||!address||!mobile)return {ok:false,message:'মাদ্রাসার নাম, মুহতামিম, ঠিকানা ও মোবাইল আবশ্যক।'};
+    var ss=ensureBoardPortalSheets_20261109(),sh=ss.getSheetByName('BOARD_MADRASAS'),id=boardPortalNextId_20261109('KB-MR',sh);
+    var lock=LockService.getScriptLock();lock.waitLock(10000);
+    try{sh.appendRow([sh.getLastRow(),id,name,boardPortalText_20261109(data.boardRegNo,80),principal,address,mobile,boardPortalText_20261109(data.email,120),'PENDING',now_()]);}
+    finally{lock.releaseLock()}
+    return {ok:true,id:id,message:'মাদ্রাসা নিবন্ধনের আবেদন জমা হয়েছে। বোর্ড যাচাইয়ের অপেক্ষায় আছে।'};
+  }catch(e){return {ok:false,message:String(e&&e.message||e)}}
+}
+function registerBoardExaminee(data){
+  try{
+    data=data||{};
+    var name=boardPortalText_20261109(data.name,150),madrasa=boardPortalText_20261109(data.madrasa,180),cls=boardPortalText_20261109(data.className,80),exam=boardPortalText_20261109(data.exam,100);
+    if(!name||!madrasa||!cls||!exam)return {ok:false,message:'নাম, মাদ্রাসা, শ্রেণি ও পরীক্ষার নাম আবশ্যক।'};
+    var ss=ensureBoardPortalSheets_20261109(),sh=ss.getSheetByName('BOARD_EXAMINEES'),id=boardPortalNextId_20261109('KB-EX',sh);
+    var lock=LockService.getScriptLock();lock.waitLock(10000);
+    try{sh.appendRow([sh.getLastRow(),id,name,boardPortalText_20261109(data.father,150),madrasa,cls,exam,boardPortalText_20261109(data.mobile,30),'PENDING','',now_()]);}
+    finally{lock.releaseLock()}
+    return {ok:true,id:id,message:'পরীক্ষার্থী নিবন্ধনের আবেদন জমা হয়েছে।'};
+  }catch(e){return {ok:false,message:String(e&&e.message||e)}}
+}
+function submitBoardPayment(data){
+  try{
+    data=data||{};
+    var name=boardPortalText_20261109(data.name,150),type=boardPortalText_20261109(data.type,100),amount=Number(data.amount)||0,method=boardPortalText_20261109(data.method,40);
+    if(!name||!type||amount<=0||!method)return {ok:false,message:'নাম, ফি-এর ধরন, সঠিক পরিমাণ ও পেমেন্ট মাধ্যম দিন।'};
+    var ss=ensureBoardPortalSheets_20261109(),sh=ss.getSheetByName('BOARD_PAYMENTS'),id=boardPortalNextId_20261109('KB-PAY',sh);
+    var lock=LockService.getScriptLock();lock.waitLock(10000);
+    try{sh.appendRow([sh.getLastRow(),id,name,type,amount,method,boardPortalText_20261109(data.reference,100),'PENDING',now_()]);}
+    finally{lock.releaseLock()}
+    return {ok:true,id:id,message:'পেমেন্ট তথ্য জমা হয়েছে; বোর্ড কর্তৃক যাচাইয়ের পর পরিশোধ নিশ্চিত হবে।'};
+  }catch(e){return {ok:false,message:String(e&&e.message||e)}}
+}
+function getBoardPublicLists(type){
+  try{
+    var rows,items;
+    if(String(type)==='madrasa'){
+      rows=boardPortalRows_20261109('BOARD_MADRASAS');
+      items=rows.map(function(x){return {id:x.MadrasaID,name:x.Name,address:x.Address,status:x.Status==='APPROVED'?'অনুমোদিত':'যাচাইাধীন'}})
+    }else if(String(type)==='examinee'){
+      rows=boardPortalRows_20261109('BOARD_EXAMINEES');
+      items=rows.map(function(x){return {id:x.ExamRegID,name:x.Name,madrasa:x.Madrasa,className:x.ClassName,exam:x.Exam}})
+    }else return {ok:false,message:'তালিকার ধরন সঠিক নয়।'};
+    return {ok:true,rows:items.slice(-500).reverse()};
+  }catch(e){return {ok:false,message:String(e&&e.message||e)}}
+}
+function getBoardPublicResult(id){
+  try{
+    id=boardPortalText_20261109(id,60);
+    if(!id)return {ok:false,message:'পরীক্ষার্থী নিবন্ধন আইডি দিন।'};
+    var rows=boardPortalRows_20261109('BOARD_EXAMINEES'),r=rows.find(function(x){return String(x.ExamRegID||'').toLowerCase()===id.toLowerCase()});
+    if(!r)return {ok:false,message:'এই আইডিতে কোনো পরীক্ষার্থী পাওয়া যায়নি।'};
+    if(!r.Result)return {ok:false,message:'এই পরীক্ষার্থীর ফলাফল এখনো বোর্ড কর্তৃক প্রকাশিত হয়নি।'};
+    return {ok:true,name:r.Name,madrasa:r.Madrasa,exam:r.Exam,result:r.Result};
+  }catch(e){return {ok:false,message:String(e&&e.message||e)}}
+}
+/* ===== END KERANIGANJ REGIONAL BOARD PORTAL DATA ===== */
