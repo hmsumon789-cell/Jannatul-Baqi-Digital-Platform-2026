@@ -13585,6 +13585,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
         if(ev)ev.preventDefault();
         var w=window.open('about:blank','_blank');
         if(!w){alert('নতুন ফলাফল পেজ খোলা যাচ্ছে না। Browser popup অনুমতি দিন।');return;}
+        ['jbOnlineExamResultWin2026','jbOnlineResultWin2026'].forEach(function(id){var oldWin=document.getElementById(id);if(oldWin){oldWin.classList.remove('show');oldWin.style.display='none';}});
         try{
           w.document.open();
           w.document.write('<!doctype html><html lang="bn"><meta charset="utf-8"><body style="font-family:Arial,sans-serif;padding:24px;text-align:center;color:#075b46"><h2>অনলাইন ফলাফল পেজ খোলা হচ্ছে...</h2><p>অনুগ্রহ করে অপেক্ষা করুন।</p></body></html>');
