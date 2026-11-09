@@ -19482,7 +19482,7 @@ b.className='primary';
 b.textContent='🏛️ কেরাণীগঞ্জ আঞ্চলিক শিক্ষাবোর্ড';
 b.title='কেরাণীগঞ্জ আঞ্চলিক শিক্ষাবোর্ডের ডিজিটাল পোর্টাল';
 b.style.cssText='display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;height:68px!important;min-height:68px!important;margin:0!important;padding:7px 5px!important;border:3px double #b68b22!important;border-radius:999px!important;background:linear-gradient(135deg,#0a6846,#d6b34a)!important;color:#fff!important;font-weight:900!important;font-size:clamp(10px,1.15vw,14px)!important;line-height:1.15!important;cursor:pointer!important;white-space:normal!important;overflow-wrap:anywhere!important;';
-b.onclick=function(){openPortal();};
+b.onclick=function(){var boardUrl=new URL(location.href);boardUrl.searchParams.set('board','1');var boardWindow=window.open(boardUrl.toString(),'_blank');if(!boardWindow){alert('নতুন ট্যাবে আঞ্চলিক শিক্ষাবোর্ড খোলা যাচ্ছে না। Browser popup অনুমতি দিন।');}};
 row.appendChild(b);
 }
 function scan(){if(new URLSearchParams(location.search).get('board')==='1'){openPortal();return;}addButton()}
