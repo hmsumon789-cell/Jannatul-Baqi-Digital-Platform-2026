@@ -19380,6 +19380,7 @@ function setupBoardPage(){
  stats();
 }
 function openPortal(){
+window.__jbBoardMode2026=true;
 var boardUrl=new URL(location.href);boardUrl.searchParams.set('board','1');
 var boardQR='https://quickchart.io/qr?size=220&margin=2&text='+encodeURIComponent(boardUrl.toString());
 var page=`<!doctype html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>কেরাণীগঞ্জ আঞ্চলিক শিক্ষাবোর্ড</title><link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Hind+Siliguri:wght@400;600;700;800&display=swap" rel="stylesheet"><style>
@@ -19485,9 +19486,9 @@ b.style.cssText='display:flex!important;align-items:center!important;justify-con
 b.onclick=function(){var boardWindow=window.open('about:blank','_blank');if(!boardWindow){alert('নতুন ট্যাব খোলা যাচ্ছে না।');return;}boardWindow.document.open();boardWindow.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>কেরাণীগঞ্জ আঞ্চলিক শিক্ষাবোর্ড</title></head><body style="font-family:sans-serif;text-align:center;padding:40px">আঞ্চলিক শিক্ষাবোর্ড লোড হচ্ছে…</body></html>');boardWindow.document.close();call('getMainWebAppUrl').then(function(r){if(!r||!r.ok||!r.url)throw Error(r&&r.message||'মূল Web App URL পাওয়া যায়নি');var target=new URL(String(r.url).trim());target.searchParams.set('board','1');boardWindow.location.replace(target.toString());}).catch(function(e){try{boardWindow.document.body.innerHTML='<div style="font-family:sans-serif;text-align:center;padding:40px;color:#b00020">আঞ্চলিক শিক্ষাবোর্ড খোলা যায়নি: '+String(e&&e.message||e)+'</div>';}catch(x){};});};
 row.appendChild(b);
 }
-function scan(){if(new URLSearchParams(location.search).get('board')==='1'){openPortal();return;}addButton()}
+function scan(){try{if(google&&google.script&&google.script.url&&google.script.url.getLocation){google.script.url.getLocation(function(loc){if(loc&&loc.parameter&&String(loc.parameter.board)==='1'){openPortal();return;}addButton();});return;}}catch(e){}if(new URLSearchParams(location.search).get('board')==='1'){openPortal();return;}addButton()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
-if(document.body)new MutationObserver(function(){if(new URLSearchParams(location.search).get('board')!=='1')addButton()}).observe(document.body,{childList:true,subtree:true});
+if(document.body)new MutationObserver(function(){if(!window.__jbBoardMode2026)addButton()}).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
 <!-- END KERANIGANJ REGIONAL BOARD PORTAL -->
