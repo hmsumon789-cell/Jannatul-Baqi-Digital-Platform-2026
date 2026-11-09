@@ -13482,7 +13482,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     if(!lp||document.getElementById('jbLoginOnlinePayment2026'))return;
     var b=document.createElement('button');
     b.id='jbLoginOnlinePayment2026';b.type='button';
-    b.textContent='💳 অনলাইন পেমেন্ট করুন ঝামেলাহিন';
+    b.textContent='💳 অনলাইন পেমেন্ট করুন';
     b.onclick=function(){
       var w=window.open('about:blank','_blank');
       if(!w){alert('নতুন পেমেন্ট উইন্ডো খোলা যাচ্ছে না। Browser popup অনুমতি দিন।');return;}
@@ -13571,7 +13571,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       r.id='jbLoginOnlineResult20261028';
       r.type='button';
       r.className='primary';
-      r.textContent='📱 অনলাইন ফলাফল';
+      r.textContent='📱 অনলাইন ফলাফল দেখুন';
       r.title='প্রকাশিত পরীক্ষার ফলাফল দেখুন';
       r.style.cssText='display:block!important;width:100%!important;min-height:54px;padding:11px 8px;border:3px solid #8b5e00;border-radius:999px;background:linear-gradient(135deg,#8b5e00,#d4af37);color:#111;font-weight:900;font-size:16px;cursor:pointer;box-shadow:0 7px 18px #0003;';
       r.addEventListener('click',function(ev){
@@ -13741,7 +13741,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   function addLoginButton(){
     var lp=document.getElementById('loginPage');if(!lp||document.getElementById('jbLoginOnlineService2026'))return;
     var b=document.createElement('button');b.id='jbLoginOnlineService2026';b.type='button';
-    b.textContent='🌐 অনলাইন সেবা সবখানে সব সময়';
+    b.textContent='🌐 অনলাইন সেবা সব সময়';
     b.className='primary jb-login-online-service-2026';
     b.onclick=function(){var w=window.open('about:blank','_blank');if(!w){alert('নতুন সেবা উইন্ডো খোলা যাচ্ছে না। Browser popup অনুমতি দিন।');return;}try{if(typeof google!=='undefined'&&google.script&&google.script.run){google.script.run.withSuccessHandler(function(r){var u=String(r&&r.ok&&r.url?r.url:location.href).split('#')[0].split('?')[0];w.location.href=u+'?online=1';}).withFailureHandler(function(){w.location.href=location.href.split('#')[0].split('?')[0]+'?online=1';}).getMainWebAppUrl();}else{w.location.href=location.href.split('#')[0].split('?')[0]+'?online=1';}}catch(e){w.location.href=location.href.split('#')[0].split('?')[0]+'?online=1';}};
     var q=lp.querySelector('.quick');
