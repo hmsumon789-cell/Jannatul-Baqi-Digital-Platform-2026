@@ -1919,6 +1919,47 @@ function registerAdmin(data) {
   return {ok:true,adminId:id,message:'নতুন অ্যাডমিন নিবন্ধন জমা হয়েছে। Super Admin অনুমোদনের পর Username + Password দিয়ে লগইন করতে পারবেন।'};
 }
 
+
+/**
+ * Public login-page examinee registration.
+ * Records submissions as PENDING for Super Admin review; no login token is required.
+ */
+function registerPublicExaminee(data) {
+  setupSystem();
+  data=data||{};
+  const studentId=String(data.StudentID||'').trim();
+  const name=String(data.Name||'').trim();
+  const exam=String(data.Exam||'').trim();
+  if(!studentId||!name||!exam)
+    return {ok:false,message:'Student ID, পরীক্ষার্থীর নাম ও পরীক্ষার নাম আবশ্যক।'};
+  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  const sh=ensureSheet_(ss,SHEETS.EXAM_REG,HEADERS.EXAM_REG);
+  ensureTenantSheetColumn_(sh);
+  const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(function(x){return String(x||'').trim();});
+  const values=sh.getDataRange().getValues();
+  const studentCol=headers.indexOf('StudentID'), examCol=headers.indexOf('Exam'), idCol=headers.indexOf('ExamRegID');
+  for(let i=1;i<values.length;i++){
+    if(String(values[i][studentCol]||'').trim()===studentId &&
+       String(values[i][examCol]||'').trim().toLowerCase()===exam.toLowerCase()){
+      return {ok:false,duplicate:true,examRegId:String(values[i][idCol]||''),message:'এই Student ID দিয়ে এই পরীক্ষায় ইতিমধ্যে নিবন্ধন জমা হয়েছে।'};
+    }
+  }
+  const serial=nextSerial_(sh), examRegId='EX-'+String(serial).padStart(4,'0');
+  const formData={
+    Name:name,SubjectData:String(data.SubjectData||''),
+    Division:String(data.Division||''),District:String(data.District||''),
+    Upazila:String(data.Upazila||''),Union:String(data.Union||''),
+    Post:String(data.Post||''),Ward:String(data.Ward||''),Village:String(data.Village||''),
+    Source:'PUBLIC_LOGIN_PAGE'
+  };
+  const rowData={Serial:serial,ExamRegID:examRegId,StudentID:studentId,Exam:exam,
+    Class:'',Branch:'',Status:'PENDING',FormData:JSON.stringify(formData),
+    CreatedAt:now_(),TenantAccount:''};
+  sh.appendRow(headers.map(function(k){return rowData[k]===undefined?'':rowData[k];}));
+  log_('PUBLIC','register','EXAM_CANDIDATE',examRegId);
+  return {ok:true,examRegId:examRegId,message:'পরীক্ষার্থী নিবন্ধন জমা হয়েছে। Super Admin যাচাই/অনুমোদনের পর কার্যকর হবে।'};
+}
+
 function createAdmin(token,data) {
   auth_(token); requireFeature_(token,'admin'); data=data||{};
   if(!data.NameBN || !data.Username || !data.Password || !data.Mobile || !data.Photo || !data.Address)
