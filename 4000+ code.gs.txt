@@ -1729,6 +1729,40 @@ function checkUniqueHandwrittenFormId_(formId, excludeSheet, excludeSerial, iden
 }
 /* ===== END UNIQUE HANDWRITTEN FORM ID ===== */
 
+
+function registerPublicExaminee(data){
+  setupSystem();
+  data=data||{};
+  const studentId=String(data.StudentID||'').trim();
+  const name=String(data.Name||data.NameBN||'').trim();
+  const exam=String(data.Exam||'').trim();
+  const cls=String(data.Class||'').trim();
+  if(!studentId||!name||!exam||!cls)
+    return {ok:false,message:'Student ID, নাম, শ্রেণি/জামাত ও পরীক্ষা আবশ্যক।'};
+  if(studentId.length>80||name.length>150||exam.length>120||cls.length>100)
+    return {ok:false,message:'প্রদত্ত তথ্যের দৈর্ঘ্য সীমা অতিক্রম করেছে।'};
+  const sh=ensureSheet_(SpreadsheetApp.getActiveSpreadsheet(),'EXAM_REG',HEADERS.EXAM_REG);
+  const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(function(x){return String(x||'').trim();});
+  const values=sh.getLastRow()>1?sh.getRange(2,1,sh.getLastRow()-1,headers.length).getValues():[];
+  const ixStudent=headers.indexOf('StudentID'),ixExam=headers.indexOf('Exam'),ixClass=headers.indexOf('Class');
+  if(values.some(function(row){return String(row[ixStudent]||'').trim()===studentId&&String(row[ixExam]||'').trim()===exam&&String(row[ixClass]||'').trim()===cls;}))
+    return {ok:false,message:'এই Student ID দিয়ে একই শ্রেণি ও পরীক্ষার নিবন্ধন আগে থেকেই রয়েছে।'};
+  const serial=nextSerial_(sh),id='ER-'+String(serial).padStart(5,'0');
+  const formData={
+    Name:name,NameBN:name,NameAR:String(data.NameAR||''),NameEN:String(data.NameEN||''),
+    SubjectData:String(data.SubjectData||'[]'),Division:String(data.Division||''),
+    District:String(data.District||''),Upazila:String(data.Upazila||''),
+    Union:String(data.Union||''),Post:String(data.Post||''),Ward:String(data.Ward||''),
+    Village:String(data.Village||''),Mobile:String(data.Mobile||''),
+    MadrasaID:String(data.MadrasaID||''),Source:'PUBLIC_LOGIN'
+  };
+  const record={Serial:serial,ExamRegID:id,StudentID:studentId,Exam:exam,Class:cls,
+    Branch:String(data.Branch||''),Status:'PENDING',FormData:JSON.stringify(formData),CreatedAt:now_()};
+  sh.appendRow(headers.map(function(k){return record[k]!==undefined?record[k]:'';}));
+  log_('PUBLIC','register','EXAM_REG',id);
+  return {ok:true,examRegId:id,message:'পরীক্ষার্থী নিবন্ধন জমা হয়েছে।'};
+}
+
 function saveRecord(token,sheetName,data) {
   auth_(token);
   const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
@@ -1887,8 +1921,8 @@ function registerAdmin(data) {
   const mobile=String(data.Mobile||'').trim();
   const address=String(data.Address||'').trim();
   const photo=String(data.Photo||'');
-  if(!name||!username||!password||!mobile||!photo||!address)
-    return {ok:false,message:'নাম, ইউজার নেম, পাসওয়ার্ড, মোবাইল, ছবি ও ঠিকানা বাধ্যতামূলক।'};
+  if(!name||!username||!password||!mobile||!address)
+    return {ok:false,message:'নাম, ইউজার নেম, পাসওয়ার্ড, মোবাইল ও ঠিকানা বাধ্যতামূলক।'};
   if(findBy_(SHEETS.ADMINS,'Username',username)||findBy_(SHEETS.MADRASAS,'Username',username))
     return {ok:false,message:'এই ইউজার নেম আগে থেকেই আছে।'};
   ensureAccountReviewColumns_();
