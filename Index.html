@@ -1292,7 +1292,7 @@ function copyMadrasaId(){
   if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(id).then(()=>toast('MR ID কপি হয়েছে।')).catch(()=>toast('MR ID কপি করা যায়নি।'));
   else{const x=$('mMrId');x.select();document.execCommand('copy');toast('MR ID কপি হয়েছে।');}
 }
-async function saveAdmin(){const photo=await fileData('aPhoto'),headerPhoto=await fileData('aHeaderPhoto'),wallpaper=await fileData('aWallpaper');const d={NameBN:$('aName').value,NameAR:$('aAr').value,NameEN:$('aEn').value,Username:$('aUser').value,Password:$('aPass').value,Email:$('aEmail').value,Mobile:$('aMobile').value,WhatsApp:$('aWa').value,ApprovalID:$('aApproval').value,Address:$('aAddress').value,Photo:photo,HeaderPhoto:headerPhoto,Wallpaper:wallpaper,HeaderTextColor:$('aHeaderTextColor').value,BirthReg:$('aBirth').value,NID:$('aNid').value};const r=await call('createAdmin',token,d);toast(r.message||('Admin ID: '+r.adminId))}
+async function saveAdmin(){const photo=await fileData('aPhoto'),headerPhoto=await fileData('aHeaderPhoto'),wallpaper=await fileData('aWallpaper');const d={NameBN:$('aName').value,NameAR:$('aAr').value,NameEN:$('aEn').value,Username:$('aUser').value,Password:$('aPass').value,Email:$('aEmail').value,Mobile:$('aMobile').value,WhatsApp:$('aWa').value,ApprovalID:$('aApproval').value,Address:$('aAddress').value,Photo:photo,HeaderPhoto:headerPhoto,Wallpaper:wallpaper,HeaderTextColor:$('aHeaderTextColor').value,BirthReg:$('aBirth').value,NID:$('aNid').value};try{const r=await call('registerAdmin',d);if(r&&r.ok)toast((r.message||'নতুন অ্যাডমিন নিবন্ধন জমা হয়েছে।')+(r.adminId?' Admin ID: '+r.adminId:''));else toast((r&&r.message)||'অ্যাডমিন নিবন্ধন ব্যর্থ হয়েছে।');}catch(e){toast(e&&e.message?e.message:'সার্ভারে সংযোগ করা যায়নি।');}}
 async function savePayment(){const d={StudentID:$('pStudent').value,Name:$('pName').value,Month:$('pMonth').value,Category:$('pCat').value,Amount:Number($('pAmount').value),Method:$('pMethod').value,Date:new Date().toISOString(),Note:$('pNote').value};const r=await call('saveRecord',token,'PAYMENTS',d);toast(r.ok?'Payment saved':'Failed');}
 async function saveResult(k){const d={StudentID:$('rStudent').value,Name:$('rName').value,Class:$('rClass').value,Exam:$('rExam').value,SubjectData:$('rSubjects').value,Published:'NO',Date:new Date().toISOString()};const r=await call('saveRecord',token,'RESULTS',d);toast(r.ok?'Saved':'Failed')}
 async function uploadMedia(){
@@ -1365,6 +1365,9 @@ function clearFormWindow(showToast){
 }
 function saveCurrentForm(){
   var t=$('winTitle').textContent||'';
+  if(t==='পরীক্ষার্থী নিবন্ধন'||t==='exam')return saveResult('exam');
+  if(t==='নতুন মাদ্রাসা নিবন্ধন'||t==='madrasa')return saveMadrasaRegistration();
+  if(t==='নতুন অ্যাডমিন নিবন্ধন'||t==='admin')return saveAdmin();
   var m=modules.find(function(x){return x[1]===t});
   if(m && typeof saveModule==='function' && ['student','teacher','donor'].includes(m[0])) return saveModule(m[0]);
   if(m && m[0]==='admin' && typeof saveAdmin==='function') return saveAdmin();
@@ -2497,13 +2500,13 @@ body.gold #formWin select.field,body.gold #formWin input.field{border-radius:7px
     return html;
   };
   window.openModule=function(key){
-    var labels=Object.fromEntries((modules||[]).map(function(x){return[x[0],x[1]]}));$('winTitle').textContent=labels[key]||key;
+    var labels=Object.fromEntries((modules||[]).map(function(x){return[x[0],x[1]]}));var publicLabels={exam:'পরীক্ষার্থী নিবন্ধন',admin:'নতুন অ্যাডমিন নিবন্ধন',madrasa:'নতুন মাদ্রাসা নিবন্ধন'};$('winTitle').textContent=labels[key]||publicLabels[key]||key;
     var sig=key==='admission'?'<div class="form-signatures"><div class="signature-box"><div>আবেদনকারীর স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>অভিভাবকের স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>প্রধান শিক্ষিকার স্বাক্ষর</div><div class="signature-line"></div></div><div class="signature-box"><div>প্রিন্সিপাল/মুহতামিম এর স্বাক্ষর</div><div class="signature-line"></div></div></div>':'';
     $('winBody').innerHTML='<div class="form-language-fixed"><span>বাংলা</span><span>العربية</span><span>English</span></div>'+moduleForm(key)+sig+'<div class="form-action-bar"><button type="button" class="primary" onclick="saveCurrentForm()">💾 সেভ</button><button type="button" class="secondary" onclick="printCurrentForm()">🖨️ প্রিন্ট</button><button type="button" class="secondary" onclick="enableFormEdit()">✏️ এডিট</button><button type="button" class="secondary" onclick="downloadCurrentForm()">⬇️ ডাউনলোড</button><button type="button" class="secondary" onclick="clearFormWindow()">🧹 ক্লিয়ার</button></div>';
     $('formWin').classList.remove('minimized');$('formWin').style.height='';openWindow('formWin');setTimeout(bindAll,30);
   };
   var oldGL=window.getLocationValue;window.getLocationValue=function(id){var m=document.getElementById(id+'Manual'),s=document.getElementById(id+'Select');return(m&&m.value.trim())||(s&&s.value)||''};
-  var oldSaveResult=window.saveResult;window.saveResult=async function(k){if(k!=='exam')return oldSaveResult(k);var d={StudentID:$('rStudent').value,Name:$('rName').value,Class:'',Exam:$('rExam').value,SubjectData:$('rSubjects').value,Published:'NO',Date:new Date().toISOString(),Division:getLocationValue('rDivision'),District:getLocationValue('rDistrict'),Upazila:getLocationValue('rUpazila'),Union:getLocationValue('rUnion'),Post:getLocationValue('rPost'),Ward:getLocationValue('rWard'),Village:getLocationValue('rVillage')};var r=await call('saveRecord',token,'EXAM_REG',d);toast(r.ok?'পরীক্ষার্থী নিবন্ধন সফলভাবে সংরক্ষণ হয়েছে':(r.message||'ব্যর্থ'))};
+  var oldSaveResult=window.saveResult;window.saveResult=async function(k){if(k!=='exam')return oldSaveResult(k);var d={StudentID:$('rStudent').value.trim(),Name:$('rName').value.trim(),Exam:$('rExam').value.trim(),SubjectData:$('rSubjects').value,Division:getLocationValue('rDivision'),District:getLocationValue('rDistrict'),Upazila:getLocationValue('rUpazila'),Union:getLocationValue('rUnion'),Post:getLocationValue('rPost'),Ward:getLocationValue('rWard'),Village:getLocationValue('rVillage')};if(!d.StudentID||!d.Name||!d.Exam)return toast('Student ID, নাম ও পরীক্ষা নির্বাচন/লিখুন।');try{var r=await call('registerPublicExaminee',d);toast(r&&r.ok?(r.message||'পরীক্ষার্থী নিবন্ধন সফল হয়েছে')+(r.examRegId?' ID: '+r.examRegId:''):((r&&r.message)||'পরীক্ষার্থী নিবন্ধন ব্যর্থ হয়েছে।'));}catch(e){toast(e&&e.message?e.message:'সার্ভারে সংযোগ করা যায়নি।');}};
   async function init(){removeOldTicker();await loadLoc();bindAll();setTimeout(removeOldTicker,300)}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
