@@ -2323,26 +2323,54 @@ function showOnlinePaymentReceipt(x){
     '<div id="onlineReceiptActions" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px"><button class="primary" type="button" onclick="printOnlineReceipt()">🖨️ প্রিন্ট</button><button class="secondary" type="button" onclick="downloadOnlineReceipt()">⬇️ ডাউনলোড</button><button class="secondary" type="button" onclick="shareOnlineReceipt2026()">↗️ শেয়ার</button><button class="secondary" type="button" onclick="closeWindow(\'onlinePaymentReceiptWin\')">বন্ধ করুন</button></div></div>';
   openWindow('onlinePaymentReceiptWin');
 }
+let onlineReceiptPdfLibrariesTask2026=null;
 async function loadOnlineReceiptPdfLibraries2026(){
-  function load(src,ready,label){
-    if(ready())return Promise.resolve();
-    return new Promise(function(resolve,reject){
-      var settled=false,timer;
-      function finish(err){
-        if(settled)return;settled=true;clearTimeout(timer);
-        if(err)reject(err);else if(ready())resolve();else reject(new Error(label+' লোড হয়েছে, কিন্তু লাইব্রেরি চালু হয়নি।'));
+  if(typeof window.html2canvas==='function'&&window.jspdf&&window.jspdf.jsPDF)return;
+  if(onlineReceiptPdfLibrariesTask2026)return onlineReceiptPdfLibrariesTask2026;
+  onlineReceiptPdfLibrariesTask2026=(async function(){
+    async function loadAny(urls,ready,label){
+      if(ready())return;
+      var lastError=null;
+      for(var i=0;i<urls.length;i++){
+        if(ready())return;
+        var src=urls[i];
+        try{
+          await new Promise(function(resolve,reject){
+            var settled=false,timer;
+            var old=Array.from(document.scripts).find(function(x){return x.src===src;});
+            if(old)old.remove();
+            var script=document.createElement('script');
+            function finish(err){
+              if(settled)return;settled=true;clearTimeout(timer);
+              if(err){script.remove();reject(err);}
+              else if(ready())resolve();
+              else{script.remove();reject(new Error(label+' স্ক্রিপ্ট লোড হলেও চালু হয়নি।'));}
+            }
+            timer=setTimeout(function(){finish(new Error(src+' থেকে ১০ সেকেন্ডে লোড হয়নি।'));},10000);
+            script.async=true;
+            script.onload=function(){finish();};
+            script.onerror=function(){finish(new Error(src+' সংযোগ ব্যর্থ।'));};
+            script.src=src;
+            document.head.appendChild(script);
+          });
+          if(ready())return;
+        }catch(err){lastError=err;}
       }
-      var old=Array.from(document.scripts).find(function(x){return x.src===src;});
-      var script=old||document.createElement('script');
-      timer=setTimeout(function(){finish(new Error(label+' লোড হতে ২০ সেকেন্ডের বেশি সময় লাগছে। ইন্টারনেট/CDN সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।'));},20000);
-      script.addEventListener('load',function(){finish();},{once:true});
-      script.addEventListener('error',function(){finish(new Error(label+' লোড করা যায়নি। ইন্টারনেট/CDN সংযোগ পরীক্ষা করুন।'));},{once:true});
-      if(!old){script.src=src;script.async=true;document.head.appendChild(script);}
-      else if(script.readyState==='loaded'||script.readyState==='complete')finish();
-    });
-  }
-  await load('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',function(){return typeof window.html2canvas==='function';},'PDF কনভার্টার');
-  await load('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js',function(){return !!(window.jspdf&&window.jspdf.jsPDF);},'PDF জেনারেটর');
+      throw new Error(label+' কোনো CDN থেকেই লোড হয়নি। ইন্টারনেট সংযোগ, ব্রাউজারের CDN/Ad-blocker নিষেধাজ্ঞা পরীক্ষা করুন। '+(lastError&&lastError.message?lastError.message:''));
+    }
+    await loadAny([
+      'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
+      'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js',
+      'https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js'
+    ],function(){return typeof window.html2canvas==='function';},'PDF কনভার্টার');
+    await loadAny([
+      'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js',
+      'https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js',
+      'https://unpkg.com/jspdf@2.5.2/dist/jspdf.umd.min.js'
+    ],function(){return !!(window.jspdf&&window.jspdf.jsPDF);},'PDF জেনারেটর');
+  })();
+  try{await onlineReceiptPdfLibrariesTask2026;}
+  finally{onlineReceiptPdfLibrariesTask2026=null;}
 }
 async function buildOnlineReceiptPdf2026(){
   const source=$('onlineReceiptBody');
