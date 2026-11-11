@@ -11147,14 +11147,14 @@ body.dark #jbDocBuilderWin{background:#000;color:#ffe95c;border-color:#ff1f2f}bo
 <script id="central-document-builder-2026-10-06-js">
 (function(){
   var DOC_KEYS={marks:{title:'মার্কশিট',size:'a4'},result:{title:'ফলাফল / মার্কশিট',size:'a4'},id_cards:{title:'আইডি কার্ড',size:'idcard'},admit_cards:{title:'অ্যাডমিট কার্ড',size:'admit'},certificates:{title:'সার্টিফিকেট',size:'landscape'},receipts:{title:'মানি রিসিট',size:'receipt'},teacher_id:{title:'শিক্ষক/শিক্ষিকা আইডি কার্ড',size:'idcard'},admission_form:{title:'ভর্তি আবেদন ফর্ম',size:'a4'},leave_form:{title:'ছুটির আবেদন ফর্ম',size:'a4'},exam_routine:{title:'পরীক্ষার রুটিন',size:'a4'},tc:{title:'টিসি / ছাড়পত্র',size:'a4'},attestation:{title:'প্রত্যয়ন পত্র',size:'a4'},lifetime_member_form:{title:'আজীবন সদস্য ফর্ম',size:'a4'},lifetime_member_certificate:{title:'আজীবন সদস্য সনদ',size:'landscape'},teacher_recruitment_form:{title:'শিক্ষক/শিক্ষিকা নিয়োগ আবেদন',size:'a4'},teacher_appointment:{title:'শিক্ষক/শিক্ষিকা নিয়োগ পত্র',size:'a4'},executive_form:{title:'নির্বাহী পরিষদ ফর্ম',size:'a4'},executive_id:{title:'নির্বাহী পরিষদ সদস্য আইডি কার্ড',size:'idcard'}};
-  var currentDoc=null,currentRows=[],selected={};
+  var currentDoc=null,currentRows=[],selected={};window.__jbReceiptPaymentRows2026=[];
   function E(id){return document.getElementById(id)}
   function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
   function first(row,names){for(var i=0;i<names.length;i++){var k=names[i];if(row&&row[k]!=null&&String(row[k]).trim()!=='')return row[k]}return ''}
   function openBuilder(k,selectedType){currentDoc=DOC_KEYS[k]||DOC_KEYS.marks;currentDoc.key=k;selected={};var w=E('jbDocBuilderWin');if(!w){w=document.createElement('div');w.id='jbDocBuilderWin';w.innerHTML='<div id="jbDocBuilderHead"><b id="jbDocBuilderTitle"></b><button class="secondary" onclick="jbCloseDocBuilder()">✕ বন্ধ</button></div><div id="jbDocBuilderTools"></div><div id="jbDocBuilderBody"></div>';document.body.appendChild(w)}E('jbDocBuilderTitle').textContent=currentDoc.title;E('jbDocBuilderTools').innerHTML='<div class="jb-doc-idbar"><input id="jbDocId" class="field" placeholder="শিক্ষার্থী / শিক্ষক / সদস্য ID লিখুন"><button class="primary" onclick="jbFindStudent()">🔎 ID দিয়ে তথ্য আনুন</button></div><div class="jb-doc-note">ID লিখে <b>Enter</b> চাপলেও তথ্য আসবে। ভর্তি-কালীন সংরক্ষিত তথ্য থেকে প্রয়োজনীয় ঘর ☑ নির্বাচন করুন।</div><div id="jbDocFields" class="jb-doc-fields"></div><div class="jb-doc-actions">'+(selectedType?'<button class="primary" onclick="jbCreatePreview()">📄 '+currentDoc.title+' তৈরি করুন</button>':'<button class="primary" onclick="jbShowCardTypeList2026()">📋 কার্ড তালিকা</button>')+'<button class="secondary" onclick="jbClearDoc()">🧹 ক্লিয়ার</button></div><div id="jbDocPreviewWrap" class="jb-doc-preview-wrap"></div>';w.classList.add('show');E('jbDocId').focus();E('jbDocId').onkeydown=function(ev){if(ev.key==='Enter'){ev.preventDefault();jbFindStudent()}}}
   function fields(row){var defs=[['StudentID','ID',['StudentID']],['NameBN','বাংলা নাম',['NameBN']],['NameAR','আরবি নাম',['NameAR']],['NameEN','ইংরেজি নাম',['NameEN']],['FatherBN','পিতার নাম',['FatherBN','FatherNameBN']],['FatherAR','পিতার নাম — আরবি',['FatherAR','FatherNameAR']],['FatherEN','পিতার নাম — English',['FatherEN','FatherNameEN']],['MotherBN','মাতার নাম',['MotherBN','MotherNameBN']],['MotherAR','মাতার নাম — আরবি',['MotherAR','MotherNameAR']],['MotherEN','মাতার নাম — English',['MotherEN','MotherNameEN']],['DOB','জন্ম তারিখ',['DOB']],['Mobile','মোবাইল',['Mobile']],['WhatsApp','WhatsApp',['WhatsApp']],['Email','ইমেইল',['Email']],['Address','ঠিকানা',['Address']],['Division','বিভাগ',['Division']],['District','জেলা',['District']],['Upazila','উপজেলা',['Upazila']],['Union','ইউনিয়ন',['Union']],['Post','ডাকঘর',['Post','PostOffice']],['PostCode','পোস্ট কোড',['PostCode']],['Ward','ওয়ার্ড',['Ward']],['Village','গ্রাম',['Village']],['Class','শ্রেণি/জামাত',['Class']],['Department','বিভাগ/ডিপার্টমেন্ট',['Department']],['Branch','শাখা',['Branch']],['Roll','রোল',['Roll']],['BirthReg','জন্ম নিবন্ধন',['BirthReg']],['NID','NID',['NID']],['Exam','পরীক্ষা',['Exam']],['ExamYear','পরীক্ষা সাল',['ExamYear']],['Photo','ছবি',['Photo']]];if(currentDoc.key==='marks'||currentDoc.key==='result'){defs.push(['Exam','পরীক্ষা',['Exam']],['SubjectData','বিষয় ও নম্বর',['SubjectData']],['Total','মোট নম্বর',['Total']],['GPA','GPA',['GPA']],['Grade','গ্রেড',['Grade']]);}if(currentDoc.key==='admit_cards'){defs.push(['Exam','পরীক্ষা',['Exam']],['ExamYear','পরীক্ষা সাল',['ExamYear']],['SubjectData','বিষয়সমূহ',['SubjectData']],['ExamDate','পরীক্ষার তারিখ',['ExamDate']],['ExamTime','সময়',['ExamTime']],['Center','পরীক্ষা কেন্দ্র',['Center']]);}if(currentDoc.key==='certificates'){defs.push(['CertificateNo','সনদ নম্বর',['CertificateNo']],['IssueDate','প্রদানের তারিখ',['IssueDate']],['Result','ফলাফল',['Result']],['Signature','স্বাক্ষর',['Signature']],['Seal','সিল',['Seal']]);}if(currentDoc.key==='receipts'){defs.push(['ReceiptNo','রিসিট নম্বর',['ReceiptNo']],['Month','মাস/সময়',['Month']],['Category','খাত/কারণ',['Category']],['Amount','টাকার পরিমাণ',['Amount']],['Method','পরিশোধের মাধ্যম',['Method']],['Date','তারিখ',['Date']],['Note','বিবরণ',['Note']]);}if(currentDoc.key==='id_cards'){defs.push(['EmergencyContact','জরুরি যোগাযোগ',['EmergencyContact']],['Guardian','অভিভাবক',['Guardian']],['QR','QR কোড',['QR']]);};var host=E('jbDocFields');host.innerHTML='';defs.forEach(function(d){var v=first(row,d[2]||[d[0],d[0].toLowerCase()]);var div=document.createElement('div');div.className='jb-doc-field';var cb=document.createElement('input');cb.type='checkbox';cb.checked=selected[d[0]]!==false;cb.onchange=function(){selected[d[0]]=cb.checked};var lab=document.createElement('label');lab.appendChild(cb);lab.appendChild(document.createTextNode(d[1]));div.appendChild(lab);var inp=document.createElement('input');inp.value=(typeof v==='object'?'':v);inp.dataset.key=d[0];inp.disabled=false;if(d[0]==='Photo')inp.placeholder='Photo URL / data';div.appendChild(inp);host.appendChild(div)});}
-  async function findStudent(){var id=(E('jbDocId').value||'').trim();if(!id)return toast('শিক্ষার্থীর ID দিন।');try{var r=await call('getStudentDocumentData',token,id);if(!r||!r.found){E('jbDocFields').innerHTML='<div class="jb-doc-note" style="grid-column:1/-1">⚠️ <b>কোন তথ্য পাওয়া যায়নি।</b> অনুগ্রহ করে প্রয়োজনীয় তথ্য হাতে পূরণ করে তৈরি করুন।<br><br><button class="primary" onclick="jbManualEntry()">✍️ হাতে পূরণ করুন</button></div>';currentRows=[{StudentID:id}];return}currentRows=[r.data||{StudentID:id}];selected={};fields(currentRows[0]);toast(r.admissionFound?'ভর্তি-কালীন পূর্ণ তথ্য পাওয়া গেছে।':'শিক্ষার্থী তথ্য পাওয়া গেছে।')}catch(e){toast('তথ্য খোঁজার সময় সার্ভার ত্রুটি হয়েছে।')}}
-  function manualEntry(){var row=currentRows[0]||{};var host=E('jbDocFields');host.innerHTML='';['StudentID','NameBN','NameAR','NameEN','FatherNameBN','MotherNameBN','DOB','Mobile','Address','Class','Roll','Exam','ExamYear','Photo'].forEach(function(k){var d=document.createElement('div');d.className='jb-doc-field';d.innerHTML='<label>'+k+'</label><input data-key="'+k+'" class="field">';host.appendChild(d)});host.querySelector('[data-key="StudentID"]').value=row.StudentID||E('jbDocId').value;toast('Manual Entry চালু হয়েছে।')}
+  async function findStudent(){var id=(E('jbDocId').value||'').trim();if(!id)return toast('শিক্ষার্থীর ID দিন।');try{var r=await call('getStudentDocumentData',token,id);if(!r||!r.found){E('jbDocFields').innerHTML='<div class="jb-doc-note" style="grid-column:1/-1">⚠️ <b>কোন তথ্য পাওয়া যায়নি।</b> অনুগ্রহ করে প্রয়োজনীয় তথ্য হাতে পূরণ করে তৈরি করুন।<br><br><button class="primary" onclick="jbManualEntry()">✍️ হাতে পূরণ করুন</button></div>';currentRows=[{StudentID:id}];window.__jbReceiptPaymentRows2026=[];return}currentRows=[r.data||{StudentID:id}];window.__jbReceiptPaymentRows2026=Array.isArray(r.payments)?r.payments:[];selected={};fields(currentRows[0]);toast(r.admissionFound?'ভর্তি-কালীন পূর্ণ তথ্য পাওয়া গেছে।':'শিক্ষার্থী তথ্য পাওয়া গেছে।')}catch(e){toast('তথ্য খোঁজার সময় সার্ভার ত্রুটি হয়েছে।')}}
+  function manualEntry(){window.__jbReceiptPaymentRows2026=[];var row=currentRows[0]||{};var host=E('jbDocFields');host.innerHTML='';['StudentID','NameBN','NameAR','NameEN','FatherNameBN','MotherNameBN','DOB','Mobile','Address','Class','Roll','Exam','ExamYear','Photo'].forEach(function(k){var d=document.createElement('div');d.className='jb-doc-field';d.innerHTML='<label>'+k+'</label><input data-key="'+k+'" class="field">';host.appendChild(d)});host.querySelector('[data-key="StudentID"]').value=row.StudentID||E('jbDocId').value;toast('Manual Entry চালু হয়েছে।')}
   function val(k){var x=document.querySelector('#jbDocFields [data-key="'+k+'"]');return x?x.value:''}
   function createGenericPreview(){
   function gv(k){var x=document.querySelector('#jbDocFields [data-key="'+k+'"]');return x?String(x.value||''):''}
@@ -11218,7 +11218,7 @@ var wrap=document.getElementById('jbDocPreviewWrap');if(!wrap)return;wrap.innerH
     w.document.close();
     setTimeout(function(){try{w.focus();w.print()}catch(e){}},500);
   }
-  function clearDoc(){E('jbDocId').value='';E('jbDocFields').innerHTML='';E('jbDocPreviewWrap').innerHTML='';currentRows=[];selected={}}
+  function clearDoc(){E('jbDocId').value='';E('jbDocFields').innerHTML='';E('jbDocPreviewWrap').innerHTML='';currentRows=[];window.__jbReceiptPaymentRows2026=[];selected={}}
   function closeBuilder(){E('jbDocBuilderWin')?.classList.remove('show')}
   window.jbCloseDocBuilder=closeBuilder;window.jbFindStudent=findStudent;window.jbManualEntry=manualEntry;window.jbCreatePreview=createPreview;window.jbEditPreview=editPreview;window.jbSaveDraft=saveDraft;window.jbDownload=download;window.jbPrint=print;window.jbClearDoc=clearDoc;window.jbOpenDocumentType2026=function(k){return openBuilder(k,true)};
   var oldOpen=window.openModule;window.openModule=function(k){if(DOC_KEYS[k]){openBuilder(k,true);return}return oldOpen(k)};
@@ -12559,9 +12559,9 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     if(!wrap)return;
     var sid=v('StudentID')||document.getElementById('jbDocId')?.value||'';
     var name=v('NameBN'), photo=v('Photo'), cls=v('Class'), roll=v('Roll'), mobile=v('Mobile');
-    var rows=[],defs=[
-      ['StudentID','ID'],['NameBN','নাম'],['NameAR','আরবি নাম'],['NameEN','ইংরেজি নাম'],
-      ['FatherBN','পিতার নাম'],['MotherBN','মাতার নাম'],['DOB','জন্ম তারিখ'],['Mobile','মোবাইল'],
+    var rows=[],receiptInfoRows=[],defs=[
+      ['StudentID','ID'],['NameBN','নাম'],['FatherBN','পিতার নাম'],['NameAR','আরবি নাম'],['NameEN','ইংরেজি নাম'],
+      ['MotherBN','মাতার নাম'],['DOB','জন্ম তারিখ'],['Mobile','মোবাইল'],
       ['WhatsApp','WhatsApp'],['Address','ঠিকানা'],['Division','বিভাগ'],['District','জেলা'],
       ['Upazila','উপজেলা'],['Union','ইউনিয়ন'],['Post','ডাকঘর'],['PostCode','পোস্ট কোড'],
       ['Ward','ওয়ার্ড'],['Village','গ্রাম'],['Class','শ্রেণি/জামাত'],['Department','বিভাগ/ডিপার্টমেন্ট'],
@@ -12575,7 +12575,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     ];
     defs.forEach(function(d){
       var val=v(d[0]);
-      if(val&&checked(d[0]))rows.push('<div class="jb-doc-row"><b>'+e(d[1])+'</b><span>'+e(val)+'</span></div>');
+      if(val&&checked(d[0])){rows.push('<div class="jb-doc-row"><b>'+e(d[1])+'</b><span>'+e(val)+'</span></div>');if(k==='receipts')receiptInfoRows.push({label:d[1],value:val});}
     });
 
     var extra='';
@@ -12586,8 +12586,20 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     if(k==='certificates'){
       extra='<div style="margin-top:24px;display:flex;justify-content:space-between;gap:20px;font-size:12px"><span>স্বাক্ষর</span><span>সিল</span><span>প্রধান শিক্ষিকা / মুহতামিম</span></div>';
     }
+    var receiptGridHtml='';
     if(k==='receipts'){
-      extra='<div style="margin-top:10px;border:2px solid #222;padding:8px;text-align:center;font-size:16px"><b>টাকার পরিমাণ: '+e(v('Amount'))+'</b></div>';
+      var monthNames=['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+      var paidMonths={};
+      (window.__jbReceiptPaymentRows2026||[]).forEach(function(pay){
+        if(!/মাসিক\s*বেতন/.test(String(pay.Category||'')))return;
+        String(pay.Month||'').split(/[,;|]+/).forEach(function(part){var m=String(part||'').trim();if(monthNames.indexOf(m)>=0)paidMonths[m]=true;});
+      });
+      var rowCount=Math.max(12,receiptInfoRows.length),receiptTableRows='';
+      for(var ri=0;ri<rowCount;ri++){
+        var info=receiptInfoRows[ri]||{label:'',value:''},month=monthNames[ri]||'',isPaid=!!paidMonths[month];
+        receiptTableRows+='<tr><td style="width:20%;border:1px solid #555;padding:3px 4px;font-weight:800">'+e(info.label)+'</td><td style="width:34%;border:1px solid #555;padding:3px 4px">'+e(info.value)+'</td><td style="width:22%;border:1px solid #555;padding:3px 4px;font-weight:800">'+e(month)+'</td><td style="width:24%;border:1px solid #555;padding:3px 4px;text-align:center;font-weight:900;color:'+(isPaid?'#16803c':'#b42318')+'">'+(month?(isPaid?'PAID':'UNPAID'):'')+'</td></tr>';
+      }
+      receiptGridHtml='<table style="width:100%;border-collapse:collapse;font-size:9px;table-layout:fixed"><thead><tr><th style="border:1px solid #333;padding:3px;background:#f5e8bd">তথ্য</th><th style="border:1px solid #333;padding:3px;background:#f5e8bd">বিবরণ</th><th style="border:1px solid #333;padding:3px;background:#f5e8bd">মাস</th><th style="border:1px solid #333;padding:3px;background:#f5e8bd">অবস্থা</th></tr></thead><tbody>'+receiptTableRows+'</tbody></table><div style="margin-top:7px;border:2px solid #222;padding:6px;text-align:center;font-size:14px"><b>টাকার পরিমাণ: '+e(v('Amount'))+'</b></div>';
     }
 
     var size=k==='id_cards'?'idcard':k==='receipts'?'half':'a4';
@@ -12605,7 +12617,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     }else{
       p.innerHTML=photoHtml+head+
         '<div style="text-align:center;font-size:11px;margin-bottom:7px">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div>'+
-        rows.join('')+extra;
+        (k==='receipts'?receiptGridHtml:rows.join('')+extra);
     }
 
     wrap.innerHTML='';
