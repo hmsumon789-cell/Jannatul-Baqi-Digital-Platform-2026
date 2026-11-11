@@ -3258,7 +3258,7 @@ function onlinePaidMonths2026_(studentId){
   const si=headers.indexOf('StudentID'),mi=headers.indexOf('Month'),ci=headers.indexOf('Category'),paid={};
   if(si<0||mi<0||ci<0)return [];
   values.slice(1).forEach(function(row){
-    if(String(row[si]||'').trim()!==id||!/মাসিক\\s*বেতন/.test(String(row[ci]||'')))return;
+    if(String(row[si]||'').trim()!==id||!/মাসিক\s*বেতন/.test(String(row[ci]||'')))return;
     String(row[mi]||'').split(/[,;|]+/).forEach(function(part){const month=String(part||'').trim();if(months.indexOf(month)>=0)paid[month]=true;});
   });
   return months.filter(function(month){return !!paid[month];});
