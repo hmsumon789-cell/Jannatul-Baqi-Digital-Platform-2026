@@ -19446,3 +19446,45 @@ if(document.body)new MutationObserver(function(){if(!window.__jbBoardMode2026)ad
 })();
 </script>
 <!-- END KERANIGANJ REGIONAL BOARD PORTAL -->
+
+<!-- ===== STUDENT ADD FORM: STICKY SAVE / PRINT / SHARE ACTIONS — 2026-11-11 ===== -->
+<style id="jb-student-form-actionbar-20261111">
+#formWin #jbStudentFormActionBar20261111{position:sticky!important;bottom:0!important;z-index:999!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:10px!important;flex-wrap:wrap!important;width:100%!important;box-sizing:border-box!important;margin:16px 0 0!important;padding:12px!important;border:2px solid var(--border,#b8860b)!important;border-radius:14px!important;background:var(--panel,#fff)!important;box-shadow:0 -5px 18px #0003!important;}
+#formWin #jbStudentFormActionBar20261111 button{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-width:145px!important;min-height:48px!important;padding:10px 16px!important;font-weight:900!important;white-space:normal!important;}
+#formWin #winBody>button[onclick=\"saveModule('student')\"]{display:none!important;}
+@media(max-width:600px){#formWin #jbStudentFormActionBar20261111{display:grid!important;grid-template-columns:1fr!important}#formWin #jbStudentFormActionBar20261111 button{width:100%!important;min-width:0!important}}
+</style>
+<script id="jb-student-form-actionbar-20261111-js">
+(function(){
+  'use strict';
+  function el(id){return document.getElementById(id)}
+  function shareText(){
+    var fields=[['শিক্ষার্থী আইডি','fStudentID'],['নাম (বাংলা)','fNameBN'],['নাম (আরবি)','fNameAR'],['নাম (English)','fNameEN'],['পিতার নাম','fFatherBN'],['মাতার নাম','fMotherBN'],['জন্ম তারিখ','fDob'],['মোবাইল','fMobile'],['WhatsApp','fWhatsApp'],['ইমেইল','fEmail'],['শ্রেণি/জামাত','fClass'],['বিভাগ','fDept'],['শাখা','fBranch'],['বিভাগ','fDivision'],['জেলা','fDistrict'],['উপজেলা/থানা','fUpazila'],['ইউনিয়ন','fUnion'],['ওয়ার্ড','fWard'],['গ্রাম','fVillage'],['ঠিকানা','fAddress'],['জন্ম নিবন্ধন','fBirth'],['জাতীয় পরিচয়পত্র','fNid']];
+    var lines=['জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা','ছাত্র/ছাত্রী তথ্য'];
+    fields.forEach(function(x){var e=el(x[1]),v=e?String(e.value||'').trim():'';if(v)lines.push(x[0]+': '+v)});
+    return lines.join('\\n');
+  }
+  window.shareStudentAddForm20261111=async function(){
+    var text=shareText();
+    try{
+      if(navigator.share){await navigator.share({title:'ছাত্র/ছাত্রী তথ্য',text:text});return;}
+      if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(text);if(typeof window.toast==='function')window.toast('শিক্ষার্থীর তথ্য কপি হয়েছে। এখন প্রয়োজনীয় মাধ্যমে শেয়ার করুন।');else alert('শিক্ষার্থীর তথ্য কপি হয়েছে। এখন প্রয়োজনীয় মাধ্যমে শেয়ার করুন।');return;}
+      var t=document.createElement('textarea');t.value=text;t.style.position='fixed';t.style.opacity='0';document.body.appendChild(t);t.select();document.execCommand('copy');t.remove();if(typeof window.toast==='function')window.toast('শিক্ষার্থীর তথ্য কপি হয়েছে।');
+    }catch(e){if(e&&e.name==='AbortError')return;var msg='শেয়ার করা যায়নি: '+(e&&e.message||e);if(typeof window.toast==='function')window.toast(msg);else alert(msg)}
+  };
+  function install(){
+    var body=el('winBody'),title=el('winTitle');
+    if(!body||!title||!/^ছাত্র\/ছাত্রী অ্যাড করুন$/.test(String(title.textContent||'').trim()))return;
+    if(!el('fStudentID')||!el('fNameBN'))return;
+    var bar=el('jbStudentFormActionBar20261111');
+    if(!bar){bar=document.createElement('div');bar.id='jbStudentFormActionBar20261111';bar.setAttribute('role','group');bar.setAttribute('aria-label','শিক্ষার্থী ফর্মের কার্যক্রম');}
+    bar.innerHTML='<button type="button" class="primary" onclick="saveModule(\\'student\\')">💾 সেভ / সাবমিট</button><button type="button" class="secondary" onclick="printCurrentForm()">🖨️ প্রিন্ট</button><button type="button" class="secondary" onclick="shareStudentAddForm20261111()">↗️ শেয়ার করুন</button>';
+    if(bar.parentNode!==body||body.lastElementChild!==bar)body.appendChild(bar);
+  }
+  var previous=window.openModule;
+  if(typeof previous==='function')window.openModule=function(key){var result=previous.apply(this,arguments);if(String(key||'').toLowerCase()==='student'){install();setTimeout(install,80);setTimeout(install,350);}return result;};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install);else install();
+})();
+</script>
+<!-- ===== END STUDENT ADD FORM ACTIONS ===== -->
+
