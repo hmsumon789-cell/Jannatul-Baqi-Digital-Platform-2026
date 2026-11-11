@@ -3250,6 +3250,20 @@ function notifyOnlinePayment_(data,status,receiptId){
     if(a.mobile)queueOnlinePaymentSms_(a.mobile,'[Super Admin] '+statusText+' Student ID: '+studentId+' | Amount: '+amount+' টাকা'+(receiptId?' | Receipt: '+receiptId:''));
   });
 }
+function onlinePaidMonths2026_(studentId){
+  const months=['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+  const id=String(studentId||'').trim(),ss=SpreadsheetApp.getActiveSpreadsheet(),sh=ss.getSheetByName(SHEETS.PAYMENTS);
+  if(!id||!sh||sh.getLastRow()<2)return [];
+  const values=sh.getDataRange().getValues(),headers=values[0].map(function(h){return String(h||'').trim();});
+  const si=headers.indexOf('StudentID'),mi=headers.indexOf('Month'),ci=headers.indexOf('Category'),paid={};
+  if(si<0||mi<0||ci<0)return [];
+  values.slice(1).forEach(function(row){
+    if(String(row[si]||'').trim()!==id||!/মাসিক\\s*বেতন/.test(String(row[ci]||'')))return;
+    String(row[mi]||'').split(/[,;|]+/).forEach(function(part){const month=String(part||'').trim();if(months.indexOf(month)>=0)paid[month]=true;});
+  });
+  return months.filter(function(month){return !!paid[month];});
+}
+
 function submitOnlinePayment(data,token){
   data=data||{};const inputId=String(data.StudentID||'').trim(),ref=String(data.Reference||'').trim(),amount=Number(data.Amount||0),method=String(data.Method||'').trim(),mode=String(data.PaymentMode||'PRINCIPAL_APPROVAL').toUpperCase();
   const allowedModes=['QUICK','QUICK_REQUEST','PRINCIPAL_APPROVAL','AUTO_12H','AUTO_24H','AUTO_48H','AUTO_72H','PENDING'];if(allowedModes.indexOf(mode)<0)return {ok:false,message:'পেমেন্টের ধরন সঠিক নয়।'};
@@ -3294,7 +3308,7 @@ function submitOnlinePayment(data,token){
         pay=saveRecord(token,SHEETS.PAYMENTS,paymentFields);paymentTenant=tenantIdentity_(token).key;
       }
       if(!pay||!pay.ok)return {ok:false,message:(pay&&pay.message)||'PAYMENTS-এ সরাসরি সংরক্ষণ ব্যর্থ।'};
-      const receiptId='RCT-OP-'+Date.now(),receiptData={ReceiptID:receiptId,TransactionID:pay.paymentId||'',PaymentID:pay.paymentId||'',Type:'ONLINE_PAYMENT',StudentID:id,Name:data.Name,Class:st.Class||'',Month:String((Array.isArray(data.Months)&&data.Months.length?data.Months.join(', '):data.Month)||'').trim(),Category:String((Array.isArray(data.Categories)&&data.Categories.length?data.Categories.join(', '):data.Category)||'').trim(),Amount:amount,Method:method,Reference:ref,Mobile:payerMobile||st.Mobile||st.WhatsApp||'',PayerMobile:payerMobile,Note:String(data.Note||'').trim(),Date:now_(),Institution:APP.nameBn||'জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা',Address:APP.address||'',Hotline:APP.hotline1||'01823316630',CreatedAt:now_()};
+      const receiptId='RCT-OP-'+Date.now(),receiptData={ReceiptID:receiptId,TransactionID:pay.paymentId||'',PaymentID:pay.paymentId||'',Type:'ONLINE_PAYMENT',StudentID:id,Name:data.Name,FatherBN:st.FatherBN||st.FatherName||st.ParentName||'',Class:st.Class||'',PaidMonths:onlinePaidMonths2026_(id),Month:String((Array.isArray(data.Months)&&data.Months.length?data.Months.join(', '):data.Month)||'').trim(),Category:String((Array.isArray(data.Categories)&&data.Categories.length?data.Categories.join(', '):data.Category)||'').trim(),Amount:amount,Method:method,Reference:ref,Mobile:payerMobile||st.Mobile||st.WhatsApp||'',PayerMobile:payerMobile,Note:String(data.Note||'').trim(),Date:now_(),Institution:APP.nameBn||'জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা',Address:APP.address||'',Hotline:APP.hotline1||'01823316630',CreatedAt:now_()};
       const rsh=ensureSheet_(SpreadsheetApp.getActiveSpreadsheet(),SHEETS.RECEIPTS,HEADERS[SHEETS.RECEIPTS]);ensureTenantSheetColumn_(rsh);const receiptHeaders=rsh.getRange(1,1,1,rsh.getLastColumn()).getValues()[0].map(String),receiptRecord={Serial:nextSerial_(rsh),ReceiptID:receiptId,RefID:pay.paymentId||'',Type:'ONLINE_PAYMENT',Amount:amount,Date:receiptData.Date,Data:JSON.stringify(receiptData),TenantAccount:paymentTenant},receiptRow=receiptHeaders.map(function(key){return receiptRecord[key]!==undefined?receiptRecord[key]:'';});rsh.appendRow(receiptRow);
       log_(token?(sessionUser_(token)||''):'PUBLIC','quick-pay','ONLINE_PAYMENT',id+' / '+amount+' / '+method+' / '+receiptId);
       notifyOnlinePayment_(data,'PAID',receiptId);
@@ -3324,7 +3338,7 @@ function approveOnlinePayment(token,requestId){
   const student=findBy_(SHEETS.STUDENTS,'StudentID',row.StudentID);if(!student)return {ok:false,message:'শিক্ষার্থী পাওয়া যায়নি।'};
   const pay=saveRecord(token,SHEETS.PAYMENTS,{StudentID:row.StudentID,Name:row.Name,Month:row.Month,Category:row.Category,Amount:Number(row.Amount||0),Method:row.Method,Reference:row.Reference,Date:now_(),Note:row.Note});
   if(!pay||!pay.ok)return {ok:false,message:(pay&&pay.message)||'PAYMENTS-এ সংরক্ষণ ব্যর্থ।'};
-  const receiptId='RCT-OP-'+Date.now();const receiptDate=now_();const receiptData={ReceiptID:receiptId,TransactionID:pay.paymentId||'',PaymentID:pay.paymentId||'',Type:'ONLINE_PAYMENT',StudentID:row.StudentID,Name:row.Name,Class:row.Class||student.Class||'',Month:row.Month,Category:row.Category,Amount:Number(row.Amount||0),Method:row.Method,Reference:row.Reference,Mobile:row.PayerMobile||student.Mobile||student.WhatsApp||'',PayerMobile:row.PayerMobile||'',Note:String(row.Note||'').trim(),Date:receiptDate,Institution:APP.nameBn||'জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা',Address:APP.address||'',Hotline:APP.hotline1||'01823316630',CreatedAt:receiptDate};
+  const receiptId='RCT-OP-'+Date.now();const receiptDate=now_();const receiptData={ReceiptID:receiptId,TransactionID:pay.paymentId||'',PaymentID:pay.paymentId||'',Type:'ONLINE_PAYMENT',StudentID:row.StudentID,Name:row.Name,FatherBN:student.FatherBN||student.FatherName||student.ParentName||'',Class:row.Class||student.Class||'',PaidMonths:onlinePaidMonths2026_(row.StudentID),Month:row.Month,Category:row.Category,Amount:Number(row.Amount||0),Method:row.Method,Reference:row.Reference,Mobile:row.PayerMobile||student.Mobile||student.WhatsApp||'',PayerMobile:row.PayerMobile||'',Note:String(row.Note||'').trim(),Date:receiptDate,Institution:APP.nameBn||'জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা',Address:APP.address||'',Hotline:APP.hotline1||'01823316630',CreatedAt:receiptDate};
   const receiptSheet=ensureSheet_(SpreadsheetApp.getActiveSpreadsheet(),SHEETS.RECEIPTS,HEADERS[SHEETS.RECEIPTS]);
   append_(SHEETS.RECEIPTS,[nextSerial_(receiptSheet),receiptId,row.StudentID,'ONLINE_PAYMENT',Number(row.Amount||0),receiptDate,JSON.stringify(receiptData)]);
   const user=sessionUser_(token)||'';const now=now_();
