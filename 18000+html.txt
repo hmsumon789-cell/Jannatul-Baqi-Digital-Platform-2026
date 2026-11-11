@@ -13460,53 +13460,12 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
  #jbOnlineExamResultWin2026 .jb-or-institution-logo,#jbOnlineExamResultWin2026 .jb-or-institution-qr{width:44px!important;height:44px!important}
  #jbOnlineExamResultWin2026 .jb-or-institution-text span,#jbOnlineExamResultWin2026 .jb-or-institution-text small{font-size:10px!important}
  #jbLoginServicePaymentRow2026{gap:6px!important}
- #jbLoginServicePaymentRow2026>#jbLoginOnlinePayment2026,#jbLoginServicePaymentRow2026>#jbLoginOnlineResult20261028{font-size:12px!important;padding:8px 5px!important}
+ #jbLoginServicePaymentRow2026>#jbLoginOnlineResult20261028{font-size:12px!important;padding:8px 5px!important}
 }
 </style>
 <!-- ===== END MOBILE + ONLINE EXAM RESULT VIEWER — 2026-10-08 ===== -->
 
-<!-- ===== LOGIN-FREE ONLINE PAYMENT ENTRY — 2026-10-08 ===== -->
-<style id="jb-login-online-payment-2026">
-#jbLoginOnlinePayment2026{
-  display:block!important;width:min(820px,92vw)!important;margin:10px auto 0!important;
-  min-height:54px!important;padding:11px 18px!important;border:3px solid #8b5e00!important;
-  border-radius:999px!important;background:linear-gradient(135deg,#8b5e00,#d4af37)!important;
-  color:#111!important;font-weight:900!important;font-size:17px!important;cursor:pointer!important;
-  box-shadow:0 7px 18px #0003!important;
-}
-</style>
-<script id="jb-login-online-payment-2026-js">
-(function(){
-  function add(){
-    var lp=document.getElementById('loginPage');
-    if(!lp||document.getElementById('jbLoginOnlinePayment2026'))return;
-    var b=document.createElement('button');
-    b.id='jbLoginOnlinePayment2026';b.type='button';
-    b.textContent='💳 অনলাইন পেমেন্ট করুন ঝামেলাহিন';
-    b.onclick=function(){
-      var w=window.open('about:blank','_blank');
-      if(!w){alert('নতুন পেমেন্ট উইন্ডো খোলা যাচ্ছে না। Browser popup অনুমতি দিন।');return;}
-      try{
-        if(typeof google!=='undefined'&&google.script&&google.script.run){
-          google.script.run.withSuccessHandler(function(r){
-            var u=String(r&&r.ok&&r.url?r.url:location.href).split('#')[0].split('?')[0];
-            w.location.href=u+'?payment=1';
-          }).withFailureHandler(function(){
-            w.location.href=location.href.split('#')[0].split('?')[0]+'?payment=1';
-          }).getMainWebAppUrl();
-        }else{
-          w.location.href=location.href.split('#')[0].split('?')[0]+'?payment=1';
-        }
-      }catch(e){w.location.href=location.href.split('#')[0].split('?')[0]+'?payment=1';}
-    };
-    var q=lp.querySelector('.quick');
-    if(q)q.insertAdjacentElement('afterend',b);else lp.appendChild(b);
-  }
-  add();
-  if(document.body)new MutationObserver(add).observe(document.body,{childList:true,subtree:true});
-})();
-</script>
-<!-- ===== END LOGIN-FREE ONLINE PAYMENT ENTRY ===== -->
+
 
 
 
@@ -13562,9 +13521,8 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   function arrange(){
     var lp=document.getElementById('loginPage'),
         panel=lp&&lp.querySelector('.login'),
-        p=document.getElementById('jbLoginOnlinePayment2026'),
         service=document.getElementById('jbLoginOnlineService2026');
-    if(!lp||!p||!service)return;
+    if(!lp||!service)return;
     panel=panel||lp;
     var row=document.getElementById('jbLoginServicePaymentRow2026');
     if(!row){
@@ -13617,7 +13575,6 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     }
     if(row.parentNode!==panel)panel.appendChild(row);
     if(r.parentNode!==row)row.appendChild(r);
-    if(p.parentNode!==row)row.appendChild(p);
     if(service.parentNode!==row)row.appendChild(service);
     row.style.position='relative';
     row.style.left='auto';
