@@ -2324,18 +2324,25 @@ function showOnlinePaymentReceipt(x){
   openWindow('onlinePaymentReceiptWin');
 }
 async function loadOnlineReceiptPdfLibraries2026(){
-  function load(src,ready){
+  function load(src,ready,label){
     if(ready())return Promise.resolve();
     return new Promise(function(resolve,reject){
-      const old=Array.from(document.scripts).find(function(s){return s.src===src;});
-      if(old){old.addEventListener('load',resolve,{once:true});old.addEventListener('error',reject,{once:true});return;}
-      const script=document.createElement('script');script.src=src;script.async=true;
-      script.onload=resolve;script.onerror=function(){reject(new Error('PDF লাইব্রেরি লোড করা যায়নি।'));};
-      document.head.appendChild(script);
+      var settled=false,timer;
+      function finish(err){
+        if(settled)return;settled=true;clearTimeout(timer);
+        if(err)reject(err);else if(ready())resolve();else reject(new Error(label+' লোড হয়েছে, কিন্তু লাইব্রেরি চালু হয়নি।'));
+      }
+      var old=Array.from(document.scripts).find(function(x){return x.src===src;});
+      var script=old||document.createElement('script');
+      timer=setTimeout(function(){finish(new Error(label+' লোড হতে ২০ সেকেন্ডের বেশি সময় লাগছে। ইন্টারনেট/CDN সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।'));},20000);
+      script.addEventListener('load',function(){finish();},{once:true});
+      script.addEventListener('error',function(){finish(new Error(label+' লোড করা যায়নি। ইন্টারনেট/CDN সংযোগ পরীক্ষা করুন।'));},{once:true});
+      if(!old){script.src=src;script.async=true;document.head.appendChild(script);}
+      else if(script.readyState==='loaded'||script.readyState==='complete')finish();
     });
   }
-  await load('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',function(){return typeof window.html2canvas==='function';});
-  await load('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js',function(){return !!(window.jspdf&&window.jspdf.jsPDF);});
+  await load('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',function(){return typeof window.html2canvas==='function';},'PDF কনভার্টার');
+  await load('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js',function(){return !!(window.jspdf&&window.jspdf.jsPDF);},'PDF জেনারেটর');
 }
 async function buildOnlineReceiptPdf2026(){
   const source=$('onlineReceiptBody');
@@ -2366,11 +2373,29 @@ function downloadOnlineReceiptBlob2026(data){
   document.body.appendChild(link);link.click();link.remove();
   setTimeout(function(){URL.revokeObjectURL(url);},1500);
 }
+let onlineReceiptPdfTask2026=null;
+function getOnlineReceiptPdfOnce2026(){
+  if(!onlineReceiptPdfTask2026)onlineReceiptPdfTask2026=buildOnlineReceiptPdf2026().finally(function(){onlineReceiptPdfTask2026=null;});
+  return onlineReceiptPdfTask2026;
+}
+function setOnlineReceiptActionBusy2026(busy){
+  ['onlineReceiptActions','jbOnlineReceiptPopupActions2026'].forEach(function(id){
+    var box=document.getElementById(id);if(!box)return;
+    Array.from(box.querySelectorAll('button')).forEach(function(btn){
+      if(btn.dataset.originalLabel==null)btn.dataset.originalLabel=btn.textContent;
+      btn.disabled=!!busy;btn.style.opacity=busy?'.55':'1';btn.style.cursor=busy?'wait':'pointer';
+      if(busy&&/ডাউনলোড|শেয়ার/.test(btn.textContent))btn.textContent='⏳ PDF তৈরি হচ্ছে...';
+      else if(!busy)btn.textContent=btn.dataset.originalLabel;
+    });
+  });
+}
 window.shareOnlineReceipt2026=async function(){
   let pdfData=null;
+  if(onlineReceiptPdfTask2026){toast('PDF তৈরি হচ্ছে — শেষ হলে আবার চেষ্টা করুন।');return;}
+  setOnlineReceiptActionBusy2026(true);
   try{
     toast('PDF তৈরি হচ্ছে — অনুগ্রহ করে অপেক্ষা করুন...');
-    pdfData=await buildOnlineReceiptPdf2026();
+    pdfData=await getOnlineReceiptPdfOnce2026();
     if(pdfData.file&&navigator.share&&(!navigator.canShare||navigator.canShare({files:[pdfData.file]}))){
       await navigator.share({title:'জান্নাতুল বাক্বী — মানি রসিদ',text:'রসিদ আইডি: '+((window.__jbOnlineReceipt2026||{}).ReceiptID||''),files:[pdfData.file]});
       return;
@@ -2385,7 +2410,7 @@ window.shareOnlineReceipt2026=async function(){
       return;
     }
     toast('PDF শেয়ার করা যায়নি: '+(err&&err.message?err.message:err));
-  }
+  }finally{setOnlineReceiptActionBusy2026(false);}
 };
 async function searchOnlinePaymentReceipt(){
   const input=$('onlinePaymentReceiptSearchId'),msg=$('onlinePaymentReceiptSearchMessage');
@@ -2443,14 +2468,16 @@ function printOnlineReceipt(){
   openOnlineReceiptPrint2026();
 }
 async function downloadOnlineReceipt(){
+  if(onlineReceiptPdfTask2026){toast('PDF তৈরি হচ্ছে — শেষ হলে আবার চেষ্টা করুন।');return;}
+  setOnlineReceiptActionBusy2026(true);
   try{
     toast('মানিরিসিটের PDF তৈরি হচ্ছে...');
-    const data=await buildOnlineReceiptPdf2026();
+    const data=await getOnlineReceiptPdfOnce2026();
     downloadOnlineReceiptBlob2026(data);
     toast('মানিরিসিট PDF ডাউনলোড শুরু হয়েছে।');
   }catch(err){
     toast('PDF তৈরি করা যায়নি: '+(err&&err.message?err.message:err));
-  }
+  }finally{setOnlineReceiptActionBusy2026(false);}
 }
 async function saveResult(k){const d={StudentID:$('rStudent').value,Name:$('rName').value,Class:$('rClass').value,Exam:$('rExam').value,SubjectData:$('rSubjects').value,Published:'NO',Date:new Date().toISOString()};const r=await call('saveRecord',token,'RESULTS',d);toast(r.ok?'Saved':'Failed')}
 async function uploadMedia(){
