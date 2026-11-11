@@ -2719,7 +2719,8 @@ function getStudentDocumentData(token, studentId) {
   }
   const aliases={FatherNameBN:'FatherBN',FatherNameAR:'FatherAR',FatherNameEN:'FatherEN',MotherNameBN:'MotherBN',MotherNameAR:'MotherAR',MotherNameEN:'MotherEN',PostOffice:'Post',PostName:'Post',PostCodeBN:'PostCode',StudentMobile:'Mobile',Phone:'Mobile',MobileNo:'Mobile',PhotoURL:'Photo',Image:'Photo',StudentPhoto:'Photo',ClassName:'Class',Jamaat:'Class',Jamath:'Class',RollNo:'Roll',BirthRegistration:'BirthReg',BirthRegistrationNo:'BirthReg'};
   Object.keys(aliases).forEach(src=>{const dest=aliases[src];if((!data[dest]||String(data[dest]).trim()==='')&&data[src]!=null&&String(data[src]).trim()!=='')data[dest]=data[src];});
-  return {ok:true,found:true,source:admission?'ADMISSIONS':'STUDENTS',admissionFound:!!admission,studentFound:!!student,studentId:String(resolved.studentId||id),lookupId:id,data:data};
+  const paymentRows=listRows_(SHEETS.PAYMENTS,token,10000).filter(function(r){return String(r.StudentID||'').trim()===String(resolved.studentId||id).trim();});
+  return {ok:true,found:true,source:admission?'ADMISSIONS':'STUDENTS',admissionFound:!!admission,studentFound:!!student,studentId:String(resolved.studentId||id),lookupId:id,data:data,payments:paymentRows};
 }
 
 /* ===== CENTRAL DOCUMENT BUILDER — SAVE + HISTORY — 2026-10-06 ===== */
