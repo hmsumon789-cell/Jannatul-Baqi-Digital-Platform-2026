@@ -3200,7 +3200,7 @@ function getOnlinePaymentStudent(studentId){
   if(resolved.admission){person.Class=person.Class||resolved.admission.Class||'';person.AdmissionID=resolved.admission.AdmissionID||'';}
   const pays=listRows_(SHEETS.PAYMENTS,'',10000).filter(r=>String(r.StudentID||'').trim()===id);
   let paid=0;pays.forEach(r=>{const n=Number(String(r.Amount||'').replace(/[^0-9.-]/g,''));if(isFinite(n))paid+=n;});
-  return {ok:true,student:{StudentID:person.StudentID||id,NameBN:person.NameBN||person.Name||'',NameEN:person.NameEN||'',Class:person.Class||'',Mobile:person.Mobile||person.Phone||person.WhatsApp||'',WhatsApp:person.WhatsApp||person.Mobile||'',Email:person.Email||person.GuardianEmail||''},paid:paid};
+  return {ok:true,student:{StudentID:person.StudentID||id,NameBN:person.NameBN||person.Name||'',NameEN:person.NameEN||'',FatherBN:person.FatherBN||person.FatherName||person.ParentName||person.Father||'',Class:person.Class||'',Mobile:person.Mobile||person.Phone||person.WhatsApp||'',WhatsApp:person.WhatsApp||person.Mobile||'',Email:person.Email||person.GuardianEmail||''},paid:paid};
 }
 function getOnlinePaymentNotifyTargets_(){
   const out={admins:[]};
