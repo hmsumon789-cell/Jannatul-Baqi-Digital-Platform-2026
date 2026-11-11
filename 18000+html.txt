@@ -19446,3 +19446,50 @@ if(document.body)new MutationObserver(function(){if(!window.__jbBoardMode2026)ad
 })();
 </script>
 <!-- END KERANIGANJ REGIONAL BOARD PORTAL -->
+
+<script id="jb-student-add-form-actions-20261111">
+(function(){
+'use strict';
+if(window.__jbStudentAddActions20261111)return;
+window.__jbStudentAddActions20261111=true;
+function addStudentActions(){
+ var win=document.getElementById('formWin'),body=document.getElementById('winBody'),title=document.getElementById('winTitle');
+ if(!win||!body||!title)return;
+ if(!/ছাত্র\/ছাত্রী অ্যাড করুন/.test(title.textContent||''))return;
+ if(!body.querySelector('#fStudentID')||!body.querySelector('#fNameBN'))return;
+ if(body.querySelector('#jbStudentAddActionBar20261111'))return;
+ var bar=document.createElement('div');
+ bar.id='jbStudentAddActionBar20261111';
+ bar.className='form-action-bar';
+ bar.innerHTML='<button type="button" class="primary" onclick="saveModule(\'student\')">💾 সেভ / সাবমিট</button><button type="button" class="primary" onclick="printCurrentForm()">🖨️ প্রিন্ট</button><button type="button" class="primary" onclick="shareStudentAddForm20261111()">↗️ শেয়ার করুন</button>';
+ body.appendChild(bar);
+}
+window.shareStudentAddForm20261111=function(){
+ var ids=['fStudentID','fNameBN','fNameAR','fNameEN','fFatherBN','fMotherBN','fDob','fMobile','fWhatsApp','fEmail','fClass','fDept','fBranch','fAddress','fDivision','fDistrict','fUpazila','fUnion','fWard','fVillage','fBirth','fNid'];
+ var labels=['শিক্ষার্থী আইডি','নাম (বাংলা)','নাম (আরবি)','নাম (ইংরেজি)','পিতার নাম','মাতার নাম','জন্মতারিখ','মোবাইল','হোয়াটসঅ্যাপ','ইমেইল','শ্রেণি','বিভাগ','শাখা','ঠিকানা','বিভাগ','জেলা','উপজেলা','ইউনিয়ন','ওয়ার্ড','গ্রাম','জন্ম নিবন্ধন','জাতীয় পরিচয়পত্র'];
+ var lines=['ছাত্র/ছাত্রী ভর্তি ফর্ম'];
+ ids.forEach(function(id,i){var el=document.getElementById(id);if(el&&String(el.value||'').trim())lines.push(labels[i]+': '+el.value.trim());});
+ var content=lines.join('\n');
+ if(navigator.share){navigator.share({title:'ছাত্র/ছাত্রী ভর্তি ফর্ম',text:content}).catch(function(){});return;}
+ if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(content).then(function(){if(typeof toast==='function')toast('ফর্মের তথ্য কপি হয়েছে');}).catch(function(){window.prompt('তথ্য কপি করুন',content);});return;}
+ window.prompt('তথ্য কপি করুন',content);
+};
+var originalOpen=window.openModule;
+if(typeof originalOpen==='function'){
+ window.openModule=function(key){
+  var result=originalOpen.apply(this,arguments);
+  if(key==='student')setTimeout(addStudentActions,60);
+  return result;
+ };
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(addStudentActions,100);});
+})();
+</script>
+<style id="jb-student-add-form-actions-style-20261111">
+#formWin #winBody>#jbStudentAddActionBar20261111{position:sticky;bottom:0;z-index:999;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:14px 0 0;padding:12px;border:2px solid var(--border);border-radius:14px;background:var(--panel);box-shadow:0 -5px 16px #0003}
+#formWin #winBody>#jbStudentAddActionBar20261111 button{min-height:44px;min-width:145px;font-weight:900}
+@media(max-width:600px){#formWin #winBody>#jbStudentAddActionBar20261111{display:grid;grid-template-columns:1fr}#formWin #winBody>#jbStudentAddActionBar20261111 button{width:100%}}
+#formWin #winBody>button[onclick="saveModule('student')"]{display:none!important}
+@media print{#jbStudentAddActionBar20261111{display:none!important}}
+</style>
+
