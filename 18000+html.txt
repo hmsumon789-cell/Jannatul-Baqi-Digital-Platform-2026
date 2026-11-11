@@ -15314,13 +15314,14 @@ window.jbRsBuild=async function(){
     document.body.insertAdjacentHTML('beforeend',html);
   };
   window.printOnlineReceipt=function(){
-    var b=document.getElementById('onlineReceiptBody');if(!b)return;
-    var w=window.open('','_blank','width=850,height=750');if(!w){window.print();return}
-    var c=contact20261010();
-    var header='<div class="adm-receipt-header-20261010"><div><img src="'+escPrint20261010(c.logo)+'" alt="লোগো"></div><div class="adm-rh-center"><div class="adm-rh-name">'+escPrint20261010(c.name)+'</div><div class="adm-rh-address">'+escPrint20261010(c.address)+'</div><div class="adm-rh-hotline">হটলাইন: '+escPrint20261010(c.hotline)+'</div></div></div>';
-    w.document.open();w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>মানি রসিদ</title><style>@page{size:A5 portrait;margin:7mm}*{box-sizing:border-box}body{font-family:Arial,"Noto Sans Bengali",sans-serif;margin:0;color:#111}.adm-receipt-header-20261010{display:grid;grid-template-columns:18mm minmax(0,1fr);gap:3mm;align-items:center;border-bottom:1.5px solid #222;padding:0 0 3mm;margin-bottom:4mm}.adm-receipt-header-20261010 img{width:16mm;height:16mm;object-fit:contain}.adm-rh-center{text-align:center;line-height:1.25}.adm-rh-name{font-size:12pt;font-weight:900}.adm-rh-address,.adm-rh-hotline{font-size:8pt;font-weight:700;margin-top:2px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:5px;text-align:left}h2,h3{text-align:center}</style></head><body>'+header+b.outerHTML+'</body></html>');
-    w.document.close();w.focus();setTimeout(function(){w.print()},300);
-  };
+    // Use the dedicated receipt printer; do not inject a second institution header.
+    if(typeof window.openOnlineReceiptPrint2026==='function'){
+      window.openOnlineReceiptPrint2026();
+      return;
+    }
+    var b=document.getElementById('onlineReceiptBody');
+    if(b)window.print();
+  };;
 })();
 </script>
 <!-- ===== END PRINT REPAIR 2026-10-10 ===== -->
