@@ -2323,15 +2323,63 @@ function showOnlinePaymentReceipt(x){
     '<div id="onlineReceiptActions" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px"><button class="primary" type="button" onclick="printOnlineReceipt()">🖨️ প্রিন্ট</button><button class="secondary" type="button" onclick="downloadOnlineReceipt()">⬇️ ডাউনলোড</button><button class="secondary" type="button" onclick="shareOnlineReceipt2026()">↗️ শেয়ার</button><button class="secondary" type="button" onclick="closeWindow(\'onlinePaymentReceiptWin\')">বন্ধ করুন</button></div></div>';
   openWindow('onlinePaymentReceiptWin');
 }
+async function loadOnlineReceiptPdfLibraries2026(){
+  function load(src,ready){
+    if(ready())return Promise.resolve();
+    return new Promise(function(resolve,reject){
+      const old=Array.from(document.scripts).find(function(s){return s.src===src;});
+      if(old){old.addEventListener('load',resolve,{once:true});old.addEventListener('error',reject,{once:true});return;}
+      const script=document.createElement('script');script.src=src;script.async=true;
+      script.onload=resolve;script.onerror=function(){reject(new Error('PDF লাইব্রেরি লোড করা যায়নি।'));};
+      document.head.appendChild(script);
+    });
+  }
+  await load('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',function(){return typeof window.html2canvas==='function';});
+  await load('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js',function(){return !!(window.jspdf&&window.jspdf.jsPDF);});
+}
+async function buildOnlineReceiptPdf2026(){
+  const source=$('onlineReceiptBody');
+  if(!source)throw new Error('মানিরিসিট পাওয়া যায়নি।');
+  await loadOnlineReceiptPdfLibraries2026();
+  if(document.fonts&&document.fonts.ready)await document.fonts.ready;
+  const imgs=Array.from(source.querySelectorAll('img'));
+  await Promise.all(imgs.map(function(img){
+    if(img.complete)return Promise.resolve();
+    return new Promise(function(resolve){img.onload=resolve;img.onerror=resolve;setTimeout(resolve,5000);});
+  }));
+  const canvas=await window.html2canvas(source,{scale:2,useCORS:true,allowTaint:false,backgroundColor:'#ffffff',logging:false,scrollX:0,scrollY:0});
+  const JsPDF=window.jspdf.jsPDF;
+  const pdf=new JsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
+  const pageW=210,pageH=297,margin=7;
+  const ratio=Math.min((pageW-margin*2)/canvas.width,(pageH-margin*2)/canvas.height);
+  const imgW=canvas.width*ratio,imgH=canvas.height*ratio;
+  pdf.addImage(canvas.toDataURL('image/jpeg',0.96),'JPEG',(pageW-imgW)/2,(pageH-imgH)/2,imgW,imgH,undefined,'FAST');
+  const receipt=window.__jbOnlineReceipt2026||{};
+  const safeId=String(receipt.ReceiptID||'Money_Receipt').replace(/[^a-zA-Z0-9_-]/g,'_');
+  const blob=pdf.output('blob');
+  const file=typeof File==='function'?new File([blob],'Money_Receipt_'+safeId+'.pdf',{type:'application/pdf'}):null;
+  return {blob:blob,file:file,name:'Money_Receipt_'+safeId+'.pdf'};
+}
+function downloadOnlineReceiptBlob2026(data){
+  const url=URL.createObjectURL(data.blob);
+  const link=document.createElement('a');link.href=url;link.download=data.name;
+  document.body.appendChild(link);link.click();link.remove();
+  setTimeout(function(){URL.revokeObjectURL(url);},1500);
+}
 window.shareOnlineReceipt2026=async function(){
-  const r=window.__jbOnlineReceipt2026||{};
-  const title='জান্নাতুল বাক্বী — মানি রসিদ';
-  const text='পেমেন্ট রসিদ: '+(r.ReceiptID||'')+' | '+Number(r.Amount||0).toLocaleString('bn-BD')+' টাকা';
   try{
-    if(navigator.share){await navigator.share({title:title,text:text,url:location.href});return;}
-    if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(title+'\n'+text+'\n'+location.href);alert('রসিদের তথ্য কপি হয়েছে। এখন শেয়ার করতে পারবেন。');return;}
-    alert('এই ব্রাউজারে সরাসরি শেয়ার সুবিধা নেই।');
-  }catch(err){if(err&&err.name!=='AbortError')alert('শেয়ার করা যায়নি: '+(err.message||err));}
+    toast('PDF তৈরি হচ্ছে — অনুগ্রহ করে অপেক্ষা করুন...');
+    const data=await buildOnlineReceiptPdf2026();
+    if(data.file&&navigator.share&&(!navigator.canShare||navigator.canShare({files:[data.file]}))){
+      await navigator.share({title:'জান্নাতুল বাক্বী — মানি রসিদ',text:'রসিদ আইডি: '+((window.__jbOnlineReceipt2026||{}).ReceiptID||''),files:[data.file]});
+      return;
+    }
+    downloadOnlineReceiptBlob2026(data);
+    toast('এই ব্রাউজারে PDF শেয়ার সমর্থিত নয়। PDF ডাউনলোড হয়েছে — এখন শেয়ার করতে পারবেন।');
+  }catch(err){
+    if(err&&err.name==='AbortError')return;
+    toast('PDF শেয়ার করা যায়নি: '+(err&&err.message?err.message:err));
+  }
 };
 async function searchOnlinePaymentReceipt(){
   const input=$('onlinePaymentReceiptSearchId'),msg=$('onlinePaymentReceiptSearchMessage');
@@ -2388,9 +2436,15 @@ function openOnlineReceiptPrint2026(){
 function printOnlineReceipt(){
   openOnlineReceiptPrint2026();
 }
-function downloadOnlineReceipt(){
-  // ব্রাউজারের Print ডায়ালগে "Save as PDF" নির্বাচন করলেই PDF তৈরি হবে।
-  openOnlineReceiptPrint2026();
+async function downloadOnlineReceipt(){
+  try{
+    toast('মানিরিসিটের PDF তৈরি হচ্ছে...');
+    const data=await buildOnlineReceiptPdf2026();
+    downloadOnlineReceiptBlob2026(data);
+    toast('মানিরিসিট PDF ডাউনলোড শুরু হয়েছে।');
+  }catch(err){
+    toast('PDF তৈরি করা যায়নি: '+(err&&err.message?err.message:err));
+  }
 }
 async function saveResult(k){const d={StudentID:$('rStudent').value,Name:$('rName').value,Class:$('rClass').value,Exam:$('rExam').value,SubjectData:$('rSubjects').value,Published:'NO',Date:new Date().toISOString()};const r=await call('saveRecord',token,'RESULTS',d);toast(r.ok?'Saved':'Failed')}
 async function uploadMedia(){
