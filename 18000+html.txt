@@ -19453,9 +19453,8 @@ if(document.body)new MutationObserver(function(){if(!window.__jbBoardMode2026)ad
 if(window.__jbStudentAddActions20261111)return;
 window.__jbStudentAddActions20261111=true;
 function addStudentActions(){
- var win=document.getElementById('formWin'),body=document.getElementById('winBody'),title=document.getElementById('winTitle');
- if(!win||!body||!title)return;
- if(!/ছাত্র\/ছাত্রী অ্যাড করুন/.test(title.textContent||''))return;
+ var win=document.getElementById('formWin'),body=document.getElementById('winBody');
+ if(!win||!body)return;
  if(!body.querySelector('#fStudentID')||!body.querySelector('#fNameBN'))return;
  if(body.querySelector('#jbStudentAddActionBar20261111'))return;
  var bar=document.createElement('div');
