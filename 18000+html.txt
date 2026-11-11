@@ -2329,7 +2329,7 @@ function showOnlinePaymentReceipt(x){
     '<table>'+fields.map(function(a){return '<tr><th>'+e(a[0])+'</th><td>'+e(a[1]||'—')+'</td></tr>'}).join('')+'</table>'+
     '<div class="or-sign"><span>গ্রহণকারীর স্বাক্ষর: __________________</span><span>প্রদানকারীর স্বাক্ষর: __________________</span></div>'+
     '<div class="or-footer" style="text-align:center;font-size:11px;margin-top:18px;padding-top:10px;border-top:1px dashed #8b5e00">Jannatul Baqi Digital Platform 2026</div></div>'+
-    '<div id="onlineReceiptActions" style="display:flex;align-items:center;gap:8px;justify-content:space-between;flex-wrap:nowrap;width:100%;margin-top:12px;white-space:nowrap"><button class="primary" type="button" style="flex:0 0 auto;margin-right:auto" onclick="printOnlineReceipt()">🖨️ প্রিন্ট</button><button class="secondary" type="button" style="flex:0 0 auto" onclick="downloadOnlineReceipt()">⬇️ PDF ডাউনলোড</button><button class="secondary" type="button" style="flex:0 0 auto" onclick="shareOnlineReceipt2026()">↗️ PDF শেয়ার</button><button class="secondary" type="button" style="flex:0 0 auto" onclick="closeWindow('onlinePaymentReceiptWin')">বন্ধ করুন</button></div></div>';
+    '<div id="onlineReceiptActions" style="display:flex;align-items:center;gap:8px;justify-content:space-between;flex-wrap:nowrap;width:100%;margin-top:12px;white-space:nowrap"><button class="primary" type="button" style="flex:0 0 auto;margin-right:auto" onclick="printOnlineReceipt()">🖨️ প্রিন্ট</button><button class="secondary" type="button" style="flex:0 0 auto" onclick="openOnlineReceiptPdfWindow2026()">⬇️ PDF ডাউনলোড</button><button class="secondary" type="button" style="flex:0 0 auto" onclick="shareOnlineReceipt2026()">↗️ PDF শেয়ার</button><button class="secondary" type="button" style="flex:0 0 auto" onclick="closeWindow('onlinePaymentReceiptWin')">বন্ধ করুন</button></div></div>';
   openWindow('onlinePaymentReceiptWin');
 }
 let onlineReceiptPdfLibrariesTask2026=null;
@@ -2503,6 +2503,36 @@ function openOnlineReceiptPrint2026(){
 }
 function printOnlineReceipt(){
   openOnlineReceiptPrint2026();
+}
+function openOnlineReceiptPdfWindow2026(){
+  if(onlineReceiptPdfTask2026){toast('PDF তৈরি হচ্ছে — একটু অপেক্ষা করুন।');return;}
+  const pdfWin=window.open('','jbOnlineReceiptPdfWindow2026','popup=yes,width=1000,height=760,resizable=yes,scrollbars=yes');
+  if(!pdfWin){toast('PDF উইন্ডো খুলতে Pop-up অনুমতি দিন।');return;}
+  setOnlineReceiptActionBusy2026(true);
+  pdfWin.document.open();
+  pdfWin.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>মানি রসিদ PDF</title><style>*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;font-family:Arial,"Noto Sans Bengali",sans-serif;background:#eef1f5}.pdf-shell{position:fixed;inset:0;background:#eef1f5;display:flex;flex-direction:column}.pdf-bar{height:48px;flex:0 0 48px;display:flex;align-items:center;gap:8px;padding:6px 10px;background:#17365d;color:#fff;cursor:move;user-select:none}.pdf-title{font-weight:900;flex:1}.pdf-bar button{border:0;border-radius:6px;padding:7px 11px;font-weight:800;cursor:pointer;background:#fff;color:#17365d}.pdf-frame{width:100%;height:calc(100% - 48px);border:0;background:#777}.pdf-status{padding:20px;text-align:center;font-weight:800}.pdf-shell.minimized{inset:auto 12px 12px auto;width:300px;height:48px;border-radius:8px;overflow:hidden;box-shadow:0 4px 20px #0005}.pdf-shell.minimized .pdf-frame,.pdf-shell.minimized .pdf-status{display:none}.pdf-shell.maximized{inset:0!important;width:100vw!important;height:100vh!important;border-radius:0}.pdf-shell.dragging{opacity:.96}</style></head><body><div class="pdf-shell" id="pdfShell"><div class="pdf-bar" id="pdfBar"><span class="pdf-title">📄 মানি রসিদ — A5 PDF</span><button id="pdfMax" title="ফুলস্ক্রিন / আগের আকার">□</button><button id="pdfMin" title="মিনিমাইজ">—</button><button id="pdfClose" title="বন্ধ করুন">✕</button></div><div class="pdf-status" id="pdfStatus">PDF তৈরি হচ্ছে…</div><iframe class="pdf-frame" id="pdfFrame" title="A5 PDF Preview" style="display:none"></iframe></div><script>(function(){var shell=document.getElementById('pdfShell'),bar=document.getElementById('pdfBar'),max=document.getElementById('pdfMax'),min=document.getElementById('pdfMin'),close=document.getElementById('pdfClose'),frame=document.getElementById('pdfFrame'),status=document.getElementById('pdfStatus'),maxed=false;max.onclick=function(){if(shell.classList.contains('minimized'))shell.classList.remove('minimized');maxed=!maxed;shell.classList.toggle('maximized',maxed);shell.style.left='';shell.style.top='';max.textContent=maxed?'❐':'□';};min.onclick=function(){shell.classList.toggle('minimized');};close.onclick=function(){try{URL.revokeObjectURL(window.__jbPdfUrl||'');}catch(e){}window.close();};var drag=false,sx=0,sy=0,left=0,top=0;bar.addEventListener('mousedown',function(e){if(e.target.tagName==='BUTTON'||shell.classList.contains('maximized'))return;drag=true;var r=shell.getBoundingClientRect();sx=e.clientX;sy=e.clientY;left=r.left;top=r.top;shell.classList.add('dragging');shell.style.inset='auto';shell.style.left=left+'px';shell.style.top=top+'px';});document.addEventListener('mousemove',function(e){if(!drag)return;shell.style.left=Math.max(0,Math.min(window.innerWidth-shell.offsetWidth,left+e.clientX-sx))+'px';shell.style.top=Math.max(0,Math.min(window.innerHeight-48,top+e.clientY-sy))+'px';});document.addEventListener('mouseup',function(){drag=false;shell.classList.remove('dragging');});window.setPdf=function(url){window.__jbPdfUrl=url;frame.src=url;frame.style.display='block';status.style.display='none';};window.setPdfError=function(msg){status.textContent=msg;};})();</script></body></html>');
+  pdfWin.document.close();
+  (async function(){
+    let data=null;
+    try{
+      toast('A5 PDF তৈরি হচ্ছে...');
+      data=await getOnlineReceiptPdfOnce2026();
+      if(pdfWin.closed)return;
+      const url=URL.createObjectURL(data.blob);
+      pdfWin.setPdf(url);
+      pdfWin.document.title=data.name;
+      pdfWin.__jbPdfDownload=function(){downloadOnlineReceiptBlob2026(data);};
+      const bar=pdfWin.document.getElementById('pdfBar');
+      const download=pdfWin.document.createElement('button');
+      download.textContent='⬇ ডাউনলোড';download.title='PDF ফাইল ডাউনলোড';
+      download.onclick=function(){downloadOnlineReceiptBlob2026(data);};
+      bar.insertBefore(download,bar.querySelector('#pdfMax'));
+      toast('A5 PDF আলাদা উইন্ডোতে খোলা হয়েছে।');
+    }catch(err){
+      if(!pdfWin.closed&&pdfWin.setPdfError)pdfWin.setPdfError('PDF তৈরি করা যায়নি: '+(err&&err.message?err.message:err));
+      toast('PDF তৈরি করা যায়নি: '+(err&&err.message?err.message:err));
+    }finally{setOnlineReceiptActionBusy2026(false);}
+  })();
 }
 async function downloadOnlineReceipt(){
   if(onlineReceiptPdfTask2026){toast('PDF তৈরি হচ্ছে — শেষ হলে আবার চেষ্টা করুন।');return;}
