@@ -2367,17 +2367,23 @@ function downloadOnlineReceiptBlob2026(data){
   setTimeout(function(){URL.revokeObjectURL(url);},1500);
 }
 window.shareOnlineReceipt2026=async function(){
+  let pdfData=null;
   try{
     toast('PDF তৈরি হচ্ছে — অনুগ্রহ করে অপেক্ষা করুন...');
-    const data=await buildOnlineReceiptPdf2026();
-    if(data.file&&navigator.share&&(!navigator.canShare||navigator.canShare({files:[data.file]}))){
-      await navigator.share({title:'জান্নাতুল বাক্বী — মানি রসিদ',text:'রসিদ আইডি: '+((window.__jbOnlineReceipt2026||{}).ReceiptID||''),files:[data.file]});
+    pdfData=await buildOnlineReceiptPdf2026();
+    if(pdfData.file&&navigator.share&&(!navigator.canShare||navigator.canShare({files:[pdfData.file]}))){
+      await navigator.share({title:'জান্নাতুল বাক্বী — মানি রসিদ',text:'রসিদ আইডি: '+((window.__jbOnlineReceipt2026||{}).ReceiptID||''),files:[pdfData.file]});
       return;
     }
-    downloadOnlineReceiptBlob2026(data);
+    downloadOnlineReceiptBlob2026(pdfData);
     toast('এই ব্রাউজারে PDF শেয়ার সমর্থিত নয়। PDF ডাউনলোড হয়েছে — এখন শেয়ার করতে পারবেন।');
   }catch(err){
     if(err&&err.name==='AbortError')return;
+    if(pdfData){
+      downloadOnlineReceiptBlob2026(pdfData);
+      toast('শেয়ার চালু হয়নি। PDF ডাউনলোড হয়েছে — ফাইলটি সংযুক্ত করে শেয়ার করুন।');
+      return;
+    }
     toast('PDF শেয়ার করা যায়নি: '+(err&&err.message?err.message:err));
   }
 };
