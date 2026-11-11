@@ -2061,7 +2061,7 @@ var headers=matrix.shift();return matrix.map(function(cells){var o={};headers.fo
 async function oldStudentReadRows2026(file){
 var ext=(file.name.split('.').pop()||'').toLowerCase();
 if(['xlsx','xls'].includes(ext)){if(!window.XLSX)throw new Error('Excel reader লোড হয়নি। ইন্টারনেট সংযোগ পরীক্ষা করুন অথবা ফাইলটি CSV হিসেবে সংরক্ষণ করুন।');var wb=window.XLSX.read(await file.arrayBuffer(),{type:'array'});var first=wb.Sheets[wb.SheetNames[0]];return first?window.XLSX.utils.sheet_to_json(first,{defval:'',raw:false}):[];}
-if(ext==='docx'){if(!window.mammoth)throw new Error('Word DOCX reader লোড হয়নি। ইন্টারনেট সংযোগ পরীক্ষা করুন অথবা ফাইলটি TXT/CSV হিসেবে সংরক্ষণ করুন।');var result=await window.mammoth.extractRawText({arrayBuffer:await file.arrayBuffer()});var text=result.value||'';var rows=oldStudentDelimitedRows2026(text);if(rows.length)return rows;var lines=text.split(/\\r?\\n/).map(function(x){return x.trim()}).filter(Boolean);if(lines.length>1){var out=[];lines.slice(1).forEach(function(line){var parts=line.split(/\\t+|\\s{2,}/).map(function(x){return x.trim()});if(parts.some(Boolean))out.push({[lines[0]]:parts[0]||'',NameBN:parts[0]||'',FatherNameBN:parts[1]||'',Mobile:parts[2]||''})});return out;}return [];}
+if(ext==='docx'){if(!window.mammoth)throw new Error('Word DOCX reader লোড হয়নি। ইন্টারনেট সংযোগ পরীক্ষা করুন অথবা ফাইলটি TXT/CSV হিসেবে সংরক্ষণ করুন।');var result=await window.mammoth.extractRawText({arrayBuffer:await file.arrayBuffer()});var text=result.value||'';var rows=oldStudentDelimitedRows2026(text);if(rows.length)return rows;var lines=text.split(/\\r?\n/).map(function(x){return x.trim()}).filter(Boolean);if(lines.length>1){var out=[];lines.slice(1).forEach(function(line){var parts=line.split(/\\t+|\\s{2,}/).map(function(x){return x.trim()});if(parts.some(Boolean))out.push({[lines[0]]:parts[0]||'',NameBN:parts[0]||'',FatherNameBN:parts[1]||'',Mobile:parts[2]||''})});return out;}return [];}
 if(['txt','csv'].includes(ext))return oldStudentDelimitedRows2026(await file.text());
 throw new Error(ext==='doc'?'পুরাতন .doc ফাইল সরাসরি পড়া যায় না। Word থেকে .docx বা .txt হিসেবে সংরক্ষণ করুন।':'এই ফাইল ফরম্যাট সমর্থিত নয়। Excel, CSV, TXT অথবা DOCX দিন।');
 }
@@ -19462,7 +19462,7 @@ if(document.body)new MutationObserver(function(){if(!window.__jbBoardMode2026)ad
     var fields=[['শিক্ষার্থী আইডি','fStudentID'],['নাম (বাংলা)','fNameBN'],['নাম (আরবি)','fNameAR'],['নাম (English)','fNameEN'],['পিতার নাম','fFatherBN'],['মাতার নাম','fMotherBN'],['জন্ম তারিখ','fDob'],['মোবাইল','fMobile'],['WhatsApp','fWhatsApp'],['ইমেইল','fEmail'],['শ্রেণি/জামাত','fClass'],['বিভাগ','fDept'],['শাখা','fBranch'],['বিভাগ','fDivision'],['জেলা','fDistrict'],['উপজেলা/থানা','fUpazila'],['ইউনিয়ন','fUnion'],['ওয়ার্ড','fWard'],['গ্রাম','fVillage'],['ঠিকানা','fAddress'],['জন্ম নিবন্ধন','fBirth'],['জাতীয় পরিচয়পত্র','fNid']];
     var lines=['জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা','ছাত্র/ছাত্রী তথ্য'];
     fields.forEach(function(x){var e=el(x[1]),v=e?String(e.value||'').trim():'';if(v)lines.push(x[0]+': '+v)});
-    return lines.join('\\n');
+    return lines.join('\n');
   }
   window.shareStudentAddForm20261111=async function(){
     var text=shareText();
@@ -19478,7 +19478,7 @@ if(document.body)new MutationObserver(function(){if(!window.__jbBoardMode2026)ad
     if(!el('fStudentID')||!el('fNameBN'))return;
     var bar=el('jbStudentFormActionBar20261111');
     if(!bar){bar=document.createElement('div');bar.id='jbStudentFormActionBar20261111';bar.setAttribute('role','group');bar.setAttribute('aria-label','শিক্ষার্থী ফর্মের কার্যক্রম');}
-    bar.innerHTML='<button type="button" class="primary" onclick="saveModule(\\'student\\')">💾 সেভ / সাবমিট</button><button type="button" class="secondary" onclick="printCurrentForm()">🖨️ প্রিন্ট</button><button type="button" class="secondary" onclick="shareStudentAddForm20261111()">↗️ শেয়ার করুন</button>';
+    bar.innerHTML='<button type="button" class="primary" onclick="saveModule(\'student\')">💾 সেভ / সাবমিট</button><button type="button" class="secondary" onclick="printCurrentForm()">🖨️ প্রিন্ট</button><button type="button" class="secondary" onclick="shareStudentAddForm20261111()">↗️ শেয়ার করুন</button>';
     if(bar.parentNode!==body||body.lastElementChild!==bar)body.appendChild(bar);
   }
   var previous=window.openModule;
