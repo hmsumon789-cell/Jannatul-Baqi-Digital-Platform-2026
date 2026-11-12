@@ -14706,7 +14706,7 @@ window.jbRsBuild=async function(){
   window._jbMkSelectedSubjects = window._jbMkSelectedSubjects || [];
   window.jbMkClassSubjects = function(){
     var cl=V('jbMkClass'), el=document.getElementById('jbMkSubject'), box=document.getElementById('jbMkSubjectChecks');
-    if(!el||!box)return;
+    if(!el)return;
     var map={
       'ইসলামিক কিন্ডার গার্টেন বিভাগ':['নুরানী কায়দা','নুরানী নিসাব','ইসলামী ও আরবী শিক্ষা','বাংলা','অংক','ইংরেজী','হাতের লেখা','ছবি অংকন'],
       'আদর্শ নুরানী বিভাগ':['নুরানী কায়দা','নুরানী নিসাব','ইসলামী ও আরবী শিক্ষা','বাংলা','অংক','ইংরেজী','হাতের লেখা','ছবি অংকন','ইসলামি তাহজিব','হাম্দ-নাত-গজল'],
@@ -14731,7 +14731,7 @@ window.jbRsBuild=async function(){
     if(!items.length)items=Array.prototype.map.call(el.options,function(o){return o.value}).filter(Boolean);
     window._jbMkSelectedSubjects=previous.filter(function(x){return items.indexOf(x)>=0});
     el.innerHTML='<option value="">বিষয় নির্বাচন</option>'+items.map(function(x){return '<option value="'+E(x)+'">'+E(x)+'</option>'}).join('');
-    box.innerHTML=items.map(function(x,i){return '<label style="display:flex;gap:8px;align-items:center;padding:5px 2px;white-space:normal"><input type="checkbox" value="'+E(x)+'" '+(window._jbMkSelectedSubjects.indexOf(x)>=0?'checked':'')+' onchange="jbMkSubjectToggle(this)"> '+E(x)+'</label>'}).join('');
+    if(box)box.innerHTML=items.map(function(x,i){return '<label style="display:flex;gap:8px;align-items:center;padding:5px 2px;white-space:normal"><input type="checkbox" value="'+E(x)+'" '+(window._jbMkSelectedSubjects.indexOf(x)>=0?'checked':'')+' onchange="jbMkSubjectToggle(this)"> '+E(x)+'</label>'}).join('');
     window.jbMkUpdateSubjectSummary();
   };
   var jbMkClassControl=document.getElementById('jbMkClass');if(jbMkClassControl)jbMkClassControl.addEventListener('change',window.jbMkClassSubjects);
@@ -18684,7 +18684,7 @@ body.offwhite #institutionDocumentary2026 .institution-documentary-footnote{
  window.jbCloseResultEntry20261025=function(){var w=el(winId);if(w){w.classList.remove('show');w.style.display='none'}};
  function fill(id,values,placeholder){var q=el(id);if(!q)return;var old=q.value;q.innerHTML='<option value="">'+E(placeholder)+'</option>'+(values||[]).map(function(v){return '<option value="'+E(v)+'">'+E(v)+'</option>'}).join('');if(old&&Array.prototype.some.call(q.options,function(o){return o.value===old}))q.value=old}
  function renderSubjectChecks(values,preserve){var box=el('jbReSubjectList20261025');if(!box)return;var old=preserve?selectedSubjects():[];subjectValues=(values||[]).filter(Boolean);box.innerHTML=subjectValues.length?subjectValues.map(function(v){return '<label><input type="checkbox" value="'+E(v)+'" '+(old.indexOf(String(v))>=0?'checked':'')+'> '+E(v)+'</label>'}).join(''):'এই শ্রেণির জন্য বিষয় তালিকা নির্ধারিত নেই';box.querySelectorAll('input[type="checkbox"]').forEach(function(q){q.addEventListener('change',function(){rows=[];el('jbReList20261025').innerHTML='';if(V('jbReExam20261025')&&V('jbReClass20261025')&&V('jbReYear20261025')&&selectedSubjects().length)window.jbLoadResultEntry20261025();else el('jbReStatus20261025').textContent='বিষয় নির্বাচন করে পরীক্ষার্থী তালিকা লোড করুন।'})})}
- function syncSubjects(reset){if(reset){rows=[];if(el('jbReList20261025'))el('jbReList20261025').innerHTML='';if(el('jbReStatus20261025'))el('jbReStatus20261025').textContent='নির্বাচিত শ্রেণির বিষয় তালিকা আপডেট হচ্ছে…'}var cl=V('jbReClass20261025'),legacyClass=el('jbMkClass'),legacySubject=el('jbMkSubject');if(legacyClass&&legacySubject&&typeof window.jbMkClassSubjects==='function'){legacyClass.value=cl;window.jbMkClassSubjects();var vals=Array.prototype.slice.call(legacySubject.options).map(function(o){return o.value}).filter(Boolean);renderSubjectChecks(vals,!reset);return}renderSubjectChecks([],false)}
+ function syncSubjects(reset){if(reset){rows=[];if(el('jbReList20261025'))el('jbReList20261025').innerHTML='';if(el('jbReStatus20261025'))el('jbReStatus20261025').textContent='নির্বাচিত শ্রেণির বিষয় তালিকা আপডেট হচ্ছে…'}var cl=V('jbReClass20261025'),legacyClass=el('jbMkClass'),legacySubject=el('jbMkSubject'),vals=[];if(cl&&legacyClass&&legacySubject&&typeof window.jbMkClassSubjects==='function'){legacyClass.value=cl;window.jbMkClassSubjects();vals=Array.prototype.slice.call(legacySubject.options).map(function(o){return o.value}).filter(Boolean)}renderSubjectChecks(vals,false);var status=el('jbReStatus20261025');if(status)status.textContent=vals.length?'বিষয় তালিকা আপডেট হয়েছে — '+vals.length+'টি বিষয় পাওয়া গেছে। বিষয় টিক দিয়ে পরীক্ষার্থী তালিকা লোড করুন।':'এই শ্রেণির বিষয় তালিকা পাওয়া যায়নি। শ্রেণির বিষয় নির্ধারণ পরীক্ষা করুন।'}
  window.jbRefreshResultEntry20261025=async function(){
   if(!tokenOK())return;ensure();var status=el('jbReStatus20261025');status.textContent='⏳ পরীক্ষা ও শ্রেণির তালিকা লোড হচ্ছে…';
   try{var r=await call('getExamDashboardOptions',token);if(!r||!r.ok)throw new Error(r&&r.message||'তালিকা পাওয়া যায়নি');options=r;
