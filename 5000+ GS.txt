@@ -3779,7 +3779,8 @@ function getExamDashboardData(token, exam, className) {
     const id=String(x.StudentID||'').trim();
     const approval=String(x.ApprovalStatus||'ACTIVE').trim().toUpperCase();
     const allowed=!/SUSPEND|INACTIVE|REJECT|BLOCK|DISABLE|CANCEL/.test(approval);
-    return !!id && allowed && (!cl||String(x.Class||'').trim()===cl) && !!registered[id];
+    const regClass=String((registered[id]||{}).Class||'').trim();
+    return !!id && allowed && (!cl||String(x.Class||'').trim()===cl||regClass===cl) && !!registered[id];
   });
   const results=listRows_(SHEETS.RESULTS,token,10000).filter(function(x){
     return (!ex||String(x.Exam||'').trim()===ex) && (!cl||String(x.Class||'').trim()===cl);
