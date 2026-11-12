@@ -19832,3 +19832,99 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 #formWin #winBody>button[onclick="saveModule('student')"]{display:none!important}
 @media print{#jbStudentAddActionBar20261111{display:none!important}}
 </style>
+
+<!-- ===== EXAM MARKS SAVE FEEDBACK + VISIBLE LIST ACTION — 2026-11-12 ===== -->
+<script id="jbExamMarksSaveListFix20261112">
+(function(){
+  'use strict';
+  function el(id){return document.getElementById(id)}
+  function val(id){return String((el(id)||{}).value||'').trim()}
+  function note(message,good){
+    var box=el('jbMkActionStatus20261112');
+    if(box){box.textContent=message;box.style.color=good?'#176b37':'#9a3412';box.style.background=good?'#e5f7eb':'#fff4e5';}
+    if(typeof window.toast==='function')window.toast(message);
+    else if(!box)alert(message);
+  }
+  function addListControls(){
+    var win=el('jbExamMarksWin2026');
+    if(!win)return;
+    var body=win.querySelector('.jb-emb');
+    if(!body)return;
+    var status=el('jbMkActionStatus20261112');
+    if(!status){
+      status=document.createElement('div');
+      status.id='jbMkActionStatus20261112';
+      status.setAttribute('role','status');
+      status.style.cssText='display:block;margin:8px 0;padding:9px 12px;border-radius:8px;font-weight:800;min-height:20px';
+      status.textContent='পরীক্ষা, শ্রেণি, বিষয় ও শিক্ষাবর্ষ নির্বাচন করে তালিকা লোড করুন।';
+      var table=el('jbMkTable');
+      if(table&&table.parentNode)table.parentNode.insertBefore(status,table);
+      else body.appendChild(status);
+    }
+    var actionRows=body.querySelectorAll('.jb-ea');
+    var first=actionRows&&actionRows[0];
+    if(first&&!el('jbMkShowList20261112')){
+      var b=document.createElement('button');
+      b.type='button';b.id='jbMkShowList20261112';b.className='secondary';
+      b.textContent='📋 তালিকা দেখুন';
+      b.addEventListener('click',function(){
+        if(typeof window.jbMkLoad!=='function'){note('পরীক্ষার্থী তালিকা লোডের ফাংশন পাওয়া যায়নি।',false);return;}
+        note('⏳ পরীক্ষার্থী তালিকা লোড হচ্ছে…',true);
+        Promise.resolve(window.jbMkLoad()).catch(function(e){note('তালিকা খোলা যায়নি: '+String(e&&e.message||e),false);});
+      });
+      var loadButton=first.querySelector('button[onclick*="jbMkLoad"]');
+      if(loadButton&&loadButton.nextSibling)first.insertBefore(b,loadButton.nextSibling);
+      else first.insertBefore(b,first.firstChild);
+    }
+  }
+  var originalSave=window.jbMkSave;
+  window.jbMkSave=async function(){
+    if(typeof token==='undefined'||!token){note('নম্বর সেভ করতে অনুমোদিত অ্যাডমিন হিসেবে লগইন করুন।',false);return;}
+    var rows=window._jbMkRows||[];
+    var exam=val('jbMkExam'),cls=val('jbMkClass'),year=val('jbMkYear');
+    var subjects=window._jbMkSelectedSubjects||[];
+    var max=Number(val('jbMkMaxMark')||100);
+    if(!rows.length||!exam||!cls||!year||!subjects.length){
+      note('পরীক্ষা, শ্রেণি, বিষয় ও শিক্ষাবর্ষ নির্বাচন করে আগে পরীক্ষার্থী তালিকা লোড করুন।',false);return;
+    }
+    var chosen=rows.filter(function(r){return r&&r.selected;});
+    if(!chosen.length){note('নম্বর সেভ করার জন্য অন্তত একজন শিক্ষার্থী নির্বাচন করুন।',false);return;}
+    if(!Number.isFinite(max)||max<1||max>1000){note('পূর্ণমান ১ থেকে ১০০০-এর মধ্যে দিন।',false);return;}
+    var savedCount=0;
+    note('⏳ নম্বর সার্ভারে সংরক্ষণ হচ্ছে…',true);
+    try{
+      for(var j=0;j<subjects.length;j++){
+        var subject=subjects[j],marks=[];
+        for(var i=0;i<chosen.length;i++){
+          var row=chosen[i],rowIndex=rows.indexOf(row);
+          var input=document.querySelector('[data-jbmk-row="'+rowIndex+'"][data-jbmk-sub="'+j+'"]');
+          var raw=String(input&&input.value||'').trim();
+          if(raw===''){note((row.name||row.studentId)+' — '+subject+' বিষয়ের নম্বর লিখুন।',false);return;}
+          var mark=Number(raw);
+          if(!Number.isFinite(mark)||mark<0||mark>max){note((row.name||row.studentId)+' — '+subject+' বিষয়ের নম্বর ০ থেকে '+max+'-এর মধ্যে দিন।',false);return;}
+          marks.push({studentId:row.studentId,name:row.name,mark:mark,maxMark:max,academicYear:year});
+        }
+        var result=await call('saveExamDashboardMarks',token,exam,cls,subject,marks);
+        if(!result||!result.ok)throw new Error((result&&result.message)||subject+' বিষয়ের নম্বর সংরক্ষণ হয়নি।');
+        var count=Number(result.saved||0);
+        if(count!==marks.length)throw new Error(subject+' বিষয়ে '+marks.length+' জনের মধ্যে '+count+' জনের নম্বরই শুধু সংরক্ষিত হয়েছে। Student ID ও STUDENTS শিট যাচাই করুন।');
+        savedCount+=count;
+        chosen.forEach(function(row,i){
+          row.marks=row.marks||{};
+          row.marks[subject]=Number(marks[i].mark);
+        });
+      }
+      if(typeof window.jbMkRenderRows==='function')window.jbMkRenderRows();
+      note('✓ সফলভাবে '+savedCount+'টি নম্বর সংরক্ষণ হয়েছে। পরীক্ষা: '+exam+' | শ্রেণি: '+cls+' | বিষয়: '+subjects.length+'টি | শিক্ষাবর্ষ: '+year,true);
+    }catch(e){
+      note('❌ নম্বর সংরক্ষণ ব্যর্থ: '+String(e&&e.message||e),false);
+    }
+  };
+  addListControls();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',addListControls);
+  if(document.body&&window.MutationObserver){
+    new MutationObserver(addListControls).observe(document.body,{childList:true,subtree:true});
+  }
+})();
+</script>
+<!-- ===== END EXAM MARKS SAVE FEEDBACK + VISIBLE LIST ACTION ===== -->
