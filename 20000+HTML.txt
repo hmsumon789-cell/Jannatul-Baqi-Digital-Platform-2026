@@ -18720,26 +18720,27 @@ body.offwhite #institutionDocumentary2026 .institution-documentary-footnote{
  }
  function jbAnalyzeResultImport20261112(data){
   var headers=data[0].map(function(x){return String(x==null?'':x).trim()}),hn=headers.map(jbNormResultImport20261112);
-  function findHeader(names){for(var i=0;i<names.length;i++){var n=jbNormResultImport20261112(names[i]),idx=hn.indexOf(n);if(idx>=0)return idx}return -1}
-  var idCol=findHeader(['Student ID','StudentID','শিক্ষার্থী আইডি','শিক্ষার্থী আইডি নম্বর','আইডি','ID']),nameCol=findHeader(['Student Name','Name','শিক্ষার্থীর নাম','শিক্ষার্থী নাম','নাম']),rollCol=findHeader(['Roll','রোল','রোল নম্বর']);
+  function findHeader(names){for(var i=0;i<names.length;i++){var idx=hn.indexOf(jbNormResultImport20261112(names[i]));if(idx>=0)return idx}return -1}
+  var idCol=findHeader(['Student ID','StudentID','শিক্ষার্থী আইডি','শিক্ষার্থী আইডি নম্বর','আইডি','ID']),nameCol=findHeader(['Student Name','Name','শিক্ষার্থীর নাম','শিক্ষার্থী নাম','নাম']);
   if(idCol<0&&nameCol<0)throw new Error('ফাইলের প্রথম সারিতে Student ID/শিক্ষার্থী আইডি অথবা শিক্ষার্থীর নামের কলাম থাকতে হবে।');
   var subs=selectedSubjects(),subjectCols={};subs.forEach(function(sub){var idx=hn.indexOf(jbNormResultImport20261112(sub));if(idx>=0)subjectCols[sub]=idx});
   var longSubjectCol=findHeader(['Subject','বিষয়','বিষয়']),markCol=findHeader(['Marks','Mark','প্রাপ্ত নম্বর','নম্বর']),longMode=longSubjectCol>=0&&markCol>=0&&Object.keys(subjectCols).length===0;
   if(!longMode&&!Object.keys(subjectCols).length)throw new Error('নির্বাচিত বিষয়গুলোর কোনো কলাম ফাইলে পাওয়া যায়নি। Excel/Word-এর শিরোনামে বিষয়গুলোর নাম হুবহু লিখুন।');
   var idMap={},nameMap={};rows.forEach(function(r,i){idMap[String(r.id).trim()]=i;var n=jbNormResultImport20261112(r.name);if(n)(nameMap[n]||(nameMap[n]=[])).push(i)});
-  var seen={},matched=[],unmatched=[],invalid=[],duplicate=[],existing=0;
+  var seen={},aggregate={},unmatched=[],invalid=[],duplicate=[],existing=0;
   for(var ri=1;ri<data.length;ri++){
    var line=data[ri],id=idCol>=0?String(line[idCol]||'').trim():'',nm=nameCol>=0?String(line[nameCol]||'').trim():'',idx=-1;
    if(id&&Object.prototype.hasOwnProperty.call(idMap,id))idx=idMap[id];
    else if(idCol<0&&nm&&nameMap[jbNormResultImport20261112(nm)]&&nameMap[jbNormResultImport20261112(nm)].length===1)idx=nameMap[jbNormResultImport20261112(nm)][0];
    if(idx<0){unmatched.push({row:ri+1,id:id,name:nm});continue}
-   if(seen[idx]){duplicate.push({row:ri+1,id:id,name:nm});continue}seen[idx]=true;
+   if(!longMode&&seen[idx]){duplicate.push({row:ri+1,id:id,name:nm});continue}seen[idx]=true;
    var vals={};
-   if(longMode){var subject=String(line[longSubjectCol]||'').trim(),sub=subs.find(function(x){return jbNormResultImport20261112(x)===jbNormResultImport20261112(subject)});if(sub){var raw=String(line[markCol]||'').trim();if(raw!==''){var num=Number(raw.replace(/[০-৯]/g,function(d){return '০১২৩৪৫৬৭৮৯'.indexOf(d)}).replace(/,/g,''));if(Number.isFinite(num))vals[sub]=num;else invalid.push({row:ri+1,name:nm,subject:sub,value:raw})}}}
-   else subs.forEach(function(sub){var ci=subjectCols[sub],raw=String(line[ci]==null?'':line[ci]).trim();if(raw==='')return;var num=Number(raw.replace(/[০-৯]/g,function(d){return '০১২৩৪৫৬৭৮৯'.indexOf(d)}).replace(/,/g,''));if(Number.isFinite(num))vals[sub]=num;else invalid.push({row:ri+1,name:nm,subject:sub,value:raw})});
-   var any=Object.keys(vals).length>0;if(any){var old=Object.keys(vals).filter(function(sub){return rows[idx].marks[sub]&&rows[idx].marks[sub].saved&&String(rows[idx].marks[sub].mark)!==String(vals[sub])}).length;existing+=old;matched.push({index:idx,id:rows[idx].id,name:rows[idx].name,marks:vals})}
+   if(longMode){var subject=String(line[longSubjectCol]||'').trim(),sub=subs.find(function(x){return jbNormResultImport20261112(x)===jbNormResultImport20261112(subject)});if(sub){var raw=String(line[markCol]||'').trim();if(raw!==''){var num=Number(raw.replace(/[০-৯]/g,function(d){return '০১২৩৪৫৬৭৮৯'.indexOf(d)}).replace(/,/g,''));if(Number.isFinite(num)){if(aggregate[idx]&&aggregate[idx][sub]!=null)duplicate.push({row:ri+1,id:id,name:nm,subject:sub});else(aggregate[idx]||(aggregate[idx]={}))[sub]=num}else invalid.push({row:ri+1,name:nm,subject:sub,value:raw})}}}
+   else subs.forEach(function(sub){var raw=String(line[subjectCols[sub]]==null?'':line[subjectCols[sub]]).trim();if(raw==='')return;var num=Number(raw.replace(/[০-৯]/g,function(d){return '০১২৩৪৫৬৭৮৯'.indexOf(d)}).replace(/,/g,''));if(Number.isFinite(num))vals[sub]=num;else invalid.push({row:ri+1,name:nm,subject:sub,value:raw})});
+   if(!longMode&&Object.keys(vals).length)aggregate[idx]=vals;
   }
-  return {matched:matched,unmatched:unmatched,invalid:invalid,duplicate:duplicate,existing:existing,fileRows:data.length-1,subjectCols:Object.keys(subjectCols).length,longMode:longMode};
+  var matched=[];Object.keys(aggregate).forEach(function(k){var idx=Number(k),vals=aggregate[k],missing=subs.filter(function(sub){return vals[sub]==null}),old=Object.keys(vals).filter(function(sub){return rows[idx].marks[sub]&&rows[idx].marks[sub].saved&&String(rows[idx].marks[sub].mark)!==String(vals[sub])}).length;existing+=old;matched.push({index:idx,id:rows[idx].id,name:rows[idx].name,marks:vals,missing:missing})});
+  return {matched:matched,unmatched:unmatched,invalid:invalid,duplicate:duplicate,existing:existing,fileRows:data.length-1,subjectCols:Object.keys(subjectCols).length,longMode:longMode,partial:matched.filter(function(x){return x.missing.length}).length};
  }
  window.jbOpenResultFileImport20261112=function(){if(!tokenOK())return;if(!V('jbReExam20261025')||!V('jbReClass20261025')||!selectedSubjects().length||!rows.length){msg('আগে পরীক্ষা, শ্রেণি, বিষয় নির্বাচন করে পরীক্ষার্থী তালিকা লোড করুন।');return}var input=el('jbResultFileInput20261112');if(input)input.click()};
  window.jbReadResultFile20261112=async function(file){
