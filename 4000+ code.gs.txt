@@ -944,22 +944,25 @@ function logout(token) {
 }
 
 function getBootstrap(token) {
+  // Keep the first dashboard response small: do not read large sheets or
+  // resolve Drive files before the dashboard UI can appear.
   auth_(token);
-  // Dashboard bootstrap must never lose the Feature buttons because one
-  // optional dashboard component (stats/media/notices) failed.
   const modules = getModulesForSession_(token);
-  let stats = {income:0,expense:0,cash:0,due:0,students:0,teachers:0,executives:0,femaleMadrasa:0,maleMadrasa:0,attendanceToday:{present:0,absent:0}};
-  let media = [];
-  let notices = [];
-  try { stats = getStats(token); } catch(e) {}
-  try { media = listMedia(token); } catch(e) {}
-  try { notices = listRows_(SHEETS.NOTICES,token,20); } catch(e) {}
   return {
-    ok:true, institution:getInstitutionForSession_(token),
-    stats, media, notices,
-    modules,
+    ok:true,
+    institution:getInstitutionForSession_(token),
+    stats:{income:0,expense:0,cash:0,due:0,students:0,teachers:0,executives:0,femaleMadrasa:0,maleMadrasa:0,attendanceToday:{present:0,absent:0}},
+    media:[],
+    notices:[],
+    modules:modules,
     classes:getClasses_()
   };
+}
+
+// Loaded separately after the dashboard is visible.
+function getDashboardNotices(token) {
+  auth_(token);
+  return {ok:true,notices:listRows_(SHEETS.NOTICES,token,20)};
 }
 
 function getStats(token) {
