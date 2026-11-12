@@ -2274,9 +2274,35 @@ function findBy_(sheet,key,value){
 }
 const TENANT_SCOPED_SHEETS_ = ['STUDENTS','TEACHERS','DONORS','ADMISSIONS','EXAM_REG','PAYMENTS','EXPENSES','INCOME','RESULTS','ATTENDANCE','MEDIA','FILES','SALARY','CERTIFICATES','ID_CARDS','ADMIT_CARDS','RECEIPTS','ONLINE_SERVICES','EXECUTIVES','ADVISERS','FOUNDERS'];
 function tenantIdentity_(token) {
-  const session=auth_(token), type=String(session.accountType||'admin'), username=String(session.username||'').trim();
-  const root=type!=='madrasa' && isSuperAdmin_(token);
+  return tenantIdentityFromSession_(auth_(token));
+}
+function tenantIdentityFromSession_(session) {
+  const type=String(session.accountType||'admin'), username=String(session.username||'').trim();
+  let root=false;
+  if(type!=='madrasa'){
+    if(username.toLowerCase()==='superadmin') root=true;
+    else {
+      const account=findBy_(SHEETS.ADMINS,'Username',username)||{};
+      const role=String(account.Role||'').toUpperCase().replace(/\s+/g,'_');
+      root=role==='SUPER_ADMIN'||role==='SUPERADMIN';
+    }
+  }
   return {type:type,username:username,key:type+':'+username,root:root};
+}
+function tenantCanSeeRowForIdentity_(sheetName,headers,row,identity) {
+  if(identity.root)return true;
+  const tenantCol=headers.indexOf('TenantAccount');
+  const tenant=tenantCol>=0?String(row[tenantCol]||'').trim():'';
+  if(tenant)return tenant===identity.key;
+  if(sheetName==='STUDENTS') {
+    const sourceCol=headers.indexOf('SourceAccount');
+    return sourceCol>=0&&String(row[sourceCol]||'').trim()===identity.username;
+  }
+  if(sheetName==='ADMINS'||sheetName==='MADRASAS') {
+    const userCol=headers.indexOf('Username');
+    return userCol>=0&&String(row[userCol]||'').trim()===identity.username;
+  }
+  return false;
 }
 function isTenantScopedSheet_(sheetName) { return TENANT_SCOPED_SHEETS_.indexOf(String(sheetName||''))>=0; }
 function ensureTenantSheetColumn_(sh) {
@@ -2288,20 +2314,7 @@ function ensureTenantColumns_() {
   TENANT_SCOPED_SHEETS_.forEach(function(name){const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(name);if(sh)ensureTenantSheetColumn_(sh);});
 }
 function tenantCanSeeRow_(sheetName,headers,row,token) {
-  const identity=tenantIdentity_(token);
-  if(identity.root)return true;
-  const h=headers.map(function(x){return String(x||'').trim();}), tenantCol=h.indexOf('TenantAccount');
-  const tenant=tenantCol>=0?String(row[tenantCol]||'').trim():'';
-  if(tenant)return tenant===identity.key;
-  if(sheetName==='STUDENTS') {
-    const sourceCol=h.indexOf('SourceAccount');
-    return sourceCol>=0 && String(row[sourceCol]||'').trim()===identity.username;
-  }
-  if(sheetName==='ADMINS'||sheetName==='MADRASAS') {
-    const userCol=h.indexOf('Username');
-    return userCol>=0 && String(row[userCol]||'').trim()===identity.username;
-  }
-  return false;
+  return tenantCanSeeRowForIdentity_(sheetName,headers,row,tenantIdentity_(token));
 }
 function getInstitutionForSession_(token) {
   const identity=tenantIdentity_(token);
@@ -2314,12 +2327,22 @@ function listRows_(sheet,token,limit){
   const session=token?auth_(token):null;
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheet); if(!sh||sh.getLastRow()<2)return [];
   const v=sh.getDataRange().getValues(), h=v[0].map(String);
-  let rows=v.slice(1).map(r=>objectFrom_(h,r));
+  let sourceRows=v.slice(1);
   if(session) {
-    if(isTenantScopedSheet_(sheet))rows=rows.filter(function(row){return tenantCanSeeRow_(sheet,h,h.map(function(k){return row[k];}),token);});
-    else if(sheet==='ADMINS'||sheet==='MADRASAS') {const identity=tenantIdentity_(token);if(!identity.root)rows=rows.filter(function(row){return String(row.Username||'').trim()===identity.username;});}
+    // Resolve tenant identity once per sheet read, not once for every row.
+    // Previously each row re-ran auth_(), isSuperAdmin_() and findBy_(),
+    // making dashboard reads increasingly slow as sheets grew.
+    const identity=tenantIdentityFromSession_(session);
+    if(isTenantScopedSheet_(sheet)){
+      sourceRows=sourceRows.filter(function(row){return tenantCanSeeRowForIdentity_(sheet,h,row,identity);});
+    } else if(sheet==='ADMINS'||sheet==='MADRASAS') {
+      if(!identity.root){
+        const userCol=h.indexOf('Username');
+        sourceRows=sourceRows.filter(function(row){return userCol>=0&&String(row[userCol]||'').trim()===identity.username;});
+      }
+    }
   }
-  return rows.slice(0,limit||1000);
+  return sourceRows.slice(0,limit||1000).map(function(row){return objectFrom_(h,row);});
 }
 function normalizeBdMobile_(value){
   let s=String(value==null?'':value).trim();
