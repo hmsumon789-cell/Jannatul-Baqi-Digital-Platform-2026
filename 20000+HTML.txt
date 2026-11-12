@@ -18702,7 +18702,7 @@ body.offwhite #institutionDocumentary2026 .institution-documentary-footnote{
    buf=await file.arrayBuffer();var wb=window.XLSX.read(buf,{type:'array'});if(!wb.SheetNames.length)throw new Error('Excel শিট পাওয়া যায়নি।');
    var sh=wb.Sheets[wb.SheetNames[0]];rowsOut=window.XLSX.utils.sheet_to_json(sh,{header:1,defval:'',raw:false});
   }else if(ext==='csv'||ext==='tsv'||ext==='txt'){
-   var txt=await file.text();var delim=ext==='tsv'?'\t':(txt.split(/\r?\n/)[0].split(';').length>txt.split(/\\r?\\n/)[0].split(',').length?';':',');
+   var txt=await file.text();var delim=ext==='tsv'?'\t':(txt.split(/\r?\n/)[0].split(';').length>txt.split(/\r?\n/)[0].split(',').length?';':',');
    rowsOut=jbCsvRowsResultImport20261112(txt,delim);
   }else if(ext==='docx'){
    if(!window.mammoth)throw new Error('Word reader লোড হয়নি। ইন্টারনেট/CDN সংযোগ পরীক্ষা করুন।');
