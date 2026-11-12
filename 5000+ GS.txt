@@ -326,15 +326,23 @@ function seedLocation_(ss) {
   installLocationRegistry_(ss);
 }
 
+function ensureSystemReadyForLogin_(){
+  // Avoid running the full setup (including location registry installation and seed checks)
+  // on every login. Run it only when one or more required system sheets are missing.
+  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  const missing=Object.keys(SHEETS).some(function(k){return !ss.getSheetByName(SHEETS[k]);});
+  if(missing) setupSystem();
+}
+
 function login(username,password) {
   try {
-    setupSystem();
+    ensureSystemReadyForLogin_();
     username = String(username || '').trim();
     password = String(password || '');
     if (!username || !password) return {ok:false,message:'ইউজার নেম ও পাসওয়ার্ড দিন।'};
     const row = findAdminLogin_(username);
     if (!row) return {ok:false,message:'ইউজার নেম পাওয়া যায়নি।'};
-    const role = String(row.role || (findBy_(SHEETS.ADMINS,'Username',username) || {}).Role || '').toUpperCase().replace(/\s+/g,'_');
+    const role = String(row.role || '').toUpperCase().replace(/\s+/g,'_');
     const status = String(row.status || '').trim().toUpperCase();
     const isSuperAdmin = role === 'SUPER_ADMIN' || role === 'SUPERADMIN' || username.toLowerCase() === 'superadmin';
     // মূল superadmin অ্যাকাউন্টে পুরোনো/ভুল Status থাকলেও অনুমোদনের লুপে আটকে যাবে না;
@@ -472,7 +480,7 @@ function registerMadrasa(data){
 }
 
 function loginNewAdmin(username,password){
-  setupSystem(); username=String(username||'').trim(); password=String(password||'');
+  ensureSystemReadyForLogin_(); username=String(username||'').trim(); password=String(password||'');
   const row=findBy_(SHEETS.ADMINS,'Username',username);
   if(!row) return {ok:false,message:'এই Admin Username পাওয়া যায়নি।'};
 
@@ -481,7 +489,7 @@ function loginNewAdmin(username,password){
 }
 
 function loginMadrasa(username,password){
-  setupSystem(); username=String(username||'').trim(); password=String(password||'');
+  ensureSystemReadyForLogin_(); username=String(username||'').trim(); password=String(password||'');
   const row=findBy_(SHEETS.MADRASAS,'Username',username);
   if(!row) return {ok:false,message:'এই Madrasa Username পাওয়া যায়নি।'};
 
@@ -3758,35 +3766,56 @@ function getAllDocumentBuilderHistory(token, personId) {
 function getExamDashboardData(token, exam, className) {
   auth_(token); requireFeature_(token,'exam');
   const ex=String(exam||'').trim(), cl=String(className||'').trim();
+  // EXAM_REG is the authoritative roster. Join STUDENTS by StudentID,
+  // but do not require a matching STUDENTS.Class value to recognize registration.
   const allStudents=listRows_(SHEETS.STUDENTS,token,10000);
-  // Join registrations to students by StudentID. Older EXAM_REG rows can
-  // contain an empty or outdated Class field; use the student's current class.
-  const regs=listRows_(SHEETS.EXAM_REG,token,10000).filter(function(x){
-    const status=String(x.Status||'REGISTERED').trim().toUpperCase();
-    return (!ex||String(x.Exam||'').trim()===ex) &&
-      !/SUSPEND|INACTIVE|REJECT|CANCEL|DELETE/.test(status);
+  const studentById=Object.create(null);
+  allStudents.forEach(function(student){
+    const id=String(student.StudentID||'').trim();
+    if(id)studentById[id]=student;
   });
-  const studentById={};
-  allStudents.forEach(function(x){const id=String(x.StudentID||'').trim();if(id)studentById[id]=x;});
-  const registered={};
-  regs.forEach(function(x){
-    const id=String(x.StudentID||'').trim();if(!id)return;
-    const student=studentById[id]||{};
-    const regClass=String(x.Class||'').trim(), studentClass=String(student.Class||'').trim();
-    if(!cl||regClass===cl||studentClass===cl||(!regClass&&!studentClass))registered[id]=x;
+  const registrations=listRows_(SHEETS.EXAM_REG,token,10000).filter(function(reg){
+    const status=String(reg.Status||'REGISTERED').trim().toUpperCase();
+    if(ex&&String(reg.Exam||'').trim()!==ex)return false;
+    if(/SUSPEND|INACTIVE|REJECT|CANCEL|DELETE/.test(status))return false;
+    if(!cl)return true;
+    const student=studentById[String(reg.StudentID||'').trim()]||{};
+    const regClass=String(reg.Class||'').trim();
+    const studentClass=String(student.Class||'').trim();
+    return regClass===cl||studentClass===cl;
   });
-  const students=allStudents.filter(function(x){
-    const id=String(x.StudentID||'').trim();
-    const approval=String(x.ApprovalStatus||'ACTIVE').trim().toUpperCase();
-    const allowed=!/SUSPEND|INACTIVE|REJECT|BLOCK|DISABLE|CANCEL/.test(approval);
-    const regClass=String((registered[id]||{}).Class||'').trim();
-    return !!id && allowed && (!cl||String(x.Class||'').trim()===cl||regClass===cl) && !!registered[id];
+  const students=[], matchedRegs=[], seen=Object.create(null);
+  registrations.forEach(function(reg){
+    const id=String(reg.StudentID||'').trim();
+    if(!id||seen[id])return;
+    const student=studentById[id]||{
+      StudentID:id,
+      Class:String(reg.Class||'').trim()
+    };
+    const approval=String(student.ApprovalStatus||'ACTIVE').trim().toUpperCase();
+    if(/SUSPEND|INACTIVE|REJECT|BLOCK|DISABLE|CANCEL/.test(approval))return;
+    seen[id]=true;
+    students.push({student:student,registered:true,registration:reg});
+    matchedRegs.push(reg);
   });
-  const results=listRows_(SHEETS.RESULTS,token,10000).filter(function(x){
-    return (!ex||String(x.Exam||'').trim()===ex) && (!cl||String(x.Class||'').trim()===cl);
+  const results=listRows_(SHEETS.RESULTS,token,10000).filter(function(row){
+    return (!ex||String(row.Exam||'').trim()===ex) &&
+      (!cl||String(row.Class||'').trim()===cl);
   });
-  const matchedRegs=students.map(function(x){return registered[String(x.StudentID||'').trim()];}).filter(Boolean);
-  return {ok:true,exam:ex,className:cl,students:students.map(function(x){const reg=registered[String(x.StudentID||'').trim()];return {student:x,registered:true,registration:reg||null};}),registrations:matchedRegs,results:results,counts:{students:students.length,registered:matchedRegs.length,results:results.length,published:results.filter(function(x){return /^(YES|TRUE|PUBLISHED|প্রকাশিত)$/i.test(String(x.Published||''));}).length}};
+  return {
+    ok:true,exam:ex,className:cl,
+    students:students,
+    registrations:matchedRegs,
+    results:results,
+    counts:{
+      students:students.length,
+      registered:matchedRegs.length,
+      results:results.length,
+      published:results.filter(function(row){
+        return /^(YES|TRUE|PUBLISHED|প্রকাশিত)$/i.test(String(row.Published||''));
+      }).length
+    }
+  };
 }
 function ensureExamAcademicYearColumn_(sh) {let headers=sh.getRange(1,1,1,Math.max(1,sh.getLastColumn())).getValues()[0].map(function(x){return String(x||'').trim();});if(headers.indexOf('AcademicYear')<0){sh.getRange(1,headers.length+1).setValue('AcademicYear');headers.push('AcademicYear');}return headers;}
 function getExamDashboardOptions(token) {
