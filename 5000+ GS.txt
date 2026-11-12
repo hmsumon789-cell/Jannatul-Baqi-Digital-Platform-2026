@@ -3807,12 +3807,13 @@ function saveExamDashboardMarks(token, exam, className, subject, marks) {
   if(!ex||!cl||!sub||!Array.isArray(marks)||!marks.length)return {ok:false,message:'পরীক্ষা, শ্রেণি, বিষয় ও অন্তত একজন শিক্ষার্থীর নম্বর আবশ্যক।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.RESULTS);
   if(!sh)return {ok:false,message:'RESULTS শিট পাওয়া যায়নি।'};
+  ensureTenantSheetColumn_(sh);
   const headers=ensureExamAcademicYearColumn_(sh),ix={};
   headers.forEach(function(h,i){ix[h]=i;});
   const required=['StudentID','Exam','Class','SubjectData','Total','GPA','Grade','Published','Date','AcademicYear'];
   const missing=required.filter(function(k){return ix[k]==null;});
   if(missing.length)return {ok:false,message:'RESULTS শিটে প্রয়োজনীয় কলাম নেই: '+missing.join(', ')};
-  const studentRows=listRows_(SHEETS.STUDENTS,token,10000),studentById=Object.create(null),seen=Object.create(null);
+  const identity=tenantIdentity_(token),studentRows=listRows_(SHEETS.STUDENTS,token,10000),studentById=Object.create(null),seen=Object.create(null);
   studentRows.forEach(function(s){const id=String(s.StudentID||'').trim();if(id)studentById[id]=s;});
   const cleanMarks=[];
   for(let i=0;i<marks.length;i++){
@@ -3848,7 +3849,7 @@ function saveExamDashboardMarks(token, exam, className, subject, marks) {
     }
     let rowIndex=-1,rowObj=null;
     for(let i=1;i<vals.length;i++){
-      if(String(vals[i][ix.StudentID]||'').trim()===id&&String(vals[i][ix.Exam]||'').trim()===ex&&String(vals[i][ix.Class]||'').trim()===cl&&String(vals[i][ix.AcademicYear]||'').trim()===year){
+      if(String(vals[i][ix.StudentID]||'').trim()===id&&String(vals[i][ix.Exam]||'').trim()===ex&&String(vals[i][ix.Class]||'').trim()===cl&&String(vals[i][ix.AcademicYear]||'').trim()===year&&tenantCanSeeRow_(SHEETS.RESULTS,headers,vals[i],token)){
         rowIndex=i+1;rowObj={};headers.forEach(function(k,j){rowObj[k]=vals[i][j];});break;
       }
     }
@@ -3864,6 +3865,7 @@ function saveExamDashboardMarks(token, exam, className, subject, marks) {
     if(rowIndex>0){['Name','SubjectData','Total','GPA','Grade','Published','Date','AcademicYear'].forEach(function(k){if(ix[k]!=null)sh.getRange(rowIndex,ix[k]+1).setValue(data[k]);});}
     else{
       const row=headers.map(function(k){return data[k]===undefined?'':data[k];});
+      if(ix.TenantAccount!=null)row[ix.TenantAccount]=String(student.TenantAccount||(!identity.root?identity.key:''));
       if(ix.Serial!=null)row[ix.Serial]=nextSerial_(sh);
       if(ix.ResultID!=null)row[ix.ResultID]='RES-'+String(row[ix.Serial]||saved+1).padStart(5,'0');
       if(ix.CreatedAt!=null)row[ix.CreatedAt]=now_();
