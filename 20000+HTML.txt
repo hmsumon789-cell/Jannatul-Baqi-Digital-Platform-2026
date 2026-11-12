@@ -10097,7 +10097,7 @@ window.saveResult=async function(k){
 #moduleListWindow2026 .list-actions .action-exam{background:#059669!important}
 #moduleListWindow2026 .list-actions .action-card{background:#7c3aed!important}
 #moduleListWindow2026 .list-footer{display:flex;flex:0 0 auto;justify-content:center;gap:10px;padding:10px;border-top:2px solid var(--border);position:relative;bottom:auto;background:var(--panel);z-index:5}
-@media(max-width:700px){#moduleListWindow2026.show{width:97vw!important;max-height:90vh!important}#moduleListWindow2026 .list-actions{grid-template-columns:repeat(4,minmax(100px,1fr))}}
+@media(max-width:700px){#moduleListWindow2026.show{width:97vw!important;max-height:90vh!important}#moduleListWindow2026 .list-actions{grid-template-columns:repeat(5,minmax(100px,1fr))}}
 @media(max-width:700px){#listSelectorWindow2026 .list-selector-grid{grid-template-columns:1fr}}
 </style>
 <script id="list-button-window-fix-js-2026">
@@ -14755,7 +14755,7 @@ window.jbRsBuild=async function(){
     };
     var items=map[cl]||[];
     var previous=window._jbMkSelectedSubjects.slice();
-    if(!items.length)items=Array.prototype.map.call(el.options,function(o){return o.value}).filter(Boolean);
+    if(!items.length)items=[];
     window._jbMkSelectedSubjects=previous.filter(function(x){return items.indexOf(x)>=0});
     window._jbMkRows=[];var table=document.getElementById("jbMkTable");if(table)table.innerHTML="<p>বিষয় নির্বাচন করুন; বিষয় টিক দিলে নিবন্ধিত শিক্ষার্থীদের নম্বরের ঘর আসবে।</p>";
     el.innerHTML='<option value="">বিষয় নির্বাচন</option>'+items.map(function(x){return '<option value="'+E(x)+'">'+E(x)+'</option>'}).join('');
