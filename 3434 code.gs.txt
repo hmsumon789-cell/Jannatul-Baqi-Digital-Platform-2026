@@ -2106,9 +2106,10 @@ function getSheetData(token,sheetName,limit) {
   auth_(token);
   if(!isSuperAdmin_(token)) return {ok:false,message:'মূল Google Sheet-এর তথ্য দেখার অনুমতি শুধু Super Admin-এর।'};
   const allowedSheets=Object.keys(SHEETS).map(function(k){return SHEETS[k];});
-  if(allowedSheets.indexOf(sheetName)<0)return {ok:false,message:'অজানা Sheet নির্বাচন করা হয়েছে।'};
+  const isSignalSheet=getSignals_().some(function(item){return signalServiceSheetName_(item[0])===sheetName;});
+  if(allowedSheets.indexOf(sheetName)<0&&!isSignalSheet)return {ok:false,message:'অজানা Sheet নির্বাচন করা হয়েছে।'};
   const rows=listRows_(sheetName,token,limit||1000).map(function(r){delete r.Password;delete r.PasswordHash;delete r.password;delete r.passwordHash;return r;});
-  const headers=(HEADERS[sheetName]||[]).filter(function(h){return !/^(password|passwordhash)$/i.test(String(h));});
+  const headers=(isSignalSheet?signalServiceHeaders_():(HEADERS[sheetName]||[])).filter(function(h){return !/^(password|passwordhash)$/i.test(String(h));});
   return {ok:true,headers:headers,rows:rows};
 }
 
