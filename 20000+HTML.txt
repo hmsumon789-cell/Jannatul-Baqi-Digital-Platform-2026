@@ -14726,6 +14726,8 @@ window.jbRsBuild=async function(){
       'মিশকাত জামাত':['মিশকাত শরিফ ১ম','মিশকাত শরিফ ২য়','জালালাইন শরিফ ১ম','জালালাইন শরিফ ২য়','আকীদাতুত তাহাবী','হেদায়া ৩য়','হেদায়া ৪র্থ'],
       'দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)':['বুখারী শরিফ ১ম','বুখারী শরিফ ২য়','মুসলিম শরিফ ১ম','মুসলিম শরিফ ২য়','তিরমিযী শরীফ ১ম','তিরমিযী শরীফ ২য়','আবু দাউদ শরিফ পুর্ন','তাহাবী শরীফ পূর্ন','নাসায়ী ও ইবনু মাজাহ পুন','মুয়াত্তা ইমাম মালেক ও মুহাম্মদ পূর্ন','তেলাওয়াত ও তাজবিদ পুর্ন কুরআান শরীফ']
     };
+    // Expose the active multi-subject map to the separate result-entry window.
+    window.jbMkClassSubjectMap2026=map;
     var items=map[cl]||[];
     var previous=window._jbMkSelectedSubjects.slice();
     if(!items.length)items=Array.prototype.map.call(el.options,function(o){return o.value}).filter(Boolean);
