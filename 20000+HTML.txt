@@ -18674,7 +18674,7 @@ body.offwhite #institutionDocumentary2026 .institution-documentary-footnote{
    '<label>শ্রেণি/জামাত<select id="jbReClass20261025"><option value="">শ্রেণি নির্বাচন</option></select></label>'+
    '<label>শিক্ষাবর্ষ<select id="jbReYear20261025"></select></label>'+
    '<label style="grid-column:1/-1">বিষয় নির্বাচন — এক বা একাধিক বিষয়ে টিক দিন<div id="jbReSubjectList20261025" class="jb-re-subject-box">আগে শ্রেণি/জামাত নির্বাচন করুন</div></label></div>'+
-   '<div class="jb-re-actions" style="margin-top:10px"><button type="button" class="primary" onclick="jbLoadResultEntry20261025()">📋 পরীক্ষার্থী ও নম্বর তালিকা লোড</button><button type="button" class="secondary" onclick="jbSelectResultEntryAll20261025(true)">☑️ সবাই নির্বাচন</button><button type="button" class="secondary" onclick="jbSelectResultEntryAll20261025(false)">☐ নির্বাচন বাতিল</button><button type="button" class="primary" onclick="jbSaveSelectedResultEntries20261025()">💾 নির্বাচিতদের সব বিষয়ের নম্বর একসঙ্গে সংরক্ষণ</button><button type="button" class="secondary" onclick="jbRefreshResultEntry20261025()">↻ রিফ্রেশ</button></div>'+
+   '<div class="jb-re-actions" style="margin-top:10px"><button type="button" class="primary" onclick="jbLoadResultEntry20261025()">📋 পরীক্ষার্থী ও নম্বর তালিকা লোড</button><button type="button" class="secondary" onclick="jbSelectResultEntryAll20261025(true)">☑️ সবাই নির্বাচন</button><button type="button" class="secondary" onclick="jbSelectResultEntryAll20261025(false)">☐ নির্বাচন বাতিল</button><button type="button" class="primary" onclick="jbSaveSelectedResultEntries20261025()">💾 নির্বাচিতদের সব বিষয়ের নম্বর একসঙ্গে সংরক্ষণ</button><button type="button" class="secondary" onclick="jbRefreshResultEntry20261025()">↻ রিফ্রেশ</button><button type="button" class="primary" onclick="jbOpenResultFileImport20261112()">📥 ফাইল থেকে রেজাল্ট ইমপোর্ট</button></div><input id="jbResultFileInput20261112" type="file" accept=".xlsx,.xls,.csv,.tsv,.docx,.pdf,.txt" style="display:none"><div id="jbResultFilePreview20261112" style="margin-top:10px"></div>'+
    '<p id="jbReStatus20261025" role="status">পরীক্ষা, শ্রেণি/জামাত, বিষয় ও শিক্ষাবর্ষ নির্বাচন করুন। নিবন্ধিত পরীক্ষার্থীরা স্বয়ংক্রিয়ভাবে তালিকায় আসবে।</p><div id="jbReList20261025"></div></div>';
   document.body.appendChild(w);
   var head=el('jbReDragHead20261025');
@@ -18682,9 +18682,80 @@ body.offwhite #institutionDocumentary2026 .institution-documentary-footnote{
   head.addEventListener('pointermove',function(ev){if(!dragging)return;w.style.left=Math.max(0,Math.min(window.innerWidth-w.offsetWidth,ev.clientX-dragging.x))+'px';w.style.top=Math.max(0,Math.min(window.innerHeight-45,ev.clientY-dragging.y))+'px'});
   function stopDrag(){dragging=null}head.addEventListener('pointerup',stopDrag);head.addEventListener('pointercancel',stopDrag);
   el('jbReClass20261025').addEventListener('change',function(){syncSubjects(true);});
+  el('jbResultFileInput20261112').addEventListener('change',function(){var f=this.files&&this.files[0];if(f)window.jbReadResultFile20261112(f);this.value='';});
   el('jbReExam20261025').addEventListener('change',function(){if(V('jbReClass20261025')&&V('jbReYear20261025')&&selectedSubjects().length)window.jbLoadResultEntry20261025()});
   el('jbReYear20261025').addEventListener('change',function(){if(V('jbReExam20261025')&&V('jbReClass20261025')&&selectedSubjects().length)window.jbLoadResultEntry20261025()});
  }
+
+ var pendingResultFileImport20261112=null;
+ function jbNormResultImport20261112(v){return String(v==null?'':v).replace(/[০-৯]/g,function(d){return '০১২৩৪৫৬৭৮৯'.indexOf(d)}).toLowerCase().replace(/[\\s_\\-./:()\\[\\]{}]+/g,'').replace(/[^\\p{L}\\p{N}]/gu,'')}
+ function jbCsvRowsResultImport20261112(text,delimiter){
+  var out=[],row=[],cell='',quoted=false;
+  for(var i=0;i<text.length;i++){var c=text[i];if(c==='"'){if(quoted&&text[i+1]==='"'){cell+='"';i++}else quoted=!quoted}else if(c===delimiter&&!quoted){row.push(cell);cell=''}else if((c==='\\n'||c==='\\r')&&!quoted){if(c==='\\r'&&text[i+1]==='\\n')i++;row.push(cell);if(row.some(function(x){return String(x).trim()!==''}))out.push(row);row=[];cell=''}else cell+=c}
+  row.push(cell);if(row.some(function(x){return String(x).trim()!==''}))out.push(row);return out;
+ }
+ async function jbReadRowsResultImport20261112(file){
+  var ext=(file.name.split('.').pop()||'').toLowerCase(),buf,rowsOut=[];
+  if(file.size>15*1024*1024)throw new Error('ফাইল ১৫ MB-এর বেশি। ছোট ফাইল নির্বাচন করুন।');
+  if(ext==='xlsx'||ext==='xls'){
+   if(!window.XLSX)throw new Error('Excel reader লোড হয়নি। ইন্টারনেট/CDN সংযোগ পরীক্ষা করুন।');
+   buf=await file.arrayBuffer();var wb=window.XLSX.read(buf,{type:'array'});if(!wb.SheetNames.length)throw new Error('Excel শিট পাওয়া যায়নি।');
+   var sh=wb.Sheets[wb.SheetNames[0]];rowsOut=window.XLSX.utils.sheet_to_json(sh,{header:1,defval:'',raw:false});
+  }else if(ext==='csv'||ext==='tsv'||ext==='txt'){
+   var txt=await file.text();var delim=ext==='tsv'?'\\t':(txt.split(/\\r?\\n/)[0].split(';').length>txt.split(/\\r?\\n/)[0].split(',').length?';':',');
+   rowsOut=jbCsvRowsResultImport20261112(txt,delim);
+  }else if(ext==='docx'){
+   if(!window.mammoth)throw new Error('Word reader লোড হয়নি। ইন্টারনেট/CDN সংযোগ পরীক্ষা করুন।');
+   buf=await file.arrayBuffer();var doc=await window.mammoth.convertToHtml({arrayBuffer:buf});var parsed=new DOMParser().parseFromString(doc.value,'text/html'),table=parsed.querySelector('table');
+   if(table){rowsOut=Array.from(table.rows).map(function(tr){return Array.from(tr.cells).map(function(td){return td.textContent.trim()})})}
+   else{var raw=await window.mammoth.extractRawText({arrayBuffer:buf});rowsOut=jbCsvRowsResultImport20261112(raw.value.replace(/\\t/g,'|'),'|')}
+  }else if(ext==='pdf'){
+   if(!window.pdfjsLib)throw new Error('PDF reader লোড হয়নি।');
+   buf=await file.arrayBuffer();var pdf=await window.pdfjsLib.getDocument({data:buf}).promise;
+   for(var p=1;p<=pdf.numPages;p++){var page=await pdf.getPage(p),tc=await page.getTextContent(),lines={};tc.items.forEach(function(it){var y=Math.round(it.transform&&it.transform[5]||0);(lines[y]||(lines[y]=[])).push(it.str)});Object.keys(lines).sort(function(a,b){return Number(b)-Number(a)}).forEach(function(y){var line=lines[y].join(' ').trim();if(line)rowsOut.push(line.split(/\\s{2,}|\\t|\\|/).map(function(x){return x.trim()}))})}
+  }else throw new Error('এই ফাইলের ধরন সমর্থিত নয়। Excel, CSV, Word (.docx), PDF বা TXT দিন। পুরোনো .doc ফাইল আগে .docx হিসেবে Save করুন।');
+  rowsOut=rowsOut.filter(function(r){return Array.isArray(r)&&r.some(function(x){return String(x==null?'':x).trim()!==''})});
+  if(rowsOut.length<2)throw new Error('ফাইলে শিরোনামসহ অন্তত ১টি শিক্ষার্থীর সারি পাওয়া যায়নি।');
+  return rowsOut;
+ }
+ function jbAnalyzeResultImport20261112(data){
+  var headers=data[0].map(function(x){return String(x==null?'':x).trim()}),hn=headers.map(jbNormResultImport20261112);
+  function findHeader(names){for(var i=0;i<names.length;i++){var n=jbNormResultImport20261112(names[i]),idx=hn.indexOf(n);if(idx>=0)return idx}return -1}
+  var idCol=findHeader(['Student ID','StudentID','শিক্ষার্থী আইডি','শিক্ষার্থী আইডি নম্বর','আইডি','ID']),nameCol=findHeader(['Student Name','Name','শিক্ষার্থীর নাম','শিক্ষার্থী নাম','নাম']),rollCol=findHeader(['Roll','রোল','রোল নম্বর']);
+  if(idCol<0&&nameCol<0)throw new Error('ফাইলের প্রথম সারিতে Student ID/শিক্ষার্থী আইডি অথবা শিক্ষার্থীর নামের কলাম থাকতে হবে।');
+  var subs=selectedSubjects(),subjectCols={};subs.forEach(function(sub){var idx=hn.indexOf(jbNormResultImport20261112(sub));if(idx>=0)subjectCols[sub]=idx});
+  var longSubjectCol=findHeader(['Subject','বিষয়','বিষয়']),markCol=findHeader(['Marks','Mark','প্রাপ্ত নম্বর','নম্বর']),longMode=longSubjectCol>=0&&markCol>=0&&Object.keys(subjectCols).length===0;
+  if(!longMode&&!Object.keys(subjectCols).length)throw new Error('নির্বাচিত বিষয়গুলোর কোনো কলাম ফাইলে পাওয়া যায়নি। Excel/Word-এর শিরোনামে বিষয়গুলোর নাম হুবহু লিখুন।');
+  var idMap={},nameMap={};rows.forEach(function(r,i){idMap[String(r.id).trim()]=i;var n=jbNormResultImport20261112(r.name);if(n)(nameMap[n]||(nameMap[n]=[])).push(i)});
+  var seen={},matched=[],unmatched=[],invalid=[],duplicate=[],existing=0;
+  for(var ri=1;ri<data.length;ri++){
+   var line=data[ri],id=idCol>=0?String(line[idCol]||'').trim():'',nm=nameCol>=0?String(line[nameCol]||'').trim():'',idx=-1;
+   if(id&&Object.prototype.hasOwnProperty.call(idMap,id))idx=idMap[id];
+   else if(idCol<0&&nm&&nameMap[jbNormResultImport20261112(nm)]&&nameMap[jbNormResultImport20261112(nm)].length===1)idx=nameMap[jbNormResultImport20261112(nm)][0];
+   if(idx<0){unmatched.push({row:ri+1,id:id,name:nm});continue}
+   if(seen[idx]){duplicate.push({row:ri+1,id:id,name:nm});continue}seen[idx]=true;
+   var vals={};
+   if(longMode){var subject=String(line[longSubjectCol]||'').trim(),sub=subs.find(function(x){return jbNormResultImport20261112(x)===jbNormResultImport20261112(subject)});if(sub){var raw=String(line[markCol]||'').trim();if(raw!==''){var num=Number(raw.replace(/[০-৯]/g,function(d){return '০১২৩৪৫৬৭৮৯'.indexOf(d)}).replace(/,/g,''));if(Number.isFinite(num))vals[sub]=num;else invalid.push({row:ri+1,name:nm,subject:sub,value:raw})}}}
+   else subs.forEach(function(sub){var ci=subjectCols[sub],raw=String(line[ci]==null?'':line[ci]).trim();if(raw==='')return;var num=Number(raw.replace(/[০-৯]/g,function(d){return '০১২৩৪৫৬৭৮৯'.indexOf(d)}).replace(/,/g,''));if(Number.isFinite(num))vals[sub]=num;else invalid.push({row:ri+1,name:nm,subject:sub,value:raw})});
+   var any=Object.keys(vals).length>0;if(any){var old=Object.keys(vals).filter(function(sub){return rows[idx].marks[sub]&&rows[idx].marks[sub].saved&&String(rows[idx].marks[sub].mark)!==String(vals[sub])}).length;existing+=old;matched.push({index:idx,id:rows[idx].id,name:rows[idx].name,marks:vals})}
+  }
+  return {matched:matched,unmatched:unmatched,invalid:invalid,duplicate:duplicate,existing:existing,fileRows:data.length-1,subjectCols:Object.keys(subjectCols).length,longMode:longMode};
+ }
+ window.jbOpenResultFileImport20261112=function(){if(!tokenOK())return;if(!V('jbReExam20261025')||!V('jbReClass20261025')||!selectedSubjects().length||!rows.length){msg('আগে পরীক্ষা, শ্রেণি, বিষয় নির্বাচন করে পরীক্ষার্থী তালিকা লোড করুন।');return}var input=el('jbResultFileInput20261112');if(input)input.click()};
+ window.jbReadResultFile20261112=async function(file){
+  var box=el('jbResultFilePreview20261112');if(!box)return;box.textContent='⏳ '+file.name+' পড়া হচ্ছে…';pendingResultFileImport20261112=null;
+  try{var data=await jbReadRowsResultImport20261112(file),analysis=jbAnalyzeResultImport20261112(data);pendingResultFileImport20261112=analysis;
+   box.innerHTML='<div style="border:2px solid #b8860b;border-radius:10px;padding:12px;background:#fff9e8;color:#332600"><b>📄 '+E(file.name)+' — ইমপোর্ট প্রিভিউ</b><p>ফাইলে শিক্ষার্থী সারি: '+analysis.fileRows+' | মিলেছে: '+analysis.matched.length+' | মেলেনি: '+analysis.unmatched.length+' | ভুল নম্বর: '+analysis.invalid.length+' | একই শিক্ষার্থী একাধিকবার: '+analysis.duplicate.length+' | আগে সংরক্ষিত নম্বর পরিবর্তন হবে: '+analysis.existing+'</p><p>মিল পাওয়া শিক্ষার্থীর নম্বর তালিকায় বসাতে নিচের বাটন চাপুন। এখনো সার্ভারে সংরক্ষণ হয়নি।</p><button type="button" class="primary" onclick="jbApplyResultFileImport20261112()">✓ যাচাই করা নম্বর তালিকায় বসান</button><button type="button" class="secondary" onclick="jbCancelResultFileImport20261112()">বাতিল</button><details style="margin-top:8px"><summary>মিল না পাওয়া/ভুল সারির বিবরণ</summary><pre style="white-space:pre-wrap;max-height:180px;overflow:auto">'+E(JSON.stringify({unmatched:analysis.unmatched.slice(0,30),invalid:analysis.invalid.slice(0,30),duplicate:analysis.duplicate.slice(0,30)},null,2))+'</pre></details></div>';
+  }catch(e){box.textContent='❌ ফাইল ইমপোর্ট করা যায়নি: '+(e&&e.message||e)}
+ };
+ window.jbApplyResultFileImport20261112=function(){
+  var a=pendingResultFileImport20261112;if(!a||!a.matched.length){msg('ইমপোর্ট করার মতো মিল পাওয়া নম্বর নেই।');return}
+  if(a.existing&&!confirm(a.existing+'টি আগে সংরক্ষিত নম্বর পরিবর্তিত হবে। নিশ্চিত?'))return;
+  if(!confirm(a.matched.length+' জন শিক্ষার্থীর ফাইলের নম্বর তালিকায় বসানো হবে। এরপর “নির্বাচিতদের সব বিষয়ের নম্বর একসঙ্গে সংরক্ষণ” চাপতে হবে। চালিয়ে যাবেন?'))return;
+  a.matched.forEach(function(m){var r=rows[m.index];r.selected=true;Object.keys(m.marks).forEach(function(sub){if(r.marks[sub]){r.marks[sub].mark=String(m.marks[sub]);r.marks[sub].saved=false;r.marks[sub].published=false}})});
+  render();var box=el('jbResultFilePreview20261112');if(box)box.textContent='✓ '+a.matched.length+' জন শিক্ষার্থীর নম্বর তালিকায় বসানো হয়েছে। এখন “নির্বাচিতদের সব বিষয়ের নম্বর একসঙ্গে সংরক্ষণ” চাপুন।';pendingResultFileImport20261112=null;
+ };
+ window.jbCancelResultFileImport20261112=function(){pendingResultFileImport20261112=null;var box=el('jbResultFilePreview20261112');if(box)box.innerHTML='ফাইল ইমপোর্ট বাতিল করা হয়েছে।'};
  window.jbToggleResultEntryFullscreen20261025=function(){var w=el(winId);if(!w)return;w.classList.toggle('jb-re-fullscreen');if(w.classList.contains('jb-re-fullscreen')){w.style.left='0';w.style.top='0';w.style.inset='0'}else{w.style.inset='4vh 3vw auto';w.style.left='';w.style.top='';w.style.width='';w.style.height=''}};
  window.jbCloseResultEntry20261025=function(){var w=el(winId);if(w){w.classList.remove('show');w.style.display='none'}};
  function fill(id,values,placeholder){var q=el(id);if(!q)return;var old=q.value;q.innerHTML='<option value="">'+E(placeholder)+'</option>'+(values||[]).map(function(v){return '<option value="'+E(v)+'">'+E(v)+'</option>'}).join('');if(old&&Array.prototype.some.call(q.options,function(o){return o.value===old}))q.value=old}
