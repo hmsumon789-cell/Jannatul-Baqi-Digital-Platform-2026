@@ -3758,17 +3758,31 @@ function getAllDocumentBuilderHistory(token, personId) {
 function getExamDashboardData(token, exam, className) {
   auth_(token); requireFeature_(token,'exam');
   const ex=String(exam||'').trim(), cl=String(className||'').trim();
-  const students=listRows_(SHEETS.STUDENTS,token,10000).filter(function(x){
-    return String(x.ApprovalStatus||'ACTIVE').toUpperCase()==='ACTIVE' && (!cl||String(x.Class||'').trim()===cl);
-  });
+  const allStudents=listRows_(SHEETS.STUDENTS,token,10000);
+  // Join registrations to students by StudentID. Older EXAM_REG rows can
+  // contain an empty or outdated Class field; use the student's current class.
   const regs=listRows_(SHEETS.EXAM_REG,token,10000).filter(function(x){
-    return (!ex||String(x.Exam||'').trim()===ex) && (!cl||String(x.Class||'').trim()===cl);
+    return (!ex||String(x.Exam||'').trim()===ex);
+  });
+  const studentById={};
+  allStudents.forEach(function(x){const id=String(x.StudentID||'').trim();if(id)studentById[id]=x;});
+  const registered={};
+  regs.forEach(function(x){
+    const id=String(x.StudentID||'').trim();if(!id)return;
+    const student=studentById[id]||{};
+    const regClass=String(x.Class||'').trim(), studentClass=String(student.Class||'').trim();
+    if(!cl||regClass===cl||studentClass===cl||(!regClass&&!studentClass))registered[id]=x;
+  });
+  const students=allStudents.filter(function(x){
+    const id=String(x.StudentID||'').trim();
+    return String(x.ApprovalStatus||'ACTIVE').toUpperCase()==='ACTIVE' &&
+      (!cl||String(x.Class||'').trim()===cl) && !!registered[id];
   });
   const results=listRows_(SHEETS.RESULTS,token,10000).filter(function(x){
     return (!ex||String(x.Exam||'').trim()===ex) && (!cl||String(x.Class||'').trim()===cl);
   });
-  const registered={}; regs.forEach(function(x){registered[String(x.StudentID||'')]=x;});
-  return {ok:true,exam:ex,className:cl,students:students.map(function(x){return {student:x,registered:!!registered[String(x.StudentID||'')],registration:registered[String(x.StudentID||'')]||null};}),registrations:regs,results:results,counts:{students:students.length,registered:regs.length,results:results.length,published:results.filter(function(x){return /^(YES|TRUE|PUBLISHED|প্রকাশিত)$/i.test(String(x.Published||''));}).length}};
+  const matchedRegs=students.map(function(x){return registered[String(x.StudentID||'').trim()];}).filter(Boolean);
+  return {ok:true,exam:ex,className:cl,students:students.map(function(x){const reg=registered[String(x.StudentID||'').trim()];return {student:x,registered:true,registration:reg||null};}),registrations:matchedRegs,results:results,counts:{students:students.length,registered:matchedRegs.length,results:results.length,published:results.filter(function(x){return /^(YES|TRUE|PUBLISHED|প্রকাশিত)$/i.test(String(x.Published||''));}).length}};
 }
 function ensureExamAcademicYearColumn_(sh) {let headers=sh.getRange(1,1,1,Math.max(1,sh.getLastColumn())).getValues()[0].map(function(x){return String(x||'').trim();});if(headers.indexOf('AcademicYear')<0){sh.getRange(1,headers.length+1).setValue('AcademicYear');headers.push('AcademicYear');}return headers;}
 function getExamDashboardOptions(token) {
