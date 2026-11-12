@@ -1097,14 +1097,14 @@ function getExamDashboardData(token, exam, className) {
   const students=listRows_(SHEETS.STUDENTS,token,10000), regs=listRows_(SHEETS.EXAM_REG,token,10000), results=listRows_(SHEETS.RESULTS,token,10000);
   const studentById={}; students.forEach(s=>{studentById[String(s.StudentID||'').trim()]=s;});
   const relevantRegs=regs.filter(r=>(!exam||String(r.Exam||'').trim()===exam)&&(!className||String(r.Class||'').trim()===className));
-  const regIds=new Set(relevantRegs.map(r=>String(r.StudentID||'').trim()));
-  const candidateRows=exam?students.filter(s=>regIds.has(String(s.StudentID||'').trim())):students;
-  const enriched=candidateRows.map(s=>{
-    const id=String(s.StudentID||'').trim();
-    const reg=relevantRegs.find(r=>String(r.StudentID||'').trim()===id)||{};
-    return {student:s,registered:!!reg.StudentID,registration:reg};
+  // EXAM_REG-কে নিবন্ধিত পরীক্ষার্থীর মূল তালিকা ধরা হবে; STUDENTS থেকে StudentID দিয়ে তথ্য যুক্ত হবে।
+  // এতে STUDENTS-এর Class/অন্যান্য ফিল্ড ফাঁকা বা ভিন্ন হলেও নিবন্ধিত পরীক্ষার্থী বাদ পড়বে না।
+  const enriched=relevantRegs.map(reg=>{
+    const id=String(reg.StudentID||'').trim();
+    const student=studentById[id]||{};
+    return {student:student,registered:true,registration:reg};
   });
-  return {ok:true,students:enriched,results:results.filter(r=>(!exam||String(r.Exam||'').trim()===exam)&&(!className||String(r.Class||'').trim()===className)),counts:{registered:relevantRegs.length,published:results.filter(r=>String(r.Published||'').toUpperCase()==='TRUE').length,results:results.length}};
+  return {ok:true,students:enriched,registrations:relevantRegs,results:results.filter(r=>(!exam||String(r.Exam||'').trim()===exam)&&(!className||String(r.Class||'').trim()===className)),counts:{registered:relevantRegs.length,published:results.filter(r=>String(r.Published||'').toUpperCase()==='TRUE').length,results:results.length}};
 }
 function saveExamDashboardMarks(token, exam, className, subject, marks) {
   auth_(token); requireFeature_(token,'exam');
