@@ -18688,10 +18688,10 @@ body.offwhite #institutionDocumentary2026 .institution-documentary-footnote{
  }
 
  var pendingResultFileImport20261112=null;
- function jbNormResultImport20261112(v){return String(v==null?'':v).replace(/[০-৯]/g,function(d){return '০১২৩৪৫৬৭৮৯'.indexOf(d)}).toLowerCase().replace(/[\\s_\\-./:()\\[\\]{}]+/g,'').replace(/[^\\p{L}\\p{N}]/gu,'')}
+ function jbNormResultImport20261112(v){return String(v==null?'':v).replace(/[০-৯]/g,function(d){return '০১২৩৪৫৬৭৮৯'.indexOf(d)}).toLowerCase().replace(/[\s_\-./:()\[\]{}]+/g,'').replace(/[^\p{L}\p{N}]/gu,'')}
  function jbCsvRowsResultImport20261112(text,delimiter){
   var out=[],row=[],cell='',quoted=false;
-  for(var i=0;i<text.length;i++){var c=text[i];if(c==='"'){if(quoted&&text[i+1]==='"'){cell+='"';i++}else quoted=!quoted}else if(c===delimiter&&!quoted){row.push(cell);cell=''}else if((c==='\\n'||c==='\\r')&&!quoted){if(c==='\\r'&&text[i+1]==='\\n')i++;row.push(cell);if(row.some(function(x){return String(x).trim()!==''}))out.push(row);row=[];cell=''}else cell+=c}
+  for(var i=0;i<text.length;i++){var c=text[i];if(c==='"'){if(quoted&&text[i+1]==='"'){cell+='"';i++}else quoted=!quoted}else if(c===delimiter&&!quoted){row.push(cell);cell=''}else if((c==='\n'||c==='\r')&&!quoted){if(c==='\r'&&text[i+1]==='\n')i++;row.push(cell);if(row.some(function(x){return String(x).trim()!==''}))out.push(row);row=[];cell=''}else cell+=c}
   row.push(cell);if(row.some(function(x){return String(x).trim()!==''}))out.push(row);return out;
  }
  async function jbReadRowsResultImport20261112(file){
@@ -18702,17 +18702,17 @@ body.offwhite #institutionDocumentary2026 .institution-documentary-footnote{
    buf=await file.arrayBuffer();var wb=window.XLSX.read(buf,{type:'array'});if(!wb.SheetNames.length)throw new Error('Excel শিট পাওয়া যায়নি।');
    var sh=wb.Sheets[wb.SheetNames[0]];rowsOut=window.XLSX.utils.sheet_to_json(sh,{header:1,defval:'',raw:false});
   }else if(ext==='csv'||ext==='tsv'||ext==='txt'){
-   var txt=await file.text();var delim=ext==='tsv'?'\\t':(txt.split(/\\r?\\n/)[0].split(';').length>txt.split(/\\r?\\n/)[0].split(',').length?';':',');
+   var txt=await file.text();var delim=ext==='tsv'?'\t':(txt.split(/\r?\n/)[0].split(';').length>txt.split(/\\r?\\n/)[0].split(',').length?';':',');
    rowsOut=jbCsvRowsResultImport20261112(txt,delim);
   }else if(ext==='docx'){
    if(!window.mammoth)throw new Error('Word reader লোড হয়নি। ইন্টারনেট/CDN সংযোগ পরীক্ষা করুন।');
    buf=await file.arrayBuffer();var doc=await window.mammoth.convertToHtml({arrayBuffer:buf});var parsed=new DOMParser().parseFromString(doc.value,'text/html'),table=parsed.querySelector('table');
    if(table){rowsOut=Array.from(table.rows).map(function(tr){return Array.from(tr.cells).map(function(td){return td.textContent.trim()})})}
-   else{var raw=await window.mammoth.extractRawText({arrayBuffer:buf});rowsOut=jbCsvRowsResultImport20261112(raw.value.replace(/\\t/g,'|'),'|')}
+   else{var raw=await window.mammoth.extractRawText({arrayBuffer:buf});rowsOut=jbCsvRowsResultImport20261112(raw.value.replace(/\t/g,'|'),'|')}
   }else if(ext==='pdf'){
    if(!window.pdfjsLib)throw new Error('PDF reader লোড হয়নি।');
    buf=await file.arrayBuffer();var pdf=await window.pdfjsLib.getDocument({data:buf}).promise;
-   for(var p=1;p<=pdf.numPages;p++){var page=await pdf.getPage(p),tc=await page.getTextContent(),lines={};tc.items.forEach(function(it){var y=Math.round(it.transform&&it.transform[5]||0);(lines[y]||(lines[y]=[])).push(it.str)});Object.keys(lines).sort(function(a,b){return Number(b)-Number(a)}).forEach(function(y){var line=lines[y].join(' ').trim();if(line)rowsOut.push(line.split(/\\s{2,}|\\t|\\|/).map(function(x){return x.trim()}))})}
+   for(var p=1;p<=pdf.numPages;p++){var page=await pdf.getPage(p),tc=await page.getTextContent(),lines={};tc.items.forEach(function(it){var y=Math.round(it.transform&&it.transform[5]||0);(lines[y]||(lines[y]=[])).push(it.str)});Object.keys(lines).sort(function(a,b){return Number(b)-Number(a)}).forEach(function(y){var line=lines[y].join(' ').trim();if(line)rowsOut.push(line.split(/\s{2,}|\t|\|/).map(function(x){return x.trim()}))})}
   }else throw new Error('এই ফাইলের ধরন সমর্থিত নয়। Excel, CSV, Word (.docx), PDF বা TXT দিন। পুরোনো .doc ফাইল আগে .docx হিসেবে Save করুন।');
   rowsOut=rowsOut.filter(function(r){return Array.isArray(r)&&r.some(function(x){return String(x==null?'':x).trim()!==''})});
   if(rowsOut.length<2)throw new Error('ফাইলে শিরোনামসহ অন্তত ১টি শিক্ষার্থীর সারি পাওয়া যায়নি।');
