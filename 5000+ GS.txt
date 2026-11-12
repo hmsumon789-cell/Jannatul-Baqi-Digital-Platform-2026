@@ -3762,7 +3762,9 @@ function getExamDashboardData(token, exam, className) {
   // Join registrations to students by StudentID. Older EXAM_REG rows can
   // contain an empty or outdated Class field; use the student's current class.
   const regs=listRows_(SHEETS.EXAM_REG,token,10000).filter(function(x){
-    return (!ex||String(x.Exam||'').trim()===ex);
+    const status=String(x.Status||'REGISTERED').trim().toUpperCase();
+    return (!ex||String(x.Exam||'').trim()===ex) &&
+      !/SUSPEND|INACTIVE|REJECT|CANCEL|DELETE/.test(status);
   });
   const studentById={};
   allStudents.forEach(function(x){const id=String(x.StudentID||'').trim();if(id)studentById[id]=x;});
@@ -3775,8 +3777,9 @@ function getExamDashboardData(token, exam, className) {
   });
   const students=allStudents.filter(function(x){
     const id=String(x.StudentID||'').trim();
-    return String(x.ApprovalStatus||'ACTIVE').toUpperCase()==='ACTIVE' &&
-      (!cl||String(x.Class||'').trim()===cl) && !!registered[id];
+    const approval=String(x.ApprovalStatus||'ACTIVE').trim().toUpperCase();
+    const allowed=!/SUSPEND|INACTIVE|REJECT|BLOCK|DISABLE|CANCEL/.test(approval);
+    return !!id && allowed && (!cl||String(x.Class||'').trim()===cl) && !!registered[id];
   });
   const results=listRows_(SHEETS.RESULTS,token,10000).filter(function(x){
     return (!ex||String(x.Exam||'').trim()===ex) && (!cl||String(x.Class||'').trim()===cl);
