@@ -143,7 +143,9 @@ function seedLocation_(ss) {
 
 function login(username,password) {
   try {
-    setupSystem();
+    const loginSS = SpreadsheetApp.getActiveSpreadsheet();
+    const requiredLoginSheets = [SHEETS.ADMINS,SHEETS.OTP_LOG,SHEETS.CONFIG,SHEETS.LOCATION_MASTER];
+    if (requiredLoginSheets.some(name => !loginSS.getSheetByName(name))) setupSystem();
     username = String(username || '').trim();
     password = String(password || '');
     if (!username || !password) return {ok:false,message:'ইউজার নেম ও পাসওয়ার্ড দিন।'};
@@ -151,8 +153,7 @@ function login(username,password) {
     if (!row) return {ok:false,message:'ইউজার নেম পাওয়া যায়নি।'};
 
     // আগে Role যাচাই: Super Admin-এর Status ফাঁকা/PENDING হলেও লগইন চলবে।
-    const full = findBy_(SHEETS.ADMINS,'Username',username) || {};
-    const role = String(full.Role || full.role || '').trim().toUpperCase().replace(/[\s-]+/g,'_');
+    const role = String(row.role || (username.toLowerCase() === 'superadmin' ? 'SUPER_ADMIN' : '')).trim().toUpperCase().replace(/[\s-]+/g,'_');
     const isSuperAdmin = role === 'SUPER_ADMIN' || role === 'SUPERADMIN';
     const status = String(row.status || '').trim().toUpperCase();
     if (isSuperAdmin ? ['SUSPENDED','DISABLED','INACTIVE','BLOCKED'].includes(status) : status !== 'ACTIVE') {
@@ -440,21 +441,26 @@ function logout(token) {
 
 function getBootstrap(token) {
   auth_(token);
-  // Dashboard bootstrap must never lose the Feature buttons because one
-  // optional dashboard component (stats/media/notices) failed.
+  // Return the authorized module list first; expensive dashboard extras load separately.
   const modules = getModulesForSession_(token);
-  let stats = {income:0,expense:0,cash:0,due:0,students:0,teachers:0,executives:0,femaleMadrasa:0,maleMadrasa:0,attendanceToday:{present:0,absent:0}};
-  let media = [];
-  let notices = [];
-  try { stats = getStats(token); } catch(e) {}
-  try { media = listMedia(token); } catch(e) {}
-  try { notices = listRows_(SHEETS.NOTICES,token,20); } catch(e) {}
   return {
-    ok:true, institution:APP,
-    stats, media, notices,
+    ok:true,
+    institution:APP,
     modules,
-    classes:getClasses_()
+    stats:{income:0,expense:0,cash:0,due:0,students:0,teachers:0,executives:0,femaleMadrasa:0,maleMadrasa:0,attendanceToday:{present:0,absent:0}},
+    media:[],
+    notices:[]
   };
+}
+
+function getDashboardExtras(token) {
+  auth_(token);
+  let stats={income:0,expense:0,cash:0,due:0,students:0,teachers:0,executives:0,femaleMadrasa:0,maleMadrasa:0,attendanceToday:{present:0,absent:0}};
+  let media=[], notices=[];
+  try { stats=getStats(token); } catch(e) {}
+  try { media=listMedia(token); } catch(e) {}
+  try { notices=listRows_(SHEETS.NOTICES,token,20); } catch(e) {}
+  return {ok:true,stats:stats,media:media,notices:notices};
 }
 
 function getStats(token) {
@@ -847,6 +853,7 @@ function findAdminLogin_(username){
     if(String(v[i][ui]).trim().toLowerCase()===String(username).trim().toLowerCase()){
       return {
         status: si==null?'ACTIVE':String(v[i][si]||'ACTIVE'),
+        role: idx.role==null?'':String(v[i][idx.role]||''),
         passwordHash:String(v[i][pi]||''),
         email: ei==null?'':String(v[i][ei]||'')
       };
