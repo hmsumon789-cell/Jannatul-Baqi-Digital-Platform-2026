@@ -18775,7 +18775,7 @@ body.offwhite #institutionDocumentary2026 .institution-documentary-footnote{
   if(!tokenOK())return;var ex=V('jbReExam20261025'),cl=V('jbReClass20261025'),subs=selectedSubjects(),year=V('jbReYear20261025'),box=el('jbReList20261025'),status=el('jbReStatus20261025');
   if(!ex||!cl||!subs.length||!year){msg('পরীক্ষা, শ্রেণি/জামাত, অন্তত একটি বিষয় ও শিক্ষাবর্ষ নির্বাচন করুন।');return}
   status.textContent='⏳ নিবন্ধিত পরীক্ষার্থী ও সংরক্ষিত নম্বর লোড হচ্ছে…';box.innerHTML='';
-  try{var r=await call('getExamDashboardData',token,ex,cl);if(!r||!r.ok)throw new Error(r&&r.message||'তালিকা পাওয়া যায়নি');
+  try{var r=await call('getExamDashboardData',token,ex,'');if(!r||!r.ok)throw new Error(r&&r.message||'তালিকা পাওয়া যায়নি');
    var res=r.results||[], studentMap={};(r.students||[]).forEach(function(x){var st=x.student||{};if(st.StudentID)studentMap[String(st.StudentID).trim()]=st});
    var regMap={},candidates=[];(r.registrations||[]).forEach(function(reg){var id=String(reg.StudentID||'').trim();if(!id)return;var st=studentMap[id]||{},regClass=String(reg.Class||'').trim(),studentClass=String(st.Class||'').trim();if(regClass!==cl&&studentClass!==cl)return;if(String(reg.Status||'ACTIVE').toUpperCase()!=='ACTIVE')return;if(!regMap[id]){regMap[id]=true;candidates.push({student:st,registration:reg,registered:true})}});
    if(!candidates.length)candidates=(r.students||[]).filter(function(x){return x.registered&&String((x.student||{}).Class||'').trim()===cl});
