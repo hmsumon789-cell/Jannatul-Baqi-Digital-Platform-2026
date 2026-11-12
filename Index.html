@@ -1077,7 +1077,35 @@ async function resendOtp(){const r=await call('requestOtp',$('username').value.t
 function clearOtp(){document.querySelectorAll('.otp-box').forEach(x=>x.value='');$('otpBoxes').firstElementChild.focus()}
 async function resetOtp(){const r=await call('requestOtp',$('resetUser').value.trim());toast(r.message)}
 async function logout(){await call('logout',token);location.reload()}
-async function loadApp(){const r=await call('getBootstrap',token);if(!r||!r.ok)return;applyInstitutionSettings(r.institution||{});var ub=currentUser||r.currentAdmin||{};var rr=String(ub.Role||ub.role||'').toUpperCase().replace(/\s+/g,'_');var isSuper=(rr==='SUPER_ADMIN'||rr==='SUPERADMIN');if($('accountManagerBtn'))$('accountManagerBtn').style.display=isSuper?'inline-block':'none';if($('sheetWin'))$('sheetWin').dataset.allowed=isSuper?'yes':'no';var sheetBtn=document.querySelector('.sheet-btn');if(sheetBtn)sheetBtn.style.display=isSuper?'inline-block':'none';modules=r.modules||[];renderModules();renderStats(r.stats||{});renderNotices(r.notices||[]);media=r.media||[];renderMedia();fillFeatureSelect();if(isSuper)fillSheets();else if($('sheetSelect'))$('sheetSelect').innerHTML='';dragWindow($('formWin'))}
+async function loadApp(){
+  const r=await call('getBootstrap',token);
+  if(!r||!r.ok){toast((r&&r.message)||'ড্যাশবোর্ড প্রস্তুত করা যায়নি।');return;}
+  applyInstitutionSettings(r.institution||{});
+  var ub=currentUser||r.currentAdmin||{};
+  var rr=String(ub.Role||ub.role||'').toUpperCase().replace(/\s+/g,'_');
+  var isSuper=(rr==='SUPER_ADMIN'||rr==='SUPERADMIN');
+  if($('accountManagerBtn'))$('accountManagerBtn').style.display=isSuper?'inline-block':'none';
+  if($('sheetWin'))$('sheetWin').dataset.allowed=isSuper?'yes':'no';
+  var sheetBtn=document.querySelector('.sheet-btn');
+  if(sheetBtn)sheetBtn.style.display=isSuper?'inline-block':'none';
+  modules=r.modules||[];
+  renderModules();
+  renderStats(r.stats||{});
+  renderNotices([]);
+  media=[];
+  renderMedia();
+  fillFeatureSelect();
+  if(isSuper)fillSheets();else if($('sheetSelect'))$('sheetSelect').innerHTML='';
+  dragWindow($('formWin'));
+  // Do not hold the module interface while optional summary/media data loads.
+  call('getDashboardExtras',token).then(function(x){
+    if(!x||!x.ok)return;
+    renderStats(x.stats||{});
+    renderNotices(x.notices||[]);
+    media=x.media||[];
+    renderMedia();
+  }).catch(function(e){console.warn('Dashboard extras load failed',e);});
+}
 function applyInstitutionSettings(inst){
   inst=inst||{};
   var logo=document.getElementById('headerLogo');
