@@ -4673,7 +4673,7 @@ function boardExamActor20261114_(token){
   }
   var session=auth_(token),username=String(session.username||'').trim();
   var account=findBy_(SHEETS.ADMINS,'Username',username)||{};
-  var role=String(account.Role||'').toUpperCase().replace(/[\\s-]+/g,'_');
+  var role=String(account.Role||'').toUpperCase().replace(/[\s-]+/g,'_');
   var root=String(session.accountType||'admin')!=='madrasa'&&
     (role==='SUPER_ADMIN'||role==='SUPERADMIN'||username.toLowerCase()==='superadmin');
   if(root)return {ok:true,root:true,username:username,name:String(account.NameBN||account.Name||username)};
@@ -4710,7 +4710,7 @@ function verifyBoardExamPasscode20261114(pin){
 function setBoardExamGate20261114(token,enabled,pin){
   try{
     var session=auth_(token),username=String(session.username||'').trim(),account=findBy_(SHEETS.ADMINS,'Username',username)||{};
-    var role=String(account.Role||'').toUpperCase().replace(/[\\s-]+/g,'_');
+    var role=String(account.Role||'').toUpperCase().replace(/[\s-]+/g,'_');
     var root=String(session.accountType||'admin')!=='madrasa'&&(role==='SUPER_ADMIN'||role==='SUPERADMIN'||username.toLowerCase()==='superadmin');
     if(!root)return {ok:false,message:'শুধু Super Admin বোর্ড পরীক্ষা প্যানেল অনুমোদন বা বন্ধ করতে পারবেন।'};
     if(enabled){
