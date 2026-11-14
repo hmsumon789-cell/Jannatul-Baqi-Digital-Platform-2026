@@ -2338,6 +2338,27 @@ function tenantCanSeeRow_(sheetName,headers,row,token) {
     const sourceCol=h.indexOf('SourceAccount');
     return sourceCol>=0 && String(row[sourceCol]||'').trim()===identity.username;
   }
+  // Legacy EXAM_REG rows may predate TenantAccount. Resolve their owner through the linked StudentID.
+  if(sheetName==='EXAM_REG') {
+    const idCol=h.indexOf('StudentID');
+    const studentId=idCol>=0?String(row[idCol]||'').trim():'';
+    if(!studentId)return false;
+    const studentSheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName('STUDENTS');
+    if(!studentSheet||studentSheet.getLastRow()<2)return false;
+    const studentValues=studentSheet.getDataRange().getValues();
+    const studentHeaders=studentValues[0].map(function(x){return String(x||'').trim();});
+    const studentIdCol=studentHeaders.indexOf('StudentID');
+    if(studentIdCol<0)return false;
+    for(let i=1;i<studentValues.length;i++) {
+      if(String(studentValues[i][studentIdCol]||'').trim()!==studentId)continue;
+      const tenantCol=studentHeaders.indexOf('TenantAccount');
+      const studentTenant=tenantCol>=0?String(studentValues[i][tenantCol]||'').trim():'';
+      if(studentTenant)return studentTenant===identity.key;
+      const sourceCol=studentHeaders.indexOf('SourceAccount');
+      return sourceCol>=0 && String(studentValues[i][sourceCol]||'').trim()===identity.username;
+    }
+    return false;
+  }
   if(sheetName==='ADMINS'||sheetName==='MADRASAS') {
     const userCol=h.indexOf('Username');
     return userCol>=0 && String(row[userCol]||'').trim()===identity.username;
