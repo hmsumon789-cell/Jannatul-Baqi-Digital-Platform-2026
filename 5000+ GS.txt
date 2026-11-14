@@ -4664,19 +4664,63 @@ function ensureBoardExamSheets20261114_(){
   return ss;
 }
 function boardExamActor20261114_(token){
+  token=String(token||'');
+  var cache=CacheService.getScriptCache(),cached=token?cache.get('BOARD_EXAM_SESSION_'+token):'';
+  if(cached){
+    var session={};try{session=JSON.parse(cached);}catch(e){}
+    if(session&&session.username)return {ok:true,root:false,username:session.username,name:session.name||'অনুমোদিত মহাসচিব'};
+  }
   var session=auth_(token),username=String(session.username||'').trim();
   var account=findBy_(SHEETS.ADMINS,'Username',username)||{};
-  var role=String(account.Role||'').toUpperCase().replace(/[\s-]+/g,'_');
+  var role=String(account.Role||'').toUpperCase().replace(/[\\s-]+/g,'_');
   var root=String(session.accountType||'admin')!=='madrasa'&&
     (role==='SUPER_ADMIN'||role==='SUPERADMIN'||username.toLowerCase()==='superadmin');
   if(root)return {ok:true,root:true,username:username,name:String(account.NameBN||account.Name||username)};
-  if(String(session.accountType||'admin')!=='admin')throw new Error('BOARD_EXAM_ACCESS_DENIED: বোর্ড মহাসচিবের ADMINS অ্যাকাউন্ট দিয়ে লগইন করতে হবে।');
-  ensureBoardExamSheets20261114_();
-  var assigned=boardPortalRows_20261109('BOARD_SECRETARIES').some(function(x){
-    return String(x.Username||'').toLowerCase()===username.toLowerCase()&&String(x.Status||'').toUpperCase()==='ACTIVE';
-  });
-  if(!assigned)throw new Error('BOARD_EXAM_ACCESS_DENIED: শুধু আঞ্চলিক শিক্ষাবোর্ডের অনুমোদিত মহাসচিব অথবা Super Admin এই পরীক্ষা পরিচালনা করতে পারবেন।');
-  return {ok:true,root:false,username:username,name:String(account.NameBN||account.Name||username)};
+  throw new Error('BOARD_EXAM_ACCESS_DENIED: পরীক্ষা পরিচালনার জন্য Super Admin অনুমোদিত বোর্ড পাসওয়ার্ড প্রয়োজন।');
+}
+function boardExamConfigValue20261114_(key){
+  var row=findBy_('CONFIG','Key',key)||{};
+  return String(row.Value||'');
+}
+function setBoardExamConfigValue20261114_(key,value){
+  var ss=SpreadsheetApp.getActiveSpreadsheet(),sh=ss.getSheetByName('CONFIG');
+  if(!sh)sh=ensureSheet_(ss,'CONFIG',['Key','Value','UpdatedAt']);
+  var rows=sh.getDataRange().getValues(),row=-1;
+  for(var i=1;i<rows.length;i++){if(String(rows[i][0])===key){row=i+1;break;}}
+  if(row<0)sh.appendRow([key,String(value),now_()]);
+  else sh.getRange(row,2,1,2).setValues([[String(value),now_()]]);
+}
+function boardExamPinHash20261114_(pin){
+  var bytes=Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256,'JB-BOARD-EXAM-2026|'+String(pin),Utilities.Charset.UTF_8);
+  return bytes.map(function(b){var v=(b<0?b+256:b).toString(16);return v.length===1?'0'+v:v;}).join('');
+}
+function verifyBoardExamPasscode20261114(pin){
+  try{
+    pin=String(pin||'').trim();
+    if(!/^\\d{4,12}$/.test(pin))return {ok:false,message:'৪ থেকে ১২ সংখ্যার বোর্ড পাসওয়ার্ড দিন।'};
+    if(boardExamConfigValue20261114_('BOARD_EXAM_GATE_ENABLED')!=='YES')return {ok:false,message:'বোর্ড পরীক্ষা প্যানেল এখনো Super Admin কর্তৃক অনুমোদিত/সক্রিয় হয়নি।'};
+    var saved=boardExamConfigValue20261114_('BOARD_EXAM_GATE_PIN_HASH');
+    if(!saved||saved!==boardExamPinHash20261114_(pin))return {ok:false,message:'বোর্ড পাসওয়ার্ড সঠিক নয়।'};
+    var token='BEX-'+Utilities.getUuid().replace(/-/g,'');
+    CacheService.getScriptCache().put('BOARD_EXAM_SESSION_'+token,JSON.stringify({username:'BOARD_SECRETARY',name:'আঞ্চলিক শিক্ষাবোর্ড মহাসচিব'}),1800);
+    return {ok:true,token:token,name:'আঞ্চলিক শিক্ষাবোর্ড মহাসচিব',message:'বোর্ড পরীক্ষা পরিচালনা প্যানেলে প্রবেশ অনুমোদিত হয়েছে।'};
+  }catch(e){return {ok:false,message:String(e&&e.message||e)}}
+}
+function setBoardExamGate20261114(token,enabled,pin){
+  try{
+    var session=auth_(token),username=String(session.username||'').trim(),account=findBy_(SHEETS.ADMINS,'Username',username)||{};
+    var role=String(account.Role||'').toUpperCase().replace(/[\\s-]+/g,'_');
+    var root=String(session.accountType||'admin')!=='madrasa'&&(role==='SUPER_ADMIN'||role==='SUPERADMIN'||username.toLowerCase()==='superadmin');
+    if(!root)return {ok:false,message:'শুধু Super Admin বোর্ড পরীক্ষা প্যানেল অনুমোদন বা বন্ধ করতে পারবেন।'};
+    if(enabled){
+      pin=String(pin||'').trim();
+      if(!/^\\d{4,12}$/.test(pin))return {ok:false,message:'৪ থেকে ১২ সংখ্যার পাসওয়ার্ড নির্ধারণ করুন।'};
+      setBoardExamConfigValue20261114_('BOARD_EXAM_GATE_PIN_HASH',boardExamPinHash20261114_(pin));
+      setBoardExamConfigValue20261114_('BOARD_EXAM_GATE_ENABLED','YES');
+    }else setBoardExamConfigValue20261114_('BOARD_EXAM_GATE_ENABLED','NO');
+    log_(username,enabled?'board-exam-gate-enabled':'board-exam-gate-disabled','CONFIG','BOARD_EXAM_GATE');
+    return {ok:true,message:enabled?'বোর্ড পরীক্ষা প্যানেল অনুমোদিত ও সক্রিয় হয়েছে।':'বোর্ড পরীক্ষা প্যানেল বন্ধ করা হয়েছে।'};
+  }catch(e){return {ok:false,message:String(e&&e.message||e)}}
 }
 function setBoardSecretary20261114(token,username,active){
   try{
