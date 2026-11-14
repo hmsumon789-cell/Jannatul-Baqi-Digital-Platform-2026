@@ -4885,6 +4885,37 @@ function getBoardPublicResult(id){
     return {ok:true,name:candidate&&candidate.Name||'',father:candidate&&candidate.Father||'',madrasa:candidate&&candidate.Madrasa||'',exam:r.Exam,className:r.ClassName,academicYear:r.AcademicYear,subjects:subjects,total:r.Total,gpa:r.GPA,grade:r.Grade,result:String(r.Grade)==='F'?'অনুত্তীর্ণ':'উত্তীর্ণ'};
   }catch(e){return {ok:false,message:String(e&&e.message||e)}}
 }
+
+function getBoardPublicMadrasaResults(madrasaName,examName){
+  try{
+    ensureBoardExamSheets20261114_();
+    madrasaName=boardPortalText_20261109(madrasaName,160).replace(/\s+/g,' ').trim();
+    examName=boardPortalText_20261109(examName||'',120).toLowerCase();
+    if(!madrasaName)return {ok:false,message:'মাদ্রাসার নাম লিখুন।'};
+    var key=madrasaName.toLowerCase();
+    var candidates=boardPortalRows_20261109('BOARD_EXAMINEES');
+    var byId={};
+    candidates.forEach(function(c){
+      var name=String(c.Madrasa||'').replace(/\s+/g,' ').trim().toLowerCase();
+      if(name===key)byId[String(c.ExamRegID||'').toLowerCase()]=c;
+    });
+    var rows=boardPortalRows_20261109('BOARD_EXAM_MARKS').filter(function(r){
+      return String(r.Published||'').toUpperCase()==='YES' &&
+        !!byId[String(r.ExamRegID||'').toLowerCase()] &&
+        (!examName||String(r.Exam||'').toLowerCase().indexOf(examName)>=0);
+    });
+    var results=rows.map(function(r){
+      var c=byId[String(r.ExamRegID||'').toLowerCase()],subjects={};
+      try{subjects=JSON.parse(r.SubjectData||'{}')||{};}catch(e){}
+      return {id:r.ExamRegID,name:c.Name||'',father:c.Father||'',madrasa:c.Madrasa||madrasaName,
+        exam:r.Exam||'',className:r.ClassName||c.ClassName||'',academicYear:r.AcademicYear||'',
+        subjects:subjects,total:r.Total||'',gpa:r.GPA||'',grade:r.Grade||'',
+        result:String(r.Grade)==='F'?'অনুত্তীর্ণ':'উত্তীর্ণ'};
+    });
+    results.sort(function(a,b){return Number(b.total||0)-Number(a.total||0);});
+    return {ok:true,madrasa:madrasaName,results:results.slice(0,500)};
+  }catch(e){return {ok:false,message:String(e&&e.message||e)}}
+}
 /* ===== END REGIONAL BOARD EXAM CONTROL ===== */
 
 
