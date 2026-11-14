@@ -4639,7 +4639,7 @@ function getBoardPublicLists(type){
     return {ok:true,rows:items.slice(-500).reverse()};
   }catch(e){return {ok:false,message:String(e&&e.message||e)}}
 }
-function getBoardPublicResult(id){
+function getBoardPublicResultLegacy_20261109(id){
   try{
     ensureBoardExamSheets20261114_();
     id=boardPortalText_20261109(id,60);
