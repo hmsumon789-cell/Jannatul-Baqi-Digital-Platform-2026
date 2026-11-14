@@ -19758,6 +19758,24 @@ function setupBoardPage(){
 
  function loadList(type){var box=el(type==='madrasa'?'bpMadrasaRows':'bpExamineeRows');box.textContent='তথ্য লোড হচ্ছে…';rpc('getBoardPublicLists',[type]).then(function(r){if(!r||!r.ok)throw Error(r&&r.message||'তথ্য নেই');var rows=r.rows||[];if(!rows.length){box.textContent='এখনো কোনো নিবন্ধন পাওয়া যায়নি।';return}var keys=type==='madrasa'?['id','name','address','status']:['id','name','madrasa','className','exam'];var labels=type==='madrasa'?['নিবন্ধন আইডি','মাদ্রাসা','ঠিকানা','অবস্থা']:['পরীক্ষার্থী আইডি','নাম','মাদ্রাসা','শ্রেণি','পরীক্ষা'];box.innerHTML='<table><tr>'+labels.map(function(x){return '<th>'+x+'</th>'}).join('')+'</tr>'+rows.map(function(x){return '<tr>'+keys.map(function(k){return '<td>'+esc(x[k])+'</td>'}).join('')+'</tr>'}).join('')+'</table>'}).catch(function(e){box.textContent=e.message})}
  el('bpResultForm').addEventListener('submit',function(e){e.preventDefault();var id=this.elements.id.value.trim();el('bpResult').textContent='ফলাফল খোঁজা হচ্ছে…';rpc('getBoardPublicResult',[id]).then(function(r){if(!r||!r.ok)throw Error(r&&r.message||'ফলাফল পাওয়া যায়নি');var subs=r.subjects||{};var lines=['নাম: '+r.name,'পিতা: '+(r.father||'—'),'মাদ্রাসা: '+r.madrasa,'পরীক্ষা: '+r.exam+' | শ্রেণি: '+(r.className||'')+' | শিক্ষাবর্ষ: '+(r.academicYear||''),'বিষয়ভিত্তিক নম্বর:'];Object.keys(subs).forEach(function(k){lines.push(k+': '+subs[k].mark+'/'+subs[k].maxMark)});lines.push('মোট: '+r.total+' | GPA: '+r.gpa+' | গ্রেড: '+r.grade+' | '+r.result);el('bpResult').textContent=lines.join('\n')}).catch(function(x){el('bpResult').textContent=x.message})});
+  function showBoardResultChoice(){el('bpResultChoices').style.display='grid';el('bpPersonalResultArea').style.display='none';el('bpMadrasaResultArea').style.display='none'}
+  document.querySelectorAll('[data-bp-result-mode]').forEach(function(b){b.addEventListener('click',function(){el('bpResultChoices').style.display='none';el('bpPersonalResultArea').style.display=this.dataset.bpResultMode==='personal'?'block':'none';el('bpMadrasaResultArea').style.display=this.dataset.bpResultMode==='madrasa'?'block':'none';if(this.dataset.bpResultMode==='personal')el('bpResultForm').elements.id.focus();else el('bpMadrasaResultForm').elements.madrasa.focus()})});
+  el('bpResultBackPersonal').addEventListener('click',showBoardResultChoice);
+  el('bpResultBackMadrasa').addEventListener('click',showBoardResultChoice);
+  el('bpMadrasaResultForm').addEventListener('submit',function(e){
+   e.preventDefault();var madrasa=this.elements.madrasa.value.trim(),exam=this.elements.exam.value.trim(),box=el('bpMadrasaResult');
+   if(!madrasa){box.textContent='মাদ্রাসার নাম লিখুন।';return}
+   box.textContent='⏳ মাদ্রাসার প্রকাশিত ফলাফল খোঁজা হচ্ছে…';
+   rpc('getBoardPublicMadrasaResults',[madrasa,exam]).then(function(r){
+    if(!r||!r.ok)throw Error(r&&r.message||'ফলাফল পাওয়া যায়নি');
+    var rows=r.results||[];if(!rows.length){box.textContent='এই মাদ্রাসার জন্য কোনো প্রকাশিত ফলাফল পাওয়া যায়নি।';return}
+    box.innerHTML='<h3>মাদ্রাসা: '+esc(r.madrasa)+' | প্রকাশিত ফলাফল: '+rows.length+' জন</h3>'+rows.map(function(x){
+     var subjects=x.subjects||{},subRows=Object.keys(subjects).map(function(k){return '<tr><td>'+esc(k)+'</td><td>'+esc(subjects[k].mark)+' / '+esc(subjects[k].maxMark)+'</td></tr>'}).join('');
+     return '<article class="bp-madrasa-result-card"><h3>'+esc(x.name||'নাম পাওয়া যায়নি')+'</h3><div class="bp-result-meta">পরীক্ষার্থী আইডি: '+esc(x.id)+'<br>পিতা: '+esc(x.father||'—')+'<br>পরীক্ষা: '+esc(x.exam)+' | শ্রেণি: '+esc(x.className)+' | শিক্ষাবর্ষ: '+esc(x.academicYear)+'</div><div class="tablebox"><table><tr><th>বিষয়</th><th>প্রাপ্ত নম্বর / পূর্ণমান</th></tr>'+subRows+'</table></div><p><b>মোট: '+esc(x.total)+' | GPA: '+esc(x.gpa)+' | গ্রেড: '+esc(x.grade)+' | '+esc(x.result)+'</b></p></article>';
+    }).join('');
+   }).catch(function(x){box.textContent='ফলাফল খুঁজতে সমস্যা হয়েছে: '+(x&&x.message||x)});
+  });
+
  stats();
 }
 function openPortal(){
@@ -19817,7 +19835,27 @@ body.bp-mode-dark .nav,body.bp-mode-dark .act,body.bp-mode-dark button{
  .board-display-controls{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:5px;padding:7px 5px}
  .board-display-controls label{display:flex;flex-direction:column;align-items:stretch;gap:3px;font-size:12px}
  .board-display-controls select{width:100%;min-width:0;max-width:none;height:38px;padding:5px 6px;font-size:12px}
-}</style></head><body><div class="wrap"><header class="frame"><div class="head"><div class="logo">۞</div><div><div class="ar">اتفاق المدارس القومية كراني غنج داكا بنغلاديش</div><div class="en">ITTEFAQUL MADARISIL QAWMIA KERANIGANJ DHAKA</div><div class="bn">ইত্তেফাকুল মাদারিসিল ক্বাওমিয়্যাহ কেরাণীগঞ্জ ঢাকা</div><div class="sub">(কেরাণীগঞ্জ কওমি মাদ্রাসা আঞ্চলিক শিক্ষাবোর্ড)</div><div class="meta">অস্থায়ী কার্যালয়: রসুলপুর জামিয়‘আ ইলামিয়া, আব্দুল্লাহপুর, কেরাণীগঞ্জ ঢাকা</div><div class="hot">হটলাইন: 01823316630 - 01726358370</div></div><div class="board-qr-wrap"><img id="bpBoardQR" src="${boardQR}" alt="আঞ্চলিক শিক্ষাবোর্ড পোর্টালের QR কোড"></div></div></header>
+}/* ===== REGIONAL BOARD — UNIFIED ANIMATED MODULE BUTTONS + RESULT CHOICES ===== */
+button.nav,button.act{position:relative!important;isolation:isolate;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;text-align:center;font-family:inherit;font-weight:900!important;letter-spacing:.1px;border:2px solid #fff!important;border-radius:14px!important;color:#fff!important;background:linear-gradient(115deg,#087f5b,#2474c8 38%,#8b4db5 70%,#d18b24)!important;background-size:300% 300%!important;box-shadow:0 5px 0 #244c69,0 8px 16px #0003,inset 0 1px 2px #ffffff99!important;animation:bpModuleGradient2026 6s ease infinite,bpModulePulse2026 2.8s ease-in-out infinite;transition:transform .2s,box-shadow .2s,filter .2s}
+button.nav{width:100%!important;height:62px!important;min-height:62px!important;max-height:62px!important;margin:5px 0!important;padding:7px 9px!important;line-height:1.2!important}
+button.act{min-height:58px!important;padding:10px 18px!important;line-height:1.25!important}
+button.nav::after,button.act::after{content:"";position:absolute;z-index:-1;inset:-80% -45%;pointer-events:none;background:linear-gradient(105deg,transparent 42%,#ffffffa8 50%,transparent 58%);transform:translateX(-100%) rotate(8deg);animation:bpModuleShine2026 3.6s ease-in-out infinite}
+button.nav:hover,button.act:hover{transform:translateY(-3px) scale(1.015);filter:brightness(1.12);box-shadow:0 8px 0 #244c69,0 13px 22px #0004,inset 0 1px 2px #ffffffaa!important}
+button.nav:active,button.act:active{transform:translateY(3px);box-shadow:0 2px 0 #244c69!important}
+.bp-result-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-width:900px;margin:14px auto}
+.bp-result-choices .act{width:100%;min-height:76px!important;font-size:clamp(17px,2vw,23px)!important}
+#bpPersonalResultArea,#bpMadrasaResultArea{max-width:1050px;margin:12px auto}
+#bpMadrasaResult{display:grid;gap:12px;margin-top:12px}
+.bp-madrasa-result-card{border:2px solid #c49a36;border-radius:13px;padding:12px;background:#fffdf4;overflow-wrap:anywhere}
+.bp-madrasa-result-card h3{margin:0 0 7px;color:#075b3d}
+.bp-madrasa-result-card .bp-result-meta{font-weight:800;line-height:1.8}
+@keyframes bpModuleGradient2026{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@keyframes bpModulePulse2026{0%,100%{filter:brightness(1)}50%{filter:brightness(1.13)}}
+@keyframes bpModuleShine2026{0%,28%{transform:translateX(-100%) rotate(8deg)}70%,100%{transform:translateX(100%) rotate(8deg)}}
+@media(max-width:620px){.bp-result-choices{grid-template-columns:1fr}.bp-result-choices .act{min-height:64px!important}button.nav{height:58px!important;min-height:58px!important;max-height:58px!important}}
+@media(prefers-reduced-motion:reduce){button.nav,button.act,button.nav::after,button.act::after{animation:none!important;transition:none!important}}
+/* ===== END REGIONAL BOARD BUTTON + RESULT DESIGN ===== */
+</style></head><body><div class="wrap"><header class="frame"><div class="head"><div class="logo">۞</div><div><div class="ar">اتفاق المدارس القومية كراني غنج داكا بنغلاديش</div><div class="en">ITTEFAQUL MADARISIL QAWMIA KERANIGANJ DHAKA</div><div class="bn">ইত্তেফাকুল মাদারিসিল ক্বাওমিয়্যাহ কেরাণীগঞ্জ ঢাকা</div><div class="sub">(কেরাণীগঞ্জ কওমি মাদ্রাসা আঞ্চলিক শিক্ষাবোর্ড)</div><div class="meta">অস্থায়ী কার্যালয়: রসুলপুর জামিয়‘আ ইলামিয়া, আব্দুল্লাহপুর, কেরাণীগঞ্জ ঢাকা</div><div class="hot">হটলাইন: 01823316630 - 01726358370</div></div><div class="board-qr-wrap"><img id="bpBoardQR" src="${boardQR}" alt="আঞ্চলিক শিক্ষাবোর্ড পোর্টালের QR কোড"></div></div></header>
 <div class="ticker"><b>সর্বশেষ সংবাদ</b><marquee id="bpNews">কেরাণীগঞ্জ আঞ্চলিক শিক্ষাবোর্ডের ডিজিটাল পোর্টালে আপনাকে স্বাগতম</marquee></div>
 <div class="board-display-controls" aria-label="ভাষা ও রং নির্বাচন">
  <label class="board-control-left">🎨 মোড
@@ -19876,7 +19914,7 @@ body.bp-mode-dark .nav,body.bp-mode-dark .act,body.bp-mode-dark button{
  <p id="bpExamManagerMsg" class="note" role="status"></p>
  <div class="actions"><button class="act" type="button" id="bpExamLogout">লগআউট</button></div>
 </div></section>
-<section class="panel" id="bpResults"><h2>অনলাইন ফলাফল দেখুন</h2><form id="bpResultForm"><div class="field"><label>পরীক্ষার্থী নিবন্ধন আইডি *</label><input name="id" required></div><div class="actions"><button class="act">ফলাফল দেখুন</button></div></form><p id="bpResult" class="note">ফলাফল প্রকাশিত হলে নিবন্ধন আইডি দিয়ে দেখা যাবে।</p></section>
+<section class="panel" id="bpResults"><h2>অনলাইন ফলাফল দেখুন</h2><div class="bp-result-choices" id="bpResultChoices"><button class="act" type="button" data-bp-result-mode="personal">👤 ব্যক্তিগত ফলাফল দেখুন</button><button class="act" type="button" data-bp-result-mode="madrasa">🏫 মাদ্রাসাওয়ারী ফলাফল দেখুন</button></div><div id="bpPersonalResultArea" style="display:none"><form id="bpResultForm"><div class="field"><label>পরীক্ষার্থী নিবন্ধন আইডি *</label><input name="id" required></div><div class="actions"><button type="submit" class="act">🔎 ব্যক্তিগত ফলাফল দেখুন</button></div></form><p id="bpResult" class="note">প্রকাশিত ফলাফল দেখতে পরীক্ষার্থী নিবন্ধন আইডি লিখুন।</p><div class="actions"><button class="act" type="button" id="bpResultBackPersonal">↩ ফলাফলের ধরন নির্বাচন</button></div></div><div id="bpMadrasaResultArea" style="display:none"><form id="bpMadrasaResultForm"><div class="grid"><div class="field"><label>মাদ্রাসার নাম *</label><input name="madrasa" required placeholder="পরীক্ষার্থী নিবন্ধনে ব্যবহৃত মাদ্রাসার নাম"></div><div class="field"><label>পরীক্ষার নাম (ঐচ্ছিক)</label><input name="exam" placeholder="যেমন: বার্ষিক পরীক্ষা"></div></div><div class="actions"><button type="submit" class="act">🔎 মাদ্রাসার প্রকাশিত ফলাফল দেখুন</button></div></form><div id="bpMadrasaResult" class="note">মাদ্রাসার নাম লিখে প্রকাশিত ফলাফল খুঁজুন।</div><div class="actions"><button class="act" type="button" id="bpResultBackMadrasa">↩ ফলাফলের ধরন নির্বাচন</button></div></div></section>
 <section class="panel" id="bpDocs"><h2>ডকুমেন্টস</h2><p class="note">বোর্ডের বিজ্ঞপ্তি, নিবন্ধন নির্দেশিকা, পরীক্ষার রুটিন ও প্রয়োজনীয় ডকুমেন্ট এখানে প্রকাশ করা হবে।</p></section><section class="panel" id="bpContact"><h2>যোগাযোগ + দ্রুত সেবা</h2><p>অস্থায়ী কার্যালয়: রসুলপুর জামিয়‘আ ইলামিয়া, আব্দুল্লাহপুর, কেরাণীগঞ্জ ঢাকা</p><p>হটলাইন: 01823316630 - 01726358370</p></section></main>
 <aside class="side rightside"><h3>নিবন্ধন ও সেবা</h3><button class="nav right" data-bp="bpMadrasaReg">＋ নতুন মাদ্রাসা নিবন্ধন করুন</button><button class="nav right" data-bp="bpExamineeReg">＋ নতুন পরীক্ষার্থী নিবন্ধন করুন</button><button class="nav right" data-bp="bpMadrasaList">▤ নিবন্ধনকৃত মাদ্রাসার তালিকা দেখুন</button><button class="nav right" data-bp="bpExamineeList">▤ নিবন্ধনকৃত পরীক্ষার্থী তালিকা দেখুন</button><button class="nav right" data-bp="bpPayment">৳ অনলাইন পেমেন্ট করুন</button></aside></div><div class="footer">© ইত্তেফাকুল মাদারিসিল ক্বাওমিয়্যাহ কেরাণীগঞ্জ ঢাকা • আঞ্চলিক শিক্ষাবোর্ড</div></div><div id="boardToast" class="toast"></div></body></html>`;
 document.open();document.write(page);document.close();setupBoardPage();
