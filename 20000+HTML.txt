@@ -19675,6 +19675,79 @@ function setupBoardPage(){
  bind('bpMadrasaForm',function(d){return rpc('registerBoardMadrasa',[d])});
  bind('bpExamineeForm',function(d){return rpc('registerBoardExaminee',[d])});
  bind('bpPaymentForm',function(d){return rpc('submitBoardPayment',[d])});
+
+ var boardToken20261114='',boardOtpToken20261114='',boardUsername20261114='',boardManagerData20261114=null,boardLoadedCandidates20261114=[];
+ function examMsg(t){var n=el('bpExamManagerMsg');if(n)n.textContent=t;var l=el('bpExamLoginMsg');if(l&&!boardToken20261114)l.textContent=t;}
+ function examCall(name,args){return rpc(name,args);}
+ function examSelected(){var s=el('bpExamSelect');return s&&s.value?JSON.parse(s.value):null;}
+ function refreshBoardExamManager(){
+  examCall('getBoardExamManagerData20261114',[boardToken20261114]).then(function(d){
+   if(!d||!d.ok)throw Error(d&&d.message||'পরীক্ষার তথ্য পাওয়া যায়নি');
+   boardManagerData20261114=d;el('bpExamLogin').style.display='none';el('bpExamManager').style.display='block';
+   el('bpExamActor').textContent='লগইন: '+d.actor.name+' | ক্ষমতা: '+(d.actor.root?'Super Admin — সর্বোচ্চ নিয়ন্ত্রণ':'আঞ্চলিক শিক্ষাবোর্ড মহাসচিব — পরীক্ষা পরিচালনা');
+   el('bpSecretaryControl').style.display=d.actor.root?'block':'none';
+   el('bpExamSelect').innerHTML='<option value="">পরীক্ষা নির্বাচন করুন</option>'+(d.exams||[]).map(function(x){return '<option value="'+esc(JSON.stringify(x))+'">'+esc(x.exam+' | '+x.className+' | '+x.academicYear+' | '+x.status)+'</option>'}).join('');
+   el('bpSecretaryList').textContent=(d.secretaries||[]).map(function(x){return x.username+' — '+x.name+' ('+x.status+')'}).join(' | ')||'এখনো কোনো মহাসচিব নিয়োগ করা হয়নি।';
+  }).catch(function(e){examMsg('পরীক্ষা ব্যবস্থাপনা খোলা যায়নি: '+e.message);});
+ }
+ el('bpExamRequestOtp').addEventListener('click',function(){
+  boardUsername20261114=el('bpExamUsername').value.trim();if(!boardUsername20261114){examMsg('Admin Username লিখুন।');return;}
+  this.disabled=true;examCall('requestOtp',[boardUsername20261114]).then(function(r){
+   if(!r||!r.ok)throw Error(r&&r.message||'OTP পাঠানো যায়নি');boardOtpToken20261114=r.token;
+   el('bpExamOtpArea').style.display='block';examMsg((r.message||'OTP পাঠানো হয়েছে')+(r.emailMask?' | '+r.emailMask:''));
+  }).catch(function(e){examMsg('OTP পাঠানো যায়নি: '+e.message)}).finally(()=>{el('bpExamRequestOtp').disabled=false});
+ });
+ el('bpExamVerifyOtp').addEventListener('click',function(){
+  var code=el('bpExamOtp').value.replace(/\D/g,'');if(!boardOtpToken20261114||code.length!==6){examMsg('সঠিক ৬ সংখ্যার OTP লিখুন।');return;}
+  this.disabled=true;examCall('verifyLoginOtp',[boardOtpToken20261114,boardUsername20261114,code]).then(function(r){
+   if(!r||!r.ok)throw Error(r&&r.message||'OTP যাচাই হয়নি');boardToken20261114=r.token;refreshBoardExamManager();
+  }).catch(function(e){examMsg('লগইন ব্যর্থ: '+e.message)}).finally(()=>{el('bpExamVerifyOtp').disabled=false});
+ });
+ el('bpSecretarySave').addEventListener('click',function(){
+  examCall('setBoardSecretary20261114',[boardToken20261114,el('bpSecretaryUsername').value.trim(),el('bpSecretaryActive').value==='true']).then(function(r){if(!r||!r.ok)throw Error(r&&r.message||'সংরক্ষণ হয়নি');examMsg(r.message);refreshBoardExamManager();}).catch(function(e){examMsg('মহাসচিব নিয়োগ হয়নি: '+e.message)});
+ });
+ el('bpSetupSave').addEventListener('click',function(){
+  var d={exam:el('bpSetupExam').value.trim(),className:el('bpSetupClass').value.trim(),academicYear:el('bpSetupYear').value.trim(),subjects:el('bpSetupSubjects').value.split(/[,،\n]/).map(function(x){return x.trim()}).filter(Boolean)};
+  examCall('saveBoardExamSetup20261114',[boardToken20261114,d]).then(function(r){if(!r||!r.ok)throw Error(r&&r.message||'সেটআপ সংরক্ষণ হয়নি');examMsg(r.message);refreshBoardExamManager();}).catch(function(e){examMsg('পরীক্ষার সেটআপ হয়নি: '+e.message)});
+ });
+ el('bpExamSelect').addEventListener('change',function(){
+  var x=examSelected();el('bpSubjectSelect').innerHTML=x?x.subjects.map(function(s){return '<option value="'+esc(s)+'">'+esc(s)+'</option>'}).join(''):'<option value="">পরীক্ষা নির্বাচন করুন</option>';
+  if(x){el('bpSetupExam').value=x.exam;el('bpSetupClass').value=x.className;el('bpSetupYear').value=x.academicYear;el('bpSetupSubjects').value=x.subjects.join(', ');}
+ });
+ el('bpCandidatePending').addEventListener('click',function(){
+  el('bpPendingCandidates').textContent='আবেদন লোড হচ্ছে…';
+  examCall('getBoardExamPendingCandidates20261114',[boardToken20261114]).then(function(r){
+   if(!r||!r.ok)throw Error(r&&r.message||'আবেদন পাওয়া যায়নি');var a=r.candidates||[];
+   el('bpPendingCandidates').innerHTML=a.length?'<h3>পরীক্ষার্থী নিবন্ধন যাচাই</h3><table><tr><th>আইডি</th><th>নাম</th><th>মাদ্রাসা</th><th>শ্রেণি</th><th>পরীক্ষা</th><th>অনুমোদন</th></tr>'+a.map(function(x){return '<tr><td>'+esc(x.id)+'</td><td>'+esc(x.name)+'</td><td>'+esc(x.madrasa)+'</td><td>'+esc(x.className)+'</td><td>'+esc(x.exam)+'</td><td><button type="button" class="act" data-bp-approve="'+esc(x.id)+'">অনুমোদন</button></td></tr>'}).join('')+'</table>':'কোনো অপেক্ষমাণ আবেদন নেই।';
+  }).catch(function(e){el('bpPendingCandidates').textContent=e.message});
+ });
+ el('bpPendingCandidates').addEventListener('click',function(e){
+  var b=e.target.closest('[data-bp-approve]');if(!b)return;b.disabled=true;
+  examCall('setBoardExamineeStatus20261114',[boardToken20261114,b.dataset.bpApprove,'APPROVED']).then(function(r){if(!r||!r.ok)throw Error(r&&r.message||'অনুমোদন হয়নি');examMsg(r.message);b.closest('tr').remove();}).catch(function(x){examMsg(x.message);b.disabled=false});
+ });
+ el('bpCandidateLoad').addEventListener('click',function(){
+  var x=examSelected(),subject=el('bpSubjectSelect').value;if(!x||!subject){examMsg('পরীক্ষা ও বিষয় নির্বাচন করুন।');return;}
+  el('bpExamCandidates').textContent='অনুমোদিত পরীক্ষার্থী লোড হচ্ছে…';
+  examCall('getBoardExamCandidates20261114',[boardToken20261114,x.exam,x.className,x.academicYear]).then(function(r){
+   if(!r||!r.ok)throw Error(r&&r.message||'তালিকা পাওয়া যায়নি');boardLoadedCandidates20261114=r.candidates||[];
+   el('bpExamCandidates').innerHTML=boardLoadedCandidates20261114.length?'<table><tr><th>পরীক্ষার্থী আইডি</th><th>নাম</th><th>মাদ্রাসা</th><th>পূর্বের নম্বর</th><th>নতুন নম্বর</th></tr>'+boardLoadedCandidates20261114.map(function(c,i){var old=c.marks&&c.marks.subjects&&c.marks.subjects[subject];return '<tr><td>'+esc(c.id)+'</td><td>'+esc(c.name)+'</td><td>'+esc(c.madrasa)+'</td><td>'+(old?esc(old.mark)+' / '+esc(old.maxMark):'—')+'</td><td><input type="number" min="0" max="1000" data-board-mark="'+i+'" value="'+(old?esc(old.mark):'')+'" style="width:100px"></td></tr>'}).join('')+'</table>':'এই পরীক্ষা ও শ্রেণিতে কোনো অনুমোদিত পরীক্ষার্থী নেই।';
+   examMsg(boardLoadedCandidates20261114.length+' জন অনুমোদিত পরীক্ষার্থী লোড হয়েছে।');
+  }).catch(function(e){el('bpExamCandidates').textContent=e.message});
+ });
+ el('bpMarksSave').addEventListener('click',function(){
+  var x=examSelected(),subject=el('bpSubjectSelect').value,max=Number(el('bpExamMax').value);
+  if(!x||!subject||!boardLoadedCandidates20261114.length){examMsg('আগে পরীক্ষা, বিষয় ও পরীক্ষার্থী তালিকা লোড করুন।');return;}
+  var marks=boardLoadedCandidates20261114.map(function(c,i){var input=document.querySelector('[data-board-mark="'+i+'"]');return {examRegId:c.id,mark:input?input.value:''};});
+  if(marks.some(function(m){return m.mark===''||!isFinite(Number(m.mark))||Number(m.mark)<0||Number(m.mark)>max;})){examMsg('প্রত্যেক পরীক্ষার্থীর নম্বর পূরণ করুন এবং পূর্ণমানের মধ্যে রাখুন।');return;}
+  examCall('saveBoardExamMarks20261114',[boardToken20261114,x.exam,x.className,x.academicYear,subject,marks,max]).then(function(r){if(!r||!r.ok)throw Error(r&&r.message||'নম্বর সংরক্ষণ হয়নি');examMsg(r.message);}).catch(function(e){examMsg('নম্বর সংরক্ষণ ব্যর্থ: '+e.message)});
+ });
+ el('bpResultsPublish').addEventListener('click',function(){
+  var x=examSelected();if(!x){examMsg('ফলাফল প্রকাশের আগে পরীক্ষা নির্বাচন করুন।');return;}
+  if(!confirm('নির্বাচিত পরীক্ষা ও শ্রেণির সব অনুমোদিত পরীক্ষার্থীর ফলাফল প্রকাশ করবেন?'))return;
+  examCall('publishBoardExamResults20261114',[boardToken20261114,x.exam,x.className,x.academicYear]).then(function(r){if(!r||!r.ok)throw Error(r&&r.message||'ফলাফল প্রকাশ হয়নি');examMsg(r.message);refreshBoardExamManager();}).catch(function(e){examMsg('ফলাফল প্রকাশ ব্যর্থ: '+e.message)});
+ });
+ el('bpExamLogout').addEventListener('click',function(){boardToken20261114='';boardOtpToken20261114='';boardUsername20261114='';el('bpExamManager').style.display='none';el('bpExamLogin').style.display='block';el('bpExamOtpArea').style.display='none';el('bpExamOtp').value='';examMsg('নিরাপদে লগআউট হয়েছে।');});
+
  function loadList(type){var box=el(type==='madrasa'?'bpMadrasaRows':'bpExamineeRows');box.textContent='তথ্য লোড হচ্ছে…';rpc('getBoardPublicLists',[type]).then(function(r){if(!r||!r.ok)throw Error(r&&r.message||'তথ্য নেই');var rows=r.rows||[];if(!rows.length){box.textContent='এখনো কোনো নিবন্ধন পাওয়া যায়নি।';return}var keys=type==='madrasa'?['id','name','address','status']:['id','name','madrasa','className','exam'];var labels=type==='madrasa'?['নিবন্ধন আইডি','মাদ্রাসা','ঠিকানা','অবস্থা']:['পরীক্ষার্থী আইডি','নাম','মাদ্রাসা','শ্রেণি','পরীক্ষা'];box.innerHTML='<table><tr>'+labels.map(function(x){return '<th>'+x+'</th>'}).join('')+'</tr>'+rows.map(function(x){return '<tr>'+keys.map(function(k){return '<td>'+esc(x[k])+'</td>'}).join('')+'</tr>'}).join('')+'</table>'}).catch(function(e){box.textContent=e.message})}
  el('bpResultForm').addEventListener('submit',function(e){e.preventDefault();var id=this.elements.id.value.trim();el('bpResult').textContent='ফলাফল খোঁজা হচ্ছে…';rpc('getBoardPublicResult',[id]).then(function(r){if(!r||!r.ok)throw Error(r&&r.message||'ফলাফল পাওয়া যায়নি');el('bpResult').textContent='নাম: '+r.name+' | মাদ্রাসা: '+r.madrasa+' | পরীক্ষা: '+r.exam+' | ফলাফল: '+(r.result||'এখনো প্রকাশিত হয়নি')}).catch(function(x){el('bpResult').textContent=x.message})});
  stats();
@@ -19756,7 +19829,41 @@ body.bp-mode-dark .nav,body.bp-mode-dark .act,body.bp-mode-dark button{
 <section class="panel" id="bpExamineeReg"><h2>নতুন পরীক্ষার্থী নিবন্ধন করুন</h2><form id="bpExamineeForm"><div class="grid"><div class="field"><label>পরীক্ষার্থীর নাম *</label><input name="name" required></div><div class="field"><label>পিতার নাম</label><input name="father"></div><div class="field"><label>মাদ্রাসা *</label><input name="madrasa" required></div><div class="field"><label>শ্রেণি/জামাত *</label><input name="className" required></div><div class="field"><label>পরীক্ষা *</label><input name="exam" required></div><div class="field"><label>মোবাইল</label><input name="mobile"></div></div><div class="actions"><button class="act">পরীক্ষার্থী নিবন্ধন করুন</button></div></form></section>
 <section class="panel" id="bpMadrasaList"><h2>নিবন্ধনকৃত মাদ্রাসার তালিকা</h2><div class="tablebox" id="bpMadrasaRows">তথ্য লোড হচ্ছে…</div></section><section class="panel" id="bpExamineeList"><h2>নিবন্ধনকৃত পরীক্ষার্থীর তালিকা</h2><div class="tablebox" id="bpExamineeRows">তথ্য লোড হচ্ছে…</div></section>
 <section class="panel" id="bpPayment"><h2>অনলাইন পেমেন্ট করুন</h2><form id="bpPaymentForm"><div class="grid"><div class="field"><label>প্রদানকারীর নাম *</label><input name="name" required></div><div class="field"><label>ফি-এর ধরন *</label><select name="type" required><option value="">নির্বাচন করুন</option><option>মাদ্রাসা নিবন্ধন ফি</option><option>পরীক্ষার্থী নিবন্ধন ফি</option><option>পরীক্ষা ফি</option><option>অন্যান্য</option></select></div><div class="field"><label>টাকার পরিমাণ *</label><input name="amount" type="number" min="1" required></div><div class="field"><label>মাধ্যম *</label><select name="method" required><option value="">নির্বাচন করুন</option><option>bKash</option><option>Nagad</option><option>Rocket</option><option>Bank</option><option>Cash</option></select></div><div class="field full"><label>লেনদেন/রেফারেন্স নম্বর</label><input name="reference"></div></div><div class="actions"><button class="act">পেমেন্ট তথ্য জমা দিন</button></div></form><p class="note">এই সংস্করণে পেমেন্ট তথ্য আবেদন হিসেবে সংরক্ষিত হবে। স্বয়ংক্রিয় গেটওয়ে পেমেন্ট চালু করতে বোর্ডের মার্চেন্ট অ্যাকাউন্ট/API তথ্য সংযুক্ত করতে হবে।</p></section>
-<section class="panel" id="bpExam"><h2>পরীক্ষা প্যানেল</h2><p>পরীক্ষার্থী নিবন্ধন, পরীক্ষার তথ্য ও ফলাফল অনুসন্ধানের জন্য সেবা নির্বাচন করুন।</p><button class="act" data-bp="bpExamineeReg">নতুন পরীক্ষার্থী নিবন্ধন</button> <button class="act" data-bp="bpExamineeList">নিবন্ধিত পরীক্ষার্থী তালিকা</button></section>
+<section class="panel" id="bpExam"><h2>আঞ্চলিক শিক্ষাবোর্ডের পরীক্ষা পরিচালনা</h2>
+<div class="note"><b>পরিচালনার দায়িত্ব:</b> অনুমোদিত আঞ্চলিক শিক্ষাবোর্ড মহাসচিব। Super Admin যেকোনো সময় সর্বোচ্চ নিয়ন্ত্রণ নিতে পারবেন। সাধারণ দর্শনার্থীরা শুধু প্রকাশিত ফলাফল দেখতে পারবেন।</div>
+<div id="bpExamLogin" style="max-width:650px;margin:14px auto;padding:16px;border:2px solid #c49a36;border-radius:14px;background:#fff8e6">
+ <h3 style="text-align:center">মহাসচিব / Super Admin নিরাপদ লগইন</h3>
+ <div class="field"><label>Admin Username</label><input id="bpExamUsername" autocomplete="username" placeholder="অনুমোদিত Admin Username"></div>
+ <div class="actions"><button class="act" type="button" id="bpExamRequestOtp">ইমেইলে OTP পাঠান</button></div>
+ <div id="bpExamOtpArea" style="display:none;margin-top:10px"><div class="field"><label>৬ সংখ্যার OTP</label><input id="bpExamOtp" inputmode="numeric" maxlength="6" autocomplete="one-time-code"></div><div class="actions"><button class="act" type="button" id="bpExamVerifyOtp">যাচাই করে প্রবেশ করুন</button></div></div>
+ <p id="bpExamLoginMsg" class="note" role="status">শুধু Super Admin কর্তৃক নিয়োগপ্রাপ্ত বোর্ড মহাসচিব অথবা Super Admin প্রবেশ করতে পারবেন।</p>
+</div>
+<div id="bpExamManager" style="display:none">
+ <div class="note" id="bpExamActor"></div>
+ <div id="bpSecretaryControl" style="display:none;padding:12px;border:2px solid #b68a2e;border-radius:12px;margin:12px 0">
+  <h3>Super Admin — মহাসচিব নিয়োগ / দায়িত্ব স্থগিত</h3>
+  <div class="grid"><div class="field"><label>মহাসচিবের ADMINS Username</label><input id="bpSecretaryUsername"></div><div class="field"><label>নিয়ন্ত্রণ</label><select id="bpSecretaryActive"><option value="true">দায়িত্ব সক্রিয় করুন</option><option value="false">দায়িত্ব স্থগিত করুন</option></select></div></div>
+  <div class="actions"><button class="act" type="button" id="bpSecretarySave">মহাসচিবের দায়িত্ব সংরক্ষণ</button></div><div id="bpSecretaryList" class="note"></div>
+ </div>
+ <div class="grid" style="margin-top:14px">
+  <div class="field"><label>পরীক্ষার নাম</label><input id="bpSetupExam" placeholder="যেমন: বার্ষিক পরীক্ষা"></div>
+  <div class="field"><label>শ্রেণি / জামাত</label><input id="bpSetupClass" placeholder="যেমন: মেশকাত"></div>
+  <div class="field"><label>শিক্ষাবর্ষ</label><input id="bpSetupYear" inputmode="numeric" placeholder="2026"></div>
+  <div class="field"><label>বিষয়সমূহ (কমা দিয়ে আলাদা করুন)</label><input id="bpSetupSubjects" placeholder="কুরআন, হাদিস, ফিকহ"></div>
+ </div>
+ <div class="actions"><button class="act" type="button" id="bpSetupSave">পরীক্ষার বিষয় ও সেটআপ সংরক্ষণ</button></div>
+ <div class="grid" style="margin-top:14px">
+  <div class="field"><label>সংরক্ষিত পরীক্ষা নির্বাচন</label><select id="bpExamSelect"><option value="">পরীক্ষা নির্বাচন করুন</option></select></div>
+  <div class="field"><label>বিষয় নির্বাচন</label><select id="bpSubjectSelect"><option value="">আগে পরীক্ষা নির্বাচন করুন</option></select></div>
+ </div>
+ <div class="actions"><button class="act" type="button" id="bpCandidateLoad">অনুমোদিত পরীক্ষার্থী লোড করুন</button> <button class="act" type="button" id="bpCandidatePending">নতুন আবেদন যাচাই করুন</button></div>
+ <div id="bpPendingCandidates" class="tablebox"></div>
+ <div class="grid" style="margin-top:12px"><div class="field"><label>পূর্ণমান</label><input id="bpExamMax" type="number" min="1" max="1000" value="100"></div><div class="field"><label>নম্বর এন্ট্রি নির্দেশনা</label><p class="note">প্রতিটি অনুমোদিত পরীক্ষার্থীর নির্বাচিত বিষয়ের নম্বর লিখে সংরক্ষণ করুন।</p></div></div>
+ <div id="bpExamCandidates" class="tablebox" style="margin-top:12px">পরীক্ষা ও বিষয় নির্বাচন করে পরীক্ষার্থী লোড করুন।</div>
+ <div class="actions"><button class="act" type="button" id="bpMarksSave">নম্বর সংরক্ষণ করুন</button> <button class="act" type="button" id="bpResultsPublish">যাচাই শেষে ফলাফল প্রকাশ করুন</button></div>
+ <p id="bpExamManagerMsg" class="note" role="status"></p>
+ <div class="actions"><button class="act" type="button" id="bpExamLogout">লগআউট</button></div>
+</div></section>
 <section class="panel" id="bpResults"><h2>অনলাইন ফলাফল দেখুন</h2><form id="bpResultForm"><div class="field"><label>পরীক্ষার্থী নিবন্ধন আইডি *</label><input name="id" required></div><div class="actions"><button class="act">ফলাফল দেখুন</button></div></form><p id="bpResult" class="note">ফলাফল প্রকাশিত হলে নিবন্ধন আইডি দিয়ে দেখা যাবে।</p></section>
 <section class="panel" id="bpDocs"><h2>ডকুমেন্টস</h2><p class="note">বোর্ডের বিজ্ঞপ্তি, নিবন্ধন নির্দেশিকা, পরীক্ষার রুটিন ও প্রয়োজনীয় ডকুমেন্ট এখানে প্রকাশ করা হবে।</p></section><section class="panel" id="bpContact"><h2>যোগাযোগ + দ্রুত সেবা</h2><p>অস্থায়ী কার্যালয়: রসুলপুর জামিয়‘আ ইলামিয়া, আব্দুল্লাহপুর, কেরাণীগঞ্জ ঢাকা</p><p>হটলাইন: 01823316630 - 01726358370</p></section></main>
 <aside class="side rightside"><h3>নিবন্ধন ও সেবা</h3><button class="nav right" data-bp="bpMadrasaReg">＋ নতুন মাদ্রাসা নিবন্ধন করুন</button><button class="nav right" data-bp="bpExamineeReg">＋ নতুন পরীক্ষার্থী নিবন্ধন করুন</button><button class="nav right" data-bp="bpMadrasaList">▤ নিবন্ধনকৃত মাদ্রাসার তালিকা দেখুন</button><button class="nav right" data-bp="bpExamineeList">▤ নিবন্ধনকৃত পরীক্ষার্থী তালিকা দেখুন</button><button class="nav right" data-bp="bpPayment">৳ অনলাইন পেমেন্ট করুন</button></aside></div><div class="footer">© ইত্তেফাকুল মাদারিসিল ক্বাওমিয়্যাহ কেরাণীগঞ্জ ঢাকা • আঞ্চলিক শিক্ষাবোর্ড</div></div><div id="boardToast" class="toast"></div></body></html>`;
