@@ -4830,6 +4830,7 @@ function publishBoardExamResults20261114(token,exam,cls,year){
 }
 function getBoardPublicResult(id){
   try{
+    ensureBoardExamSheets20261114_();
     id=boardPortalText_20261109(id,60);
     if(!id)return {ok:false,message:'পরীক্ষার্থী নিবন্ধন আইডি দিন।'};
     var rows=boardPortalRows_20261109('BOARD_EXAM_MARKS').filter(function(x){return String(x.ExamRegID||'').toLowerCase()===id.toLowerCase()&&String(x.Published||'').toUpperCase()==='YES';});
