@@ -4641,6 +4641,7 @@ function getBoardPublicLists(type){
 }
 function getBoardPublicResult(id){
   try{
+    ensureBoardExamSheets20261114_();
     id=boardPortalText_20261109(id,60);
     if(!id)return {ok:false,message:'পরীক্ষার্থী নিবন্ধন আইডি দিন।'};
     var rows=boardPortalRows_20261109('BOARD_EXAMINEES'),r=rows.find(function(x){return String(x.ExamRegID||'').toLowerCase()===id.toLowerCase()});
@@ -4838,3 +4839,12 @@ function getBoardPublicResult(id){
   }catch(e){return {ok:false,message:String(e&&e.message||e)}}
 }
 /* ===== END REGIONAL BOARD EXAM CONTROL ===== */
+
+
+function getBoardExamPendingCandidates20261114(token){
+  try{
+    boardExamActor20261114_(token);
+    var rows=boardPortalRows_20261109('BOARD_EXAMINEES').filter(function(x){return String(x.Status||'').toUpperCase()==='PENDING';});
+    return {ok:true,candidates:rows.slice(-300).reverse().map(function(x){return {id:x.ExamRegID,name:x.Name,father:x.Father,madrasa:x.Madrasa,className:x.ClassName,exam:x.Exam};})};
+  }catch(e){return {ok:false,message:String(e&&e.message||e)}}
+}
