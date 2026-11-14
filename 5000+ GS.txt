@@ -328,7 +328,10 @@ function seedLocation_(ss) {
 
 function login(username,password) {
   try {
-    setupSystem();
+    // Avoid scanning/seeding every platform sheet on each login.
+    // Keep recovery only when the login-critical sheets are missing.
+    const loginSS = SpreadsheetApp.getActiveSpreadsheet();
+    if (!loginSS.getSheetByName(SHEETS.ADMINS) || !loginSS.getSheetByName(SHEETS.OTP_LOG)) setupSystem();
     username = String(username || '').trim();
     password = String(password || '');
     if (!username || !password) return {ok:false,message:'ইউজার নেম ও পাসওয়ার্ড দিন।'};
@@ -940,21 +943,25 @@ function logout(token) {
 
 function getBootstrap(token) {
   auth_(token);
-  // Dashboard bootstrap must never lose the Feature buttons because one
-  // optional dashboard component (stats/media/notices) failed.
-  const modules = getModulesForSession_(token);
+  // Return only the data required to show the dashboard shell immediately.
+  // Large optional dashboard datasets are loaded by getDashboardExtras().
+  return {
+    ok:true,
+    institution:getInstitutionForSession_(token),
+    modules:getModulesForSession_(token),
+    classes:getClasses_()
+  };
+}
+
+function getDashboardExtras(token) {
+  auth_(token);
   let stats = {income:0,expense:0,cash:0,due:0,students:0,teachers:0,executives:0,femaleMadrasa:0,maleMadrasa:0,attendanceToday:{present:0,absent:0}};
   let media = [];
   let notices = [];
   try { stats = getStats(token); } catch(e) {}
   try { media = listMedia(token); } catch(e) {}
   try { notices = listRows_(SHEETS.NOTICES,token,20); } catch(e) {}
-  return {
-    ok:true, institution:getInstitutionForSession_(token),
-    stats, media, notices,
-    modules,
-    classes:getClasses_()
-  };
+  return {ok:true,stats:stats,media:media,notices:notices};
 }
 
 function getStats(token) {
