@@ -4698,7 +4698,7 @@ function boardExamPinHash20261114_(pin){
 function verifyBoardExamPasscode20261114(pin){
   try{
     pin=String(pin||'').trim();
-    if(!/^\\d{4,12}$/.test(pin))return {ok:false,message:'৪ থেকে ১২ সংখ্যার বোর্ড পাসওয়ার্ড দিন।'};
+    if(!/^\d{4,12}$/.test(pin))return {ok:false,message:'৪ থেকে ১২ সংখ্যার বোর্ড পাসওয়ার্ড দিন।'};
     if(boardExamConfigValue20261114_('BOARD_EXAM_GATE_ENABLED')!=='YES')return {ok:false,message:'বোর্ড পরীক্ষা প্যানেল এখনো Super Admin কর্তৃক অনুমোদিত/সক্রিয় হয়নি।'};
     var saved=boardExamConfigValue20261114_('BOARD_EXAM_GATE_PIN_HASH');
     if(!saved||saved!==boardExamPinHash20261114_(pin))return {ok:false,message:'বোর্ড পাসওয়ার্ড সঠিক নয়।'};
@@ -4715,7 +4715,7 @@ function setBoardExamGate20261114(token,enabled,pin){
     if(!root)return {ok:false,message:'শুধু Super Admin বোর্ড পরীক্ষা প্যানেল অনুমোদন বা বন্ধ করতে পারবেন।'};
     if(enabled){
       pin=String(pin||'').trim();
-      if(!/^\\d{4,12}$/.test(pin))return {ok:false,message:'৪ থেকে ১২ সংখ্যার পাসওয়ার্ড নির্ধারণ করুন।'};
+      if(!/^\d{4,12}$/.test(pin))return {ok:false,message:'৪ থেকে ১২ সংখ্যার পাসওয়ার্ড নির্ধারণ করুন।'};
       setBoardExamConfigValue20261114_('BOARD_EXAM_GATE_PIN_HASH',boardExamPinHash20261114_(pin));
       setBoardExamConfigValue20261114_('BOARD_EXAM_GATE_ENABLED','YES');
     }else setBoardExamConfigValue20261114_('BOARD_EXAM_GATE_ENABLED','NO');
