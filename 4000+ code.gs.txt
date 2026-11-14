@@ -2331,6 +2331,24 @@ function tenantCanSeeRow_(sheetName,headers,row,token) {
   const h=headers.map(function(x){return String(x||'').trim();}), tenantCol=h.indexOf('TenantAccount');
   const tenant=tenantCol>=0?String(row[tenantCol]||'').trim():'';
   if(tenant)return tenant===identity.key;
+  if(sheetName==='EXAM_REG') {
+    const studentIdCol=h.indexOf('StudentID');
+    const studentId=studentIdCol>=0?String(row[studentIdCol]||'').trim():'';
+    if(!studentId)return false;
+    const studentSheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.STUDENTS);
+    if(!studentSheet||studentSheet.getLastRow()<2)return false;
+    const studentValues=studentSheet.getDataRange().getValues();
+    const studentHeaders=studentValues[0].map(function(x){return String(x||'').trim();});
+    const idIndex=studentHeaders.indexOf('StudentID');
+    if(idIndex<0)return false;
+    const studentRow=studentValues.slice(1).find(function(r){return String(r[idIndex]||'').trim()===studentId;});
+    if(!studentRow)return false;
+    const studentTenantIndex=studentHeaders.indexOf('TenantAccount');
+    const studentTenant=studentTenantIndex>=0?String(studentRow[studentTenantIndex]||'').trim():'';
+    if(studentTenant)return studentTenant===identity.key;
+    const studentSourceIndex=studentHeaders.indexOf('SourceAccount');
+    return studentSourceIndex>=0 && String(studentRow[studentSourceIndex]||'').trim()===identity.username;
+  }
   if(sheetName==='STUDENTS') {
     const sourceCol=h.indexOf('SourceAccount');
     return sourceCol>=0 && String(row[sourceCol]||'').trim()===identity.username;
