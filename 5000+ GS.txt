@@ -4670,6 +4670,7 @@ function boardExamActor20261114_(token){
   var root=String(session.accountType||'admin')!=='madrasa'&&
     (role==='SUPER_ADMIN'||role==='SUPERADMIN'||username.toLowerCase()==='superadmin');
   if(root)return {ok:true,root:true,username:username,name:String(account.NameBN||account.Name||username)};
+  if(String(session.accountType||'admin')!=='admin')throw new Error('BOARD_EXAM_ACCESS_DENIED: বোর্ড মহাসচিবের ADMINS অ্যাকাউন্ট দিয়ে লগইন করতে হবে।');
   ensureBoardExamSheets20261114_();
   var assigned=boardPortalRows_20261109('BOARD_SECRETARIES').some(function(x){
     return String(x.Username||'').toLowerCase()===username.toLowerCase()&&String(x.Status||'').toUpperCase()==='ACTIVE';
