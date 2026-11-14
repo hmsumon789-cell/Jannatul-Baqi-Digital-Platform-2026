@@ -13774,6 +13774,9 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       r=fresh;
       r.addEventListener('click',function(ev){
         if(ev){ev.preventDefault();ev.stopImmediatePropagation();ev.stopPropagation();}
+        var tenantParam='admin:superadmin';
+        try{var tenantQuery=new URLSearchParams(location.search);tenantParam=tenantQuery.get('tenant')||tenantParam;}catch(tenantErr){}
+        var resultQuery='?result=1&tenant='+encodeURIComponent(tenantParam);
         var w=window.open('about:blank','_blank');
         if(!w){alert('নতুন ফলাফল পেজ খোলা যাচ্ছে না। Browser popup অনুমতি দিন।');return;}
         ['jbOnlineExamResultWin2026','jbOnlineResultWin2026'].forEach(function(id){
@@ -13787,15 +13790,15 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
           if(typeof google!=='undefined'&&google.script&&google.script.run){
             google.script.run.withSuccessHandler(function(res){
               var base=String(res&&res.ok&&res.url?res.url:location.href).split('#')[0].split('?')[0];
-              w.location.href=base+'?result=1';
+              w.location.href=base+resultQuery;
             }).withFailureHandler(function(){
-              w.location.href=location.href.split('#')[0].split('?')[0]+'?result=1';
+              w.location.href=location.href.split('#')[0].split('?')[0]+resultQuery;
             }).getMainWebAppUrl();
           }else{
-            w.location.href=location.href.split('#')[0].split('?')[0]+'?result=1';
+            w.location.href=location.href.split('#')[0].split('?')[0]+resultQuery;
           }
         }catch(e){
-          w.location.href=location.href.split('#')[0].split('?')[0]+'?result=1';
+          w.location.href=location.href.split('#')[0].split('?')[0]+resultQuery;
         }
       });
     }
