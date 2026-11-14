@@ -19677,7 +19677,7 @@ function setupBoardPage(){
  bind('bpPaymentForm',function(d){return rpc('submitBoardPayment',[d])});
 
  var boardToken20261114='',boardOtpToken20261114='',boardUsername20261114='',boardManagerData20261114=null,boardLoadedCandidates20261114=[];
- function examMsg(t){var n=el('bpExamManagerMsg');if(n)n.textContent=t;var l=el('bpExamLoginMsg');if(l&&!boardToken20261114)l.textContent=t;}
+ function examMsg(t){var n=el('bpExamManagerMsg');if(n)n.textContent=t;var l=el('bpExamLoginMsg');if(l)l.textContent=t;}
  function examCall(name,args){return rpc(name,args);}
  function examSelected(){var s=el('bpExamSelect');return s&&s.value?JSON.parse(s.value):null;}
  function refreshBoardExamManager(){
@@ -19687,13 +19687,13 @@ function setupBoardPage(){
    el('bpExamActor').textContent='লগইন: '+d.actor.name+' | ক্ষমতা: '+(d.actor.root?'Super Admin — সর্বোচ্চ নিয়ন্ত্রণ':'আঞ্চলিক শিক্ষাবোর্ড মহাসচিব — পরীক্ষা পরিচালনা');
    el('bpSecretaryControl').style.display=d.actor.root?'block':'none';
    el('bpExamSelect').innerHTML='<option value="">পরীক্ষা নির্বাচন করুন</option>'+(d.exams||[]).map(function(x){return '<option value="'+esc(JSON.stringify(x))+'">'+esc(x.exam+' | '+x.className+' | '+x.academicYear+' | '+x.status)+'</option>'}).join('');
-  }).catch(function(e){examMsg('পরীক্ষা ব্যবস্থাপনা খোলা যায়নি: '+e.message);});
+  }).catch(function(e){var m='পরীক্ষা ব্যবস্থাপনা খোলা যায়নি: '+(e&&e.message||e);examMsg(m);showBoardError(m);});
  }
  el('bpExamPinEnter').addEventListener('click',function(){
   var pin=el('bpExamPin').value.trim();if(!pin){examMsg('বোর্ড পাসওয়ার্ড লিখুন।');return;}
   this.disabled=true;examCall('verifyBoardExamPasscode20261114',[pin]).then(function(r){
    if(!r||!r.ok)throw Error(r&&r.message||'প্রবেশ অনুমোদিত হয়নি');boardToken20261114=r.token;refreshBoardExamManager();
-  }).catch(function(e){examMsg(e.message)}).finally(()=>{el('bpExamPinEnter').disabled=false});
+  }).catch(function(e){var m='বোর্ড পাসওয়ার্ড যাচাই ব্যর্থ: '+(e&&e.message||e);examMsg(m);showBoardError(m)}).finally(()=>{el('bpExamPinEnter').disabled=false});
  });
  var boardAdminOtpToken20261114='',boardAdminUsername20261114='';
  el('bpExamAdminRequestOtp').addEventListener('click',function(){
@@ -19707,7 +19707,7 @@ function setupBoardPage(){
   var code=el('bpExamAdminOtp').value.replace(/\D/g,'');if(!boardAdminOtpToken20261114||code.length!==6){examMsg('সঠিক ৬ সংখ্যার OTP লিখুন।');return;}
   this.disabled=true;examCall('verifyLoginOtp',[boardAdminOtpToken20261114,boardAdminUsername20261114,code]).then(function(r){
    if(!r||!r.ok)throw Error(r&&r.message||'OTP যাচাই হয়নি');boardToken20261114=r.token;refreshBoardExamManager();
-  }).catch(function(e){examMsg('Super Admin যাচাই ব্যর্থ: '+e.message)}).finally(()=>{el('bpExamAdminVerifyOtp').disabled=false});
+  }).catch(function(e){var m='Super Admin যাচাই ব্যর্থ: '+(e&&e.message||e);examMsg(m);showBoardError(m)}).finally(()=>{el('bpExamAdminVerifyOtp').disabled=false});
  });
  el('bpGateSave').addEventListener('click',function(){
   examCall('setBoardExamGate20261114',[boardToken20261114,el('bpGateEnabled').value==='true',el('bpGatePin').value.trim()]).then(function(r){
