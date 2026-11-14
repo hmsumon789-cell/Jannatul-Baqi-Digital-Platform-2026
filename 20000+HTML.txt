@@ -19690,21 +19690,30 @@ function setupBoardPage(){
    el('bpSecretaryList').textContent=(d.secretaries||[]).map(function(x){return x.username+' — '+x.name+' ('+x.status+')'}).join(' | ')||'এখনো কোনো মহাসচিব নিয়োগ করা হয়নি।';
   }).catch(function(e){examMsg('পরীক্ষা ব্যবস্থাপনা খোলা যায়নি: '+e.message);});
  }
- el('bpExamRequestOtp').addEventListener('click',function(){
-  boardUsername20261114=el('bpExamUsername').value.trim();if(!boardUsername20261114){examMsg('Admin Username লিখুন।');return;}
-  this.disabled=true;examCall('requestOtp',[boardUsername20261114]).then(function(r){
-   if(!r||!r.ok)throw Error(r&&r.message||'OTP পাঠানো যায়নি');boardOtpToken20261114=r.token;
-   el('bpExamOtpArea').style.display='block';examMsg((r.message||'OTP পাঠানো হয়েছে')+(r.emailMask?' | '+r.emailMask:''));
-  }).catch(function(e){examMsg('OTP পাঠানো যায়নি: '+e.message)}).finally(()=>{el('bpExamRequestOtp').disabled=false});
+ el('bpExamPinEnter').addEventListener('click',function(){
+  var pin=el('bpExamPin').value.trim();if(!pin){examMsg('বোর্ড পাসওয়ার্ড লিখুন।');return;}
+  this.disabled=true;examCall('verifyBoardExamPasscode20261114',[pin]).then(function(r){
+   if(!r||!r.ok)throw Error(r&&r.message||'প্রবেশ অনুমোদিত হয়নি');boardToken20261114=r.token;refreshBoardExamManager();
+  }).catch(function(e){examMsg(e.message)}).finally(()=>{el('bpExamPinEnter').disabled=false});
  });
- el('bpExamVerifyOtp').addEventListener('click',function(){
-  var code=el('bpExamOtp').value.replace(/\D/g,'');if(!boardOtpToken20261114||code.length!==6){examMsg('সঠিক ৬ সংখ্যার OTP লিখুন।');return;}
-  this.disabled=true;examCall('verifyLoginOtp',[boardOtpToken20261114,boardUsername20261114,code]).then(function(r){
+ var boardAdminOtpToken20261114='',boardAdminUsername20261114='';
+ el('bpExamAdminRequestOtp').addEventListener('click',function(){
+  boardAdminUsername20261114=el('bpExamAdminUsername').value.trim();if(!boardAdminUsername20261114){examMsg('Super Admin Username লিখুন।');return;}
+  this.disabled=true;examCall('requestOtp',[boardAdminUsername20261114]).then(function(r){
+   if(!r||!r.ok)throw Error(r&&r.message||'OTP পাঠানো যায়নি');boardAdminOtpToken20261114=r.token;
+   el('bpExamAdminOtpArea').style.display='block';examMsg((r.message||'OTP পাঠানো হয়েছে')+(r.emailMask?' | '+r.emailMask:''));
+  }).catch(function(e){examMsg('Super Admin OTP পাঠানো যায়নি: '+e.message)}).finally(()=>{el('bpExamAdminRequestOtp').disabled=false});
+ });
+ el('bpExamAdminVerifyOtp').addEventListener('click',function(){
+  var code=el('bpExamAdminOtp').value.replace(/\D/g,'');if(!boardAdminOtpToken20261114||code.length!==6){examMsg('সঠিক ৬ সংখ্যার OTP লিখুন।');return;}
+  this.disabled=true;examCall('verifyLoginOtp',[boardAdminOtpToken20261114,boardAdminUsername20261114,code]).then(function(r){
    if(!r||!r.ok)throw Error(r&&r.message||'OTP যাচাই হয়নি');boardToken20261114=r.token;refreshBoardExamManager();
-  }).catch(function(e){examMsg('লগইন ব্যর্থ: '+e.message)}).finally(()=>{el('bpExamVerifyOtp').disabled=false});
+  }).catch(function(e){examMsg('Super Admin যাচাই ব্যর্থ: '+e.message)}).finally(()=>{el('bpExamAdminVerifyOtp').disabled=false});
  });
- el('bpSecretarySave').addEventListener('click',function(){
-  examCall('setBoardSecretary20261114',[boardToken20261114,el('bpSecretaryUsername').value.trim(),el('bpSecretaryActive').value==='true']).then(function(r){if(!r||!r.ok)throw Error(r&&r.message||'সংরক্ষণ হয়নি');examMsg(r.message);refreshBoardExamManager();}).catch(function(e){examMsg('মহাসচিব নিয়োগ হয়নি: '+e.message)});
+ el('bpGateSave').addEventListener('click',function(){
+  examCall('setBoardExamGate20261114',[boardToken20261114,el('bpGateEnabled').value==='true',el('bpGatePin').value.trim()]).then(function(r){
+   if(!r||!r.ok)throw Error(r&&r.message||'অনুমোদন সংরক্ষণ হয়নি');examMsg(r.message);
+  }).catch(function(e){examMsg('Super Admin অনুমোদন ব্যর্থ: '+e.message)});
  });
  el('bpSetupSave').addEventListener('click',function(){
   var d={exam:el('bpSetupExam').value.trim(),className:el('bpSetupClass').value.trim(),academicYear:el('bpSetupYear').value.trim(),subjects:el('bpSetupSubjects').value.split(/[,،\n]/).map(function(x){return x.trim()}).filter(Boolean)};
@@ -19832,18 +19841,22 @@ body.bp-mode-dark .nav,body.bp-mode-dark .act,body.bp-mode-dark button{
 <section class="panel" id="bpExam"><h2>আঞ্চলিক শিক্ষাবোর্ডের পরীক্ষা পরিচালনা</h2>
 <div class="note"><b>পরিচালনার দায়িত্ব:</b> অনুমোদিত আঞ্চলিক শিক্ষাবোর্ড মহাসচিব। Super Admin যেকোনো সময় সর্বোচ্চ নিয়ন্ত্রণ নিতে পারবেন। সাধারণ দর্শনার্থীরা শুধু প্রকাশিত ফলাফল দেখতে পারবেন।</div>
 <div id="bpExamLogin" style="max-width:650px;margin:14px auto;padding:16px;border:2px solid #c49a36;border-radius:14px;background:#fff8e6">
- <h3 style="text-align:center">মহাসচিব / Super Admin নিরাপদ লগইন</h3>
- <div class="field"><label>Admin Username</label><input id="bpExamUsername" autocomplete="username" placeholder="অনুমোদিত Admin Username"></div>
- <div class="actions"><button class="act" type="button" id="bpExamRequestOtp">ইমেইলে OTP পাঠান</button></div>
- <div id="bpExamOtpArea" style="display:none;margin-top:10px"><div class="field"><label>৬ সংখ্যার OTP</label><input id="bpExamOtp" inputmode="numeric" maxlength="6" autocomplete="one-time-code"></div><div class="actions"><button class="act" type="button" id="bpExamVerifyOtp">যাচাই করে প্রবেশ করুন</button></div></div>
- <p id="bpExamLoginMsg" class="note" role="status">শুধু Super Admin কর্তৃক নিয়োগপ্রাপ্ত বোর্ড মহাসচিব অথবা Super Admin প্রবেশ করতে পারবেন।</p>
+ <h3 style="text-align:center">বোর্ড পরীক্ষা প্যানেলে প্রবেশ</h3>
+ <div class="field"><label>মহাসচিবের পাসওয়ার্ড</label><input id="bpExamPin" type="password" inputmode="numeric" maxlength="12" autocomplete="off" placeholder="Super Admin অনুমোদিত পাসওয়ার্ড"></div>
+ <div class="actions"><button class="act" type="button" id="bpExamPinEnter">পরীক্ষা প্যানেলে প্রবেশ করুন</button></div>
+ <p id="bpExamLoginMsg" class="note" role="status">বোর্ডের সাধারণ পোর্টাল লগইন ছাড়াই ব্যবহার করা যাবে। পরীক্ষা প্যানেলে প্রবেশের জন্য Super Admin-এর অনুমোদিত পাসওয়ার্ড প্রয়োজন।</p>
+ <details style="margin-top:14px"><summary style="cursor:pointer;font-weight:900">Super Admin অনুমোদন / নিয়ন্ত্রণ</summary>
+  <div class="field" style="margin-top:10px"><label>Super Admin Username</label><input id="bpExamAdminUsername" autocomplete="username"></div>
+  <div class="actions"><button class="act" type="button" id="bpExamAdminRequestOtp">Super Admin OTP পাঠান</button></div>
+  <div id="bpExamAdminOtpArea" style="display:none;margin-top:10px"><div class="field"><label>৬ সংখ্যার OTP</label><input id="bpExamAdminOtp" inputmode="numeric" maxlength="6" autocomplete="one-time-code"></div><div class="actions"><button class="act" type="button" id="bpExamAdminVerifyOtp">Super Admin যাচাই করুন</button></div></div>
+ </details>
 </div>
 <div id="bpExamManager" style="display:none">
  <div class="note" id="bpExamActor"></div>
  <div id="bpSecretaryControl" style="display:none;padding:12px;border:2px solid #b68a2e;border-radius:12px;margin:12px 0">
-  <h3>Super Admin — মহাসচিব নিয়োগ / দায়িত্ব স্থগিত</h3>
-  <div class="grid"><div class="field"><label>মহাসচিবের ADMINS Username</label><input id="bpSecretaryUsername"></div><div class="field"><label>নিয়ন্ত্রণ</label><select id="bpSecretaryActive"><option value="true">দায়িত্ব সক্রিয় করুন</option><option value="false">দায়িত্ব স্থগিত করুন</option></select></div></div>
-  <div class="actions"><button class="act" type="button" id="bpSecretarySave">মহাসচিবের দায়িত্ব সংরক্ষণ</button></div><div id="bpSecretaryList" class="note"></div>
+  <h3>Super Admin — পরীক্ষা প্যানেল অনুমোদন / বন্ধ</h3>
+  <div class="grid"><div class="field"><label>বোর্ড প্যানেলের পাসওয়ার্ড (৪–১২ সংখ্যা)</label><input id="bpGatePin" type="password" inputmode="numeric" value="1234"></div><div class="field"><label>অনুমোদন</label><select id="bpGateEnabled"><option value="true">অনুমোদন ও সক্রিয় করুন</option><option value="false">প্যানেল বন্ধ করুন</option></select></div></div>
+  <div class="actions"><button class="act" type="button" id="bpGateSave">Super Admin অনুমোদন সংরক্ষণ</button></div>
  </div>
  <div class="grid" style="margin-top:14px">
   <div class="field"><label>পরীক্ষার নাম</label><input id="bpSetupExam" placeholder="যেমন: বার্ষিক পরীক্ষা"></div>
