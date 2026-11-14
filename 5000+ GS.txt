@@ -328,7 +328,8 @@ function seedLocation_(ss) {
 
 function login(username,password) {
   try {
-    setupSystem();
+    // Login stays lightweight; full setupSystem() is reserved for explicit setup.
+
     username = String(username || '').trim();
     password = String(password || '');
     if (!username || !password) return {ok:false,message:'ইউজার নেম ও পাসওয়ার্ড দিন।'};
@@ -939,22 +940,25 @@ function logout(token) {
 }
 
 function getBootstrap(token) {
+  // Fast first response: authenticate and return permitted modules/profile only.
+  // Heavy dashboard summaries are loaded separately by getDashboardExtras().
   auth_(token);
-  // Dashboard bootstrap must never lose the Feature buttons because one
-  // optional dashboard component (stats/media/notices) failed.
-  const modules = getModulesForSession_(token);
+  return {
+    ok:true,
+    institution:getInstitutionForSession_(token),
+    modules:getModulesForSession_(token)
+  };
+}
+
+function getDashboardExtras(token) {
+  auth_(token);
   let stats = {income:0,expense:0,cash:0,due:0,students:0,teachers:0,executives:0,femaleMadrasa:0,maleMadrasa:0,attendanceToday:{present:0,absent:0}};
   let media = [];
   let notices = [];
   try { stats = getStats(token); } catch(e) {}
   try { media = listMedia(token); } catch(e) {}
   try { notices = listRows_(SHEETS.NOTICES,token,20); } catch(e) {}
-  return {
-    ok:true, institution:getInstitutionForSession_(token),
-    stats, media, notices,
-    modules,
-    classes:getClasses_()
-  };
+  return {ok:true,stats:stats,media:media,notices:notices};
 }
 
 function getStats(token) {
