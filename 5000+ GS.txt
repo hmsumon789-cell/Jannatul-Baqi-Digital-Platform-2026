@@ -4667,6 +4667,7 @@ function boardExamActor20261114_(token){
   token=String(token||'');
   var cache=CacheService.getScriptCache(),cached=token?cache.get('BOARD_EXAM_SESSION_'+token):'';
   if(cached){
+    if(boardExamConfigValue20261114_('BOARD_EXAM_GATE_ENABLED')!=='YES')throw new Error('BOARD_EXAM_ACCESS_DENIED: Super Admin বোর্ড পরীক্ষা প্যানেল বন্ধ করেছেন।');
     var session={};try{session=JSON.parse(cached);}catch(e){}
     if(session&&session.username)return {ok:true,root:false,username:session.username,name:session.name||'অনুমোদিত মহাসচিব'};
   }
