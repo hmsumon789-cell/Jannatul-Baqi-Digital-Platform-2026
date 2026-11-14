@@ -20213,3 +20213,121 @@ input[type="reset"]:disabled,
 </style>
 <!-- ===== END MAIN PAGE: GLOBAL FULL BUTTON ANIMATION 2026 ===== -->
 
+
+<!-- ===== LOGIN PAGE: PREMIUM FULL BUTTON ANIMATION 2026 ===== -->
+<style id="jb-login-page-full-button-animation-2026">
+/* শুধু লগইন পেজের সব বাটন ও button-role কন্ট্রোল */
+#loginPage button,
+#loginPage input[type="button"],
+#loginPage input[type="submit"],
+#loginPage input[type="reset"],
+#loginPage [role="button"],
+#loginPage .btn,
+#loginPage .primary,
+#loginPage .secondary,
+#loginPage .action-btn,
+#loginPage .icon-btn,
+#loginPage .search-btn,
+#loginPage .mode {
+  isolation: isolate;
+  transform-origin: center;
+  animation: jbLoginButtonPremium2026 2.8s ease-in-out infinite !important;
+  transition: transform .24s cubic-bezier(.2,.8,.2,1), filter .24s ease, box-shadow .24s ease !important;
+  will-change: transform, filter, box-shadow;
+}
+@keyframes jbLoginButtonPremium2026 {
+  0%,100% {
+    transform: translateY(0) scale(1);
+    filter: brightness(1) saturate(1);
+    box-shadow: 0 3px 9px rgba(0,0,0,.18), 0 0 0 0 rgba(255,215,80,0);
+  }
+  50% {
+    transform: translateY(-1px) scale(1.012);
+    filter: brightness(1.07) saturate(1.16);
+    box-shadow: 0 6px 15px rgba(0,0,0,.2), 0 0 0 2px rgba(255,215,80,.24), 0 0 16px rgba(255,193,7,.2);
+  }
+}
+#loginPage button:not(:disabled):not([aria-disabled="true"]):hover,
+#loginPage input[type="button"]:not(:disabled):hover,
+#loginPage input[type="submit"]:not(:disabled):hover,
+#loginPage input[type="reset"]:not(:disabled):hover,
+#loginPage [role="button"]:not([aria-disabled="true"]):hover,
+#loginPage .btn:hover,
+#loginPage .primary:hover,
+#loginPage .secondary:hover,
+#loginPage .action-btn:hover,
+#loginPage .icon-btn:hover,
+#loginPage .search-btn:hover,
+#loginPage .mode:hover {
+  transform: translateY(-4px) scale(1.045) !important;
+  filter: brightness(1.14) saturate(1.25) !important;
+  box-shadow: 0 11px 23px rgba(0,0,0,.26), 0 0 0 2px rgba(255,225,120,.42), 0 0 22px rgba(255,193,7,.3) !important;
+  z-index: 5;
+}
+#loginPage button:not(:disabled):not([aria-disabled="true"]):active,
+#loginPage input[type="button"]:not(:disabled):active,
+#loginPage input[type="submit"]:not(:disabled):active,
+#loginPage input[type="reset"]:not(:disabled):active,
+#loginPage [role="button"]:not([aria-disabled="true"]):active,
+#loginPage .btn:active,
+#loginPage .primary:active,
+#loginPage .secondary:active,
+#loginPage .action-btn:active,
+#loginPage .icon-btn:active,
+#loginPage .search-btn:active,
+#loginPage .mode:active {
+  transform: translateY(1px) scale(.95) !important;
+  filter: brightness(.96) saturate(1.1) !important;
+  box-shadow: inset 0 3px 8px rgba(0,0,0,.25), 0 0 0 3px rgba(255,215,80,.3) !important;
+  transition-duration: .07s !important;
+}
+#loginPage button:focus-visible,
+#loginPage input[type="button"]:focus-visible,
+#loginPage input[type="submit"]:focus-visible,
+#loginPage input[type="reset"]:focus-visible,
+#loginPage [role="button"]:focus-visible,
+#loginPage .btn:focus-visible {
+  outline: 3px solid #ffc928 !important;
+  outline-offset: 3px;
+}
+#loginPage button:disabled,
+#loginPage input[type="button"]:disabled,
+#loginPage input[type="submit"]:disabled,
+#loginPage input[type="reset"]:disabled,
+#loginPage [role="button"][aria-disabled="true"] {
+  animation: none !important;
+  filter: grayscale(.2) !important;
+  cursor: not-allowed;
+  will-change: auto;
+}
+@media (hover:none) {
+  #loginPage button:not(:disabled):active,
+  #loginPage input[type="button"]:not(:disabled):active,
+  #loginPage input[type="submit"]:not(:disabled):active,
+  #loginPage input[type="reset"]:not(:disabled):active,
+  #loginPage [role="button"]:not([aria-disabled="true"]):active {
+    transform: scale(.96) !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #loginPage button,
+  #loginPage input[type="button"],
+  #loginPage input[type="submit"],
+  #loginPage input[type="reset"],
+  #loginPage [role="button"],
+  #loginPage .btn,
+  #loginPage .primary,
+  #loginPage .secondary,
+  #loginPage .action-btn,
+  #loginPage .icon-btn,
+  #loginPage .search-btn,
+  #loginPage .mode {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    will-change: auto;
+  }
+}
+</style>
+<!-- ===== END LOGIN PAGE: PREMIUM FULL BUTTON ANIMATION 2026 ===== -->
+
