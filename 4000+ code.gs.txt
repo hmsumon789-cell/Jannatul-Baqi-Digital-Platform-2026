@@ -3910,6 +3910,9 @@ function publicResultTenantContext_(tenantKey) {
   const type=match[1],username=match[2];
   const account=findBy_(type==='madrasa'?SHEETS.MADRASAS:SHEETS.ADMINS,'Username',username)||null;
   if(!account && !(type==='admin'&&username.toLowerCase()==='superadmin'))return null;
+  const role=String(account&&account.Role||'').toUpperCase().replace(/\\s+/g,'_');
+  const isRoot=type==='admin'&&(role==='SUPER_ADMIN'||role==='SUPERADMIN'||username.toLowerCase()==='superadmin');
+  if(account&&!isRoot&&String(account.Status||'').toUpperCase()!=='ACTIVE')return null;
   return {type:type,username:username,key:type+':'+username,account:account||{}};
 }
 function publicResultStudentsForTenant_(context) {
