@@ -4650,3 +4650,191 @@ function getBoardPublicResult(id){
   }catch(e){return {ok:false,message:String(e&&e.message||e)}}
 }
 /* ===== END KERANIGANJ REGIONAL BOARD PORTAL DATA ===== */
+
+/* ===== REGIONAL BOARD EXAM CONTROL — SECRETARY + SUPER ADMIN / 2026-11-14 ===== */
+const BOARD_EXAM_HEADERS_20261114 = {
+  BOARD_SECRETARIES:['Serial','Username','Name','Status','AssignedBy','AssignedAt','UpdatedAt'],
+  BOARD_EXAMS:['Serial','ExamID','Exam','ClassName','AcademicYear','SubjectsJSON','Status','CreatedBy','CreatedAt','UpdatedBy','UpdatedAt'],
+  BOARD_EXAM_MARKS:['Serial','ExamRegID','Exam','ClassName','AcademicYear','SubjectData','Total','GPA','Grade','Published','UpdatedBy','UpdatedAt','PublishedBy','PublishedAt']
+};
+function ensureBoardExamSheets20261114_(){
+  var ss=SpreadsheetApp.getActiveSpreadsheet();
+  Object.keys(BOARD_EXAM_HEADERS_20261114).forEach(function(n){ensureSheet_(ss,n,BOARD_EXAM_HEADERS_20261114[n]);});
+  return ss;
+}
+function boardExamActor20261114_(token){
+  var session=auth_(token),username=String(session.username||'').trim();
+  var account=findBy_(SHEETS.ADMINS,'Username',username)||{};
+  var role=String(account.Role||'').toUpperCase().replace(/[\s-]+/g,'_');
+  var root=String(session.accountType||'admin')!=='madrasa'&&
+    (role==='SUPER_ADMIN'||role==='SUPERADMIN'||username.toLowerCase()==='superadmin');
+  if(root)return {ok:true,root:true,username:username,name:String(account.NameBN||account.Name||username)};
+  ensureBoardExamSheets20261114_();
+  var assigned=boardPortalRows_20261109('BOARD_SECRETARIES').some(function(x){
+    return String(x.Username||'').toLowerCase()===username.toLowerCase()&&String(x.Status||'').toUpperCase()==='ACTIVE';
+  });
+  if(!assigned)throw new Error('BOARD_EXAM_ACCESS_DENIED: শুধু আঞ্চলিক শিক্ষাবোর্ডের অনুমোদিত মহাসচিব অথবা Super Admin এই পরীক্ষা পরিচালনা করতে পারবেন।');
+  return {ok:true,root:false,username:username,name:String(account.NameBN||account.Name||username)};
+}
+function setBoardSecretary20261114(token,username,active){
+  try{
+    var actor=boardExamActor20261114_(token);
+    if(!actor.root)return {ok:false,message:'শুধু Super Admin মহাসচিব নিয়োগ বা দায়িত্ব বাতিল করতে পারবেন।'};
+    username=boardPortalText_20261109(username,100);
+    if(!username)return {ok:false,message:'মহাসচিবের Admin Username লিখুন।'};
+    var admin=findBy_(SHEETS.ADMINS,'Username',username);
+    if(!admin)return {ok:false,message:'এই Username ADMINS শিটে পাওয়া যায়নি। আগে Admin অ্যাকাউন্ট তৈরি করুন।'};
+    var ss=ensureBoardExamSheets20261114_(),sh=ss.getSheetByName('BOARD_SECRETARIES');
+    var rows=boardPortalRows_20261109('BOARD_SECRETARIES');
+    var found=rows.find(function(x){return String(x.Username||'').toLowerCase()===username.toLowerCase();});
+    var status=active===false?'SUSPENDED':'ACTIVE',now=now_();
+    if(found){
+      var row=rows.indexOf(found)+2,headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
+      sh.getRange(row,headers.indexOf('Status')+1).setValue(status);
+      sh.getRange(row,headers.indexOf('UpdatedAt')+1).setValue(now);
+    }else{
+      sh.appendRow([sh.getLastRow(),username,String(admin.NameBN||admin.Name||username),status,actor.username,now,now]);
+    }
+    log_(actor.username,'board-secretary-'+status.toLowerCase(),'BOARD_SECRETARIES',username);
+    return {ok:true,message:status==='ACTIVE'?'মহাসচিবের পরীক্ষা পরিচালনার দায়িত্ব সক্রিয় হয়েছে।':'মহাসচিবের পরীক্ষা পরিচালনার দায়িত্ব স্থগিত হয়েছে।'};
+  }catch(e){return {ok:false,message:String(e&&e.message||e)}}
+}
+function getBoardExamManagerData20261114(token){
+  try{
+    var actor=boardExamActor20261114_(token);ensureBoardExamSheets20261114_();
+    var exams=boardPortalRows_20261109('BOARD_EXAMS').filter(function(x){return String(x.Status||'ACTIVE').toUpperCase()!=='CANCELLED';}).map(function(x){
+      var subjects=[];try{subjects=JSON.parse(x.SubjectsJSON||'[]');}catch(e){}
+      return {id:x.ExamID,exam:x.Exam,className:x.ClassName,academicYear:String(x.AcademicYear||''),subjects:subjects,status:x.Status||'ACTIVE'};
+    });
+    var secretaries=actor.root?boardPortalRows_20261109('BOARD_SECRETARIES').map(function(x){return {username:x.Username,name:x.Name,status:x.Status};}):[];
+    return {ok:true,actor:{name:actor.name,root:actor.root},exams:exams,secretaries:secretaries};
+  }catch(e){return {ok:false,message:String(e&&e.message||e)}}
+}
+function saveBoardExamSetup20261114(token,data){
+  try{
+    var actor=boardExamActor20261114_(token);data=data||{};
+    var exam=boardPortalText_20261109(data.exam,120),cls=boardPortalText_20261109(data.className,80),year=boardPortalText_20261109(data.academicYear,12);
+    var subjects=(Array.isArray(data.subjects)?data.subjects:[]).map(function(x){return boardPortalText_20261109(x,100);}).filter(Boolean);
+    if(!exam||!cls||!year||!subjects.length)return {ok:false,message:'পরীক্ষা, শ্রেণি/জামাত, শিক্ষাবর্ষ ও অন্তত একটি বিষয় দিন।'};
+    if(new Set(subjects).size!==subjects.length)return {ok:false,message:'একই বিষয় একাধিকবার দেওয়া হয়েছে।'};
+    var sh=ensureBoardExamSheets20261114_().getSheetByName('BOARD_EXAMS'),rows=boardPortalRows_20261109('BOARD_EXAMS');
+    var found=rows.find(function(x){return String(x.Exam||'')===exam&&String(x.ClassName||'')===cls&&String(x.AcademicYear||'')===year;});
+    var now=now_(),json=JSON.stringify(subjects);
+    if(found){
+      var r=rows.indexOf(found)+2,headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
+      if(String(found.Status||'').toUpperCase()==='PUBLISHED'&&!actor.root)return {ok:false,message:'ফলাফল প্রকাশিত হয়েছে। পরিবর্তনের জন্য Super Admin-এর অনুমতি প্রয়োজন।'};
+      sh.getRange(r,headers.indexOf('SubjectsJSON')+1).setValue(json);
+      sh.getRange(r,headers.indexOf('UpdatedBy')+1).setValue(actor.username);
+      sh.getRange(r,headers.indexOf('UpdatedAt')+1).setValue(now);
+    }else{
+      sh.appendRow([sh.getLastRow(),'KB-EXAM-'+Utilities.getUuid().slice(0,8).toUpperCase(),exam,cls,year,json,'ACTIVE',actor.username,now,actor.username,now]);
+    }
+    return {ok:true,message:'পরীক্ষার বিষয় ও সেটআপ সংরক্ষণ হয়েছে।'};
+  }catch(e){return {ok:false,message:String(e&&e.message||e)}}
+}
+function setBoardExamineeStatus20261114(token,examRegId,status){
+  try{
+    var actor=boardExamActor20261114_(token);
+    examRegId=boardPortalText_20261109(examRegId,60);status=String(status||'').toUpperCase();
+    if(!examRegId||['APPROVED','REJECTED','PENDING'].indexOf(status)<0)return {ok:false,message:'পরীক্ষার্থী বা অনুমোদনের অবস্থা সঠিক নয়।'};
+    var sh=ensureBoardPortalSheets_20261109().getSheetByName('BOARD_EXAMINEES'),rows=boardPortalRows_20261109('BOARD_EXAMINEES');
+    var found=rows.find(function(x){return String(x.ExamRegID||'').toLowerCase()===examRegId.toLowerCase();});
+    if(!found)return {ok:false,message:'পরীক্ষার্থী পাওয়া যায়নি।'};
+    var row=rows.indexOf(found)+2,headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
+    sh.getRange(row,headers.indexOf('Status')+1).setValue(status);
+    return {ok:true,message:status==='APPROVED'?'পরীক্ষার্থী অনুমোদিত হয়েছে।':status==='REJECTED'?'পরীক্ষার্থীর আবেদন বাতিল হয়েছে।':'পরীক্ষার্থীর অবস্থা অপেক্ষমাণ করা হয়েছে।'};
+  }catch(e){return {ok:false,message:String(e&&e.message||e)}}
+}
+function getBoardExamCandidates20261114(token,exam,cls,year){
+  try{
+    boardExamActor20261114_(token);
+    exam=boardPortalText_20261109(exam,120);cls=boardPortalText_20261109(cls,80);year=boardPortalText_20261109(year,12);
+    var candidates=boardPortalRows_20261109('BOARD_EXAMINEES').filter(function(x){
+      return String(x.Exam||'')===exam&&String(x.ClassName||'')===cls&&String(x.Status||'').toUpperCase()==='APPROVED';
+    });
+    var marks=boardPortalRows_20261109('BOARD_EXAM_MARKS').filter(function(x){return String(x.Exam||'')===exam&&String(x.ClassName||'')===cls&&String(x.AcademicYear||'')===year;});
+    var byId={};marks.forEach(function(x){try{byId[String(x.ExamRegID)]={subjects:JSON.parse(x.SubjectData||'{}'),total:x.Total,gpa:x.GPA,grade:x.Grade,published:String(x.Published||'NO')==='YES'};}catch(e){}});
+    return {ok:true,candidates:candidates.map(function(x){return {id:x.ExamRegID,name:x.Name,father:x.Father,madrasa:x.Madrasa,className:x.ClassName,exam:x.Exam,status:x.Status,marks:byId[String(x.ExamRegID)]||{subjects:{},published:false}};})};
+  }catch(e){return {ok:false,message:String(e&&e.message||e)}}
+}
+function saveBoardExamMarks20261114(token,exam,cls,year,subject,marks,maxMark){
+  try{
+    var actor=boardExamActor20261114_(token);
+    exam=boardPortalText_20261109(exam,120);cls=boardPortalText_20261109(cls,80);year=boardPortalText_20261109(year,12);subject=boardPortalText_20261109(subject,100);
+    maxMark=Number(maxMark);if(!exam||!cls||!year||!subject||!Array.isArray(marks)||!marks.length||!isFinite(maxMark)||maxMark<=0||maxMark>1000)return {ok:false,message:'পরীক্ষা, শ্রেণি, শিক্ষাবর্ষ, বিষয়, পরীক্ষার্থী ও পূর্ণমান যাচাই করুন।'};
+    var setup=boardPortalRows_20261109('BOARD_EXAMS').find(function(x){return String(x.Exam||'')===exam&&String(x.ClassName||'')===cls&&String(x.AcademicYear||'')===year;});
+    if(!setup||String(setup.Status||'').toUpperCase()==='CANCELLED')return {ok:false,message:'এই পরীক্ষা/শ্রেণি/শিক্ষাবর্ষের সেটআপ নেই। আগে পরীক্ষা সেটআপ সংরক্ষণ করুন।'};
+    var subjects=JSON.parse(setup.SubjectsJSON||'[]');if(subjects.indexOf(subject)<0)return {ok:false,message:'এই বিষয়টি পরীক্ষার সেটআপে নেই।'};
+    var approved=boardPortalRows_20261109('BOARD_EXAMINEES').filter(function(x){return String(x.Exam||'')===exam&&String(x.ClassName||'')===cls&&String(x.Status||'').toUpperCase()==='APPROVED';});
+    var sh=ensureBoardExamSheets20261114_().getSheetByName('BOARD_EXAM_MARKS'),rows=boardPortalRows_20261109('BOARD_EXAM_MARKS'),saved=0,now=now_();
+    var lock=LockService.getScriptLock();lock.waitLock(15000);
+    try{
+      marks.forEach(function(m){
+        var id=boardPortalText_20261109(m.examRegId,60),mark=Number(m.mark);
+        if(!approved.some(function(x){return String(x.ExamRegID)===id;}))throw new Error('অনুমোদিত পরীক্ষার্থী তালিকায় আইডি নেই: '+id);
+        if(!isFinite(mark)||mark<0||mark>maxMark)throw new Error('নম্বর ০ থেকে '+maxMark+'-এর মধ্যে হতে হবে: '+id);
+        var found=rows.find(function(x){return String(x.ExamRegID)===id&&String(x.Exam)===exam&&String(x.ClassName)===cls&&String(x.AcademicYear)===year;});
+        if(found&&String(found.Published||'NO')==='YES'&&!actor.root)throw new Error('ফলাফল প্রকাশিত। সংশোধনের জন্য Super Admin-এর নিয়ন্ত্রণ প্রয়োজন।');
+        var obj={};if(found){try{obj=JSON.parse(found.SubjectData||'{}');}catch(e){}}
+        obj[subject]={mark:mark,maxMark:maxMark};
+        var total=Object.keys(obj).reduce(function(a,k){return a+(Number(obj[k].mark)||0);},0);
+        var r=found?rows.indexOf(found)+2:sh.getLastRow()+1;
+        var vals=[found?found.Serial:sh.getLastRow(),id,exam,cls,year,JSON.stringify(obj),total,'','', 'NO',actor.username,now,'',''];
+        if(found)sh.getRange(r,1,1,vals.length).setValues([vals]);else sh.appendRow(vals);
+        saved++;
+      });
+    }finally{lock.releaseLock();}
+    return {ok:true,saved:saved,message:saved+' জন পরীক্ষার্থীর নম্বর সংরক্ষণ হয়েছে।'};
+  }catch(e){return {ok:false,message:String(e&&e.message||e)}}
+}
+function publishBoardExamResults20261114(token,exam,cls,year){
+  try{
+    var actor=boardExamActor20261114_(token);
+    exam=boardPortalText_20261109(exam,120);cls=boardPortalText_20261109(cls,80);year=boardPortalText_20261109(year,12);
+    var setup=boardPortalRows_20261109('BOARD_EXAMS').find(function(x){return String(x.Exam||'')===exam&&String(x.ClassName||'')===cls&&String(x.AcademicYear||'')===year;});
+    if(!setup)return {ok:false,message:'পরীক্ষার সেটআপ পাওয়া যায়নি।'};
+    var subjects=JSON.parse(setup.SubjectsJSON||'[]'),candidates=boardPortalRows_20261109('BOARD_EXAMINEES').filter(function(x){return String(x.Exam||'')===exam&&String(x.ClassName||'')===cls&&String(x.Status||'').toUpperCase()==='APPROVED';});
+    if(!candidates.length)return {ok:false,message:'এই পরীক্ষা ও শ্রেণিতে অনুমোদিত পরীক্ষার্থী নেই।'};
+    var sh=ensureBoardExamSheets20261114_().getSheetByName('BOARD_EXAM_MARKS'),rows=boardPortalRows_20261109('BOARD_EXAM_MARKS'),updates=[],missing=[];
+    candidates.forEach(function(c){
+      var found=rows.find(function(x){return String(x.ExamRegID)===String(c.ExamRegID)&&String(x.Exam)===exam&&String(x.ClassName)===cls&&String(x.AcademicYear)===year;});
+      var obj={};if(found){try{obj=JSON.parse(found.SubjectData||'{}');}catch(e){}}
+      var absent=subjects.filter(function(s){return !obj[s]||obj[s].mark===undefined;});
+      if(absent.length)missing.push(c.Name+' ('+c.ExamRegID+'): '+absent.join(', '));
+      else{
+        var total=subjects.reduce(function(a,s){return a+Number(obj[s].mark||0);},0),max=subjects.reduce(function(a,s){return a+Number(obj[s].maxMark||100);},0);
+        var pct=max?total*100/max:0,grade=pct>=80?'A+':pct>=70?'A':pct>=60?'A-':pct>=50?'B':pct>=40?'C':pct>=33?'D':'F',gpa=grade==='A+'?5:grade==='A'?4:grade==='A-'?3.5:grade==='B'?3:grade==='C'?2:grade==='D'?1:0;
+        updates.push({row:rows.indexOf(found)+2,found:found,total:total,grade:grade,gpa:gpa});
+      }
+    });
+    if(missing.length)return {ok:false,message:'সব অনুমোদিত পরীক্ষার্থীর সব বিষয়ের নম্বর পূরণ হয়নি।\n'+missing.slice(0,8).join('\n')};
+    var lock=LockService.getScriptLock();lock.waitLock(15000);
+    try{
+      updates.forEach(function(u){
+        var row=boardPortalRows_20261109('BOARD_EXAM_MARKS').find(function(x){return String(x.ExamRegID)===String(u.found.ExamRegID)&&String(x.Exam)===exam&&String(x.ClassName)===cls&&String(x.AcademicYear)===year;});
+        var rr=boardPortalRows_20261109('BOARD_EXAM_MARKS').indexOf(row)+2;
+        var headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
+        sh.getRange(rr,headers.indexOf('Total')+1).setValue(u.total);
+        sh.getRange(rr,headers.indexOf('Grade')+1).setValue(u.grade);
+        sh.getRange(rr,headers.indexOf('GPA')+1).setValue(u.gpa);
+        sh.getRange(rr,headers.indexOf('Published')+1).setValue('YES');
+        sh.getRange(rr,headers.indexOf('PublishedBy')+1).setValue(actor.username);
+        sh.getRange(rr,headers.indexOf('PublishedAt')+1).setValue(now_());
+      });
+      var examRows=boardPortalRows_20261109('BOARD_EXAMS'),es=ensureBoardExamSheets20261114_().getSheetByName('BOARD_EXAMS'),e=examRows.find(function(x){return String(x.Exam)===exam&&String(x.ClassName)===cls&&String(x.AcademicYear)===year;});
+      if(e){var er=examRows.indexOf(e)+2,eh=es.getRange(1,1,1,es.getLastColumn()).getValues()[0].map(String);es.getRange(er,eh.indexOf('Status')+1).setValue('PUBLISHED');es.getRange(er,eh.indexOf('UpdatedBy')+1).setValue(actor.username);es.getRange(er,eh.indexOf('UpdatedAt')+1).setValue(now_());}
+    }finally{lock.releaseLock();}
+    return {ok:true,published:updates.length,message:updates.length+' জন পরীক্ষার্থীর ফলাফল অনলাইনে প্রকাশ হয়েছে।'};
+  }catch(e){return {ok:false,message:String(e&&e.message||e)}}
+}
+function getBoardPublicResult(id){
+  try{
+    id=boardPortalText_20261109(id,60);
+    if(!id)return {ok:false,message:'পরীক্ষার্থী নিবন্ধন আইডি দিন।'};
+    var rows=boardPortalRows_20261109('BOARD_EXAM_MARKS').filter(function(x){return String(x.ExamRegID||'').toLowerCase()===id.toLowerCase()&&String(x.Published||'').toUpperCase()==='YES';});
+    if(!rows.length)return {ok:false,message:'এই পরীক্ষার্থীর ফলাফল এখনো বোর্ড কর্তৃক প্রকাশিত হয়নি।'};
+    var r=rows[rows.length-1],candidate=boardPortalRows_20261109('BOARD_EXAMINEES').find(function(x){return String(x.ExamRegID||'').toLowerCase()===id.toLowerCase();}),subjects={};try{subjects=JSON.parse(r.SubjectData||'{}');}catch(e){}
+    return {ok:true,name:candidate&&candidate.Name||'',father:candidate&&candidate.Father||'',madrasa:candidate&&candidate.Madrasa||'',exam:r.Exam,className:r.ClassName,academicYear:r.AcademicYear,subjects:subjects,total:r.Total,gpa:r.GPA,grade:r.Grade,result:String(r.Grade)==='F'?'অনুত্তীর্ণ':'উত্তীর্ণ'};
+  }catch(e){return {ok:false,message:String(e&&e.message||e)}}
+}
+/* ===== END REGIONAL BOARD EXAM CONTROL ===== */
