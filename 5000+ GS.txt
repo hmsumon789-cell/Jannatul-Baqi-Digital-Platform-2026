@@ -2298,6 +2298,15 @@ function tenantCanSeeRowForIdentity_(sheetName,headers,row,identity) {
     const sourceCol=headers.indexOf('SourceAccount');
     return sourceCol>=0&&String(row[sourceCol]||'').trim()===identity.username;
   }
+  if(sheetName==='EXAM_REG') {
+    const studentIdCol=headers.indexOf('StudentID');
+    const studentId=studentIdCol>=0?String(row[studentIdCol]||'').trim():'';
+    if(!studentId)return false;
+    const student=findBy_(SHEETS.STUDENTS,'StudentID',studentId)||{};
+    const studentTenant=String(student.TenantAccount||'').trim();
+    if(studentTenant)return studentTenant===identity.key;
+    return String(student.SourceAccount||'').trim()===identity.username;
+  }
   if(sheetName==='ADMINS'||sheetName==='MADRASAS') {
     const userCol=headers.indexOf('Username');
     return userCol>=0&&String(row[userCol]||'').trim()===identity.username;
