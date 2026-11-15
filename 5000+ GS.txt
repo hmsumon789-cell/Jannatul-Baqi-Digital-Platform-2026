@@ -1517,8 +1517,8 @@ function approveStudent(token,studentId,status) {
   if(!isSuperAdmin_(token)) return {ok:false,message:'শুধু Super Admin Student অনুমোদন করতে পারবেন।'};
   ensureStudentWorkflowColumns_();
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.STUDENTS);
-  const vals=sh.getDataRange().getValues(), h=vals[0].map(String), idCol=h.indexOf('StudentID');
-  const idx=vals.findIndex(function(r,i){return i>0 && String(r[idCol])===String(studentId);});
+  const vals=sh.getDataRange().getValues(), h=vals[0].map(String), idCol=h.indexOf('StudentID'), stdCol=h.indexOf('STD-সংকেত');
+  const idx=vals.findIndex(function(r,i){return i>0 && ((idCol>=0 && String(r[idCol]||'').trim()===String(studentId).trim()) || (stdCol>=0 && String(r[stdCol]||'').trim()===String(studentId).trim()));});
   if(idx<1) return {ok:false,message:'Student পাওয়া যায়নি।'};
   const finalStatus=String(status||'ACTIVE').toUpperCase();
   if(h.indexOf('ApprovalStatus')>=0) sh.getRange(idx+1,h.indexOf('ApprovalStatus')+1).setValue(finalStatus);
@@ -1554,8 +1554,9 @@ function approveStudentAdmission(token,admissionOrStudentId) {
         const studentValues=studentSheet.getDataRange().getValues();
         const studentHeaders=studentValues[0].map(String);
         const studentIdColInStudents=studentHeaders.indexOf('StudentID');
-        studentExists=studentIdColInStudents>=0 && studentValues.some(function(row,i){
-          return i>0 && String(row[studentIdColInStudents]||'').trim()===studentId;
+        const stdSignalColInStudents=studentHeaders.indexOf('STD-সংকেত');
+        studentExists=studentValues.some(function(row,i){
+          return i>0 && ((studentIdColInStudents>=0 && String(row[studentIdColInStudents]||'').trim()===studentId) || (stdSignalColInStudents>=0 && String(row[stdSignalColInStudents]||'').trim()===studentId));
         });
       }
       if(!studentId || !studentExists) {
