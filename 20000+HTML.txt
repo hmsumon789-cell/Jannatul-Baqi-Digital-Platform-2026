@@ -3529,7 +3529,7 @@ window.renderAccountList=function(type){
 window.approvePendingStudent2026=async function(btn){
   var c=btn&&btn.closest?btn.closest('.account-card'):null;if(!c)return;
   btn.disabled=true;btn.textContent='⏳ অনুমোদন হচ্ছে...';
-  try{var r=await call('approveStudentAdmission',token,c.dataset.id);toast((r&&r.message)||'অনুমোদন সম্পন্ন');if(r&&r.ok)setTimeout(function(){refreshAccountManager()},500);}
+  try{var r=await new Promise(function(resolve,reject){google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).approveStudentAdmission(token,c.dataset.id)});toast((r&&r.message)||'অনুমোদন সম্পন্ন');if(r&&r.ok)setTimeout(function(){refreshAccountManager()},500);}
   catch(e){toast('অনুমোদন ব্যর্থ: '+(e&&e.message?e.message:e));}
   finally{setTimeout(function(){btn.disabled=false;btn.textContent='✅ ভর্তি অনুমোদন'},800)}
 };
