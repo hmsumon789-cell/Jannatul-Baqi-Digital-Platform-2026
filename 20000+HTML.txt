@@ -2297,8 +2297,8 @@ function showOnlinePaymentReceipt(x){
   if(!x)return;
   window.__jbOnlineReceipt2026=x;
   let w=$('onlinePaymentReceiptWin');
-  w.style.maxHeight='90vh';w.style.overflow='hidden';
   if(!w){w=document.createElement('div');w.id='onlinePaymentReceiptWin';w.className='window';w.style.width='min(900px,96vw)';document.body.appendChild(w);}
+  w.style.maxHeight='90vh';w.style.overflow='hidden';
   const e=function(v){return String(v==null?'':v).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]})};
   const fields=[
     ['রসিদ আইডি',x.ReceiptID],['লেনদেন আইডি',x.TransactionID||x.PaymentID||x.RequestID||''],
