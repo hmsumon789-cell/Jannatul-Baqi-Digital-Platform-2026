@@ -1547,9 +1547,21 @@ function approveStudentAdmission(token,admissionOrStudentId) {
     if(admissionRow>0) {
       const studentIdCol=admissionHeaders.indexOf('StudentID');
       studentId=studentIdCol>=0?String(values[admissionRow][studentIdCol]||'').trim():'';
-      if(!studentId) {
+      // StudentID may exist in ADMISSIONS while its STUDENTS row is missing.
+      // Create/sync that row before attempting approval.
+      const studentSheet=ss.getSheetByName(SHEETS.STUDENTS);
+      let studentExists=false;
+      if(studentId && studentSheet && studentSheet.getLastRow()>1) {
+        const studentValues=studentSheet.getDataRange().getValues();
+        const studentHeaders=studentValues[0].map(String);
+        const studentIdColInStudents=studentHeaders.indexOf('StudentID');
+        studentExists=studentIdColInStudents>=0 && studentValues.some(function(row,i){
+          return i>0 && String(row[studentIdColInStudents]||'').trim()===studentId;
+        });
+      }
+      if(!studentId || !studentExists) {
         const synced=syncAdmissionToStudent_(token,objectFrom_(admissionHeaders,values[admissionRow]));
-        studentId=String(synced&&synced.studentId||'').trim();
+        studentId=String(synced&&synced.studentId||studentId||'').trim();
         if(!studentId) return {ok:false,message:(synced&&synced.message)||'ভর্তি আবেদন থেকে Student তৈরি করা যায়নি।'};
       }
     }
