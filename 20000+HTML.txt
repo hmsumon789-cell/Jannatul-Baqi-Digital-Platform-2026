@@ -15466,11 +15466,24 @@ window.jbRsBuild=async function(){
   window.printOnlineReceipt=function(){
     var b=document.getElementById('onlineReceiptBody');if(!b)return;
     var w=window.open('','_blank','width=850,height=750');if(!w){window.print();return}
-    var c=contact20261010();
-    var header='<div class="adm-receipt-header-20261010"><div><img src="'+escPrint20261010(c.logo)+'" alt="লোগো"></div><div class="adm-rh-center"><div class="adm-rh-name">'+escPrint20261010(c.name)+'</div><div class="adm-rh-address">'+escPrint20261010(c.address)+'</div><div class="adm-rh-hotline">হটলাইন: '+escPrint20261010(c.hotline)+'</div></div></div>';
-    w.document.open();w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>মানি রসিদ</title><style>@page{size:A5 portrait;margin:7mm}*{box-sizing:border-box}body{font-family:Arial,"Noto Sans Bengali",sans-serif;margin:0;color:#111}.adm-receipt-header-20261010{display:grid;grid-template-columns:18mm minmax(0,1fr);gap:3mm;align-items:center;border-bottom:1.5px solid #222;padding:0 0 3mm;margin-bottom:4mm}.adm-receipt-header-20261010 img{width:16mm;height:16mm;object-fit:contain}.adm-rh-center{text-align:center;line-height:1.25}.adm-rh-name{font-size:12pt;font-weight:900}.adm-rh-address,.adm-rh-hotline{font-size:8pt;font-weight:700;margin-top:2px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:5px;text-align:left}h2,h3{text-align:center}</style></head><body>'+header+b.outerHTML+'</body></html>');
-    w.document.close();w.focus();setTimeout(function(){w.print()},300);
-  };
+    var html='<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>মানি রসিদ — A5</title><style>'+
+      '@page{size:A5 portrait;margin:0}*{box-sizing:border-box}html,body{margin:0;padding:0;width:148mm;height:210mm;background:#fff;color:#111;font-family:Arial,"Noto Sans Bengali",sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}'+
+      '.a5-page{width:148mm;height:210mm;padding:5mm;margin:0;overflow:hidden;background:#fff}'+
+      '#onlineReceiptBody{display:block!important;width:138mm!important;max-width:138mm!important;min-width:0!important;height:auto!important;min-height:0!important;max-height:none!important;margin:0!important;padding:3mm!important;overflow:visible!important;box-sizing:border-box!important;break-inside:avoid!important;page-break-inside:avoid!important}'+
+      '#onlineReceiptBody *{max-width:100%!important;box-sizing:border-box!important}'+
+      '#onlineReceiptBody .receipt-main-header{display:block!important;margin:0 auto 3mm!important;padding:2mm!important;break-inside:avoid!important;page-break-inside:avoid!important}'+
+      '#onlineReceiptBody .receipt-main-header .lc-layout{gap:2mm!important;grid-template-columns:17mm minmax(0,1fr) 17mm!important}'+
+      '#onlineReceiptBody .receipt-main-header .lc-logo,#onlineReceiptBody .receipt-main-header .lc-qr{width:15mm!important;height:15mm!important}'+
+      '#onlineReceiptBody .receipt-main-header .lc-name{font-size:12pt!important;line-height:1.2!important}'+
+      '#onlineReceiptBody .receipt-main-header .lc-address{font-size:8pt!important;line-height:1.2!important}'+
+      '#onlineReceiptBody .receipt-main-header .lc-hotline{font-size:8pt!important;line-height:1.2!important}'+
+      '#onlineReceiptBody table{width:100%!important;border-collapse:collapse!important}'+
+      '#onlineReceiptBody th,#onlineReceiptBody td{padding:2mm!important;font-size:9pt!important;line-height:1.2!important;overflow-wrap:anywhere!important}'+
+      '#onlineReceiptBody img{max-width:100%!important;object-fit:contain!important}'+
+      '@media print{html,body{width:148mm!important;height:210mm!important;overflow:hidden!important}.a5-page{width:148mm!important;height:210mm!important;overflow:hidden!important}}'+
+      '</style></head><body><div class="a5-page">'+b.outerHTML+'</div><script>(function(){function fit(){var x=document.getElementById("onlineReceiptBody");if(!x)return;x.style.transform="none";x.style.transformOrigin="top left";var available=200*96/25.4;var natural=Math.max(x.scrollHeight,x.getBoundingClientRect().height);var scale=Math.min(1,available/Math.max(1,natural));x.style.transform="scale("+scale+")"}window.addEventListener("load",function(){var imgs=Array.from(document.images||[]);Promise.all(imgs.map(function(i){if(i.complete)return Promise.resolve();return new Promise(function(r){i.onload=r;i.onerror=r;setTimeout(r,4000)})})).then(function(){if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fit);else fit();setTimeout(function(){fit();window.focus();window.print()},250)})})})();<\/script></body></html>';
+    w.document.open();w.document.write(html);w.document.close();
+  };;
 })();
 </script>
 <!-- ===== END PRINT REPAIR 2026-10-10 ===== -->
