@@ -1530,6 +1530,11 @@ function approveStudent(token,studentId,status) {
   log_(sessionUser_(token),'approve','STUDENT',String(studentId)+' | '+finalStatus);
   return {ok:true,message:'Student '+studentId+' '+finalStatus+' করা হয়েছে।',studentId:String(studentId),status:finalStatus,autoDocuments:autoDocuments};
 }
+
+// Backward-compatible RPC alias used by the Super Admin pending-student approval button.
+function approveStudentAdmission(token,studentId) {
+  return approveStudent(token,studentId,'ACTIVE');
+}
 function getExamCandidateList(token,exam,className) {
   auth_(token); ensureStudentWorkflowColumns_();
   let students=listRows_(SHEETS.STUDENTS,token,10000).filter(function(s){return String(s.ApprovalStatus||'ACTIVE').toUpperCase()==='ACTIVE';});
