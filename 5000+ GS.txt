@@ -1531,9 +1531,38 @@ function approveStudent(token,studentId,status) {
   return {ok:true,message:'Student '+studentId+' '+finalStatus+' করা হয়েছে।',studentId:String(studentId),status:finalStatus,autoDocuments:autoDocuments};
 }
 
-// Backward-compatible RPC alias used by the Super Admin pending-student approval button.
-function approveStudentAdmission(token,studentId) {
-  return approveStudent(token,studentId,'ACTIVE');
+// Resolve the AdmissionID sent by the All Account Control card, then approve its StudentID.
+function approveStudentAdmission(token,admissionOrStudentId) {
+  if(!isSuperAdmin_(token)) return {ok:false,message:'শুধু Super Admin Student অনুমোদন করতে পারবেন।'};
+  const requestedId=String(admissionOrStudentId||'').trim();
+  if(!requestedId) return {ok:false,message:'ভর্তি/শিক্ষার্থী ID পাওয়া যায়নি।'};
+  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  const admissionSheet=ss.getSheetByName(SHEETS.ADMISSIONS);
+  let studentId=requestedId, admissionRow=-1, admissionHeaders=[];
+  if(admissionSheet && admissionSheet.getLastRow()>1) {
+    const values=admissionSheet.getDataRange().getValues();
+    admissionHeaders=values[0].map(String);
+    const admissionIdCol=admissionHeaders.indexOf('AdmissionID');
+    admissionRow=values.findIndex(function(row,i){return i>0 && admissionIdCol>=0 && String(row[admissionIdCol]||'').trim()===requestedId;});
+    if(admissionRow>0) {
+      const studentIdCol=admissionHeaders.indexOf('StudentID');
+      studentId=studentIdCol>=0?String(values[admissionRow][studentIdCol]||'').trim():'';
+      if(!studentId) {
+        const synced=syncAdmissionToStudent_(token,objectFrom_(admissionHeaders,values[admissionRow]));
+        studentId=String(synced&&synced.studentId||'').trim();
+        if(!studentId) return {ok:false,message:(synced&&synced.message)||'ভর্তি আবেদন থেকে Student তৈরি করা যায়নি।'};
+      }
+    }
+  }
+  if(!studentId) return {ok:false,message:'ভর্তি আবেদনের সঙ্গে Student ID পাওয়া যায়নি।'};
+  const result=approveStudent(token,studentId,'ACTIVE');
+  if(result&&result.ok&&admissionRow>0) {
+    const statusCol=admissionHeaders.indexOf('Status');
+    if(statusCol>=0) admissionSheet.getRange(admissionRow+1,statusCol+1).setValue('APPROVED');
+    SpreadsheetApp.flush();
+    result.admissionId=requestedId;
+  }
+  return result;
 }
 function getExamCandidateList(token,exam,className) {
   auth_(token); ensureStudentWorkflowColumns_();
