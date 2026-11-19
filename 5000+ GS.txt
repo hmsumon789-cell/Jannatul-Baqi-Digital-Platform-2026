@@ -1225,11 +1225,31 @@ function buildStudentFromAdmission_(data,form) {
     Documents:getStudentField_(d,['Documents','documents'])
   };
 }
+function generateAdmissionStudentId2026_() {
+  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  const tz=Session.getScriptTimeZone()||'Asia/Dhaka';
+  const day=Utilities.formatDate(new Date(),tz,'yyyyMMdd');
+  const used={};
+  [SHEETS.STUDENTS,SHEETS.ADMISSIONS].forEach(function(name){
+    const sh=ss.getSheetByName(name);if(!sh||sh.getLastRow()<2)return;
+    const values=sh.getDataRange().getDisplayValues();
+    const headers=values[0].map(String),col=headers.indexOf('StudentID');
+    if(col<0)return;
+    for(let i=1;i<values.length;i++){const id=String(values[i][col]||'').trim();if(id)used[id]=true;}
+  });
+  for(let attempt=0;attempt<100;attempt++){
+    const suffix=String(Math.floor(Math.random()*1000000)).padStart(6,'0');
+    const id='STD-'+day+'-'+suffix;
+    if(!used[id])return id;
+  }
+  throw new Error('নতুন StudentID তৈরি করা যায়নি; আবার চেষ্টা করুন।');
+}
 function syncAdmissionToStudent_(token,data) {
   if(!data) return {ok:true,skipped:true,message:'ভর্তি রেকর্ড পাওয়া যায়নি।'};
   let form=data && data.FormData;
   if(typeof form==='string'){try{form=JSON.parse(form);}catch(e){form={};}}
   const src=buildStudentFromAdmission_(data,form);
+  if(!String(src.StudentID||'').trim()) src.StudentID=generateAdmissionStudentId2026_();
   if(!src.NameBN && !src.StudentID) return {ok:true,skipped:true,message:'ভর্তি রেকর্ডে Student তথ্য পাওয়া যায়নি।'};
   const ss=SpreadsheetApp.getActiveSpreadsheet();
   const sh=ensureSheet_(ss,SHEETS.STUDENTS,HEADERS[SHEETS.STUDENTS]);
