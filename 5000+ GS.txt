@@ -1539,40 +1539,65 @@ function approveStudentAdmission(token,admissionOrStudentId) {
   if(!requestedId) return {ok:false,message:'ভর্তি/শিক্ষার্থী ID পাওয়া যায়নি।'};
   const ss=SpreadsheetApp.getActiveSpreadsheet();
   const admissionSheet=ss.getSheetByName(SHEETS.ADMISSIONS);
-  let studentId=requestedId, admissionRow=-1, admissionHeaders=[];
+  let admissionRow=-1, admissionHeaders=[], admissionData=null, studentId='';
   if(admissionSheet && admissionSheet.getLastRow()>1) {
     const values=admissionSheet.getDataRange().getValues();
-    admissionHeaders=values[0].map(String);
+    admissionHeaders=values[0].map(function(x){return String(x||'').trim();});
     const admissionIdCol=admissionHeaders.indexOf('AdmissionID');
-    admissionRow=values.findIndex(function(row,i){return i>0 && admissionIdCol>=0 && String(row[admissionIdCol]||'').trim()===requestedId;});
+    const admissionStudentIdCol=admissionHeaders.indexOf('StudentID');
+    admissionRow=values.findIndex(function(row,i){
+      if(i<1) return false;
+      const admissionId=admissionIdCol>=0?String(row[admissionIdCol]||'').trim():'';
+      const rowStudentId=admissionStudentIdCol>=0?String(row[admissionStudentIdCol]||'').trim():'';
+      return admissionId===requestedId || rowStudentId===requestedId;
+    });
     if(admissionRow>0) {
-      const studentIdCol=admissionHeaders.indexOf('StudentID');
-      studentId=studentIdCol>=0?String(values[admissionRow][studentIdCol]||'').trim():'';
-      const studentSheet=ss.getSheetByName(SHEETS.STUDENTS);
+      admissionData=objectFrom_(admissionHeaders,values[admissionRow]);
+      studentId=admissionStudentIdCol>=0?String(values[admissionRow][admissionStudentIdCol]||'').trim():'';
+      let studentSheet=ss.getSheetByName(SHEETS.STUDENTS);
       let studentExists=false;
       if(studentId && studentSheet && studentSheet.getLastRow()>1) {
         const studentValues=studentSheet.getDataRange().getValues();
-        const studentHeaders=studentValues[0].map(String);
+        const studentHeaders=studentValues[0].map(function(x){return String(x||'').trim();});
         const studentIdColInStudents=studentHeaders.indexOf('StudentID');
-        const stdSignalColInStudents=studentHeaders.indexOf('STD-সংকেত');
         studentExists=studentValues.some(function(row,i){
-          return i>0 && ((studentIdColInStudents>=0 && String(row[studentIdColInStudents]||'').trim()===studentId) || (stdSignalColInStudents>=0 && String(row[stdSignalColInStudents]||'').trim()===studentId));
+          return i>0 && studentIdColInStudents>=0 && String(row[studentIdColInStudents]||'').trim()===studentId;
         });
       }
+      // ADMISSIONS is the source of truth: synchronize its existing StudentID.
       if(!studentId || !studentExists) {
-        const synced=syncAdmissionToStudent_(token,objectFrom_(admissionHeaders,values[admissionRow]));
-        studentId=String(synced&&synced.studentId||studentId||'').trim();
-        if(!studentId) return {ok:false,message:(synced&&synced.message)||'ভর্তি আবেদন থেকে Student তৈরি করা যায়নি।'};
+        const synced=syncAdmissionToStudent_(token,admissionData);
+        if(!synced || synced.ok!==true) return {ok:false,message:(synced&&synced.message)||'ভর্তি আবেদন থেকে Student তৈরি/সমন্বয় করা যায়নি।',details:synced||null};
+        studentId=String(synced.studentId||studentId||'').trim();
+        if(!studentId) return {ok:false,message:'ভর্তি আবেদনের StudentID তৈরি বা উদ্ধার করা যায়নি; ADMISSIONS-এর FormData ও StudentID যাচাই করুন।'};
+        if(admissionStudentIdCol>=0) {
+          admissionSheet.getRange(admissionRow+1,admissionStudentIdCol+1).setValue(studentId);
+          SpreadsheetApp.flush();
+        }
       }
+      studentSheet=ss.getSheetByName(SHEETS.STUDENTS);
+      if(!studentSheet || studentSheet.getLastRow()<2) return {ok:false,message:'STUDENTS শিটে Student রেকর্ড তৈরি হয়নি। StudentID: '+studentId};
+      const verifyValues=studentSheet.getDataRange().getValues();
+      const verifyHeaders=verifyValues[0].map(function(x){return String(x||'').trim();});
+      const verifyIdCol=verifyHeaders.indexOf('StudentID');
+      const verified=verifyIdCol>=0 && verifyValues.some(function(row,i){return i>0 && String(row[verifyIdCol]||'').trim()===studentId;});
+      if(!verified) return {ok:false,message:'ADMISSIONS ও STUDENTS-এর StudentID মেলেনি। ADMISSIONS: '+studentId+'; STUDENTS-এ একই ID পাওয়া যায়নি।'};
+    } else {
+      studentId=requestedId;
     }
+  } else {
+    studentId=requestedId;
   }
-  if(!studentId) return {ok:false,message:'ভর্তি আবেদনের সঙ্গে Student ID পাওয়া যায়নি।'};
   const result=approveStudent(token,studentId,'ACTIVE');
   if(result&&result.ok&&admissionRow>0) {
     const statusCol=admissionHeaders.indexOf('Status');
+    const studentIdCol=admissionHeaders.indexOf('StudentID');
+    if(studentIdCol>=0) admissionSheet.getRange(admissionRow+1,studentIdCol+1).setValue(studentId);
     if(statusCol>=0) admissionSheet.getRange(admissionRow+1,statusCol+1).setValue('APPROVED');
     SpreadsheetApp.flush();
     result.admissionId=requestedId;
+    result.studentId=studentId;
+    result.message='✅ ভর্তি অনুমোদন সফল। ADMISSIONS ও STUDENTS—উভয় শিটে StudentID: '+studentId;
   }
   return result;
 }
