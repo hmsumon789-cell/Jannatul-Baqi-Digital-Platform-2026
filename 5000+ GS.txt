@@ -1226,7 +1226,6 @@ function buildStudentFromAdmission_(data,form) {
   };
 }
 function syncAdmissionToStudent_(token,data) {
-  ensureStudentWorkflowColumns_();
   if(!data) return {ok:true,skipped:true,message:'ভর্তি রেকর্ড পাওয়া যায়নি।'};
   let form=data && data.FormData;
   if(typeof form==='string'){try{form=JSON.parse(form);}catch(e){form={};}}
@@ -1235,7 +1234,10 @@ function syncAdmissionToStudent_(token,data) {
   const ss=SpreadsheetApp.getActiveSpreadsheet();
   const sh=ensureSheet_(ss,SHEETS.STUDENTS,HEADERS[SHEETS.STUDENTS]);
   ensureTenantSheetColumn_(sh);
+  // Ensure workflow columns only after the STUDENTS sheet exists (it may be created above).
+  ensureStudentWorkflowColumns_();
   const h=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
+  if(h.indexOf('StudentID')<0) return {ok:false,message:'STUDENTS শিটে StudentID কলাম পাওয়া যায়নি; রেকর্ড লেখা হয়নি।'};
   const vals=sh.getDataRange().getValues();
   const tenant=tenantIdentity_(token);
   const idCol=h.indexOf('StudentID'), birthCol=h.indexOf('BirthReg'), nidCol=h.indexOf('NID'), tenantCol=h.indexOf('TenantAccount');
