@@ -1265,8 +1265,8 @@ function syncAdmissionToStudent_(token,data) {
     }
   }
   if(existing>1 && idCol>=0 && !String(src.StudentID||'').trim()) src.StudentID=String(vals[existing-1][idCol]||'').trim();
-  const uniqueFormId=checkUniqueHandwrittenFormId_(src.FormID,existing>1?SHEETS.STUDENTS:'',existing>1?vals[existing-1][0]:'',src,data.AdmissionID||'');
-  if(!uniqueFormId.ok) return uniqueFormId;
+  // FormID uniqueness was validated before the ADMISSIONS row was saved. Do not re-check here:
+  // this sync runs after that row exists and must not reject its own linked admission.
   const info=studentSourceInfo_(token);
   const admissionStatus=String(data.Status||'PENDING').trim().toUpperCase();
   const admissionApproved=['APPROVED','ACTIVE','ADMITTED','CONFIRMED'].includes(admissionStatus);
