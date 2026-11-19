@@ -15356,7 +15356,7 @@ window.jbRsBuild=async function(){
     var record={AdmissionID:d.FormID,StudentID:d.StudentID,Session:String(new Date().getFullYear()),Class:d.Class,Branch:d.Branch,Status:'PENDING',EditExisting:!!window.jbAdmissionEditingExisting2026,FormData:JSON.stringify(d)};
     draftAdmissionId=d.FormID;
     var r;
-    try{r=await call('saveAdmissionDraft2026',token,record,'FINALIZE');}
+    try{r=await call('submitPublicAdmissionApplication2026',record);}
     catch(saveError){safeToast('ভর্তি আবেদন সংরক্ষণে ত্রুটি: '+(saveError&&saveError.message||saveError));return null}
     if(!r||!r.ok){safeToast((r&&r.message)||'ভর্তি আবেদন সংরক্ষণ হয়নি।');return null}
     var sid=String((r.studentWorkflow&&r.studentWorkflow.studentId)||(r.row&&r.row.StudentID)||r.studentId||d.StudentID||'').trim();
