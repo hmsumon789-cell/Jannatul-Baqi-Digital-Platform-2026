@@ -1314,6 +1314,70 @@ function syncAdmissionToStudent_(token,data) {
   return {ok:true,studentId:String(sid),created:true,status:info.status,autoDocuments:autoDocuments};
 }
 
+/**
+ * Public login-page admission submit. Public entries remain PENDING.
+ * Kept separate from authenticated dashboard admission drafts.
+ */
+function savePublicAdmissionApplication2026(data) {
+  data=data||{};
+  let form=data.FormData;
+  if(typeof form==='string'){try{form=JSON.parse(form);}catch(e){form={};}}
+  if(!form || typeof form!=='object' || Array.isArray(form)) form={};
+  const src=buildStudentFromAdmission_(data,form);
+  const admissionId=String(data.AdmissionID||data.FormID||'').trim();
+  const name=String(src.NameBN||'').trim(), father=String(src.FatherBN||'').trim();
+  const dob=String(src.DOB||'').trim(), mobile=String(src.Mobile||src.MobileID||'').trim();
+  const studentClass=String(src.Class||'').trim(), address=String(src.Address||'').trim();
+  if(!admissionId) return {ok:false,message:'আবেদন নম্বর পাওয়া যায়নি।'};
+  if(!name||!father||!dob||!mobile||!studentClass||!address) return {ok:false,message:'নাম, পিতার নাম, জন্মতারিখ, মোবাইল, শ্রেণি ও ঠিকানা পূরণ করুন।'};
+  if(admissionId.length>80||name.length>150||mobile.length>30) return {ok:false,message:'প্রদত্ত তথ্যের দৈর্ঘ্য সঠিক নয়।'};
+  const lock=LockService.getScriptLock();
+  if(!lock.tryLock(15000)) return {ok:false,message:'একই সময়ে অন্য আবেদন জমা হচ্ছে। কিছুক্ষণ পর আবার চেষ্টা করুন।'};
+  try {
+    const ss=SpreadsheetApp.getActiveSpreadsheet();
+    const admissionSheet=ss.getSheetByName(SHEETS.ADMISSIONS)||ensureSheet_(ss,SHEETS.ADMISSIONS,HEADERS[SHEETS.ADMISSIONS]);
+    const studentSheet=ss.getSheetByName(SHEETS.STUDENTS)||ensureSheet_(ss,SHEETS.STUDENTS,HEADERS[SHEETS.STUDENTS]);
+    ensureTenantSheetColumn_(admissionSheet); ensureTenantSheetColumn_(studentSheet); ensureStudentWorkflowColumns_();
+    const ah=admissionSheet.getRange(1,1,1,admissionSheet.getLastColumn()).getValues()[0].map(String);
+    const av=admissionSheet.getDataRange().getDisplayValues(), aidCol=ah.indexOf('AdmissionID');
+    if(aidCol>=0&&av.slice(1).some(function(row){return String(row[aidCol]||'').trim().toLowerCase()===admissionId.toLowerCase();}))
+      return {ok:false,duplicate:true,message:'এই আবেদন নম্বরটি ইতিমধ্যে ব্যবহৃত হয়েছে। নতুন হাতে লেখা আইডি নম্বর দিন।'};
+    src.StudentID=generateAdmissionStudentId2026_();
+    src.FormID=String(src.FormID||admissionId);
+    data.AdmissionID=admissionId; data.StudentID=src.StudentID; data.Status='PENDING'; data.TenantAccount='PUBLIC_LOGIN';
+    data.FormData=JSON.stringify(Object.assign({},form,{StudentID:src.StudentID}));
+    const admissionSerial=nextSerial_(admissionSheet);
+    admissionSheet.appendRow(ah.map(function(key){
+      if(key==='Serial')return admissionSerial;
+      if(key==='CreatedAt')return now_();
+      if(key==='TenantAccount')return 'PUBLIC_LOGIN';
+      if(key==='Status')return 'PENDING';
+      if(key==='AdmissionID')return admissionId;
+      if(key==='StudentID')return src.StudentID;
+      if(key==='FormData')return data.FormData;
+      return data[key]!==undefined?data[key]:'';
+    }));
+    const sh=studentSheet, shHeaders=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String), serial=nextSerial_(sh);
+    sh.appendRow(shHeaders.map(function(key){
+      if(key==='Serial')return serial;
+      if(key==='StudentID')return src.StudentID;
+      if(key==='CreatedAt')return now_();
+      if(key==='ApprovalStatus')return 'PENDING';
+      if(key==='SourceType')return 'PUBLIC_ADMISSION';
+      if(key==='SourceAccount'||key==='TenantAccount')return 'PUBLIC_LOGIN';
+      if(key==='ApprovedBy'||key==='ApprovedAt')return '';
+      if(key==='AcademicYear')return String(data.Session||new Date().getFullYear());
+      return src[key]!==undefined?src[key]:'';
+    }));
+    SpreadsheetApp.flush();
+    let autoDocuments=null;
+    try{autoDocuments=ensureAutoPersonDocuments_('STUDENTS',src,src.StudentID);}catch(e){autoDocuments={ok:false,message:String(e&&e.message||e)};}
+    return {ok:true,row:{AdmissionID:admissionId,StudentID:src.StudentID},studentWorkflow:{studentId:src.StudentID,created:true,status:'PENDING'},admissionId:admissionId,studentId:src.StudentID,status:'PENDING',autoDocuments:autoDocuments,message:'ভর্তি আবেদন সফলভাবে সংরক্ষিত হয়েছে।'};
+  } catch(err) {
+    return {ok:false,message:'ভর্তি আবেদন সংরক্ষণ করা যায়নি: '+String(err&&err.message||err)};
+  } finally { lock.releaseLock(); }
+}
+
 function saveAdmissionDraft2026(token,data,action) {
   auth_(token);
   requireFeature_(token,'admission');
