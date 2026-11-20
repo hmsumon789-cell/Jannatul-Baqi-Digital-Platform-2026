@@ -16665,7 +16665,7 @@ window.jbAdmissionImportFile2026=async function(file){var fb=el('admAdmissionRed
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run,{once:true});else run();
  if(window.MutationObserver){var mo=new MutationObserver(function(){if(isAdmission())install()});mo.observe(document.documentElement,{childList:true,subtree:true})}
  // A new internal tab loads an isolated copy of the app and opens a fresh student admission form.
- function consumeTabFlag(){if(window.location.hash==='#jb-open-admission-student-20261012'){history.replaceState(null,'',window.location.pathname+window.location.search);setTimeout(function(){if(typeof window.openAdmissionForm2026==='function')window.openAdmissionForm2026('student')},700)}}
+  function consumeTabFlag(){if(window.location.hash!=='#jb-open-admission-student-20261012')return;var tries=0,opened=false;function attempt(){if(opened)return;tries++;var title=document.getElementById('winTitle'),body=document.getElementById('winBody'),win=document.getElementById('formWin');if(typeof window.openAdmissionForm2026==='function'&&title&&body&&win){try{if(title.textContent.indexOf('ছাত্র/ছাত্রী ভর্তি আবেদন ফর্ম')<0)window.openAdmissionForm2026('student');if(title.textContent.indexOf('ছাত্র/ছাত্রী ভর্তি আবেদন ফর্ম')>=0){opened=true;history.replaceState(null,'',window.location.pathname+window.location.search);return}}catch(e){}}if(tries<50)setTimeout(attempt,250)}if(document.readyState==='complete')setTimeout(attempt,300);else window.addEventListener('load',function(){setTimeout(attempt,300)},{once:true})}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',consumeTabFlag,{once:true});else consumeTabFlag();
 })();
 </script>
