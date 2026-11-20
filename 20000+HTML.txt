@@ -6613,7 +6613,7 @@ body #app .header-news *{
     var q=document.querySelectorAll('#loginPage .quick button');
     /* Keep handlers aligned with the four login-page quick buttons. */
     var handlers=[
-      function(){var base=window.location.href.split('#')[0];window.open(base+'#jb-open-admission-student-20261012','_blank');},
+      function(){window.open('https://script.google.com/macros/s/AKfycbzXRN5J8tL56uBwNjzbRej_kbRFtInyMY74Zw8nT49CXXO_pIuiHAlQI-CmXiDwDx8_/exec#jb-open-admission-student-20261012','_blank');},
       function(){openPublicFeature('exam');},
       function(){openPublicFeature('madrasa');},
       function(){openPublicFeature('admin');}
