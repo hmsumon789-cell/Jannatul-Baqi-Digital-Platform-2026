@@ -985,6 +985,11 @@ body.gold #loginPage .main-qr-802268e{background:#fff!important;border-color:#11
 #jbDocBuilderWin .jb-doc-preview.a4 .jb-marksheet-signatures-2026{position:absolute!important;left:8mm!important;right:8mm!important;bottom:50.8mm!important;display:flex!important;justify-content:space-between!important;align-items:flex-end!important;margin:0!important;font-size:8.5px!important;line-height:1.2!important}
 </style>
 
+<style id="jb-public-admission-tab-isolation-2026-11-20">
+/* পাবলিক ভর্তি ট্যাবে শুধু ভর্তি ফর্ম দেখাবে; লগইন/ড্যাশবোর্ড ব্যাকগ্রাউন্ড থাকবে না */
+body.jb-admission-tab-only-2026 > :not(#formWin){display:none!important;visibility:hidden!important}
+body.jb-admission-tab-only-2026 > #formWin{display:block!important;visibility:visible!important;position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;max-width:none!important;max-height:none!important;margin:0!important;transform:none!important;z-index:2147483647!important}
+</style>
 <style id="login-app-switch-safe-final-2026-10-08">
 /* OTP সফল হলে Login Page সম্পূর্ণ লুকিয়ে Dashboard-কে একমাত্র দৃশ্যমান রাখে */
 #loginPage.jb-login-hidden-2026{display:none!important;visibility:hidden!important;pointer-events:none!important;height:0!important;min-height:0!important;overflow:hidden!important}
@@ -16675,6 +16680,7 @@ window.jbAdmissionImportFile2026=async function(file){var fb=el('admAdmissionRed
         if(opened)return;
         tries++;
         var title=document.getElementById('winTitle'),body=document.getElementById('winBody'),win=document.getElementById('formWin'),app=document.getElementById('app'),loginPage=document.getElementById('loginPage');
+        document.body.classList.add('jb-admission-tab-only-2026');
         if(loginPage)loginPage.classList.add('jb-login-hidden-2026');
         if(app)app.classList.add('show','jb-dashboard-visible-2026');
         if(win&&app&&app.contains(win))document.body.appendChild(win);
