@@ -988,6 +988,8 @@ body.gold #loginPage .main-qr-802268e{background:#fff!important;border-color:#11
 <style id="jb-public-admission-tab-isolation-2026-11-20">
 /* পাবলিক ভর্তি ট্যাবে শুধু ভর্তি ফর্ম দেখাবে; লগইন/ড্যাশবোর্ড ব্যাকগ্রাউন্ড থাকবে না */
 body.jb-admission-tab-only-2026 > :not(#formWin){display:none!important;visibility:hidden!important}
+/* #app-এর নিজস্ব ID/class selector আগের সাধারণ hide rule-কে override করছিল; এই নির্দিষ্ট selector dashboard-কে নিশ্চিতভাবে আড়াল করে */
+body.jb-admission-tab-only-2026 #app.jb-dashboard-visible-2026{display:none!important;visibility:hidden!important;pointer-events:none!important}
 body.jb-admission-tab-only-2026 > #formWin{display:block!important;visibility:visible!important;position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;max-width:none!important;max-height:none!important;margin:0!important;transform:none!important;z-index:2147483647!important}
 </style>
 <style id="login-app-switch-safe-final-2026-10-08">
