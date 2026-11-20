@@ -15356,13 +15356,13 @@ window.jbRsBuild=async function(){
     var record={AdmissionID:d.FormID,StudentID:d.StudentID,Session:String(new Date().getFullYear()),Class:d.Class,Branch:d.Branch,Status:'PENDING',EditExisting:!!window.jbAdmissionEditingExisting2026,FormData:JSON.stringify(d)};
     draftAdmissionId=d.FormID;
     var r;
-    try{r=await call('saveAdmissionDraft2026',token,record,'FINALIZE');}
+    try{r=token?await call('saveAdmissionDraft2026',token,record,'FINALIZE'):await call('savePublicAdmissionApplication2026',record);}
     catch(saveError){safeToast('ভর্তি আবেদন সংরক্ষণে ত্রুটি: '+(saveError&&saveError.message||saveError));return null}
     if(!r||!r.ok){safeToast((r&&r.message)||'ভর্তি আবেদন সংরক্ষণ হয়নি।');return null}
     var sid=String((r.studentWorkflow&&r.studentWorkflow.studentId)||(r.row&&r.row.StudentID)||r.studentId||d.StudentID||'').trim();
     if(!sid||(r.studentWorkflow&&r.studentWorkflow.skipped)){safeToast('আবেদন রেকর্ড হয়েছে, কিন্তু শিক্ষার্থী আইডি তৈরি হয়নি। ভর্তি সম্পন্ন হয়নি। '+((r.studentWorkflow&&r.studentWorkflow.message)||'Super Admin/প্রশাসকের সহায়তা নিন।'));return null}
     savedAdmission={admissionId:(r.row&&r.row.AdmissionID)||r.admissionId||d.FormID,studentId:sid,data:d};window.jbAdmissionEditingExisting2026=false;
-    try{var pdfHtml=window.jbArchivePdfHtml2026('admission_form',d);var pdfSaved=await call('saveAdmissionPdfArchive2026',token,'admission_form',d.FormID||d.HandwrittenID,d,pdfHtml);if(!pdfSaved||!pdfSaved.ok){if(typeof window.toast==='function')window.toast('ভর্তি সেভ হয়েছে, তবে PDF আর্কাইভে সংরক্ষণ হয়নি: '+((pdfSaved&&pdfSaved.message)||'ত্রুটি'));}else if(typeof window.toast==='function')window.toast('ভর্তি ফর্মের PDF অল ডকুমেন্টসে সংরক্ষিত হয়েছে।');}catch(pdfErr){if(typeof window.toast==='function')window.toast('ভর্তি সেভ হয়েছে, কিন্তু PDF সংরক্ষণে সমস্যা: '+(pdfErr&&pdfErr.message||pdfErr));}
+    if(token){try{var pdfHtml=window.jbArchivePdfHtml2026('admission_form',d);var pdfSaved=await call('saveAdmissionPdfArchive2026',token,'admission_form',d.FormID||d.HandwrittenID,d,pdfHtml);if(!pdfSaved||!pdfSaved.ok){if(typeof window.toast==='function')window.toast('ভর্তি সেভ হয়েছে, তবে PDF আর্কাইভে সংরক্ষণ হয়নি: '+((pdfSaved&&pdfSaved.message)||'ত্রুটি'));}else if(typeof window.toast==='function')window.toast('ভর্তি ফর্মের PDF অল ডকুমেন্টসে সংরক্ষিত হয়েছে।');}catch(pdfErr){if(typeof window.toast==='function')window.toast('ভর্তি সেভ হয়েছে, কিন্তু PDF সংরক্ষণে সমস্যা: '+(pdfErr&&pdfErr.message||pdfErr));}}
     return savedAdmission;
   }
   window.showAdmissionReceipt2026=function(r){
