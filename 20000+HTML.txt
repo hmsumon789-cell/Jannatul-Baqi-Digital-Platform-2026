@@ -15289,7 +15289,7 @@ window.jbRsBuild=async function(){
         '<div class="form-grid"><label>পেমেন্টের মাধ্যম<select id="admPayMethod2026" class="field"><option>bKash</option><option>Nagad</option><option>mCash</option><option>Rocket</option><option>ব্যাংকিং</option><option>হ্যান্ড ক্যাশ</option></select></label>'+
         '<label>Transaction / Reference ID<input id="admPayRef2026" class="field"></label><label>প্রদানকারীর মোবাইল<input id="admPayMobile2026" class="field" value="'+esc(V('adMobile'))+'"></label><label>প্রদানকারীর ইমেইল<input id="admPayEmail2026" class="field" type="email" value="'+esc(V('adEmail'))+'"></label>'+
         '<label class="full">পেমেন্ট নোট<textarea id="admPayNote2026" class="field"></textarea></label></div>'+
-        '<p>অনুরোধটি গ্রহণ হলে পেমেন্ট Pending থাকবে; Super Admin অনুমোদনের পর সম্পন্ন হবে।</p>'+
+        '<p>পেমেন্ট সরাসরি সফল হবে এবং সঙ্গে সঙ্গে মানি রসিদ তৈরি হবে। শুধু শিক্ষার্থীর ভর্তি অনুমোদন PENDING থাকবে; Super Admin অনুমোদনের পর ভর্তি সম্পন্ন হবে।</p>'+
         '<div class="adm-dialog-actions"><button class="secondary" type="button" onclick="closeAdmissionDialog2026()">বাতিল</button><button class="secondary" type="button" onclick="chooseAdmissionPayLater2026()">পরে পরিশোধ করব</button><button class="primary" type="button" onclick="submitAdmissionPayment2026()">💳 পেমেন্ট সম্পন্ন করুন</button></div>');
     }
     document.body.insertAdjacentHTML('beforeend',html);
@@ -15377,7 +15377,7 @@ window.jbRsBuild=async function(){
   };
   window.shareAdmissionReceipt2026=async function(){
     var r=window.__jbAdmissionReceiptData2026||{};
-    var message=['জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা — মানি রসিদ','রসিদ নম্বর: '+(r.ReceiptID||''),'শিক্ষার্থী আইডি: '+(r.StudentID||''),'নাম: '+(r.Name||''),'শ্রেণি: '+(r.Class||''),'ফি খাত: '+(r.Category||''),'পরিমাণ: '+(r.Amount||0)+' টাকা','পেমেন্ট মাধ্যম: '+(r.Method||''),'Transaction ID: '+(r.Reference||''),'তারিখ: '+(r.Date||''),'হটলাইন: '+(r.Hotline||'01823316630')].join('\n');
+    var message=['জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা — মানি রসিদ','রসিদ নম্বর: '+(r.ReceiptID||''),'শিক্ষার্থী আইডি: '+(r.StudentID||''),'নাম: '+(r.Name||''),'শ্রেণি: '+(r.Class||''),'ফি খাত: '+(r.Category||''),'পরিমাণ: '+(r.Amount||0)+' টাকা','পেমেন্ট মাধ্যম: '+(r.Method||''),'Transaction ID: '+(r.Reference||''),'তারিখ: '+(r.Date||''),'ভর্তি অনুমোদন: PENDING — Super Admin অনুমোদনের অপেক্ষায়','হটলাইন: '+(r.Hotline||'01823316630')].join('\n');
     try{
       if(navigator.share){await navigator.share({title:'ভর্তি ফি — মানি রসিদ',text:message});return;}
       if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(message);safeToast('রসিদের তথ্য কপি হয়েছে। এখন WhatsApp বা অন্য মাধ্যমে শেয়ার করুন।');return;}
@@ -15508,7 +15508,7 @@ window.jbRsBuild=async function(){
   };
   window.showAdmissionReceipt2026=function(r){
     r=r||{};window.__jbAdmissionReceiptData2026=r;
-    var rows=[['রসিদ নম্বর',r.ReceiptID||''],['শিক্ষার্থী আইডি',r.StudentID||''],['নাম',r.Name||''],['শ্রেণি/জামাত',r.Class||''],['ফি খাত',r.Category||''],['পরিমাণ',String(r.Amount||0)+' টাকা'],['মাধ্যম',r.Method||''],['Transaction ID',r.Reference||''],['তারিখ',r.Date||'']];
+    var rows=[['রসিদ নম্বর',r.ReceiptID||''],['শিক্ষার্থী আইডি',r.StudentID||''],['নাম',r.Name||''],['শ্রেণি/জামাত',r.Class||''],['ফি খাত',r.Category||''],['পরিমাণ',String(r.Amount||0)+' টাকা'],['মাধ্যম',r.Method||''],['Transaction ID',r.Reference||''],['তারিখ',r.Date||''],['ভর্তি অনুমোদন','PENDING — Super Admin অনুমোদনের অপেক্ষায়']];
     var old=document.getElementById('admReceiptOverlay2026');if(old)old.remove();
     var style=document.getElementById('admReceiptPrintStyle2026');if(style)style.remove();
     var header=headerHTML20261010('adm-receipt-header-20261010');
