@@ -3430,7 +3430,7 @@ function submitOnlinePayment(data,token){
   data=data||{};const inputId=String(data.StudentID||'').trim(),ref=String(data.Reference||'').trim(),amount=Number(data.Amount||0),method=String(data.Method||'').trim(),mode=String(data.PaymentMode||'PRINCIPAL_APPROVAL').toUpperCase();
   const allowedModes=['QUICK','QUICK_REQUEST','PRINCIPAL_APPROVAL','AUTO_12H','AUTO_24H','AUTO_48H','AUTO_72H','PENDING','ADMISSION_DIRECT'];if(allowedModes.indexOf(mode)<0)return {ok:false,message:'পেমেন্টের ধরন সঠিক নয়।'};
   if(!inputId||!isFinite(amount)||amount<=0||!method)return {ok:false,message:'ভর্তি ফর্মের যেকোনো ID, মোবাইল/ইমেইল, Amount ও পেমেন্ট মাধ্যম সঠিকভাবে দিন।'};
-  if(mode==='ADMISSION_DIRECT'){if(!token)return {ok:false,message:'ড্যাশবোর্ড থেকে লগইন করে ভর্তি পেমেন্ট সম্পন্ন করুন।'};auth_(token);requireFeature_(token,'admission');}
+  if(mode==='ADMISSION_DIRECT'&&token){auth_(token);requireFeature_(token,'admission');}
   if(method!=='হ্যান্ড ক্যাশ'&&!ref)return {ok:false,message:'Transaction / Reference ID দিন।'};
   const resolved=resolveAdmissionIdentifier_(inputId);
   const id=String(resolved.studentId||inputId).trim();
@@ -3452,11 +3452,20 @@ function submitOnlinePayment(data,token){
       let pay,paymentTenant='';
       const paymentFields={PaymentID:mode==='ADMISSION_DIRECT'?'PAY-ADM-'+Utilities.getUuid().replace(/-/g,'').slice(0,12).toUpperCase():'',StudentID:id,Name:data.Name,Month:String((Array.isArray(data.Months)&&data.Months.length?data.Months.join(', '):data.Month)||'').trim(),Category:String((Array.isArray(data.Categories)&&data.Categories.length?data.Categories.join(', '):data.Category)||'').trim(),Amount:amount,Method:method,Reference:ref,Date:now_(),Note:String(data.Note||'').trim()};
       if(mode==='ADMISSION_DIRECT'){
-        const tenant=tenantIdentity_(token),ownedStudent=listRows_(SHEETS.STUDENTS,token,10000).some(function(x){return String(x.StudentID||'').trim()===id;}),ownedAdmission=listRows_(SHEETS.ADMISSIONS,token,10000).some(function(x){return String(x.StudentID||'').trim()===id;});
-        if(!tenant.root&&!ownedStudent&&!ownedAdmission)return {ok:false,message:'এই শিক্ষার্থী আপনার প্রতিষ্ঠানের নয়; পেমেন্ট সংরক্ষণ করা যাবে না।'};
+        let tenantKey='';
+        if(token){
+          const tenant=tenantIdentity_(token),ownedStudent=listRows_(SHEETS.STUDENTS,token,10000).some(function(x){return String(x.StudentID||'').trim()===id;}),ownedAdmission=listRows_(SHEETS.ADMISSIONS,token,10000).some(function(x){return String(x.StudentID||'').trim()===id;});
+          if(!tenant.root&&!ownedStudent&&!ownedAdmission)return {ok:false,message:'এই শিক্ষার্থী আপনার প্রতিষ্ঠানের নয়; পেমেন্ট সংরক্ষণ করা যাবে না।'};
+          tenantKey=tenant.key;
+        }else{
+          const publicAdmission=resolved.admission&&String(resolved.admission.TenantAccount||'').trim()==='PUBLIC_LOGIN'&&String(resolved.admission.StudentID||'').trim()===id&&String(resolved.admission.Status||'').toUpperCase()==='PENDING';
+          const publicStudent=String(st.TenantAccount||'').trim()==='PUBLIC_LOGIN'&&String(st.ApprovalStatus||'').toUpperCase()==='PENDING';
+          if(!publicAdmission||!publicStudent)return {ok:false,message:'লগইন ছাড়া পেমেন্টের জন্য বৈধ Pending অনলাইন ভর্তি আবেদন পাওয়া যায়নি।'};
+          tenantKey='PUBLIC_LOGIN';
+        }
         const directPaySheet=ensureSheet_(SpreadsheetApp.getActiveSpreadsheet(),SHEETS.PAYMENTS,HEADERS[SHEETS.PAYMENTS]);ensureTenantSheetColumn_(directPaySheet);
-        const directHeaders=directPaySheet.getRange(1,1,1,directPaySheet.getLastColumn()).getValues()[0].map(String),directRecord=Object.assign({},paymentFields,{TenantAccount:tenant.key,CreatedAt:now_()}),directRow=directHeaders.map(function(key){return directRecord[key]!==undefined?directRecord[key]:'';});
-        directRow[0]=nextSerial_(directPaySheet);directPaySheet.appendRow(directRow);pay={ok:true,row:objectFrom_(directHeaders,directRow)};paymentTenant=tenant.key;
+        const directHeaders=directPaySheet.getRange(1,1,1,directPaySheet.getLastColumn()).getValues()[0].map(String),directRecord=Object.assign({},paymentFields,{TenantAccount:tenantKey,CreatedAt:now_()}),directRow=directHeaders.map(function(key){return directRecord[key]!==undefined?directRecord[key]:'';});
+        directRow[0]=nextSerial_(directPaySheet);directPaySheet.appendRow(directRow);pay={ok:true,row:objectFrom_(directHeaders,directRow)};paymentTenant=tenantKey;
       }else if(method==='হ্যান্ড ক্যাশ'&&!token){
         const ss=SpreadsheetApp.getActiveSpreadsheet(),studentSheet=ss.getSheetByName(SHEETS.STUDENTS);
         const studentValues=studentSheet&&studentSheet.getLastRow()>1?studentSheet.getDataRange().getValues():[],studentHeaders=studentValues.length?studentValues[0].map(String):[];
