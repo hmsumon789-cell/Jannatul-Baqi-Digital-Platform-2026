@@ -1873,7 +1873,8 @@ function renderDashboardCharts(x){
   const income=Number(x.income)||0, expense=Number(x.expense)||0, cash=Number(x.cash)||0, due=Number(x.due)||0;
   const max=Math.max(income,expense,cash,due,1);
   const pct=v=>Math.max(4,Math.round(v/max*100));
-  const p=Number(x.attendanceToday.present)||0, a=Number(x.attendanceToday.absent)||0, total=p+a, pp=total?Math.round(p/total*100):0;
+  const attendanceToday=x&&x.attendanceToday&&typeof x.attendanceToday==='object'?x.attendanceToday:{};
+  const p=Number(attendanceToday.present)||0, a=Number(attendanceToday.absent)||0, total=p+a, pp=total?Math.round(p/total*100):0;
   const periods=['দৈনিক','সাপ্তাহিক','মাসিক','বাৎসরিক'];
   $('dashboardCharts').innerHTML=`
     <div class="chart-card">
@@ -9289,7 +9290,9 @@ body.dark #searchProfilePrint .sp-bottom-actions button{
       old=document.createElement('div');
       old.className='admission-form-header-only';
       old.innerHTML='<img class="afh-logo" alt="Logo"><div class="afh-text"><div class="afh-bn">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div><div class="afh-ar">المدرسة الجنة الباقية للبنات ودار الايتام</div><div class="afh-address">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div><div class="afh-mobile">মোবাইল: 01823316630, 01717339288</div></div><div class="afh-photo-wrap"><img class="afh-photo" alt="স্টুডেন্ট ফটো"><div class="afh-photo-label">স্টুডেন্ট ফটো</div></div>';
-      body.insertBefore(old,form);
+      var insertTarget=form;
+      while(insertTarget.parentNode && insertTarget.parentNode!==body) insertTarget=insertTarget.parentNode;
+      body.insertBefore(old,insertTarget);
     }
     var logo=document.getElementById('headerLogo')||document.querySelector('.header .logo');
     var li=old.querySelector('.afh-logo');
