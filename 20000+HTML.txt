@@ -15499,10 +15499,34 @@ window.jbRsBuild=async function(){
     var rows=[['রসিদ নম্বর',r.ReceiptID||''],['শিক্ষার্থী আইডি',r.StudentID||''],['নাম',r.Name||''],['শ্রেণি/জামাত',r.Class||''],['ফি খাত',r.Category||''],['পরিমাণ',String(r.Amount||0)+' টাকা'],['মাধ্যম',r.Method||''],['Transaction ID',r.Reference||''],['তারিখ',r.Date||'']];
     var old=document.getElementById('admReceiptOverlay2026');if(old)old.remove();
     var style=document.getElementById('admReceiptPrintStyle2026');if(style)style.remove();
-    var c=contact20261010();
     var header=headerHTML20261010('adm-receipt-header-20261010');
-    var html='<div class="adm-receipt-overlay" id="admReceiptOverlay2026" style="position:fixed;inset:0;z-index:2147483000;background:rgba(0,0,0,.62);overflow:auto;padding:18px;box-sizing:border-box"><div class="adm-receipt-paper" style="width:148mm;max-width:148mm;margin:12px auto;background:#fff;color:#111;border:3px double #222;padding:6mm;font-family:Arial,sans-serif;box-sizing:border-box">'+header+'<h2 style="text-align:center;margin:2mm 0 4mm">মানি রসিদ — পেমেন্ট সফল</h2><table style="width:100%;border-collapse:collapse;margin:3mm 0"><tbody>'+rows.map(function(x){return '<tr><th style="border:1px solid #777;padding:5px;text-align:left">'+escPrint20261010(x[0])+'</th><td style="border:1px solid #777;padding:5px;text-align:left">'+escPrint20261010(x[1])+'</td></tr>'}).join('')+'</tbody></table><p style="text-align:center">আল্লাহ আপনার পরিশোধ কবুল করুন।</p><div class="adm-receipt-actions" style="text-align:center;margin:12px"><button type="button" onclick="window.print()">🖨️ প্রিন্ট / PDF সংরক্ষণ</button><button type="button" onclick="document.getElementById(\'admReceiptOverlay2026\').remove()">বন্ধ করুন</button></div></div></div>';
+    var html='<div class="adm-receipt-overlay" id="admReceiptOverlay2026" style="position:fixed;inset:0;z-index:2147483000;background:rgba(0,0,0,.62);overflow:auto;padding:18px;box-sizing:border-box"><div class="adm-receipt-paper" style="width:148mm;max-width:148mm;margin:12px auto;background:#fff;color:#111;border:3px double #222;padding:6mm;font-family:Arial,sans-serif;box-sizing:border-box">'+header+'<h2 style="text-align:center;margin:2mm 0 4mm">মানি রসিদ — পেমেন্ট সফল</h2><table style="width:100%;border-collapse:collapse;margin:3mm 0"><tbody>'+rows.map(function(x){return '<tr><th style="border:1px solid #777;padding:5px;text-align:left">'+escPrint20261010(x[0])+'</th><td style="border:1px solid #777;padding:5px;text-align:left">'+escPrint20261010(x[1])+'</td></tr>'}).join('')+'</tbody></table><p style="text-align:center">আল্লাহ আপনার পরিশোধ কবুল করুন।</p><div class="adm-receipt-actions" style="text-align:center;margin:12px"><button type="button" onclick="window.printAdmissionReceipt2026()">🖨️ প্রিন্ট / PDF সংরক্ষণ</button><button type="button" onclick="document.getElementById(\'admReceiptOverlay2026\').remove()">বন্ধ করুন</button></div></div></div>';
     document.body.insertAdjacentHTML('beforeend',html);
+  };
+  window.printAdmissionReceipt2026=function(){
+    var source=document.querySelector('#admReceiptOverlay2026 .adm-receipt-paper');
+    if(!source){alert('মানি রসিদের তথ্য পাওয়া যায়নি। আবার রসিদ খুলুন।');return;}
+    var w=window.open('','jbAdmissionReceiptPrint2026','popup=yes,width=900,height=750,resizable=yes,scrollbars=yes');
+    if(!w){alert('প্রিন্ট উইন্ডো খোলা যায়নি। ব্রাউজারের Pop-up অনুমতি দিন।');return;}
+    var paper=source.cloneNode(true);
+    var actions=paper.querySelector('.adm-receipt-actions');if(actions)actions.remove();
+    paper.style.cssText='display:block!important;width:148mm!important;max-width:148mm!important;min-height:190mm!important;margin:0 auto!important;padding:6mm!important;box-sizing:border-box!important;background:#fff!important;color:#111!important;border:2px double #222!important;box-shadow:none!important;font-family:Arial,"Noto Sans Bengali",sans-serif!important';
+    var html='<!doctype html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ভর্তি ফি — মানি রসিদ</title><style>'+
+      '@page{size:A5 portrait;margin:0}*{box-sizing:border-box}html,body{margin:0;padding:0;width:148mm;min-height:210mm;background:#fff!important;color:#111!important;font-family:Arial,"Noto Sans Bengali",sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}body{padding:0!important}.adm-receipt-header-20261010{display:grid!important;grid-template-columns:18mm minmax(0,1fr) 18mm!important;gap:3mm!important;align-items:center!important;width:100%!important;border-bottom:1.5px solid #222!important;padding:0 0 3mm!important;margin:0 0 4mm!important;direction:ltr!important}.adm-receipt-header-20261010 img{display:block!important;width:16mm!important;height:16mm!important;object-fit:contain!important}.adm-receipt-header-20261010 .adm-rh-center{text-align:center!important;line-height:1.25!important}.adm-receipt-header-20261010 .adm-rh-name{font-size:12pt!important;font-weight:900!important}.adm-receipt-header-20261010 .adm-rh-address,.adm-receipt-header-20261010 .adm-rh-hotline{font-size:8pt!important;font-weight:700!important;margin-top:2px!important}table{width:100%;border-collapse:collapse}th,td{border:1px solid #777;padding:5px;text-align:left;font-size:10pt}h2{font-size:14pt}p{text-align:center}@media print{html,body{width:148mm!important;min-height:210mm!important}.adm-receipt-paper{break-inside:avoid;page-break-inside:avoid}}'+
+      '</style></head><body>'+paper.outerHTML+'</body></html>';
+    var printed=false;
+    function printWhenReady(){
+      if(printed||w.closed)return;
+      printed=true;
+      var imgs=Array.from(w.document.images||[]);
+      Promise.all(imgs.map(function(img){if(img.complete)return Promise.resolve();return new Promise(function(resolve){img.onload=resolve;img.onerror=resolve;setTimeout(resolve,5000);});})).then(function(){
+        var fonts=(w.document.fonts&&w.document.fonts.ready)?w.document.fonts.ready:Promise.resolve();
+        Promise.resolve(fonts).then(function(){setTimeout(function(){if(!w.closed){w.focus();w.print();}},200);});
+      });
+    }
+    w.addEventListener('load',printWhenReady,{once:true});
+    w.document.open();w.document.write(html);w.document.close();
+    setTimeout(printWhenReady,700);
   };
   window.printOnlineReceipt=function(){
     var b=document.getElementById('onlineReceiptBody');if(!b)return;
