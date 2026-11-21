@@ -3451,7 +3451,13 @@ function submitOnlinePayment(data,token){
     try{
       let pay,paymentTenant='';
       const paymentFields={PaymentID:mode==='ADMISSION_DIRECT'?'PAY-ADM-'+Utilities.getUuid().replace(/-/g,'').slice(0,12).toUpperCase():'',StudentID:id,Name:data.Name,Month:String((Array.isArray(data.Months)&&data.Months.length?data.Months.join(', '):data.Month)||'').trim(),Category:String((Array.isArray(data.Categories)&&data.Categories.length?data.Categories.join(', '):data.Category)||'').trim(),Amount:amount,Method:method,Reference:ref,Date:now_(),Note:String(data.Note||'').trim()};
-      if(method==='হ্যান্ড ক্যাশ'&&!token){
+      if(mode==='ADMISSION_DIRECT'){
+        const tenant=tenantIdentity_(token),ownedStudent=listRows_(SHEETS.STUDENTS,token,10000).some(function(x){return String(x.StudentID||'').trim()===id;}),ownedAdmission=listRows_(SHEETS.ADMISSIONS,token,10000).some(function(x){return String(x.StudentID||'').trim()===id;});
+        if(!tenant.root&&!ownedStudent&&!ownedAdmission)return {ok:false,message:'এই শিক্ষার্থী আপনার প্রতিষ্ঠানের নয়; পেমেন্ট সংরক্ষণ করা যাবে না।'};
+        const directPaySheet=ensureSheet_(SpreadsheetApp.getActiveSpreadsheet(),SHEETS.PAYMENTS,HEADERS[SHEETS.PAYMENTS]);ensureTenantSheetColumn_(directPaySheet);
+        const directHeaders=directPaySheet.getRange(1,1,1,directPaySheet.getLastColumn()).getValues()[0].map(String),directRecord=Object.assign({},paymentFields,{TenantAccount:tenant.key,CreatedAt:now_()}),directRow=directHeaders.map(function(key){return directRecord[key]!==undefined?directRecord[key]:'';});
+        directRow[0]=nextSerial_(directPaySheet);directPaySheet.appendRow(directRow);pay={ok:true,row:objectFrom_(directHeaders,directRow)};paymentTenant=tenant.key;
+      }else if(method==='হ্যান্ড ক্যাশ'&&!token){
         const ss=SpreadsheetApp.getActiveSpreadsheet(),studentSheet=ss.getSheetByName(SHEETS.STUDENTS);
         const studentValues=studentSheet&&studentSheet.getLastRow()>1?studentSheet.getDataRange().getValues():[],studentHeaders=studentValues.length?studentValues[0].map(String):[];
         const studentRow=studentValues.slice(1).find(function(row){return String(row[studentHeaders.indexOf('StudentID')]||'').trim()===id;});
