@@ -1602,22 +1602,59 @@ function getPendingStudents(token) {
 function approveStudent(token,studentId,status) {
   if(!isSuperAdmin_(token)) return {ok:false,message:'শুধু Super Admin Student অনুমোদন করতে পারবেন।'};
   ensureStudentWorkflowColumns_();
-  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.STUDENTS);
-  const vals=sh.getDataRange().getValues(), h=vals[0].map(String), idCol=h.indexOf('StudentID'), stdCol=h.indexOf('STD-সংকেত');
-  const idx=vals.findIndex(function(r,i){return i>0 && ((idCol>=0 && String(r[idCol]||'').trim()===String(studentId).trim()) || (stdCol>=0 && String(r[stdCol]||'').trim()===String(studentId).trim()));});
-  if(idx<1) return {ok:false,message:'Student পাওয়া যায়নি।'};
+  const ss=SpreadsheetApp.getActiveSpreadsheet(), sh=ss.getSheetByName(SHEETS.STUDENTS);
+  const requestedId=String(studentId||'').trim();
+  if(!requestedId) return {ok:false,message:'Student/ভর্তি ID পাওয়া যায়নি।'};
+  if(!sh||sh.getLastRow()<2) return {ok:false,message:'STUDENTS শিটে কোনো Student রেকর্ড পাওয়া যায়নি।'};
+  let vals=sh.getDataRange().getValues(), h=vals[0].map(function(x){return String(x||'').trim();});
+  let idCol=h.indexOf('StudentID'), idx=vals.findIndex(function(r,i){return i>0&&((idCol>=0&&String(r[idCol]||'').trim()===requestedId)||(h.indexOf('STD-সংকেত')>=0&&String(r[h.indexOf('STD-সংকেত')]||'').trim()===requestedId));});
+  let admissionSheet=null, admissionRow=0, admissionHeaders=[], admissionData=null, systemId=requestedId;
+  // If the caller supplied AdmissionID, resolve it to the unique system StudentID first.
+  if(idx<1){
+    admissionSheet=ss.getSheetByName(SHEETS.ADMISSIONS);
+    if(admissionSheet&&admissionSheet.getLastRow()>1){
+      const av=admissionSheet.getDataRange().getValues();
+      admissionHeaders=av[0].map(function(x){return String(x||'').trim();});
+      const ac=admissionHeaders.indexOf('AdmissionID'), sc=admissionHeaders.indexOf('StudentID');
+      admissionRow=av.findIndex(function(r,i){return i>0&&((ac>=0&&String(r[ac]||'').trim()===requestedId)||(sc>=0&&String(r[sc]||'').trim()===requestedId));});
+      if(admissionRow>0){
+        admissionData=objectFrom_(admissionHeaders,av[admissionRow]);
+        systemId=sc>=0?String(av[admissionRow][sc]||'').trim():'';
+        if(!systemId){
+          const synced=syncAdmissionToStudent_(token,admissionData);
+          if(!synced||synced.ok!==true||!String(synced.studentId||'').trim()) return {ok:false,message:(synced&&synced.message)||'ভর্তি আবেদন থেকে System StudentID উদ্ধার করা যায়নি।',details:synced||null};
+          systemId=String(synced.studentId).trim();
+          if(sc>=0) admissionSheet.getRange(admissionRow+1,sc+1).setValue(systemId);
+        }
+        vals=sh.getDataRange().getValues(); h=vals[0].map(function(x){return String(x||'').trim();}); idCol=h.indexOf('StudentID');
+        idx=vals.findIndex(function(r,i){return i>0&&idCol>=0&&String(r[idCol]||'').trim()===systemId;});
+        if(idx<1){
+          const synced=syncAdmissionToStudent_(token,admissionData);
+          if(!synced||synced.ok!==true) return {ok:false,message:(synced&&synced.message)||'ভর্তি রেকর্ড থেকে STUDENTS সমন্বয় করা যায়নি।',details:synced||null};
+          systemId=String(synced.studentId||systemId).trim();
+          vals=sh.getDataRange().getValues(); h=vals[0].map(function(x){return String(x||'').trim();}); idCol=h.indexOf('StudentID');
+          idx=vals.findIndex(function(r,i){return i>0&&idCol>=0&&String(r[idCol]||'').trim()===systemId;});
+        }
+      }
+    }
+  }
+  if(idx<1) return {ok:false,message:'Student পাওয়া যায়নি। প্রদত্ত ID দিয়ে ADMISSIONS-এর AdmissionID অথবা STUDENTS-এর System StudentID মেলেনি।',requestedId:requestedId};
   const finalStatus=String(status||'ACTIVE').toUpperCase();
   if(h.indexOf('ApprovalStatus')>=0) sh.getRange(idx+1,h.indexOf('ApprovalStatus')+1).setValue(finalStatus);
   if(h.indexOf('ApprovedBy')>=0) sh.getRange(idx+1,h.indexOf('ApprovedBy')+1).setValue(sessionUser_(token));
   if(h.indexOf('ApprovedAt')>=0) sh.getRange(idx+1,h.indexOf('ApprovedAt')+1).setValue(now_());
+  const finalStudentId=idCol>=0?String(sh.getRange(idx+1,idCol+1).getValue()||systemId).trim():systemId;
+  if(admissionRow>0&&finalStatus==='ACTIVE'){
+    const sc=admissionHeaders.indexOf('StudentID'), st=admissionHeaders.indexOf('Status');
+    if(sc>=0) admissionSheet.getRange(admissionRow+1,sc+1).setValue(finalStudentId);
+    if(st>=0) admissionSheet.getRange(admissionRow+1,st+1).setValue('APPROVED');
+  }
   SpreadsheetApp.flush();
   let autoDocuments=null;
-  try{
-    const approvedPerson=objectFrom_(h,sh.getRange(idx+1,1,1,h.length).getValues()[0]);
-    autoDocuments=ensureAutoPersonDocuments_('STUDENTS',approvedPerson,String(studentId));
-  }catch(e){autoDocuments={ok:false,message:String(e&&e.message||e)};}
-  log_(sessionUser_(token),'approve','STUDENT',String(studentId)+' | '+finalStatus);
-  return {ok:true,message:'Student '+studentId+' '+finalStatus+' করা হয়েছে।',studentId:String(studentId),status:finalStatus,autoDocuments:autoDocuments};
+  try{autoDocuments=ensureAutoPersonDocuments_('STUDENTS',objectFrom_(h,sh.getRange(idx+1,1,1,h.length).getValues()[0]),finalStudentId);}
+  catch(e){autoDocuments={ok:false,message:String(e&&e.message||e)};}
+  log_(sessionUser_(token),'approve','STUDENT',finalStudentId+' | '+finalStatus);
+  return {ok:true,message:'Student '+finalStudentId+' '+finalStatus+' করা হয়েছে।',studentId:finalStudentId,status:finalStatus,autoDocuments:autoDocuments};
 }
 function approveStudentAdmission(token,admissionOrStudentId) {
   if(!isSuperAdmin_(token)) return {ok:false,message:'শুধু Super Admin Student অনুমোদন করতে পারবেন।'};
