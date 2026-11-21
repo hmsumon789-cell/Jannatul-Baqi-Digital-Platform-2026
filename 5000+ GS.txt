@@ -1643,23 +1643,24 @@ function approveStudent(token,studentId,status) {
     const diagFormCol=diagStudentHeaders.indexOf('FormID');
     const diagFormRow=(diagFormCol>=0&&sh&&sh.getLastRow()>1)?sh.getRange(2,diagFormCol+1,sh.getLastRow()-1,1).getDisplayValues().findIndex(function(r){return String(r[0]||'').trim()===requestedId;}):-1;
     const diagAdmissionHeaders=(admissionSheet&&admissionSheet.getLastRow()>0)?admissionSheet.getRange(1,1,1,admissionSheet.getLastColumn()).getDisplayValues()[0].map(function(x){return String(x||'').trim();}):[];
+    const diagnostic={
+      studentsSheetName:sh?sh.getName():'NOT_FOUND',
+      studentsLastRow:sh?sh.getLastRow():0,
+      studentsHeaders:diagStudentHeaders,
+      studentsStudentIDColumn:idCol>=0?idCol+1:null,
+      studentsFormIDColumn:diagFormCol>=0?diagFormCol+1:null,
+      studentsFormIDMatchedRow:diagFormRow>=0?diagFormRow+2:null,
+      admissionsSheetName:admissionSheet?admissionSheet.getName():(ss.getSheetByName(SHEETS.ADMISSIONS)?ss.getSheetByName(SHEETS.ADMISSIONS).getName():'NOT_FOUND'),
+      admissionsLastRow:admissionSheet?admissionSheet.getLastRow():0,
+      admissionsHeaders:diagAdmissionHeaders,
+      admissionsAdmissionIDColumn:diagAdmissionHeaders.indexOf('AdmissionID')>=0?diagAdmissionHeaders.indexOf('AdmissionID')+1:null,
+      admissionsStudentIDColumn:diagAdmissionHeaders.indexOf('StudentID')>=0?diagAdmissionHeaders.indexOf('StudentID')+1:null
+    };
     return {
       ok:false,
-      message:'Student পাওয়া যায়নি। প্রদত্ত ID দিয়ে ADMISSIONS-এর AdmissionID অথবা STUDENTS-এর System StudentID মেলেনি।',
+      message:'Student পাওয়া যায়নি। Diagnostic তথ্য: '+JSON.stringify({requestedId:requestedId,diagnostic:diagnostic}),
       requestedId:requestedId,
-      diagnostic:{
-        studentsSheetName:sh?sh.getName():'NOT_FOUND',
-        studentsLastRow:sh?sh.getLastRow():0,
-        studentsHeaders:diagStudentHeaders,
-        studentsStudentIDColumn:idCol>=0?idCol+1:null,
-        studentsFormIDColumn:diagFormCol>=0?diagFormCol+1:null,
-        studentsFormIDMatchedRow:diagFormRow>=0?diagFormRow+2:null,
-        admissionsSheetName:admissionSheet?admissionSheet.getName():(ss.getSheetByName(SHEETS.ADMISSIONS)?ss.getSheetByName(SHEETS.ADMISSIONS).getName():'NOT_FOUND'),
-        admissionsLastRow:admissionSheet?admissionSheet.getLastRow():0,
-        admissionsHeaders:diagAdmissionHeaders,
-        admissionsAdmissionIDColumn:diagAdmissionHeaders.indexOf('AdmissionID')>=0?diagAdmissionHeaders.indexOf('AdmissionID')+1:null,
-        admissionsStudentIDColumn:diagAdmissionHeaders.indexOf('StudentID')>=0?diagAdmissionHeaders.indexOf('StudentID')+1:null
-      }
+      diagnostic:diagnostic
     };
   }
   const finalStatus=String(status||'ACTIVE').toUpperCase();
