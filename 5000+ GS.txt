@@ -34,7 +34,7 @@ const SHEETS = {
 const HEADERS = {
   ADMINS:['Serial','AdminID','NameBN','NameAR','NameEN','Username','PasswordHash','Email','Mobile','WhatsApp','Address','Photo','BirthReg','NID','ApprovalID','Role','Status','CreatedAt','Password','Permissions','ApprovedBy','ApprovedAt'],
   STUDENTS:['Serial','StudentID','FormID','MobileID','EmailID','NameBN','NameAR','NameEN','FatherBN','FatherAR','FatherEN','MotherBN','MotherAR','MotherEN','DOB','Gender','Class','Department','Branch','Residence','Mobile','WhatsApp','Email','Address','Photo','BirthReg','NID','Documents','CreatedAt','ApprovalStatus','SourceType','SourceAccount','ApprovedBy','ApprovedAt','AcademicYear'],
-  TEACHERS:['Serial','TeacherID','NameBN','NameAR','NameEN','FatherBN','FatherAR','FatherEN','Mobile','WhatsApp','Email','Department','Branch','Gender','Address','Photo','BirthReg','NID','Documents','CreatedAt','FormID'],
+  TEACHERS:['Serial','TeacherID','NameBN','NameAR','NameEN','FatherBN','FatherAR','FatherEN','Mobile','WhatsApp','Email','Department','Branch','Gender','Address','Photo','BirthReg','NID','Documents','CreatedAt','FormID','ApplicationType','ApplicationStatus','ReviewedBy','ReviewedAt','RejectionReason'],
   DONORS:['Serial','DonorID','NameBN','NameAR','NameEN','Mobile','WhatsApp','Email','Address','Amount','Fund','Photo','CreatedAt'],
   ADMISSIONS:['Serial','AdmissionID','StudentID','Session','Class','Branch','Status','FormData','CreatedAt'],
   EXAM_REG:['Serial','ExamRegID','StudentID','Exam','Class','Branch','Status','FormData','CreatedAt'],
@@ -624,6 +624,52 @@ function isSuperAdmin_(token){
   const role=String(a.Role||'').toUpperCase().replace(/\s+/g,'_');
   return role==='SUPER_ADMIN'||role==='SUPERADMIN'||String(s.username||'').toLowerCase()==='superadmin';
 }
+/* ===== TEACHER / STAFF APPLICATION APPROVAL — 2026-11-22 ===== */
+function ensureTeacherApprovalColumns_(){
+  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  const sh=ss.getSheetByName(SHEETS.TEACHERS)||ensureSheet_(ss,SHEETS.TEACHERS,HEADERS.TEACHERS);
+  if(!sh)return null;
+  const required=['ApplicationType','ApplicationStatus','ReviewedBy','ReviewedAt','RejectionReason'];
+  let headers=sh.getRange(1,1,1,Math.max(1,sh.getLastColumn())).getValues()[0].map(function(x){return String(x||'').trim();});
+  required.forEach(function(key){if(headers.indexOf(key)<0){const col=sh.getLastColumn()+1;sh.getRange(1,col).setValue(key);headers.push(key);}});
+  return sh;
+}
+function getPendingTeacherApplications(token){
+  if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin শিক্ষক/শিক্ষিকা ও স্টাফ আবেদন অনুমোদন করতে পারবেন।'};
+  const sh=ensureTeacherApprovalColumns_();
+  if(!sh||sh.getLastRow()<2)return {ok:true,rows:[],count:0};
+  const values=sh.getDataRange().getValues(),headers=values[0].map(function(x){return String(x||'').trim();}),rows=[];
+  for(let i=1;i<values.length;i++){
+    const row={};headers.forEach(function(k,j){row[k]=values[i][j] instanceof Date?Utilities.formatDate(values[i][j],APP.timezone,'yyyy-MM-dd HH:mm:ss'):values[i][j];});
+    let doc={};try{doc=typeof row.Documents==='string'?JSON.parse(row.Documents||'{}'):(row.Documents||{});}catch(e){doc={};}
+    const type=String(row.ApplicationType||doc.ApplicationType||doc.applicationType||'').toUpperCase();
+    const status=String(row.ApplicationStatus||doc.ApplicationStatus||doc.applicationStatus||'').toUpperCase();
+    if(/(TEACHER|STAFF|RECRUIT)/.test(type)&&status==='PENDING'){row.Serial=String(row.Serial||i+1);row.ApplicationType=type;row.ApplicationStatus=status;rows.push(row);}
+  }
+  rows.reverse();return {ok:true,rows:rows,count:rows.length};
+}
+function setTeacherApplicationStatus(token,serial,status,reason){
+  if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin শিক্ষক/শিক্ষিকা ও স্টাফ আবেদন অনুমোদন করতে পারবেন।'};
+  const finalStatus=String(status||'').trim().toUpperCase();
+  if(['ACTIVE','APPROVED','REJECTED'].indexOf(finalStatus)<0)return {ok:false,message:'অনুমোদনের অবস্থা সঠিক নয়।'};
+  const sh=ensureTeacherApprovalColumns_();
+  if(!sh||sh.getLastRow()<2)return {ok:false,message:'TEACHERS শিটে কোনো আবেদন পাওয়া যায়নি।'};
+  const values=sh.getDataRange().getValues(),headers=values[0].map(function(x){return String(x||'').trim();}),serialCol=headers.indexOf('Serial'),typeCol=headers.indexOf('ApplicationType');
+  let rowNo=-1;for(let i=1;i<values.length;i++){if(String(values[i][serialCol>=0?serialCol:0]).trim()===String(serial||'').trim()){rowNo=i+1;break;}}
+  if(rowNo<2)return {ok:false,message:'আবেদনটি TEACHERS শিটে পাওয়া যায়নি।'};
+  const current=sh.getRange(rowNo,1,1,headers.length).getValues()[0],docCol=headers.indexOf('Documents');let doc={};
+  if(docCol>=0){try{doc=typeof current[docCol]==='string'?JSON.parse(current[docCol]||'{}'):(current[docCol]||{});}catch(e){doc={};}}
+  const type=String(typeCol>=0?current[typeCol]:(doc.ApplicationType||'')).toUpperCase();
+  if(!/(TEACHER|STAFF|RECRUIT)/.test(type))return {ok:false,message:'এটি শিক্ষক/স্টাফ নিয়োগ আবেদন হিসেবে চিহ্নিত নয়।'};
+  const savedStatus=finalStatus==='APPROVED'?'ACTIVE':finalStatus,actor=sessionUser_(token),reviewedAt=now_();
+  const set=function(key,value){const col=headers.indexOf(key);if(col>=0)sh.getRange(rowNo,col+1).setValue(value);};
+  set('ApplicationStatus',savedStatus);set('ReviewedBy',actor);set('ReviewedAt',reviewedAt);set('RejectionReason',savedStatus==='REJECTED'?String(reason||'').trim():'');
+  if(docCol>=0){doc.ApplicationType=type;doc.ApplicationStatus=savedStatus;doc.ReviewedBy=actor;doc.ReviewedAt=reviewedAt;if(savedStatus==='REJECTED')doc.RejectionReason=String(reason||'').trim();sh.getRange(rowNo,docCol+1).setValue(JSON.stringify(doc));}
+  SpreadsheetApp.flush();log_(actor,'teacher_application_'+savedStatus.toLowerCase(),'TEACHERS',String(serial));
+  return {ok:true,serial:String(serial),status:savedStatus,message:savedStatus==='REJECTED'?'আবেদনটি বাতিল করা হয়েছে।':'আবেদনটি অনুমোদিত হয়েছে।'};
+}
+/* ===== END TEACHER / STAFF APPLICATION APPROVAL ===== */
+
 function requireFeature_(token,feature){
   const s=auth_(token); const a=findBy_(SHEETS.ADMINS,'Username',s.username)||{};
   const role=String(a.Role||'').toUpperCase(); if(role==='SUPER_ADMIN'||role==='SUPERADMIN') return true;
@@ -1972,6 +2018,7 @@ function saveRecord(token,sheetName,data) {
   if(['STUDENTS','TEACHERS'].includes(sheetName)) {
     ensureSheet_(ss,sheetName,HEADERS[sheetName]);
     if(sheetName==='STUDENTS') ensureStudentWorkflowColumns_();
+    if(sheetName==='TEACHERS') ensureTeacherApprovalColumns_();
   }
   const sh=ss.getSheetByName(sheetName);
   if(isTenantScopedSheet_(sheetName)) ensureTenantSheetColumn_(sh);
@@ -2019,6 +2066,11 @@ function saveRecord(token,sheetName,data) {
     if(personIdIndex>=0&&!String(row[personIdIndex]||'').trim()){
       row[personIdIndex]=personIdSpec.prefix+String(row[0]||1).padStart(4,'0');
     }
+  }
+  if(sheetName==='TEACHERS'){
+    const appType=headers.indexOf('ApplicationType'),appStatus=headers.indexOf('ApplicationStatus');
+    if(appType>=0)row[appType]=String(data.ApplicationType||'TEACHER_STAFF_APPLICATION').toUpperCase();
+    if(appStatus>=0)row[appStatus]=String(data.ApplicationStatus||'PENDING').toUpperCase();
   }
   if(sheetName==='STUDENTS'){
     ensureStudentWorkflowColumns_();
