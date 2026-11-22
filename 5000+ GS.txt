@@ -659,11 +659,11 @@ function setTeacherApplicationStatus(token,serial,status,reason){
   if(rowNo<2)return {ok:false,message:'আবেদনটি TEACHERS শিটে পাওয়া যায়নি।'};
   const current=sh.getRange(rowNo,1,1,headers.length).getValues()[0],docCol=headers.indexOf('Documents');let doc={};
   if(docCol>=0){try{doc=typeof current[docCol]==='string'?JSON.parse(current[docCol]||'{}'):(current[docCol]||{});}catch(e){doc={};}}
-  const type=String(typeCol>=0?current[typeCol]:(doc.ApplicationType||'')).toUpperCase();
+  const type=String((typeCol>=0?current[typeCol]:'')||doc.ApplicationType||doc.applicationType||doc.Type||'').trim().toUpperCase();
   if(!/(TEACHER|STAFF|RECRUIT)/.test(type))return {ok:false,message:'এটি শিক্ষক/স্টাফ নিয়োগ আবেদন হিসেবে চিহ্নিত নয়।'};
   const savedStatus=finalStatus==='APPROVED'?'ACTIVE':finalStatus,actor=sessionUser_(token),reviewedAt=now_();
   const set=function(key,value){const col=headers.indexOf(key);if(col>=0)sh.getRange(rowNo,col+1).setValue(value);};
-  set('ApplicationStatus',savedStatus);set('ReviewedBy',actor);set('ReviewedAt',reviewedAt);set('RejectionReason',savedStatus==='REJECTED'?String(reason||'').trim():'');
+  set('ApplicationType',type);set('ApplicationStatus',savedStatus);set('ReviewedBy',actor);set('ReviewedAt',reviewedAt);set('RejectionReason',savedStatus==='REJECTED'?String(reason||'').trim():'');
   if(docCol>=0){doc.ApplicationType=type;doc.ApplicationStatus=savedStatus;doc.ReviewedBy=actor;doc.ReviewedAt=reviewedAt;if(savedStatus==='REJECTED')doc.RejectionReason=String(reason||'').trim();sh.getRange(rowNo,docCol+1).setValue(JSON.stringify(doc));}
   SpreadsheetApp.flush();log_(actor,'teacher_application_'+savedStatus.toLowerCase(),'TEACHERS',String(serial));
   return {ok:true,serial:String(serial),status:savedStatus,message:savedStatus==='REJECTED'?'আবেদনটি বাতিল করা হয়েছে।':'আবেদনটি অনুমোদিত হয়েছে।'};
