@@ -15238,7 +15238,7 @@ window.jbRsBuild=async function(){
       (teacher?'<label>আবেদিত পদ <span class="adm-required">*</span><select id="admGenericPosition2026" class="field" required><option value="">পদ নির্বাচন করুন</option><option>শিক্ষক</option><option>শিক্ষিকা</option><option>সহকারী শিক্ষক/শিক্ষিকা</option><option>হিফজ/নুরানী শিক্ষক/শিক্ষিকা</option><option>অফিস সহকারী</option><option>অন্যান্য</option></select></label><label>শিক্ষাগত যোগ্যতা<input id="admGenericEducation2026" class="field"></label>':'<label>সদস্যের ধরন <span class="adm-required">*</span><select id="admGenericPosition2026" class="field" required><option value="">ধরন নির্বাচন করুন</option><option>সাধারণ সদস্য</option><option>আজীবন সদস্য</option><option>দাতা সদস্য</option><option>সম্মানিত সদস্য</option></select></label><label>পেশা<input id="admGenericEducation2026" class="field"></label>')+
       '<label class="full">ঠিকানা <span class="adm-required">*</span><textarea id="admGenericAddress2026" class="field" required></textarea></label>'+
       '<label class="full">অভিজ্ঞতা / আবেদনের বিবরণ<textarea id="admGenericDetails2026" class="field" rows="4"></textarea></label></div>'+
-      '<div class="form-action-bar"><button type="button" class="primary" onclick="saveGeneralAdmissionApplication2026()">💾 আবেদন সংরক্ষণ</button><button type="button" class="secondary" onclick="openAdmissionPanel2026()">↩ ফর্ম নির্বাচন</button><button type="button" class="secondary" onclick="printCurrentForm()">🖨️ প্রিন্ট</button></div>';
+      '<div class="form-action-bar"><button type="button" class="primary" onclick="'+ (teacher?'saveTeacherApplication2026()':'saveGeneralAdmissionApplication2026()') +">💾 আবেদন সংরক্ষণ</button><button type="button" class="secondary" onclick="openAdmissionPanel2026()">↩ ফর্ম নির্বাচন</button><button type="button" class="secondary" onclick="printCurrentForm()">🖨️ প্রিন্ট</button></div>';
     syncAdmissionBrandHeader20261010();setTimeout(syncAdmissionBrandHeader20261010,250);setTimeout(syncAdmissionBrandHeader20261010,900);
     E('formWin').classList.remove('minimized');E('formWin').style.height='';openWindow('formWin');
   };
@@ -15454,6 +15454,43 @@ window.jbRsBuild=async function(){
     if(E('admFinalSaveButton2026')){E('admFinalSaveButton2026').disabled=true;E('admFinalSaveButton2026').textContent='✓ আবেদন জমা হয়েছে';}
     submitButtons.forEach(function(b){b.textContent='✓ আবেদন জমা হয়েছে';});
     window.showAdmissionSuccess2026(s);
+  };
+  window.saveTeacherApplication2026=async function(){
+    var name=V('admGenericName2026'),mobile=V('admGenericMobile2026'),address=V('admGenericAddress2026'),position=V('admGenericPosition2026');
+    if(!name||!mobile||!address||!position){safeToast('নাম, মোবাইল, ঠিকানা এবং আবেদনকৃত পদ পূরণ করুন।');return}
+    var application={
+      ApplicationType:'TEACHER_RECRUITMENT',
+      Position:position,
+      EducationOrProfession:V('admGenericEducation2026'),
+      Experience:V('admGenericDetails2026'),
+      SubmittedAt:new Date().toISOString(),
+      ApplicationStatus:'PENDING'
+    };
+    var data={
+      NameBN:name,
+      NameEN:V('admGenericNameEn2026'),
+      FatherBN:V('admGenericParent2026'),
+      DOB:V('admGenericDob2026'),
+      Mobile:mobile,
+      Email:V('admGenericEmail2026'),
+      Department:position,
+      Branch:'নিয়োগ আবেদন',
+      Address:address,
+      Documents:JSON.stringify(application),
+      FormID:'TR-'+Date.now()
+    };
+    var buttons=Array.from(document.querySelectorAll('#formWin button[onclick="saveTeacherApplication2026()"]'));
+    buttons.forEach(function(b){b.disabled=true;b.textContent='⏳ আবেদন জমা হচ্ছে...'});
+    try{
+      var result=await call('saveRecord',token,'TEACHERS',data);
+      if(!result||!result.ok)throw new Error(result&&result.message||'শিক্ষক আবেদন সংরক্ষণ ব্যর্থ হয়েছে');
+      var teacherId=String(result.row&&result.row.TeacherID||'');
+      safeToast('আলহামদুলিল্লাহ! শিক্ষক/শিক্ষিকা আবেদন TEACHERS তালিকায় PENDING হিসেবে জমা হয়েছে।'+(teacherId?' Teacher ID: '+teacherId:''));
+      buttons.forEach(function(b){b.textContent='✓ আবেদন জমা হয়েছে'});
+    }catch(e){
+      buttons.forEach(function(b){b.disabled=false;b.textContent='💾 আবেদন সংরক্ষণ'});
+      safeToast('শিক্ষক/শিক্ষিকা আবেদন জমা হয়নি: '+(e&&e.message||e));
+    }
   };
   window.saveGeneralAdmissionApplication2026=async function(){
     var name=V('admGenericName2026'),mobile=V('admGenericMobile2026'),address=V('admGenericAddress2026'),position=V('admGenericPosition2026');
