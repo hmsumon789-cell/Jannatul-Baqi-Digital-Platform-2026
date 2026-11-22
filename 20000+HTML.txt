@@ -1853,6 +1853,7 @@ function renderStats(x){
   if(sum){
     if(custom){
       sum.innerHTML='<div class="stat"><b>'+((x.teachers??0))+'</b>মোট শিক্ষক/শিক্ষিকা</div>'+
+        '<div class="stat"><b>'+((x.staff??0))+'</b>মোট স্টাফ</div>'+
         '<div class="stat"><b>'+((x.income??0))+'</b>আয়</div>'+
         '<div class="stat"><b>'+((x.expense??0))+'</b>ব্যয়</div>'+
         '<div class="stat"><b>'+((x.students??0))+'</b>মোট ছাত্র-ছাত্রী সংখ্যা</div>'+
