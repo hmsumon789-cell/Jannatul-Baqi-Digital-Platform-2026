@@ -3389,21 +3389,48 @@ window.refreshAccountManager=async function(){
     var wrap=document.createElement('div');wrap.className='account-manager-wrap';
     wrap.innerHTML='<div class="account-manager-title">🔐 Account Approval & Permission Control</div><div class="account-manager-note">এখান থেকে Super Admin নতুন Admin/Madrasa Account অনুমোদন করবেন, কোন কোন কাজ করতে পারবে তা টিক দেবেন, প্রয়োজনে Suspend/Active করবেন এবং Password Reset করতে পারবেন।</div>';
     var paymentPending=await call('getPendingOnlinePayments',token);
+    var teacherPending=await call('getPendingTeacherApplications',token);
     var pendingCounts={
       admin:(r.admins||[]).filter(function(x){return String(x.Status||'PENDING').toUpperCase()==='PENDING'}).length,
       madrasa:(r.madrasas||[]).filter(function(x){return String(x.Status||'PENDING').toUpperCase()==='PENDING'}).length,
       students:(r.admissions||[]).filter(function(x){return ['PENDING','SUBMITTED','SUBMITTED_TO_SUPER_ADMIN','PENDING_PAYMENT'].indexOf(String(x.Status||x.ApprovalStatus||'PENDING').toUpperCase())>=0}).length,
+      teachers:teacherPending&&teacherPending.ok?(teacherPending.rows||[]).length:0,
       payments:paymentPending&&paymentPending.ok?(paymentPending.rows||[]).length:0
     };
     var tabs=document.createElement('div');tabs.className='account-tabs';
-    [['admin','Admin Account',pendingCounts.admin],['madrasa','Madrasa Account',pendingCounts.madrasa],['students','Pending Student ভর্তি',pendingCounts.students],['payments','💳 পেমেন্ট অনুমোদন',pendingCounts.payments],['all','সব Account',pendingCounts.admin+pendingCounts.madrasa+pendingCounts.students],['allcontrol','🌐 অল একাউন্ট কন্ট্রল',null]].forEach(function(t){
+    [['admin','Admin Account',pendingCounts.admin],['madrasa','Madrasa Account',pendingCounts.madrasa],['students','Pending Student ভর্তি',pendingCounts.students],['teachers','শিক্ষক/শিক্ষিকা + স্টাফ অনুমোদন',pendingCounts.teachers],['payments','💳 পেমেন্ট অনুমোদন',pendingCounts.payments],['all','সব Account',pendingCounts.admin+pendingCounts.madrasa+pendingCounts.students],['allcontrol','🌐 অল একাউন্ট কন্ট্রল',null]].forEach(function(t){
       var b=document.createElement('button');b.type='button';b.className='account-tab';b.textContent=t[1];
       if(t[2]!==null){var badge=document.createElement('span');badge.textContent=' '+t[2];badge.style.cssText='color:#d00000;font-weight:1000;margin-left:5px';b.appendChild(badge);}
-      b.onclick=function(){if(t[0]==='allcontrol')refreshAllAccountControl();else if(t[0]==='payments')renderAccountPaymentList();else renderAccountList(t[0])};tabs.appendChild(b)
+      b.onclick=function(){if(t[0]==='allcontrol')refreshAllAccountControl();else if(t[0]==='payments')renderAccountPaymentList();else if(t[0]==='teachers')renderTeacherApprovalList();else renderAccountList(t[0])};tabs.appendChild(b)
     });
     wrap.appendChild(tabs);var list=document.createElement('div');list.id='accountListUi';list.className='account-list';wrap.appendChild(list);body.appendChild(wrap);
     window._accountData=r;window._accountPendingCounts=pendingCounts;renderAccountList('all');
   }catch(e){toast('Account Manager সার্ভার ত্রুটি: '+(e&&e.message?e.message:e))}
+};
+window.renderTeacherApprovalList=async function(){
+  var box=$('accountListUi');if(!box)return;
+  box.innerHTML='<div class="card" style="padding:14px;text-align:center;font-weight:900">⏳ শিক্ষক/শিক্ষিকা ও স্টাফ আবেদন লোড হচ্ছে...</div>';
+  try{
+    var r=await call('getPendingTeacherApplications',token);
+    if(!r||!r.ok){box.innerHTML='<div class="account-card">'+escA((r&&r.message)||'শিক্ষক/শিক্ষিকা আবেদন তালিকা পাওয়া যায়নি।')+'</div>';return;}
+    var rows=r.rows||[];
+    box.innerHTML='<div class="account-manager-title">শিক্ষক/শিক্ষিকা + স্টাফ Pending আবেদন ('+rows.length+')</div>';
+    if(!rows.length){box.innerHTML+='<div class="account-card">কোনো Pending শিক্ষক/শিক্ষিকা বা স্টাফ আবেদন নেই।</div>';return;}
+    rows.forEach(function(x){
+      var card=document.createElement('div');card.className='account-card pending';
+      var head=document.createElement('div');head.className='account-card-head';
+      head.textContent=(x.NameBN||'নাম পাওয়া যায়নি')+' — '+(x.Position||x.Department||'শিক্ষক/শিক্ষিকা');card.appendChild(head);
+      var meta=document.createElement('div');meta.className='account-meta';
+      [['Serial / Teacher ID',x.TeacherID||x.Serial||''],['মোবাইল',x.Mobile||''],['ইমেইল',x.Email||''],['পদ',x.Position||x.Department||''],['শাখা',x.Branch||''],['ঠিকানা',x.Address||''],['শিক্ষাগত যোগ্যতা',x.Education||''],['অভিজ্ঞতা',x.Experience||'']].forEach(function(a){var q=document.createElement('div');q.textContent=a[0]+': '+a[1];meta.appendChild(q)});
+      card.appendChild(meta);
+      var actions=document.createElement('div');actions.className='account-actions-ui';
+      var yes=document.createElement('button');yes.type='button';yes.className='approve';yes.textContent='✅ অনুমোদন';
+      yes.onclick=async function(){if(!confirm((x.NameBN||'এই আবেদনকারী')+'-এর আবেদন অনুমোদন করবেন?'))return;yes.disabled=true;try{var z=await call('setTeacherApplicationStatus',token,x.Serial,'APPROVED');toast((z&&z.message)||'অনুমোদন সম্পন্ন');if(z&&z.ok)renderTeacherApprovalList();}catch(e){toast('অনুমোদন ব্যর্থ: '+(e&&e.message||e));}finally{yes.disabled=false;}};
+      var no=document.createElement('button');no.type='button';no.className='stop';no.textContent='❌ বাতিল';
+      no.onclick=async function(){var reason=prompt('বাতিলের কারণ লিখুন:','যোগ্যতা/তথ্য যাচাই হয়নি');if(reason===null)return;no.disabled=true;try{var z=await call('setTeacherApplicationStatus',token,x.Serial,'REJECTED',reason);toast((z&&z.message)||'আবেদন বাতিল করা হয়েছে');if(z&&z.ok)renderTeacherApprovalList();}catch(e){toast('বাতিল ব্যর্থ: '+(e&&e.message||e));}finally{no.disabled=false;}};
+      actions.appendChild(yes);actions.appendChild(no);card.appendChild(actions);box.appendChild(card);
+    });
+  }catch(e){box.innerHTML='<div class="account-card">শিক্ষক/শিক্ষিকা তালিকা লোডে ত্রুটি: '+escA(e&&e.message||e)+'</div>';}
 };
 window.renderAccountPaymentList=async function(){
   var box=$('accountListUi');if(!box)return;
