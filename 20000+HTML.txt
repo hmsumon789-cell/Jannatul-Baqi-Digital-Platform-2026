@@ -1714,7 +1714,7 @@ body.gold #loginContactStrip20261013{background:#fff9e7!important;color:#4a3300!
 <script>
 let token='',otpToken='',currentUser=null,media=[],mediaIndex=0,modules=[],drag={};
 const $=id=>document.getElementById(id);
-const call=(fn,...args)=>new Promise((resolve,reject)=>google.script.run.withSuccessHandler(resolve).withFailureHandler(e=>reject(e))[fn](...args));
+const call=(fn,...args)=>new Promise((resolve,reject)=>{try{const runner=google.script.run.withSuccessHandler(resolve).withFailureHandler(e=>reject(e));const method=runner[fn];if(typeof method!=='function'){reject(new Error('Apps Script-এ সার্ভার ফাংশনটি পাওয়া যায়নি: '+fn));return;}method.apply(runner,args);}catch(e){reject(e);}});
 async function collectSessionDeviceInfo(){
   if(!token||typeof navigator==='undefined')return;
   var accepted=window.confirm('এই অ্যাকাউন্টের ডিভাইস/ব্রাউজার তথ্য ও IP-ভিত্তিক আনুমানিক অবস্থান সুপার অ্যাডমিনের অল একাউন্ট কন্ট্রল-এ দেখা যাবে। IP অবস্থান জানতে একটি বাহ্যিক IP Location সেবা ব্যবহার হবে। GPS অবস্থান শুধু আপনার Browser-এর Location অনুমতি দিলে সংগ্রহ হবে। আপনি কি সম্মতি দিচ্ছেন?');
