@@ -366,6 +366,53 @@ function approveStudentAdmission(token,admissionId){
   log_(sessionUser_(token),'approve','ADMISSIONS',String(admissionId));
   return {ok:true,message:'✅ শিক্ষার্থীর ভর্তি অনুমোদিত হয়েছে।'};
 }
+function getPendingTeacherApplications(token){
+  if(!isSuperAdmin_(token)) return {ok:false,message:'শুধু Super Admin শিক্ষক/শিক্ষিকা ও স্টাফ আবেদন দেখতে পারবেন।'};
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.TEACHERS);
+  if(!sh||sh.getLastRow()<2) return {ok:true,rows:[]};
+  const values=sh.getDataRange().getValues(), headers=values[0].map(function(x){return String(x||'').trim();});
+  const rows=[];
+  for(let i=1;i<values.length;i++){
+    const row=values[i], item={};
+    headers.forEach(function(k,j){item[k]=row[j];});
+    let app={};
+    try{app=JSON.parse(String(item.Documents||'{}'));}catch(e){}
+    const kind=String(app.ApplicationType||'').toUpperCase();
+    const status=String(app.ApplicationStatus||item.ApplicationStatus||'PENDING').toUpperCase();
+    if(kind==='TEACHER_RECRUITMENT'&&status==='PENDING'){
+      item.Position=app.Position||item.Department||'';
+      item.Education=app.EducationOrProfession||'';
+      item.Experience=app.Experience||'';
+      item.ApplicationStatus=status;
+      item.Serial=String(item.Serial||'');
+      rows.push(item);
+    }
+  }
+  return {ok:true,rows:rows};
+}
+function setTeacherApplicationStatus(token,serial,status,reason){
+  if(!isSuperAdmin_(token)) return {ok:false,message:'শুধু Super Admin শিক্ষক/শিক্ষিকা ও স্টাফ আবেদন অনুমোদন করতে পারবেন।'};
+  serial=String(serial||'').trim();status=String(status||'').toUpperCase();
+  if(!serial) return {ok:false,message:'আবেদন Serial পাওয়া যায়নি।'};
+  if(status!=='APPROVED'&&status!=='REJECTED') return {ok:false,message:'অনুমোদনের Status সঠিক নয়।'};
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.TEACHERS);
+  if(!sh||sh.getLastRow()<2) return {ok:false,message:'TEACHERS শিটে আবেদন পাওয়া যায়নি।'};
+  const values=sh.getDataRange().getValues(),headers=values[0].map(function(x){return String(x||'').trim();});
+  const serialCol=headers.indexOf('Serial'),docsCol=headers.indexOf('Documents');
+  if(serialCol<0||docsCol<0) return {ok:false,message:'TEACHERS শিটে প্রয়োজনীয় Serial/Documents কলাম নেই।'};
+  let rowIndex=-1;
+  for(let i=1;i<values.length;i++){if(String(values[i][serialCol]||'').trim()===serial){rowIndex=i+1;break;}}
+  if(rowIndex<2) return {ok:false,message:'শিক্ষক/শিক্ষিকা আবেদন পাওয়া যায়নি।'};
+  let app={};
+  try{app=JSON.parse(String(sh.getRange(rowIndex,docsCol+1).getValue()||'{}'));}catch(e){}
+  if(String(app.ApplicationType||'').toUpperCase()!=='TEACHER_RECRUITMENT') return {ok:false,message:'এই রেকর্ডটি শিক্ষক/শিক্ষিকা নিয়োগ আবেদন নয়।'};
+  if(String(app.ApplicationStatus||'').toUpperCase()!=='PENDING') return {ok:false,message:'এই আবেদনটি ইতিমধ্যে প্রক্রিয়াকরণ করা হয়েছে।'};
+  app.ApplicationStatus=status;app.ReviewedAt=now_();app.ReviewedBy=sessionUser_(token);
+  if(status==='REJECTED') app.RejectionReason=String(reason||'');
+  sh.getRange(rowIndex,docsCol+1).setValue(JSON.stringify(app));
+  log_(sessionUser_(token),status==='APPROVED'?'approve':'reject','TEACHERS',serial);
+  return {ok:true,message:status==='APPROVED'?'✅ শিক্ষক/শিক্ষিকা বা স্টাফ আবেদন অনুমোদিত হয়েছে।':'আবেদন বাতিল করা হয়েছে।'};
+}
 function approveAccount(token,type,id,status,permissions){
   try{
     const s=auth_(token);
