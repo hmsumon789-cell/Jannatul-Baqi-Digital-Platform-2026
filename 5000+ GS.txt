@@ -66,6 +66,11 @@ const HEADERS = {
 
 function doGet(e) {
   var p = (e && e.parameter) || {};
+  if (String(p.admission || '') === '1') {
+    return HtmlService.createHtmlOutput(buildPublicOnlineAdmissionHtml2026_())
+      .setTitle(APP.nameEn + ' | Online Admission')
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  }
   if (String(p.payment || '') === '1') {
     return HtmlService.createHtmlOutput(buildPublicOnlinePaymentHtml_())
       .setTitle(APP.nameEn + ' | Online Payment')
@@ -113,6 +118,74 @@ function doGet(e) {
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
+
+function buildPublicOnlineAdmissionHtml2026_() {
+  return `<!doctype html>
+<html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>অনলাইন ভর্তি আবেদন</title>
+<style>
+*{box-sizing:border-box}body{margin:0;padding:18px;background:#f2f5f1;color:#173b2b;font-family:"Noto Sans Bengali",Arial,sans-serif}
+.wrap{max-width:1100px;margin:auto;background:#fff;border:3px solid #176b45;border-radius:18px;box-shadow:0 12px 35px #0002;overflow:hidden}
+.head{padding:20px;text-align:center;background:linear-gradient(135deg,#145c3d,#24885b);color:#fff}
+.head h1{margin:0 0 6px;font-size:clamp(22px,3vw,32px)}.head p{margin:4px 0}
+.note{margin:14px;padding:12px;border:1px solid #d8bd68;border-radius:10px;background:#fff9e7;line-height:1.6}
+form{padding:14px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+label{display:flex;flex-direction:column;gap:6px;font-weight:800;color:#174d36}
+input,select,textarea{width:100%;min-height:43px;padding:9px 11px;border:1.5px solid #bfd0c2;border-radius:8px;background:#fff;color:#17251c;font:inherit}
+textarea{min-height:76px;resize:vertical}.full{grid-column:1/-1}
+button{display:block;margin:18px auto 8px;min-width:220px;padding:12px 24px;border:0;border-radius:999px;background:#176b45;color:#fff;font:inherit;font-weight:900;cursor:pointer}
+button:disabled{opacity:.6;cursor:wait}.status{display:none;margin:14px;padding:15px;border:2px solid #176b45;border-radius:12px;background:#f0fff5;line-height:1.8}.status.show{display:block}
+@media(max-width:800px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:560px){body{padding:7px}.grid{grid-template-columns:1fr}.full{grid-column:auto}}
+@media print{body{background:#fff;padding:0}.wrap{border:0;box-shadow:none}.head{background:#fff;color:#000;border-bottom:2px solid #176b45}button{display:none!important}}
+</style></head><body><main class="wrap">
+<header class="head"><h1>জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</h1><p>অনলাইন ভর্তি আবেদন ফর্ম</p><p>উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০ · 01823316630</p></header>
+<div class="note">নিচের তথ্যগুলো সঠিকভাবে পূরণ করে আবেদন জমা দিন। আবেদন জমা হলে শিক্ষার্থী রেকর্ড <b>PENDING</b> অবস্থায় থাকবে; কর্তৃপক্ষ যাচাই করে পরবর্তী অনুমোদন দেবেন। <b>* চিহ্নিত ঘরগুলো আবশ্যক।</b></div>
+<form id="publicAdmissionForm"><div class="grid">
+<label>শিক্ষার্থীর নাম (বাংলা) *<input name="NameBN" required maxlength="150"></label>
+<label>اسم الطالب (العربية)<input name="NameAR" dir="rtl"></label>
+<label>Student Name (English)<input name="NameEN"></label>
+<label>পিতার নাম (বাংলা) *<input name="FatherBN" required></label>
+<label>اسم الأب (العربية)<input name="FatherAR" dir="rtl"></label>
+<label>Father's Name (English)<input name="FatherEN"></label>
+<label>মাতার নাম (বাংলা)<input name="MotherBN"></label>
+<label>اسم الأم (العربية)<input name="MotherAR" dir="rtl"></label>
+<label>Mother's Name (English)<input name="MotherEN"></label>
+<label>জন্ম তারিখ *<input name="DOB" type="date" required></label>
+<label>লিঙ্গ<select name="Gender"><option value="">নির্বাচন করুন</option><option>ছাত্রী</option><option>ছাত্র</option></select></label>
+<label>মোবাইল নম্বর *<input name="Mobile" type="tel" required></label>
+<label>WhatsApp<input name="WhatsApp" type="tel"></label>
+<label>ইমেইল<input name="Email" type="email"></label>
+<label>শ্রেণি/জামাত *<select name="Class" required><option value="">নির্বাচন করুন</option><option>প্লে শ্রেনি</option><option>শিশু শ্রেনি</option><option>আউয়াল জামাত</option><option>ছানী জামাত</option><option>ছালেছ জামাত</option><option>রাবে জামাত</option><option>পঞ্চম জামাত</option><option>মিজান জামাত</option><option>নাহবেমীর জামাত</option><option>কুদুরী জামাত</option><option>শরহে বেকায়া জামাত</option><option>হেদায়া জামাত</option><option>মিশকাত জামাত</option><option>দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)</option></select></label>
+<label>বিভাগ<select name="Department"><option>কিতাব বিভাগ</option><option>হিফজুল কুরআন বিভাগ</option><option>নুরানী বিভাগ</option><option>অন্যান্য</option></select></label>
+<label>শাখা<select name="Branch"><option>প্রধান শাখা</option><option>২য় শাখা</option><option>৩য় শাখা</option><option>বালিকা শাখা</option></select></label>
+<label>আবাসিক<select name="Residence"><option value="">নির্বাচন করুন</option><option>আবাসিক</option><option>অনাবাসিক</option></select></label>
+<label>জন্ম নিবন্ধন নম্বর<input name="BirthReg"></label>
+<label>জাতীয় পরিচয়পত্র নম্বর<input name="NID"></label>
+<label class="full">পূর্ণ ঠিকানা *<textarea name="Address" required></textarea></label>
+</div><button id="submitAdmissionBtn" type="submit">ভর্তি আবেদন জমা দিন</button></form>
+<div id="admissionStatus" class="status" role="status"></div></main>
+<script>
+(function(){
+ var form=document.getElementById('publicAdmissionForm'),btn=document.getElementById('submitAdmissionBtn'),box=document.getElementById('admissionStatus');
+ function show(msg){box.innerHTML=msg;box.classList.add('show');box.scrollIntoView({behavior:'smooth',block:'center'});}
+ form.addEventListener('submit',function(ev){
+  ev.preventDefault();if(!form.reportValidity())return;
+  var values={};new FormData(form).forEach(function(v,k){values[k]=String(v||'').trim();});
+  var id='JB-ADM-'+new Date().toISOString().slice(0,10).replace(/-/g,'')+'-'+Math.floor(100000+Math.random()*900000);
+  btn.disabled=true;btn.textContent='আবেদন জমা হচ্ছে…';box.classList.remove('show');
+  var payload={AdmissionID:id,FormID:id,Status:'PENDING',FormData:JSON.stringify(values)};
+  Object.keys(values).forEach(function(k){payload[k]=values[k];});
+  google.script.run.withSuccessHandler(function(r){
+   btn.disabled=false;btn.textContent='ভর্তি আবেদন জমা দিন';
+   if(r&&r.ok){form.style.display='none';show('<h2>আবেদন সফলভাবে জমা হয়েছে</h2><b>আবেদন ID:</b> '+id+'<br><b>Student ID:</b> '+(r.studentId||'')+'<br><b>অবস্থা:</b> PENDING<br>শিক্ষার্থী অনুমোদনের অপেক্ষায় থাকবে। এই ID সংরক্ষণ করুন।');}
+   else show('<b>আবেদন জমা হয়নি:</b> '+((r&&r.message)||'সার্ভার থেকে উত্তর পাওয়া যায়নি।'));
+  }).withFailureHandler(function(err){
+   btn.disabled=false;btn.textContent='ভর্তি আবেদন জমা দিন';show('<b>সার্ভার সংযোগে সমস্যা:</b> '+(err&&err.message?err.message:'আবার চেষ্টা করুন।'));
+  }).savePublicAdmissionApplication2026(payload);
+ });
+})();
+</script></body></html>`;
+}
 function buildPublicOnlineServiceFallbackHtml_(code, personId, message) {
   var esc=function(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');};
   var choices=[['MS','মার্কশিট'],['RS','রেজাল্ট / মার্কশিট'],['ID','আইডি কার্ড'],['AC','অ্যাডমিট কার্ড'],['CT','সার্টিফিকেট'],['RC','মানি রিসিট'],['TI','শিক্ষক/শিক্ষিকা আইডি'],['AF','ভর্তি আবেদন ফর্ম'],['LF','ছুটির আবেদন ফর্ম'],['ER','পরীক্ষার রুটিন'],['TC','টিসি / ছাড়পত্র'],['AP','প্রত্যয়ন পত্র'],['LM','আজীবন সদস্য ফর্ম'],['LC','আজীবন সদস্য সনদ'],['TR','শিক্ষক/শিক্ষিকা নিয়োগ আবেদন'],['TA','শিক্ষক/শিক্ষিকা নিয়োগ পত্র'],['EF','নির্বাহী পরিষদ ফর্ম'],['EI','নির্বাহী পরিষদ সদস্য আইডি কার্ড']];
