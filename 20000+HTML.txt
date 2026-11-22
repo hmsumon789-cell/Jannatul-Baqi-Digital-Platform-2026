@@ -6613,7 +6613,7 @@ body #app .header-news *{
     var q=document.querySelectorAll('#loginPage .quick button');
     /* Keep handlers aligned with the four login-page quick buttons. */
     var handlers=[
-      function(){if(typeof window.openAdmissionPanel2026==='function')window.openAdmissionPanel2026();else openPublicFeature('admission');},
+      function(){var admissionTabUrl=window.location.href.split('#')[0]+'#jb-open-admission-student-20261012';var admissionTab=window.open(admissionTabUrl,'_blank');if(!admissionTab)toast('নতুন ট্যাব খোলার অনুমতি দিন, তারপর আবার চেষ্টা করুন।');},
       function(){openPublicFeature('exam');},
       function(){openPublicFeature('madrasa');},
       function(){openPublicFeature('admin');}
