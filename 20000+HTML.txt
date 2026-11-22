@@ -993,9 +993,22 @@ body.gold #loginPage .main-qr-802268e{background:#fff!important;border-color:#11
 <style id="jb-public-admission-focus-2026">
 /* Public admission tab: keep only the admission form visible, without dashboard behind it. */
 body.jb-public-admission-mode-2026 #app,
-body.jb-public-admission-mode-2026 .window:not(#formWin){display:none!important;visibility:hidden!important;pointer-events:none!important}
+body.jb-public-admission-mode-2026 .window:not(#formWin):not(#onlinePaymentReceiptWin){display:none!important;visibility:hidden!important;pointer-events:none!important}
 body.jb-public-admission-mode-2026 #formWin{display:block!important;visibility:visible!important;pointer-events:auto!important;z-index:2147483000!important;position:fixed!important;left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important;width:min(1180px,96vw)!important;max-height:94vh!important}
 body.jb-public-admission-mode-2026 #formWin .win-body{max-height:calc(94vh - 58px)!important;overflow:auto!important}
+/* Keep admission receipts and completion confirmation above the admission form. */
+body.jb-public-admission-mode-2026 #admReceiptOverlay2026,
+body.jb-public-admission-mode-2026 #admSuccessOverlay2026{
+ display:flex!important;visibility:visible!important;opacity:1!important;
+ position:fixed!important;inset:0!important;z-index:2147483647!important;
+ pointer-events:auto!important
+}
+body.jb-public-admission-mode-2026 #onlinePaymentReceiptWin{
+ display:block!important;visibility:visible!important;opacity:1!important;
+ position:fixed!important;left:50%!important;top:50%!important;
+ transform:translate(-50%,-50%)!important;z-index:2147483646!important;
+ pointer-events:auto!important;width:min(900px,96vw)!important
+}
 </style>
 
 
