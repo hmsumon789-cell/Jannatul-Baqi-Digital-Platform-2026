@@ -4365,25 +4365,35 @@ function getPublicExamResult(query, rollNo, academicYear, exam, className) {
   if(arguments.length>=4){
     const roll=String(rollNo||'').trim(),year=String(academicYear||'').trim(),ex=String(exam||'').trim(),cl=String(className||'').trim();
     if(!q||!roll||!year||!ex)return {ok:false,message:'Student ID, রোল নম্বর, শিক্ষাবর্ষ ও পরীক্ষা পূরণ করুন।'};
+    const normalize=function(v){
+      return String(v==null?'':v).trim().toLowerCase()
+        .replace(/[০-৯]/g,function(d){return '০১২৩৪৫৬৭৮৯'.indexOf(d);})
+        .replace(/[\\s\\-–—]/g,'');
+    };
     const students=listRows_(SHEETS.STUDENTS,'',10000);
-    const student=students.find(function(x){return [x.StudentID,x.FormID,x.AdmissionID].some(function(v){return String(v||'').trim()===q;});});
+    const student=students.find(function(x){
+      return [x.StudentID,x.FormID,x.AdmissionID,x.HandwrittenID].some(function(v){return normalize(v)===normalize(q);});
+    });
     if(!student)return {ok:false,message:'এই ID-তে কোনো শিক্ষার্থী পাওয়া যায়নি।'};
     const studentId=String(student.StudentID||'').trim();
     const restriction=publicResultRestrictionForStudent_(student);
     if(restriction)return {ok:false,suspended:true,message:publicResultRestrictionNotice_(restriction)};
+    const studentRolls=[student.RollNo,student.Roll,student.ClassRoll,student.RollNumber].map(normalize).filter(Boolean);
     const rows=listRows_(SHEETS.RESULTS,'',10000).filter(function(x){
-      return String(x.StudentID||'').trim()===studentId &&
-        String(x.RollNo||'').trim()===roll &&
-        String(x.AcademicYear||'').trim()===year &&
-        String(x.Exam||'').trim()===ex &&
-        (!cl||String(x.Class||'').trim()===cl) &&
+      const resultRoll=normalize(x.RollNo);
+      const rollMatches=resultRoll===normalize(roll)||studentRolls.indexOf(normalize(roll))>=0;
+      return normalize(x.StudentID)===normalize(studentId) &&
+        rollMatches &&
+        normalize(x.AcademicYear)===normalize(year) &&
+        normalize(x.Exam)===normalize(ex) &&
+        (!cl||normalize(x.Class)===normalize(cl)) &&
         /^(YES|TRUE|1|PUBLISHED|প্রকাশিত)$/i.test(String(x.Published||'').trim());
     });
-    if(!rows.length)return {ok:false,message:'এই ID, রোল, শিক্ষাবর্ষ ও পরীক্ষার জন্য প্রকাশিত ফলাফল পাওয়া যায়নি। তথ্যগুলো মিলিয়ে আবার চেষ্টা করুন।'};
+    if(!rows.length)return {ok:false,message:'এই Student ID ও রোল নম্বরের জন্য নির্বাচিত শিক্ষাবর্ষ/পরীক্ষায় প্রকাশিত ফলাফল পাওয়া যায়নি। Student ID, রোল, শিক্ষাবর্ষ ও পরীক্ষার তথ্য মিলিয়ে আবার চেষ্টা করুন।'};
     const x=rows[0];
     let subjects=[];
     try{const parsed=typeof x.SubjectData==='string'?JSON.parse(x.SubjectData||'[]'):x.SubjectData;subjects=Array.isArray(parsed)?parsed:Object.keys(parsed||{}).map(function(k){return {subject:k,marks:parsed[k]};});}catch(e){}
-    const result={exam:x.Exam,className:x.Class,academicYear:x.AcademicYear,rollNo:x.RollNo,meritRank:x.MeritRank||'',total:x.Total,gpa:x.GPA,grade:x.Grade,subjects:subjects};
+    const result={exam:x.Exam,className:x.Class,academicYear:x.AcademicYear,rollNo:x.RollNo||roll,meritRank:x.MeritRank||'',total:x.Total,gpa:x.GPA,grade:x.Grade,subjects:subjects};
     return {ok:true,student:{studentId:studentId,nameBN:student.NameBN||'',nameAR:student.NameAR||'',className:student.Class||x.Class||'',mobile:student.Mobile||''},result:result,results:[result]};
   }
   if(!q)return {ok:false,message:'Student ID / মোবাইল নম্বর দিন।'};
@@ -4402,8 +4412,6 @@ function getPublicExamResult(query, rollNo, academicYear, exam, className) {
   })};
 }
 
-
-/* ===== SUPER ADMIN ILHAK / PUBLIC INSTITUTION RESULT AUTHORIZATION ===== */
 function ilhakRegistryRead_(){
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.CONFIG);
   if(!sh||sh.getLastRow()<2)return [];
