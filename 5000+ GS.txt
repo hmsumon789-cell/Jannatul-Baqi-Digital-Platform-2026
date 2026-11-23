@@ -4368,7 +4368,7 @@ function getPublicExamResult(query, rollNo, academicYear, exam, className) {
     const normalize=function(v){
       return String(v==null?'':v).trim().toLowerCase()
         .replace(/[০-৯]/g,function(d){return '০১২৩৪৫৬৭৮৯'.indexOf(d);})
-        .replace(/[\\s\\-–—]/g,'');
+        .replace(/\s/g,'').replace(/[-–—]/g,'');
     };
     const students=listRows_(SHEETS.STUDENTS,'',10000);
     const student=students.find(function(x){
