@@ -41,7 +41,7 @@ const HEADERS = {
   PAYMENTS:['Serial','PaymentID','StudentID','Name','Month','Category','Amount','Method','Reference','Date','Note','CreatedAt'],
   EXPENSES:['Serial','ExpenseID','Category','Amount','Method','Date','Note','CreatedAt'],
   INCOME:['Serial','IncomeID','Category','Amount','Method','Date','Note','CreatedAt'],
-  RESULTS:['Serial','ResultID','StudentID','Name','Class','Exam','SubjectData','Total','GPA','Grade','Published','Date','CreatedAt'],
+  RESULTS:['Serial','ResultID','StudentID','Name','Class','Exam','RollNo','AcademicYear','SubjectData','Total','GPA','Grade','Published','Date','CreatedAt'],
   NOTICES:['Serial','NoticeID','TitleBN','TitleAR','TitleEN','BodyBN','BodyAR','BodyEN','Date','Status','CreatedAt'],
   ATTENDANCE:['Serial','AttendanceID','StudentID','Date','Status','Class','Branch','Note','CreatedAt'],
   MEDIA:['Serial','MediaID','Type','Name','DataURL','MimeType','Size','Sort','Status','CreatedAt'],
@@ -3042,7 +3042,7 @@ function saveDocumentBuilderRecord(token, docKey, studentId, data, html) {
   let sheetName='', row={};
   if(key==='marks'||key==='result') {
     sheetName=SHEETS.RESULTS;
-    row={ResultID:'RES-'+stamp+'-'+sid,StudentID:sid,Name:data.NameBN||data.NameEN||'',Class:data.Class||'',Exam:data.Exam||'',SubjectData:data.SubjectData||'',Total:data.Total||'',GPA:data.GPA||'',Grade:data.Grade||'',Published:'NO',Date:data.Date||now};
+    row={ResultID:'RES-'+stamp+'-'+sid,StudentID:sid,Name:data.NameBN||data.NameEN||'',Class:data.Class||'',Exam:data.Exam||'',RollNo:data.RollNo||data.Roll||'',AcademicYear:data.AcademicYear||data.Year||'',SubjectData:data.SubjectData||'',Total:data.Total||'',GPA:data.GPA||'',Grade:data.Grade||'',Published:'NO',Date:data.Date||now};
   } else if(key==='id_cards') {
     sheetName=SHEETS.ID_CARDS;
     row={CardID:'IDC-'+stamp+'-'+sid,StudentID:sid,IssueDate:data.IssueDate||now,Data:payload};
