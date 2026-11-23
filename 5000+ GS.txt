@@ -5237,6 +5237,17 @@ function getBoardPublicResult(id){
   }catch(e){return {ok:false,message:String(e&&e.message||e)}}
 }
 
+
+function getBoardPublicResultStats(){
+  try{
+    ensureBoardExamSheets20261114_();
+    var examinees=boardPortalRows_20261109('BOARD_EXAMINEES');
+    var marks=boardPortalRows_20261109('BOARD_EXAM_MARKS');
+    var published=marks.filter(function(r){return String(r.Published||'').trim().toUpperCase()==='YES';});
+    return {ok:true,totalExaminees:examinees.length,totalPublishedResults:published.length};
+  }catch(e){return {ok:false,message:String(e&&e.message||e)}}
+}
+
 function getBoardPublicMadrasaResults(madrasaName,examName){
   try{
     ensureBoardExamSheets20261114_();
