@@ -1159,7 +1159,7 @@ function searchAll(token,signal,query) {
   query=String(query||'').trim();
   if(!query) return {ok:false,message:'সার্চ ID দিন।'};
   const rules={
-    std:{sheet:SHEETS.STUDENTS,keys:['StudentID','FormID','MobileID','Mobile','WhatsApp','EmailID','Email','NameBN','NameAR','NameEN'],ids:['StudentID']},
+    std:{sheet:SHEETS.STUDENTS,keys:['StudentID'],ids:['StudentID']},
     thr:{sheet:SHEETS.TEACHERS,keys:['TeacherID','FormID','Mobile','Phone','WhatsApp','Email','NameBN','NameAR','NameEN','Name'],ids:['TeacherID']},
     olp:{sheet:SHEETS.PAYMENTS,keys:['PaymentID','StudentID','Name','Mobile','Reference','TransactionID'],ids:['PaymentID','StudentID','Reference','TransactionID']},
     mrs:{sheet:SHEETS.RESULTS,keys:['ResultID','StudentID','Name','Class','Exam'],ids:['ResultID','StudentID'],docs:['marks','result']},
@@ -1574,7 +1574,7 @@ function saveAdmissionDraft2026Unlocked_(token,data,action) {
     if(!tenant.root && rowTenant!==tenant.key)continue;
     if(idCol>=0&&normAdmissionLookup_(displayValues[i][idCol])===wantedAdmissionLookup_){rowNum=i+1;break;}
     if(action==='LOAD'){
-      const directIdKeys=['StudentID','FormID','HandwrittenID','handwrittenId','AdmissionFormID','SystemID','AutoID','ID','MobileID','Mobile','EmailID','Email'];
+      const directIdKeys=['StudentID','FormID','HandwrittenID','handwrittenId','AdmissionFormID','SystemID','AutoID','ID'];
       if(directIdKeys.some(function(key){const col=headers.indexOf(key);return col>=0&&normAdmissionLookup_(displayValues[i][col])===wantedAdmissionLookup_;})){rowNum=i+1;break;}
 
       const fdCol=headers.indexOf('FormData');
@@ -1583,7 +1583,7 @@ function saveAdmissionDraft2026Unlocked_(token,data,action) {
       const flat={};
       const mergeLookup_=function(o){Object.keys(o||{}).forEach(function(k){const v=o[k];if(v&&typeof v==='object'&&!Array.isArray(v))mergeLookup_(v);else if(v!==''&&v!=null)flat[k]=v;});};
       if(payload&&typeof payload==='object')mergeLookup_(payload);
-      const idKeys=['StudentID','studentId','FormID','formId','HandwrittenID','handwrittenId','AdmissionFormID','SystemID','systemId','AutoID','autoId','ID','MobileID','Mobile','mobile','Phone','MobileNo','WhatsApp','EmailID','Email','email','GuardianEmail'];
+      const idKeys=['StudentID','studentId','FormID','formId','HandwrittenID','handwrittenId','AdmissionFormID','SystemID','systemId','AutoID','autoId','ID'];
       if(idKeys.some(function(k){return normAdmissionLookup_(flat[k])===wantedAdmissionLookup_;})){rowNum=i+1;break;}
     }
   }
@@ -1619,7 +1619,7 @@ function saveAdmissionDraft2026Unlocked_(token,data,action) {
         const studentValues=studentSheet.getDataRange().getValues();
         const studentDisplayValues=studentSheet.getDataRange().getDisplayValues();
         const studentHeaders=studentValues[0].map(String);
-        const studentLookupKeys=['StudentID','studentId','FormID','formId','HandwrittenID','handwrittenId','AdmissionFormID','SystemID','systemId','AutoID','autoId','ID','MobileID','Mobile','mobile','EmailID','Email','email'];
+        const studentLookupKeys=['StudentID','studentId','FormID','formId','HandwrittenID','handwrittenId','AdmissionFormID','SystemID','systemId','AutoID','autoId','ID'];
         for(let si=1;si<studentValues.length;si++){
           const studentRow=studentValues[si];
           const studentDisplayRow=studentDisplayValues[si];
@@ -1879,7 +1879,7 @@ function registerExamCandidate(token,studentId,exam,className,branch) {
   const resolved=resolveAdmissionIdentifier_(inputId);
   const id=String(resolved.studentId||inputId).trim();
   const student=(listRows_(SHEETS.STUDENTS,token,10000).find(function(r){return String(r.StudentID||'').trim()===id;})||null);
-  if(!student) return {ok:false,message:'এই ID/মোবাইল/ইমেইলে আপনার প্রতিষ্ঠানের অনুমোদিত Student পাওয়া যায়নি।'};
+  if(!student) return {ok:false,message:'এই Student ID-তে আপনার প্রতিষ্ঠানের অনুমোদিত শিক্ষার্থী পাওয়া যায়নি।'};
 
   if(String(student.ApprovalStatus||'ACTIVE').toUpperCase()!=='ACTIVE') return {ok:false,message:'Student এখনো Super Admin অনুমোদন পায়নি।'};
   const old=listRows_(SHEETS.EXAM_REG,token,10000).find(function(r){return String(r.StudentID)===id&&String(r.Exam)===ex;});
@@ -1917,7 +1917,7 @@ function getStudent360(token,studentId) {
   const resolved=resolveAdmissionIdentifier_(inputId);
   const id=String(resolved.studentId||inputId).trim();
   const student=listRows_(SHEETS.STUDENTS,token,10000).find(function(r){return String(r.StudentID||'').trim()===id;})||null;
-  if(!student) return {ok:false,message:'এই ID/মোবাইল/ইমেইলে আপনার প্রতিষ্ঠানের শিক্ষার্থী পাওয়া যায়নি।'};
+  if(!student) return {ok:false,message:'এই Student ID-তে আপনার প্রতিষ্ঠানের শিক্ষার্থী পাওয়া যায়নি।'};
   const merged=Object.assign({},resolved.formData||{},student||{});
   if(!merged.StudentID)merged.StudentID=id;
   if(resolved.admission){merged.AdmissionID=resolved.admission.AdmissionID||'';merged.FormID=merged.FormID||resolved.admission.AdmissionID||inputId;merged.AdmissionStatus=resolved.admission.Status||'';}
@@ -2999,7 +2999,7 @@ function resolveAdmissionIdentifier_(identifier) {
   const stSh=ss.getSheetByName(SHEETS.STUDENTS);
   if(stSh&&stSh.getLastRow()>1){
     const vals=stSh.getDataRange().getValues(),heads=vals[0].map(String);
-    const idKeys=['StudentID','FormID','MobileID','Mobile','WhatsApp','EmailID','Email'];
+    const idKeys=['StudentID','FormID'];
     for(let i=1;i<vals.length&&!student;i++){
       const obj=objectFrom_(heads,vals[i]);
       if(idKeys.some(k=>norm(obj[k])===candidate)){student=obj;break;}
@@ -3016,7 +3016,7 @@ function resolveAdmissionIdentifier_(identifier) {
       const flat={};
       const merge=function(o){Object.keys(o||{}).forEach(function(k){const v=o[k];if(v&&typeof v==='object'&&!Array.isArray(v))merge(v);else if(v!==''&&v!=null)flat[k]=v;});};
       merge(payload);
-      const keys=['AdmissionID','StudentID','FormID','HandwrittenID','handwrittenId','AdmissionFormID','MobileID','Mobile','Phone','MobileNo','WhatsApp','EmailID','Email','GuardianEmail'];
+      const keys=['AdmissionID','StudentID','FormID','HandwrittenID','handwrittenId','AdmissionFormID'];
       const match=keys.some(function(k){return norm(obj[k]||flat[k])===candidate;});
       if(match){admission=obj;formData=flat;break;}
     }
@@ -3566,7 +3566,7 @@ function getOnlinePaymentStudent(studentId){
   const resolved=resolveAdmissionIdentifier_(inputId);
   const id=String(resolved.studentId||inputId).trim();
   const st=resolved.student||findBy_(SHEETS.STUDENTS,'StudentID',id);
-  if(!st&&!resolved.admission)return {ok:false,message:'এই ID/মোবাইল/ইমেইলে শিক্ষার্থীর ভর্তি তথ্য পাওয়া যায়নি।'};
+  if(!st&&!resolved.admission)return {ok:false,message:'এই Student ID-তে শিক্ষার্থীর ভর্তি তথ্য পাওয়া যায়নি।'};
   const person=Object.assign({},resolved.formData||{},st||{});
   if(!person.StudentID)person.StudentID=id;
   if(resolved.admission){person.Class=person.Class||resolved.admission.Class||'';person.AdmissionID=resolved.admission.AdmissionID||'';}
@@ -3645,7 +3645,7 @@ function submitOnlinePayment(data,token){
   const resolved=resolveAdmissionIdentifier_(inputId);
   const id=String(resolved.studentId||inputId).trim();
   const st=resolved.student||findBy_(SHEETS.STUDENTS,'StudentID',id);
-  if(!st)return {ok:false,message:'এই ID/মোবাইল/ইমেইলে অনুমোদিত Student পাওয়া যায়নি।'};
+  if(!st)return {ok:false,message:'এই Student ID-তে অনুমোদিত শিক্ষার্থী পাওয়া যায়নি।'};
   data=normalizeMobileFields_(data);
   const payerMobile=normalizeBdMobile_(data.PayerMobile||'');
   const payerEmail=String(data.PayerEmail||'').trim();
@@ -4231,7 +4231,7 @@ function findExamDashboardStudent(token, query) {
   auth_(token); requireFeature_(token,'result');
   const q=String(query||'').trim();if(!q)return {ok:false,message:'সিস্টেম আইডি অথবা ভর্তি আইডি দিন।'};
   const students=listRows_(SHEETS.STUDENTS,token,10000);
-  let student=students.find(function(s){return [s.StudentID,s.FormID,s.AdmissionID,s.MobileID].some(function(v){return String(v||'').trim()===q;});});
+  let student=students.find(function(s){return [s.StudentID,s.FormID,s.AdmissionID].some(function(v){return String(v||'').trim()===q;});});
   if(!student){const admissions=listRows_(SHEETS.ADMISSIONS,token,10000);const a=admissions.find(function(x){if([x.AdmissionID,x.StudentID].some(function(v){return String(v||'').trim()===q;}))return true;try{const d=typeof x.FormData==='string'?JSON.parse(x.FormData||'{}'):x.FormData||{};return [d.StudentID,d.FormID,d.AdmissionID,d.HandwrittenID].some(function(v){return String(v||'').trim()===q;});}catch(e){return false;}});if(a&&a.StudentID)student=students.find(function(s){return String(s.StudentID||'').trim()===String(a.StudentID).trim();});}
   if(!student)return {ok:false,message:'এই সিস্টেম আইডি/ভর্তি আইডিতে শিক্ষার্থী পাওয়া যায়নি।'};
   const admissionRows=listRows_(SHEETS.ADMISSIONS,token,10000);let admission=admissionRows.find(function(a){return String(a.StudentID||'').trim()===String(student.StudentID||'').trim()||String(a.AdmissionID||'').trim()===String(student.AdmissionID||'').trim();})||{};let fd={};try{fd=typeof admission.FormData==='string'?JSON.parse(admission.FormData||'{}'):(admission.FormData||{});}catch(e){};return {ok:true,student:{StudentID:String(student.StudentID||''),FormID:String(student.FormID||''),AdmissionID:String(student.AdmissionID||''),NameBN:String(student.NameBN||fd.NameBN||fd.Name||''),NameEN:String(student.NameEN||''),DOB:String(student.DOB||student.DateOfBirth||fd.DOB||fd.DateOfBirth||''),AdmissionDate:String(student.AdmissionDate||admission.AdmissionDate||admission.CreatedAt||''),Class:String(student.Class||fd.Class||''),AcademicYear:String(student.AcademicYear||''),Session:String(student.Session||''),Mobile:String(student.Mobile||fd.Mobile||''),Email:String(student.Email||fd.Email||''),FatherBN:String(student.FatherBN||fd.FatherBN||fd.FatherName||''),Address:String(student.Address||student.CurrentAddress||student.PermanentAddress||fd.Address||fd.CurrentAddress||fd.PermanentAddress||''),Roll:String(student.Roll||student.RollNo||''),ApprovalStatus:String(student.ApprovalStatus||'')}};
