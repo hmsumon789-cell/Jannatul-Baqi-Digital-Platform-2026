@@ -2170,7 +2170,13 @@ function saveRecordUnlocked_(token,sheetName,data) {
   }
   sh.appendRow(row);
   let workflow=null;
-  if(sheetName==='ADMISSIONS') workflow=syncAdmissionToStudent_(token,data);
+  if(sheetName==='ADMISSIONS'){
+    workflow=syncAdmissionToStudent_(token,data);
+    if(!workflow || workflow.ok!==true){
+      sh.deleteRow(sh.getLastRow());
+      return {ok:false,message:(workflow&&workflow.message)||'ভর্তি আবেদন থেকে শিক্ষার্থী তৈরি/সমন্বয় করা যায়নি।',details:workflow||null};
+    }
+  }
   const savedPerson=objectFrom_(headers,row);
   let autoDocuments=null;
   if(['STUDENTS','TEACHERS','DONORS','EXECUTIVES','ADVISERS','FOUNDERS'].includes(sheetName)) {
@@ -2208,7 +2214,7 @@ function updateRecordUnlocked_(token,sheetName,serial,data) {
     const studentIdCol=headers.indexOf('StudentID');
     if(studentIdCol>=0 && Object.prototype.hasOwnProperty.call(data,'StudentID') &&
        String(data.StudentID||'').trim()!==String(values[idx][studentIdCol]||'').trim())
-      return {ok:false,message:'Student ID স্থায়ী; এটি পরিবর্তন করা যাবে না。'};
+      return {ok:false,message:'Student ID স্থায়ী; এটি পরিবর্তন করা যাবে না।'};
   }
   if(['STUDENTS','TEACHERS'].includes(sheetName)) {
     const formCol=headers.indexOf('FormID');
