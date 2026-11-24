@@ -1463,7 +1463,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       <button class="secondary" onclick="clearOtp()">Clear</button>
     </div>
     <div class="searchbar login-searchbar-admission20261017">
-      <select id="loginSignal" class="field" onchange="syncSearchSignal('login')"><option value="">সংকেত নির্বাচন করুন</option></select><input id="loginSearch" class="field" placeholder="সংকেত নির্বাচন করে ID / মোবাইল / ইমেইল লিখুন" onkeydown="if(event.key==='Enter')doSearch('login')"><button class="primary" onclick="doSearch('login')">🔎</button>
+      <select id="loginSignal" class="field" onchange="syncSearchSignal('login')"><option value="">সংকেত নির্বাচন করুন</option></select><input id="loginSearch" class="field" placeholder="সংকেত নির্বাচন করে ইউনিক ID লিখুন" onkeydown="if(event.key==='Enter')doSearch('login')"><button class="primary" onclick="doSearch('login')">🔎</button>
     </div>
     <div class="quick">
       <button type="button" class="primary" onclick="window.open(window.location.href.split('#')[0].split('?')[0]+'?jbOpenAdmissionStudent=1','_blank','noopener')">📝 অনলাইন ভর্তি ফর্ম</button><button type="button" onclick="openModule('exam')">পরীক্ষার্থী নিবন্ধন</button><button type="button" onclick="openModule('madrasa')">নতুন মাদ্রাসা নিবন্ধন</button><button type="button" onclick="openModule('admin')">নতুন অ্যাডমিন নিবন্ধন</button></div>
@@ -1547,7 +1547,7 @@ body.gold #loginContactStrip20261013{background:#fff9e7!important;color:#4a3300!
       </select>
     </div>
     <div class="header-id-search-wrap">
-      <input id="appSearch" class="field header-all-search-input" placeholder="ID / মোবাইল / ইমেইল" onkeydown="if(event.key==='Enter')doSearch('app')">
+      <input id="appSearch" class="field header-all-search-input" placeholder="ইউনিক ID" onkeydown="if(event.key==='Enter')doSearch('app')">
       <button class="primary header-id-search-btn" onclick="doSearch('app')" title="ID Search">🔎 ID</button>
     </div>
     <button class="primary header-logout-final" onclick="logout()" title="Logout">🚪 লগআউট</button>
@@ -1767,7 +1767,7 @@ function fillSignals(list){
     });
   });
 }
-function syncSearchSignal(where){const sig=$(where==='login'?'loginSignal':'appSignal').value;const input=$(where==='login'?'loginSearch':'appSearch');if(sig){input.value='';input.placeholder=sig+' — এখানে নিজস্ব ID / মোবাইল / ইমেইল লিখুন';input.focus()}else{input.value='';input.placeholder='সংকেত নির্বাচন করে ID / মোবাইল / ইমেইল লিখুন'}}
+function syncSearchSignal(where){const sig=$(where==='login'?'loginSignal':'appSignal').value;const input=$(where==='login'?'loginSearch':'appSearch');if(sig){input.value='';input.placeholder=sig+' — এখানে নিজস্ব ID / মোবাইল / ইমেইল লিখুন';input.focus()}else{input.value='';input.placeholder='সংকেত নির্বাচন করে ইউনিক ID লিখুন'}}
 function fillClasses(c){/* class list is available through module forms */}
 function togglePassword(){const x=$('password');x.type=x.type==='password'?'text':'password'}
 async function login(){  const u=$('username')?.value.trim()||'', p=$('password')?.value||'';  const btn=$('mainLoginBtn');
@@ -2693,7 +2693,7 @@ function closePhotoGalleryImage2026(){var layer=document.getElementById('jbPhoto
 function openPublicPhotoGallery2026(){var win=window.open('about:blank','_blank');if(!win){toast('পাবলিক গ্যালারী খুলতে ব্রাউজারের পপ-আপ অনুমতি দিন।');return;}call('getMainWebAppUrl').then(function(r){if(r&&r.ok&&r.url){win.location.href=r.url+(r.url.indexOf('?')>=0?'&':'?')+'gallery=1';}else{try{win.close();}catch(e){}toast('পাবলিক গ্যালারীর লিংক পাওয়া যায়নি।');}}).catch(function(e){try{win.close();}catch(x){}toast('পাবলিক গ্যালারী খোলা যায়নি।');});}
 async function deleteMediaByIndex(i){if(!media[i])return;const r=await call('deleteMedia',token,media[i].Serial);if(r&&r.ok){await loadPhotoGalleryData2026();toast('মিডিয়া মুছে ফেলা হয়েছে।')}else toast((r&&r.message)||'ডিলিট ব্যর্থ')}
 async function fileData(id){const f=$(id)?.files?.[0];return f?await readFile(f):''}function readFile(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f)})}
-async function doSearch(where){const sig=$(where==='login'?'loginSignal':'appSignal').value,q=$(where==='login'?'loginSearch':'appSearch').value.trim();if(!sig)return toast('প্রথমে সংকেত নির্বাচন করুন।');if(!q)return toast('ID / মোবাইল / ইমেইল দিন।');const r=await call('searchAll',token,sig,q);if(!r.ok)return toast(r.message);$('searchBody').innerHTML=`<h3>${r.signal} / ${r.query} — ${r.count} ফলাফল</h3>`+table(r.matches);openWindow('searchWin')}
+async function doSearch(where){const sig=$(where==='login'?'loginSignal':'appSignal').value,q=$(where==='login'?'loginSearch':'appSearch').value.trim();if(!sig)return toast('প্রথমে সংকেত নির্বাচন করুন।');if(!q)return toast('ইউনিক ID দিন।');const r=await call('searchAll',token,sig,q);if(!r.ok)return toast(r.message);$('searchBody').innerHTML=`<h3>${r.signal} / ${r.query} — ${r.count} ফলাফল</h3>`+table(r.matches);openWindow('searchWin')}
 function table(rows){if(!rows.length)return '<p>কোন তথ্য পাওয়া যায়নি।</p>';const h=Object.keys(rows[0]);return '<div class="table-wrap"><table class="data-table"><thead><tr>'+h.map(x=>`<th>${x}</th>`).join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+h.map(x=>`<td>${String(r[x]??'')}</td>`).join('')+'</tr>').join('')+'</tbody></table></div>'}
 const JB_SHEET_LIST_28_2026=[
   ['ADMINS','অ্যাডমিন'],['STUDENTS','ছাত্র/ছাত্রী'],['TEACHERS','শিক্ষক/শিক্ষিকা'],['DONORS','দাতা'],
@@ -3128,7 +3128,7 @@ body.gold .form-grid input.field{border-radius:0!important}
   window.saveSearchProfile=function(){toast('সার্চ প্রোফাইল সেভ করার জন্য নিচের ডাউনলোড ব্যবহার করতে পারেন।')};
   window.editSearchProfile=function(){var x=document.querySelectorAll('#searchProfilePrint .sp-field span');x.forEach(function(s){s.contentEditable=true;s.style.outline='1px dashed #d40000'});toast('✏️ সার্চ প্রোফাইল এডিট মোড চালু হয়েছে')};
   window.downloadSearchProfile=function(){var x=document.getElementById('searchProfilePrint');if(!x)return;var blob=new Blob(['<!doctype html><html><head><meta charset="utf-8"><title>Search Profile</title></head><body>'+x.outerHTML+'</body></html>'],{type:'text/html;charset=utf-8'});var u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='Search_Profile.html';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},1000);toast('সার্চ প্রোফাইল ডাউনলোড হয়েছে')};
-  window.doSearch=function(where){var sig=$(where==='login'?'loginSignal':'appSignal').value,q=$(where==='login'?'loginSearch':'appSearch').value.trim();if(!sig)return toast('প্রথমে সংকেত নির্বাচন করুন।');if(!q)return toast('ID / মোবাইল / ইমেইল দিন।');call('searchAll',token,sig,q).then(function(r){if(!r.ok)return toast(r.message);renderSearchProfiles(r.matches||[],r.signal||sig,r.query||q);openWindow('searchWin')}).catch(function(){toast('সার্চ সার্ভার ত্রুটি')})};
+  window.doSearch=function(where){var sig=$(where==='login'?'loginSignal':'appSignal').value,q=$(where==='login'?'loginSearch':'appSearch').value.trim();if(!sig)return toast('প্রথমে সংকেত নির্বাচন করুন।');if(!q)return toast('ইউনিক ID দিন।');call('searchAll',token,sig,q).then(function(r){if(!r.ok)return toast(r.message);renderSearchProfiles(r.matches||[],r.signal||sig,r.query||q);openWindow('searchWin')}).catch(function(){toast('সার্চ সার্ভার ত্রুটি')})};
 })();
 </script>
 
@@ -6641,8 +6641,8 @@ body #app .header-news *{
     var qEl=document.getElementById(isLogin?'loginSearch':'appSearch');
     var sig=sigEl?sigEl.value:'';
     var q=qEl?(qEl.value||'').trim():'';
-    if(!q)return toast('ID / মোবাইল / ইমেইল / নাম লিখুন।');
-    if(isLogin && !sig)return toast('সংকেত নির্বাচন করুন। তারপর নিজ নিজ ID / মোবাইল / ইমেইল / নাম লিখুন।');
+    if(!q)return toast('ইউনিক ID লিখুন।');
+    if(isLogin && !sig)return toast('সংকেত নির্বাচন করুন। তারপর ইউনিক ID লিখুন।');
     try{
       /* Empty token is intentional for the public login-page search. */
       var r=await call('searchAll',isLogin?'':token,sig,q);
@@ -6673,7 +6673,7 @@ body #app .header-news *{
       if(handlers[i])b.onclick=handlers[i];
     });
     var inp=document.getElementById('loginSearch');
-    if(inp){inp.placeholder='সংকেত নির্বাচন করে ID / মোবাইল / ইমেইল / নাম লিখুন';}
+    if(inp){inp.placeholder='সংকেত নির্বাচন করে ইউনিক ID লিখুন';}
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();
   setTimeout(bind,300);setTimeout(bind,1000);
@@ -9533,7 +9533,7 @@ body.gold #searchProfilePrint .sp-field{border-color:#d40000!important}
     var qEl=document.getElementById(where==='login'?'loginSearch':'appSearch');
     var sig=sigEl?sigEl.value:'', q=qEl?(qEl.value||'').trim():'';
     if(!sig)return toast('প্রথমে সংকেত নির্বাচন করুন।');
-    if(!q)return toast('ID / মোবাইল / ইমেইল দিন।');
+    if(!q)return toast('ইউনিক ID দিন।');
     var searchToken=(where==='login')?'':(window.token||token||'');
     call('searchAll',searchToken,sig,q).then(function(r){
       if(!r||!r.ok)return toast((r&&r.message)||'সার্চের ফল পাওয়া যায়নি।');
@@ -10229,7 +10229,7 @@ window.saveResult=async function(k){
     var w=ensureListWindow(),body=document.getElementById('moduleListBody2026'),heads=rows.length?Object.keys(rows[0]):[];
     var isStudents=/^STUDENTS?$/i.test(String(backendKey||''))||/শিক্ষার্থী|ছাত্র|ছাত্রী/i.test(String(currentTitle||''));
     if(isStudents){
-      var h='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px"><input id="studentListSearch2026" class="field" style="flex:1;min-width:240px" placeholder="সিরিয়াল / ভর্তি ID / Student ID / মোবাইল ID / ইমেইল ID / নাম দিয়ে খুঁজুন" oninput="filterStudentList2026(this.value)"><button class="secondary" type="button" onclick="var x=document.getElementById(\'studentListSearch2026\');if(x){x.value=\'\';filterStudentList2026(\'\')}">✖ সার্চ মুছুন</button></div>';
+      var h='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px"><input id="studentListSearch2026" class="field" style="flex:1;min-width:240px" placeholder="শুধু Student ID দিয়ে খুঁজুন" oninput="filterStudentList2026(this.value)"><button class="secondary" type="button" onclick="var x=document.getElementById(\'studentListSearch2026\');if(x){x.value=\'\';filterStudentList2026(\'\')}">✖ সার্চ মুছুন</button></div>';
       h+='<div class="table-wrap"><table class="data-table" style="min-width:2450px"><thead><tr><th>১. সিরিয়াল</th><th>২. ভর্তি-কালীন হাতে লেখা ID</th><th>৩. সিস্টেম Student ID</th><th>৪. মোবাইল/ইমেইল ID</th><th>৫. ফটো</th><th>৬. জন্ম তারিখ</th><th>৭. নাম বাংলা</th><th>৮. নাম আরবি</th><th>৯. নাম ইংরেজি</th><th>১০. পিতার নাম বাংলা</th><th>১১. পিতার নাম আরবি</th><th>১২. পিতার নাম ইংরেজি</th><th>১৩. মাতার নাম বাংলা</th><th>১৪. মাতার নাম আরবি</th><th>১৫. মাতার নাম ইংরেজি</th><th>১৬. শ্রেণি/জামাত</th><th>১৭. বিভাগ</th><th>১৮. জেলা</th><th>১৯. উপজেলা/থানা</th><th>২০. ইউনিয়ন</th><th>২১. ওয়ার্ড</th><th>২২. ডাকঘর</th><th>২৩. গ্রাম</th><th>২৪. ফটো URL</th><th>২৫. সংযুক্তি/ডকুমেন্ট</th><th>২৬. কার্যক্রম</th></tr></thead><tbody>';
       if(!rows.length)h+='<tr><td colspan="26">কোন শিক্ষার্থীর তথ্য পাওয়া যায়নি।</td></tr>';
       rows.forEach(function(r,i){
@@ -10238,7 +10238,7 @@ window.saveResult=async function(k){
         var sid=v('StudentID','ID','Id'),formId=v('FormID','AdmissionID','AdmissionNo','HandwrittenID','ApplicationID');
         var mobileId=v('MobileID','Mobile'),emailId=v('EmailID','Email');
         var photo=v('PhotoURL','Photo','StudentPhoto','Image'),docs=v('Documents','Document','Attachments','BirthReg','NID');
-        var search=[i+1,formId,sid,mobileId,emailId,v('Mobile','Phone','WhatsApp'),v('Email'),v('DOB','BirthDate'),v('NameBN','Name','StudentNameBN'),v('NameAR'),v('NameEN'),v('FatherBN','FatherNameBN'),v('FatherAR','FatherNameAR'),v('FatherEN','FatherNameEN'),v('MotherBN','MotherNameBN'),v('MotherAR','MotherNameAR'),v('MotherEN','MotherNameEN'),v('Class','Jamaat'),v('Division'),v('District'),v('Upazila','Thana'),v('Union'),v('Ward'),v('PostOffice','Post','PostOfficeName'),v('Village')].join(' ').toLowerCase();
+        var search=String(sid||'').trim().toLowerCase();
         var img=photo&&/^\s*(https?:\/\/|data:image\/)/i.test(photo)?'<img src="'+esc(photo)+'" alt="ফটো" title="শিক্ষার্থীর ফটো" style="width:48px;height:56px;object-fit:cover;border:1px solid #999;border-radius:4px" onerror="this.style.display=\'none\'">':'—';
         var docShort=docs?String(docs).split(/[;,\n]/).filter(Boolean).slice(0,2).map(function(x){return esc(x.trim().slice(0,32))}).join('<br>'):'—';
         h+='<tr data-student-search="'+esc(search)+'"><td>'+String(i+1)+'</td><td>'+esc(formId||'—')+'</td><td>'+esc(sid||'—')+'</td><td><div style="font-size:11px;line-height:1.45"><div title="মোবাইল আইডি">📱 '+esc(mobileId||'—')+'</div><div title="ইমেইল আইডি">✉️ '+esc(emailId||'—')+'</div></div></td><td style="text-align:center">'+img+'</td><td>'+esc(v('DOB','BirthDate')||'—')+'</td><td>'+esc(v('NameBN','Name','StudentNameBN')||'—')+'</td><td>'+esc(v('NameAR')||'—')+'</td><td>'+esc(v('NameEN')||'—')+'</td><td>'+esc(v('FatherBN','FatherNameBN')||'—')+'</td><td>'+esc(v('FatherAR','FatherNameAR')||'—')+'</td><td>'+esc(v('FatherEN','FatherNameEN')||'—')+'</td><td>'+esc(v('MotherBN','MotherNameBN')||'—')+'</td><td>'+esc(v('MotherAR','MotherNameAR')||'—')+'</td><td>'+esc(v('MotherEN','MotherNameEN')||'—')+'</td><td>'+esc(v('Class','Jamaat')||'—')+'</td><td>'+esc(v('Division')||'—')+'</td><td>'+esc(v('District')||'—')+'</td><td>'+esc(v('Upazila','Thana')||'—')+'</td><td>'+esc(v('Union')||'—')+'</td><td>'+esc(v('Ward')||'—')+'</td><td>'+esc(v('PostOffice','Post','PostOfficeName')||'—')+'</td><td>'+esc(v('Village')||'—')+'</td><td title="'+esc(photo)+'" style="max-width:130px;overflow-wrap:anywhere;font-size:10px">'+(photo?esc(photo.length>36?photo.slice(0,33)+'…':photo):'—')+'</td><td title="'+esc(docs)+'" style="max-width:160px;overflow-wrap:anywhere;font-size:11px">'+docShort+'</td><td><div class="list-actions"><button class="action-detail" type="button" onclick="listDetail2026('+ix+')">📄 বিস্তারিত দেখুন</button><button class="action-edit" type="button" onclick="listEdit2026('+ix+')">✏️ সম্পাদনা</button><button class="action-marks" type="button" onclick="listAddMarks2026('+ix+')">✍️ নম্বর যুক্ত করুন</button><button class="action-exam" type="button" onclick="listRegisterExam2026('+ix+')">📝 পরীক্ষার্থী তালিকায়</button><button class="action-card" type="button" onclick="listStudentCards2026('+ix+')">🪪 কার্ড তৈরি</button></div></td></tr>';
@@ -14566,7 +14566,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     if(!input)return;
     var sig=String(sigEl&&sigEl.value||'').trim();
     var saved=String(input.value||'');
-    input.placeholder=sig?(sig+' — একই ID দিয়ে সার্চ করুন'):'সংকেত নির্বাচন করে ID / মোবাইল / ইমেইল লিখুন';
+    input.placeholder=sig?(sig+' — একই ID দিয়ে সার্চ করুন'):'সংকেত নির্বাচন করে ইউনিক ID লিখুন';
     input.value=saved;
     if(saved)input.setSelectionRange(saved.length,saved.length);
     input.focus();
