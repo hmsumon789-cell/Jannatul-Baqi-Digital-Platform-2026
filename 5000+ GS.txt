@@ -1881,7 +1881,7 @@ function getExamCandidateList(token,exam,className) {
 }
 function registerExamCandidate(token,studentId,exam,className,branch) {
   auth_(token); requireFeature_(token,'exam');
-  const inputId=String(studentId||'').trim(), ex=String(exam||'').trim();
+  const inputId=String(studentId||'').trim(), ex=normalizeExamDigits_(exam).trim();
   if(!inputId||!ex) return {ok:false,message:'ভর্তি ফর্মের যেকোনো ID, মোবাইল/ইমেইল ও পরীক্ষা আবশ্যক।'};
   const resolved=resolveAdmissionIdentifier_(inputId);
   const id=String(resolved.studentId||inputId).trim();
@@ -1889,7 +1889,7 @@ function registerExamCandidate(token,studentId,exam,className,branch) {
   if(!student) return {ok:false,message:'এই Student ID-তে আপনার প্রতিষ্ঠানের অনুমোদিত শিক্ষার্থী পাওয়া যায়নি।'};
 
   if(String(student.ApprovalStatus||'ACTIVE').toUpperCase()!=='ACTIVE') return {ok:false,message:'Student এখনো Super Admin অনুমোদন পায়নি।'};
-  const old=listRows_(SHEETS.EXAM_REG,token,10000).find(function(r){return String(r.StudentID)===id&&String(r.Exam)===ex;});
+  const old=listRows_(SHEETS.EXAM_REG,token,10000).find(function(r){return String(r.StudentID)===id&&normalizeExamDigits_(r.Exam).trim()===ex;});
   if(old) return {ok:true,duplicate:true,examRegId:old.ExamRegID,message:'এই Student ইতিমধ্যে পরীক্ষায় যুক্ত আছে।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.EXAM_REG);
   const serial=nextSerial_(sh), regId='EX-'+String(serial).padStart(4,'0');
@@ -1901,15 +1901,15 @@ function registerExamCandidate(token,studentId,exam,className,branch) {
 }
 function createAdmitCardFromCandidate(token,studentId,exam) {
   auth_(token); requireFeature_(token,'admit');
-  const id=String(studentId||'').trim(), ex=String(exam||'').trim();
+  const id=String(studentId||'').trim(), ex=normalizeExamDigits_(exam).trim();
   if(!id||!ex) return {ok:false,message:'Student ID ও পরীক্ষা আবশ্যক।'};
   const student=listRows_(SHEETS.STUDENTS,token,10000).find(function(r){return String(r.StudentID||'').trim()===id;});
   if(!student) return {ok:false,message:'আপনার প্রতিষ্ঠানের Student পাওয়া যায়নি।'};
-  const reg=listRows_(SHEETS.EXAM_REG,token,10000).find(function(r){return String(r.StudentID)===id&&String(r.Exam)===ex;});
+  const reg=listRows_(SHEETS.EXAM_REG,token,10000).find(function(r){return String(r.StudentID)===id&&normalizeExamDigits_(r.Exam).trim()===ex;});
   if(!reg) return {ok:false,message:'আগে পরীক্ষার্থী হিসেবে যুক্ত করুন।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ADMIT_CARDS);
   ensureTenantSheetColumn_(sh);
-  const existing=listRows_(SHEETS.ADMIT_CARDS,token,10000).find(function(r){return String(r.StudentID)===id&&String(r.Exam)===ex;});
+  const existing=listRows_(SHEETS.ADMIT_CARDS,token,10000).find(function(r){return String(r.StudentID)===id&&normalizeExamDigits_(r.Exam).trim()===ex;});
   if(existing) return {ok:true,duplicate:true,admitId:existing.AdmitID,message:'Admit Card আগে থেকেই তৈরি আছে।'};
   const serial=nextSerial_(sh), aid='ADM-'+String(serial).padStart(4,'0');
   const data={studentId:id,exam:ex,name:student.NameBN||'',className:student.Class||'',branch:student.Branch||'',mobile:student.Mobile||'',createdAt:now_()};
@@ -4200,16 +4200,26 @@ function getAllDocumentBuilderHistory(token, personId) {
 /* ===== END UNIVERSAL DOCUMENT HISTORY ===== */
 
 
+/* Convert decimal digits from common writing systems to ASCII before matching exam years. */
+function normalizeExamDigits_(value) {
+  const ranges=[0x0660,0x06F0,0x0966,0x09E6,0x0A66,0x0AE6,0x0B66,0x0BE6,0x0C66,0x0CE6,0x0D66,0x0E50,0x0ED0,0x0F20,0x1040,0x17E0,0x1810,0xFF10,0x1D7CE,0x1E140,0x1E2F0];
+  return String(value==null?'':value).replace(/[\s\S]/g,function(ch){
+    const cp=ch.codePointAt(0);
+    for(let i=0;i<ranges.length;i++)if(cp>=ranges[i]&&cp<=ranges[i]+9)return String(cp-ranges[i]);
+    return ch;
+  });
+}
+
 /* ===== EXAM DASHBOARD SERVER API — 2026-10-09 ===== */
 function getExamDashboardData(token, exam, className) {
   auth_(token); requireFeature_(token,'exam');
-  const ex=String(exam||'').trim(), cl=String(className||'').trim();
+  const ex=normalizeExamDigits_(exam).trim(), cl=String(className||'').trim();
   const allStudents=listRows_(SHEETS.STUDENTS,token,10000);
   // Join registrations to students by StudentID. Older EXAM_REG rows can
   // contain an empty or outdated Class field; use the student's current class.
   const regs=listRows_(SHEETS.EXAM_REG,token,10000).filter(function(x){
     const status=String(x.Status||'REGISTERED').trim().toUpperCase();
-    return (!ex||String(x.Exam||'').trim()===ex) &&
+    return (!ex||normalizeExamDigits_(x.Exam).trim()===ex) &&
       !/SUSPEND|INACTIVE|REJECT|CANCEL|DELETE/.test(status);
   });
   const studentById={};
@@ -4267,7 +4277,7 @@ function saveExamDashboardCandidate(token, studentId, exam, className) {
 }
 function saveExamDashboardMarks(token, exam, className, subject, marks) {
   auth_(token); requireFeature_(token,'result');
-  const ex=String(exam||'').trim(),cl=String(className||'').trim(),sub=String(subject||'').trim();
+  const ex=normalizeExamDigits_(exam).trim(),cl=String(className||'').trim(),sub=String(subject||'').trim();
   if(!ex||!cl||!sub||!Array.isArray(marks)||!marks.length)return {ok:false,message:'পরীক্ষা, শ্রেণি, বিষয় ও অন্তত একজন শিক্ষার্থীর নম্বর আবশ্যক।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.RESULTS);
   if(!sh)return {ok:false,message:'RESULTS শিট পাওয়া যায়নি।'};
@@ -5286,7 +5296,7 @@ function saveBoardExamMarks20261114(token,exam,cls,year,subject,marks,maxMark){
         var id=boardPortalText_20261109(m.examRegId,60),mark=Number(m.mark);
         if(!approved.some(function(x){return String(x.ExamRegID)===id;}))throw new Error('অনুমোদিত পরীক্ষার্থী তালিকায় আইডি নেই: '+id);
         if(!isFinite(mark)||mark<0||mark>maxMark)throw new Error('নম্বর ০ থেকে '+maxMark+'-এর মধ্যে হতে হবে: '+id);
-        var found=rows.find(function(x){return String(x.ExamRegID)===id&&String(x.Exam)===exam&&String(x.ClassName)===cls&&String(x.AcademicYear)===year;});
+        var found=rows.find(function(x){return String(x.ExamRegID)===id&&normalizeExamDigits_(x.Exam).trim()===exam&&String(x.ClassName)===cls&&String(x.AcademicYear)===year;});
         if(found&&String(found.Published||'NO')==='YES'&&!actor.root)throw new Error('ফলাফল প্রকাশিত। সংশোধনের জন্য Super Admin-এর নিয়ন্ত্রণ প্রয়োজন।');
         var obj={};if(found){try{obj=JSON.parse(found.SubjectData||'{}');}catch(e){}}
         obj[subject]={mark:mark,maxMark:maxMark};
@@ -5310,7 +5320,7 @@ function publishBoardExamResults20261114(token,exam,cls,year){
     if(!candidates.length)return {ok:false,message:'এই পরীক্ষা ও শ্রেণিতে অনুমোদিত পরীক্ষার্থী নেই।'};
     var sh=ensureBoardExamSheets20261114_().getSheetByName('BOARD_EXAM_MARKS'),rows=boardPortalRows_20261109('BOARD_EXAM_MARKS'),updates=[],missing=[];
     candidates.forEach(function(c){
-      var found=rows.find(function(x){return String(x.ExamRegID)===String(c.ExamRegID)&&String(x.Exam)===exam&&String(x.ClassName)===cls&&String(x.AcademicYear)===year;});
+      var found=rows.find(function(x){return String(x.ExamRegID)===String(c.ExamRegID)&&normalizeExamDigits_(x.Exam).trim()===exam&&String(x.ClassName)===cls&&String(x.AcademicYear)===year;});
       var obj={};if(found){try{obj=JSON.parse(found.SubjectData||'{}');}catch(e){}}
       var absent=subjects.filter(function(s){return !obj[s]||obj[s].mark===undefined;});
       if(absent.length)missing.push(c.Name+' ('+c.ExamRegID+'): '+absent.join(', '));
@@ -5324,7 +5334,7 @@ function publishBoardExamResults20261114(token,exam,cls,year){
     var lock=LockService.getScriptLock();lock.waitLock(15000);
     try{
       updates.forEach(function(u){
-        var row=boardPortalRows_20261109('BOARD_EXAM_MARKS').find(function(x){return String(x.ExamRegID)===String(u.found.ExamRegID)&&String(x.Exam)===exam&&String(x.ClassName)===cls&&String(x.AcademicYear)===year;});
+        var row=boardPortalRows_20261109('BOARD_EXAM_MARKS').find(function(x){return String(x.ExamRegID)===String(u.found.ExamRegID)&&normalizeExamDigits_(x.Exam).trim()===exam&&String(x.ClassName)===cls&&String(x.AcademicYear)===year;});
         var rr=boardPortalRows_20261109('BOARD_EXAM_MARKS').indexOf(row)+2;
         var headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
         sh.getRange(rr,headers.indexOf('Total')+1).setValue(u.total);
@@ -5334,7 +5344,7 @@ function publishBoardExamResults20261114(token,exam,cls,year){
         sh.getRange(rr,headers.indexOf('PublishedBy')+1).setValue(actor.username);
         sh.getRange(rr,headers.indexOf('PublishedAt')+1).setValue(now_());
       });
-      var examRows=boardPortalRows_20261109('BOARD_EXAMS'),es=ensureBoardExamSheets20261114_().getSheetByName('BOARD_EXAMS'),e=examRows.find(function(x){return String(x.Exam)===exam&&String(x.ClassName)===cls&&String(x.AcademicYear)===year;});
+      var examRows=boardPortalRows_20261109('BOARD_EXAMS'),es=ensureBoardExamSheets20261114_().getSheetByName('BOARD_EXAMS'),e=examRows.find(function(x){return normalizeExamDigits_(x.Exam).trim()===exam&&String(x.ClassName)===cls&&String(x.AcademicYear)===year;});
       if(e){var er=examRows.indexOf(e)+2,eh=es.getRange(1,1,1,es.getLastColumn()).getValues()[0].map(String);es.getRange(er,eh.indexOf('Status')+1).setValue('PUBLISHED');es.getRange(er,eh.indexOf('UpdatedBy')+1).setValue(actor.username);es.getRange(er,eh.indexOf('UpdatedAt')+1).setValue(now_());}
     }finally{lock.releaseLock();}
     return {ok:true,published:updates.length,message:updates.length+' জন পরীক্ষার্থীর ফলাফল অনলাইনে প্রকাশ হয়েছে।'};
