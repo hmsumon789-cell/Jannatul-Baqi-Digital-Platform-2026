@@ -4202,12 +4202,12 @@ function getAllDocumentBuilderHistory(token, personId) {
 
 /* Convert decimal digits from common writing systems to ASCII before matching exam years. */
 function normalizeExamDigits_(value) {
-  const ranges=[0x0660,0x06F0,0x0966,0x09E6,0x0A66,0x0AE6,0x0B66,0x0BE6,0x0C66,0x0CE6,0x0D66,0x0E50,0x0ED0,0x0F20,0x1040,0x17E0,0x1810,0xFF10,0x1D7CE,0x1E140,0x1E2F0];
-  return String(value==null?'':value).replace(/[\s\S]/g,function(ch){
+  const ranges=[0x0030,0x0660,0x06F0,0x07C0,0x0966,0x09E6,0x0A66,0x0AE6,0x0B66,0x0BE6,0x0C66,0x0CE6,0x0D66,0x0DE6,0x0E50,0x0ED0,0x0F20,0x1040,0x1090,0x17E0,0x1810,0x1946,0x19D0,0x1A80,0x1A90,0x1B50,0x1BB0,0x1C40,0x1C50,0xA620,0xA8D0,0xA900,0xA9D0,0xA9F0,0xAA50,0xABF0,0xFF10,0x104A0,0x10D30,0x11066,0x110F0,0x11136,0x111D0,0x112F0,0x11450,0x114D0,0x11650,0x116C0,0x11730,0x118E0,0x11950,0x11C50,0x11D50,0x11DA0,0x11F50,0x16A60,0x16AC0,0x16B50,0x1D7CE,0x1D7D8,0x1D7E2,0x1D7EC,0x1D7F6,0x1E140,0x1E2F0,0x1E4F0,0x1E950];
+  return Array.from(String(value==null?'':value)).map(function(ch){
     const cp=ch.codePointAt(0);
     for(let i=0;i<ranges.length;i++)if(cp>=ranges[i]&&cp<=ranges[i]+9)return String(cp-ranges[i]);
     return ch;
-  });
+  }).join('');
 }
 
 /* ===== EXAM DASHBOARD SERVER API — 2026-10-09 ===== */
@@ -4239,7 +4239,7 @@ function getExamDashboardData(token, exam, className) {
     return !!id && allowed && (!cl||String(x.Class||'').trim()===cl||regClass===cl) && !!registered[id];
   });
   const results=listRows_(SHEETS.RESULTS,token,10000).filter(function(x){
-    return (!ex||String(x.Exam||'').trim()===ex) && (!cl||String(x.Class||'').trim()===cl);
+    return (!ex||normalizeExamDigits_(x.Exam).trim()===ex) && (!cl||String(x.Class||'').trim()===cl);
   });
   const matchedRegs=students.map(function(x){return registered[String(x.StudentID||'').trim()];}).filter(Boolean);
   return {ok:true,exam:ex,className:cl,students:students.map(function(x){const reg=registered[String(x.StudentID||'').trim()];return {student:x,registered:true,registration:reg||null};}),registrations:matchedRegs,results:results,counts:{students:students.length,registered:matchedRegs.length,results:results.length,published:results.filter(function(x){return /^(YES|TRUE|PUBLISHED|প্রকাশিত)$/i.test(String(x.Published||''));}).length}};
