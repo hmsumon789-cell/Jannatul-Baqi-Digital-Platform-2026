@@ -4203,6 +4203,9 @@ function getExamDashboardData(token, exam, className) {
   auth_(token); requireFeature_(token,'exam');
   const ex=normalizeExamDigits_(exam).trim(), cl=String(className||'').trim();
   const allStudents=listRows_(SHEETS.STUDENTS,token,10000);
+  // The master STUDENTS roster is authoritative for marks-entry eligibility.
+  // EXAM_REG is retained as an optional exam-specific registration record.
+  // Tenant filtering remains enforced by listRows_ for both source sheets.
   const regs=listRows_(SHEETS.EXAM_REG,token,10000).filter(function(x){
     const status=String(x.Status||'REGISTERED').trim().toUpperCase();
     return (!ex||normalizeExamDigits_(x.Exam).trim()===ex) &&
