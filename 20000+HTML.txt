@@ -2064,7 +2064,7 @@ async function previewOldStudentFile2026(input){
  try{var rows=await oldStudentReadRows2026(file);if(!rows.length){window.oldStudentLoadedRows2026=[];renderOldStudentPreview2026();status.textContent='ফাইল পাওয়া গেছে, কিন্তু শিক্ষার্থীর সারি পাওয়া যায়নি। প্রথম সারিতে কলামের নাম এবং পরের সারিগুলোতে শিক্ষার্থীর তথ্য দিন।';return;}
  window.oldStudentLoadedRows2026=rows;
  renderOldStudentPreview2026();
- status.textContent='ফাইল লোড সফল। মোট '+rows.length+' জন শিক্ষার্থীর তালিকা নিচে এসেছে। এখন প্রতিটি সারিতে শ্রেণি/জামাত ও শিক্ষাবর্ষ বেছে “অনলাইন তালিকায় যোগ করুন” চাপুন; একাধিক শিক্ষার্থী যোগ করতে শেষ কলামে টিক দিয়ে উপরের বাটন চাপুন।';
+ status.textContent='ফাইল লোড সফল। মোট '+rows.length+' জন শিক্ষার্থীর তালিকা এসেছে। উপরে একবার শিক্ষাবর্ষ নির্বাচন করুন; Excel-এর প্রতিটি সারির শ্রেণি/জামাত স্বয়ংক্রিয়ভাবে শনাক্ত হয়েছে। কোনো শ্রেণি শনাক্ত না হলে শুধু সেই সারিতে শ্রেণি নির্বাচন/সংশোধন করুন। একাধিক শিক্ষার্থী যোগ করতে শেষ কলামে টিক দিয়ে উপরের বাটন চাপুন।';
  }catch(e){status.textContent='ফাইল পড়া যায়নি: '+(e&&e.message?e.message:'অজানা ত্রুটি')+'. Excel/DOCX reader লোড না হলে ইন্টারনেট সংযোগ পরীক্ষা করুন; বিকল্প হিসেবে CSV বা TXT ব্যবহার করুন.';}
 }
 function oldStudentHeaderKey2026(v){return String(v||'').trim().toLowerCase().replaceAll(' ','').replaceAll('_','').replaceAll('-','').replaceAll('.','').replaceAll('/','').replaceAll('(','').replaceAll(')','');}
