@@ -18512,9 +18512,9 @@ body.offwhite #institutionDocumentary2026 .institution-documentary-footnote{
   if(!ex||!cl||!subs.length||!year){msg('পরীক্ষা, শ্রেণি/জামাত, অন্তত একটি বিষয় ও শিক্ষাবর্ষ নির্বাচন করুন।');return}
   status.textContent='⏳ নিবন্ধিত পরীক্ষার্থী ও সংরক্ষিত নম্বর লোড হচ্ছে…';box.innerHTML='';
   try{var r=await call('getExamDashboardData',token,ex,cl);if(!r||!r.ok)throw new Error(r&&r.message||'তালিকা পাওয়া যায়নি');
-   var res=r.results||[], candidates=(r.students||[]).filter(function(x){return x.registered});
+   var res=r.results||[], candidates=(r.students||[]).filter(function(x){return x&&x.student&&x.student.StudentID;});
    rows=candidates.map(function(x){var st=x.student||{},rec=res.find(function(z){return String(z.StudentID||'')===String(st.StudentID||'')&&String(z.Exam||'')===ex&&String(z.Class||'')===cl}),savedSubjects=[];try{savedSubjects=JSON.parse(String(rec&&rec.SubjectData||'[]'))}catch(e){}if(!Array.isArray(savedSubjects))savedSubjects=[];var marks={};subs.forEach(function(sub){var m=savedSubjects.find(function(z){return String(z.subject||z.Subject||z.name||'')===sub&&String(z.academicYear||'')===year});marks[sub]={mark:m?String(m.marks!=null?m.marks:m.mark):'',saved:!!m,published:!!(rec&&/^(TRUE|YES|1|PUBLISHED|প্রকাশিত)$/i.test(String(rec.Published||''))&&m),maxMark:Number(m&&m.maxMark||100)}});return {id:String(st.StudentID||''),name:st.NameBN||st.NameEN||'',className:st.Class||cl,marks:marks}});
-   render();status.textContent='মোট নিবন্ধিত পরীক্ষার্থী: '+rows.length+' | নির্বাচিত বিষয়: '+subs.length+' | নম্বর সংরক্ষণ ও অনলাইন প্রকাশ আলাদা ধাপ।';
+   render();status.textContent='মোট সক্রিয় শিক্ষার্থী: '+rows.length+' | নির্বাচিত বিষয়: '+subs.length+' | নম্বর সংরক্ষণ ও অনলাইন প্রকাশ আলাদা ধাপ।';
   }catch(e){status.textContent='পেন্ডিং তালিকা পাওয়া যায়নি: '+E(e.message||e)}
  };
  function render(){var box=el('jbReList20261025'),subs=selectedSubjects();if(!box)return;
