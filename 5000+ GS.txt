@@ -2109,6 +2109,7 @@ function saveRecordUnlocked_(token,sheetName,data) {
   }
   const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
   const row=headers.map(h=>data[h] ?? '');
+  if(sheetName==='STUDENTS'&&headers.includes('AcademicYear')){const ay=headers.indexOf('AcademicYear');row[ay]=normalizeExamDigits_(row[ay]).trim();}
   row[0]=nextSerial_(sh);
   if(headers.includes('CreatedAt')) row[headers.indexOf('CreatedAt')]=now_();
   if(headers.includes('TenantAccount')) row[headers.indexOf('TenantAccount')]=tenantIdentity_(token).key;
