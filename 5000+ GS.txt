@@ -1199,10 +1199,8 @@ function searchAll(token,signal,query) {
     const fields=kind==='document'?['DocumentID','CardID','AdmitID','CertificateID','ResultID','ReceiptID','ServiceID']:
       (rule.ids||[]).concat(['DocumentID','CardID','AdmitID','CertificateID','ResultID','ReceiptID','ExamRegID','StudentID','TeacherID','DonorID','MemberID','PersonID','MadrasaID','AdminID']);
     const exact=fields.some(function(k){return String(row[k]??'').trim().toLowerCase()===q;});
-    const allowed=(rule.keys||[]).some(function(k){return String(row[k]??'').trim().toLowerCase()===q;}) ||
-      ['Mobile','Phone','WhatsApp','Email','EmailID','Name','NameBN','NameEN'].some(function(k){return String(row[k]??'').trim().toLowerCase()===q;});
-    const partialContact=['Mobile','Phone','WhatsApp','Email','EmailID'].some(function(k){return String(row[k]??'').trim().toLowerCase().includes(q);});
-    if(!exact&&!allowed&&!partialContact) return;
+    // All Search accepts record IDs only; names, mobile numbers and email addresses are not unique.
+    if(!exact) return;
     let key='';
     if(kind==='document'){
       key='doc|'+String(row.DocumentID||'')+'|'+String(row.DocKey||'')+'|'+String(row.StudentID||row.PersonID||row.TeacherID||row.MemberID||'')+'|'+String(row.Exam||row.IssueDate||'');
@@ -1355,6 +1353,11 @@ function buildStudentFromAdmission_(data,form) {
     Documents:getStudentField_(d,['Documents','documents'])
   };
 }
+function withStudentIdentityLock_(work) {
+  const lock=LockService.getScriptLock();
+  if(!lock.tryLock(15000)) return {ok:false,message:'একই সময়ে অন্য শিক্ষার্থীর তথ্য সংরক্ষণ হচ্ছে। কিছুক্ষণ পর আবার চেষ্টা করুন।'};
+  try { return work(); } finally { lock.releaseLock(); }
+}
 function generateAdmissionStudentId2026_() {
   const ss=SpreadsheetApp.getActiveSpreadsheet();
   const tz=Session.getScriptTimeZone()||'Asia/Dhaka';
@@ -1363,9 +1366,19 @@ function generateAdmissionStudentId2026_() {
   [SHEETS.STUDENTS,SHEETS.ADMISSIONS].forEach(function(name){
     const sh=ss.getSheetByName(name);if(!sh||sh.getLastRow()<2)return;
     const values=sh.getDataRange().getDisplayValues();
-    const headers=values[0].map(String),col=headers.indexOf('StudentID');
+    const headers=values[0].map(String),col=headers.indexOf('StudentID'),formCol=headers.indexOf('FormData');
     if(col<0)return;
-    for(let i=1;i<values.length;i++){const id=String(values[i][col]||'').trim();if(id)used[id]=true;}
+    for(let i=1;i<values.length;i++){
+      const id=String(values[i][col]||'').trim();if(id)used[id]=true;
+      if(name===SHEETS.ADMISSIONS && formCol>=0 && values[i][formCol]){
+        let payload=values[i][formCol];
+        if(typeof payload==='string'){try{payload=JSON.parse(payload);}catch(e){payload={};}}
+        if(payload&&typeof payload==='object'){
+          const savedId=String(payload.StudentID||payload.studentId||'').trim();
+          if(savedId)used[savedId]=true;
+        }
+      }
+    }
   });
   for(let attempt=0;attempt<100;attempt++){
     const suffix=String(Math.floor(Math.random()*1000000)).padStart(6,'0');
@@ -1392,7 +1405,34 @@ function syncAdmissionToStudent_(token,data) {
   const tenant=tenantIdentity_(token);
   const idCol=h.indexOf('StudentID'), birthCol=h.indexOf('BirthReg'), nidCol=h.indexOf('NID'), tenantCol=h.indexOf('TenantAccount');
   let existing=-1;
-  if(idCol>=0 && src.StudentID) for(let i=1;i<vals.length;i++) if(String(vals[i][idCol]).trim()===String(src.StudentID).trim() && (tenant.root || (tenantCol>=0 && String(vals[i][tenantCol]||'')===tenant.key) || (h.indexOf('SourceAccount')>=0 && String(vals[i][h.indexOf('SourceAccount')]||'')===tenant.username))){existing=i+1;break;}
+  if(idCol>=0 && src.StudentID){
+    const sourceCol=h.indexOf('SourceAccount');
+    for(let i=1;i<vals.length;i++){
+      if(String(vals[i][idCol]||'').trim()!==String(src.StudentID).trim()) continue;
+      const sameTenant=tenant.root || (tenantCol>=0 && String(vals[i][tenantCol]||'')===tenant.key) || (sourceCol>=0 && String(vals[i][sourceCol]||'')===tenant.username);
+      if(!sameTenant) return {ok:false,duplicate:true,message:'এই Student ID অন্য প্রতিষ্ঠানে আগে থেকেই ব্যবহৃত হয়েছে। নতুন শিক্ষার্থী তৈরি করা যাবে না।'};
+      existing=i+1;break;
+    }
+  }
+  if(existing<0 && src.StudentID){
+    const admissionSheet=ss.getSheetByName(SHEETS.ADMISSIONS);
+    if(admissionSheet && admissionSheet.getLastRow()>1){
+      const admissionValues=admissionSheet.getDataRange().getValues(), admissionHeaders=admissionValues[0].map(String);
+      const admissionIdCol=admissionHeaders.indexOf('AdmissionID'), admissionStudentCol=admissionHeaders.indexOf('StudentID'), admissionFormCol=admissionHeaders.indexOf('FormData');
+      const ownAdmissionId=String(data.AdmissionID||'').trim();
+      for(let i=1;i<admissionValues.length;i++){
+        const otherAdmissionId=admissionIdCol>=0?String(admissionValues[i][admissionIdCol]||'').trim():'';
+        if(ownAdmissionId && otherAdmissionId===ownAdmissionId) continue;
+        let otherStudentId=admissionStudentCol>=0?String(admissionValues[i][admissionStudentCol]||'').trim():'';
+        if(!otherStudentId && admissionFormCol>=0 && admissionValues[i][admissionFormCol]){
+          let payload=admissionValues[i][admissionFormCol];
+          if(typeof payload==='string'){try{payload=JSON.parse(payload);}catch(e){payload={};}}
+          otherStudentId=String(payload&&payload.StudentID||'').trim();
+        }
+        if(otherStudentId===String(src.StudentID).trim()) return {ok:false,duplicate:true,message:'এই Student ID অন্য ভর্তি আবেদনে আগে থেকেই ব্যবহৃত হয়েছে।'};
+      }
+    }
+  }
   if(existing<0 && birthCol>=0 && src.BirthReg) for(let i=1;i<vals.length;i++) if(String(vals[i][birthCol]).trim()===String(src.BirthReg).trim() && (tenant.root || (tenantCol>=0 && String(vals[i][tenantCol]||'')===tenant.key) || (h.indexOf('SourceAccount')>=0 && String(vals[i][h.indexOf('SourceAccount')]||'')===tenant.username))){existing=i+1;break;}
   if(existing<0 && nidCol>=0 && src.NID) for(let i=1;i<vals.length;i++) if(String(vals[i][nidCol]).trim()===String(src.NID).trim() && (tenant.root || (tenantCol>=0 && String(vals[i][tenantCol]||'')===tenant.key) || (h.indexOf('SourceAccount')>=0 && String(vals[i][h.indexOf('SourceAccount')]||'')===tenant.username))){existing=i+1;break;}
   // Match legacy records by their saved form/system IDs before appending any row.
@@ -1414,7 +1454,7 @@ function syncAdmissionToStudent_(token,data) {
       if(matches)existing=i+1;
     }
   }
-  if(existing>1 && idCol>=0 && !String(src.StudentID||'').trim()) src.StudentID=String(vals[existing-1][idCol]||'').trim();
+  if(existing>1 && idCol>=0) src.StudentID=String(vals[existing-1][idCol]||'').trim();
   // FormID uniqueness was validated before the ADMISSIONS row was saved. Do not re-check here:
   // this sync runs after that row exists and must not reject its own linked admission.
   const info=studentSourceInfo_(token);
@@ -1509,6 +1549,9 @@ function savePublicAdmissionApplication2026(data) {
 }
 
 function saveAdmissionDraft2026(token,data,action) {
+  return withStudentIdentityLock_(function(){return saveAdmissionDraft2026Unlocked_(token,data,action);});
+}
+function saveAdmissionDraft2026Unlocked_(token,data,action) {
   auth_(token);
   requireFeature_(token,'admission');
   data=data||{};
@@ -1750,6 +1793,9 @@ function approveStudent(token,studentId,status) {
   return {ok:true,message:'Student '+studentId+' '+finalStatus+' করা হয়েছে।',studentId:String(studentId),status:finalStatus,autoDocuments:autoDocuments};
 }
 function approveStudentAdmission(token,admissionOrStudentId) {
+  return withStudentIdentityLock_(function(){return approveStudentAdmissionUnlocked_(token,admissionOrStudentId);});
+}
+function approveStudentAdmissionUnlocked_(token,admissionOrStudentId) {
   if(!isSuperAdmin_(token)) return {ok:false,message:'শুধু Super Admin Student অনুমোদন করতে পারবেন।'};
   const requestedId=String(admissionOrStudentId||'').trim();
   if(!requestedId) return {ok:false,message:'ভর্তি/শিক্ষার্থী ID পাওয়া যায়নি।'};
@@ -1879,6 +1925,9 @@ function getStudent360(token,studentId) {
   return {ok:true,student:merged,admissions:pick(SHEETS.ADMISSIONS,'StudentID'),exams:pick(SHEETS.EXAM_REG,'StudentID'),payments:pick(SHEETS.PAYMENTS,'StudentID'),results:pick(SHEETS.RESULTS,'StudentID'),attendance:pick(SHEETS.ATTENDANCE,'StudentID'),admitCards:pick(SHEETS.ADMIT_CARDS,'StudentID')};
 }
 function syncExistingAdmissionsToStudents(token) {
+  return withStudentIdentityLock_(function(){return syncExistingAdmissionsToStudentsUnlocked_(token);});
+}
+function syncExistingAdmissionsToStudentsUnlocked_(token) {
   if(!isSuperAdmin_(token)) return {ok:false,message:'শুধু Super Admin পুরোনো ভর্তি রেকর্ড Master Student তালিকায় যুক্ত করতে পারবেন।'};
   ensureStudentWorkflowColumns_();
   const rows=listRows_(SHEETS.ADMISSIONS,token,10000);
@@ -2022,6 +2071,11 @@ function checkUniqueHandwrittenFormId_(formId, excludeSheet, excludeSerial, iden
 /* ===== END UNIQUE HANDWRITTEN FORM ID ===== */
 
 function saveRecord(token,sheetName,data) {
+  if(sheetName==='STUDENTS'||sheetName==='ADMISSIONS')
+    return withStudentIdentityLock_(function(){return saveRecordUnlocked_(token,sheetName,data);});
+  return saveRecordUnlocked_(token,sheetName,data);
+}
+function saveRecordUnlocked_(token,sheetName,data) {
   auth_(token);
   const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
   if(!HEADERS[sheetName]) throw new Error('Invalid sheet');
@@ -2051,10 +2105,10 @@ function saveRecord(token,sheetName,data) {
   row[0]=nextSerial_(sh);
   if(headers.includes('CreatedAt')) row[headers.indexOf('CreatedAt')]=now_();
   if(headers.includes('TenantAccount')) row[headers.indexOf('TenantAccount')]=tenantIdentity_(token).key;
-  if(headers.includes('StudentID') && !data.StudentID && sheetName==='STUDENTS') {
-    const s=nextSerial_(sh);
+  if(headers.includes('StudentID') && sheetName==='STUDENTS') {
+    const s=Number(row[0])||1;
     const sidCol=headers.indexOf('StudentID'), formCol=headers.indexOf('FormID'), mobileIdCol=headers.indexOf('MobileID'), emailIdCol=headers.indexOf('EmailID');
-    if(sidCol>=0) row[sidCol]=String(s).padStart(3,'0');
+    if(sidCol>=0) row[sidCol]=String(row[sidCol]||'').trim()||generateAdmissionStudentId2026_();
     if(formCol>=0) row[formCol]=String(data.FormID||'').trim()||('F-'+String(s).padStart(4,'0'));
     if(mobileIdCol>=0) row[mobileIdCol]=data.MobileID||data.Mobile||'';
     if(emailIdCol>=0) row[emailIdCol]=data.EmailID||data.Email||'';
@@ -2102,7 +2156,16 @@ function saveRecord(token,sheetName,data) {
       const sameId=sid&&eh.indexOf('StudentID')>=0&&String(ev[i][eh.indexOf('StudentID')]).trim()===sid;
       const sameBirth=birth&&eh.indexOf('BirthReg')>=0&&String(ev[i][eh.indexOf('BirthReg')]).trim()===birth;
       const sameNid=nid&&eh.indexOf('NID')>=0&&String(ev[i][eh.indexOf('NID')]).trim()===nid;
-      if(sameId||sameBirth||sameNid) return {ok:false,message:'এই Student-এর তথ্য আগে থেকেই Master Student তালিকায় আছে। Duplicate Student তৈরি করা যাবে না।'};
+      if(sameId||sameBirth||sameNid) return {ok:false,duplicate:true,message:'এই Student-এর তথ্য আগে থেকেই Master Student তালিকায় আছে। Duplicate Student তৈরি করা যাবে না।'};
+    }
+    const admissionSheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ADMISSIONS);
+    if(admissionSheet&&admissionSheet.getLastRow()>1){
+      const av=admissionSheet.getDataRange().getValues(), ah=av[0].map(String), ac=ah.indexOf('StudentID'), af=ah.indexOf('FormData');
+      for(let i=1;i<av.length;i++){
+        let reserved=ac>=0?String(av[i][ac]||'').trim():'';
+        if(!reserved&&af>=0&&av[i][af]){let p=av[i][af];if(typeof p==='string'){try{p=JSON.parse(p);}catch(e){p={};}}reserved=String(p&&p.StudentID||'').trim();}
+        if(sid&&reserved===sid) return {ok:false,duplicate:true,message:'এই Student ID ভর্তি আবেদনে আগে থেকেই সংরক্ষিত।'};
+      }
     }
   }
   sh.appendRow(row);
@@ -2122,6 +2185,11 @@ function saveRecord(token,sheetName,data) {
 }
 
 function updateRecord(token,sheetName,serial,data) {
+  if(sheetName==='ADMISSIONS')
+    return withStudentIdentityLock_(function(){return updateRecordUnlocked_(token,sheetName,serial,data);});
+  return updateRecordUnlocked_(token,sheetName,serial,data);
+}
+function updateRecordUnlocked_(token,sheetName,serial,data) {
   auth_(token); const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
   data=normalizeMobileFields_(data);
   const ss=SpreadsheetApp.getActiveSpreadsheet();
@@ -2136,6 +2204,12 @@ function updateRecord(token,sheetName,serial,data) {
   const idx=values.findIndex((r,i)=>i>0 && String(r[0])===String(serial));
   if(idx<1) throw new Error('Record not found');
   if(isTenantScopedSheet_(sheetName) && !tenantCanSeeRow_(sheetName,headers,values[idx],token)) throw new Error('এই রেকর্ডটি আপনার প্রতিষ্ঠানের নয় বা দেখার অনুমতি নেই।');
+  if(sheetName==='STUDENTS'){
+    const studentIdCol=headers.indexOf('StudentID');
+    if(studentIdCol>=0 && Object.prototype.hasOwnProperty.call(data,'StudentID') &&
+       String(data.StudentID||'').trim()!==String(values[idx][studentIdCol]||'').trim())
+      return {ok:false,message:'Student ID স্থায়ী; এটি পরিবর্তন করা যাবে না。'};
+  }
   if(['STUDENTS','TEACHERS'].includes(sheetName)) {
     const formCol=headers.indexOf('FormID');
     const oldFormId=formCol>=0?String(values[idx][formCol]||'').trim():'';
