@@ -33,7 +33,7 @@ const SHEETS = {
 
 const HEADERS = {
   ADMINS:['Serial','AdminID','NameBN','NameAR','NameEN','Username','PasswordHash','Email','Mobile','WhatsApp','Address','Photo','BirthReg','NID','ApprovalID','Role','Status','CreatedAt','Password','Permissions','ApprovedBy','ApprovedAt'],
-  STUDENTS:['Serial','StudentID','FormID','MobileID','EmailID','NameBN','NameAR','NameEN','FatherBN','FatherAR','FatherEN','MotherBN','MotherAR','MotherEN','DOB','Gender','Class','Department','Branch','Residence','Mobile','WhatsApp','Email','Address','Photo','BirthReg','NID','Documents','CreatedAt','ApprovalStatus','SourceType','SourceAccount','ApprovedBy','ApprovedAt','AcademicYear'],
+  STUDENTS:['Serial','StudentID','AdmissionID','FormID','MobileID','EmailID','NameBN','NameAR','NameEN','FatherBN','FatherAR','FatherEN','MotherBN','MotherAR','MotherEN','DOB','Gender','Class','Department','Branch','Residence','Mobile','WhatsApp','Email','Address','Photo','BirthReg','NID','Documents','CreatedAt','ApprovalStatus','SourceType','SourceAccount','ApprovedBy','ApprovedAt','AcademicYear'],
   TEACHERS:['Serial','TeacherID','NameBN','NameAR','NameEN','FatherBN','FatherAR','FatherEN','Mobile','WhatsApp','Email','Department','Branch','Gender','Address','Photo','BirthReg','NID','Documents','CreatedAt','FormID','ApplicationType','ApplicationStatus','ReviewedBy','ReviewedAt','RejectionReason'],
   DONORS:['Serial','DonorID','NameBN','NameAR','NameEN','Mobile','WhatsApp','Email','Address','Amount','Fund','Photo','CreatedAt'],
   ADMISSIONS:['Serial','AdmissionID','StudentID','Session','Class','Branch','Status','FormData','CreatedAt'],
@@ -2116,6 +2116,8 @@ function saveRecordUnlocked_(token,sheetName,data) {
     const s=Number(row[0])||1;
     const sidCol=headers.indexOf('StudentID'), formCol=headers.indexOf('FormID'), mobileIdCol=headers.indexOf('MobileID'), emailIdCol=headers.indexOf('EmailID');
     if(sidCol>=0) row[sidCol]=String(row[sidCol]||'').trim()||generateAdmissionStudentId2026_();
+    const admissionIdCol=headers.indexOf('AdmissionID');
+    if(admissionIdCol>=0) row[admissionIdCol]=String(row[sidCol]||'').trim();
     if(formCol>=0) row[formCol]=String(data.FormID||'').trim()||('F-'+String(s).padStart(4,'0'));
     if(mobileIdCol>=0) row[mobileIdCol]=data.MobileID||data.Mobile||'';
     if(emailIdCol>=0) row[emailIdCol]=data.EmailID||data.Email||'';
