@@ -2700,12 +2700,30 @@ function listRows_(sheet,token,limit){
   const session=token?auth_(token):null;
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheet); if(!sh||sh.getLastRow()<2)return [];
   const v=sh.getDataRange().getValues(), h=v[0].map(String);
-  let rows=v.slice(1).map(r=>objectFrom_(h,r));
+  let source=v.slice(1);
   if(session) {
-    if(isTenantScopedSheet_(sheet))rows=rows.filter(function(row){return tenantCanSeeRow_(sheet,h,h.map(function(k){return row[k];}),token);});
-    else if(sheet==='ADMINS'||sheet==='MADRASAS') {const identity=tenantIdentity_(token);if(!identity.root)rows=rows.filter(function(row){return String(row.Username||'').trim()===identity.username;});}
+    if(isTenantScopedSheet_(sheet)) {
+      // Resolve tenant identity ONCE. Re-authenticating for every row caused
+      // severe delays on large sheets, especially when opening the Exam module.
+      const identity=tenantIdentity_(token);
+      if(!identity.root) {
+        const tenantCol=h.indexOf('TenantAccount');
+        const sourceCol=sheet==='STUDENTS'?h.indexOf('SourceAccount'):-1;
+        source=source.filter(function(row){
+          const tenant=tenantCol>=0?String(row[tenantCol]||'').trim():'';
+          if(tenant)return tenant===identity.key;
+          return sheet==='STUDENTS'&&sourceCol>=0&&String(row[sourceCol]||'').trim()===identity.username;
+        });
+      }
+    } else if(sheet==='ADMINS'||sheet==='MADRASAS') {
+      const identity=tenantIdentity_(token);
+      if(!identity.root) {
+        const usernameCol=h.indexOf('Username');
+        source=source.filter(function(row){return usernameCol>=0&&String(row[usernameCol]||'').trim()===identity.username;});
+      }
+    }
   }
-  return rows.slice(0,limit||1000);
+  return source.slice(0,limit||1000).map(function(r){return objectFrom_(h,r);});
 }
 function normalizeBdMobile_(value){
   let s=String(value==null?'':value).trim();
@@ -4248,7 +4266,7 @@ function getExamDashboardData(token, exam, className) {
 function ensureExamAcademicYearColumn_(sh) {let headers=sh.getRange(1,1,1,Math.max(1,sh.getLastColumn())).getValues()[0].map(function(x){return String(x||'').trim();});if(headers.indexOf('AcademicYear')<0){sh.getRange(1,headers.length+1).setValue('AcademicYear');headers.push('AcademicYear');}return headers;}
 function getExamDashboardOptions(token) {
   auth_(token); requireFeature_(token,'exam');
-  const regs=listRows_(SHEETS.EXAM_REG,token,10000),results=listRows_(SHEETS.RESULTS,token,10000),students=listRows_(SHEETS.STUDENTS,token,10000),admissions=listRows_(SHEETS.ADMISSIONS,token,10000);
+  const regs=listRows_(SHEETS.EXAM_REG,token,10000),results=listRows_(SHEETS.RESULTS,token,10000),students=listRows_(SHEETS.STUDENTS,token,10000);
   const unique=function(a){const seen={};return a.map(function(x){return String(x||'').trim();}).filter(function(x){if(!x||seen[x])return false;seen[x]=true;return true;}).sort(function(a,b){return a.localeCompare(b,'bn');});};
   const examChoices=['১ম সাময়িক','২য় সাময়িক','বার্ষিক','অর্ধ বার্ষিক','মাসিক','টিউটোরিয়াল','ক্লাশ টেস্ট'];
   const classChoices=['ইসলামিক কিন্ডার গার্টেন বিভাগ','আদর্শ নুরানী বিভাগ','হিফজুল কুরআন বিভাগ','প্লে শ্রেনী','শিশু শ্রেনী','আউয়াল জামাত','ছানী জামাত','ছালেছ জামাত','রাবে জামাত','পঞ্চম জামাত','মিজান জামাত','নাহবেমীর জামাত','কুদুরী জামাত','শরহে বেকায়া জামাত','হেদায়া জামাত','মিশকাত জামাত','দাওরায়ে হাদিস (মাস্টার্স-তাকমিল)'];
