@@ -1475,7 +1475,7 @@ function syncAdmissionToStudent_(token,data) {
     try{autoDocuments=ensureAutoPersonDocuments_('STUDENTS',src,existingId)}catch(e){autoDocuments={ok:false,message:String(e&&e.message||e)}}
     return {ok:true,studentId:existingId,created:false,status:info.status,autoDocuments:autoDocuments};
   }
-  const serial=nextSerial_(sh), sid=src.StudentID||String(serial).padStart(3,'0');
+  const serial=nextSerial_(sh), sid=String(src.StudentID||generateAdmissionStudentId2026_());
   const row=h.map(function(k){return k==='Serial'?serial:k==='StudentID'?sid:k==='CreatedAt'?now_():k==='ApprovalStatus'?info.status:k==='SourceType'?info.sourceType:k==='SourceAccount'?info.sourceAccount:k==='TenantAccount'?tenant.key:k==='ApprovedBy'?(info.status==='ACTIVE'?info.sourceAccount:''):k==='ApprovedAt'?(info.status==='ACTIVE'?now_():''):(src[k]??'');});
   sh.appendRow(row);
   SpreadsheetApp.flush();
@@ -1747,10 +1747,17 @@ function saveAdmissionDraft2026Unlocked_(token,data,action) {
   data.AdmissionID=admissionId;
   data.TenantAccount=tenant.key;
   const row=headers.map(function(h){return h==='Serial'?(rowNum>1?values[rowNum-1][0]:nextSerial_(sh)):h==='CreatedAt'?(rowNum>1?values[rowNum-1][headers.indexOf('CreatedAt')]:now_()):(data[h]!==undefined?data[h]:'');});
+  const previousAdmissionRow=rowNum>1?values[rowNum-1].slice():null;
   if(rowNum>1)sh.getRange(rowNum,1,1,headers.length).setValues([row]);else{sh.appendRow(row);rowNum=sh.getLastRow();}
   SpreadsheetApp.flush();
   if(!finalizing)return {ok:true,draft:true,admissionId:admissionId,status:'INCOMPLETE',message:'অসম্পূর্ণ আবেদন খসড়া হিসেবে সংরক্ষিত হয়েছে; পরে সম্পাদনা বা বাতিল করা যাবে।'};
   const workflow=syncAdmissionToStudent_(token,data);
+  if(!workflow || workflow.ok!==true){
+    if(previousAdmissionRow) sh.getRange(rowNum,1,1,headers.length).setValues([previousAdmissionRow]);
+    else sh.deleteRow(rowNum);
+    SpreadsheetApp.flush();
+    return {ok:false,message:(workflow&&workflow.message)||'ভর্তি আবেদন থেকে শিক্ষার্থী তৈরি/সমন্বয় করা যায়নি।',details:workflow||null};
+  }
   const sid=String((workflow&&workflow.studentId)||data.StudentID||'').trim();
   if(sid&&headers.indexOf('StudentID')>=0)sh.getRange(rowNum,headers.indexOf('StudentID')+1).setValue(sid);
   SpreadsheetApp.flush();
@@ -2225,12 +2232,18 @@ function updateRecordUnlocked_(token,sheetName,serial,data) {
       if(!uniqueFormId.ok) return uniqueFormId;
     }
   }
+  const originalRow=values[idx].slice();
   headers.forEach((h,j)=>{if(h!=='TenantAccount' && (isSuperAdmin_(token) || !['SourceAccount','SourceType'].includes(h)) && Object.prototype.hasOwnProperty.call(data,h)) sh.getRange(idx+1,j+1).setValue(data[h]);});
   SpreadsheetApp.flush();
   let workflow=null;
   if(sheetName==='ADMISSIONS'){
     const updatedRow=objectFrom_(headers,sh.getRange(idx+1,1,1,headers.length).getValues()[0]);
     workflow=syncAdmissionToStudent_(token,updatedRow);
+    if(!workflow || workflow.ok!==true){
+      sh.getRange(idx+1,1,1,headers.length).setValues([originalRow]);
+      SpreadsheetApp.flush();
+      return {ok:false,message:(workflow&&workflow.message)||'ভর্তি তথ্য থেকে শিক্ষার্থী সমন্বয় করা যায়নি।',details:workflow||null};
+    }
   }
   let autoDocuments=null;
   if(['STUDENTS','TEACHERS','DONORS','EXECUTIVES','ADVISERS','FOUNDERS'].includes(sheetName)){
