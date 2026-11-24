@@ -1767,7 +1767,7 @@ function fillSignals(list){
     });
   });
 }
-function syncSearchSignal(where){const sig=$(where==='login'?'loginSignal':'appSignal').value;const input=$(where==='login'?'loginSearch':'appSearch');if(sig){input.value='';input.placeholder=sig+' — এখানে নিজস্ব ID / মোবাইল / ইমেইল লিখুন';input.focus()}else{input.value='';input.placeholder='সংকেত নির্বাচন করে ইউনিক ID লিখুন'}}
+function syncSearchSignal(where){const sig=$(where==='login'?'loginSignal':'appSignal').value;const input=$(where==='login'?'loginSearch':'appSearch');if(sig){input.value='';input.placeholder=sig+' — এখানে ইউনিক ID লিখুন';input.focus()}else{input.value='';input.placeholder='সংকেত নির্বাচন করে ইউনিক ID লিখুন'}}
 function fillClasses(c){/* class list is available through module forms */}
 function togglePassword(){const x=$('password');x.type=x.type==='password'?'text':'password'}
 async function login(){  const u=$('username')?.value.trim()||'', p=$('password')?.value||'';  const btn=$('mainLoginBtn');
