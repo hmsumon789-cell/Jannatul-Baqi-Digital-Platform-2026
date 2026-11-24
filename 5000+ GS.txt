@@ -4206,6 +4206,7 @@ function getExamDashboardData(token, exam, className) {
   // The master STUDENTS roster is authoritative for marks-entry eligibility.
   // EXAM_REG is retained as an optional exam-specific registration record.
   // Tenant filtering remains enforced by listRows_ for both source sheets.
+  // Existing exam registrations are matched below for status and reporting.
   const regs=listRows_(SHEETS.EXAM_REG,token,10000).filter(function(x){
     const status=String(x.Status||'REGISTERED').trim().toUpperCase();
     return (!ex||normalizeExamDigits_(x.Exam).trim()===ex) &&
