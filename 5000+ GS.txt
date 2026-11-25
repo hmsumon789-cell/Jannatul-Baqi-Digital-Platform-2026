@@ -155,7 +155,7 @@ button:disabled{opacity:.6;cursor:wait}.status{display:none;margin:14px;padding:
 <label>মোবাইল নম্বর *<input name="Mobile" type="tel" required></label>
 <label>WhatsApp<input name="WhatsApp" type="tel"></label>
 <label>ইমেইল<input name="Email" type="email"></label>
-<label>শ্রেণি/জামাত *<select name="Class" required><option value="">নির্বাচন করুন</option><option>প্লে শ্রেণি</option><option>শিশু শ্রেণি</option><option>আওয়াল জামাত (১ম)</option><option>ছানী জামাত (২য়)</option><option>ছালেছ জামাত (৩য়)</option><option>রাবে জামাত (৪র্থ)</option><option>পঞ্চম জামাত (৫ম)</option><option>মিজান জামাত (৬ষ্ট)</option><option>নাহবেমীর জামাত (৭ম)</option><option>কুদুরী জামাত (৮ম)</option><option>কাফিয়া জামাত (৯ম)</option><option>শরহে বেকায়া জামাত (১০ম)</option><option>জালালাইন জামাত (১২তম)</option><option>হেদায়া জামাত (১১তম)</option><option>মেশকাত জামাত (১৩তম)</option><option>দাওরায়ে হাদীস (তাকমিল-মাস্টার্স) জামাত (১৪তম)</option><option>দারুল ইফতা</option><option>হিফজুল কুরআন</option><option>আদর্শ নুরানী</option><option>ইসলামিক কিন্ডার গার্টেন</option></select></label>
+<label>শ্রেণি/জামাত *<select name="Class" required><option value="">নির্বাচন করুন</option><option>প্লে শ্রেণি</option><option>শিশু শ্রেণি</option><option>আওয়াল জামাত (১ম)</option><option>ছানী জামাত (২য়)</option><option>ছালেছ জামাত (৩য়)</option><option>রাবে জামাত (৪র্থ)</option><option>পঞ্চম জামাত (৫ম)</option><option>মিজান জামাত (৬ষ্ট)</option><option>নাহবেমীর জামাত (৭ম)</option><option>কুদুরী জামাত (৮ম)</option><option>কাফিয়া জামাত (৯ম)</option><option>শরহে বেকায়া জামাত (১০ম)</option><option>হেদায়া জামাত (১১তম)</option><option>জালালাইন জামাত (১২তম)</option><option>মেশকাত জামাত (১৩তম)</option><option>দাওরায়ে হাদীস (তাকমিল-মাস্টার্স) জামাত (১৪তম)</option><option>দারুল ইফতা</option><option>হিফজুল কুরআন</option><option>আদর্শ নুরানী</option><option>ইসলামিক কিন্ডার গার্টেন</option></select></label>
 <label>বিভাগ<select name="Department"><option>কিতাব বিভাগ</option><option>হিফজুল কুরআন বিভাগ</option><option>নুরানী বিভাগ</option><option>অন্যান্য</option></select></label>
 <label>শাখা<select name="Branch"><option>প্রধান শাখা</option><option>২য় শাখা</option><option>৩য় শাখা</option><option>বালিকা শাখা</option></select></label>
 <label>আবাসিক<select name="Residence"><option value="">নির্বাচন করুন</option><option>আবাসিক</option><option>অনাবাসিক</option></select></label>
@@ -2896,7 +2896,7 @@ function superAdminSecurityOnEdit_(e){
 }
 
 function getClasses_(){
-   return ['প্লে শ্রেণি','শিশু শ্রেণি','আওয়াল জামাত (১ম)','ছানী জামাত (২য়)','ছালেছ জামাত (৩য়)','রাবে জামাত (৪র্থ)','পঞ্চম জামাত (৫ম)','মিজান জামাত (৬ষ্ট)','নাহবেমীর জামাত (৭ম)','কুদুরী জামাত (৮ম)','কাফিয়া জামাত (৯ম)','শরহে বেকায়া জামাত (১০ম)','জালালাইন জামাত (১২তম)','হেদায়া জামাত (১১তম)','মেশকাত জামাত (১৩তম)','দাওরায়ে হাদীস (তাকমিল-মাস্টার্স) জামাত (১৪তম)','দারুল ইফতা','হিফজুল কুরআন','আদর্শ নুরানী','ইসলামিক কিন্ডার গার্টেন'];
+   return ['প্লে শ্রেণি','শিশু শ্রেণি','আওয়াল জামাত (১ম)','ছানী জামাত (২য়)','ছালেছ জামাত (৩য়)','রাবে জামাত (৪র্থ)','পঞ্চম জামাত (৫ম)','মিজান জামাত (৬ষ্ট)','নাহবেমীর জামাত (৭ম)','কুদুরী জামাত (৮ম)','কাফিয়া জামাত (৯ম)','শরহে বেকায়া জামাত (১০ম)','হেদায়া জামাত (১১তম)','জালালাইন জামাত (১২তম)','মেশকাত জামাত (১৩তম)','দাওরায়ে হাদীস (তাকমিল-মাস্টার্স) জামাত (১৪তম)','দারুল ইফতা','হিফজুল কুরআন','আদর্শ নুরানী','ইসলামিক কিন্ডার গার্টেন'];
  }
 function getSignals_(){
   // Public three-letter uppercase codes; normalizeSignalCode_ maps them to legacy internal keys.
@@ -4269,7 +4269,7 @@ function getExamDashboardOptions(token) {
   const regs=listRows_(SHEETS.EXAM_REG,token,10000),results=listRows_(SHEETS.RESULTS,token,10000),students=listRows_(SHEETS.STUDENTS,token,10000);
   const unique=function(a){const seen={};return a.map(function(x){return String(x||'').trim();}).filter(function(x){if(!x||seen[x])return false;seen[x]=true;return true;}).sort(function(a,b){return a.localeCompare(b,'bn');});};
   const examChoices=['১ম সাময়িক','২য় সাময়িক','বার্ষিক','অর্ধ বার্ষিক','মাসিক','টিউটোরিয়াল','ক্লাশ টেস্ট'];
-  const classChoices=['প্লে শ্রেণি','শিশু শ্রেণি','আওয়াল জামাত (১ম)','ছানী জামাত (২য়)','ছালেছ জামাত (৩য়)','রাবে জামাত (৪র্থ)','পঞ্চম জামাত (৫ম)','মিজান জামাত (৬ষ্ট)','নাহবেমীর জামাত (৭ম)','কুদুরী জামাত (৮ম)','কাফিয়া জামাত (৯ম)','শরহে বেকায়া জামাত (১০ম)','জালালাইন জামাত (১২তম)','হেদায়া জামাত (১১তম)','মেশকাত জামাত (১৩তম)','দাওরায়ে হাদীস (তাকমিল-মাস্টার্স) জামাত (১৪তম)','দারুল ইফতা','হিফজুল কুরআন','আদর্শ নুরানী','ইসলামিক কিন্ডার গার্টেন'];
+  const classChoices=['প্লে শ্রেণি','শিশু শ্রেণি','আওয়াল জামাত (১ম)','ছানী জামাত (২য়)','ছালেছ জামাত (৩য়)','রাবে জামাত (৪র্থ)','পঞ্চম জামাত (৫ম)','মিজান জামাত (৬ষ্ট)','নাহবেমীর জামাত (৭ম)','কুদুরী জামাত (৮ম)','কাফিয়া জামাত (৯ম)','শরহে বেকায়া জামাত (১০ম)','হেদায়া জামাত (১১তম)','জালালাইন জামাত (১২তম)','মেশকাত জামাত (১৩তম)','দাওরায়ে হাদীস (তাকমিল-মাস্টার্স) জামাত (১৪তম)','দারুল ইফতা','হিফজুল কুরআন','আদর্শ নুরানী','ইসলামিক কিন্ডার গার্টেন'];
   const exams=unique(regs.map(function(x){return x.Exam;}).concat(results.map(function(x){return x.Exam;}),examChoices));
   const classes=unique(students.map(function(x){return x.Class;}).concat(regs.map(function(x){return x.Class;}),classChoices));
   let subjects=[];results.forEach(function(x){try{const a=typeof x.SubjectData==='string'?JSON.parse(x.SubjectData||'[]'):x.SubjectData;if(Array.isArray(a))a.forEach(function(y){subjects.push(y.subject||y.Subject||y.name);});}catch(e){}});
@@ -4647,7 +4647,7 @@ function buildPublicExamResultPageHtml_() {
   // NEWS ticker and success slider content are currently code-managed; future Super Admin Dashboard can replace this source with managed records.
   const esc=function(v){return String(v==null?'':v).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});};
   const exams=['১ম সাময়িক','২য় সাময়িক','বার্ষিক','অর্ধ বার্ষিক','মাসিক','টিউটোরিয়াল','ক্লাশ টেস্ট'];
-  const classes=['প্লে শ্রেণি','শিশু শ্রেণি','আওয়াল জামাত (১ম)','ছানী জামাত (২য়)','ছালেছ জামাত (৩য়)','রাবে জামাত (৪র্থ)','পঞ্চম জামাত (৫ম)','মিজান জামাত (৬ষ্ট)','নাহবেমীর জামাত (৭ম)','কুদুরী জামাত (৮ম)','কাফিয়া জামাত (৯ম)','শরহে বেকায়া জামাত (১০ম)','জালালাইন জামাত (১২তম)','হেদায়া জামাত (১১তম)','মেশকাত জামাত (১৩তম)','দাওরায়ে হাদীস (তাকমিল-মাস্টার্স) জামাত (১৪তম)','দারুল ইফতা','হিফজুল কুরআন','আদর্শ নুরানী','ইসলামিক কিন্ডার গার্টেন'];
+  const classes=['প্লে শ্রেণি','শিশু শ্রেণি','আওয়াল জামাত (১ম)','ছানী জামাত (২য়)','ছালেছ জামাত (৩য়)','রাবে জামাত (৪র্থ)','পঞ্চম জামাত (৫ম)','মিজান জামাত (৬ষ্ট)','নাহবেমীর জামাত (৭ম)','কুদুরী জামাত (৮ম)','কাফিয়া জামাত (৯ম)','শরহে বেকায়া জামাত (১০ম)','হেদায়া জামাত (১১তম)','জালালাইন জামাত (১২তম)','মেশকাত জামাত (১৩তম)','দাওরায়ে হাদীস (তাকমিল-মাস্টার্স) জামাত (১৪তম)','দারুল ইফতা','হিফজুল কুরআন','আদর্শ নুরানী','ইসলামিক কিন্ডার গার্টেন'];
   const years=Array.from({length:46},function(_,i){return String(2005+i);});
   const options=function(items,label){return '<option value="">'+esc(label)+'</option>'+items.map(function(x){return '<option value="'+esc(x)+'">'+esc(x)+'</option>';}).join('');};
   const publishedSlides=getPublishedResultSlides2026_();
