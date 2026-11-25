@@ -10066,7 +10066,7 @@ body.gold #searchProfilePrint .sp-field{border-color:#d40000!important}
 
   function subjectForm2026(k){
     const title = k==='marks' ? '📋 মার্কশিট' : '🏆 রেজাল্ট কার্ড';
-    const classOptions = Object.keys(SUBJECTS_12_2026);
+    const classOptions = Object.keys(window.jbExamRegistrationSubjects2026||{});
     let rows='';
     for(let i=1;i<=12;i++){
       rows += '<div class="form-grid" style="margin-top:7px">'+
