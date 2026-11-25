@@ -37,7 +37,7 @@ const HEADERS = {
   TEACHERS:['Serial','TeacherID','NameBN','NameAR','NameEN','FatherBN','FatherAR','FatherEN','Mobile','WhatsApp','Email','Department','Branch','Gender','Address','Photo','BirthReg','NID','Documents','CreatedAt','FormID','ApplicationType','ApplicationStatus','ReviewedBy','ReviewedAt','RejectionReason'],
   DONORS:['Serial','DonorID','NameBN','NameAR','NameEN','Mobile','WhatsApp','Email','Address','Amount','Fund','Photo','CreatedAt'],
   ADMISSIONS:['Serial','AdmissionID','StudentID','Session','Class','Branch','Status','FormData','CreatedAt'],
-  EXAM_REG:['Serial','ExamRegID','StudentID','Exam','Class','Branch','Status','FormData','CreatedAt'],
+  EXAM_REG:['Serial','ExamRegID','StudentID','Exam','Class','Branch','SubjectData','Status','FormData','CreatedAt'],
   PAYMENTS:['Serial','PaymentID','StudentID','Name','Month','Category','Amount','Method','Reference','Date','Note','CreatedAt'],
   EXPENSES:['Serial','ExpenseID','Category','Amount','Method','Date','Note','CreatedAt'],
   INCOME:['Serial','IncomeID','Category','Amount','Method','Date','Note','CreatedAt'],
@@ -4277,13 +4277,39 @@ function findExamDashboardStudent(token, query) {
   if(!student)return {ok:false,message:'এই সিস্টেম আইডি/ভর্তি আইডিতে শিক্ষার্থী পাওয়া যায়নি।'};
   const admissionRows=listRows_(SHEETS.ADMISSIONS,token,10000);let admission=admissionRows.find(function(a){return String(a.StudentID||'').trim()===String(student.StudentID||'').trim()||String(a.AdmissionID||'').trim()===String(student.AdmissionID||'').trim();})||{};let fd={};try{fd=typeof admission.FormData==='string'?JSON.parse(admission.FormData||'{}'):(admission.FormData||{});}catch(e){};return {ok:true,student:{StudentID:String(student.StudentID||''),FormID:String(student.FormID||''),AdmissionID:String(student.AdmissionID||''),NameBN:String(student.NameBN||fd.NameBN||fd.Name||''),NameEN:String(student.NameEN||''),DOB:String(student.DOB||student.DateOfBirth||fd.DOB||fd.DateOfBirth||''),AdmissionDate:String(student.AdmissionDate||admission.AdmissionDate||admission.CreatedAt||''),Class:String(student.Class||fd.Class||''),AcademicYear:String(student.AcademicYear||''),Session:String(student.Session||''),Mobile:String(student.Mobile||fd.Mobile||''),Email:String(student.Email||fd.Email||''),FatherBN:String(student.FatherBN||fd.FatherBN||fd.FatherName||''),Address:String(student.Address||student.CurrentAddress||student.PermanentAddress||fd.Address||fd.CurrentAddress||fd.PermanentAddress||''),Roll:String(student.Roll||student.RollNo||''),ApprovalStatus:String(student.ApprovalStatus||'')}};
 }
-function saveExamDashboardCandidate(token, studentId, exam, className) {
+function ensureExamRegistrationSubjectColumn_() {
+  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  const sh=ss.getSheetByName(SHEETS.EXAM_REG)||ensureSheet_(ss,SHEETS.EXAM_REG,HEADERS[SHEETS.EXAM_REG]);
+  ensureTenantSheetColumn_(sh);
+  const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(function(v){return String(v||'').trim();});
+  let col=headers.indexOf('SubjectData');
+  if(col<0){col=headers.length;sh.getRange(1,col+1).setValue('SubjectData');}
+  return {sheet:sh,headers:headers,column:col+1};
+}
+function saveExamDashboardCandidate(token, studentId, exam, className, selectedSubjects) {
+  auth_(token); requireFeature_(token,'exam');
+  const subjects=Array.isArray(selectedSubjects)?selectedSubjects.map(function(x){return String(x||'').trim();}).filter(function(x,i,a){return x&&a.indexOf(x)===i;}).slice(0,12):[];
+  if(Array.isArray(selectedSubjects)&&!subjects.length)return {ok:false,message:'অন্তত একটি বিষয় নির্বাচন করুন।'};
+  const subjectSheet=ensureExamRegistrationSubjectColumn_();
   const reg=registerExamCandidate(token,studentId,exam,className,'');
   if(!reg||!reg.ok)return reg;
+  if(subjects.length){
+    const sh=subjectSheet.sheet,headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(function(v){return String(v||'').trim();});
+    const values=sh.getDataRange().getValues(),regIdCol=headers.indexOf('ExamRegID'),studentCol=headers.indexOf('StudentID'),examCol=headers.indexOf('Exam'),classCol=headers.indexOf('Class'),subjectCol=headers.indexOf('SubjectData');
+    const wantedId=String(reg.examRegId||'').trim(),wantedStudent=String(reg.studentId||studentId||'').trim(),wantedExam=String(exam||'').trim();
+    let target=-1;
+    for(let i=1;i<values.length;i++){
+      const sameReg=wantedId&&regIdCol>=0&&String(values[i][regIdCol]||'').trim()===wantedId;
+      const sameCandidate=studentCol>=0&&examCol>=0&&String(values[i][studentCol]||'').trim()===wantedStudent&&String(values[i][examCol]||'').trim()===wantedExam&&(!className||classCol<0||String(values[i][classCol]||'').trim()===String(className).trim());
+      if((sameReg||sameCandidate)&&tenantCanSeeRow_(SHEETS.EXAM_REG,headers,values[i],token)){target=i+1;break;}
+    }
+    if(target<2)return {ok:false,message:'নিবন্ধন হয়েছে, কিন্তু EXAM_REG-এ বিষয় সংরক্ষণের সারি পাওয়া যায়নি।'};
+    sh.getRange(target,subjectCol+1).setValue(JSON.stringify(subjects));
+  }
   let admit=null;
-  try{admit=createAdmitCardFromCandidate(token,studentId,exam);}
+  try{admit=createAdmitCardFromCandidate(token,reg.studentId||studentId,exam);}
   catch(e){admit={ok:false,message:String(e&&e.message||e)};}
-  return {ok:true,duplicate:!!reg.duplicate,examRegId:reg.examRegId||'',admit:admit,message:reg.message||'পরীক্ষার্থী যুক্ত হয়েছে।'};
+  return {ok:true,duplicate:!!reg.duplicate,examRegId:reg.examRegId||'',subjects:subjects,admit:admit,message:reg.message||'পরীক্ষার্থী যুক্ত হয়েছে।'};
 }
 function saveExamDashboardMarks(token, exam, className, subject, marks) {
   auth_(token); requireFeature_(token,'result');
