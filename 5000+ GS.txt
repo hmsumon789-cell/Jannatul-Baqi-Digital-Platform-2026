@@ -1358,6 +1358,11 @@ function withStudentIdentityLock_(work) {
   if(!lock.tryLock(15000)) return {ok:false,message:'একই সময়ে অন্য শিক্ষার্থীর তথ্য সংরক্ষণ হচ্ছে। কিছুক্ষণ পর আবার চেষ্টা করুন।'};
   try { return work(); } finally { lock.releaseLock(); }
 }
+function withExamRegistrationLock_(work) {
+  const lock=LockService.getScriptLock();
+  if(!lock.tryLock(15000)) return {ok:false,message:'পরীক্ষার্থী নিবন্ধন প্রক্রিয়া চলছে। কিছুক্ষণ পর আবার চেষ্টা করুন।'};
+  try { return work(); } finally { lock.releaseLock(); }
+}
 function generateAdmissionStudentId2026_() {
   const ss=SpreadsheetApp.getActiveSpreadsheet();
   const tz=Session.getScriptTimeZone()||'Asia/Dhaka';
@@ -1880,6 +1885,11 @@ function getExamCandidateList(token,exam,className) {
   return {ok:true,exam:String(exam||''),className:String(className||''),rows:students.map(function(s){return {student:s,registered:!!registered[String(s.StudentID||'')],registration:registered[String(s.StudentID||'')]||null};}),count:students.length};
 }
 function registerExamCandidate(token,studentId,exam,className,branch) {
+  return withExamRegistrationLock_(function(){
+    return registerExamCandidateUnlocked_(token,studentId,exam,className,branch);
+  });
+}
+function registerExamCandidateUnlocked_(token,studentId,exam,className,branch) {
   auth_(token); requireFeature_(token,'exam');
   const inputId=String(studentId||'').trim(), ex=String(exam||'').trim();
   if(!inputId||!ex) return {ok:false,message:'ভর্তি ফর্মের যেকোনো ID, মোবাইল/ইমেইল ও পরীক্ষা আবশ্যক।'};
@@ -2080,6 +2090,8 @@ function checkUniqueHandwrittenFormId_(formId, excludeSheet, excludeSerial, iden
 function saveRecord(token,sheetName,data) {
   if(sheetName==='STUDENTS'||sheetName==='ADMISSIONS')
     return withStudentIdentityLock_(function(){return saveRecordUnlocked_(token,sheetName,data);});
+  if(sheetName==='EXAM_REG')
+    return withExamRegistrationLock_(function(){return saveRecordUnlocked_(token,sheetName,data);});
   return saveRecordUnlocked_(token,sheetName,data);
 }
 function saveRecordUnlocked_(token,sheetName,data) {
@@ -2108,6 +2120,16 @@ function saveRecordUnlocked_(token,sheetName,data) {
     if(!data.Name)data.Name=person.NameBN||person.NameEN||person.Name||'';
   }
   const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
+  if(sheetName==='EXAM_REG') {
+    const candidateId=String(data.StudentID||'').trim(), candidateExam=String(data.Exam||'').trim();
+    if(candidateId&&candidateExam) {
+      const duplicate=listRows_(SHEETS.EXAM_REG,token,10000).find(function(r){
+        return String(r.StudentID||'').trim()===candidateId &&
+          String(r.Exam||'').trim()===candidateExam;
+      });
+      if(duplicate) return {ok:true,duplicate:true,row:duplicate,message:'এই শিক্ষার্থী এই পরীক্ষায় আগে থেকেই নিবন্ধিত; নতুন ডুপ্লিকেট রেকর্ড যোগ করা হয়নি।'};
+    }
+  }
   const row=headers.map(h=>data[h] ?? '');
   row[0]=nextSerial_(sh);
   if(headers.includes('CreatedAt')) row[headers.indexOf('CreatedAt')]=now_();
