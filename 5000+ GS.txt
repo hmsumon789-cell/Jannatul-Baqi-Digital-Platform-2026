@@ -1074,7 +1074,7 @@ function getBootstrap(token) {
 
 function getDashboardExtras(token) {
   auth_(token);
-  let stats = {income:0,expense:0,cash:0,due:0,students:0,teachers:0,executives:0,femaleMadrasa:0,maleMadrasa:0,attendanceToday:{present:0,absent:0}};
+  let stats = {income:0,expense:0,cash:0,due:0,students:0,teachers:0,staff:0,examinees:0,executives:0,femaleMadrasa:0,maleMadrasa:0,attendanceToday:{present:0,absent:0}};
   let media = [];
   let notices = [];
   try { stats = getStats(token); } catch(e) {}
@@ -1099,13 +1099,15 @@ function getStats(token) {
   const income=sumCol_(SHEETS.PAYMENTS,'Amount',token), expense=sumCol_(SHEETS.EXPENSES,'Amount',token);
   const students=countData_(SHEETS.STUDENTS,token), teacherStaff=countTeacherStaffByType_(token), teachers=teacherStaff.teachers, staff=teacherStaff.staff, executives=countData_(SHEETS.EXECUTIVES,token);
   const female=countMadrasa_('মহিলা',token), male=countMadrasa_('পুরুষ',token);
-  return {income,expense,cash:income-expense,due:0,students,teachers,staff,executives,femaleMadrasa:female,maleMadrasa:male,attendanceToday:attendanceToday_(token)};
+  const examinees=countData_(SHEETS.EXAM_REG,token);
+  return {income,expense,cash:income-expense,due:0,students,teachers,staff,examinees,executives,femaleMadrasa:female,maleMadrasa:male,attendanceToday:attendanceToday_(token)};
 }function getStats(token) {
   auth_(token);
   const income=sumCol_(SHEETS.PAYMENTS,'Amount',token), expense=sumCol_(SHEETS.EXPENSES,'Amount',token);
   const students=countData_(SHEETS.STUDENTS,token), teacherStaff=countTeacherStaffByType_(token), teachers=teacherStaff.teachers, staff=teacherStaff.staff, executives=countData_(SHEETS.EXECUTIVES,token);
   const female=countMadrasa_('মহিলা',token), male=countMadrasa_('পুরুষ',token);
-  return {income,expense,cash:income-expense,due:0,students,teachers,staff,executives,femaleMadrasa:female,maleMadrasa:male,attendanceToday:attendanceToday_(token)};
+  const examinees=countData_(SHEETS.EXAM_REG,token);
+  return {income,expense,cash:income-expense,due:0,students,teachers,staff,examinees,executives,femaleMadrasa:female,maleMadrasa:male,attendanceToday:attendanceToday_(token)};
 }
 
 /* ===== DASHBOARD LIVE ACCOUNT / DEVICE COUNTS — 2026-10-31 ===== */
