@@ -1852,15 +1852,13 @@ function renderStats(x){
   const custom=String(u.accountType||u.AccountType||'').toLowerCase()==='madrasa'||(role!=='SUPER_ADMIN'&&role!=='SUPERADMIN'&&String(u.Username||u.username||'').toLowerCase()!=='superadmin');
   if(sum){
     if(custom){
-      sum.innerHTML='<div class="stat"><b>'+((x.teachers??0))+'</b>মোট শিক্ষক/শিক্ষিকা</div>'+
-        '<div class="stat"><b>'+((x.staff??0))+'</b>মোট স্টাফ</div>'+
+      sum.innerHTML='<div class="stat"><b>'+((x.staff??0))+'</b>মোট স্টাফ</div>'+
         '<div class="stat"><b>'+((x.income??0))+'</b>আয়</div>'+
         '<div class="stat"><b>'+((x.expense??0))+'</b>ব্যয়</div>'+
         '<div class="stat"><b>'+((x.students??0))+'</b>মোট ছাত্র-ছাত্রী সংখ্যা</div>'+
         '<div class="stat"><b>'+((x.examinees??x.examCandidates??0))+'</b>মোট পরীক্ষার্থী সংখ্যা</div>';
     }else{
-      sum.innerHTML='<div class="stat teacher-live-stat"><b>'+((x.teachers??0))+'</b>মোট শিক্ষক/শিক্ষিকা</div>'+
-        '<div class="stat teacher-live-stat"><b>'+((x.staff??0))+'</b>মোট স্টাফ</div>'+
+      sum.innerHTML='<div class="stat teacher-live-stat"><b>'+((x.staff??0))+'</b>মোট স্টাফ</div>'+
         '<div class="stat live-count-stat"><b id="dashboardRegisteredAccounts2026">—</b>নিবন্ধিত মাদ্রাসা + অ্যাডমিন সংখ্যা</div>'+
         '<div class="stat live-count-stat"><b id="dashboardOnlineAccounts2026">—</b>মোট অনলাইন একাউন্ট</div>'+
         '<div class="stat live-count-stat"><b id="dashboardActiveDevices2026">—</b>মূল ওয়েবসাইটে সক্রিয় ডিভাইস</div>'+
