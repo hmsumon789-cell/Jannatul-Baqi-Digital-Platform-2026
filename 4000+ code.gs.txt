@@ -21,7 +21,7 @@ const APP = {
 };
 
 const SHEETS = {
-  ADMINS:'ADMINS', STUDENTS:'STUDENTS', TEACHERS:'TEACHERS', DONORS:'DONORS',
+  ADMINS:'ADMINS', STUDENTS:'STUDENTS', TEACHERS:'TEACHERS', STAFF:'STAFF', DONORS:'DONORS',
   ADMISSIONS:'ADMISSIONS', EXAM_REG:'EXAM_REG', PAYMENTS:'PAYMENTS',
   EXPENSES:'EXPENSES', INCOME:'INCOME', RESULTS:'RESULTS', NOTICES:'NOTICES', ATTENDANCE:'ATTENDANCE',
   MEDIA:'MEDIA', FILES:'FILES', SMS_QUEUE:'SMS_QUEUE', CONTACTS:'CONTACTS',
@@ -35,6 +35,7 @@ const HEADERS = {
   ADMINS:['Serial','AdminID','NameBN','NameAR','NameEN','Username','PasswordHash','Email','Mobile','WhatsApp','Address','Photo','BirthReg','NID','ApprovalID','Role','Status','CreatedAt','Password','Permissions','ApprovedBy','ApprovedAt'],
   STUDENTS:['Serial','StudentID','FormID','MobileID','EmailID','NameBN','NameAR','NameEN','FatherBN','FatherAR','FatherEN','MotherBN','MotherAR','MotherEN','DOB','Gender','Class','Department','Branch','Residence','Mobile','WhatsApp','Email','Address','Photo','BirthReg','NID','Documents','CreatedAt','ApprovalStatus','SourceType','SourceAccount','ApprovedBy','ApprovedAt','AcademicYear'],
   TEACHERS:['Serial','TeacherID','NameBN','NameAR','NameEN','FatherBN','FatherAR','FatherEN','Mobile','WhatsApp','Email','Department','Branch','Gender','Address','Photo','BirthReg','NID','Documents','CreatedAt','FormID'],
+  STAFF:['Serial','EmployeeID','NameBN','NameAR','NameEN','Designation','Department','Gender','Mobile','WhatsApp','Email','Address','Photo','NID','JoiningDate','Status','CreatedAt','TenantAccount'],
   DONORS:['Serial','DonorID','NameBN','NameAR','NameEN','Mobile','WhatsApp','Email','Address','Amount','Fund','Photo','CreatedAt'],
   ADMISSIONS:['Serial','AdmissionID','StudentID','Session','Class','Branch','Status','FormData','CreatedAt'],
   EXAM_REG:['Serial','ExamRegID','StudentID','Exam','Class','Branch','Status','FormData','CreatedAt'],
@@ -948,7 +949,9 @@ function getBootstrap(token) {
   // Dashboard bootstrap must never lose the Feature buttons because one
   // optional dashboard component (stats/media/notices) failed.
   const modules = getModulesForSession_(token);
-  let stats = {income:0,expense:0,cash:0,due:0,students:0,teachers:0,executives:0,femaleMadrasa:0,maleMadrasa:0,attendanceToday:{present:0,absent:0}};
+  ensureSheet_(SpreadsheetApp.getActiveSpreadsheet(),SHEETS.STAFF,HEADERS.STAFF);
+  ensureTenantSheetColumn_(SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.STAFF));
+  let stats = {income:0,expense:0,cash:0,due:0,students:0,teachers:0,staff:0,examinees:0,executives:0,femaleMadrasa:0,maleMadrasa:0,attendanceToday:{present:0,absent:0}};
   let media = [];
   let notices = [];
   try { stats = getStats(token); } catch(e) {}
@@ -965,15 +968,15 @@ function getBootstrap(token) {
 function getStats(token) {
   auth_(token);
   const income=sumCol_(SHEETS.PAYMENTS,'Amount',token), expense=sumCol_(SHEETS.EXPENSES,'Amount',token);
-  const students=countData_(SHEETS.STUDENTS,token), teachers=countData_(SHEETS.TEACHERS,token), executives=countData_(SHEETS.EXECUTIVES,token);
+  const students=countData_(SHEETS.STUDENTS,token), teachers=countData_(SHEETS.TEACHERS,token), employees=countData_(SHEETS.STAFF,token), examinees=countData_(SHEETS.EXAM_REG,token), executives=countData_(SHEETS.EXECUTIVES,token);
   const female=countMadrasa_('মহিলা',token), male=countMadrasa_('পুরুষ',token);
-  return {income,expense,cash:income-expense,due:0,students,teachers,executives,femaleMadrasa:female,maleMadrasa:male,attendanceToday:attendanceToday_(token)};
+  return {income,expense,cash:income-expense,due:0,students,teachers,staff:teachers+employees,examinees,executives,femaleMadrasa:female,maleMadrasa:male,attendanceToday:attendanceToday_(token)};
 }function getStats(token) {
   auth_(token);
   const income=sumCol_(SHEETS.PAYMENTS,'Amount',token), expense=sumCol_(SHEETS.EXPENSES,'Amount',token);
-  const students=countData_(SHEETS.STUDENTS,token), teachers=countData_(SHEETS.TEACHERS,token), executives=countData_(SHEETS.EXECUTIVES,token);
+  const students=countData_(SHEETS.STUDENTS,token), teachers=countData_(SHEETS.TEACHERS,token), employees=countData_(SHEETS.STAFF,token), examinees=countData_(SHEETS.EXAM_REG,token), executives=countData_(SHEETS.EXECUTIVES,token);
   const female=countMadrasa_('মহিলা',token), male=countMadrasa_('পুরুষ',token);
-  return {income,expense,cash:income-expense,due:0,students,teachers,executives,femaleMadrasa:female,maleMadrasa:male,attendanceToday:attendanceToday_(token)};
+  return {income,expense,cash:income-expense,due:0,students,teachers,staff:teachers+employees,examinees,executives,femaleMadrasa:female,maleMadrasa:male,attendanceToday:attendanceToday_(token)};
 }
 
 /* ===== DASHBOARD LIVE ACCOUNT / DEVICE COUNTS — 2026-10-31 ===== */
@@ -1739,7 +1742,7 @@ function saveRecord(token,sheetName,data) {
   const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
   if(!HEADERS[sheetName]) throw new Error('Invalid sheet');
   const ss=SpreadsheetApp.getActiveSpreadsheet();
-  if(['STUDENTS','TEACHERS'].includes(sheetName)) {
+  if(['STUDENTS','TEACHERS','STAFF'].includes(sheetName)) {
     ensureSheet_(ss,sheetName,HEADERS[sheetName]);
     if(sheetName==='STUDENTS') ensureStudentWorkflowColumns_();
   }
@@ -1779,7 +1782,7 @@ function saveRecord(token,sheetName,data) {
   }
   /* Missing person IDs are generated server-side so auto-document drafts always have a stable lookup ID. */
   const personIdSpecs={
-    TEACHERS:{field:'TeacherID',prefix:'T-'},DONORS:{field:'DonorID',prefix:'DNR-'},
+    TEACHERS:{field:'TeacherID',prefix:'T-'},STAFF:{field:'EmployeeID',prefix:'EMP-'},DONORS:{field:'DonorID',prefix:'DNR-'},
     EXECUTIVES:{field:'MemberID',prefix:'EX-'},ADVISERS:{field:'MemberID',prefix:'ADV-'},
     FOUNDERS:{field:'MemberID',prefix:'FND-'}
   };
@@ -1832,7 +1835,7 @@ function updateRecord(token,sheetName,serial,data) {
   auth_(token); const featureMap={STUDENTS:'student',TEACHERS:'teacher',DONORS:'donor',PAYMENTS:'payment',EXPENSES:'finance',RESULTS:'result',EXAM_REG:'exam',ATTENDANCE:'attendance',NOTICES:'notice',SALARY:'salary',CERTIFICATES:'certificate',ID_CARDS:'idcard',ADMIT_CARDS:'admit',RECEIPTS:'receipt',ADMISSIONS:'admission'}; if(featureMap[sheetName]) requireFeature_(token,featureMap[sheetName]);
   data=normalizeMobileFields_(data);
   const ss=SpreadsheetApp.getActiveSpreadsheet();
-  if(['STUDENTS','TEACHERS'].includes(sheetName)) {
+  if(['STUDENTS','TEACHERS','STAFF'].includes(sheetName)) {
     ensureSheet_(ss,sheetName,HEADERS[sheetName]);
     if(sheetName==='STUDENTS') ensureStudentWorkflowColumns_();
   }
@@ -2310,7 +2313,7 @@ function findBy_(sheet,key,value){
   for(let i=1;i<v.length;i++) if(String(v[i][j]).trim()===String(value).trim()) return objectFrom_(h,v[i]);
   return null;
 }
-const TENANT_SCOPED_SHEETS_ = ['STUDENTS','TEACHERS','DONORS','ADMISSIONS','EXAM_REG','PAYMENTS','EXPENSES','INCOME','RESULTS','ATTENDANCE','MEDIA','FILES','SALARY','CERTIFICATES','ID_CARDS','ADMIT_CARDS','RECEIPTS','ONLINE_SERVICES','EXECUTIVES','ADVISERS','FOUNDERS'];
+const TENANT_SCOPED_SHEETS_ = ['STUDENTS','TEACHERS','STAFF','DONORS','ADMISSIONS','EXAM_REG','PAYMENTS','EXPENSES','INCOME','RESULTS','ATTENDANCE','MEDIA','FILES','SALARY','CERTIFICATES','ID_CARDS','ADMIT_CARDS','RECEIPTS','ONLINE_SERVICES','EXECUTIVES','ADVISERS','FOUNDERS'];
 function tenantIdentity_(token) {
   const session=auth_(token), type=String(session.accountType||'admin'), username=String(session.username||'').trim();
   const root=type!=='madrasa' && isSuperAdmin_(token);
