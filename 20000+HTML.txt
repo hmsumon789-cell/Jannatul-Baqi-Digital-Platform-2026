@@ -20989,7 +20989,7 @@ body.gold .payment-action-btn-b7b1e77{border-radius:999px!important}
 #app .jb-clock-caption{font-size:12px!important;line-height:1!important;font-weight:900!important;white-space:nowrap!important;color:#fff!important;text-shadow:0 1px 3px #000!important}
 #app .jb-english-clock .jb-clock-caption{letter-spacing:1px!important}
 @media(max-width:700px){
- #app .header-top{grid-template-columns:48px minmax(0,1fr) 48px!important;column-gap:3px!important;padding-left:3px!important;padding-right:3px!important}
+ #app .header-top{grid-template-columns:94px minmax(0,1fr) 94px!important;column-gap:3px!important;padding-left:3px!important;padding-right:3px!important}
  #app .jb-analog-clock{--clock-size:88px;gap:2px!important}
  #app .jb-clock-face{border-width:2px!important}
  #app .jb-clock-num{font-size:10px!important}
