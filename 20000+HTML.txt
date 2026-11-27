@@ -20985,7 +20985,7 @@ body.gold .payment-action-btn-b7b1e77{border-radius:999px!important}
   var row=document.querySelector('#app > header.header .jb-dual-clock-title-row-20261127');
   if(!row)return;
   row.querySelectorAll('.jb-analog-clock-20261127').forEach(function(clock){
-   var radius=clock.offsetWidth<=80?25:39;
+   var radius=clock.offsetWidth<=110?37:55;
    clock.querySelectorAll('.jb-clock-number-20261127').forEach(function(el,i){var angle=i*30*Math.PI/180;el.style.transform='translate('+Math.sin(angle)*radius+'px,'+(-Math.cos(angle)*radius)+'px)';});
    clock._hourHand.style.transform='rotate('+(h*30+m*.5)+'deg)';
    clock._minuteHand.style.transform='rotate('+(m*6)+'deg)';
@@ -21126,3 +21126,16 @@ body.gold .payment-action-btn-b7b1e77{border-radius:999px!important}
 })();
 </script>
 <!-- ===== END HEADER REFINEMENT ===== -->
+
+<style id="jb-analog-clock-large-size-final-20261127">
+.jb-analog-clock-20261127{--clock-size:144px!important}
+.jb-analog-clock-20261127 .jb-clock-hour-20261127{height:36px!important;width:6px!important;margin-left:-3px!important}
+.jb-analog-clock-20261127 .jb-clock-minute-20261127{height:51px!important;width:4px!important;margin-left:-2px!important}
+.jb-analog-clock-20261127 .jb-clock-number-20261127{font-size:15px!important}
+@media(max-width:700px){
+ .jb-analog-clock-20261127{--clock-size:100px!important}
+ .jb-analog-clock-20261127 .jb-clock-hour-20261127{height:25px!important;width:4px!important;margin-left:-2px!important}
+ .jb-analog-clock-20261127 .jb-clock-minute-20261127{height:35px!important;width:3px!important;margin-left:-1.5px!important}
+ .jb-analog-clock-20261127 .jb-clock-number-20261127{font-size:12px!important}
+}
+</style>
