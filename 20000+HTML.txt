@@ -20157,7 +20157,7 @@ body.bp-mode-dark .nav,body.bp-mode-dark .act,body.bp-mode-dark button{
  box-shadow:0 2px 5px #0002!important;border-radius:9px!important
 }
 @media(max-width:620px){
- .head{grid-template-columns:48px minmax(0,1fr) 48px!important}
+ .head{grid-template-columns:94px minmax(0,1fr) 94px!important}
  .board-qr-wrap{width:46px;height:46px;padding:2px;border-width:2px}
  .board-display-controls{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:5px;padding:7px 5px}
  .board-display-controls label{display:flex;flex-direction:column;align-items:stretch;gap:3px;font-size:12px}
@@ -20992,14 +20992,14 @@ body.gold .payment-action-btn-b7b1e77{border-radius:999px!important}
  #app .header-top{grid-template-columns:48px minmax(0,1fr) 48px!important;column-gap:3px!important;padding-left:3px!important;padding-right:3px!important}
  #app .jb-analog-clock{--clock-size:88px;gap:2px!important}
  #app .jb-clock-face{border-width:2px!important}
- #app .jb-clock-num{font-size:6px!important}
- #app .jb-makkah-clock .jb-clock-num{font-size:5.5px!important}
+ #app .jb-clock-num{font-size:10px!important}
+ #app .jb-makkah-clock .jb-clock-num{font-size:9px!important}
  #app .jb-hour{width:4px!important}
  #app .jb-minute{width:2.8px!important}
  #app .jb-second{width:1.5px!important}
  #app .jb-clock-pin{width:8px!important;height:8px!important}
- #app .jb-clock-caption{font-size:5px!important}
- #app .jb-clock-center-mark{font-size:5px!important}
+ #app .jb-clock-caption{font-size:9px!important}
+ #app .jb-clock-center-mark{font-size:9px!important}
 }
 </style>
 <script id="jb-dual-analog-header-clocks-script">
