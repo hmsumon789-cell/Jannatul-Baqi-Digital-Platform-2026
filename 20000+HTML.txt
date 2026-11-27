@@ -822,7 +822,7 @@ body.gold #app .header-calendar-select-v2{background:#f4d56b!important;color:#11
 (function(){
   function bdTime(){
     var d=new Date(),tz='Asia/Dhaka';
-    var t=d.toLocaleTimeString('bn-BD',{timeZone:tz,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+    var t=d.toLocaleTimeString('bn-BD',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false});
     var dt=d.toLocaleDateString('bn-BD',{timeZone:tz,weekday:'long',year:'numeric',month:'long',day:'numeric'});
     var ld=d.toLocaleDateString('bn-BD',{timeZone:tz,day:'numeric',month:'long',year:'numeric'});
     var a=document.getElementById('appClock'),b=document.getElementById('appDate'),l=document.getElementById('loginDateTime');
@@ -910,7 +910,7 @@ body.gold #app .header-calendar-select-v2{background:#f4d56b!important;color:#11
   function stableDigitalClock(){
     var el=document.getElementById('appClock'); if(!el)return;
     var d=new Date(), tz='Asia/Dhaka';
-    var s=d.toLocaleTimeString('bn-BD',{timeZone:tz,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+    var s=d.toLocaleTimeString('bn-BD',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false});
     el.textContent=s;
     el.setAttribute('aria-label','বাংলাদেশ সময় '+s);
   }
@@ -1751,7 +1751,7 @@ async function collectSessionDeviceInfo(){
 window.addEventListener('load',async()=>{initOtp();tick();setInterval(tick,1000);loadPublic();});
 
 function initOtp(){const b=$('otpBoxes');b.innerHTML='';for(let i=0;i<6;i++){const x=document.createElement('input');x.className='otp-box';x.maxLength=1;x.inputMode='numeric';x.addEventListener('input',()=>{x.value=x.value.replace(/\D/g,'');if(x.value&&x.nextElementSibling)x.nextElementSibling.focus()});x.addEventListener('keydown',e=>{if(e.key==='Backspace'&&!x.value&&x.previousElementSibling)x.previousElementSibling.focus();if(e.key==='Enter')verifyOtp()});b.appendChild(x)}}
-function tick(){const d=new Date();const tz='Asia/Dhaka';const time=d.toLocaleTimeString('bn-BD',{timeZone:tz,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});const date=d.toLocaleDateString('bn-BD',{timeZone:tz,day:'numeric',month:'long',year:'numeric'});const txt='সময় '+time+' • '+date;if($('loginDateTime'))$('loginDateTime').textContent=txt;if($('appClock'))$('appClock').textContent=time;if($('appDate'))$('appDate').textContent=d.toLocaleDateString('bn-BD',{timeZone:tz,weekday:'long',year:'numeric',month:'long',day:'numeric'});}
+function tick(){const d=new Date();const tz='Asia/Dhaka';const time=d.toLocaleTimeString('bn-BD',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false});const date=d.toLocaleDateString('bn-BD',{timeZone:tz,day:'numeric',month:'long',year:'numeric'});const txt='সময় '+time+' • '+date;if($('loginDateTime'))$('loginDateTime').textContent=txt;if($('appClock'))$('appClock').textContent=time;if($('appDate'))$('appDate').textContent=d.toLocaleDateString('bn-BD',{timeZone:tz,weekday:'long',year:'numeric',month:'long',day:'numeric'});}
 async function loadPublic(){try{const r=await call('getPublicConfig');fillSignals(r.signals);fillClasses(r.classes)}catch(e){toast('সার্ভার প্রস্তুত হয়নি। Apps Script deploy সেটিং পরীক্ষা করুন।')}}
 function fillSignals(list){
   ['loginSignal','appSignal'].forEach(id=>{
@@ -3281,6 +3281,8 @@ function allSlides(){return slides.concat(userPhotos);}
 function applyHeaderColor(){
  var h=document.querySelector('#app .header')||document.querySelector('.header');
  if(!h)return;
+ var active=allSlides()[idx]||{};
+ h.setAttribute('data-header-mode',String(active.skin||'dark').toLowerCase());
  h.classList.remove('header-hue-0','header-hue-1','header-hue-2','header-hue-3');
  h.classList.add('header-hue-'+(idx%4));
 }
@@ -20756,3 +20758,101 @@ body.gold .payment-action-btn-b7b1e77{border-radius:999px!important}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fill);else fill();
 })();
 </script>
+
+
+<!-- ===== HEADER CLOCK + DATE + SLIDER STABLE ROW / MODE TEXT COLORS — 2026-11-27 ===== -->
+<style id="jb-header-stable-line-mode-colors-20261127">
+#app > header.header .header-clock-row-v2{
+ display:flex!important;flex-flow:row nowrap!important;align-items:center!important;justify-content:flex-start!important;
+ gap:7px!important;width:100%!important;height:66px!important;min-height:66px!important;max-height:66px!important;
+ box-sizing:border-box!important;padding:0 6px!important;margin:7px 0!important;
+ overflow-x:auto!important;overflow-y:hidden!important;white-space:nowrap!important;scrollbar-width:none!important;
+ overscroll-behavior-x:contain!important;flex-wrap:nowrap!important;contain:layout!important;
+}
+#app > header.header .header-clock-row-v2::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}
+#app > header.header .header-clock-row-v2 > .header-slider-controls{
+ position:static!important;inset:auto!important;transform:none!important;display:flex!important;flex:0 0 auto!important;
+ flex-flow:row nowrap!important;align-items:center!important;justify-content:flex-start!important;gap:5px!important;
+ height:50px!important;min-height:50px!important;max-height:50px!important;margin:0 2px 0 0!important;padding:0!important;
+ white-space:nowrap!important;overflow:visible!important;pointer-events:auto!important;
+}
+#app > header.header .header-clock-row-v2 .header-slider-controls button{
+ display:inline-flex!important;flex:0 0 auto!important;align-items:center!important;justify-content:center!important;
+ box-sizing:border-box!important;height:42px!important;min-height:42px!important;max-height:42px!important;
+ padding:0 9px!important;white-space:nowrap!important;line-height:1!important;
+ transform:none!important;transition:none!important;animation:none!important;
+}
+#app > header.header .header-clock-row-v2 .header-slider-controls > button:first-child,
+#app > header.header .header-clock-row-v2 .header-slider-controls > button:last-child{
+ width:42px!important;min-width:42px!important;max-width:42px!important;padding:0!important;
+}
+#app > header.header .header-clock-row-v2 .header-slider-controls .header-slider-mid{
+ display:flex!important;flex:0 0 auto!important;align-items:center!important;gap:5px!important;height:50px!important;white-space:nowrap!important;
+}
+#app > header.header .header-clock-row-v2 .header-slider-controls .header-photo-load{
+ position:static!important;display:inline-flex!important;flex:0 0 auto!important;align-items:center!important;
+ height:42px!important;margin:0!important;padding:0!important;
+}
+#app > header.header .header-clock-row-v2 .header-slider-controls .header-load-btn{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ height:42px!important;min-height:42px!important;max-height:42px!important;padding:0 9px!important;white-space:nowrap!important;
+}
+#app > header.header .header-clock-row-v2 > .header-clock-button,
+#app > header.header .header-clock-row-v2 > .header-date-button{
+ display:inline-flex!important;flex:0 0 190px!important;width:190px!important;min-width:190px!important;max-width:190px!important;
+ height:54px!important;min-height:54px!important;max-height:54px!important;box-sizing:border-box!important;
+ align-items:center!important;justify-content:center!important;margin:0!important;padding:0 9px!important;border-radius:999px!important;
+ overflow:hidden!important;white-space:nowrap!important;text-overflow:clip!important;font-weight:1000!important;line-height:1!important;
+ font-variant-numeric:tabular-nums lining-nums!important;transform:none!important;transition:none!important;animation:none!important;
+}
+#app > header.header .header-clock-row-v2 > .header-clock-button{font-size:24px!important;letter-spacing:1px!important;font-feature-settings:"tnum" 1!important}
+#app > header.header .header-clock-row-v2 > .header-date-button{font-size:14px!important;letter-spacing:0!important}
+#app > header.header[data-header-mode="dark"] .header-content .title-bn,
+#app > header.header[data-header-mode="dark"] .header-content .title-ar,
+#app > header.header[data-header-mode="dark"] .header-content .title-en,
+#app > header.header[data-header-mode="dark"] .header-content .header-identity-contact{color:#fff!important;text-shadow:0 1px 4px #000!important}
+#app > header.header[data-header-mode="light"] .header-content .title-bn,
+#app > header.header[data-header-mode="light"] .header-content .title-ar,
+#app > header.header[data-header-mode="light"] .header-content .title-en,
+#app > header.header[data-header-mode="light"] .header-content .header-identity-contact{color:#075b32!important;text-shadow:0 1px 2px #fff8!important}
+#app > header.header[data-header-mode="gold"] .header-content .title-bn,
+#app > header.header[data-header-mode="gold"] .header-content .title-ar,
+#app > header.header[data-header-mode="gold"] .header-content .title-en,
+#app > header.header[data-header-mode="gold"] .header-content .header-identity-contact{color:#68420a!important;text-shadow:0 1px 2px #fff8!important}
+#app > header.header[data-header-mode="offwhite"] .header-content .title-bn,
+#app > header.header[data-header-mode="offwhite"] .header-content .title-ar,
+#app > header.header[data-header-mode="offwhite"] .header-content .title-en,
+#app > header.header[data-header-mode="offwhite"] .header-content .header-identity-contact{color:#4c405b!important;text-shadow:0 1px 2px #fff9!important}
+#app > header.header .header-content .header-address-line,
+#app > header.header .header-content .header-hotline-email-line{color:inherit!important}
+@media(max-width:700px){
+ #app > header.header .header-clock-row-v2{height:62px!important;min-height:62px!important;max-height:62px!important;gap:5px!important;padding:0 4px!important}
+ #app > header.header .header-clock-row-v2 > .header-clock-button,
+ #app > header.header .header-clock-row-v2 > .header-date-button{
+  flex-basis:170px!important;width:170px!important;min-width:170px!important;max-width:170px!important;
+  height:50px!important;min-height:50px!important;max-height:50px!important;
+ }
+ #app > header.header .header-clock-row-v2 > .header-clock-button{font-size:21px!important}
+ #app > header.header .header-clock-row-v2 > .header-date-button{font-size:12px!important}
+ #app > header.header .header-clock-row-v2 .header-slider-controls button,
+ #app > header.header .header-clock-row-v2 .header-slider-controls .header-load-btn{height:40px!important;min-height:40px!important;max-height:40px!important}
+}
+</style>
+<script id="jb-header-clock-minute-only-20261127">
+(function(){
+ function updateHeaderTime(){
+  var d=new Date(),tz='Asia/Dhaka';
+  var t=d.toLocaleTimeString('bn-BD',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false});
+  var dt=d.toLocaleDateString('bn-BD',{timeZone:tz,weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  var ld=d.toLocaleDateString('bn-BD',{timeZone:tz,day:'numeric',month:'long',year:'numeric'});
+  var a=document.getElementById('appClock'),b=document.getElementById('appDate'),l=document.getElementById('loginDateTime');
+  if(a)a.textContent=t;
+  if(b)b.textContent=dt;
+  if(l)l.innerHTML='<span class="login-clock-digits">সময় '+t+'</span><span class="login-date-digits">'+ld+'</span>';
+ }
+ window.tick=updateHeaderTime;
+ updateHeaderTime();
+ window.setInterval(updateHeaderTime,1000);
+})();
+</script>
+<!-- ===== END HEADER STABLE ROW FIX ===== -->
