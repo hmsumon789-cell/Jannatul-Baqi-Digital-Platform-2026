@@ -3298,6 +3298,9 @@ function startTimer(){
 }
 function render(){
  var box=document.getElementById('headerBackgroundSlides');if(!box)return;
+ var header=box.closest('header.header')||box.parentElement;
+ var existingPhotoLoad=document.querySelector('header.header .header-slider-controls .header-photo-load');
+ if(existingPhotoLoad&&header)header.appendChild(existingPhotoLoad);
  document.querySelectorAll('header.header .header-slider-controls').forEach(function(old){old.remove();});
  box.removeAttribute('aria-hidden');box.innerHTML='';
  allSlides().forEach(function(item,i){
