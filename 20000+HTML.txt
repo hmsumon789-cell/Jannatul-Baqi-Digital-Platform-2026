@@ -21078,3 +21078,34 @@ body:not(.dark):not(.gold):not(.offwhite) #app button.module:disabled{
  }
 }
 </style>
+
+
+<!-- ===== OFF-WHITE FULL DASHBOARD MULTI-COLOR BACKGROUND — 2026-11-27 ===== -->
+<style id="jb-offwhite-full-dashboard-gold-white-red-green-bg-20261127">
+/* OFF-WHITE MODE ONLY: soft ivory base with restrained gold, white, red and emerald accents. */
+body.offwhite{
+ background-color:#fbf8ef!important;
+ background-image:
+  radial-gradient(ellipse at 8% 8%,rgba(218,169,55,.19) 0%,rgba(218,169,55,0) 34%),
+  radial-gradient(ellipse at 92% 12%,rgba(194,45,55,.105) 0%,rgba(194,45,55,0) 31%),
+  radial-gradient(ellipse at 12% 88%,rgba(20,125,77,.13) 0%,rgba(20,125,77,0) 35%),
+  radial-gradient(ellipse at 90% 90%,rgba(255,255,255,.96) 0%,rgba(255,255,255,0) 38%),
+  linear-gradient(135deg,#fffdf7 0%,#f7f0df 28%,#fffafa 52%,#edf5ee 76%,#fffdf7 100%)!important;
+ background-attachment:fixed!important;
+ background-repeat:no-repeat!important;
+ background-size:cover!important;
+}
+body.offwhite #app{
+ background:transparent!important;
+}
+body.offwhite #app .content{
+ background-color:rgba(255,253,247,.76)!important;
+ background-image:
+  radial-gradient(ellipse at 0% 0%,rgba(218,169,55,.105),transparent 43%),
+  radial-gradient(ellipse at 100% 0%,rgba(190,48,58,.065),transparent 39%),
+  radial-gradient(ellipse at 0% 100%,rgba(20,125,77,.075),transparent 43%),
+  linear-gradient(135deg,rgba(255,255,255,.48),rgba(255,250,241,.30),rgba(242,249,243,.38))!important;
+ background-attachment:fixed!important;
+}
+</style>
+<!-- ===== END OFF-WHITE FULL DASHBOARD MULTI-COLOR BACKGROUND ===== -->
