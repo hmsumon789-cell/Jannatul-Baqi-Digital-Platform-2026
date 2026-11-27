@@ -21025,3 +21025,27 @@ body.gold .payment-action-btn-b7b1e77{border-radius:999px!important}
 })();
 </script>
 <!-- ===== END REQUESTED DUAL ANALOG HEADER CLOCKS ===== -->
+
+/* JB CLOCK SIZE DOUBLE 20261127 */
+#app .header-top{grid-template-columns:176px minmax(0,1fr) 176px!important;column-gap:10px!important}
+#app .jb-analog-clock{--clock-size:152px!important;gap:5px!important}
+#app .jb-clock-num{font-size:15px!important}
+#app .jb-makkah-clock .jb-clock-num{font-size:14px!important}
+#app .jb-hour{width:6px!important}
+#app .jb-minute{width:4px!important}
+#app .jb-second{width:2px!important}
+#app .jb-clock-pin{width:11px!important;height:11px!important}
+#app .jb-clock-caption{font-size:11px!important}
+#app .jb-clock-center-mark{font-size:11px!important}
+@media(max-width:700px){
+ #app .header-top{grid-template-columns:88px minmax(0,1fr) 88px!important;column-gap:4px!important}
+ #app .jb-analog-clock{--clock-size:88px!important;gap:3px!important}
+ #app .jb-clock-num{font-size:9px!important}
+ #app .jb-makkah-clock .jb-clock-num{font-size:8px!important}
+ #app .jb-hour{width:4px!important}
+ #app .jb-minute{width:2.8px!important}
+ #app .jb-second{width:1.5px!important}
+ #app .jb-clock-pin{width:7px!important;height:7px!important}
+ #app .jb-clock-caption{font-size:7px!important}
+ #app .jb-clock-center-mark{font-size:7px!important}
+}
