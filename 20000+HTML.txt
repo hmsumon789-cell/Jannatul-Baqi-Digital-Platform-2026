@@ -21020,3 +21020,109 @@ body.gold .payment-action-btn-b7b1e77{border-radius:999px!important}
 })();
 </script>
 <!-- ===== END FINAL DUAL ANALOG HEADER DESIGN ===== -->
+
+
+<!-- ===== HEADER REFINEMENT: BIGGER CLOCKS / TIGHT TITLES / CONTROLS UNDER HOTLINE / NO DATE — 2026-11-27 ===== -->
+<style id="jb-header-refinement-20261127">
+/* ঘড়ি আরও বড়, মাঝখানে নামের ফাঁকা কম */
+#app > header.header .header-content .jb-dual-clock-title-row-20261127{
+ grid-template-columns:148px minmax(0,1fr) 148px!important;
+ gap:4px!important;margin:0!important;padding:0 4px!important;
+}
+#app > header.header .header-content .jb-dual-clock-title-row-20261127 .title-ar{
+ margin:0!important;padding:0!important;line-height:1.08!important;
+ font-size:clamp(23px,2.8vw,40px)!important;
+}
+#app > header.header .header-content .jb-dual-clock-title-row-20261127 .jb-arabic-clock-title-center-20261127{
+ min-width:0!important;width:100%!important;margin:0!important;padding:0!important;
+}
+#app > header.header .header-content .title-bn,
+#app > header.header .header-content .title-en{
+ margin:0!important;padding:0!important;line-height:1.08!important;
+}
+#app > header.header .header-content .title-bn{margin-bottom:1px!important}
+#app > header.header .header-content .title-en{margin-top:1px!important}
+#app > header.header .header-content .header-identity-contact,
+#app > header.header .header-content .header-address-line,
+#app > header.header .header-content .header-hotline-email-line{
+ margin:0!important;padding:0!important;line-height:1.18!important;
+}
+/* তারিখের বক্স সম্পূর্ণ বাদ; কন্ট্রোল লাইন হটলাইনের ঠিক নিচে */
+#app > header.header .header-clock-row-v2{
+ display:flex!important;align-items:center!important;justify-content:flex-start!important;
+ width:100%!important;height:auto!important;min-height:54px!important;max-height:none!important;
+ margin:3px 0 0!important;padding:0 5px!important;gap:0!important;
+ overflow-x:auto!important;overflow-y:hidden!important;flex-wrap:nowrap!important;
+}
+#app > header.header .header-clock-row-v2 > .header-date-button,
+#app > header.header .header-clock-row-v2 > .header-clock-button{
+ display:none!important;width:0!important;min-width:0!important;max-width:0!important;
+ height:0!important;min-height:0!important;max-height:0!important;padding:0!important;margin:0!important;border:0!important;
+}
+#app > header.header .header-clock-row-v2 .header-slider-controls{
+ height:52px!important;min-height:52px!important;max-height:52px!important;
+ margin:0!important;padding:0!important;gap:7px!important;
+}
+#app > header.header .header-clock-row-v2 .header-slider-controls button,
+#app > header.header .header-clock-row-v2 .header-slider-controls .header-load-btn{
+ height:50px!important;min-height:50px!important;max-height:50px!important;
+ font-size:15px!important;padding:0 14px!important;
+}
+@media(max-width:700px){
+ #app > header.header .header-content .jb-dual-clock-title-row-20261127{
+  grid-template-columns:106px minmax(0,1fr) 106px!important;gap:2px!important;padding:0!important;
+ }
+ #app > header.header .header-content .jb-dual-clock-title-row-20261127 .title-ar{
+  font-size:clamp(17px,4vw,25px)!important;line-height:1.05!important;
+ }
+ .jb-analog-clock-20261127{--clock-size:100px!important}
+ .jb-analog-clock-20261127 .jb-clock-number-20261127{font-size:12px!important;width:21px;height:18px;margin:-9px 0 0 -10.5px}
+ .jb-analog-clock-20261127 .jb-clock-hour-20261127{height:25px!important;width:4px!important;margin-left:-2px!important}
+ .jb-analog-clock-20261127 .jb-clock-minute-20261127{height:35px!important;width:3px!important;margin-left:-1.5px!important}
+ #app > header.header .header-clock-row-v2{min-height:48px!important;margin-top:2px!important;padding:0 2px!important}
+ #app > header.header .header-clock-row-v2 .header-slider-controls{height:46px!important;min-height:46px!important;max-height:46px!important;gap:4px!important}
+ #app > header.header .header-clock-row-v2 .header-slider-controls button,
+ #app > header.header .header-clock-row-v2 .header-slider-controls .header-load-btn{
+  height:44px!important;min-height:44px!important;max-height:44px!important;padding:0 9px!important;font-size:12px!important;
+ }
+}
+/* বাংলা, আরবি, ইংরেজি নাম চার মোডেই সাদা */
+#app > header.header .header-content .title-bn,
+#app > header.header .header-content .title-ar,
+#app > header.header .header-content .title-en{
+ color:#fff!important;font-weight:1000!important;
+ text-shadow:0 1px 3px #000,0 0 8px rgba(255,255,255,.35),0 0 12px #0009!important;
+ -webkit-text-stroke:.2px rgba(255,255,255,.65)!important;
+}
+</style>
+<script id="jb-header-refinement-js-20261127">
+(function(){
+ 'use strict';
+ function placeControlsAndWhiten(){
+  var header=document.querySelector('#app > header.header');
+  if(!header)return;
+  var content=header.querySelector('.header-content');
+  if(!content)return;
+  var row=header.querySelector('.header-clock-row-v2');
+  var identity=content.querySelector('.header-identity-contact');
+  if(row&&identity&&row.parentNode!==content){
+   if(identity.nextSibling)content.insertBefore(row,identity.nextSibling);else content.appendChild(row);
+  }
+  ['.title-bn','.title-ar','.title-en'].forEach(function(sel){
+   var el=content.querySelector(sel);
+   if(el){el.style.setProperty('color','#fff','important');el.style.setProperty('font-weight','1000','important');}
+  });
+ }
+ function start(){
+  placeControlsAndWhiten();
+  var app=document.getElementById('app');
+  if(app){
+   var observer=new MutationObserver(function(){placeControlsAndWhiten();});
+   observer.observe(app,{childList:true,subtree:true,attributes:true,attributeFilter:['style','class']});
+  }
+  setInterval(placeControlsAndWhiten,1200);
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
+})();
+</script>
+<!-- ===== END HEADER REFINEMENT ===== -->
