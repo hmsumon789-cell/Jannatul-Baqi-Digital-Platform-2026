@@ -3295,7 +3295,9 @@ function applyHeaderColor(){
  var h=document.querySelector('#app .header')||document.querySelector('.header');
  if(!h)return;
  h.classList.remove('header-hue-0','header-hue-1','header-hue-2','header-hue-3');
- h.classList.add('header-hue-'+(idx%4));
+ var current=allSlides()[idx]||slides[0],skin=current&&current.skin;
+ var hue=skin==='dark'?0:(skin==='light'?1:(skin==='gold'?2:3));
+ h.classList.add('header-hue-'+hue);
 }
 function showIndex(n){
  var all=allSlides();if(!all.length)return;
