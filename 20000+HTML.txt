@@ -3227,7 +3227,15 @@ body.gold .header-background-overlay{background:linear-gradient(180deg,rgba(255,
 <style id="four-mode-header-slider-20261127">
 .header-photo-load{display:block!important;position:absolute!important;z-index:20!important;top:10px!important;right:12px!important}
 .header-load-btn{display:inline-flex!important;align-items:center;justify-content:center;padding:7px 15px!important;border:2px solid #fff!important;border-radius:999px!important;background:linear-gradient(120deg,#087f45,#e83e8c,#d5a323)!important;color:#fff!important;font-weight:1000!important;cursor:pointer!important;box-shadow:0 2px 9px #0008!important}
-.header-background-slides{background:#0c5b37!important}
+.header-background-slides{background:#0c5b37!important;pointer-events:none!important}
+header.header{position:relative!important;isolation:isolate!important;overflow:hidden!important}
+header.header>.header-photo-load{z-index:60!important;pointer-events:auto!important}
+header.header>.header-slider-controls{z-index:70!important;display:flex!important;visibility:visible!important;opacity:1!important;pointer-events:none!important}
+header.header>.header-slider-controls button{pointer-events:auto!important;display:inline-flex!important;visibility:visible!important;opacity:1!important;position:relative!important;z-index:71!important}
+header.header>.header-top{position:relative!important;z-index:5!important;padding-bottom:36px!important}
+header.header>.header-slider-controls{bottom:7px!important;left:10px!important;right:10px!important}
+header.header>.header-photo-load{top:8px!important;right:10px!important}
+
 .header-mode-slide{display:block!important;position:absolute!important;inset:0!important;width:100%!important;height:100%!important;opacity:0!important;transition:opacity .9s ease!important}
 .header-mode-slide.active{opacity:1!important}
 .header-mode-dark{background:linear-gradient(125deg,#064b31 0%,#168653 34%,#d92f83 68%,#f7d5e6 100%)!important}
@@ -3305,7 +3313,7 @@ function render(){
  btns[1].onclick=function(){playing=!playing;btns[1].textContent=playing?'Ⅱ স্থির':'▶ চালু';if(playing)startTimer();else stopTimer();};
  btns[2].onclick=function(){window.deleteCurrentHeaderSlide();};
  btns[3].onclick=function(){showIndex(idx+1);startTimer();};
- box.appendChild(controls);showIndex(idx);startTimer();
+ var header=box.closest('header.header')||box.parentElement;if(header){header.appendChild(controls);}else{box.appendChild(controls);}showIndex(idx);startTimer();
 }
 window.loadHeaderPhotos=function(files){
  if(!files||!files.length)return;
