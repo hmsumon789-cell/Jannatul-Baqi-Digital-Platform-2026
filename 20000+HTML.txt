@@ -21109,3 +21109,76 @@ body.offwhite #app .content{
 }
 </style>
 <!-- ===== END OFF-WHITE FULL DASHBOARD MULTI-COLOR BACKGROUND ===== -->
+
+<!-- ===== OFF-WHITE DASHBOARD BUTTONS: GOLD + PINK + WHITE + RED FULL ANIMATION — 2026-11-27 ===== -->
+<style id="jb-offwhite-dashboard-animated-buttons-20261127">
+/* Off-white mode only: animated jewel-tone gradient buttons across the dashboard. */
+body.offwhite #app button,
+body.offwhite #app .btn,
+body.offwhite #app .button,
+body.offwhite #app [role="button"],
+body.offwhite #app input[type="button"],
+body.offwhite #app input[type="submit"],
+body.offwhite #app a.btn,
+body.offwhite #app a.button{
+ background:linear-gradient(115deg,
+  #d5a52d 0%,#fff0bd 17%,#f2a6c7 34%,#fffdf8 49%,
+  #d94a55 65%,#f6c6d0 79%,#c99a2e 100%)!important;
+ background-size:320% 320%!important;
+ color:#4b2630!important;
+ border:1px solid rgba(178,126,39,.72)!important;
+ border-radius:999px!important;
+ box-shadow:0 4px 13px rgba(139,94,30,.22),
+  inset 0 1px 0 rgba(255,255,255,.92),
+  inset 0 -2px 4px rgba(133,65,67,.12)!important;
+ text-shadow:0 1px 0 rgba(255,255,255,.72)!important;
+ animation:jbOffwhiteButtonFlow2026 7s ease-in-out infinite,
+  jbOffwhiteButtonGlow2026 3.2s ease-in-out infinite!important;
+ transition:transform .22s ease,box-shadow .22s ease,filter .22s ease!important;
+}
+body.offwhite #app button:hover,
+body.offwhite #app .btn:hover,
+body.offwhite #app .button:hover,
+body.offwhite #app [role="button"]:hover,
+body.offwhite #app input[type="button"]:hover,
+body.offwhite #app input[type="submit"]:hover,
+body.offwhite #app a.btn:hover,
+body.offwhite #app a.button:hover{
+ transform:translateY(-2px) scale(1.025)!important;
+ filter:saturate(1.18) brightness(1.045)!important;
+ box-shadow:0 7px 19px rgba(176,105,49,.30),
+  0 0 13px rgba(232,155,187,.28),
+  inset 0 1px 0 rgba(255,255,255,.98)!important;
+}
+body.offwhite #app button:active,
+body.offwhite #app .btn:active,
+body.offwhite #app .button:active,
+body.offwhite #app [role="button"]:active,
+body.offwhite #app input[type="button"]:active,
+body.offwhite #app input[type="submit"]:active{
+ transform:translateY(1px) scale(.985)!important;
+}
+@keyframes jbOffwhiteButtonFlow2026{
+ 0%,100%{background-position:0% 50%}
+ 50%{background-position:100% 50%}
+}
+@keyframes jbOffwhiteButtonGlow2026{
+ 0%,100%{box-shadow:0 4px 13px rgba(139,94,30,.20),inset 0 1px 0 rgba(255,255,255,.92)}
+ 50%{box-shadow:0 5px 17px rgba(214,151,49,.30),0 0 11px rgba(222,145,183,.22),inset 0 1px 0 rgba(255,255,255,.98)}
+}
+@media(prefers-reduced-motion:reduce){
+ body.offwhite #app button,
+ body.offwhite #app .btn,
+ body.offwhite #app .button,
+ body.offwhite #app [role="button"],
+ body.offwhite #app input[type="button"],
+ body.offwhite #app input[type="submit"],
+ body.offwhite #app a.btn,
+ body.offwhite #app a.button{
+  animation:none!important;
+  background-position:50% 50%!important;
+  transition:none!important;
+ }
+}
+</style>
+<!-- ===== END OFF-WHITE DASHBOARD ANIMATED BUTTONS ===== -->
