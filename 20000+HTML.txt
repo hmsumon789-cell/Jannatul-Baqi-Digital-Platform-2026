@@ -20856,3 +20856,164 @@ body.gold .payment-action-btn-b7b1e77{border-radius:999px!important}
 })();
 </script>
 <!-- ===== END HEADER STABLE ROW FIX ===== -->
+
+
+<!-- ===== FINAL HEADER: DUAL ANALOG CLOCKS + WHITE IDENTITY + LARGE SLIDER CONTROLS — 2026-11-27 ===== -->
+<style id="jb-header-dual-analog-clocks-final-20261127">
+/* নাম-ঠিকানা-যোগাযোগ চার মোডেই উজ্জ্বল সাদা ও মোটা */
+#app > header.header .header-content .title-bn,
+#app > header.header .header-content .title-ar,
+#app > header.header .header-content .title-en,
+#app > header.header .header-content .header-identity-contact,
+#app > header.header .header-content .header-address-line,
+#app > header.header .header-content .header-hotline-email-line{
+ color:#fff!important;font-weight:1000!important;
+ text-shadow:0 1px 2px #000,0 0 7px rgba(255,255,255,.38),0 0 12px rgba(0,0,0,.65)!important;
+ -webkit-text-stroke:.18px rgba(255,255,255,.55)!important;
+}
+/* আরবি নামের দুই পাশে একই মাপের ঘড়ি */
+#app > header.header .header-content .jb-dual-clock-title-row-20261127{
+ display:grid!important;grid-template-columns:112px minmax(0,1fr) 112px!important;
+ align-items:center!important;justify-items:center!important;gap:clamp(8px,2vw,22px)!important;
+ width:100%!important;max-width:100%!important;box-sizing:border-box!important;
+ margin:5px 0 7px!important;padding:0 8px!important;
+}
+#app > header.header .header-content .jb-dual-clock-title-row-20261127 .title-ar{
+ display:block!important;min-width:0!important;width:100%!important;margin:0!important;padding:0!important;
+ text-align:center!important;white-space:normal!important;overflow-wrap:anywhere!important;
+ font-size:clamp(25px,3.1vw,44px)!important;line-height:1.28!important;font-weight:1000!important;
+}
+.jb-analog-clock-20261127{
+ --clock-size:108px;position:relative!important;display:block!important;
+ width:var(--clock-size)!important;height:var(--clock-size)!important;min-width:var(--clock-size)!important;
+ aspect-ratio:1/1!important;box-sizing:border-box!important;border-radius:50%!important;
+ border:5px double #d7a52b!important;
+ background:radial-gradient(circle at 32% 25%,#fffef2 0%,#f8e9b7 52%,#d6b45e 100%)!important;
+ box-shadow:inset 0 0 0 3px #fff8d8,inset 0 0 12px #8b5b14,0 4px 13px #0008,0 0 12px #f5d36b99!important;
+ overflow:hidden!important;isolation:isolate!important;flex:none!important;
+}
+.jb-analog-clock-20261127:before{
+ content:"";position:absolute;inset:8px;border:1px solid #9b6b16;border-radius:50%;pointer-events:none!important;
+}
+.jb-analog-clock-20261127 .jb-clock-number-20261127{
+ position:absolute;left:50%;top:50%;width:24px;height:20px;margin:-10px 0 0 -12px;
+ display:flex;align-items:center;justify-content:center;color:#50320b!important;
+ font-family:Georgia,"Times New Roman",serif!important;font-size:13px!important;font-weight:900!important;
+ line-height:1!important;text-shadow:0 1px 0 #fff8!important;
+}
+.jb-analog-clock-20261127 .jb-clock-hand-20261127{
+ position:absolute;left:50%;bottom:50%;z-index:4;transform-origin:50% 100%;border-radius:999px;
+ pointer-events:none!important;
+}
+.jb-analog-clock-20261127 .jb-clock-hour-20261127{width:5px;height:27px;margin-left:-2.5px;background:#38240d!important}
+.jb-analog-clock-20261127 .jb-clock-minute-20261127{width:3px;height:38px;margin-left:-1.5px;background:#a32437!important}
+.jb-analog-clock-20261127 .jb-clock-pin-20261127{
+ position:absolute;z-index:6;left:50%;top:50%;width:10px;height:10px;margin:-5px;
+ border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff4b4,#9a5b0c 75%)!important;
+ border:1px solid #5b390e!important;
+}
+.jb-analog-clock-20261127 .jb-clock-brand-20261127{
+ position:absolute;left:0;right:0;top:68%;text-align:center;color:#775014!important;
+ font:800 7px/1 Arial,sans-serif!important;letter-spacing:.5px;pointer-events:none!important;
+}
+@media(max-width:700px){
+ #app > header.header .header-content .jb-dual-clock-title-row-20261127{
+  grid-template-columns:74px minmax(0,1fr) 74px!important;gap:5px!important;padding:0 2px!important;margin:4px 0 6px!important;
+ }
+ .jb-analog-clock-20261127{--clock-size:72px;border-width:4px!important}
+ .jb-analog-clock-20261127:before{inset:5px}
+ .jb-analog-clock-20261127 .jb-clock-number-20261127{width:18px;height:16px;margin:-8px 0 0 -9px;font-size:9px!important}
+ .jb-analog-clock-20261127 .jb-clock-hour-20261127{height:18px;width:3.5px;margin-left:-1.75px}
+ .jb-analog-clock-20261127 .jb-clock-minute-20261127{height:26px;width:2.5px;margin-left:-1.25px}
+ .jb-analog-clock-20261127 .jb-clock-pin-20261127{width:8px;height:8px;margin:-4px}
+ .jb-analog-clock-20261127 .jb-clock-brand-20261127{font-size:5px!important}
+ #app > header.header .header-content .jb-dual-clock-title-row-20261127 .title-ar{font-size:clamp(18px,4.5vw,28px)!important;line-height:1.25!important}
+}
+/* পুরনো ডিজিটাল ঘড়ির জায়গা থেকে ঘড়ি সম্পূর্ণ বাদ; তারিখ ও স্লাইডার কন্ট্রোল থাকবে */
+#app > header.header .header-clock-row-v2 > .header-clock-button{display:none!important;width:0!important;min-width:0!important;max-width:0!important;padding:0!important;margin:0!important;border:0!important}
+/* কন্ট্রোল বাটনগুলো বড়, সমান উচ্চতা ও স্থির */
+#app > header.header .header-clock-row-v2 .header-slider-controls button,
+#app > header.header .header-clock-row-v2 .header-slider-controls .header-load-btn{
+ height:50px!important;min-height:50px!important;max-height:50px!important;
+ padding:0 15px!important;font-size:15px!important;font-weight:1000!important;
+ border-width:2px!important;border-radius:13px!important;box-sizing:border-box!important;
+}
+#app > header.header .header-clock-row-v2 .header-slider-controls > button:first-child,
+#app > header.header .header-clock-row-v2 .header-slider-controls > button:last-child{
+ width:50px!important;min-width:50px!important;max-width:50px!important;padding:0!important;font-size:21px!important;
+}
+#app > header.header .header-clock-row-v2 .header-slider-controls .header-slider-mid{gap:8px!important}
+#app > header.header .header-clock-row-v2 .header-slider-controls .header-photo-load{height:50px!important}
+#app > header.header .header-clock-row-v2 .header-slider-controls .header-load-btn{min-width:82px!important}
+@media(max-width:700px){
+ #app > header.header .header-clock-row-v2 .header-slider-controls button,
+ #app > header.header .header-clock-row-v2 .header-slider-controls .header-load-btn{
+  height:44px!important;min-height:44px!important;max-height:44px!important;padding:0 10px!important;font-size:12px!important;
+ }
+ #app > header.header .header-clock-row-v2 .header-slider-controls > button:first-child,
+ #app > header.header .header-clock-row-v2 .header-slider-controls > button:last-child{
+  width:44px!important;min-width:44px!important;max-width:44px!important;
+ }
+}
+</style>
+<script id="jb-header-dual-analog-clocks-js-20261127">
+(function(){
+ 'use strict';
+ var roman=['XII','I','II','III','IV','V','VI','VII','VIII','IX','X','XI'];
+ var english=['12','1','2','3','4','5','6','7','8','9','10','11'];
+ function makeClock(kind){
+  var clock=document.createElement('div');clock.className='jb-analog-clock-20261127';clock.setAttribute('role','img');
+  clock.setAttribute('aria-label',kind==='roman'?'রোমান সংখ্যা ঘড়ি':'ইংরেজি সংখ্যা ঘড়ি');
+  var nums=kind==='roman'?roman:english;
+  nums.forEach(function(n,i){
+   var el=document.createElement('span');el.className='jb-clock-number-20261127';el.textContent=n;
+   var angle=i*30*Math.PI/180,r=kind==='roman'?39:39;
+   el.style.transform='translate('+Math.sin(angle)*r+'px,'+(-Math.cos(angle)*r)+'px)';
+   clock.appendChild(el);
+  });
+  var hour=document.createElement('i');hour.className='jb-clock-hand-20261127 jb-clock-hour-20261127';
+  var minute=document.createElement('i');minute.className='jb-clock-hand-20261127 jb-clock-minute-20261127';
+  var pin=document.createElement('i');pin.className='jb-clock-pin-20261127';
+  var brand=document.createElement('span');brand.className='jb-clock-brand-20261127';brand.textContent='JANNATUL BAQI';
+  clock.appendChild(hour);clock.appendChild(minute);clock.appendChild(pin);clock.appendChild(brand);
+  clock._hourHand=hour;clock._minuteHand=minute;return clock;
+ }
+ function updateClocks(){
+  var d=new Date(),parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Dhaka',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(d);
+  var h=Number(parts.find(function(x){return x.type==='hour'}).value)%12;
+  var m=Number(parts.find(function(x){return x.type==='minute'}).value);
+  var row=document.querySelector('#app > header.header .jb-dual-clock-title-row-20261127');
+  if(!row)return;
+  row.querySelectorAll('.jb-analog-clock-20261127').forEach(function(clock){
+   clock._hourHand.style.transform='rotate('+(h*30+m*.5)+'deg)';
+   clock._minuteHand.style.transform='rotate('+(m*6)+'deg)';
+  });
+ }
+ function install(){
+  var header=document.querySelector('#app > header.header'),content=header&&header.querySelector('.header-content');
+  if(!content)return false;
+  var arabic=content.querySelector('.title-ar');
+  if(!arabic)return false;
+  var oldClock=header.querySelector('#appClock');if(oldClock)oldClock.remove();
+  var row=content.querySelector('.jb-dual-clock-title-row-20261127');
+  if(!row){
+   row=document.createElement('div');row.className='jb-dual-clock-title-row-20261127';
+   var left=makeClock('roman'),right=makeClock('english'),center=document.createElement('div');
+   center.className='jb-arabic-clock-title-center-20261127';
+   arabic.parentNode.insertBefore(row,arabic);
+   center.appendChild(arabic);row.appendChild(left);row.appendChild(center);row.appendChild(right);
+  }
+  updateClocks();return true;
+ }
+ function start(){
+  var attempts=0;
+  function tryInstall(){attempts++;if(install())return;if(attempts<30)setTimeout(tryInstall,250);}
+  tryInstall();
+  setInterval(updateClocks,15000);
+  var observer=new MutationObserver(function(){if(!document.querySelector('#app > header.header .jb-dual-clock-title-row-20261127'))install();});
+  var app=document.getElementById('app');if(app)observer.observe(app,{childList:true,subtree:true});
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
+})();
+</script>
+<!-- ===== END FINAL DUAL ANALOG HEADER DESIGN ===== -->
