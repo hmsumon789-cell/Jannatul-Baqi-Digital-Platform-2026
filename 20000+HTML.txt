@@ -21233,3 +21233,105 @@ body.gold .payment-action-btn-b7b1e77{border-radius:999px!important}
 }
 </style>
 <!-- ===== END FIXED ROUND CLOCK FRAMES ===== -->
+
+<!-- ===== FINAL HEADER NAME GAP + COMPACT CONTROLS UNDER HOTLINE — 2026-11-27 ===== -->
+<style id="jb-header-name-gap-controls-final-20261127">
+/* বাংলা ও ইংরেজি নামের মাঝের পুরনো margin/gap/line-height override বাতিল */
+#app > header.header .header-content .header-identity-contact,
+#app > header.header .header-content .header-identity-text{
+  gap:0!important;
+  row-gap:0!important;
+  margin:0!important;
+  padding:0!important;
+  line-height:1!important;
+}
+#app > header.header .header-content .header-identity-contact .title-bn,
+#app > header.header .header-content .header-identity-contact .title-en,
+#app > header.header .header-content .header-identity-text .title-bn,
+#app > header.header .header-content .header-identity-text .title-en{
+  display:block!important;
+  margin:0!important;
+  padding:0!important;
+  line-height:1!important;
+}
+/* হটলাইনের পরপরই কন্ট্রোল লাইন; আগের 50/52/54/66px উচ্চতা বাতিল */
+#app > header.header .header-clock-row-v2{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:36px!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:0 5px!important;
+  gap:5px!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  flex-wrap:nowrap!important;
+  box-sizing:border-box!important;
+}
+#app > header.header .header-clock-row-v2 .header-slider-controls{
+  display:flex!important;
+  align-items:center!important;
+  height:36px!important;
+  min-height:36px!important;
+  max-height:36px!important;
+  margin:0!important;
+  padding:0!important;
+  gap:5px!important;
+}
+#app > header.header .header-clock-row-v2 .header-slider-controls button,
+#app > header.header .header-clock-row-v2 .header-slider-controls .header-load-btn,
+#app > header.header .header-clock-row-v2 .header-slider-controls .header-photo-load{
+  height:34px!important;
+  min-height:34px!important;
+  max-height:34px!important;
+  padding:0 10px!important;
+  font-size:13px!important;
+  line-height:1!important;
+  box-sizing:border-box!important;
+}
+#app > header.header .header-clock-row-v2 .header-slider-controls > button:first-child,
+#app > header.header .header-clock-row-v2 .header-slider-controls > button:last-child{
+  width:34px!important;
+  min-width:34px!important;
+  max-width:34px!important;
+  padding:0!important;
+  font-size:17px!important;
+}
+#app > header.header .header-clock-row-v2 .header-slider-controls .header-photo-load{
+  display:inline-flex!important;
+  align-items:center!important;
+  margin:0!important;
+}
+@media(max-width:700px){
+  #app > header.header .header-clock-row-v2{
+    min-height:34px!important;
+    padding:0 2px!important;
+    gap:3px!important;
+  }
+  #app > header.header .header-clock-row-v2 .header-slider-controls{
+    height:34px!important;
+    min-height:34px!important;
+    max-height:34px!important;
+    gap:3px!important;
+  }
+  #app > header.header .header-clock-row-v2 .header-slider-controls button,
+  #app > header.header .header-clock-row-v2 .header-slider-controls .header-load-btn,
+  #app > header.header .header-clock-row-v2 .header-slider-controls .header-photo-load{
+    height:32px!important;
+    min-height:32px!important;
+    max-height:32px!important;
+    padding:0 7px!important;
+    font-size:11px!important;
+  }
+  #app > header.header .header-clock-row-v2 .header-slider-controls > button:first-child,
+  #app > header.header .header-clock-row-v2 .header-slider-controls > button:last-child{
+    width:32px!important;
+    min-width:32px!important;
+    max-width:32px!important;
+  }
+}
+</style>
+<!-- ===== END FINAL HEADER NAME GAP + COMPACT CONTROLS ===== -->
