@@ -20985,6 +20985,8 @@ body.gold .payment-action-btn-b7b1e77{border-radius:999px!important}
   var row=document.querySelector('#app > header.header .jb-dual-clock-title-row-20261127');
   if(!row)return;
   row.querySelectorAll('.jb-analog-clock-20261127').forEach(function(clock){
+   var radius=clock.offsetWidth<=80?25:39;
+   clock.querySelectorAll('.jb-clock-number-20261127').forEach(function(el,i){var angle=i*30*Math.PI/180;el.style.transform='translate('+Math.sin(angle)*radius+'px,'+(-Math.cos(angle)*radius)+'px)';});
    clock._hourHand.style.transform='rotate('+(h*30+m*.5)+'deg)';
    clock._minuteHand.style.transform='rotate('+(m*6)+'deg)';
   });
@@ -21010,6 +21012,7 @@ body.gold .payment-action-btn-b7b1e77{border-radius:999px!important}
   function tryInstall(){attempts++;if(install())return;if(attempts<30)setTimeout(tryInstall,250);}
   tryInstall();
   setInterval(updateClocks,15000);
+  window.addEventListener('resize',updateClocks,{passive:true});
   var observer=new MutationObserver(function(){if(!document.querySelector('#app > header.header .jb-dual-clock-title-row-20261127'))install();});
   var app=document.getElementById('app');if(app)observer.observe(app,{childList:true,subtree:true});
  }
