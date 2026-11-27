@@ -733,6 +733,13 @@ body.gold #formWin .form-language-fixed span{border-radius:999px!important}
 }
 #app .header-clock-row-v2 .header-clock-button{font-size:20px!important;letter-spacing:2px!important}
 #app .header-clock-row-v2 .header-date-button{font-size:15px!important}
+#app .header-clock-row-v2{height:44px!important;min-height:44px!important;max-height:44px!important;flex-wrap:nowrap!important;justify-content:flex-start!important;align-items:center!important;overflow-x:auto!important;overflow-y:hidden!important;white-space:nowrap!important;scrollbar-width:none!important;position:relative!important;transform:none!important;transition:none!important}
+#app .header-clock-row-v2::-webkit-scrollbar{display:none!important}
+#app .header-clock-row-v2 .header-clock-button{width:145px!important;min-width:145px!important;max-width:145px!important;height:34px!important;min-height:34px!important;flex:0 0 145px!important;font-size:18px!important;letter-spacing:1px!important;font-variant-numeric:tabular-nums!important}
+#app .header-clock-row-v2 .header-date-button{height:34px!important;min-height:34px!important;flex:0 0 auto!important}
+#app .header-clock-row-v2 .header-slider-controls{height:34px!important;min-height:34px!important;max-height:34px!important;flex-wrap:nowrap!important;align-self:center!important;transform:none!important;transition:none!important}
+#app .header-clock-row-v2 .header-slider-controls *{transform:none!important;transition:none!important}
+
 /* নিচে: বামে সরাসরি শিট | মাঝে চলমান নিউজ+মাইক | ডানে ৩ ভাষার ক্যালেন্ডার */
 #app .header-mainline-v2{display:grid!important;grid-template-columns:max-content minmax(0,1fr) max-content!important;align-items:center!important;gap:8px!important;width:100%!important;margin:0!important}
 #app .header-mainline-v2 .header-sheet-v2{height:38px!important;min-height:38px!important;padding:4px 9px!important;white-space:nowrap!important;font-weight:900!important}
@@ -822,13 +829,13 @@ body.gold #app .header-calendar-select-v2{background:#f4d56b!important;color:#11
 (function(){
   function bdTime(){
     var d=new Date(),tz='Asia/Dhaka';
-    var t=d.toLocaleTimeString('bn-BD',{timeZone:tz,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+    var t=d.toLocaleTimeString('bn-BD',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false});
     var dt=d.toLocaleDateString('bn-BD',{timeZone:tz,weekday:'long',year:'numeric',month:'long',day:'numeric'});
     var ld=d.toLocaleDateString('bn-BD',{timeZone:tz,day:'numeric',month:'long',year:'numeric'});
     var a=document.getElementById('appClock'),b=document.getElementById('appDate'),l=document.getElementById('loginDateTime');
     if(a)a.textContent=t;if(b)b.textContent=dt;if(l)l.innerHTML='<span class="login-clock-digits">সময় '+t+'</span><span class="login-date-digits">'+ld+'</span>';
   }
-  bdTime();setInterval(bdTime,1000);
+  bdTime();setInterval(bdTime,15000);
 })();
 </script>
 <!-- ===== HEADER IDENTITY UNDER LOGO SAFE FIX — 2026-09-23 ===== -->
@@ -3260,6 +3267,12 @@ header.header{position:relative!important;isolation:isolate!important;overflow:h
 .header-hue-3 .header-content .title-bn{color:#087f45!important;text-shadow:0 1px 3px #fff!important}
 .header-hue-3 .header-content .title-ar{color:#d72e78!important;text-shadow:0 1px 3px #fff!important}
 .header-hue-3 .header-content .title-en{color:#8b1749!important;text-shadow:0 1px 3px #fff!important}
+/* Header identity colors rotate with the four background modes: dark, light, golden, off-white */
+.header-hue-0 .header-content .title-bn,.header-hue-0 .header-content .title-ar,.header-hue-0 .header-content .title-en,.header-hue-0 .header-content .header-address-line,.header-hue-0 .header-content .header-hotline-email-line{color:#fff!important;text-shadow:0 2px 5px #000,0 0 8px #000!important}
+.header-hue-1 .header-content .title-bn,.header-hue-1 .header-content .title-ar,.header-hue-1 .header-content .title-en,.header-hue-1 .header-content .header-address-line,.header-hue-1 .header-content .header-hotline-email-line{color:#18251d!important;text-shadow:0 1px 2px #fff!important}
+.header-hue-2 .header-content .title-bn,.header-hue-2 .header-content .title-ar,.header-hue-2 .header-content .title-en,.header-hue-2 .header-content .header-address-line,.header-hue-2 .header-content .header-hotline-email-line{color:#4b2600!important;text-shadow:0 1px 2px #ffe7a0!important}
+.header-hue-3 .header-content .title-bn,.header-hue-3 .header-content .title-ar,.header-hue-3 .header-content .title-en,.header-hue-3 .header-content .header-address-line,.header-hue-3 .header-content .header-hotline-email-line{color:#343044!important;text-shadow:0 1px 2px #fff!important}
+
 .header-hue-0 .header-content .header-address-line,.header-hue-0 .header-content .header-hotline-email-line{color:#fff!important;text-shadow:0 2px 4px #064b31!important}
 .header-hue-1 .header-content .header-address-line,.header-hue-1 .header-content .header-hotline-email-line{color:#fff!important;text-shadow:0 2px 4px #087f45!important}
 .header-hue-2 .header-content .header-address-line,.header-hue-2 .header-content .header-hotline-email-line{color:#087f45!important;text-shadow:0 1px 2px #fff!important}
