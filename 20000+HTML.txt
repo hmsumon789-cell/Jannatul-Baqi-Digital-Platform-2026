@@ -21025,3 +21025,56 @@ body.gold .payment-action-btn-b7b1e77{border-radius:999px!important}
 })();
 </script>
 <!-- ===== END REQUESTED DUAL ANALOG HEADER CLOCKS ===== -->
+
+<style id="jb-light-mode-gorgeous-module-buttons-20261127">
+/* LIGHT MODE ONLY — dashboard module buttons: rounded, vivid, animated */
+body:not(.dark):not(.gold):not(.offwhite) #app button.module{
+ position:relative!important;isolation:isolate!important;overflow:hidden!important;
+ border:2px solid #fff!important;border-radius:999px!important;
+ color:#fff!important;font-weight:1000!important;text-shadow:0 1px 3px #17255499!important;
+ background:linear-gradient(115deg,#00a878 0%,#1688e8 22%,#7954d8 45%,#e4479a 67%,#f28a27 84%,#00a878 100%)!important;
+ background-size:320% 320%!important;
+ box-shadow:0 5px 0 #344b83,0 9px 17px #263b7040,inset 0 2px 3px #ffffffa8!important;
+ animation:jbLightModuleFlow2026 7s ease infinite,jbLightModuleGlow2026 2.7s ease-in-out infinite!important;
+ transition:transform .22s ease,filter .22s ease,box-shadow .22s ease!important;
+}
+body:not(.dark):not(.gold):not(.offwhite) #app button.module::after{
+ content:""!important;position:absolute!important;z-index:2!important;inset:-85% -55%!important;
+ pointer-events:none!important;
+ background:linear-gradient(105deg,transparent 43%,#ffffffa8 50%,transparent 57%)!important;
+ transform:translateX(-115%) rotate(9deg)!important;
+ animation:jbLightModuleShine2026 3.8s ease-in-out infinite!important;
+}
+body:not(.dark):not(.gold):not(.offwhite) #app button.module:hover{
+ transform:translateY(-4px) scale(1.025)!important;filter:saturate(1.2) brightness(1.1)!important;
+ box-shadow:0 8px 0 #344b83,0 14px 23px #263b7055,inset 0 2px 3px #ffffffbb!important;
+}
+body:not(.dark):not(.gold):not(.offwhite) #app button.module:active{
+ transform:translateY(3px) scale(.99)!important;
+ box-shadow:0 2px 0 #344b83,0 4px 8px #263b7040,inset 0 2px 5px #17255455!important;
+}
+body:not(.dark):not(.gold):not(.offwhite) #app button.module:focus-visible{
+ outline:3px solid #ffb000!important;outline-offset:3px!important;
+}
+body:not(.dark):not(.gold):not(.offwhite) #app button.module:disabled{
+ filter:grayscale(.35)!important;animation:none!important;cursor:not-allowed!important;
+}
+@keyframes jbLightModuleFlow2026{
+ 0%,100%{background-position:0% 50%}
+ 50%{background-position:100% 50%}
+}
+@keyframes jbLightModuleGlow2026{
+ 0%,100%{filter:saturate(1) brightness(1);box-shadow:0 5px 0 #344b83,0 8px 15px #263b7033,inset 0 2px 3px #ffffffa8}
+ 50%{filter:saturate(1.22) brightness(1.08);box-shadow:0 6px 0 #344b83,0 11px 22px #6b43b755,0 0 0 3px #f5c6ff55,inset 0 2px 4px #ffffffcc}
+}
+@keyframes jbLightModuleShine2026{
+ 0%,24%{transform:translateX(-115%) rotate(9deg)}
+ 72%,100%{transform:translateX(115%) rotate(9deg)}
+}
+@media(prefers-reduced-motion:reduce){
+ body:not(.dark):not(.gold):not(.offwhite) #app button.module,
+ body:not(.dark):not(.gold):not(.offwhite) #app button.module::after{
+  animation:none!important;transition:none!important
+ }
+}
+</style>
