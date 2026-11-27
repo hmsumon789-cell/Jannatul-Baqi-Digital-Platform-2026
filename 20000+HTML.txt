@@ -21111,8 +21111,10 @@ body.gold .payment-action-btn-b7b1e77{border-radius:999px!important}
   if(!content)return;
   var row=header.querySelector('.header-clock-row-v2');
   var identity=content.querySelector('.header-identity-contact');
-  if(row&&identity&&row.parentNode!==content){
-   if(identity.nextSibling)content.insertBefore(row,identity.nextSibling);else content.appendChild(row);
+  var hotline=content.querySelector('.header-hotline-email-line');
+  var anchor=(hotline&&identity&&identity.contains(hotline))?identity:(hotline||identity);
+  if(row&&anchor&&(row.parentNode!==anchor.parentNode||row.previousElementSibling!==anchor)){
+   if(anchor.nextSibling)anchor.parentNode.insertBefore(row,anchor.nextSibling);else anchor.parentNode.appendChild(row);
   }
   ['.title-bn','.title-ar','.title-en'].forEach(function(sel){
    var el=content.querySelector(sel);
