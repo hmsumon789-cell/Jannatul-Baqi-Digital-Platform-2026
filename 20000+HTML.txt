@@ -1569,11 +1569,8 @@ body.gold #loginContactStrip20261013{background:#fff9e7!important;color:#4a3300!
         <div class="small header-identity-contact"><div class="header-address-line">ঠিকানা: উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div><div class="header-hotline-email-line">হটলাইন: 01823316630, 01717339288 &nbsp;·&nbsp; ইমেইল: hmsumon789@gmail.com, jannatubakymrs@gmail.com</div></div>
       </div>
     </div>
-    <!-- HEADER 5 FIX V2: identity + clock/date above + sheet/news/calendar below -->
-    <div class="header-clock-row header-clock-row-v2">
-      <div class="header-clock-button" id="appClock">--:--:--</div>
-      <div class="header-date-button" id="appDate">--</div>
-    </div>
+    <!-- HEADER: slider controls row; dashboard clock/date boxes removed -->
+    <div class="header-clock-row header-clock-row-v2"></div>
     <div class="header-running-row header-mainline header-mainline-v2" id="headerMainline">
       <button type="button" class="sheet-btn header-sheet-v2" onclick="openProtectedSheet2026()">📊 মূল শীটে প্রবেশ</button>
       <div class="news header-news" data-news="জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম">
@@ -20856,3 +20853,23 @@ body.gold .payment-action-btn-b7b1e77{border-radius:999px!important}
 })();
 </script>
 <!-- ===== END HEADER STABLE ROW FIX ===== -->
+
+<!-- ===== REQUESTED HEADER CLEANUP: REMOVE DASHBOARD CLOCK/DATE + KEEP ALL THREE NAMES WHITE ===== -->
+<style id="jb-header-clock-date-removed-white-names-20261127">
+#app > header.header .header-clock-row-v2{
+ display:flex!important;align-items:center!important;justify-content:flex-start!important;flex-flow:row nowrap!important;
+ width:100%!important;height:50px!important;min-height:50px!important;max-height:50px!important;
+ margin:2px 0 5px!important;padding:0 6px!important;gap:5px!important;overflow:visible!important;
+}
+#app > header.header .header-clock-row-v2 > .header-clock-button,
+#app > header.header .header-clock-row-v2 > .header-date-button{display:none!important}
+#app > header.header .header-content .title-bn,
+#app > header.header .header-content .title-ar,
+#app > header.header .header-content .title-en{
+ color:#fff!important;-webkit-text-fill-color:#fff!important;text-shadow:0 1px 4px #000!important;
+}
+@media(max-width:700px){
+ #app > header.header .header-clock-row-v2{height:48px!important;min-height:48px!important;max-height:48px!important;margin:2px 0 4px!important;padding:0 4px!important}
+}
+</style>
+<!-- ===== END REQUESTED HEADER CLEANUP ===== -->
