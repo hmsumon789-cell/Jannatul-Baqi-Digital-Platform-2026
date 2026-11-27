@@ -12706,7 +12706,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   width:12mm!important;height:12mm!important;max-width:12mm!important;max-height:12mm!important;
 }
 #jbDocBuilderWin .jb-doc-preview.idcard .jb-institution-header-2026 .jb-inst-name-2026{font-size:7px!important}
-#jbDocBuilderWin .jb-doc-preview.idcard .jb-institution-header-2026 .jb-inst-address-2026{font-size:5.5px!important}
+#jbDocBuilderWin .jb-doc-preview.idcard .jb-institution-header-2026 .jb-inst-address-2026{font-size:9px!important}
 #jbDocBuilderWin .jb-doc-preview.half .jb-institution-header-2026 .jb-inst-side-2026 img{
   width:17mm!important;height:17mm!important;max-width:17mm!important;max-height:17mm!important;
 }
@@ -13882,7 +13882,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
  #jbOnlineExamResultWin2026{left:1vw!important;top:1vh!important;width:98vw!important;max-height:98vh!important}
  #jbOnlineExamResultWin2026 .win-body{max-height:calc(98vh - 54px)!important}
  #jbOnlineExamResultWin2026 .jb-or-card{max-height:72vh!important}
- #jbOnlineExamResultWin2026 .jb-or-institution-head{grid-template-columns:48px minmax(0,1fr) 48px!important;gap:4px!important;padding:5px!important}
+ #jbOnlineExamResultWin2026 .jb-or-institution-head{grid-template-columns:94px minmax(0,1fr) 94px!important;gap:4px!important;padding:5px!important}
  #jbOnlineExamResultWin2026 .jb-or-institution-logo,#jbOnlineExamResultWin2026 .jb-or-institution-qr{width:44px!important;height:44px!important}
  #jbOnlineExamResultWin2026 .jb-or-institution-text span,#jbOnlineExamResultWin2026 .jb-or-institution-text small{font-size:10px!important}
  #jbLoginServicePaymentRow2026{gap:6px!important}
@@ -17478,7 +17478,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
    if(fmt==='landscape'){page='A4 landscape';dim='.jb-doc-preview{width:281mm!important;height:194mm!important;min-height:194mm!important;padding:8mm 8mm 60mm!important;border:10px solid #8b5e00!important;box-shadow:inset 0 0 0 4px #1769aa,inset 0 0 0 8px #16834a,inset 0 0 0 12px #d4a017!important}'}
    else if(fmt==='admit'){page='A5 portrait';dim='.jb-doc-preview{width:132mm!important;height:194mm!important;min-height:194mm!important;padding:6mm 6mm 55mm!important;border:6px solid #8b5e00!important;box-shadow:inset 0 0 0 3px #1769aa,inset 0 0 0 6px #16834a!important}'}
    else if(fmt==='receipt'){page='148mm 100mm';dim='.jb-doc-preview{width:140mm!important;height:92mm!important;min-height:92mm!important;padding:4mm!important;border:6px solid #8b5e00!important;box-shadow:inset 0 0 0 2px #1769aa,inset 0 0 0 4px #16834a!important;font-size:9px!important}.jb-generic-head-2026{grid-template-columns:8mm minmax(0,1fr) 8mm!important;padding:1mm!important}.jb-generic-mark-2026{width:7mm!important;height:7mm!important;font-size:10px!important}.jb-generic-inst-2026{font-size:10px!important}.jb-generic-title-2026{font-size:9px!important;padding:2px 6px!important}.jb-generic-meta-2026{margin:2mm 0!important;padding:1mm!important;font-size:7px!important}.jb-generic-fields-2026{gap:1mm!important;margin-top:1mm!important}.jb-generic-field-2026{padding:1mm!important}.jb-generic-field-2026 span,.jb-generic-field-2026 b{font-size:7px!important}.jb-generic-sign-2026{display:none!important}.jb-generic-footer-2026{font-size:6px!important;margin-top:1mm!important;padding-top:1mm!important}'}
-   else if(fmt==='idcard'){page='86mm 54mm';dim='.jb-doc-preview{width:86mm!important;height:54mm!important;min-height:54mm!important;padding:3mm!important;border:4px solid #8b5e00!important;box-shadow:inset 0 0 0 2px #1769aa,inset 0 0 0 4px #16834a!important;font-size:7px!important}.jb-generic-head-2026{grid-template-columns:8mm minmax(0,1fr) 8mm!important;gap:1mm!important;padding:1mm!important}.jb-generic-mark-2026{width:6mm!important;height:6mm!important;font-size:8px!important}.jb-generic-inst-2026{font-size:8px!important}.jb-generic-address-2026{font-size:5px!important}.jb-generic-title-2026{font-size:7px!important;padding:1px 3px!important;margin-top:1px!important}.jb-generic-meta-2026{margin:1mm 0!important;padding:1mm!important;font-size:5px!important}.jb-generic-fields-2026{gap:1mm!important;margin-top:1mm!important}.jb-generic-field-2026{padding:1mm!important}.jb-generic-field-2026 span,.jb-generic-field-2026 b{font-size:6px!important}.jb-generic-photo-2026{width:12mm!important;height:15mm!important;margin:1mm!important}.jb-generic-sign-2026,.jb-generic-footer-2026,.jb-verification-qr{display:none!important}'}
+   else if(fmt==='idcard'){page='86mm 54mm';dim='.jb-doc-preview{width:86mm!important;height:54mm!important;min-height:54mm!important;padding:3mm!important;border:4px solid #8b5e00!important;box-shadow:inset 0 0 0 2px #1769aa,inset 0 0 0 4px #16834a!important;font-size:7px!important}.jb-generic-head-2026{grid-template-columns:8mm minmax(0,1fr) 8mm!important;gap:1mm!important;padding:1mm!important}.jb-generic-mark-2026{width:6mm!important;height:6mm!important;font-size:8px!important}.jb-generic-inst-2026{font-size:8px!important}.jb-generic-address-2026{font-size:9px!important}.jb-generic-title-2026{font-size:7px!important;padding:1px 3px!important;margin-top:1px!important}.jb-generic-meta-2026{margin:1mm 0!important;padding:1mm!important;font-size:5px!important}.jb-generic-fields-2026{gap:1mm!important;margin-top:1mm!important}.jb-generic-field-2026{padding:1mm!important}.jb-generic-field-2026 span,.jb-generic-field-2026 b{font-size:10px!important}.jb-generic-photo-2026{width:12mm!important;height:15mm!important;margin:1mm!important}.jb-generic-sign-2026,.jb-generic-footer-2026,.jb-verification-qr{display:none!important}'}
    else if(fmt==='half'){page='A5 landscape';dim='.jb-doc-preview{width:194mm!important;height:135mm!important;min-height:135mm!important;padding:7mm!important}'}
    return '@page{size:'+page+';margin:'+(fmt==='receipt'?'4mm':fmt==='idcard'?'0':'8mm')+'}html,body{margin:0!important;padding:0!important;background:#fff!important;color:#111!important;font-family:"Noto Sans Bengali","Noto Sans",Arial,sans-serif;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}*{box-sizing:border-box}.jb-doc-preview{position:relative!important;box-sizing:border-box!important;margin:0 auto!important;background:#fff!important;color:#111!important;overflow:visible!important;break-inside:avoid!important}'+dim+'.jb-doc-actions,.jb-online-service-save-2026,.jb-login-online-service-2026,.jb-marksheet-back-2026{display:none!important;visibility:hidden!important}.jb-doc-preview.a4 .jb-marksheet-signatures-2026,.jb-doc-preview.landscape .jb-marksheet-signatures-2026,.jb-doc-preview.admit .jb-marksheet-signatures-2026,.jb-doc-preview.a4 .jb-generic-sign-2026,.jb-doc-preview.landscape .jb-generic-sign-2026,.jb-doc-preview.admit .jb-generic-sign-2026{position:absolute!important;left:8mm!important;right:8mm!important;bottom:50.8mm!important;display:flex!important;justify-content:space-between!important;align-items:flex-end!important;margin:0!important;z-index:2!important}.jb-generic-sign-2026 span{padding:4px 3px 0!important;border-top:1px solid #222!important;min-width:25%!important;text-align:center!important}.jb-generic-footer-2026{position:absolute!important;left:8mm!important;right:8mm!important;bottom:5mm!important;text-align:center!important}.jb-institution-header-2026{break-inside:avoid!important}';
  }
@@ -20922,14 +20922,14 @@ body.gold .payment-action-btn-b7b1e77{border-radius:999px!important}
 <!-- ===== REQUESTED DUAL ANALOG HEADER CLOCKS 20261127 ===== -->
 <style id="jb-dual-analog-header-clocks-style">
 #app .header-top{
- display:grid!important;grid-template-columns:88px minmax(0,1fr) 88px!important;
+ display:grid!important;grid-template-columns:164px minmax(0,1fr) 164px!important;
  align-items:center!important;column-gap:8px!important;
 }
 #app .header-top .header-content{grid-column:2!important;grid-row:1!important;min-width:0!important;width:100%!important}
 #app .header-top .jb-english-clock{grid-column:1!important;grid-row:1!important;justify-self:center!important}
 #app .header-top .jb-makkah-clock{grid-column:3!important;grid-row:1!important;justify-self:center!important}
 #app .jb-analog-clock{
- --clock-size:76px;position:relative!important;z-index:6!important;
+ --clock-size:152px;position:relative!important;z-index:6!important;
  width:var(--clock-size)!important;min-width:var(--clock-size)!important;
  display:flex!important;flex-direction:column!important;align-items:center!important;
  gap:3px!important;pointer-events:none!important;filter:drop-shadow(0 2px 4px #0008);
@@ -20957,11 +20957,11 @@ body.gold .payment-action-btn-b7b1e77{border-radius:999px!important}
 #app .jb-makkah-clock .jb-clock-face:before{color:#f4d46c!important}
 #app .jb-clock-num{
  position:absolute!important;z-index:2!important;font-family:Arial,sans-serif!important;
- font-size:clamp(8px,1.1vw,12px)!important;font-weight:900!important;line-height:1!important;
+ font-size:clamp(12px,1.25vw,17px)!important;font-weight:900!important;line-height:1!important;
  transform:translate(-50%,-50%)!important;
 }
 #app .jb-english-clock .jb-clock-num{color:#102f50!important}
-#app .jb-makkah-clock .jb-clock-num{color:#ffe89a!important;font-size:clamp(8px,1vw,11px)!important}
+#app .jb-makkah-clock .jb-clock-num{color:#ffe89a!important;font-size:clamp(12px,1.2vw,16px)!important}
 #app .jb-clock-num.n12{left:50%!important;top:14%!important}
 #app .jb-clock-num.n1{left:68%!important;top:19%!important}
 #app .jb-clock-num.n2{left:81%!important;top:33%!important}
@@ -20979,25 +20979,25 @@ body.gold .payment-action-btn-b7b1e77{border-radius:999px!important}
  display:block!important;border-radius:99px!important;transform-origin:50% 100%!important;
  transform:translateX(-50%) rotate(0deg);will-change:transform;
 }
-#app .jb-hour{width:4px!important;height:23%!important}
-#app .jb-minute{width:2.8px!important;height:33%!important}
-#app .jb-second{width:1.4px!important;height:39%!important;background:#e33b35!important}
+#app .jb-hour{width:6px!important;height:23%!important}
+#app .jb-minute{width:4px!important;height:33%!important}
+#app .jb-second{width:2px!important;height:39%!important;background:#e33b35!important}
 #app .jb-english-clock .jb-hour,#app .jb-english-clock .jb-minute{background:#173a60!important}
 #app .jb-makkah-clock .jb-hour,#app .jb-makkah-clock .jb-minute{background:#f5d36c!important}
-#app .jb-clock-pin{position:absolute!important;left:50%!important;top:50%!important;width:8px!important;height:8px!important;z-index:5!important;border-radius:50%!important;transform:translate(-50%,-50%)!important;background:#d7a92c!important;border:1px solid #fff!important}
-#app .jb-clock-center-mark{position:absolute!important;left:50%!important;top:38%!important;z-index:3!important;transform:translate(-50%,-50%)!important;color:#ffe89a!important;font-size:8px!important;font-weight:900!important}
-#app .jb-clock-caption{font-size:8px!important;line-height:1!important;font-weight:900!important;white-space:nowrap!important;color:#fff!important;text-shadow:0 1px 3px #000!important}
+#app .jb-clock-pin{position:absolute!important;left:50%!important;top:50%!important;width:12px!important;height:12px!important;z-index:5!important;border-radius:50%!important;transform:translate(-50%,-50%)!important;background:#d7a92c!important;border:1px solid #fff!important}
+#app .jb-clock-center-mark{position:absolute!important;left:50%!important;top:38%!important;z-index:3!important;transform:translate(-50%,-50%)!important;color:#ffe89a!important;font-size:14px!important;font-weight:900!important}
+#app .jb-clock-caption{font-size:12px!important;line-height:1!important;font-weight:900!important;white-space:nowrap!important;color:#fff!important;text-shadow:0 1px 3px #000!important}
 #app .jb-english-clock .jb-clock-caption{letter-spacing:1px!important}
 @media(max-width:700px){
  #app .header-top{grid-template-columns:48px minmax(0,1fr) 48px!important;column-gap:3px!important;padding-left:3px!important;padding-right:3px!important}
- #app .jb-analog-clock{--clock-size:44px;gap:2px!important}
+ #app .jb-analog-clock{--clock-size:88px;gap:2px!important}
  #app .jb-clock-face{border-width:2px!important}
  #app .jb-clock-num{font-size:6px!important}
  #app .jb-makkah-clock .jb-clock-num{font-size:5.5px!important}
- #app .jb-hour{width:2.5px!important}
- #app .jb-minute{width:1.8px!important}
- #app .jb-second{width:1px!important}
- #app .jb-clock-pin{width:5px!important;height:5px!important}
+ #app .jb-hour{width:4px!important}
+ #app .jb-minute{width:2.8px!important}
+ #app .jb-second{width:1.5px!important}
+ #app .jb-clock-pin{width:8px!important;height:8px!important}
  #app .jb-clock-caption{font-size:5px!important}
  #app .jb-clock-center-mark{font-size:5px!important}
 }
