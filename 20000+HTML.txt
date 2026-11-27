@@ -21139,3 +21139,43 @@ body.gold .payment-action-btn-b7b1e77{border-radius:999px!important}
  .jb-analog-clock-20261127 .jb-clock-number-20261127{font-size:12px!important}
 }
 </style>
+
+
+<!-- ===== PRECISE DASHBOARD HEADER TITLE SPACING CORRECTION — 2026-11-27 ===== -->
+<style id="jb-header-title-spacing-correction-20261127">
+/* বাংলা ও ইংরেজি নামের মাঝের অপ্রয়োজনীয় flex-gap এবং পুরনো 6px margin বাতিল */
+#app > header.header .header-content .header-identity-contact{
+  row-gap:0!important;
+  gap:0!important;
+}
+#app > header.header .header-content .header-identity-contact > .title-bn,
+#app > header.header .header-content .header-identity-contact > .title-en{
+  margin:0!important;
+  padding:0!important;
+  line-height:1.02!important;
+}
+/* আরবি নামের ঘড়ি-সারি ও দুই পাশের নামের উল্লম্ব দূরত্ব কম */
+#app > header.header .header-content .jb-dual-clock-title-row-20261127{
+  margin-top:0!important;
+  margin-bottom:0!important;
+}
+#app > header.header .header-content .jb-dual-clock-title-row-20261127 .title-ar{
+  margin:0!important;
+  padding:0!important;
+  line-height:1.02!important;
+}
+/* ঠিকানা ও যোগাযোগের পাঠ্য যেন নামের সঙ্গে লেগে না যায় */
+#app > header.header .header-content .header-address-line,
+#app > header.header .header-content .header-hotline-email-line{
+  margin-top:3px!important;
+  line-height:1.12!important;
+}
+@media(max-width:700px){
+  #app > header.header .header-content .header-identity-contact > .title-bn,
+  #app > header.header .header-content .header-identity-contact > .title-en,
+  #app > header.header .header-content .jb-dual-clock-title-row-20261127 .title-ar{
+    line-height:1!important;
+  }
+}
+</style>
+<!-- ===== END PRECISE HEADER TITLE SPACING CORRECTION ===== -->
