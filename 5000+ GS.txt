@@ -1559,6 +1559,8 @@ function savePublicAdmissionApplication2026(data) {
       return {ok:false,duplicate:true,message:'এই আবেদন নম্বরটি ইতিমধ্যে ব্যবহৃত হয়েছে। নতুন হাতে লেখা আইডি নম্বর দিন।'};
     src.StudentID=generateAdmissionStudentId2026_();
     src.FormID=String(src.FormID||admissionId);
+    src.TenantAccount=publicContext.isMain?'PUBLIC_LOGIN':publicContext.tenantKey;
+    src.MadrasaID=publicContext.madrasaId;
     data.AdmissionID=admissionId; data.StudentID=src.StudentID; data.Status='PENDING'; data.TenantAccount=publicContext.isMain?'PUBLIC_LOGIN':publicContext.tenantKey; data.MadrasaID=publicContext.madrasaId;
     data.FormData=JSON.stringify(Object.assign({},form,{StudentID:src.StudentID}));
     const admissionSerial=nextSerial_(admissionSheet);
@@ -3307,12 +3309,13 @@ function saveOnlineServiceRecord(token,docKey,personId,data,html) {
   const clean=onlineServiceCleanHtml_(html);
   const pdf=onlineServicePdf_(key,clean,serviceId);
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ONLINE_SERVICES);
-  const row=[nextSerial_(sh),serviceId,onlineServiceCode_(key),key,pid,
-    data.NameBN||data.NameEN||'',title,data.IssueDate||data.Date||now_(),
-    pdf.fileId||'',pdf.url||'',JSON.stringify(data),clean,'ACTIVE',now_()];
-  sh.appendRow(row);
+  const identity=tenantIdentity_(token),tenantKey=identity.key||'',tenantContext=getPublicMadrasaContextByTenantKey2026_(tenantKey);
+  const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);if(headers.indexOf('TenantAccount')<0){sh.getRange(1,sh.getLastColumn()+1).setValue('TenantAccount');headers.push('TenantAccount');}
+  const record={Serial:nextSerial_(sh),ServiceID:serviceId,ServiceCode:onlineServiceCode_(key),DocKey:key,PersonID:pid,Name:data.NameBN||data.NameEN||'',Title:title,IssueDate:data.IssueDate||data.Date||now_(),PdfFileId:pdf.fileId||'',PdfUrl:pdf.url||'',Data:JSON.stringify(data),HTML:clean,Status:'ACTIVE',CreatedAt:now_(),TenantAccount:tenantKey};
+  sh.appendRow(headers.map(function(k){return record[k]!==undefined?record[k]:'';}));
+  const mrid=tenantContext.ok?tenantContext.madrasaId:'';
   return {ok:true,serviceId,serviceCode:onlineServiceCode_(key),personId:pid,pdfUrl:pdf.url||'',pdfFileId:pdf.fileId||'',
-    publicUrl:(getMainWebAppUrl().url||'')+'?online=1&code='+encodeURIComponent(onlineServiceCode_(key))+'&id='+encodeURIComponent(pid),
+    publicUrl:(getMainWebAppUrl(mrid).url||'')+'?online=1&code='+encodeURIComponent(onlineServiceCode_(key))+'&id='+encodeURIComponent(pid)+(mrid?'&mrid='+encodeURIComponent(mrid):''),
     message:pdf.url?'অনলাইন সেবা + PDF সংরক্ষণ হয়েছে।':'অনলাইন সেবা সংরক্ষণ হয়েছে; PDF লিংক তৈরি হয়নি, প্রিন্ট থেকে PDF নেওয়া যাবে।'};
 }
 function autoDocumentPublicHtml_(docKey,personId,fields,institution) {
