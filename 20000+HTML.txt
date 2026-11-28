@@ -12315,7 +12315,7 @@ body.dark #jbDocumentBuilderEntry2026{background:#000;color:#ffe95c;border-color
         exam.type='button';exam.className='primary';exam.id='jbExamDashboardEntry2026';
         exam.textContent='📝 পরীক্ষা ড্যাশবোর্ড';
         exam.onclick=function(){if(typeof window.openExamDashboard==='function')window.openExamDashboard();};
-        row.appendChild(exam);row.appendChild(b);var admission=document.createElement('button');admission.type='button';admission.className='primary';admission.id='jbOnlineAdmissionPanelEntry2026';admission.textContent='📝 অনলাইন ভর্তি+আবেদন প্যানেল';admission.title='অনলাইন ভর্তি, পরীক্ষার্থী নিবন্ধন, চাকরির আবেদন ও তালিকা';admission.onclick=function(){if(typeof window.openAdmissionPanel2026==='function')window.openAdmissionPanel2026();else if(typeof window.openModule==='function')window.openModule('admission');};row.appendChild(admission);
+        var listButton=document.getElementById('allListsButton2026');\n        if(listButton&&listButton.parentNode){listButton.insertAdjacentElement('afterend',exam);}\n        else{row.appendChild(exam);}\n        row.appendChild(b);var admission=document.createElement('button');admission.type='button';admission.className='primary';admission.id='jbOnlineAdmissionPanelEntry2026';admission.textContent='📝 অনলাইন ভর্তি+আবেদন প্যানেল';admission.title='অনলাইন ভর্তি, পরীক্ষার্থী নিবন্ধন, চাকরির আবেদন ও তালিকা';admission.onclick=function(){if(typeof window.openAdmissionPanel2026==='function')window.openAdmissionPanel2026();else if(typeof window.openModule==='function')window.openModule('admission');};row.appendChild(admission);
         anchor.parentNode.insertBefore(row,anchor.nextSibling);
       }else if(!row.contains(b))row.appendChild(b);
     }else app.appendChild(b);
@@ -21346,3 +21346,41 @@ body.offwhite #app a.button:active{
 }
 </style>
 <!-- ===== END DASHBOARD NAV VERTICAL SPACING + ROUND EXAM BUTTON ===== -->
+
+
+<!-- ===== DASHBOARD EXAM BUTTON PLACEMENT + TITLE EMPHASIS — 2026-11-29 ===== -->
+<style id="jb-dashboard-exam-adjacent-title-emphasis-20261129">
+/* তালিকা বাটনের ঠিক ডানে পরীক্ষা ড্যাশবোর্ড */
+#app .dashboard-title-left{
+  display:flex!important;
+  flex-wrap:nowrap!important;
+  align-items:center!important;
+  white-space:nowrap!important;
+  gap:4px!important;
+}
+#app #jbExamDashboardEntry2026{
+  flex:0 0 auto!important;
+  margin:0 0 0 4px!important;
+}
+/* প্রশাসনিক ড্যাশবোর্ড: বড় ও মোটা, কিন্তু এক লাইনে */
+#app .dashboard-nav.dashboard-title-bar{
+  grid-template-columns:max-content minmax(0,1fr) max-content!important;
+  column-gap:8px!important;
+}
+#app .dashboard-nav.dashboard-title-bar>h2{
+  min-width:0!important;
+  max-width:100%!important;
+  white-space:nowrap!important;
+  text-align:center!important;
+  font-size:28px!important;
+  font-weight:1000!important;
+  line-height:1.15!important;
+  letter-spacing:.2px!important;
+}
+@media(min-width:901px){
+  #app .dashboard-nav.dashboard-title-bar{
+    grid-template-columns:max-content minmax(160px,1fr) max-content!important;
+  }
+}
+</style>
+<!-- ===== END DASHBOARD EXAM BUTTON PLACEMENT + TITLE EMPHASIS ===== -->
