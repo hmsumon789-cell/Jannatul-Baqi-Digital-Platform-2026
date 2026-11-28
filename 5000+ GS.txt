@@ -409,7 +409,12 @@ function login(username,password) {
     password = String(password || '');
     if (!username || !password) return {ok:false,message:'ইউজার নেম ও পাসওয়ার্ড দিন।'};
     const row = findAdminLogin_(username);
-    if (!row) return {ok:false,message:'ইউজার নেম পাওয়া যায়নি।'};
+    if (!row) {
+      const madrasaAccount=findBy_(SHEETS.MADRASAS,'Username',username);
+      if(!madrasaAccount)return {ok:false,message:'ইউজার নেম পাওয়া যায়নি।'};
+      if(String(madrasaAccount.PasswordHash||'')!==hash_(password))return {ok:false,message:'পাসওয়ার্ড সঠিক নয়।'};
+      return createDirectSession_(username,'madrasa');
+    }
     const role = String(row.role || (findBy_(SHEETS.ADMINS,'Username',username) || {}).Role || '').toUpperCase().replace(/\s+/g,'_');
     const status = String(row.status || '').trim().toUpperCase();
     const isSuperAdmin = role === 'SUPER_ADMIN' || role === 'SUPERADMIN' || username.toLowerCase() === 'superadmin';
@@ -523,6 +528,7 @@ function registerMadrasa(data){
   if(!password)missing.push('Password');
   if(!email)missing.push('Email');
   if(!mobile)missing.push('মোবাইল নম্বর');
+  if(!photo)missing.push('মাদ্রাসার লোগো');
   if(!name)missing.push('বাংলা মাদ্রাসার নাম');
   if(!year)missing.push('প্রতিষ্ঠা সন');
   if(!address)missing.push('ঠিকানা');
@@ -546,12 +552,12 @@ function registerMadrasa(data){
   /* Add review columns only after the legacy Email/Photo columns exist; write by header name to avoid column shifts. */
   ensureAccountReviewColumns_();
   ensureAccountAppearanceColumns_();
-  const rowData={Serial:n,MadrasaID:id,GenderType:String(data.genderType||''),BoardRegistration:String(data.boardRegistration||''),Name:name,NameAR:String(data.nameAR||''),NameEN:String(data.nameEN||''),FoundedYear:year,Founder:String(data.founder||''),Muhtamim:String(data.muhtamim||''),Address:address,Mobile:mobile,StaffCount:Number(data.staffCount||0),StudentCount:Number(data.studentCount||0),Level:'',Status:'PENDING',CreatedAt:now_(),Username:username,Password:'',PasswordHash:hash_(password),ActiveDepartments:deps,OtherDepartment:String(data.otherDepartment||''),Ownership:String(data.ownership||''),ApprovedBy:'',ApprovedAt:'',Permissions:'',Email:email,Photo:storeAccountImage_(photo,username,'logo'),HeaderPhoto:storeAccountImage_(data.headerPhoto,username,'header'),Wallpaper:storeAccountImage_(data.wallpaper,username,'wallpaper'),HeaderTextColor:String(data.headerTextColor||'#ffffff'),HeaderBackgroundColor:String(data.headerBackgroundColor||'#1e3a8a'),ReviewStatus:'',ReviewedBy:'',ReviewedAt:'',ReviewNote:''};
+  const rowData={Serial:n,MadrasaID:id,GenderType:String(data.genderType||''),BoardRegistration:String(data.boardRegistration||''),Name:name,NameAR:String(data.nameAR||''),NameEN:String(data.nameEN||''),FoundedYear:year,Founder:String(data.founder||''),Muhtamim:String(data.muhtamim||''),Address:address,Mobile:mobile,StaffCount:Number(data.staffCount||0),StudentCount:Number(data.studentCount||0),Level:'',Status:'ACTIVE',CreatedAt:now_(),Username:username,Password:'',PasswordHash:hash_(password),ActiveDepartments:deps,OtherDepartment:String(data.otherDepartment||''),Ownership:String(data.ownership||''),ApprovedBy:'',ApprovedAt:'',Permissions:'',Email:email,Photo:storeAccountImage_(photo,username,'logo'),HeaderPhoto:storeAccountImage_(data.headerPhoto,username,'header'),Wallpaper:storeAccountImage_(data.wallpaper,username,'wallpaper'),HeaderTextColor:String(data.headerTextColor||'#ffffff'),HeaderBackgroundColor:String(data.headerBackgroundColor||'#1e3a8a'),ReviewStatus:'MODULES_PENDING',ReviewedBy:'',ReviewedAt:'',ReviewNote:'সুপার অ্যাডমিনের মডিউল অনুমোদনের অপেক্ষায়'};
   const finalHeaders=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(function(x){return String(x||'').trim()});
   const row=finalHeaders.map(function(k){return rowData[k]!==undefined?rowData[k]:''});
   sh.getRange(sh.getLastRow()+1,1,1,row.length).setValues([row]);
   log_('PUBLIC','register','MADRASA',id);
-    return {ok:true,madrasaId:id,message:'নতুন মাদ্রাসা নিবন্ধন হয়েছে। প্রশাসন/সুপার অ্যাডমিন অনুমোদনের পর Username + Password দিয়ে OTP ছাড়া লগইন করতে পারবেন।'};
+    return {ok:true,madrasaId:id,message:'নতুন মাদ্রাসা অ্যাকাউন্ট তৈরি হয়েছে। এখনই Username + Password দিয়ে লগইন করতে পারবেন; মডিউল ব্যবহারে সুপার অ্যাডমিনের অনুমোদন প্রয়োজন।'};
   }finally{
     registrationLock.releaseLock();
   }
@@ -2420,7 +2426,7 @@ function startMediaUpload(token,meta){
   const size=Number(meta.size||0);
   if(size<=0||size>rules.maxMB*1024*1024)return {ok:false,message:type==='image'?'ফটোর সর্বোচ্চ সীমা 20 MB।':'ভিডিও/অডিওর সর্বোচ্চ সীমা 50 MB।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
-  const rows=listRows_(SHEETS.MEDIA,null,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
+  const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
   if(rows.length>=rules.maxCount)return {ok:false,message:type==='image'?'সর্বোচ্চ 100টি ফটো রাখা যাবে।':'সর্বোচ্চ 50টি '+(type==='video'?'ভিডিও':'অডিও')+' রাখা যাবে।'};
   const uploadId=Utilities.getUuid();
   const folder=mediaTempFolder_();
@@ -2456,7 +2462,7 @@ function finishMediaUpload(token,uploadId){
   if(total!==Number(meta.size||0))return {ok:false,message:'ফাইলের আকার মিলছে না। '+total+' / '+meta.size};
   if(total>rules.maxMB*1024*1024)return {ok:false,message:'ফাইলের আকার অনুমোদিত সীমার বেশি।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
-  const rows=listRows_(SHEETS.MEDIA,null,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
+  const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
   if(rows.length>=rules.maxCount)return {ok:false,message:type==='image'?'সর্বোচ্চ 100টি ফটো রাখা যাবে।':'সর্বোচ্চ 50টি '+(type==='video'?'ভিডিও':'অডিও')+' রাখা যাবে।'};
   const file=mediaDriveFolder_().createFile(Utilities.newBlob(bytes,meta.mimeType||'application/octet-stream',meta.name||('media-'+Date.now())));
   try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
@@ -2477,7 +2483,7 @@ function saveMediaForm(form){
   if(size<=0)return {ok:false,message:'ফাইল খালি।'};
   if(size>rules.maxMB*1024*1024)return {ok:false,message:type==='image'?'ফটোর সর্বোচ্চ সীমা 20 MB।':'ভিডিও/অডিওর সর্বোচ্চ সীমা 50 MB।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
-  const rows=listRows_(SHEETS.MEDIA,null,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
+  const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
   if(rows.length>=rules.maxCount)return {ok:false,message:type==='image'?'সর্বোচ্চ 100টি ফটো রাখা যাবে।':'সর্বোচ্চ 50টি '+(type==='video'?'ভিডিও':'অডিও')+' রাখা যাবে।'};
   const name=String(blob.getName()||('media-'+Date.now()));
   const file=mediaDriveFolder_().createFile(blob.setName(name));
@@ -2495,7 +2501,7 @@ function saveMedia(token,item) {
   const size=Number(item.size||0);
   if(size>rules.maxMB*1024*1024) return {ok:false,message:type==='image'?'ফটোর সর্বোচ্চ সীমা 20 MB।':'ভিডিও/অডিওর সর্বোচ্চ সীমা 50 MB।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
-  const rows=listRows_(SHEETS.MEDIA,null,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
+  const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
   if(rows.length>=rules.maxCount) return {ok:false,message:type==='image'?'সর্বোচ্চ 100টি ফটো রাখা যাবে।':'সর্বোচ্চ 50টি '+(type==='video'?'ভিডিও':'অডিও')+' রাখা যাবে।'};
   const raw=String(item.dataUrl).split(',')[1]||''; if(!raw)return {ok:false,message:'ফাইল ডাটা পাওয়া যায়নি।'};
   const blob=Utilities.newBlob(Utilities.base64Decode(raw),item.mimeType||'application/octet-stream',item.name||('media-'+Date.now()));
@@ -2508,7 +2514,7 @@ function saveMedia(token,item) {
 }
 function listMedia(token) {
   auth_(token);
-  return listRows_(SHEETS.MEDIA,null,1000).filter(x=>String(x.Status||'').toUpperCase()==='ACTIVE').map(function(x){
+  return listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status||'').toUpperCase()==='ACTIVE').map(function(x){
     if(String(x.DataURL||'').indexOf('DRIVE:')===0){
       const id=String(x.DataURL).slice(6);
       let rk='';
@@ -2687,7 +2693,7 @@ function findBy_(sheet,key,value){
   for(let i=1;i<v.length;i++) if(String(v[i][j]).trim()===String(value).trim()) return objectFrom_(h,v[i]);
   return null;
 }
-const TENANT_SCOPED_SHEETS_ = ['STUDENTS','TEACHERS','DONORS','ADMISSIONS','EXAM_REG','PAYMENTS','EXPENSES','INCOME','RESULTS','ATTENDANCE','MEDIA','FILES','SALARY','CERTIFICATES','ID_CARDS','ADMIT_CARDS','RECEIPTS','ONLINE_SERVICES','EXECUTIVES','ADVISERS','FOUNDERS'];
+const TENANT_SCOPED_SHEETS_ = ['STUDENTS','TEACHERS','DONORS','ADMISSIONS','EXAM_REG','PAYMENTS','EXPENSES','INCOME','RESULTS','ATTENDANCE','MEDIA','FILES','SALARY','CERTIFICATES','ID_CARDS','ADMIT_CARDS','RECEIPTS','ONLINE_SERVICES','EXECUTIVES','ADVISERS','FOUNDERS','NOTICES','CONTACTS'];
 function tenantIdentity_(token) {
   const session=auth_(token), type=String(session.accountType||'admin'), username=String(session.username||'').trim();
   const root=type!=='madrasa' && isSuperAdmin_(token);
@@ -5458,4 +5464,127 @@ function getBoardExamPendingCandidates20261114(token){
     var rows=boardPortalRows_20261109('BOARD_EXAMINEES').filter(function(x){return String(x.Status||'').toUpperCase()==='PENDING';});
     return {ok:true,candidates:rows.slice(-300).reverse().map(function(x){return {id:x.ExamRegID,name:x.Name,father:x.Father,madrasa:x.Madrasa,className:x.ClassName,exam:x.Exam};})};
   }catch(e){return {ok:false,message:String(e&&e.message||e)}}
+}
+
+/* ===== MADRASA TENANT PAGE ISOLATION — 2026-11-28 ===== */
+function getModulesForSession_(token){
+ var s=auth_(token),all=getModules_();
+ if(s.accountType==='madrasa'){
+  var m=findBy_(SHEETS.MADRASAS,'Username',s.username)||{};
+  if(String(m.Status||'').toUpperCase()!=='ACTIVE')return all.filter(function(x){return x[0]==='institution';});
+  var allowed=String(m.Permissions||'').split(',').map(function(x){return x.trim();}).filter(Boolean);
+  return all.filter(function(x){return allowed.indexOf(x[0])>=0||x[0]==='institution';});
+ }
+ var a=findBy_(SHEETS.ADMINS,'Username',s.username)||{},role=String(a.Role||'').toUpperCase().replace(/\s+/g,'_');
+ if(role==='SUPER_ADMIN'||role==='SUPERADMIN')return all;
+ if(String(a.Status||'PENDING').toUpperCase()!=='ACTIVE')return all;
+ var adminAllowed=String(a.Permissions||'').split(',').map(function(x){return x.trim();}).filter(Boolean);
+ return all.filter(function(x){return adminAllowed.indexOf(x[0])>=0||x[0]==='institution'||x[0]==='help';});
+}
+function getInstitutionForSession_(token){
+ var identity=tenantIdentity_(token);if(identity.root)return APP;
+ var account=findBy_(identity.type==='madrasa'?SHEETS.MADRASAS:SHEETS.ADMINS,'Username',identity.username)||{};
+ if(identity.type==='madrasa')return {nameBn:String(account.Name||account.NameBN||''),nameAr:String(account.NameAR||''),nameEn:String(account.NameEN||''),address:String(account.Address||''),hotline1:String(account.Mobile||''),email1:String(account.Email||''),logo:accountImageUrl_(account.Photo||account.Logo||''),headerPhoto:accountImageUrl_(account.HeaderPhoto||''),wallpaper:accountImageUrl_(account.Wallpaper||''),headerTextColor:String(account.HeaderTextColor||''),headerBackgroundColor:String(account.HeaderBackgroundColor||''),timezone:APP.timezone};
+ return Object.assign({},APP,{nameBn:String(account.NameBN||account.Name||''),nameAr:String(account.NameAR||''),nameEn:String(account.NameEN||''),address:String(account.Address||''),hotline1:String(account.Mobile||account.Hotline||''),email1:String(account.Email||''),logo:accountImageUrl_(account.Photo||account.Logo||'')});
+}
+function getAccountBranding20261104(token){
+ var s=auth_(token),type=String(s.accountType||'admin'),u=String(s.username||'').trim(),a=findBy_(type==='madrasa'?SHEETS.MADRASAS:SHEETS.ADMINS,'Username',u)||{};
+ var role=String(a.Role||'').toUpperCase().replace(/\s+/g,'_');
+ if(type!=='madrasa'&&(role==='SUPER_ADMIN'||role==='SUPERADMIN'||u.toLowerCase()==='superadmin'))return {ok:true,skip:true,accountType:type};
+ return {ok:true,skip:false,accountType:type,name:String(a.Name||a.NameBN||a.InstitutionName||''),logo:accountImageUrl_(a.Photo||a.Logo||''),headerPhoto:accountImageUrl_(a.HeaderPhoto||''),wallpaper:accountImageUrl_(a.Wallpaper||''),headerTextColor:String(a.HeaderTextColor||''),headerBackgroundColor:String(a.HeaderBackgroundColor||''),address:String(a.Address||''),mobile:String(a.Mobile||a.Hotline||''),email:String(a.Email||'')};
+}
+function tenantPageContentSheet2026_(){return ensureSheet_(SpreadsheetApp.getActiveSpreadsheet(),'TENANT_PAGE_CONTENT_2026',['TenantAccount','ContentType','ContentID','Name','Role','Contribution','PhotoUrl','UpdatedAt','Text']);}
+function tenantAssetsFolder2026_(token){
+ var identity=tenantIdentity_(token),props=PropertiesService.getScriptProperties(),key='TENANT_ASSET_FOLDER_2026_'+hash_(identity.key),saved=props.getProperty(key);
+ if(saved){try{return DriveApp.getFolderById(saved);}catch(e){}}
+ var folder=DriveApp.createFolder('Jannatul Baqi Tenant Assets 2026 - '+identity.key.replace(/[^A-Za-z0-9_-]/g,'_').slice(0,80));
+ props.setProperty(key,folder.getId());return folder;
+}
+function tenantPageRows2026_(token,type){
+ var identity=tenantIdentity_(token),sh=tenantPageContentSheet2026_();if(sh.getLastRow()<2)return [];
+ var values=sh.getDataRange().getValues(),headers=values[0].map(function(x){return String(x||'').trim();}),out=[];
+ for(var i=1;i<values.length;i++){var row={};headers.forEach(function(k,j){row[k]=values[i][j];});if(String(row.TenantAccount||'')===identity.key&&(!type||String(row.ContentType||'')===type))out.push(row);}
+ return out;
+}
+function saveTenantImage2026_(token,dataUrl,fileName,maxBytes){
+ var match=String(dataUrl||'').match(/^data:(image\/[A-Za-z0-9.+-]+);base64,([A-Za-z0-9+/=]+)$/);
+ if(!match)return {ok:false,message:'ছবির ফাইল ডাটা সঠিক নয়।'};
+ var bytes=Utilities.base64Decode(match[2]);if(!bytes.length||bytes.length>(maxBytes||5*1024*1024))return {ok:false,message:'ছবির আকার নির্ধারিত সীমার বেশি।'};
+ var ext=(match[1].split('/')[1]||'jpg').replace(/[^A-Za-z0-9]/g,'').slice(0,8)||'jpg';
+ var safe=String(fileName||'image').replace(/[^A-Za-z0-9._-]/g,'_').slice(0,90);
+ var file=tenantAssetsFolder2026_(token).createFile(Utilities.newBlob(bytes,match[1],safe+'-'+Date.now()+'.'+ext));
+ try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
+ return {ok:true,url:'https://drive.google.com/uc?export=view&id='+encodeURIComponent(file.getId()),fileId:file.getId()};
+}
+function getInstitutionDocumentary2026(token){
+ var identity=tenantIdentity_(token);
+ if(!identity.root){
+  if(identity.type!=='madrasa')return {ok:true,people:[]};
+  var rows=tenantPageRows2026_(token,'INTRO'),people=[];
+  rows.forEach(function(r){people.push({id:String(r.ContentID||''),name:String(r.Name||''),group:String(r.Role||''),photoUrl:String(r.PhotoUrl||''),contribution:String(r.Contribution||'')});});
+  return {ok:true,people:people};
+ }
+ var sh=institutionProfileSheet2026_(),values=sh.getDataRange().getValues(),rootPeople=[];
+ for(var i=1;i<values.length;i++){var row=values[i],key=String(row[0]||'');if(key&&key!=='HISTORY'&&String(row[1]||'').trim())rootPeople.push({id:key,name:String(row[1]||''),group:String(row[2]||''),photoUrl:String(row[3]||''),contribution:String(row[5]||'')});}
+ return {ok:true,people:rootPeople};
+}
+function saveInstitutionPhoto2026(token,personId,dataUrl,fileName,mimeType){
+ var identity=tenantIdentity_(token);
+ if(identity.type==='madrasa')return saveTenantImage2026_(token,dataUrl,fileName,2*1024*1024);
+ if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin ছবি সংরক্ষণ করতে পারবেন।'};
+ personId=String(personId||'').replace(/[^A-Za-z0-9_-]/g,'');
+ var match=String(dataUrl||'').match(/^data:(image\/[A-Za-z0-9.+-]+);base64,([A-Za-z0-9+/=]+)$/);
+ if(!personId||!match)return {ok:false,message:'ছবির তথ্য সঠিক নয়।'};
+ var bytes=Utilities.base64Decode(match[2]);if(bytes.length>2*1024*1024)return {ok:false,message:'ছবিটি 2 MB-এর বেশি; ছোট ছবি নির্বাচন করুন।'};
+ var ext=(match[1].split('/')[1]||'jpeg').replace(/[^A-Za-z0-9]/g,'').toLowerCase();
+ var blob=Utilities.newBlob(bytes,match[1],String(fileName||personId)+'-'+Date.now()+'.'+ext),file=institutionPhotoFolder2026_().createFile(blob);
+ try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
+ return {ok:true,url:'https://drive.google.com/uc?export=view&id='+encodeURIComponent(file.getId()),fileId:file.getId()};
+}
+function saveInstitutionMember2026(token,payload){
+ var identity=tenantIdentity_(token);payload=payload||{};
+ if(identity.type==='madrasa'){
+  var id=String(payload.id||'').replace(/[^A-Za-z0-9_-]/g,''),name=String(payload.name||'').trim().slice(0,160),role=String(payload.group||'').trim().slice(0,100),contribution=String(payload.contribution||'').trim().slice(0,1200),photoUrl=String(payload.photoUrl||'').trim();
+  if(!id||!name||!role||!contribution||!photoUrl)return {ok:false,message:'নাম, পদবী, ফটো ও অবদান—সব তথ্য দিতে হবে।'};
+  var sh=tenantPageContentSheet2026_(),existing=tenantPageRows2026_(token,'INTRO');
+  for(var i=0;i<existing.length;i++)if(String(existing[i].ContentID||'')===id)return {ok:false,message:'এই পরিচিতি আইডি আগে থেকেই রয়েছে।'};
+  sh.appendRow([identity.key,'INTRO',id,name,role,contribution,photoUrl,now_(),'']);return {ok:true,message:'নিজস্ব পরিচিতি সংরক্ষণ হয়েছে।'};
+ }
+ if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin নতুন সদস্য যুক্ত করতে পারবেন।'};
+ return {ok:false,message:'Super Admin পরিচিতি সংরক্ষণের মূল ফাংশন ব্যবহার করুন।'};
+}
+function getTenantPageSlides2026(token){
+ var identity=tenantIdentity_(token);if(identity.type!=='madrasa')return {ok:true,slides:[]};
+ var rows=tenantPageRows2026_(token,'SLIDE'),slides=[];
+ rows.forEach(function(r){slides.push({id:String(r.ContentID||''),name:String(r.Name||''),url:String(r.Text||'')});});
+ return {ok:true,slides:slides};
+}
+function saveTenantPageSlide2026(token,dataUrl,fileName){
+ var identity=tenantIdentity_(token);if(identity.type!=='madrasa')return {ok:false,message:'শুধু মাদ্রাসা অ্যাকাউন্ট নিজস্ব স্লাইড আপলোড করতে পারবে।'};
+ var saved=saveTenantImage2026_(token,dataUrl,fileName,5*1024*1024);if(!saved.ok)return saved;
+ var id='SLD-'+Date.now()+'-'+Math.floor(Math.random()*10000),sh=tenantPageContentSheet2026_();
+ sh.appendRow([identity.key,'SLIDE',id,String(fileName||'নিজস্ব স্লাইড').slice(0,120),'','','',now_(),saved.url]);
+ return {ok:true,id:id,url:saved.url,name:String(fileName||'নিজস্ব স্লাইড')};
+}
+function saveTenantPageMedia2026(token,item){
+ var identity=tenantIdentity_(token);if(identity.type!=='madrasa')return {ok:false,message:'শুধু মাদ্রাসা অ্যাকাউন্ট নিজস্ব মিডিয়া আপলোড করতে পারবে।'};
+ item=item||{};var type=String(item.type||'').toLowerCase(),rules=getMediaRules_()[type];if(!rules)return {ok:false,message:'ফটো, ভিডিও অথবা অডিও নির্বাচন করুন।'};
+ var match=String(item.dataUrl||'').match(/^data:([^;,]+);base64,([A-Za-z0-9+/=]+)$/);if(!match)return {ok:false,message:'মিডিয়া ফাইলের ডাটা পাওয়া যায়নি।'};
+ var bytes=Utilities.base64Decode(match[2]);if(!bytes.length||bytes.length>10*1024*1024)return {ok:false,message:'পেজ মিডিয়ার ফাইল সর্বোচ্চ 10 MB হতে পারবে।'};
+ var sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);ensureTenantSheetColumn_(sh);
+ var own=listRows_(SHEETS.MEDIA,token,1000).filter(function(x){return String(x.Status||'').toUpperCase()==='ACTIVE'&&String(x.Type||'').toLowerCase()===type;});
+ if(own.length>=rules.maxCount)return {ok:false,message:'এই ধরনের মিডিয়ার সর্বোচ্চ সংখ্যা পূর্ণ হয়েছে।'};
+ var safe=String(item.name||('tenant-media-'+Date.now())).replace(/[^A-Za-z0-9._-]/g,'_').slice(0,100),file=tenantAssetsFolder2026_(token).createFile(Utilities.newBlob(bytes,item.mimeType||match[1],safe));
+ try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
+ var serial=nextSerial_(sh),mediaId='MED-'+Date.now(),headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
+ var data={Serial:serial,MediaID:mediaId,Type:type,Name:safe,DataURL:'DRIVE:'+file.getId(),MimeType:item.mimeType||match[1],Size:bytes.length,Sort:0,Status:'ACTIVE',CreatedAt:now_(),TenantAccount:identity.key};
+ sh.appendRow(headers.map(function(k){return data[k]===undefined?'':data[k];}));
+ return {ok:true,serial:serial,mediaId:mediaId};
+}
+function listMedia(token){
+ auth_(token);
+ return listRows_(SHEETS.MEDIA,token,1000).filter(function(x){return String(x.Status||'').toUpperCase()==='ACTIVE';}).map(function(x){
+  if(String(x.DataURL||'').indexOf('DRIVE:')===0){var id=String(x.DataURL).slice(6),rk='';try{var f=DriveApp.getFileById(id);try{f.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}try{rk=String(f.getResourceKey()||'');}catch(e){}}catch(e){}x.DriveFileId=id;x.FileID=id;x.ResourceKey=rk;x.DataURL=mediaDriveUrl_(id,rk);x.DirectURL=x.DataURL;x.PreviewURL=mediaPreviewUrl_(id,rk);}
+  return x;
+ });
 }
