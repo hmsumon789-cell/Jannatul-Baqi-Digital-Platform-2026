@@ -3318,7 +3318,7 @@ function saveOnlineServiceRecord(token,docKey,personId,data,html) {
   sh.appendRow(headers.map(function(k){return record[k]!==undefined?record[k]:'';}));
   const mrid=tenantContext.ok?tenantContext.madrasaId:'';
   return {ok:true,serviceId,serviceCode:onlineServiceCode_(key),personId:pid,pdfUrl:pdf.url||'',pdfFileId:pdf.fileId||'',
-    publicUrl:(getMainWebAppUrl(mrid).url||'')+'?online=1&code='+encodeURIComponent(onlineServiceCode_(key))+'&id='+encodeURIComponent(pid)+(mrid?'&mrid='+encodeURIComponent(mrid):''),
+    publicUrl:(getMainWebAppUrl().url||'')+'?online=1&code='+encodeURIComponent(onlineServiceCode_(key))+'&id='+encodeURIComponent(pid)+(mrid?'&mrid='+encodeURIComponent(mrid):''),
     message:pdf.url?'অনলাইন সেবা + PDF সংরক্ষণ হয়েছে।':'অনলাইন সেবা সংরক্ষণ হয়েছে; PDF লিংক তৈরি হয়নি, প্রিন্ট থেকে PDF নেওয়া যাবে।'};
 }
 function autoDocumentPublicHtml_(docKey,personId,fields,institution) {
