@@ -3446,7 +3446,7 @@ async function applyAccountBranding20261104(){
     }
     var intro=document.getElementById('institutionDocumentary2026');if(intro){var kicker=intro.querySelector('.institution-documentary-kicker'),heading=intro.querySelector('.institution-documentary-heading h2'),desc=intro.querySelector('.institution-documentary-heading p');if(kicker)kicker.textContent=r.name||'';if(heading)heading.textContent='নিজস্ব পরিচিতি';if(desc)desc.textContent='নাম, পদবী, অবদান ও ছবি';}
     if(currentUser){currentUser.accountType=r.accountType;currentUser.Photo=r.logo;currentUser.HeaderPhoto=r.headerPhoto;currentUser.Wallpaper=r.wallpaper;currentUser.HeaderTextColor=r.headerTextColor;currentUser.HeaderBackgroundColor=r.headerBackgroundColor;if(isMadrasa){currentUser.Name=r.name;currentUser.NameAR=r.nameAr;currentUser.NameEN=r.nameEn;}else currentUser.NameBN=r.name;}
-    if(window.jbApplyTenantWindowHeaders2026)window.jbApplyTenantWindowHeaders2026();if(isMadrasa)renderTenantHeaderSlides2026();
+    if(window.jbApplyTenantWindowHeaders2026)window.jbApplyTenantWindowHeaders2026();if(window.jbApplyTenantDocumentBranding2026)window.jbApplyTenantDocumentBranding2026();if(isMadrasa)renderTenantHeaderSlides2026();
   }catch(e){console.error('Account branding load failed:',e);}
 }
 async function approvedLoginSubmit(){var u=$('approvedLoginUser').value.trim(),p=$('approvedLoginPass').value;if(!u||!p){$('approvedLoginMsg').textContent='Username ও Password দিন।';window.toast('ইউজার নেম ও পাসওয়ার্ড দিন।');return;}var btn=$('approvedLoginBtn');btn.disabled=true;btn.textContent='⏳ লগইন হচ্ছে...';try{var fn=approvedLoginType==='madrasa'?'loginMadrasa':'loginNewAdmin';var r=await call(fn,u,p);if(!r||!r.ok){var err=(r&&r.message)||'ইউজার নেম অথবা পাসওয়ার্ড ভুল হয়েছে।';$('approvedLoginMsg').textContent=err;window.toast(err);return;}token=r.token;currentUser=r.user||{};closeWindow('approvedLoginWin');$('loginPage').classList.add('jb-login-hidden-2026');$('app').classList.add('show','jb-dashboard-visible-2026');await loadApp();await applyAccountBranding20261104();toast('✅ লগইন সফল হয়েছে।');}catch(e){var err='সার্ভার ত্রুটি: '+(e&&e.message?e.message:e);$('approvedLoginMsg').textContent=err;window.toast(err)}finally{btn.disabled=false;btn.textContent=approvedLoginType==='admin'?'🔐 Admin Login':'🔐 Madrasa Login'}}
@@ -20296,7 +20296,58 @@ body.jb-madrasa-account-2026 #contactFooter .contact-qr-side-2026{display:none!i
 body.jb-madrasa-account-2026 #contactFooter .contact-layout-2026{grid-template-columns:100px minmax(0,1fr)!important}
 body.jb-madrasa-account-2026 .jb-tenant-window-brand-2026{margin-left:auto!important;max-width:48%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;font-size:11px!important;font-weight:900!important;color:var(--accent)!important}
 @media(max-width:620px){body.jb-madrasa-account-2026 #contactFooter .contact-layout-2026{grid-template-columns:64px minmax(0,1fr)!important}}
-</style></body></html>');boardWindow.document.close();call('getMainWebAppUrl').then(function(r){if(!r||!r.ok||!r.url)throw Error(r&&r.message||'মূল Web App URL পাওয়া যায়নি');var target=new URL(String(r.url).trim());target.searchParams.set('board','1');boardWindow.location.replace(target.toString());}).catch(function(e){try{boardWindow.document.body.innerHTML='<div style="font-family:sans-serif;text-align:center;padding:40px;color:#b00020">আঞ্চলিক শিক্ষাবোর্ড খোলা যায়নি: '+String(e&&e.message||e)+'</div>';}catch(x){};});};
+</style><script id="jb-tenant-document-branding-2026">
+(function(){
+ function setText(selector,value){
+  document.querySelectorAll(selector).forEach(function(el){var v=String(value==null?'':value);if(el.textContent!==v)el.textContent=v;});
+ }
+ function setImage(selector,url,alt){
+  if(!url)return;
+  document.querySelectorAll(selector).forEach(function(el){if(el.getAttribute('src')!==url)el.src=url;if(alt)el.alt=alt;});
+ }
+ window.jbApplyTenantDocumentBranding2026=function(){
+  if(!document.body.classList.contains('jb-custom-account'))return;
+  var i=window.currentInstitution||{},name=String(i.nameBn||''),ar=String(i.nameAr||''),en=String(i.nameEn||''),address=String(i.address||''),mobile=String(i.hotline1||''),email=String(i.email1||''),logo=String(i.logo||'');
+  var contact=address+(mobile?' · মোবাইল: '+mobile:'')+(email?' · ইমেইল: '+email:''),qr='https://quickchart.io/qr?size=220&margin=2&text='+encodeURIComponent(location.origin+location.pathname);
+  setText('.search-profile-head .sp-inst .bn,.sp-pad-head .sp-pad-inst .bn,.afh-text .afh-bn,.jb-sah-title .jb-sah-bn,.jb-pih-bn',name);
+  setText('.search-profile-head .sp-inst .ar,.sp-pad-head .sp-pad-inst .ar,.afh-text .afh-ar,.jb-sah-title .jb-sah-ar',ar);
+  setText('.search-profile-head .sp-inst .en,.sp-pad-head .sp-pad-inst .en,.jb-sah-title .jb-sah-en',en);
+  setText('.search-profile-head .sp-contact,.sp-pad-head .sp-pad-contact,.jb-sah-title .jb-sah-meta:first-of-type,.jb-pih-address',contact);
+  setText('.afh-text .afh-address',address);
+  setText('.afh-text .afh-mobile',mobile?'মোবাইল: '+mobile:'');
+  setText('.jb-pih-hotline',mobile?'মোবাইল: '+mobile:'');
+  setText('#jbRsIdentity .jb-result-identity-text strong',name);
+  setText('#jbRsIdentity .jb-result-identity-text span:nth-of-type(1)',ar);
+  setText('#jbRsIdentity .jb-result-identity-text span:nth-of-type(2)',en);
+  var rsSmall=document.querySelectorAll('#jbRsIdentity .jb-result-identity-text small');if(rsSmall[0])rsSmall[0].textContent='ঠিকানা: '+address;if(rsSmall[1])rsSmall[1].textContent='মোবাইল: '+mobile;
+  setText('#jbRsIdentity .jb-result-qr-label',name?'নিজস্ব মাদ্রাসার QR কোড':'');
+  setText('#jbRsNews',name+' — ফলাফল ও শিক্ষাক্রম');
+  setText('#jbRpView .jb-em-note h2,#jbQpPreview .jb-em-note h2,#jbPublicVerifyCard .vbrand',name);
+  setText('#admReceiptOverlay2026 .adm-receipt-content2026 h1',name);
+  var receiptP=document.querySelector('#admReceiptOverlay2026 .adm-receipt-content2026 p');if(receiptP)receiptP.textContent=contact;
+  setText('.jb-finance-school b',name);
+  var finSpan=document.querySelector('.jb-finance-school span');if(finSpan)finSpan.textContent=address;
+  var finStrong=document.querySelector('.jb-finance-school strong');if(finStrong)finStrong.textContent='মোবাইল: '+mobile;
+  setText('.jb-sah-title .jb-sah-meta:nth-of-type(2)',contact);
+  var news=document.querySelector('.jb-sah-newsrow .jb-news-moving');if(news)news.textContent=name+' — নিজস্ব অনলাইন সেবা ও আবেদন কার্যক্রম';
+  var admRoot=document.getElementById('admAdmissionRedesign20261011');
+  if(admRoot){setText('#admAdmissionRedesign20261011 .adm-brand-bn',name);setText('#admAdmissionRedesign20261011 .adm-brand-ar',ar);setText('#admAdmissionRedesign20261011 .adm-brand-en',en);var meta=admRoot.querySelector('.adm-brand-meta');if(meta)meta.textContent=contact;}
+  setImage('#jbRsLogo,.afh-logo,#admAdmissionRedesignLogo2026,.jb-adm-contact-side-20261010 img',logo,'প্রতিষ্ঠানের নিজস্ব লোগো');
+  setImage('#jbRsQR,.sp-pad-head .sp-pad-qr,.admAdmissionRedesignQR2026,#admAdmissionRedesignQR2026,#jbAdmissionMainQR20261010,.jb-finance-qr img,.jb-pih-qr',qr,'নিজস্ব মাদ্রাসার QR কোড');
+  setImage('.adm-receipt-watermark2026 img',logo,'নিজস্ব লোগো');
+  var admContact=document.querySelector('.jb-adm-contact-text-20261010');if(admContact){var spans=admContact.querySelectorAll('span');if(spans[0])spans[0].textContent=address;if(spans[1])spans[1].textContent='মোবাইল: '+mobile;if(spans[2])spans[2].textContent='ইমেইল: '+email;}
+ };
+ window.jbApplyTenantDocumentBranding2026();
+ if(!window.__jbTenantDocumentObserver2026&&typeof MutationObserver!=='undefined'){
+  window.__jbTenantDocumentObserver2026=new MutationObserver(function(){window.jbApplyTenantDocumentBranding2026();});
+  window.__jbTenantDocumentObserver2026.observe(document.body,{childList:true,subtree:true});
+ }
+})();
+</script>
+<style id="jb-tenant-document-branding-style-2026">
+body.jb-madrasa-account-2026 .jb-sah-newsrow{display:none!important}
+</style>
+</body></html>');boardWindow.document.close();call('getMainWebAppUrl').then(function(r){if(!r||!r.ok||!r.url)throw Error(r&&r.message||'মূল Web App URL পাওয়া যায়নি');var target=new URL(String(r.url).trim());target.searchParams.set('board','1');boardWindow.location.replace(target.toString());}).catch(function(e){try{boardWindow.document.body.innerHTML='<div style="font-family:sans-serif;text-align:center;padding:40px;color:#b00020">আঞ্চলিক শিক্ষাবোর্ড খোলা যায়নি: '+String(e&&e.message||e)+'</div>';}catch(x){};});};
 row.appendChild(b);
 }
 function scan(){try{if(google&&google.script&&google.script.url&&google.script.url.getLocation){google.script.url.getLocation(function(loc){if(loc&&loc.parameter&&String(loc.parameter.board)==='1'){openPortal();return;}addButton();});return;}}catch(e){}if(new URLSearchParams(location.search).get('board')==='1'){openPortal();return;}addButton()}
