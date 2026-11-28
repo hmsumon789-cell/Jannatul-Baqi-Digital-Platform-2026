@@ -3937,7 +3937,7 @@ function buildPublicOnlinePaymentHtml_(institution,madrasaId){
       }).getPublicConfig(PUBLIC_MADRASA_ID);
       google.script.run.withSuccessHandler(function(r){
         if(r&&r.ok&&r.url)g("paymentMainQR").src="https://quickchart.io/qr?size=220&margin=2&text="+encodeURIComponent(r.url);
-      }).getMainWebAppUrl();
+      }).getMainWebAppUrl(PUBLIC_MADRASA_ID);
     }catch(e){}
   }
   function lookup(){
