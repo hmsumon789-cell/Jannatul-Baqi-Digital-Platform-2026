@@ -3426,10 +3426,10 @@ async function applyAccountBranding20261104(){
     var hot=document.querySelector('#app .header-hotline-email-line');
     var img=document.getElementById('headerLogo');
     if(bn)bn.textContent=r.name||'';
-    if(ar)ar.textContent='';
-    if(en)en.textContent='';
+    if(ar)ar.textContent=r.nameAr||'';
+    if(en)en.textContent=r.nameEn||'';
     if(addr)addr.textContent=r.address?'ঠিকানা: '+r.address:'';
-    if(hot)hot.textContent='মোবাইল: '+(r.mobile||'')+' · ইমেইল: '+(r.email||'');
+    if(hot)hot.textContent='মোবাইল: '+(r.mobile||'')+(r.hotline2?' · '+r.hotline2:'')+' · ইমেইল: '+(r.email||'');
     if(img){
       img.removeAttribute('srcset');
       if(r.logo){
