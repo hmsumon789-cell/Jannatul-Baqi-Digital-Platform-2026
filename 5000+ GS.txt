@@ -27,7 +27,7 @@ const SHEETS = {
   MEDIA:'MEDIA', FILES:'FILES', SMS_QUEUE:'SMS_QUEUE', CONTACTS:'CONTACTS',
   CONFIG:'CONFIG', AUDIT:'AUDIT', OTP_LOG:'OTP_LOG', EXECUTIVES:'EXECUTIVES',
   ADVISERS:'ADVISERS', FOUNDERS:'FOUNDERS', LOCATION_MASTER:'LOCATION_MASTER',
-  MADRASAS:'MADRASAS', SALARY:'SALARY', CERTIFICATES:'CERTIFICATES',
+  MADRASAS:'MADRASAS', MADRASA_PROFILES:'MADRASA_PROFILES', SALARY:'SALARY', CERTIFICATES:'CERTIFICATES',
   ID_CARDS:'ID_CARDS', ADMIT_CARDS:'ADMIT_CARDS', RECEIPTS:'RECEIPTS', ONLINE_SERVICES:'ONLINE_SERVICES'
 };
 
@@ -56,6 +56,7 @@ const HEADERS = {
   FOUNDERS:['Serial','MemberID','NameBN','NameAR','NameEN','Role','Mobile','Email','Photo'],
   LOCATION_MASTER:['Division','District','Upazila','Union','Ward','Post','Village'],
   MADRASAS:['Serial','MadrasaID','GenderType','Name','FoundedYear','Founder','Muhtamim','Address','Mobile','StaffCount','StudentCount','Level','Status','CreatedAt','Username','Password','PasswordHash','ActiveDepartments','OtherDepartment','Ownership','ApprovedBy','ApprovedAt','Permissions'],
+  MADRASA_PROFILES:['Serial','MemberID','Name','Role','Contribution','PhotoUrl','CreatedAt','TenantAccount'],
   SALARY:['Serial','SalaryID','EmployeeID','Name','Month','Amount','Method','Date','Note','CreatedAt'],
   CERTIFICATES:['Serial','CertificateID','StudentID','Type','IssueDate','Data'],
   ID_CARDS:['Serial','CardID','StudentID','IssueDate','Data'],
@@ -546,7 +547,7 @@ function registerMadrasa(data){
   /* Add review columns only after the legacy Email/Photo columns exist; write by header name to avoid column shifts. */
   ensureAccountReviewColumns_();
   ensureAccountAppearanceColumns_();
-  const rowData={Serial:n,MadrasaID:id,GenderType:String(data.genderType||''),BoardRegistration:String(data.boardRegistration||''),Name:name,NameAR:String(data.nameAR||''),NameEN:String(data.nameEN||''),FoundedYear:year,Founder:String(data.founder||''),Muhtamim:String(data.muhtamim||''),Address:address,Mobile:mobile,StaffCount:Number(data.staffCount||0),StudentCount:Number(data.studentCount||0),Level:'',Status:'PENDING',CreatedAt:now_(),Username:username,Password:'',PasswordHash:hash_(password),ActiveDepartments:deps,OtherDepartment:String(data.otherDepartment||''),Ownership:String(data.ownership||''),ApprovedBy:'',ApprovedAt:'',Permissions:'',Email:email,Photo:storeAccountImage_(photo,username,'logo'),HeaderPhoto:storeAccountImage_(data.headerPhoto,username,'header'),Wallpaper:storeAccountImage_(data.wallpaper,username,'wallpaper'),HeaderTextColor:String(data.headerTextColor||'#ffffff'),HeaderBackgroundColor:String(data.headerBackgroundColor||'#1e3a8a'),ReviewStatus:'',ReviewedBy:'',ReviewedAt:'',ReviewNote:''};
+  const rowData={Serial:n,MadrasaID:id,GenderType:String(data.genderType||''),BoardRegistration:String(data.boardRegistration||''),Name:name,NameAR:String(data.nameAR||''),NameEN:String(data.nameEN||''),FoundedYear:year,Founder:String(data.founder||''),Muhtamim:String(data.muhtamim||''),Address:address,Mobile:mobile,StaffCount:Number(data.staffCount||0),StudentCount:Number(data.studentCount||0),Level:'',Status:'PENDING',CreatedAt:now_(),Username:username,Password:'',PasswordHash:hash_(password),ActiveDepartments:deps,OtherDepartment:String(data.otherDepartment||''),Ownership:String(data.ownership||''),ApprovedBy:'',ApprovedAt:'',Permissions:'',Email:email,Photo:storeAccountImage_(photo,username,'logo'),HeaderPhoto:storeAccountImage_(data.headerPhoto,username,'header'),Wallpaper:storeAccountImage_(data.wallpaper,username,'wallpaper'),HeaderTextColor:String(data.headerTextColor||'#ffffff'),HeaderBackgroundColor:String(data.headerBackgroundColor||'#1e3a8a'),ReviewStatus:'',ReviewedBy:'',ReviewedAt:'',ReviewNote:'',LoginEnabled:'YES'};
   const finalHeaders=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(function(x){return String(x||'').trim()});
   const row=finalHeaders.map(function(k){return rowData[k]!==undefined?rowData[k]:''});
   sh.getRange(sh.getLastRow()+1,1,1,row.length).setValues([row]);
@@ -575,12 +576,21 @@ function loginMadrasa(username,password){
   return createDirectSession_(username,'madrasa');
 }
 
+function loginAnyAccount(username,password){
+  const result=login(username,password);
+  if(result&&result.ok)return result;
+  if(result&&result.message==='ইউজার নেম পাওয়া যায়নি।')return loginMadrasa(username,password);
+  return result;
+}
+
 function createDirectSession_(username,type){
   const account=type==='admin'?findBy_(SHEETS.ADMINS,'Username',username):findBy_(SHEETS.MADRASAS,'Username',username);
   if(!account)return {ok:false,message:'Account পাওয়া যায়নি।'};
   const role=String(account.Role||'').toUpperCase().replace(/\s+/g,'_');
   const root=type==='admin'&&(role==='SUPER_ADMIN'||role==='SUPERADMIN'||String(username).toLowerCase()==='superadmin');
-  if(!root&&String(account.Status||'').toUpperCase()!=='ACTIVE')return {ok:false,message:'এই account সক্রিয় নয়। Super Admin অনুমোদন প্রয়োজন।'};
+  const accountStatus=String(account.Status||'').toUpperCase();
+  const madrasaFirstLogin=type==='madrasa'&&['PENDING','REVIEW_PENDING'].includes(accountStatus)&&String(account.LoginEnabled||'').toUpperCase()==='YES';
+  if(!root&&accountStatus!=='ACTIVE'&&!madrasaFirstLogin)return {ok:false,message:'এই account সক্রিয় নয়। Super Admin অনুমোদন প্রয়োজন।'};
   const session=Utilities.getUuid();
   CacheService.getScriptCache().put('SESSION:'+session,JSON.stringify({username:String(username),accountType:type,at:Date.now(),sessionVersion:getUserSessionVersion_(type,username)}),21600);
   registerActiveSession_(session,username,type);
@@ -603,7 +613,7 @@ function getModulesForSession_(token){
   const all = getModules_();
   if(s.accountType==='madrasa'){
     const m=findBy_(SHEETS.MADRASAS,'Username',s.username)||{};
-    if(String(m.Status||'PENDING').toUpperCase()!=='ACTIVE') return all;
+    if(String(m.Status||'PENDING').toUpperCase()!=='ACTIVE') return [];
     const allowed=String(m.Permissions||'').split(',').map(x=>x.trim()).filter(Boolean);
     return all.filter(x=>allowed.includes(x[0]) || x[0]==='institution' || x[0]==='help');
   }
@@ -698,7 +708,7 @@ function ensureAccountReviewColumns_(){
     if(!sh)return;
     const last=Math.max(sh.getLastColumn(),1);
     let headers=sh.getRange(1,1,1,last).getValues()[0].map(function(x){return String(x||'').trim()});
-    ['ReviewStatus','ReviewedBy','ReviewedAt','ReviewNote'].forEach(function(key){
+    ['ReviewStatus','ReviewedBy','ReviewedAt','ReviewNote','LoginEnabled'].forEach(function(key){
       if(headers.indexOf(key)<0){
         sh.getRange(1,sh.getLastColumn()+1).setValue(key);
         headers.push(key);
@@ -2477,7 +2487,7 @@ function saveMediaForm(form){
   if(size<=0)return {ok:false,message:'ফাইল খালি।'};
   if(size>rules.maxMB*1024*1024)return {ok:false,message:type==='image'?'ফটোর সর্বোচ্চ সীমা 20 MB।':'ভিডিও/অডিওর সর্বোচ্চ সীমা 50 MB।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
-  const rows=listRows_(SHEETS.MEDIA,null,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
+  const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
   if(rows.length>=rules.maxCount)return {ok:false,message:type==='image'?'সর্বোচ্চ 100টি ফটো রাখা যাবে।':'সর্বোচ্চ 50টি '+(type==='video'?'ভিডিও':'অডিও')+' রাখা যাবে।'};
   const name=String(blob.getName()||('media-'+Date.now()));
   const file=mediaDriveFolder_().createFile(blob.setName(name));
@@ -2495,7 +2505,7 @@ function saveMedia(token,item) {
   const size=Number(item.size||0);
   if(size>rules.maxMB*1024*1024) return {ok:false,message:type==='image'?'ফটোর সর্বোচ্চ সীমা 20 MB।':'ভিডিও/অডিওর সর্বোচ্চ সীমা 50 MB।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
-  const rows=listRows_(SHEETS.MEDIA,null,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
+  const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
   if(rows.length>=rules.maxCount) return {ok:false,message:type==='image'?'সর্বোচ্চ 100টি ফটো রাখা যাবে।':'সর্বোচ্চ 50টি '+(type==='video'?'ভিডিও':'অডিও')+' রাখা যাবে।'};
   const raw=String(item.dataUrl).split(',')[1]||''; if(!raw)return {ok:false,message:'ফাইল ডাটা পাওয়া যায়নি।'};
   const blob=Utilities.newBlob(Utilities.base64Decode(raw),item.mimeType||'application/octet-stream',item.name||('media-'+Date.now()));
@@ -2508,7 +2518,7 @@ function saveMedia(token,item) {
 }
 function listMedia(token) {
   auth_(token);
-  return listRows_(SHEETS.MEDIA,null,1000).filter(x=>String(x.Status||'').toUpperCase()==='ACTIVE').map(function(x){
+  return listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status||'').toUpperCase()==='ACTIVE').map(function(x){
     if(String(x.DataURL||'').indexOf('DRIVE:')===0){
       const id=String(x.DataURL).slice(6);
       let rk='';
@@ -2531,13 +2541,17 @@ function deleteMedia(token,serial) {
   auth_(token); requireFeature_(token,'gallery');
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA), last=sh.getLastRow();
   if(last<2)return {ok:false,message:'মিডিয়া পাওয়া যায়নি।'};
-  const vals=sh.getRange(2,1,last-1,10).getValues(), idx=vals.findIndex(function(r){return String(r[0])===String(serial);});
-  if(idx<0)return {ok:false,message:'মিডিয়া পাওয়া যায়নি।'};
-  const dataUrl=String(vals[idx][4]||'');
+  ensureTenantSheetColumn_(sh);
+  const values=sh.getDataRange().getValues(),headers=values[0].map(function(x){return String(x||'').trim();});
+  let rowIndex=-1,row=null;
+  for(let i=1;i<values.length;i++){
+    if(String(values[i][0])===String(serial)&&tenantCanSeeRow_(SHEETS.MEDIA,headers,values[i],token)){rowIndex=i+1;row=values[i];break;}
+  }
+  if(rowIndex<2||!row)return {ok:false,message:'নিজস্ব মিডিয়া পাওয়া যায়নি।'};
+  const dataUrl=String(row[4]||'');
   if(dataUrl.indexOf('DRIVE:')===0){try{DriveApp.getFileById(dataUrl.slice(6)).setTrashed(true);}catch(e){}}
-  sh.deleteRow(idx+2); return {ok:true};
+  sh.deleteRow(rowIndex); return {ok:true};
 }
-
 function allDocumentsFileFolder2026_(){
   const props=PropertiesService.getScriptProperties(),key='ALL_DOCUMENTS_FILE_FOLDER_ID_2026',saved=props.getProperty(key);
   if(saved){try{return DriveApp.getFolderById(saved);}catch(e){}}
@@ -2687,7 +2701,7 @@ function findBy_(sheet,key,value){
   for(let i=1;i<v.length;i++) if(String(v[i][j]).trim()===String(value).trim()) return objectFrom_(h,v[i]);
   return null;
 }
-const TENANT_SCOPED_SHEETS_ = ['STUDENTS','TEACHERS','DONORS','ADMISSIONS','EXAM_REG','PAYMENTS','EXPENSES','INCOME','RESULTS','ATTENDANCE','MEDIA','FILES','SALARY','CERTIFICATES','ID_CARDS','ADMIT_CARDS','RECEIPTS','ONLINE_SERVICES','EXECUTIVES','ADVISERS','FOUNDERS'];
+const TENANT_SCOPED_SHEETS_ = ['STUDENTS','TEACHERS','DONORS','ADMISSIONS','EXAM_REG','PAYMENTS','EXPENSES','INCOME','RESULTS','ATTENDANCE','MEDIA','FILES','SALARY','CERTIFICATES','ID_CARDS','ADMIT_CARDS','RECEIPTS','ONLINE_SERVICES','EXECUTIVES','ADVISERS','FOUNDERS','MADRASA_PROFILES'];
 function tenantIdentity_(token) {
   const session=auth_(token), type=String(session.accountType||'admin'), username=String(session.username||'').trim();
   const root=type!=='madrasa' && isSuperAdmin_(token);
@@ -2722,8 +2736,9 @@ function getInstitutionForSession_(token) {
   const identity=tenantIdentity_(token);
   if(identity.root)return APP;
   const account=findBy_(identity.type==='madrasa'?SHEETS.MADRASAS:SHEETS.ADMINS,'Username',identity.username)||{};
-  const name=String(account.Name||account.NameBN||account.InstitutionName||APP.nameBn);
-  return Object.assign({},APP,{nameBn:name,nameAr:String(account.NameAR||APP.nameAr),nameEn:String(account.NameEN||name||APP.nameEn),address:String(account.Address||APP.address),hotline1:String(account.Mobile||account.Hotline||APP.hotline1),email1:String(account.Email||APP.email1),logo:accountImageUrl_(account.Photo||account.Logo||''),headerPhoto:accountImageUrl_(account.HeaderPhoto||''),wallpaper:accountImageUrl_(account.Wallpaper||account.BackgroundPhoto||''),headerTextColor:String(account.HeaderTextColor||'')});
+  const madrasa=identity.type==='madrasa';
+  const name=String(account.Name||account.NameBN||account.InstitutionName||(madrasa?'':APP.nameBn));
+  return Object.assign({},APP,{nameBn:name,nameAr:String(account.NameAR||(madrasa?'':APP.nameAr)),nameEn:String(account.NameEN||name||(madrasa?'':APP.nameEn)),address:String(account.Address||(madrasa?'':APP.address)),hotline1:String(account.Mobile||account.Hotline||(madrasa?'':APP.hotline1)),hotline2:madrasa?'':APP.hotline2,email1:String(account.Email||(madrasa?'':APP.email1)),email2:madrasa?'':APP.email2,logo:accountImageUrl_(account.Photo||account.Logo||''),headerPhoto:accountImageUrl_(account.HeaderPhoto||''),wallpaper:accountImageUrl_(account.Wallpaper||account.BackgroundPhoto||''),headerTextColor:String(account.HeaderTextColor||'')});
 }
 function listRows_(sheet,token,limit){
   const session=token?auth_(token):null;
@@ -2773,7 +2788,9 @@ function auth_(token){
   if(!account){cache.remove('SESSION:'+token);removeActiveSession_(token);throw new Error('SESSION_EXPIRED');}
   const role=String(account.Role||'').toUpperCase().replace(/\s+/g,'_');
   const root=type!=='madrasa'&&(role==='SUPER_ADMIN'||role==='SUPERADMIN'||username.toLowerCase()==='superadmin');
-  if(!root&&String(account.Status||'').toUpperCase()!=='ACTIVE'){cache.remove('SESSION:'+token);removeActiveSession_(token);throw new Error('SESSION_EXPIRED');}
+  const accountStatus=String(account.Status||'').toUpperCase();
+  const madrasaFirstLogin=type==='madrasa'&&['PENDING','REVIEW_PENDING'].includes(accountStatus)&&String(account.LoginEnabled||'').toUpperCase()==='YES';
+  if(!root&&accountStatus!=='ACTIVE'&&!madrasaFirstLogin){cache.remove('SESSION:'+token);removeActiveSession_(token);throw new Error('SESSION_EXPIRED');}
   return s;
 }
 function getUserSessionVersion_(type,username){return Number(PropertiesService.getScriptProperties().getProperty('SESSION_VERSION:'+String(type||'admin')+':'+String(username||''))||0);}
@@ -5016,60 +5033,12 @@ function getInstitutionProfile2026(token){
   return {ok:true,history:history,people:people};
 }
 
-
-function uploadMadrasaProfilePhoto2026(token,dataUrl,fileName){
-  try{
-    const session=auth_(token);
-    if(String(session.accountType||'')!=='madrasa')return {ok:false,message:'এই সুবিধা শুধু মাদ্রাসা অ্যাকাউন্টের জন্য।'};
-    const match=String(dataUrl||'').match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,([A-Za-z0-9+/=]+)$/);
-    if(!match)return {ok:false,message:'ছবির ফাইল সঠিক নয়।'};
-    const bytes=Utilities.base64Decode(match[2]);
-    if(bytes.length>2*1024*1024)return {ok:false,message:'ছবি সর্বোচ্চ ২ MB হতে পারবে।'};
-    const safe=String(fileName||'member-photo').replace(/[\\/:*?"<>|]/g,'_').slice(0,80);
-    const blob=Utilities.newBlob(bytes,match[1],safe+'-'+Date.now());
-    const file=institutionPhotoFolder2026_().createFile(blob);
-    try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
-    return {ok:true,url:'https://drive.google.com/uc?export=view&id='+encodeURIComponent(file.getId())};
-  }catch(e){return {ok:false,message:'ছবি আপলোড হয়নি: '+String(e&&e.message||e)};}
-}
-function saveMadrasaProfileMember2026(token,payload){
-  try{
-    const session=auth_(token);
-    if(String(session.accountType||'')!=='madrasa')return {ok:false,message:'এই সুবিধা শুধু মাদ্রাসা অ্যাকাউন্টের জন্য।'};
-    payload=payload||{};
-    const name=String(payload.name||'').trim().slice(0,160);
-    const role=String(payload.role||'').trim().slice(0,100);
-    const contribution=String(payload.contribution||'').trim().slice(0,1200);
-    const photoUrl=String(payload.photoUrl||'').trim();
-    if(!name||!role||!contribution||!photoUrl)return {ok:false,message:'নাম, পদবী, অবদান ও ফটো দিতে হবে।'};
-    const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MADRASA_PROFILES);
-    ensureTenantSheetColumn_(sh);
-    const identity=tenantIdentity_(token),serial=nextSerial_(sh);
-    const memberId='MP-'+Utilities.getUuid().slice(0,8).toUpperCase();
-    sh.appendRow([serial,memberId,name,role,contribution,photoUrl,now_(),identity.key]);
-    log_(session.username,'create','MADRASA_PROFILE',memberId+' | '+name);
-    return {ok:true,memberId:memberId,message:'নিজস্ব পরিচিতি সংরক্ষণ হয়েছে।'};
-  }catch(e){return {ok:false,message:'পরিচিতি সংরক্ষণ হয়নি: '+String(e&&e.message||e)};}
-}
-function deleteMadrasaProfileMember2026(token,memberId){
-  try{
-    const session=auth_(token);
-    if(String(session.accountType||'')!=='madrasa')return {ok:false,message:'এই সুবিধা শুধু মাদ্রাসা অ্যাকাউন্টের জন্য।'};
-    const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MADRASA_PROFILES);
-    const values=sh.getDataRange().getValues(),headers=values[0].map(String);
-    const idCol=headers.indexOf('MemberID');
-    for(let i=1;i<values.length;i++){
-      if(idCol>=0&&String(values[i][idCol])===String(memberId)&&tenantCanSeeRow_(SHEETS.MADRASA_PROFILES,headers,values[i],token)){
-        sh.deleteRow(i+1);
-        return {ok:true,message:'নিজস্ব পরিচিতি মুছে ফেলা হয়েছে।'};
-      }
-    }
-    return {ok:false,message:'নিজস্ব পরিচিতি পাওয়া যায়নি।'};
-  }catch(e){return {ok:false,message:'পরিচিতি মুছতে সমস্যা হয়েছে: '+String(e&&e.message||e)};}
-}
-
 function getInstitutionDocumentary2026(token){
-  auth_(token);
+  const session=auth_(token);
+  if(String(session.accountType||'')==='madrasa'){
+    const own=listRows_(SHEETS.MADRASA_PROFILES,token,500).filter(function(x){return String(x.Status||'ACTIVE').toUpperCase()==='ACTIVE';});
+    return {ok:true,people:own.map(function(x){return {id:x.MemberID,name:x.Name,group:x.Role,photoUrl:x.PhotoUrl,contribution:x.Contribution};})};
+  }
   const sh=institutionProfileSheet2026_();
   const rows=sh.getDataRange().getValues();
   const people=[];
