@@ -21316,9 +21316,11 @@ body.jb-madrasa-tenant-2026 .jb-tenant-slide-controls-2026 button{min-height:32p
      next=next.replace(/জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা/g,b.name);
      next=next.replace(/উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০/g,b.address);
      next=next.replace(/01823316630/g,b.mobile);
+     next=next.replace(/01717339288/g,b.mobile);
      next=next.replace(/hmsumon789@gmail.com/g,b.email);
-     if(b.nameEn)next=next.replace(/Jannatul Baky Mohila Madrasha & Eatimkhana/g,b.nameEn);
-     if(b.nameAr)next=next.replace(/المدرسة الجنة الباقية للبنات ودار الايتام/g,b.nameAr);
+     next=next.replace(/jannatubakymrs@gmail.com/g,b.email);
+     next=next.replace(/Jannatul Baky Mohila Madrasha & Eatimkhana/g,b.nameEn);
+     next=next.replace(/المدرسة الجنة الباقية للبنات ودار الايتام/g,b.nameAr);
      if(next!==v)node.nodeValue=next;
     }
    }
@@ -21431,7 +21433,14 @@ body.jb-madrasa-tenant-2026 .jb-tenant-slide-controls-2026 button{min-height:32p
   }catch(e){if(msg)msg.textContent='সংরক্ষণ হয়নি: '+(e.message||e);}
  };
  var oldOpenModule=window.openModule;
- window.openModule=function(key){if(isTenant()&&String(key||'')==='institution')return window.openTenantIntroductionEditor2026();return typeof oldOpenModule==='function'?oldOpenModule.apply(this,arguments):undefined;};
+ window.openModule=function(key){
+  if(isTenant()){
+   if(String(key||'')==='institution')return window.openTenantIntroductionEditor2026();
+   var approved=typeof modules!=='undefined'&&Array.isArray(modules)&&modules.some(function(m){return String(m[0])===String(key||'');});
+   if(!approved){toast('এই মডিউলটি ব্যবহারের জন্য সুপার অ্যাডমিনের অনুমোদন প্রয়োজন।');return;}
+  }
+  return typeof oldOpenModule==='function'?oldOpenModule.apply(this,arguments):undefined;
+ };
  var oldLoadApp=window.loadApp;
  if(typeof oldLoadApp==='function'){
   window.loadApp=async function(){
