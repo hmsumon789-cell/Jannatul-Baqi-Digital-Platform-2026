@@ -3125,6 +3125,7 @@ function resolveAdmissionIdentifier_(identifier) {
 
 function getStudentDocumentData(token, studentId) {
   auth_(token);
+  const sessionInstitution=getInstitutionForSession_(token);
   const id = String(studentId || '').trim();
   if (!id) return {ok:false, message:'শিক্ষার্থীর ID দিন।'};
   const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -3167,7 +3168,7 @@ function getStudentDocumentData(token, studentId) {
        if(otherPerson[k]!==undefined && otherPerson[k]!==null) otherData[k]=otherPerson[k];
      });
     otherData.StudentID=id; otherData.PersonID=id; otherData.PersonType=personType;
-    if(!otherData.Mobile) otherData.Mobile=APP.hotline1;
+    if(!otherData.Mobile) otherData.Mobile=sessionInstitution.hotline1||'';
     if(!otherData.WhatsApp) otherData.WhatsApp=otherData.Mobile;
     return {ok:true,found:true,source:personType.toUpperCase(),studentFound:false,admissionFound:false,studentId:id,data:otherData};
   }
