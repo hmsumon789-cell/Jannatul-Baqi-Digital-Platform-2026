@@ -96,7 +96,7 @@ function doGet(e) {
   var publicMadrasa=getPublicMadrasaContext2026_(p.mrid||p.MR_ID||'');
   if(!publicMadrasa.ok && (p.admission==='1'||p.payment==='1'||p.result==='1'))return HtmlService.createHtmlOutput(publicMadrasaErrorHtml2026_(publicMadrasa.message));
   if (String(p.admission || '') === '1') {
-    return HtmlService.createHtmlOutput(buildPublicOnlineAdmissionHtml2026_(publicMadrasa.institution,publicMadrasa.madrasaId)
+    return HtmlService.createHtmlOutput(buildPublicOnlineAdmissionHtml2026_(publicMadrasa.institution,publicMadrasa.madrasaId))
       .setTitle(APP.nameEn + ' | Online Admission')
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
   }
@@ -4574,7 +4574,8 @@ function getPublicExamResult(query, rollNo, academicYear, exam, className, madra
     const restriction=publicResultRestrictionForStudent_(student);
     if(restriction)return {ok:false,suspended:true,message:publicResultRestrictionNotice_(restriction)};
     const studentRolls=[student.RollNo,student.Roll,student.ClassRoll,student.RollNumber].map(normalize).filter(Boolean);
-    const rows=listRows_(SHEETS.RESULTS,'',10000).filter(function(x){return publicMadrasaOwnsRecord2026_(x,publicContext)&&
+    const rows=listRows_(SHEETS.RESULTS,'',10000).filter(function(x){
+      if(!publicMadrasaOwnsRecord2026_(x,publicContext))return false;
       const resultRoll=normalize(x.RollNo);
       const rollMatches=resultRoll===normalize(roll)||studentRolls.indexOf(normalize(roll))>=0;
       return normalize(x.StudentID)===normalize(studentId) &&
@@ -4592,13 +4593,13 @@ function getPublicExamResult(query, rollNo, academicYear, exam, className, madra
     return {ok:true,student:{studentId:studentId,nameBN:student.NameBN||'',nameAR:student.NameAR||'',className:student.Class||x.Class||'',mobile:student.Mobile||''},result:result,results:[result]};
   }
   if(!q)return {ok:false,message:'Student ID / মোবাইল নম্বর দিন।'};
-  const students=listRows_(SHEETS.STUDENTS,'',10000);
+  const students=listRows_(SHEETS.STUDENTS,'',10000).filter(function(x){return publicMadrasaOwnsRecord2026_(x,publicContext);});
   const student=students.find(function(x){return [x.StudentID,x.FormID,x.AdmissionID,x.HandwrittenID,x.Mobile,x.MobileID].some(function(v){return String(v||'').trim()===q;});});
   if(!student)return {ok:false,message:'শিক্ষার্থী পাওয়া যায়নি।'};
   const restriction=publicResultRestrictionForStudent_(student);
   if(restriction)return {ok:false,suspended:true,message:publicResultRestrictionNotice_(restriction)};
   const rows=listRows_(SHEETS.RESULTS,'',10000).filter(function(x){
-    return String(x.StudentID||'').trim()===String(student.StudentID||'').trim() && /^(YES|TRUE|1|PUBLISHED|প্রকাশিত)$/i.test(String(x.Published||'').trim());
+    return publicMadrasaOwnsRecord2026_(x,publicContext)&&String(x.StudentID||'').trim()===String(student.StudentID||'').trim() && /^(YES|TRUE|1|PUBLISHED|প্রকাশিত)$/i.test(String(x.Published||'').trim());
   });
   if(!rows.length)return {ok:false,message:'এই শিক্ষার্থীর প্রকাশিত ফলাফল পাওয়া যায়নি।'};
   return {ok:true,student:{studentId:student.StudentID,nameBN:student.NameBN||'',nameAR:student.NameAR||'',className:student.Class||'',mobile:student.Mobile||''},results:rows.map(function(x){
