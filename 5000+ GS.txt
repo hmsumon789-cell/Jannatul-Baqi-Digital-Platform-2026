@@ -526,6 +526,7 @@ function registerMadrasa(data){
   if(!name)missing.push('বাংলা মাদ্রাসার নাম');
   if(!year)missing.push('প্রতিষ্ঠা সন');
   if(!address)missing.push('ঠিকানা');
+  if(!photo)missing.push('নিজস্ব লোগো');
   if(missing.length)return {ok:false,message:'নিচের বাধ্যতামূলক ঘরগুলো পূরণ করুন: '+missing.join(', ')};
   // Serialize ID allocation and row insertion so concurrent registrations
   // cannot receive the same MR-ID.
@@ -546,12 +547,12 @@ function registerMadrasa(data){
   /* Add review columns only after the legacy Email/Photo columns exist; write by header name to avoid column shifts. */
   ensureAccountReviewColumns_();
   ensureAccountAppearanceColumns_();
-  const rowData={Serial:n,MadrasaID:id,GenderType:String(data.genderType||''),BoardRegistration:String(data.boardRegistration||''),Name:name,NameAR:String(data.nameAR||''),NameEN:String(data.nameEN||''),FoundedYear:year,Founder:String(data.founder||''),Muhtamim:String(data.muhtamim||''),Address:address,Mobile:mobile,StaffCount:Number(data.staffCount||0),StudentCount:Number(data.studentCount||0),Level:'',Status:'PENDING',CreatedAt:now_(),Username:username,Password:'',PasswordHash:hash_(password),ActiveDepartments:deps,OtherDepartment:String(data.otherDepartment||''),Ownership:String(data.ownership||''),ApprovedBy:'',ApprovedAt:'',Permissions:'',Email:email,Photo:storeAccountImage_(photo,username,'logo'),HeaderPhoto:storeAccountImage_(data.headerPhoto,username,'header'),Wallpaper:storeAccountImage_(data.wallpaper,username,'wallpaper'),HeaderTextColor:String(data.headerTextColor||'#ffffff'),HeaderBackgroundColor:String(data.headerBackgroundColor||'#1e3a8a'),ReviewStatus:'',ReviewedBy:'',ReviewedAt:'',ReviewNote:''};
+  const rowData={Serial:n,MadrasaID:id,GenderType:String(data.genderType||''),BoardRegistration:String(data.boardRegistration||''),Name:name,NameAR:String(data.nameAR||''),NameEN:String(data.nameEN||''),FoundedYear:year,Founder:String(data.founder||''),Muhtamim:String(data.muhtamim||''),Address:address,Mobile:mobile,StaffCount:Number(data.staffCount||0),StudentCount:Number(data.studentCount||0),Level:'',Status:'ACTIVE',CreatedAt:now_(),Username:username,Password:'',PasswordHash:hash_(password),ActiveDepartments:deps,OtherDepartment:String(data.otherDepartment||''),Ownership:String(data.ownership||''),ApprovedBy:'',ApprovedAt:'',Permissions:'',Email:email,Photo:storeAccountImage_(photo,username,'logo'),HeaderPhoto:storeAccountImage_(data.headerPhoto,username,'header'),Wallpaper:storeAccountImage_(data.wallpaper,username,'wallpaper'),HeaderTextColor:String(data.headerTextColor||'#ffffff'),HeaderBackgroundColor:String(data.headerBackgroundColor||'#1e3a8a'),ReviewStatus:'',ReviewedBy:'',ReviewedAt:'',ReviewNote:''};
   const finalHeaders=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(function(x){return String(x||'').trim()});
   const row=finalHeaders.map(function(k){return rowData[k]!==undefined?rowData[k]:''});
   sh.getRange(sh.getLastRow()+1,1,1,row.length).setValues([row]);
   log_('PUBLIC','register','MADRASA',id);
-    return {ok:true,madrasaId:id,message:'নতুন মাদ্রাসা নিবন্ধন হয়েছে। প্রশাসন/সুপার অ্যাডমিন অনুমোদনের পর Username + Password দিয়ে OTP ছাড়া লগইন করতে পারবেন।'};
+    return {ok:true,madrasaId:id,message:'নতুন মাদ্রাসা অ্যাকাউন্ট তৈরি হয়েছে। এখনই Username + Password দিয়ে লগইন করতে পারবেন; মডিউল ব্যবহারে Super Admin-এর অনুমোদন প্রয়োজন।'};
   }finally{
     registrationLock.releaseLock();
   }
@@ -592,25 +593,22 @@ function createDirectSession_(username,type){
 }
 
 function getModulesForSession_(token){
-  const s = auth_(token);
-  // Role check is intentionally first so Super Admin always receives the
-  // complete feature list even if the ADMIN row has incomplete Permissions.
-  if(s.accountType !== 'madrasa'){
-    const a = findBy_(SHEETS.ADMINS,'Username',s.username)||{};
-    const role = String(a.Role||'').toUpperCase().replace(/\s+/g,'_');
-    if(role==='SUPER_ADMIN' || role==='SUPERADMIN') return getModules_();
+  const s=auth_(token);
+  if(s.accountType!=='madrasa'){
+    const a=findBy_(SHEETS.ADMINS,'Username',s.username)||{},role=String(a.Role||'').toUpperCase().replace(/\s+/g,'_');
+    if(role==='SUPER_ADMIN'||role==='SUPERADMIN')return getModules_();
   }
-  const all = getModules_();
+  const all=getModules_();
   if(s.accountType==='madrasa'){
     const m=findBy_(SHEETS.MADRASAS,'Username',s.username)||{};
-    if(String(m.Status||'PENDING').toUpperCase()!=='ACTIVE') return all;
+    if(String(m.Status||'').toUpperCase()!=='ACTIVE')return [];
     const allowed=String(m.Permissions||'').split(',').map(x=>x.trim()).filter(Boolean);
-    return all.filter(x=>allowed.includes(x[0]) || x[0]==='institution' || x[0]==='help');
+    return all.filter(x=>allowed.includes(x[0]));
   }
   const a=findBy_(SHEETS.ADMINS,'Username',s.username)||{};
-  if(String(a.Status||'PENDING').toUpperCase()!=='ACTIVE') return all;
+  if(String(a.Status||'PENDING').toUpperCase()!=='ACTIVE')return all.filter(x=>x[0]==='institution'||x[0]==='help');
   const allowed=String(a.Permissions||'').split(',').map(x=>x.trim()).filter(Boolean);
-  return all.filter(x=>allowed.includes(x[0]) || x[0]==='institution' || x[0]==='help');
+  return all.filter(x=>allowed.includes(x[0])||x[0]==='institution'||x[0]==='help');
 }
 function getModuleList(token,key){
   auth_(token);
@@ -1104,21 +1102,14 @@ function countTeacherStaffByType_(token){
   });
   return {teachers:teachers,staff:staff};
 }
-function getStats(token) {
+function getStats(token){
   auth_(token);
-  const income=sumCol_(SHEETS.PAYMENTS,'Amount',token), expense=sumCol_(SHEETS.EXPENSES,'Amount',token);
-  const students=countData_(SHEETS.STUDENTS,token), teacherStaff=countTeacherStaffByType_(token), teachers=teacherStaff.teachers, staff=teacherStaff.staff, executives=countData_(SHEETS.EXECUTIVES,token);
-  const female=countMadrasa_('মহিলা',token), male=countMadrasa_('পুরুষ',token);
-  return {income,expense,cash:income-expense,due:0,students,teachers,staff,executives,femaleMadrasa:female,maleMadrasa:male,attendanceToday:attendanceToday_(token)};
-}function getStats(token) {
-  auth_(token);
-  const income=sumCol_(SHEETS.PAYMENTS,'Amount',token), expense=sumCol_(SHEETS.EXPENSES,'Amount',token);
-  const students=countData_(SHEETS.STUDENTS,token), teacherStaff=countTeacherStaffByType_(token), teachers=teacherStaff.teachers, staff=teacherStaff.staff, executives=countData_(SHEETS.EXECUTIVES,token);
-  const female=countMadrasa_('মহিলা',token), male=countMadrasa_('পুরুষ',token);
-  return {income,expense,cash:income-expense,due:0,students,teachers,staff,executives,femaleMadrasa:female,maleMadrasa:male,attendanceToday:attendanceToday_(token)};
+  const income=sumCol_(SHEETS.PAYMENTS,'Amount',token),expense=sumCol_(SHEETS.EXPENSES,'Amount',token);
+  const students=countData_(SHEETS.STUDENTS,token),examinees=countData_(SHEETS.EXAM_REG,token);
+  const teacherStaff=countTeacherStaffByType_(token),teachers=teacherStaff.teachers,staff=teacherStaff.staff,executives=countData_(SHEETS.EXECUTIVES,token);
+  const female=countMadrasa_('মহিলা',token),male=countMadrasa_('পুরুষ',token);
+  return {income:income,expense:expense,cash:income-expense,due:0,students:students,examinees:examinees,teachers:teachers,staff:staff,executives:executives,femaleMadrasa:female,maleMadrasa:male,attendanceToday:attendanceToday_(token)};
 }
-
-/* ===== DASHBOARD LIVE ACCOUNT / DEVICE COUNTS — 2026-10-31 ===== */
 function getDashboardLiveCounts(token) {
   auth_(token);
   const identity=tenantIdentity_(token);
@@ -2413,56 +2404,43 @@ function mediaTempFolder_(){
   return it.hasNext()?it.next():DriveApp.createFolder(name);
 }
 function startMediaUpload(token,meta){
-  auth_(token); requireFeature_(token,'gallery');
-  meta=meta||{};
-  const type=String(meta.type||'').toLowerCase(), rules=getMediaRules_()[type];
-  if(!rules)return {ok:false,message:'মিডিয়া টাইপ সঠিক নয়।'};
-  const size=Number(meta.size||0);
-  if(size<=0||size>rules.maxMB*1024*1024)return {ok:false,message:type==='image'?'ফটোর সর্বোচ্চ সীমা 20 MB।':'ভিডিও/অডিওর সর্বোচ্চ সীমা 50 MB।'};
-  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
-  const rows=listRows_(SHEETS.MEDIA,null,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
+  auth_(token);requireFeature_(token,'gallery');meta=meta||{};
+  const type=String(meta.type||'').toLowerCase(),rules=getMediaRules_()[type];if(!rules)return {ok:false,message:'মিডিয়া টাইপ সঠিক নয়।'};
+  const size=Number(meta.size||0);if(size<=0||size>rules.maxMB*1024*1024)return {ok:false,message:type==='image'?'ফটোর সর্বোচ্চ সীমা 20 MB।':'ভিডিও/অডিওর সর্বোচ্চ সীমা 50 MB।'};
+  const identity=tenantIdentity_(token),rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
   if(rows.length>=rules.maxCount)return {ok:false,message:type==='image'?'সর্বোচ্চ 100টি ফটো রাখা যাবে।':'সর্বোচ্চ 50টি '+(type==='video'?'ভিডিও':'অডিও')+' রাখা যাবে।'};
-  const uploadId=Utilities.getUuid();
-  const folder=mediaTempFolder_();
-  folder.createFile(Utilities.newBlob(JSON.stringify({uploadId,type,name:String(meta.name||'media'),mimeType:String(meta.mimeType||'application/octet-stream'),size:size,created:Date.now()}),'application/json','META-'+uploadId+'.json'));
+  const uploadId=Utilities.getUuid(),folder=mediaTempFolder_();
+  folder.createFile(Utilities.newBlob(JSON.stringify({uploadId:uploadId,type:type,name:String(meta.name||'media'),mimeType:String(meta.mimeType||'application/octet-stream'),size:size,created:Date.now(),tenantKey:identity.key}),'application/json','META-'+uploadId+'.json'));
   return {ok:true,uploadId:uploadId};
 }
 function uploadMediaChunk(token,uploadId,index,base64){
-  auth_(token); requireFeature_(token,'gallery');
-  uploadId=String(uploadId||''); index=Number(index);
+  auth_(token);requireFeature_(token,'gallery');uploadId=String(uploadId||'');index=Number(index);
   if(!uploadId||!isFinite(index)||index<0)return {ok:false,message:'Chunk তথ্য সঠিক নয়।'};
-  const raw=String(base64||''); if(!raw)return {ok:false,message:'Chunk ডাটা পাওয়া যায়নি।'};
-  const folder=mediaTempFolder_();
+  const raw=String(base64||'');if(!raw)return {ok:false,message:'Chunk ডাটা পাওয়া যায়নি।'};
+  const folder=mediaTempFolder_(),metas=folder.getFilesByName('META-'+uploadId+'.json');if(!metas.hasNext())return {ok:false,message:'Upload session পাওয়া যায়নি।'};
+  let meta;try{meta=JSON.parse(metas.next().getBlob().getDataAsString());}catch(e){return {ok:false,message:'Upload metadata নষ্ট হয়েছে।'};}
+  if(String(meta.tenantKey||'')!==tenantIdentity_(token).key)return {ok:false,message:'এই আপলোড সেশনের মালিক আপনি নন।'};
   folder.createFile(Utilities.newBlob(Utilities.base64Decode(raw),'application/octet-stream','CHUNK-'+uploadId+'-'+String(index).padStart(6,'0')));
   return {ok:true,index:index};
 }
 function finishMediaUpload(token,uploadId){
-  auth_(token); requireFeature_(token,'gallery');
-  uploadId=String(uploadId||''); if(!uploadId)return {ok:false,message:'Upload ID পাওয়া যায়নি।'};
-  const folder=mediaTempFolder_(), files=folder.getFiles(), chunks=[], metas=[];
-  while(files.hasNext()){
-    const f=files.next(), n=f.getName();
-    if(n==='META-'+uploadId+'.json')metas.push(f);
-    else if(n.indexOf('CHUNK-'+uploadId+'-')===0)chunks.push(f);
-  }
+  auth_(token);requireFeature_(token,'gallery');uploadId=String(uploadId||'');if(!uploadId)return {ok:false,message:'Upload ID পাওয়া যায়নি।'};
+  const identity=tenantIdentity_(token),folder=mediaTempFolder_(),files=folder.getFiles(),chunks=[],metas=[];
+  while(files.hasNext()){const f=files.next(),n=f.getName();if(n==='META-'+uploadId+'.json')metas.push(f);else if(n.indexOf('CHUNK-'+uploadId+'-')===0)chunks.push(f);}
   if(!metas.length||!chunks.length)return {ok:false,message:'আপলোডের অংশগুলো সম্পূর্ণ পাওয়া যায়নি।'};
-  let meta;
-  try{meta=JSON.parse(metas[0].getBlob().getDataAsString());}catch(e){return {ok:false,message:'Upload metadata নষ্ট হয়েছে।'};}
-  const type=String(meta.type||'').toLowerCase(),rules=getMediaRules_()[type];
-  if(!rules)return {ok:false,message:'মিডিয়া টাইপ সঠিক নয়।'};
-  chunks.sort((a,b)=>a.getName().localeCompare(b.getName()));
-  let total=0,bytes=[];
+  let meta;try{meta=JSON.parse(metas[0].getBlob().getDataAsString());}catch(e){return {ok:false,message:'Upload metadata নষ্ট হয়েছে।'};}
+  if(String(meta.tenantKey||'')!==identity.key)return {ok:false,message:'এই আপলোড সেশনের মালিক আপনি নন।'};
+  const type=String(meta.type||'').toLowerCase(),rules=getMediaRules_()[type];if(!rules)return {ok:false,message:'মিডিয়া টাইপ সঠিক নয়।'};
+  chunks.sort((a,b)=>a.getName().localeCompare(b.getName()));let total=0,bytes=[];
   chunks.forEach(function(f){const b=f.getBlob().getBytes();total+=b.length;bytes=bytes.concat(b);});
   if(total!==Number(meta.size||0))return {ok:false,message:'ফাইলের আকার মিলছে না। '+total+' / '+meta.size};
   if(total>rules.maxMB*1024*1024)return {ok:false,message:'ফাইলের আকার অনুমোদিত সীমার বেশি।'};
-  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
-  const rows=listRows_(SHEETS.MEDIA,null,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA),rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
   if(rows.length>=rules.maxCount)return {ok:false,message:type==='image'?'সর্বোচ্চ 100টি ফটো রাখা যাবে।':'সর্বোচ্চ 50টি '+(type==='video'?'ভিডিও':'অডিও')+' রাখা যাবে।'};
-  const file=mediaDriveFolder_().createFile(Utilities.newBlob(bytes,meta.mimeType||'application/octet-stream',meta.name||('media-'+Date.now())));
+  ensureTenantSheetColumn_(sh);const file=mediaDriveFolder_().createFile(Utilities.newBlob(bytes,meta.mimeType||'application/octet-stream',meta.name||('media-'+Date.now())));
   try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
-  const serial=nextSerial_(sh),mediaId='MED-'+Date.now();
-  sh.appendRow([serial,mediaId,type,meta.name||'','DRIVE:'+file.getId(),meta.mimeType||'',total,0,'ACTIVE',now_()]);
-  chunks.forEach(function(f){try{f.setTrashed(true);}catch(e){}}); metas.forEach(function(f){try{f.setTrashed(true);}catch(e){}});
+  const serial=nextSerial_(sh),mediaId='MED-'+Date.now();sh.appendRow([serial,mediaId,type,meta.name||'','DRIVE:'+file.getId(),meta.mimeType||'',total,0,'ACTIVE',now_(),identity.key]);
+  chunks.forEach(function(f){try{f.setTrashed(true);}catch(e){}});metas.forEach(function(f){try{f.setTrashed(true);}catch(e){}});
   return {ok:true,serial:serial,mediaId:mediaId};
 }
 function saveMediaForm(form){
@@ -2477,7 +2455,7 @@ function saveMediaForm(form){
   if(size<=0)return {ok:false,message:'ফাইল খালি।'};
   if(size>rules.maxMB*1024*1024)return {ok:false,message:type==='image'?'ফটোর সর্বোচ্চ সীমা 20 MB।':'ভিডিও/অডিওর সর্বোচ্চ সীমা 50 MB।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
-  const rows=listRows_(SHEETS.MEDIA,null,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
+  const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
   if(rows.length>=rules.maxCount)return {ok:false,message:type==='image'?'সর্বোচ্চ 100টি ফটো রাখা যাবে।':'সর্বোচ্চ 50টি '+(type==='video'?'ভিডিও':'অডিও')+' রাখা যাবে।'};
   const name=String(blob.getName()||('media-'+Date.now()));
   const file=mediaDriveFolder_().createFile(blob.setName(name));
@@ -2495,7 +2473,7 @@ function saveMedia(token,item) {
   const size=Number(item.size||0);
   if(size>rules.maxMB*1024*1024) return {ok:false,message:type==='image'?'ফটোর সর্বোচ্চ সীমা 20 MB।':'ভিডিও/অডিওর সর্বোচ্চ সীমা 50 MB।'};
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
-  const rows=listRows_(SHEETS.MEDIA,null,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
+  const rows=listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status).toUpperCase()==='ACTIVE'&&String(x.Type).toLowerCase()===type);
   if(rows.length>=rules.maxCount) return {ok:false,message:type==='image'?'সর্বোচ্চ 100টি ফটো রাখা যাবে।':'সর্বোচ্চ 50টি '+(type==='video'?'ভিডিও':'অডিও')+' রাখা যাবে।'};
   const raw=String(item.dataUrl).split(',')[1]||''; if(!raw)return {ok:false,message:'ফাইল ডাটা পাওয়া যায়নি।'};
   const blob=Utilities.newBlob(Utilities.base64Decode(raw),item.mimeType||'application/octet-stream',item.name||('media-'+Date.now()));
@@ -2506,38 +2484,27 @@ function saveMedia(token,item) {
   sh.appendRow([serial,mediaId,type,item.name||'','DRIVE:'+file.getId(),item.mimeType||'',size,item.sort||0,'ACTIVE',now_(),tenantIdentity_(token).key]);
   return {ok:true,serial:serial,mediaId:mediaId};
 }
-function listMedia(token) {
+function listMedia(token){
   auth_(token);
-  return listRows_(SHEETS.MEDIA,null,1000).filter(x=>String(x.Status||'').toUpperCase()==='ACTIVE').map(function(x){
+  return listRows_(SHEETS.MEDIA,token,1000).filter(x=>String(x.Status||'').toUpperCase()==='ACTIVE').map(function(x){
     if(String(x.DataURL||'').indexOf('DRIVE:')===0){
-      const id=String(x.DataURL).slice(6);
-      let rk='';
-      try{
-        const f=DriveApp.getFileById(id);
-        try{f.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
-        try{rk=String(f.getResourceKey()||'');}catch(e){}
-      }catch(e){}
-      x.DriveFileId=id;
-      x.FileID=id;
-      x.ResourceKey=rk;
-      x.DataURL=mediaDriveUrl_(id,rk);
-      x.DirectURL=x.DataURL;
-      x.PreviewURL=mediaPreviewUrl_(id,rk);
-    }
-    return x;
+      const id=String(x.DataURL).slice(6);let rk='';
+      try{const f=DriveApp.getFileById(id);try{f.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}try{rk=String(f.getResourceKey()||'');}catch(e){}}catch(e){}
+      x.DriveFileId=id;x.FileID=id;x.ResourceKey=rk;x.DataURL=mediaDriveUrl_(id,rk);x.DirectURL=x.DataURL;x.PreviewURL=mediaPreviewUrl_(id,rk);
+    }return x;
   });
 }
-function deleteMedia(token,serial) {
-  auth_(token); requireFeature_(token,'gallery');
-  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA), last=sh.getLastRow();
-  if(last<2)return {ok:false,message:'মিডিয়া পাওয়া যায়নি।'};
-  const vals=sh.getRange(2,1,last-1,10).getValues(), idx=vals.findIndex(function(r){return String(r[0])===String(serial);});
+function deleteMedia(token,serial){
+  auth_(token);requireFeature_(token,'gallery');const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
+  if(!sh||sh.getLastRow()<2)return {ok:false,message:'মিডিয়া পাওয়া যায়নি।'};
+  const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(function(x){return String(x||'').trim();}),serialCol=headers.indexOf('Serial'),dataCol=headers.indexOf('DataURL');
+  if(serialCol<0)return {ok:false,message:'মিডিয়া Serial কলাম পাওয়া যায়নি।'};
+  const visible=listRows_(SHEETS.MEDIA,token,10000);if(!visible.some(function(x){return String(x.Serial)===String(serial);}))return {ok:false,message:'এই মিডিয়া আপনার অ্যাকাউন্টে পাওয়া যায়নি।'};
+  const values=sh.getRange(2,1,sh.getLastRow()-1,sh.getLastColumn()).getValues(),idx=values.findIndex(function(row){return String(row[serialCol])===String(serial);});
   if(idx<0)return {ok:false,message:'মিডিয়া পাওয়া যায়নি।'};
-  const dataUrl=String(vals[idx][4]||'');
-  if(dataUrl.indexOf('DRIVE:')===0){try{DriveApp.getFileById(dataUrl.slice(6)).setTrashed(true);}catch(e){}}
-  sh.deleteRow(idx+2); return {ok:true};
+  const dataUrl=dataCol>=0?String(values[idx][dataCol]||''):'';if(dataUrl.indexOf('DRIVE:')===0){try{DriveApp.getFileById(dataUrl.slice(6)).setTrashed(true);}catch(e){}}
+  sh.deleteRow(idx+2);return {ok:true};
 }
-
 function allDocumentsFileFolder2026_(){
   const props=PropertiesService.getScriptProperties(),key='ALL_DOCUMENTS_FILE_FOLDER_ID_2026',saved=props.getProperty(key);
   if(saved){try{return DriveApp.getFolderById(saved);}catch(e){}}
@@ -2687,7 +2654,7 @@ function findBy_(sheet,key,value){
   for(let i=1;i<v.length;i++) if(String(v[i][j]).trim()===String(value).trim()) return objectFrom_(h,v[i]);
   return null;
 }
-const TENANT_SCOPED_SHEETS_ = ['STUDENTS','TEACHERS','DONORS','ADMISSIONS','EXAM_REG','PAYMENTS','EXPENSES','INCOME','RESULTS','ATTENDANCE','MEDIA','FILES','SALARY','CERTIFICATES','ID_CARDS','ADMIT_CARDS','RECEIPTS','ONLINE_SERVICES','EXECUTIVES','ADVISERS','FOUNDERS'];
+const TENANT_SCOPED_SHEETS_ = ['STUDENTS','TEACHERS','DONORS','ADMISSIONS','EXAM_REG','PAYMENTS','EXPENSES','INCOME','RESULTS','NOTICES','ATTENDANCE','MEDIA','FILES','SALARY','CERTIFICATES','ID_CARDS','ADMIT_CARDS','RECEIPTS','ONLINE_SERVICES','EXECUTIVES','ADVISERS','FOUNDERS'];
 function tenantIdentity_(token) {
   const session=auth_(token), type=String(session.accountType||'admin'), username=String(session.username||'').trim();
   const root=type!=='madrasa' && isSuperAdmin_(token);
@@ -2718,12 +2685,10 @@ function tenantCanSeeRow_(sheetName,headers,row,token) {
   }
   return false;
 }
-function getInstitutionForSession_(token) {
-  const identity=tenantIdentity_(token);
-  if(identity.root)return APP;
+function getInstitutionForSession_(token){
+  const identity=tenantIdentity_(token);if(identity.root)return Object.assign({},APP);
   const account=findBy_(identity.type==='madrasa'?SHEETS.MADRASAS:SHEETS.ADMINS,'Username',identity.username)||{};
-  const name=String(account.Name||account.NameBN||account.InstitutionName||APP.nameBn);
-  return Object.assign({},APP,{nameBn:name,nameAr:String(account.NameAR||APP.nameAr),nameEn:String(account.NameEN||name||APP.nameEn),address:String(account.Address||APP.address),hotline1:String(account.Mobile||account.Hotline||APP.hotline1),email1:String(account.Email||APP.email1),logo:accountImageUrl_(account.Photo||account.Logo||''),headerPhoto:accountImageUrl_(account.HeaderPhoto||''),wallpaper:accountImageUrl_(account.Wallpaper||account.BackgroundPhoto||''),headerTextColor:String(account.HeaderTextColor||'')});
+  return {nameBn:String(account.Name||account.NameBN||account.InstitutionName||'').trim(),nameAr:String(account.NameAR||''),nameEn:String(account.NameEN||''),address:String(account.Address||''),hotline1:String(account.Mobile||account.Hotline||''),hotline2:'',email1:String(account.Email||''),email2:'',timezone:APP.timezone,logo:accountImageUrl_(account.Photo||account.Logo||''),headerPhoto:accountImageUrl_(account.HeaderPhoto||''),wallpaper:accountImageUrl_(account.Wallpaper||account.BackgroundPhoto||''),headerTextColor:String(account.HeaderTextColor||'#ffffff'),headerBackgroundColor:String(account.HeaderBackgroundColor||'#1e3a8a')};
 }
 function listRows_(sheet,token,limit){
   const session=token?auth_(token):null;
@@ -2817,26 +2782,12 @@ function invalidateUserSessions_(type,username){
 }
 function sessionUser_(token){ return auth_(token).username; }
 function getAccountBranding20261104(token){
-  const session=auth_(token);
-  const type=String(session.accountType||'admin');
-  const username=String(session.username||'').trim();
-  const sheet=type==='madrasa'?SHEETS.MADRASAS:SHEETS.ADMINS;
-  const account=findBy_(sheet,'Username',username)||{};
-  const role=String(account.Role||'').toUpperCase().replace(/\s+/g,'_');
-  const isRoot=type!=='madrasa'&&(role==='SUPER_ADMIN'||role==='SUPERADMIN'||username.toLowerCase()==='superadmin');
+  const session=auth_(token),type=String(session.accountType||'admin'),username=String(session.username||'').trim();
+  const sheet=type==='madrasa'?SHEETS.MADRASAS:SHEETS.ADMINS,account=findBy_(sheet,'Username',username)||{};
+  const role=String(account.Role||'').toUpperCase().replace(/\s+/g,'_'),isRoot=type!=='madrasa'&&(role==='SUPER_ADMIN'||role==='SUPERADMIN'||username.toLowerCase()==='superadmin');
   if(isRoot)return {ok:true,skip:true,accountType:type};
-  return {
-    ok:true,
-    skip:false,
-    accountType:type,
-    name:String(account.NameBN||account.Name||account.InstitutionName||''),
-    logo:accountImageUrl_(account.Photo||account.photo||account.Logo||account.logo||''),
-    address:String(account.Address||''),
-    mobile:String(account.Mobile||account.Hotline||''),
-    email:String(account.Email||'')
-  };
+  return {ok:true,skip:false,accountType:type,name:String(account.NameBN||account.Name||account.InstitutionName||''),nameAr:String(account.NameAR||''),nameEn:String(account.NameEN||''),logo:accountImageUrl_(account.Photo||account.photo||account.Logo||account.logo||''),headerPhoto:accountImageUrl_(account.HeaderPhoto||''),wallpaper:accountImageUrl_(account.Wallpaper||account.BackgroundPhoto||''),headerTextColor:String(account.HeaderTextColor||'#ffffff'),headerBackgroundColor:String(account.HeaderBackgroundColor||'#1e3a8a'),address:String(account.Address||''),mobile:String(account.Mobile||account.Hotline||''),email:String(account.Email||'')};
 }
-
 function getAdminSafe_(u){ const x=findBy_(SHEETS.ADMINS,'Username',u)||{}; delete x.Password;delete x.PasswordHash;delete x.password;delete x.passwordHash;return x; }
 function log_(u,a,t,d){ const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.AUDIT); if(sh)sh.appendRow([nextSerial_(sh),now_(),u,a,t,d]); }
 
@@ -4785,65 +4736,48 @@ function sendContactEmail(token, recipients, subject, body) {
     message:sent+' জনকে ইমেইল পাঠানোর অনুরোধ সম্পন্ন হয়েছে।'+(skipped?' '+skipped+'টি ঠিকানা বাদ গেছে।':'')+(failed?' '+failed+'টি ব্যর্থ হয়েছে: '+errors.join(' | '):'')};
 }
 
-function ensureNoticeBoardSheet_() {
-  return ensureSheet_(SpreadsheetApp.getActiveSpreadsheet(), SHEETS.NOTICES || 'NOTICES',
-    ['Serial','NoticeID','TitleBN','TitleAR','TitleEN','BodyBN','BodyAR','BodyEN','Date','Status','CreatedAt','Category','Attachments','Archived']);
+function ensureNoticeBoardSheet_(){
+  const sh=ensureSheet_(SpreadsheetApp.getActiveSpreadsheet(),SHEETS.NOTICES||'NOTICES',['Serial','NoticeID','TitleBN','TitleAR','TitleEN','BodyBN','BodyAR','BodyEN','Date','Status','CreatedAt','Category','Attachments','Archived']);
+  ensureTenantSheetColumn_(sh);return sh;
 }
-function getNoticeBoardRecords(token, includeArchived) {
-  try {
-    auth_(token);
-    const sh=ensureNoticeBoardSheet_();
-    if(sh.getLastRow()<2)return {ok:true,rows:[]};
-    const data=sh.getDataRange().getValues(), headers=data[0].map(v=>String(v||'').trim());
-    const rows=data.slice(1).map(function(row){
-      const n=objectFrom_(headers,row);
-      if(!n.NoticeID)n.NoticeID=n.Serial||'';
-      if(!String(n.Status||'').trim())n.Status='PUBLISHED';
-      if(!n.Category)n.Category='সাধারণ';
-      if(!n.Attachments)n.Attachments='[]';
-      return n;
-    }).filter(function(n){return includeArchived===true||(String(n.Status||'').toUpperCase()!=='ARCHIVED'&&!/^(true|yes|1)$/i.test(String(n.Archived||'')));});
-    rows.reverse();
-    return {ok:true,rows:rows};
-  } catch(e) {return {ok:false,message:'নোটিশ তালিকা লোড হয়নি: '+String(e&&e.message||e),rows:[]};}
+function getNoticeBoardRecords(token,includeArchived){
+  try{
+    auth_(token);ensureNoticeBoardSheet_();
+    const rows=listRows_(SHEETS.NOTICES,token,5000).map(function(n){if(!n.NoticeID)n.NoticeID=n.Serial||'';if(!String(n.Status||'').trim())n.Status='PUBLISHED';if(!n.Category)n.Category='সাধারণ';if(!n.Attachments)n.Attachments='[]';return n;})
+      .filter(function(n){return includeArchived===true||(String(n.Status||'').toUpperCase()!=='ARCHIVED'&&!/^(true|yes|1)$/i.test(String(n.Archived||'')));});
+    rows.reverse();return {ok:true,rows:rows};
+  }catch(e){return {ok:false,message:'নোটিশ তালিকা লোড হয়নি: '+String(e&&e.message||e),rows:[]};}
 }
-function saveNoticeBoardRecord(token, serial, payload) {
-  try {
-    auth_(token);
-    if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin নোটিশ সংরক্ষণ করতে পারবেন।'};
-    payload=payload||{};
-    const title=String(payload.TitleBN||payload.TitleEN||'').trim(), body=String(payload.BodyBN||payload.BodyEN||'').trim();
+function saveNoticeBoardRecord(token,serial,payload){
+  try{
+    auth_(token);const identity=tenantIdentity_(token);if(!identity.root)requireFeature_(token,'notice');
+    payload=payload||{};const title=String(payload.TitleBN||payload.TitleEN||'').trim(),body=String(payload.BodyBN||payload.BodyEN||'').trim();
     if(!title||!body)return {ok:false,message:'নোটিশের শিরোনাম ও বিস্তারিত আবশ্যক।'};
-    const state=String(payload.Status||'DRAFT').toUpperCase();
-    if(['DRAFT','PUBLISHED','ARCHIVED'].indexOf(state)<0)return {ok:false,message:'নোটিশের অবস্থা সঠিক নয়।'};
-    const sh=ensureNoticeBoardSheet_(), headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(v=>String(v||'').trim());
-    let rowNum=0, old={}; const serialCol=headers.indexOf('Serial')+1, target=String(serial||'').trim();
-    if(target&&sh.getLastRow()>1){const vals=sh.getRange(2,serialCol,sh.getLastRow()-1,1).getDisplayValues();for(let i=0;i<vals.length;i++){if(String(vals[i][0]).trim()===target){rowNum=i+2;old=objectFrom_(headers,sh.getRange(rowNum,1,1,headers.length).getValues()[0]);break;}}}
-    const stamp=now_(), serialValue=rowNum?old.Serial:nextSerial_(sh);
-    const noticeId=rowNum?(old.NoticeID||('NTC-'+Date.now())):('NTC-'+Date.now()+'-'+Math.floor(Math.random()*900+100));
-    const item=Object.assign({},old,{Serial:serialValue,NoticeID:noticeId,TitleBN:title,TitleAR:String(payload.TitleAR||''),TitleEN:String(payload.TitleEN||title),BodyBN:body,BodyAR:String(payload.BodyAR||''),BodyEN:String(payload.BodyEN||body),Date:String(payload.Date||stamp.slice(0,10)),Status:state,Category:String(payload.Category||'সাধারণ'),Attachments:typeof payload.Attachments==='string'?payload.Attachments:JSON.stringify(payload.Attachments||[]),Archived:state==='ARCHIVED'?'YES':'NO',CreatedAt:rowNum?(old.CreatedAt||stamp):stamp});
-    const values=headers.map(function(h){return item[h]==null?'':item[h];});
-    if(rowNum)sh.getRange(rowNum,1,1,headers.length).setValues([values]);else sh.appendRow(values);
+    const state=String(payload.Status||'DRAFT').toUpperCase();if(['DRAFT','PUBLISHED','ARCHIVED'].indexOf(state)<0)return {ok:false,message:'নোটিশের অবস্থা সঠিক নয়।'};
+    const sh=ensureNoticeBoardSheet_(),headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String),target=String(serial||'').trim(),visible=listRows_(SHEETS.NOTICES,token,5000);
+    if(target&&!visible.some(function(x){return String(x.Serial)===target;}))return {ok:false,message:'এই নোটিশ আপনার অ্যাকাউন্টে পাওয়া যায়নি।'};
+    let rowNum=0,old={},serialCol=headers.indexOf('Serial')+1;
+    if(target&&sh.getLastRow()>1){const vals=sh.getRange(2,serialCol,sh.getLastRow()-1,1).getDisplayValues();for(let i=0;i<vals.length;i++)if(String(vals[i][0]).trim()===target){rowNum=i+2;old=objectFrom_(headers,sh.getRange(rowNum,1,1,headers.length).getValues()[0]);break;}}
+    const stamp=now_(),serialValue=rowNum?old.Serial:nextSerial_(sh),noticeId=rowNum?(old.NoticeID||('NTC-'+Date.now())):('NTC-'+Date.now()+'-'+Math.floor(Math.random()*900+100));
+    const item=Object.assign({},old,{Serial:serialValue,NoticeID:noticeId,TitleBN:title,TitleAR:String(payload.TitleAR||''),TitleEN:String(payload.TitleEN||title),BodyBN:body,BodyAR:String(payload.BodyAR||''),BodyEN:String(payload.BodyEN||body),Date:String(payload.Date||stamp.slice(0,10)),Status:state,Category:String(payload.Category||'সাধারণ'),Attachments:typeof payload.Attachments==='string'?payload.Attachments:JSON.stringify(payload.Attachments||[]),Archived:state==='ARCHIVED'?'YES':'NO',CreatedAt:rowNum?(old.CreatedAt||stamp):stamp,TenantAccount:rowNum?String(old.TenantAccount||identity.key):(identity.root?'':identity.key)});
+    const values=headers.map(function(h){return item[h]==null?'':item[h];});if(rowNum)sh.getRange(rowNum,1,1,headers.length).setValues([values]);else sh.appendRow(values);
     try{log_(sessionUser_(token),rowNum?'UPDATE_NOTICE':'CREATE_NOTICE',noticeId,title);}catch(ignore){}
     return {ok:true,message:rowNum?'নোটিশ আপডেট হয়েছে।':'নোটিশ সংরক্ষণ হয়েছে।',serial:String(serialValue),noticeId:noticeId};
-  } catch(e) {return {ok:false,message:'নোটিশ সংরক্ষণ ব্যর্থ: '+String(e&&e.message||e)};}
+  }catch(e){return {ok:false,message:'নোটিশ সংরক্ষণ ব্যর্থ: '+String(e&&e.message||e)};}
 }
-function deleteNoticeBoardRecord(token, serial) {
-  try {
-    auth_(token);
-    if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin নোটিশ মুছতে পারবেন।'};
-    const sh=ensureNoticeBoardSheet_();
-    if(sh.getLastRow()<2)return {ok:false,message:'নোটিশ পাওয়া যায়নি।'};
-    const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(v=>String(v||'').trim()), col=headers.indexOf('Serial')+1;
-    const vals=sh.getRange(2,col,sh.getLastRow()-1,1).getDisplayValues();
-    for(let i=0;i<vals.length;i++)if(String(vals[i][0]).trim()===String(serial||'').trim()){sh.deleteRow(i+2);return {ok:true};}
+function deleteNoticeBoardRecord(token,serial){
+  try{
+    auth_(token);const identity=tenantIdentity_(token);if(!identity.root)requireFeature_(token,'notice');
+    const visible=listRows_(SHEETS.NOTICES,token,5000);if(!visible.some(function(x){return String(x.Serial)===String(serial||'').trim();}))return {ok:false,message:'এই নোটিশ আপনার অ্যাকাউন্টে পাওয়া যায়নি।'};
+    const sh=ensureNoticeBoardSheet_(),headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String),col=headers.indexOf('Serial'),values=sh.getRange(2,col+1,sh.getLastRow()-1,1).getDisplayValues();
+    for(let i=0;i<values.length;i++)if(String(values[i][0]).trim()===String(serial||'').trim()){sh.deleteRow(i+2);return {ok:true};}
     return {ok:false,message:'নোটিশ পাওয়া যায়নি।'};
-  } catch(e) {return {ok:false,message:'নোটিশ ডিলিট ব্যর্থ: '+String(e&&e.message||e)};}
+  }catch(e){return {ok:false,message:'নোটিশ ডিলিট ব্যর্থ: '+String(e&&e.message||e)};}
 }
 function uploadNoticeAttachment(token, fileName, mimeType, base64Data) {
   try {
     auth_(token);
-    if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin সংযুক্তি আপলোড করতে পারবেন।'};
+    const identity=tenantIdentity_(token);if(!identity.root)requireFeature_(token,'notice');
     fileName=String(fileName||'notice-attachment').replace(/[^a-zA-Z0-9._() -]/g,'_').slice(0,180);
     mimeType=String(mimeType||'application/octet-stream');
     const encoded=String(base64Data||'');
@@ -4851,7 +4785,7 @@ function uploadNoticeAttachment(token, fileName, mimeType, base64Data) {
     if(encoded.length>28*1024*1024)return {ok:false,message:'ফাইলটি ২০ MB সীমার বেশি।'};
     const bytes=Utilities.base64Decode(encoded);
     if(bytes.length>20*1024*1024)return {ok:false,message:'প্রতি সংযুক্তি সর্বোচ্চ ২০ MB হতে পারবে।'};
-    const folderName='Jannatul Baqi Notice Attachments 2026', iter=DriveApp.getFoldersByName(folderName);
+    const folderName='Jannatul Baqi Notice Attachments 2026'+(identity.root?'':' - '+identity.key), iter=DriveApp.getFoldersByName(folderName);
     const folder=iter.hasNext()?iter.next():DriveApp.createFolder(folderName);
     const file=folder.createFile(Utilities.newBlob(bytes,mimeType,fileName));
     try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(shareError){}
@@ -5004,81 +4938,78 @@ function institutionProfileSheet2026_(){
   const ss=SpreadsheetApp.getActiveSpreadsheet();
   return ensureSheet_(ss,'INSTITUTION_PROFILE_2026',['Key','Name','Role','PhotoUrl','UpdatedAt','Text']);
 }
+function madrasaProfileSheet2026_(){
+  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  return ensureSheet_(ss,'MADRASA_PROFILE_2026',['TenantAccount','Key','Name','Role','PhotoUrl','UpdatedAt','Text']);
+}
+function madrasaProfileRows2026_(tenantKey){
+  const sh=madrasaProfileSheet2026_();if(sh.getLastRow()<2)return [];
+  const values=sh.getDataRange().getValues(),headers=values[0].map(String),tenantCol=headers.indexOf('TenantAccount');
+  return values.slice(1).filter(function(row){return tenantCol>=0&&String(row[tenantCol]||'')===String(tenantKey||'');}).map(function(row){return objectFrom_(headers,row);});
+}
 function institutionPhotoFolder2026_(){
   const props=PropertiesService.getScriptProperties(),key='INSTITUTION_PROFILE_PHOTO_FOLDER_ID_2026',existing=props.getProperty(key);
   if(existing){try{return DriveApp.getFolderById(existing);}catch(e){}}
   const folder=DriveApp.createFolder('Jannatul Baqi Institution Profile Photos 2026');props.setProperty(key,folder.getId());return folder;
 }
 function getInstitutionProfile2026(token){
-  auth_(token);if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin প্রতিষ্ঠান পরিচিতি সম্পাদনা করতে পারবেন।'};
-  const sh=institutionProfileSheet2026_(),rows=sh.getDataRange().getValues();let history='';const people=[];
-  for(let i=1;i<rows.length;i++){const row=rows[i],key=String(row[0]||'');if(key==='HISTORY')history=String(row[5]||'');else if(key)people.push({id:key,name:String(row[1]||''),group:String(row[2]||''),photoUrl:String(row[3]||''),contribution:String(row[5]||'')});}
+  auth_(token);const identity=tenantIdentity_(token);
+  if(!identity.root){requireFeature_(token,'institution');const rows=madrasaProfileRows2026_(identity.key);let history='';const people=[];
+    rows.forEach(function(row){if(String(row.Key)==='HISTORY')history=String(row.Text||'');else if(row.Key)people.push({id:String(row.Key),name:String(row.Name||''),group:String(row.Role||''),photoUrl:String(row.PhotoUrl||''),contribution:String(row.Text||'')});});
+    return {ok:true,history:history,people:people};
+  }
+  const sh=institutionProfileSheet2026_(),values=sh.getDataRange().getValues();let history='';const people=[];
+  for(let i=1;i<values.length;i++){const row=values[i],key=String(row[0]||'');if(key==='HISTORY')history=String(row[5]||'');else if(key)people.push({id:key,name:String(row[1]||''),group:String(row[2]||''),photoUrl:String(row[3]||''),contribution:String(row[5]||'')});}
   return {ok:true,history:history,people:people};
 }
-
 function getInstitutionDocumentary2026(token){
-  auth_(token);
-  const sh=institutionProfileSheet2026_();
-  const rows=sh.getDataRange().getValues();
-  const people=[];
-  for(let i=1;i<rows.length;i++){
-    const row=rows[i],key=String(row[0]||'');
-    if(key&&key!=='HISTORY'&&String(row[1]||'').trim()){
-      people.push({id:key,name:String(row[1]||''),group:String(row[2]||''),photoUrl:String(row[3]||''),contribution:String(row[5]||'')});
-    }
+  auth_(token);const identity=tenantIdentity_(token),people=[];
+  if(!identity.root){
+    madrasaProfileRows2026_(identity.key).forEach(function(row){if(String(row.Key||'')&&String(row.Key)!=='HISTORY'&&String(row.Name||'').trim())people.push({id:String(row.Key),name:String(row.Name||''),group:String(row.Role||''),photoUrl:String(row.PhotoUrl||''),contribution:String(row.Text||'')});});
+    return {ok:true,people:people};
   }
+  const sh=institutionProfileSheet2026_(),values=sh.getDataRange().getValues();
+  for(let i=1;i<values.length;i++){const row=values[i],key=String(row[0]||'');if(key&&key!=='HISTORY'&&String(row[1]||'').trim())people.push({id:key,name:String(row[1]||''),group:String(row[2]||''),photoUrl:String(row[3]||''),contribution:String(row[5]||'')});}
   return {ok:true,people:people};
 }
 function saveInstitutionPhoto2026(token,personId,dataUrl,fileName,mimeType){
-  auth_(token);if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin ছবি সংরক্ষণ করতে পারবেন。'};
+  auth_(token);const identity=tenantIdentity_(token);if(!identity.root)requireFeature_(token,'institution');
   personId=String(personId||'').replace(/[^a-zA-Z0-9_-]/g,'');dataUrl=String(dataUrl||'');
   const match=dataUrl.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,([A-Za-z0-9+/=]+)$/);
   if(!personId||!match)return {ok:false,message:'ছবির তথ্য সঠিক নয়।'};
   const bytes=Utilities.base64Decode(match[2]);if(bytes.length>2*1024*1024)return {ok:false,message:'ছবিটি 2 MB-এর বেশি; ছোট ছবি নির্বাচন করুন।'};
   const ext=(match[1].split('/')[1]||'jpeg').replace(/[^a-zA-Z0-9]/g,'').toLowerCase();
-  const safeName=String(fileName||personId).replace(/\\/g,'_').replace(/[\/:*?"<>|]/g,'_').slice(0,90);
-  const blob=Utilities.newBlob(bytes,match[1],safeName+'-'+Date.now()+'.'+ext);
-  const file=institutionPhotoFolder2026_().createFile(blob);try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
-  return {ok:true,url:'https://drive.google.com/uc?export=view&id='+encodeURIComponent(file.getId()),fileId:file.getId()};
+  const safeName=String(fileName||personId).replace(/\\/g,'_').replace(/[\/:*?"<>|]/g,'_').slice(0,90),owner=identity.root?'root':identity.key.replace(/[^a-zA-Z0-9_-]/g,'_');
+  const blob=Utilities.newBlob(bytes,match[1],owner+'-'+safeName+'-'+Date.now()+'.'+ext),folder=identity.root?institutionPhotoFolder2026_():accountAssetsFolder_();
+  const file=folder.createFile(blob);try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
+  return {ok:true,url:accountImageUrl_('DRIVE:'+file.getId()),fileId:file.getId()};
 }
 function saveInstitutionMember2026(token,payload){
-  auth_(token);if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin নতুন সদস্য যুক্ত করতে পারবেন।'};
-  payload=payload||{};
-  const id=String(payload.id||'').replace(/[^a-zA-Z0-9_-]/g,'');
-  const name=String(payload.name||'').trim().slice(0,160);
-  const role=String(payload.group||'').trim().slice(0,100);
-  const contribution=String(payload.contribution||'').trim().slice(0,1200);
-  const photoUrl=String(payload.photoUrl||'').trim();
+  auth_(token);const identity=tenantIdentity_(token);if(!identity.root)requireFeature_(token,'institution');
+  payload=payload||{};const id=String(payload.id||'').replace(/[^a-zA-Z0-9_-]/g,''),name=String(payload.name||'').trim().slice(0,160),role=String(payload.group||'').trim().slice(0,100);
+  const contribution=String(payload.contribution||'').trim().slice(0,1200),photoUrl=String(payload.photoUrl||'').trim();
   if(!/^member_[0-9]+$/.test(id)||!name||!role||!contribution||!photoUrl)return {ok:false,message:'নাম, পদবী, ফটো ও অবদান—সব তথ্য দিতে হবে।'};
-  const sh=institutionProfileSheet2026_(),values=sh.getDataRange().getValues();
-  if(values.some(function(row){return String(row[0]||'')===id;}))return {ok:false,message:'এই সদস্য আইডি আগে থেকেই রয়েছে।'};
-  sh.appendRow([id,name,role,photoUrl,now_(),contribution]);
-  log_(sessionUser_(token),'create','INSTITUTION_PROFILE_2026',name+' — '+role+' নতুন সদস্য যুক্ত');
-  return {ok:true,message:'নতুন সদস্য সংরক্ষণ হয়েছে।'};
+  if(identity.root){const sh=institutionProfileSheet2026_(),values=sh.getDataRange().getValues();if(values.some(function(row){return String(row[0]||'')===id;}))return {ok:false,message:'এই সদস্য আইডি আগে থেকেই রয়েছে।'};sh.appendRow([id,name,role,photoUrl,now_(),contribution]);}
+  else{const sh=madrasaProfileSheet2026_(),rows=madrasaProfileRows2026_(identity.key);if(rows.some(function(row){return String(row.Key)===id;}))return {ok:false,message:'এই সদস্য আইডি আগে থেকেই রয়েছে।'};sh.appendRow([identity.key,id,name,role,photoUrl,now_(),contribution]);}
+  log_(sessionUser_(token),'create',identity.root?'INSTITUTION_PROFILE_2026':'MADRASA_PROFILE_2026',name+' — '+role+' নতুন সদস্য যুক্ত');return {ok:true,message:'নতুন সদস্য সংরক্ষণ হয়েছে।'};
 }
-
 function saveInstitutionProfile2026(token,payload){
-  auth_(token);if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin প্রতিষ্ঠান পরিচিতি সংরক্ষণ করতে পারবেন।'};
-  payload=payload||{};const history=String(payload.history||'').trim(),people=Array.isArray(payload.people)?payload.people:[];
-  const sh=institutionProfileSheet2026_(),now=now_(),existing=sh.getDataRange().getValues(),rows=[['HISTORY','প্রতিষ্ঠানের সংক্ষিপ্ত ইতিহাস','পরিচিতি','',now,history]];
-  people.forEach(function(p){p=p||{};const id=String(p.id||'').replace(/[^a-zA-Z0-9_-]/g,'');if(!id)return;rows.push([id,String(p.name||'').trim(),String(p.group||''),String(p.photoUrl||''),now,'']);});
-  existing.slice(1).forEach(function(row){const id=String(row[0]||'');if(id.indexOf('member_')===0)rows.push(row.slice(0,6));});
-  if(sh.getLastRow()>1)sh.getRange(2,1,sh.getLastRow()-1,sh.getLastColumn()).clearContent();
-  sh.getRange(2,1,rows.length,6).setValues(rows);
-  log_(sessionUser_(token),'update','INSTITUTION_PROFILE_2026','প্রতিষ্ঠান পরিচিতি ও ব্যক্তিদের ছবি/তথ্য সংরক্ষণ');
-  return {ok:true,message:'প্রতিষ্ঠান পরিচিতি সংরক্ষণ হয়েছে।'};
+  auth_(token);const identity=tenantIdentity_(token);if(!identity.root)requireFeature_(token,'institution');
+  payload=payload||{};const history=String(payload.history||'').trim(),people=Array.isArray(payload.people)?payload.people:[],stamp=now_();
+  if(identity.root){
+    const sh=institutionProfileSheet2026_(),existing=sh.getDataRange().getValues(),rows=[['HISTORY','প্রতিষ্ঠানের সংক্ষিপ্ত ইতিহাস','পরিচিতি','',stamp,history]];
+    people.forEach(function(p){p=p||{};const id=String(p.id||'').replace(/[^a-zA-Z0-9_-]/g,'');if(id)rows.push([id,String(p.name||'').trim(),String(p.group||''),String(p.photoUrl||''),stamp,'']);});
+    existing.slice(1).forEach(function(row){const id=String(row[0]||'');if(id.indexOf('member_')===0)rows.push(row.slice(0,6));});
+    if(sh.getLastRow()>1)sh.getRange(2,1,sh.getLastRow()-1,sh.getLastColumn()).clearContent();sh.getRange(2,1,rows.length,6).setValues(rows);
+  }else{
+    const sh=madrasaProfileSheet2026_(),existing=sh.getDataRange().getValues(),headers=existing[0].map(String),tenantCol=headers.indexOf('TenantAccount');
+    const keep=existing.slice(1).filter(function(row){return tenantCol>=0&&String(row[tenantCol]||'')!==identity.key;});
+    const rows=[[identity.key,'HISTORY','প্রতিষ্ঠানের সংক্ষিপ্ত ইতিহাস','পরিচিতি','',stamp,history]];
+    people.forEach(function(p){p=p||{};const id=String(p.id||'').replace(/[^a-zA-Z0-9_-]/g,'');if(id)rows.push([identity.key,id,String(p.name||'').trim(),String(p.group||''),String(p.photoUrl||''),stamp,String(p.contribution||'')]);});
+    const all=[existing[0]].concat(keep,rows);sh.clearContents();sh.getRange(1,1,all.length,all[0].length).setValues(all);
+  }
+  log_(sessionUser_(token),'update',identity.root?'INSTITUTION_PROFILE_2026':'MADRASA_PROFILE_2026','প্রতিষ্ঠান পরিচিতি ও ব্যক্তিদের ছবি/তথ্য সংরক্ষণ');return {ok:true,message:'প্রতিষ্ঠান পরিচিতি সংরক্ষণ হয়েছে।'};
 }
-
-
-/* ===== KERANIGANJ REGIONAL BOARD PORTAL DATA — 2026-11-09 ===== */
-const BOARD_PORTAL_HEADERS_20261109 = {
-  BOARD_MADRASAS:['Serial','MadrasaID','Name','BoardRegNo','Principal','Address','Mobile','Email','Status','CreatedAt'],
-  BOARD_EXAMINEES:['Serial','ExamRegID','Name','Father','Madrasa','ClassName','Exam','Mobile','Status','Result','CreatedAt'],
-  BOARD_PAYMENTS:['Serial','PaymentID','Name','Type','Amount','Method','Reference','Status','CreatedAt'],
-  BOARD_EXPENSES:['Serial','ExpenseID','Category','Amount','Note','CreatedAt'],
-  BOARD_MEMBERS:['Serial','MemberID','Group','Name','Role','Photo','Contribution','Sort','Status','CreatedAt'],
-  BOARD_NEWS:['Serial','NewsID','Title','Body','Status','CreatedAt']
-};
 function ensureBoardPortalSheets_20261109(){
   var ss=SpreadsheetApp.getActiveSpreadsheet();
   Object.keys(BOARD_PORTAL_HEADERS_20261109).forEach(function(n){ensureSheet_(ss,n,BOARD_PORTAL_HEADERS_20261109[n])});
