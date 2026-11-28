@@ -76,7 +76,7 @@ function getPublicMadrasaContext2026_(madrasaId){
   for(let i=1;i<values.length;i++){if(String(values[i][idCol]||'').trim().toUpperCase()===id){account=objectFrom_(headers,values[i]);break;}}
   if(!account||!String(account.Username||'').trim())return {ok:false,message:'এই MR-ID-এর বৈধ মাদ্রাসা অ্যাকাউন্ট পাওয়া যায়নি।'};
   const username=String(account.Username).trim(),name=String(account.Name||account.NameBN||account.InstitutionName||'').trim();
-  const institution=Object.assign({},APP,{nameBn:name||APP.nameBn,nameAr:String(account.NameAR||''),nameEn:String(account.NameEN||name||APP.nameEn),address:String(account.Address||''),hotline1:String(account.Mobile||account.Hotline||''),hotline2:String(account.Hotline2||''),email1:String(account.Email||''),logo:accountImageUrl_(account.Photo||account.Logo||'')});
+  const institution=Object.assign({},APP,{nameBn:name||'',nameAr:String(account.NameAR||''),nameEn:String(account.NameEN||name||''),address:String(account.Address||''),hotline1:String(account.Mobile||account.Hotline||''),hotline2:String(account.Hotline2||''),email1:String(account.Email||''),logo:accountImageUrl_(account.Photo||account.Logo||'')});
   return {ok:true,isMain:false,madrasaId:id,username:username,tenantKey:'madrasa:'+username,institution:institution};
 }
 function getPublicMadrasaContextByTenantKey2026_(tenantKey){
@@ -2764,8 +2764,8 @@ function getInstitutionForSession_(token) {
   const identity=tenantIdentity_(token);
   if(identity.root)return APP;
   const account=findBy_(identity.type==='madrasa'?SHEETS.MADRASAS:SHEETS.ADMINS,'Username',identity.username)||{};
-  const name=String(account.Name||account.NameBN||account.InstitutionName||APP.nameBn);
-  return Object.assign({},APP,{nameBn:name,nameAr:String(account.NameAR||APP.nameAr),nameEn:String(account.NameEN||name||APP.nameEn),address:String(account.Address||APP.address),hotline1:String(account.Mobile||account.Hotline||APP.hotline1),email1:String(account.Email||APP.email1),logo:accountImageUrl_(account.Photo||account.Logo||''),headerPhoto:accountImageUrl_(account.HeaderPhoto||''),wallpaper:accountImageUrl_(account.Wallpaper||account.BackgroundPhoto||''),headerTextColor:String(account.HeaderTextColor||'')});
+  const name=String(account.Name||account.NameBN||account.InstitutionName||'');
+  return Object.assign({},APP,{nameBn:name,nameAr:String(account.NameAR||''),nameEn:String(account.NameEN||name||''),address:String(account.Address||''),hotline1:String(account.Mobile||account.Hotline||''),hotline2:String(account.Hotline2||''),email1:String(account.Email||''),logo:accountImageUrl_(account.Photo||account.Logo||''),headerPhoto:accountImageUrl_(account.HeaderPhoto||''),wallpaper:accountImageUrl_(account.Wallpaper||account.BackgroundPhoto||''),headerTextColor:String(account.HeaderTextColor||'')});
 }
 function listRows_(sheet,token,limit){
   const session=token?auth_(token):null;
