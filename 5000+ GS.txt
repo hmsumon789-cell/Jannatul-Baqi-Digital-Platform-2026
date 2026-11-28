@@ -994,7 +994,7 @@ function approveAccount(token,type,id,status,permissions){
     const reviewCol=h.indexOf('ReviewStatus');
     const currentStatus=statusCol>=0?String(vals[rowIndex-1][statusCol]||'PENDING').toUpperCase():'PENDING';
     const currentReview=reviewCol>=0?String(vals[rowIndex-1][reviewCol]||'').toUpperCase():'';
-    if(finalStatus==='ACTIVE' && currentStatus!=='ACTIVE' && reviewCol>=0 && currentReview!=='SUBMITTED_TO_SUPER_ADMIN'){
+    if(type==='admin' && finalStatus==='ACTIVE' && currentStatus!=='ACTIVE' && reviewCol>=0 && currentReview!=='SUBMITTED_TO_SUPER_ADMIN'){
       return {ok:false,message:'চূড়ান্ত অনুমোদনের আগে অন্য Admin-এর প্রাথমিক যাচাই সম্পন্ন করে Super Admin-এর কাছে পাঠাতে হবে।'};
     }
     const permCol=h.indexOf('Permissions');
@@ -2701,7 +2701,7 @@ function findBy_(sheet,key,value){
   for(let i=1;i<v.length;i++) if(String(v[i][j]).trim()===String(value).trim()) return objectFrom_(h,v[i]);
   return null;
 }
-const TENANT_SCOPED_SHEETS_ = ['STUDENTS','TEACHERS','DONORS','ADMISSIONS','EXAM_REG','PAYMENTS','EXPENSES','INCOME','RESULTS','ATTENDANCE','MEDIA','FILES','SALARY','CERTIFICATES','ID_CARDS','ADMIT_CARDS','RECEIPTS','ONLINE_SERVICES','EXECUTIVES','ADVISERS','FOUNDERS','MADRASA_PROFILES'];
+const TENANT_SCOPED_SHEETS_ = ['STUDENTS','TEACHERS','DONORS','ADMISSIONS','EXAM_REG','PAYMENTS','EXPENSES','INCOME','RESULTS','ATTENDANCE','MEDIA','FILES','SALARY','CERTIFICATES','ID_CARDS','ADMIT_CARDS','RECEIPTS','ONLINE_SERVICES','EXECUTIVES','ADVISERS','FOUNDERS','MADRASA_PROFILES','NOTICES'];
 function tenantIdentity_(token) {
   const session=auth_(token), type=String(session.accountType||'admin'), username=String(session.username||'').trim();
   const root=type!=='madrasa' && isSuperAdmin_(token);
@@ -2847,6 +2847,8 @@ function getAccountBranding20261104(token){
     skip:false,
     accountType:type,
     name:String(account.NameBN||account.Name||account.InstitutionName||''),
+    nameAR:String(account.NameAR||''),
+    nameEN:String(account.NameEN||''),
     logo:accountImageUrl_(account.Photo||account.photo||account.Logo||account.logo||''),
     address:String(account.Address||''),
     mobile:String(account.Mobile||account.Hotline||''),
