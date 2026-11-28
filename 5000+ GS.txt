@@ -2035,7 +2035,7 @@ function ensureAutoPersonDocuments_(personSheet, person, personId) {
   const safeId = id.replace(/[^A-Za-z0-9_-]/g,'_').slice(0,80) || 'PERSON';
   const fields = {};
   const recordContext=getPublicMadrasaContextByTenantKey2026_(person.TenantAccount||'');
-  const recordInstitution=recordContext.ok?recordContext.institution:APP;
+  const recordInstitution=recordContext.ok?recordContext.institution:(String(person.TenantAccount||'').indexOf('madrasa:')===0?{nameBn:'',nameAr:'',nameEn:'',address:'',hotline1:'',logo:''}:APP);
   ['StudentID','TeacherID','DonorID','MemberID','PersonID','NameBN','NameAR','NameEN',
    'FatherBN','FatherAR','FatherEN','MotherBN','MotherAR','MotherEN','DOB','Gender',
    'Class','Department','Branch','Residence','Mobile','WhatsApp','Email','Address',
