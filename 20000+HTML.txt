@@ -1466,7 +1466,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       <select id="loginSignal" class="field" onchange="syncSearchSignal('login')"><option value="">সংকেত নির্বাচন করুন</option></select><input id="loginSearch" class="field" placeholder="সংকেত নির্বাচন করে ইউনিক ID লিখুন" onkeydown="if(event.key==='Enter')doSearch('login')"><button class="primary" onclick="doSearch('login')">🔎</button>
     </div>
     <div class="quick">
-      <button type="button" class="primary" onclick="window.open(window.location.href.split('#')[0].split('?')[0]+'?jbOpenAdmissionStudent=1','_blank','noopener')">📝 অনলাইন ভর্তি ফর্ম</button><button type="button" onclick="openModule('exam')">পরীক্ষার্থী নিবন্ধন</button><button type="button" onclick="openModule('madrasa')">নতুন মাদ্রাসা নিবন্ধন</button><button type="button" onclick="openModule('admin')">নতুন অ্যাডমিন নিবন্ধন</button></div>
+      <button type="button" class="primary" onclick="window.open(window.location.href.split('#')[0].split('?')[0]+'?admission=1'+publicMadrasaSuffix2026(),'_blank','noopener')">📝 অনলাইন ভর্তি ফর্ম</button><button type="button" onclick="openModule('exam')">পরীক্ষার্থী নিবন্ধন</button><button type="button" onclick="openModule('madrasa')">নতুন মাদ্রাসা নিবন্ধন</button><button type="button" onclick="openModule('admin')">নতুন অ্যাডমিন নিবন্ধন</button></div>
     <section id="loginContactStrip20261013" aria-label="মাদ্রাসার যোগাযোগ">
   
   <div class="lc-layout">
@@ -1723,6 +1723,7 @@ body.gold #loginContactStrip20261013{background:#fff9e7!important;color:#4a3300!
 <script>
 let token='',otpToken='',currentUser=null,media=[],mediaIndex=0,modules=[],drag={};
 const $=id=>document.getElementById(id);
+function publicMadrasaSuffix2026(){var id=String(window._jbCurrentMadrasaId2026||(currentUser&&currentUser.MadrasaID)||'').trim();return id?'&mrid='+encodeURIComponent(id):'';}
 const call=(fn,...args)=>new Promise((resolve,reject)=>{try{const runner=google.script.run.withSuccessHandler(resolve).withFailureHandler(e=>reject(e));const method=runner[fn];if(typeof method!=='function'){reject(new Error('Apps Script-এ সার্ভার ফাংশনটি পাওয়া যায়নি: '+fn));return;}method.apply(runner,args);}catch(e){reject(e);}});
 async function collectSessionDeviceInfo(){
   if(!token||typeof navigator==='undefined')return;
@@ -2376,7 +2377,7 @@ function showOnlinePaymentReceipt(x){
   const mainLogo=receiptImageSrc2026(['loginContactLogo20261013','contactLoginLogo2026','loginLogo','headerLogo']);
   const mainPageUrl=location.origin+location.pathname;
   const mainPageQr=receiptImageSrc2026(['loginContactQR20261013','contactMainQR2026'])||'https://quickchart.io/qr?size=220&margin=2&text='+encodeURIComponent(mainPageUrl);
-  const paymentPageUrl=location.href.split('?')[0].split('#')[0]+'?payment=1';
+  const paymentPageUrl=location.href.split('?')[0].split('#')[0]+'?payment=1'+publicMadrasaSuffix2026();
   const paymentPageQr='https://quickchart.io/qr?size=180&margin=2&text='+encodeURIComponent(paymentPageUrl);
   const receiptHeaderHtml='<div class="receipt-main-header"><div class="lc-layout"><div class="lc-logo-side">'+(mainLogo?'<img class="lc-logo" src="'+e(mainLogo)+'" alt="মূল লোগো">':'')+'</div><div class="lc-center"><div class="lc-name">'+institution+'</div><div class="lc-address">'+address+'</div><div class="lc-hotline">হটলাইন: '+hotline+'</div><div class="or-receipt-heading">মানি রসিদ — অনলাইন পেমেন্ট</div></div><div class="lc-qr-side"><img class="lc-qr" src="'+e(mainPageQr)+'" alt="মূল পেজের QR কোড"><div class="lc-qr-label">মূল পেজ</div></div></div></div>';
   w.innerHTML='<div class="win-head"><b>🧾 অনলাইন পেমেন্ট মানি রসিদ</b><button class="secondary" type="button" onclick="closeWindow(\'onlinePaymentReceiptWin\')">✕</button></div>'+
@@ -3411,6 +3412,8 @@ async function applyAccountBranding20261104(){
   try{
     var r=await call('getAccountBranding20261104',token);
     if(!r||!r.ok||r.skip)return;
+    window._jbCurrentMadrasaId2026=String(r.madrasaId||'');
+    if(currentUser)currentUser.MadrasaID=window._jbCurrentMadrasaId2026;
     var bn=document.querySelector('#app .header-content .title-bn');
     var ar=document.querySelector('#app .header-content .title-ar');
     var en=document.querySelector('#app .header-content .title-en');
@@ -13987,9 +13990,9 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
           if(typeof google!=='undefined'&&google.script&&google.script.run){
             google.script.run.withSuccessHandler(function(res){
               var base=String(res&&res.ok&&res.url?res.url:location.href).split('#')[0].split('?')[0];
-              w.location.href=base+'?result=1';
+              w.location.href=base+'?result=1'+publicMadrasaSuffix2026();
             }).withFailureHandler(function(){
-              w.location.href=location.href.split('#')[0].split('?')[0]+'?result=1';
+              w.location.href=location.href.split('#')[0].split('?')[0]+'?result=1'+publicMadrasaSuffix2026();
             }).getMainWebAppUrl();
           }else{
             w.location.href=location.href.split('#')[0].split('?')[0]+'?result=1';
@@ -14021,11 +14024,11 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
           w.document.open();
           w.document.write('<!doctype html><html lang="bn"><meta charset="utf-8"><body style="font-family:Arial,sans-serif;text-align:center;padding:32px;background:#eef8ff;color:#123b68"><h2>নির্বিঘ্ন অনলাইন পেমেন্ট পেজ খোলা হচ্ছে…</h2><p>অনুগ্রহ করে অপেক্ষা করুন।</p></body></html>');
           w.document.close();
-          var go=function(url){var base=String(url||location.href).split('#')[0].split('?')[0];w.location.replace(base+'?payment=1');};
+          var go=function(url){var base=String(url||location.href).split('#')[0].split('?')[0];w.location.replace(base+'?payment=1'+publicMadrasaSuffix2026());};
           if(typeof google!=='undefined'&&google.script&&google.script.run){
             google.script.run.withSuccessHandler(function(r){go(r&&r.ok&&r.url?r.url:location.href);}).withFailureHandler(function(){go(location.href);}).getMainWebAppUrl();
           }else go(location.href);
-        }catch(e){try{w.location.href=location.href.split('#')[0].split('?')[0]+'?payment=1';}catch(ignore){}}
+        }catch(e){try{w.location.href=location.href.split('#')[0].split('?')[0]+'?payment=1'+publicMadrasaSuffix2026();}catch(ignore){}}
       });
     }
     if(pay.parentNode!==row)row.appendChild(pay);
