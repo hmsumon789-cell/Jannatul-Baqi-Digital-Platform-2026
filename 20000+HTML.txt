@@ -21295,3 +21295,39 @@ body.offwhite #app a.button:active{
 #app .jb-english-clock .jb-clock-caption{color:#ffe08a!important;letter-spacing:1.5px!important;text-shadow:0 1px 2px #082b49,0 0 7px #168da8!important}
 </style>
 <!-- ===== END DHAKA CLOCK PREMIUM COLOR REFINEMENT ===== -->
+
+
+<!-- ===== DASHBOARD NAV BUTTON SIZE MATCHING — 2026-11-29 ===== -->
+<style id="jb-dashboard-button-size-match-20261129">
+/* পরীক্ষা ড্যাশবোর্ড: প্রতিষ্ঠানের পরিচিতি/মডিউল বাটনের সমান মাপ */
+#app #jbExamDashboardEntry2026{
+  box-sizing:border-box!important;
+  min-height:68px!important;
+  height:68px!important;
+  padding:8px!important;
+  border:3px solid var(--border)!important;
+  border-radius:var(--button-radius,10px)!important;
+  font-weight:900!important;
+  line-height:1.25!important;
+}
+/* হোম, সকল ফিচার, তালিকা ও Account অনুমোদন: Primary বাটনের সমান মাপ */
+#app .dashboard-title-left>button.primary,
+#app .dashboard-title-left>#featureSelect,
+#app #allListsButton2026,
+#app #accountManagerBtn{
+  box-sizing:border-box!important;
+  min-height:44px!important;
+  height:44px!important;
+  padding:10px 16px!important;
+  border-width:2px!important;
+  font:inherit!important;
+  font-weight:800!important;
+  line-height:1.2!important;
+  vertical-align:middle!important;
+}
+#app .dashboard-title-left>#featureSelect{
+  min-width:210px!important;
+  max-width:100%!important;
+}
+</style>
+<!-- ===== END DASHBOARD NAV BUTTON SIZE MATCHING ===== -->
