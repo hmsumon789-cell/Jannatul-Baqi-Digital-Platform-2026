@@ -257,11 +257,12 @@ function buildPublicVerificationHtml_(docKey, recordId, verifyResult) {
     '<div class="foot">হটলাইন: 01823316630<br>Jannatul Baqi Digital Platform 2026</div>'+
     '<button class="btn" onclick="window.print()">🖨️ প্রিন্ট</button></div></body></html>';
 }
-function getMainWebAppUrl() {
+function getMainWebAppUrl(madrasaId) {
   try {
     var url = ScriptApp.getService().getUrl();
     url = String(url || '').trim();
     if (!url) return {ok:false,url:'',message:'Web App URL পাওয়া যায়নি'};
+    const id=String(madrasaId||'').trim();if(id)url+='?mrid='+encodeURIComponent(id);
     return {ok:true,url:url};
   } catch(e) {
     return {ok:false,url:'',message:String(e && e.message ? e.message : e)};
@@ -3812,12 +3813,12 @@ function approveOnlinePayment(token,requestId){
   if(!row)return {ok:false,message:'Payment request পাওয়া যায়নি।'};
   if(String(row.Status).toUpperCase()!=='PENDING')return {ok:false,message:'এই payment ইতিমধ্যে processed হয়েছে।'};
   const student=findBy_(SHEETS.STUDENTS,'StudentID',row.StudentID);if(!student)return {ok:false,message:'শিক্ষার্থী পাওয়া যায়নি।'};
+  const approvalContext=getPublicMadrasaContext2026_(row.MadrasaID||'');if(!approvalContext.ok||!publicMadrasaOwnsRecord2026_(student,approvalContext))return {ok:false,message:'এই পেমেন্ট অনুরোধের শিক্ষার্থী/মাদ্রাসা পরিচয় মিলছে না।'};
   const paymentSheet=ensureSheet_(SpreadsheetApp.getActiveSpreadsheet(),SHEETS.PAYMENTS,HEADERS[SHEETS.PAYMENTS]);ensureTenantSheetColumn_(paymentSheet);
   const paymentHeaders=paymentSheet.getRange(1,1,1,paymentSheet.getLastColumn()).getValues()[0].map(String),paymentId='PAY-OP-'+Date.now();
   const paymentRecord={PaymentID:paymentId,StudentID:row.StudentID,Name:row.Name,Month:row.Month,Category:row.Category,Amount:Number(row.Amount||0),Method:row.Method,Reference:row.Reference,Date:now_(),Note:row.Note,CreatedAt:now_(),TenantAccount:String(row.TenantAccount||'')};
   const paymentRow=paymentHeaders.map(function(k){return paymentRecord[k]!==undefined?paymentRecord[k]:'';});paymentRow[0]=nextSerial_(paymentSheet);paymentSheet.appendRow(paymentRow);
   const pay={ok:true,paymentId:paymentId};
-  const approvalContext=getPublicMadrasaContext2026_(row.MadrasaID||'');
   const receiptId='RCT-OP-'+Date.now();const receiptDate=now_();const receiptData={ReceiptID:receiptId,TransactionID:pay.paymentId||'',PaymentID:pay.paymentId||'',Type:'ONLINE_PAYMENT',StudentID:row.StudentID,Name:row.Name,Class:row.Class||student.Class||'',Month:row.Month,Category:row.Category,Amount:Number(row.Amount||0),Method:row.Method,Reference:row.Reference,Mobile:row.PayerMobile||student.Mobile||student.WhatsApp||'',PayerMobile:row.PayerMobile||'',Note:String(row.Note||'').trim(),Date:receiptDate,Institution:approvalContext.ok?approvalContext.institution.nameBn:APP.nameBn,InstitutionArabic:approvalContext.ok?approvalContext.institution.nameAr:'',Address:approvalContext.ok?approvalContext.institution.address:APP.address,Hotline:approvalContext.ok?approvalContext.institution.hotline1:APP.hotline1,CreatedAt:receiptDate};
   const receiptSheet=ensureSheet_(SpreadsheetApp.getActiveSpreadsheet(),SHEETS.RECEIPTS,HEADERS[SHEETS.RECEIPTS]);ensureTenantSheetColumn_(receiptSheet);
   const receiptHeaders=receiptSheet.getRange(1,1,1,receiptSheet.getLastColumn()).getValues()[0].map(String),receiptRecord={Serial:nextSerial_(receiptSheet),ReceiptID:receiptId,RefID:pay.paymentId,Type:'ONLINE_PAYMENT',Amount:Number(row.Amount||0),Date:receiptDate,Data:JSON.stringify(receiptData),TenantAccount:String(row.TenantAccount||'')};
