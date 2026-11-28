@@ -1611,7 +1611,6 @@ body.gold #loginContactStrip20261013{background:#fff9e7!important;color:#4a3300!
       <h2>প্রশাসনিক ড্যাশবোর্ড</h2>
       <div class="dashboard-title-right">
         <button id="accountManagerBtn" class="primary" style="display:none" onclick="openAccountManager()">🔐 Account অনুমোদন</button>
-        <button id="accountReviewBtn" class="secondary" type="button" onclick="openAccountReview()">🕵️ প্রাথমিক যাচাই</button>
         <select class="field dashboard-lang" id="appLang" onchange="setLang(this.value)">
           <option value="bn">বাংলা</option>
           <option value="ar">العربية</option>
@@ -21331,3 +21330,19 @@ body.offwhite #app a.button:active{
 }
 </style>
 <!-- ===== END DASHBOARD NAV BUTTON SIZE MATCHING ===== -->
+
+
+<!-- ===== DASHBOARD NAV VERTICAL SPACING + ROUND EXAM BUTTON — 2026-11-29 ===== -->
+<style id="jb-dashboard-nav-padding-round-exam-20261129">
+/* পরীক্ষা ড্যাশবোর্ড বাটন সম্পূর্ণ গোলাকার */
+#app #jbExamDashboardEntry2026{
+  border-radius:999px!important;
+}
+/* প্রশাসনিক ড্যাশবোর্ড নেভিগেশন বক্স: ওপর ও নিচে অতিরিক্ত ১০px */
+#app .dashboard-nav.dashboard-title-bar{
+  padding-top:10px!important;
+  padding-bottom:10px!important;
+  box-sizing:border-box!important;
+}
+</style>
+<!-- ===== END DASHBOARD NAV VERTICAL SPACING + ROUND EXAM BUTTON ===== -->
