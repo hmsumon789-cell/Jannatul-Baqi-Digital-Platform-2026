@@ -1515,6 +1515,10 @@ function syncAdmissionToStudent_(token,data) {
  */
 function savePublicAdmissionApplication2026(data) {
   data=data||{};
+  const publicMadrasa=data.MadrasaID?getPublicMadrasaAccount2026_(data.MadrasaID):null;
+  if(data.MadrasaID&&!publicMadrasa)return {ok:false,message:'এই MR-ID সঠিক নয় অথবা মাদ্রাসা অ্যাকাউন্ট অনুমোদিত নয়।'};
+  const publicTenantKey=publicMadrasa?'madrasa:'+String(publicMadrasa.Username||'').trim():'PUBLIC_LOGIN';
+  const publicSourceAccount=publicMadrasa?String(publicMadrasa.Username||'').trim():'PUBLIC_LOGIN';
   let form=data.FormData;
   if(typeof form==='string'){try{form=JSON.parse(form);}catch(e){form={};}}
   if(!form || typeof form!=='object' || Array.isArray(form)) form={};
@@ -1539,13 +1543,13 @@ function savePublicAdmissionApplication2026(data) {
       return {ok:false,duplicate:true,message:'এই আবেদন নম্বরটি ইতিমধ্যে ব্যবহৃত হয়েছে। নতুন হাতে লেখা আইডি নম্বর দিন।'};
     src.StudentID=generateAdmissionStudentId2026_();
     src.FormID=String(src.FormID||admissionId);
-    data.AdmissionID=admissionId; data.StudentID=src.StudentID; data.Status='PENDING'; data.TenantAccount='PUBLIC_LOGIN';
+    data.AdmissionID=admissionId; data.StudentID=src.StudentID; data.Status='PENDING'; data.TenantAccount=publicTenantKey;
     data.FormData=JSON.stringify(Object.assign({},form,{StudentID:src.StudentID}));
     const admissionSerial=nextSerial_(admissionSheet);
     admissionSheet.appendRow(ah.map(function(key){
       if(key==='Serial')return admissionSerial;
       if(key==='CreatedAt')return now_();
-      if(key==='TenantAccount')return 'PUBLIC_LOGIN';
+      if(key==='TenantAccount')return publicTenantKey;
       if(key==='Status')return 'PENDING';
       if(key==='AdmissionID')return admissionId;
       if(key==='StudentID')return src.StudentID;
@@ -1559,7 +1563,8 @@ function savePublicAdmissionApplication2026(data) {
       if(key==='CreatedAt')return now_();
       if(key==='ApprovalStatus')return 'PENDING';
       if(key==='SourceType')return 'PUBLIC_ADMISSION';
-      if(key==='SourceAccount'||key==='TenantAccount')return 'PUBLIC_LOGIN';
+      if(key==='SourceAccount')return publicSourceAccount;
+      if(key==='TenantAccount')return publicTenantKey;
       if(key==='ApprovedBy'||key==='ApprovedAt')return '';
       if(key==='AcademicYear')return String(data.Session||new Date().getFullYear());
       return src[key]!==undefined?src[key]:'';
