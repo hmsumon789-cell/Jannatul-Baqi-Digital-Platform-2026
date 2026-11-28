@@ -1171,6 +1171,7 @@ function normalizeSignalCode_(value){
 }
 
 function searchAll(token,signal,query) {
+  const identity=tenantIdentity_(token);
   const signalCode=String(signal||'').trim().toUpperCase();
   signal=normalizeSignalCode_(signalCode);
   query=String(query||'').trim();
@@ -1236,14 +1237,16 @@ function searchAll(token,signal,query) {
   if(signal==='std'){
     const admissionSheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ADMISSIONS);
     if(admissionSheet && admissionSheet.getLastRow()>1){
+      if(!identity.root)ensureTenantSheetColumn_(admissionSheet);
       const admissionValues=admissionSheet.getDataRange().getValues();
-      const admissionHeaders=admissionValues[0].map(String);
+      const admissionHeaders=admissionValues[0].map(String),admissionTenantCol=admissionHeaders.indexOf('TenantAccount');
       const admissionFormCol=admissionHeaders.indexOf('FormData');
       const admissionIdCol=admissionHeaders.indexOf('AdmissionID');
       const admissionStudentCol=admissionHeaders.indexOf('StudentID');
       const admissionClassCol=admissionHeaders.indexOf('Class');
       const admissionStatusCol=admissionHeaders.indexOf('Status');
       admissionValues.slice(1).forEach(function(raw){
+        if(!identity.root&&(admissionTenantCol<0||String(raw[admissionTenantCol]||'')!==identity.key))return;
         let payload={};
         if(admissionFormCol>=0 && raw[admissionFormCol]){
           try{payload=typeof raw[admissionFormCol]==='string'?JSON.parse(raw[admissionFormCol]):raw[admissionFormCol];}catch(e){payload={};}
@@ -1269,8 +1272,10 @@ function searchAll(token,signal,query) {
   if(rule.docs&&rule.docs.length){
     const gh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName('DOCUMENT_BUILDER_HISTORY');
     if(gh&&gh.getLastRow()>1){
-      const gv=gh.getDataRange().getValues(),heads=gv[0].map(String);
+      if(!identity.root)ensureTenantSheetColumn_(gh);
+      const gv=gh.getDataRange().getValues(),heads=gv[0].map(String),historyTenantCol=heads.indexOf('TenantAccount');
       gv.slice(1).forEach(function(raw){
+        if(!identity.root&&(historyTenantCol<0||String(raw[historyTenantCol]||'')!==identity.key))return;
         const item=objectFrom_(heads,raw);
         if(!rule.docs.includes(String(item.DocKey||''))) return;
         let payload={};try{payload=JSON.parse(item.Data||'{}')}catch(e){}
@@ -2694,7 +2699,7 @@ function findBy_(sheet,key,value){
   for(let i=1;i<v.length;i++) if(String(v[i][j]).trim()===String(value).trim()) return objectFrom_(h,v[i]);
   return null;
 }
-const TENANT_SCOPED_SHEETS_ = ['STUDENTS','TEACHERS','DONORS','ADMISSIONS','EXAM_REG','PAYMENTS','EXPENSES','INCOME','RESULTS','ATTENDANCE','MEDIA','FILES','SALARY','CERTIFICATES','ID_CARDS','ADMIT_CARDS','RECEIPTS','ONLINE_SERVICES','EXECUTIVES','ADVISERS','FOUNDERS','NOTICES','CONTACTS'];
+const TENANT_SCOPED_SHEETS_ = ['STUDENTS','TEACHERS','DONORS','ADMISSIONS','EXAM_REG','PAYMENTS','EXPENSES','INCOME','RESULTS','ATTENDANCE','MEDIA','FILES','SALARY','CERTIFICATES','ID_CARDS','ADMIT_CARDS','RECEIPTS','ONLINE_SERVICES','EXECUTIVES','ADVISERS','FOUNDERS','NOTICES','CONTACTS','DOCUMENT_BUILDER_HISTORY','SAVED_PDFS'];
 function tenantIdentity_(token) {
   const session=auth_(token), type=String(session.accountType||'admin'), username=String(session.username||'').trim();
   const root=type!=='madrasa' && isSuperAdmin_(token);
@@ -3159,7 +3164,8 @@ function documentBuilderGenericSheet_() {
   const ss=SpreadsheetApp.getActiveSpreadsheet();
   let sh=ss.getSheetByName('DOCUMENT_BUILDER_HISTORY');
   if(!sh) sh=ss.insertSheet('DOCUMENT_BUILDER_HISTORY');
-  if(sh.getLastRow()===0) sh.appendRow(['DocumentID','DocKey','StudentID','IssueDate','Data']);
+  if(sh.getLastRow()===0) sh.appendRow(['DocumentID','DocKey','StudentID','IssueDate','Data','TenantAccount']);
+  ensureTenantSheetColumn_(sh);
   return sh;
 }
 
@@ -3189,8 +3195,10 @@ function saveDocumentBuilderRecord(token, docKey, studentId, data, html) {
     row={ReceiptID:data.ReceiptNo||('RCT-'+stamp+'-'+sid),RefID:sid,Type:data.Category||'মানি রিসিট',Amount:data.Amount||'',Date:data.Date||now,Data:payload};
   } else {
     const sh=documentBuilderGenericSheet_();
-    const docId='DOC-'+key+'-'+stamp+'-'+sid;
-    sh.appendRow([docId,key,sid,data.IssueDate||data.Date||now,payload]);
+    const docId='DOC-'+key+'-'+stamp+'-'+sid,identity=tenantIdentity_(token);
+    const heads=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
+    const values={DocumentID:docId,DocKey:key,StudentID:sid,IssueDate:data.IssueDate||data.Date||now,Data:payload,TenantAccount:identity.root?'':identity.key};
+    sh.appendRow(heads.map(function(k){return values[k]===undefined?'':values[k];}));
     if(String(html||'').trim()){try{saveAdmissionPdfArchive2026(token,key,docId,data,html);}catch(archiveError){}}
     return {ok:true,sheet:sh.getName(),record:{DocumentID:docId,DocKey:key,StudentID:sid,IssueDate:data.IssueDate||data.Date||now},documentId:docId,message:'Document + Preview History-তে সংরক্ষণ হয়েছে।'};
   }
@@ -3478,13 +3486,14 @@ function getDashboardPeriodStats(token, period) {
 /* ===== CENTRAL DOCUMENT BUILDER — HISTORY VIEW/EDIT/DOWNLOAD/PRINT — 2026-10-06 ===== */
 function getDocumentBuilderRecord(token, docKey, recordId) {
   auth_(token);
-  const key=String(docKey||'').trim(), rid=String(recordId||'').trim();
+  const identity=tenantIdentity_(token),key=String(docKey||'').trim(), rid=String(recordId||'').trim();
   if(!rid) return {ok:false,message:'History record ID প্রয়োজন।'};
   if(rid.indexOf('AUTO-')===0) {
     const gsh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName('DOCUMENT_BUILDER_HISTORY');
     if(!gsh || gsh.getLastRow()<2) return {ok:false,message:'Auto Document পাওয়া যায়নি।'};
-    const gv=gsh.getDataRange().getValues(), gh=gv[0].map(String), gi=gh.indexOf('DocumentID');
-    for(let i=1;i<gv.length;i++) if(gi>=0 && String(gv[i][gi]).trim()===rid) {
+    if(!identity.root)ensureTenantSheetColumn_(gsh);
+    const gv=gsh.getDataRange().getValues(), gh=gv[0].map(String), gi=gh.indexOf('DocumentID'),gti=gh.indexOf('TenantAccount');
+    for(let i=1;i<gv.length;i++) if(gi>=0 && String(gv[i][gi]).trim()===rid && (identity.root || (gti>=0&&String(gv[i][gti]||'')===identity.key))) {
       const gr=objectFrom_(gh,gv[i]);
       if(String(gr.DocKey||'')!==key) return {ok:false,message:'Document type মেলেনি।'};
       let gp={};try{gp=JSON.parse(gr.Data||'{}')}catch(e){}
@@ -3501,19 +3510,23 @@ function getDocumentBuilderRecord(token, docKey, recordId) {
   else {
     const gsh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName('DOCUMENT_BUILDER_HISTORY');
     if(!gsh||gsh.getLastRow()<2) return {ok:false,message:'History record পাওয়া যায়নি।'};
-    const gv=gsh.getDataRange().getValues(), gh=gv[0]||[], gi=gh.indexOf('DocumentID');
-    let gr=null;for(let i=1;i<gv.length;i++){if(gi>=0&&String(gv[i][gi]).trim()===rid){gr=objectFrom_(gh,gv[i]);break;}}
+    if(!identity.root)ensureTenantSheetColumn_(gsh);
+    const gv=gsh.getDataRange().getValues(), gh=gv[0]||[], gi=gh.indexOf('DocumentID'),gti=gh.indexOf('TenantAccount');
+    let gr=null;for(let i=1;i<gv.length;i++){if(gi>=0&&String(gv[i][gi]).trim()===rid&&(identity.root||(gti>=0&&String(gv[i][gti]||'')===identity.key))){gr=objectFrom_(gh,gv[i]);break;}}
     if(!gr) return {ok:false,message:'History record পাওয়া যায়নি।'};
     let gp={};try{gp=JSON.parse(gr.Data||'{}')}catch(e){}
     return {ok:true,docKey:key,recordId:rid,row:gr,data:gp.fields||{},html:gp.html||''};
   }
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheet);
   if(!sh||sh.getLastRow()<2) return {ok:false,message:'History record পাওয়া যায়নি।'};
-  const vals=sh.getDataRange().getValues(), h=vals[0], idx=h.indexOf(idField);
+  if(!identity.root)ensureTenantSheetColumn_(sh);
+  const vals=sh.getDataRange().getValues(), h=vals[0], idx=h.indexOf(idField),tenantIdx=h.indexOf('TenantAccount');
   if(idx<0) return {ok:false,message:'Record ID field পাওয়া যায়নি।'};
   let row=null;
   for(let i=1;i<vals.length;i++){
-    if(String(vals[i][idx]).trim()===rid){row=objectFrom_(h,vals[i]);break;}
+    if(String(vals[i][idx]).trim()!==rid)continue;
+    if(!identity.root&&(tenantIdx<0||String(vals[i][tenantIdx]||'')!==identity.key))continue;
+    row=objectFrom_(h,vals[i]);break;
   }
   if(!row) return {ok:false,message:'History record পাওয়া যায়নি।'};
   let payload=null;
@@ -4196,7 +4209,7 @@ function ensureAutoDocumentsForPersonId_(token, personId) {
 
 function getAllDocumentBuilderHistory(token, personId) {
   auth_(token);
-  const id=String(personId||'').trim(), out=[];
+  const identity=tenantIdentity_(token),id=String(personId||'').trim(), out=[];
   /* If a legacy/alternate save path skipped draft creation, prepare missing drafts now. */
   if(id) ensureAutoDocumentsForPersonId_(token,id);
   const sources=[
@@ -4222,8 +4235,10 @@ function getAllDocumentBuilderHistory(token, personId) {
   });
   const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName('DOCUMENT_BUILDER_HISTORY');
   if(sh && sh.getLastRow()>1) {
-    const vals=sh.getDataRange().getValues(), heads=vals[0].map(String);
+    if(!identity.root)ensureTenantSheetColumn_(sh);
+    const vals=sh.getDataRange().getValues(), heads=vals[0].map(String),tenantIdx=heads.indexOf('TenantAccount');
     vals.slice(1).forEach(function(row) {
+      if(!identity.root&&(tenantIdx<0||String(row[tenantIdx]||'')!==identity.key))return;
       const item=objectFrom_(heads,row);
       if(id && String(item.StudentID||'').trim()!==id) return;
       let payload={};try{payload=JSON.parse(item.Data||'{}')}catch(e){}
