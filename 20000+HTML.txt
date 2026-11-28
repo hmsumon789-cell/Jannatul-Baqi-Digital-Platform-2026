@@ -15560,7 +15560,7 @@ window.jbRsBuild=async function(){
   };
   window.shareAdmissionReceipt2026=async function(){
     var r=window.__jbAdmissionReceiptData2026||{};
-    var shareBrand=window.currentInstitution||{},message=[(shareBrand.nameBn||'')+' — মানি রসিদ','রসিদ নম্বর: '+(r.ReceiptID||''),'শিক্ষার্থী আইডি: '+(r.StudentID||''),'নাম: '+(r.Name||''),'শ্রেণি: '+(r.Class||''),'ফি খাত: '+(r.Category||''),'পরিমাণ: '+(r.Amount||0)+' টাকা','পেমেন্ট মাধ্যম: '+(r.Method||''),'Transaction ID: '+(r.Reference||''),'তারিখ: '+(r.Date||''),'ভর্তি অনুমোদন: PENDING — Super Admin অনুমোদনের অপেক্ষায়','হটলাইন: '+(r.Hotline||'01823316630')].join('\n');
+    var shareBrand=window.currentInstitution||{},message=[(shareBrand.nameBn||'')+' — মানি রসিদ','রসিদ নম্বর: '+(r.ReceiptID||''),'শিক্ষার্থী আইডি: '+(r.StudentID||''),'নাম: '+(r.Name||''),'শ্রেণি: '+(r.Class||''),'ফি খাত: '+(r.Category||''),'পরিমাণ: '+(r.Amount||0)+' টাকা','পেমেন্ট মাধ্যম: '+(r.Method||''),'Transaction ID: '+(r.Reference||''),'তারিখ: '+(r.Date||''),'ভর্তি অনুমোদন: PENDING — Super Admin অনুমোদনের অপেক্ষায়','মোবাইল: '+(shareBrand.hotline1||r.Hotline||'')+(shareBrand.email1?' · ইমেইল: '+shareBrand.email1:'')].join('\n');
     try{
       if(navigator.share){await navigator.share({title:'ভর্তি ফি — মানি রসিদ',text:message});return;}
       if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(message);safeToast('রসিদের তথ্য কপি হয়েছে। এখন WhatsApp বা অন্য মাধ্যমে শেয়ার করুন।');return;}
