@@ -5577,11 +5577,11 @@ function saveTenantPageMedia2026(token,item){
  var identity=tenantIdentity_(token);if(identity.type!=='madrasa')return {ok:false,message:'শুধু মাদ্রাসা অ্যাকাউন্ট নিজস্ব মিডিয়া আপলোড করতে পারবে।'};
  item=item||{};var type=String(item.type||'').toLowerCase(),rules=getMediaRules_()[type];if(!rules)return {ok:false,message:'ফটো, ভিডিও অথবা অডিও নির্বাচন করুন।'};
  var match=String(item.dataUrl||'').match(/^data:([^;,]+);base64,([A-Za-z0-9+/=]+)$/);if(!match)return {ok:false,message:'মিডিয়া ফাইলের ডাটা পাওয়া যায়নি।'};
- var bytes=Utilities.base64Decode(match[2]);if(!bytes.length||bytes.length>10*1024*1024)return {ok:false,message:'পেজ মিডিয়ার ফাইল সর্বোচ্চ 10 MB হতে পারবে।'};
+ var bytes=Utilities.base64Decode(match[2]),maxBytes=Math.max(1,Number(rules.maxMB||10))*1024*1024;if(!bytes.length||bytes.length>maxBytes)return {ok:false,message:'এই ধরনের মিডিয়ার সর্বোচ্চ ফাইল সাইজ '+String(rules.maxMB||10)+' MB।'};
  var sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);ensureTenantSheetColumn_(sh);
  var own=listRows_(SHEETS.MEDIA,token,1000).filter(function(x){return String(x.Status||'').toUpperCase()==='ACTIVE'&&String(x.Type||'').toLowerCase()===type;});
  if(own.length>=rules.maxCount)return {ok:false,message:'এই ধরনের মিডিয়ার সর্বোচ্চ সংখ্যা পূর্ণ হয়েছে।'};
- var safe=String(item.name||('tenant-media-'+Date.now())).replace(/[^A-Za-z0-9._-]/g,'_').slice(0,100),file=tenantAssetsFolder2026_(token).createFile(Utilities.newBlob(bytes,item.mimeType||match[1],safe));
+ var safe=String(item.name||('tenant-media-'+Date.now())).replace(/[\/:*?"<>|]/g,'_').replace(/\\/g,'_').slice(0,100),file=tenantAssetsFolder2026_(token).createFile(Utilities.newBlob(bytes,item.mimeType||match[1],safe));
  try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
  var serial=nextSerial_(sh),mediaId='MED-'+Date.now(),headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
  var data={Serial:serial,MediaID:mediaId,Type:type,Name:safe,DataURL:'DRIVE:'+file.getId(),MimeType:item.mimeType||match[1],Size:bytes.length,Sort:0,Status:'ACTIVE',CreatedAt:now_(),TenantAccount:identity.key};
