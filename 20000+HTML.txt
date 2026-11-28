@@ -1896,7 +1896,7 @@ function renderDashboardCharts(x){
   const income=Number(x.income)||0, expense=Number(x.expense)||0, cash=Number(x.cash)||0, due=Number(x.due)||0;
   const max=Math.max(income,expense,cash,due,1);
   const pct=v=>Math.max(4,Math.round(v/max*100));
-  const p=Number(x.attendanceToday.present)||0, a=Number(x.attendanceToday.absent)||0, total=p+a, pp=total?Math.round(p/total*100):0;
+  const attendanceToday=(x&&x.attendanceToday)||{}; const p=Number(attendanceToday.present)||0, a=Number(attendanceToday.absent)||0, total=p+a, pp=total?Math.round(p/total*100):0;
   const periods=['দৈনিক','সাপ্তাহিক','মাসিক','বাৎসরিক'];
   $('dashboardCharts').innerHTML=`
     <div class="chart-card">
