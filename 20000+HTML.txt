@@ -3446,6 +3446,11 @@ async function applyAccountBranding20261104(){
     if(currentUser){
       currentUser.accountType=r.accountType;
       currentUser.Photo=r.logo;
+      currentUser.NameAR=r.nameAr||'';
+      currentUser.NameEN=r.nameEn||'';
+      currentUser.Address=r.address||'';
+      currentUser.Mobile=r.mobile||'';
+      currentUser.Email=r.email||'';
       currentUser.Name=r.accountType==='madrasa'?r.name:currentUser.Name;
       currentUser.NameBN=r.accountType==='admin'?r.name:currentUser.NameBN;
     }
