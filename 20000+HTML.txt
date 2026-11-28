@@ -21397,7 +21397,7 @@ body.jb-madrasa-tenant-2026 .jb-tenant-slide-controls-2026 button{min-height:32p
    input.onchange=async function(){
     var files=Array.prototype.slice.call(input.files||[]);
     for(var i=0;i<files.length;i++){
-     var f=files[i];if(f.size>10*1024*1024){toast(f.name+' 10 MB-এর বেশি; বাদ দেওয়া হয়েছে।');continue;}
+     var f=files[i],maxMB=f.type.indexOf('image/')===0?20:50;if(f.size>maxMB*1024*1024){toast(f.name+' '+maxMB+' MB-এর বেশি; বাদ দেওয়া হয়েছে।');continue;}
      var type=f.type.indexOf('image/')===0?'image':(f.type.indexOf('video/')===0?'video':(f.type.indexOf('audio/')===0?'audio':''));if(!type)continue;
      try{var data=await readData(f),r=await call('saveTenantPageMedia2026',token,{type:type,name:f.name,mimeType:f.type,size:f.size,dataUrl:data});if(!r||!r.ok)throw new Error(r&&r.message||'মিডিয়া সংরক্ষণ হয়নি');}
      catch(e){toast(f.name+': '+(e.message||e));}
