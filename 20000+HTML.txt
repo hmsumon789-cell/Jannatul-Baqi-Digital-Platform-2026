@@ -3422,7 +3422,15 @@ async function applyAccountBranding20261104(){
     if(en)en.textContent=r.nameEN||'';
     if(addr)addr.textContent=r.address?'ঠিকানা: '+r.address:'';
     if(hot)hot.textContent='মোবাইল: '+(r.mobile||'')+(r.email?' · ইমেইল: '+r.email:'');
-    var news=document.querySelector('#app .header-news');if(news&&r.name)news.setAttribute('data-news',r.name+' — ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম');
+    var news=document.querySelector('#app .header-news');if(news&&r.name){var welcome=r.name+' — ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম';news.setAttribute('data-news',welcome);var ticker=news.querySelector('.news-full-run');if(ticker)ticker.textContent=welcome;}
+    var footer=document.getElementById('contactFooter');
+    if(footer&&r.accountType==='madrasa'){
+      var fn=footer.querySelector('.contact-name'),fa=footer.querySelector('.contact-address'),fi=footer.querySelector('.contact-info'),fl=document.getElementById('contactLoginLogo2026'),qr=footer.querySelector('.contact-qr-side-2026');
+      if(fn)fn.textContent=r.name||'';if(fa)fa.textContent=r.address||'';
+      if(fi)fi.textContent='📞 মোবাইল: '+(r.mobile||'')+(r.email?' · ✉️ '+r.email:'');
+      if(fl&&r.logo){fl.src=r.logo;fl.alt=(r.name||'মাদ্রাসা')+' Logo';}
+      if(qr)qr.style.display='none';
+    }
     if(img){
       img.removeAttribute('srcset');
       if(r.logo){
@@ -21317,4 +21325,9 @@ body.offwhite #app a.button:active{
 
 <style id="madrasa-tenant-hide-main-clocks-20261128">
 #app.madrasa-tenant .jb-analog-clock,#app.madrasa-tenant .header-clock-row,#app.madrasa-tenant .header-clock-row-v2{display:none!important}
+</style>
+
+<style id="madrasa-tenant-footer-isolation-20261128">
+#app.madrasa-tenant #contactFooter .contact-qr-side-2026{display:none!important}
+#app.madrasa-tenant #contactFooter .contact-layout-2026{grid-template-columns:100px 1fr!important}
 </style>
