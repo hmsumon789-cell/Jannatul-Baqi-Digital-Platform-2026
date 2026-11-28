@@ -3397,8 +3397,8 @@ function buildPublicOnlineServiceHtml_(code,personId,result,institution,madrasaI
   const r=result||{ok:false,message:'সংকেত + ID দিয়ে খুঁজুন।'};
   const codes=[['MS','মার্কশিট'],['RS','রেজাল্ট / মার্কশিট'],['ID','আইডি কার্ড'],['AC','অ্যাডমিট কার্ড'],['CT','সার্টিফিকেট'],['RC','মানি রিসিট'],['TI','শিক্ষক/শিক্ষিকা আইডি'],['AF','ভর্তি আবেদন ফর্ম'],['LF','ছুটির আবেদন ফর্ম'],['ER','পরীক্ষার রুটিন'],['TC','টিসি / ছাড়পত্র'],['AP','প্রত্যয়ন পত্র'],['LM','আজীবন সদস্য ফর্ম'],['LC','আজীবন সদস্য সনদ'],['TR','শিক্ষক/শিক্ষিকা নিয়োগ আবেদন'],['TA','শিক্ষক/শিক্ষিকা নিয়োগ পত্র'],['EF','নির্বাহী পরিষদ ফর্ম'],['EI','নির্বাহী পরিষদ সদস্য আইডি কার্ড']];
   const opts=codes.map(x=>'<option value="'+x[0]+'"'+(String(code||'').toUpperCase()===x[0]?' selected':'')+'>'+x[0]+' — '+x[1]+'</option>').join('');
-  let runningNews='জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানার ডিজিটাল প্লাটফর্মে আপনাকে স্বাগতম';
-  try{runningNews=String(getRunningNews_()||runningNews)}catch(e){}
+  let runningNews=String(institution.nameBn||'')+'-এর ডিজিটাল প্ল্যাটফর্মে আপনাকে স্বাগতম';
+  if(!madrasaId){try{runningNews=String(getRunningNews_()||runningNews)}catch(e){}}
   let mainUrl='';
   try{mainUrl=String(ScriptApp.getService().getUrl()||'')}catch(e){}
   const qrSrc='https://quickchart.io/qr?size=150&text='+encodeURIComponent((mainUrl||institution.nameEn)+'?online=1'+(madrasaId?'&mrid='+encodeURIComponent(madrasaId):''));
