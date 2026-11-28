@@ -3413,7 +3413,8 @@ async function applyAccountBranding20261104(){
   if(!token)return;
   try{
     var r=await call('getAccountBranding20261104',token);
-    if(!r||!r.ok||r.skip)return;
+    if(!r||!r.ok)return;
+    if(r.skip){window._jbCurrentMadrasaId2026='';if(currentUser)delete currentUser.MadrasaID;var oldLinks=document.getElementById('tenantPublicLinks2026');if(oldLinks)oldLinks.remove();var mainDoc=document.getElementById('institutionDocumentary2026');if(mainDoc)mainDoc.style.display='';return;}
     window._jbCurrentMadrasaId2026=String(r.madrasaId||'');
     if(currentUser)currentUser.MadrasaID=window._jbCurrentMadrasaId2026;
     var documentary=document.getElementById('institutionDocumentary2026');if(documentary)documentary.style.display='none';
