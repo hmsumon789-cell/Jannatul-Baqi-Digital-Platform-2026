@@ -21257,3 +21257,19 @@ body.offwhite #app a.button:active{
 }
 </style>
 <!-- ===== END OFF-WHITE BUTTON FULL 3D DEPTH UPGRADE ===== -->
+
+
+<!-- ===== MAKKAH CLOCK: ARABIC-STYLE NUMERAL TYPOGRAPHY ONLY ===== -->
+<style id="jb-makkah-clock-arabic-numerals-refinement">
+#app .jb-makkah-clock .jb-clock-num{
+  font-family:"Noto Naskh Arabic","Amiri","Traditional Arabic",serif!important;
+  font-size:clamp(14px,1.3vw,18px)!important;
+  font-weight:800!important;
+  line-height:1!important;
+  direction:rtl!important;
+  unicode-bidi:isolate!important;
+  font-variant-numeric:normal!important;
+  text-shadow:0 1px 2px #001b10!important;
+}
+</style>
+<!-- ===== END MAKKAH CLOCK NUMERAL REFINEMENT ===== -->
