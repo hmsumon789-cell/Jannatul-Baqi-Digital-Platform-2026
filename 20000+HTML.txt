@@ -12733,20 +12733,22 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
 </style>
 <script id="all-documents-contact-header-2026-10-07-js">
 (function(){
-  var NAME='জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা';
-  var ADDRESS='উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০';
+  var NAME='জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা',ADDRESS='উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০',MOBILE='01823316630',EMAIL='';
+  function refreshBrand(){var b=window.currentInstitution||{};if(document.body.classList.contains('jb-custom-account')){NAME=String(b.nameBn||'');ADDRESS=String(b.address||'');MOBILE=String(b.hotline1||'');EMAIL=String(b.email1||'');}}
+
 
   function esc(v){
     return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
   function logoSrc(){
+    refreshBrand();var b=window.currentInstitution||{};if(document.body.classList.contains('jb-custom-account')&&b.logo)return String(b.logo);
     var x=document.getElementById('contactLoginLogo2026')||document.getElementById('loginLogo')||document.getElementById('headerLogo');
     return x&&x.src?x.src:'';
   }
   function qrSrc(){
-    var x=document.getElementById('contactMainQR2026');
-    if(x&&x.src)return x.src;
-    var base=String(window.location.href||'').split('#')[0];
+    refreshBrand();var base=String(window.location.href||'').split('#')[0];
+    if(document.body.classList.contains('jb-custom-account'))return 'https://quickchart.io/qr?size=220&margin=2&text='+encodeURIComponent(base);
+    var x=document.getElementById('contactMainQR2026');if(x&&x.src)return x.src;
     return 'https://quickchart.io/qr?size=220&margin=2&text='+encodeURIComponent(base);
   }
   function removeOldInstitutionLines(p){
@@ -12761,7 +12763,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
   }
   function addHeader(p){
     if(!p||p.dataset.jbContactHeader2026==='1')return;
-    p.dataset.jbContactHeader2026='1';
+    refreshBrand();p.dataset.jbContactHeader2026='1';
 
     /* Reuse the exact contact panel from below the login page. */
     var source=document.getElementById('loginContactStrip20261013');
@@ -12785,16 +12787,15 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       img.style.cssText='width:15mm!important;height:15mm!important;max-width:15mm!important;max-height:15mm!important;object-fit:contain!important;display:block!important;margin:auto!important;background:#fff!important;border:1px solid #c89b27!important;border-radius:1mm!important;box-sizing:border-box!important;';
     });
     var name=h.querySelector('.lc-name');
-    if(name){name.dataset.jbKeepInstitution='1';name.style.cssText='font-size:11pt!important;font-weight:900!important;line-height:1.3!important;margin:0 0 1mm!important;';}
+    if(name){name.textContent=NAME;name.dataset.jbKeepInstitution='1';name.style.cssText='font-size:11pt!important;font-weight:900!important;line-height:1.3!important;margin:0 0 1mm!important;';}
     var address=h.querySelector('.lc-address');
-    if(address){address.dataset.jbKeepInstitution='1';address.style.cssText='font-size:8pt!important;font-weight:700!important;line-height:1.3!important;margin:0 0 1mm!important;';}
+    if(address){address.textContent=ADDRESS;address.dataset.jbKeepInstitution='1';address.style.cssText='font-size:8pt!important;font-weight:700!important;line-height:1.3!important;margin:0 0 1mm!important;';}
     var hotline=h.querySelector('.lc-hotline');
-    if(hotline)hotline.style.cssText='font-size:9pt!important;font-weight:900!important;line-height:1.3!important;';
+    if(hotline){hotline.textContent='মোবাইল: '+MOBILE+(EMAIL?' · ইমেইল: '+EMAIL:'');hotline.style.cssText='font-size:9pt!important;font-weight:900!important;line-height:1.3!important;';}
     var qrLabel=h.querySelector('.lc-qr-label');
-    if(qrLabel)qrLabel.style.cssText='font-size:6pt!important;font-weight:800!important;margin-top:1mm!important;';
-    var srcLogo=document.getElementById('loginContactLogo20261013')||document.getElementById('loginLogo');
-    var outLogo=h.querySelector('.lc-logo');
-    if(srcLogo&&outLogo&&(!outLogo.getAttribute('src')||outLogo.getAttribute('src')===''))outLogo.src=srcLogo.getAttribute('src')||srcLogo.src;
+    if(qrLabel){qrLabel.textContent=document.body.classList.contains('jb-custom-account')?'নিজস্ব পেজ':'মূল পেজ';qrLabel.style.cssText='font-size:6pt!important;font-weight:800!important;margin-top:1mm!important;';}
+    var outLogo=h.querySelector('.lc-logo'),outQr=h.querySelector('.lc-qr'),srcLogo=logoSrc();
+    if(outLogo&&srcLogo)outLogo.src=srcLogo;if(outQr)outQr.src=qrSrc();
     p.insertBefore(h,p.firstChild);
     removeOldInstitutionLines(p);
   }
@@ -13464,9 +13465,9 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
     if(!p||p.querySelector('.jb-institution-contact-2026'))return;
     var address=p.querySelector('.jb-inst-address-2026');
     if(!address)return;
-    var c=document.createElement('div');
+    refreshBrand();var c=document.createElement('div');
     c.className='jb-institution-contact-2026';
-    c.innerHTML='<span class="jb-hotline-2026">হটলাইন-01823316630</span><span class="jb-email-2026">ইমেইল-hmatik90@gmail.com</span>';
+    c.innerHTML='<span class="jb-hotline-2026">মোবাইল-'+esc(MOBILE)+'</span><span class="jb-email-2026">ইমেইল-'+esc(EMAIL)+'</span>';
     address.insertAdjacentElement('afterend',c);
   }
 
