@@ -5390,3 +5390,73 @@ function getBoardExamPendingCandidates20261114(token){
     return {ok:true,candidates:rows.slice(-300).reverse().map(function(x){return {id:x.ExamRegID,name:x.Name,father:x.Father,madrasa:x.Madrasa,className:x.ClassName,exam:x.Exam};})};
   }catch(e){return {ok:false,message:String(e&&e.message||e)}}
 }
+/* ===== MULTI-TENANT ISOLATION CONTRACT — KEEP THESE BOUNDARIES =====
+01. Every authenticated request resolves one account type and one username before reading tenant-owned data.
+02. The stable tenant key is derived from account type plus username, never from a client-supplied institution name.
+03. Super Admin is the only root identity allowed to inspect every tenant's scoped rows.
+04. A Madrasa account is not treated as Super Admin even if its display name resembles an administrative title.
+05. New Madrasa registration creates an active login identity but grants no module permissions by default.
+06. Account activation and module authorization remain separate decisions.
+07. The account manager can grant selected module keys after the new account has logged in successfully.
+08. A Madrasa module list contains only the feature keys explicitly present in that account's Permissions field.
+09. The feature guard checks the active account status before checking the requested feature key.
+10. A missing permission is a denial, not an implicit grant for convenience modules.
+11. The root institution profile remains in the original INSTITUTION_PROFILE_2026 sheet.
+12. Each non-root institution profile is stored in MADRASA_PROFILE_2026 under its tenant key.
+13. Profile reads for a non-root account filter rows by the authenticated tenant key.
+14. Profile writes preserve every other tenant's rows and replace only the current tenant's own profile rows.
+15. Profile member IDs are unique within the relevant institution profile store.
+16. A profile member must include a name, designation, contribution and photo URL before saving.
+17. Profile photo uploads require the institution module permission for non-root accounts.
+18. The public introduction slide reads only the authenticated account's profile rows.
+19. The Super Admin introduction slide continues to read the original shared institution profile.
+20. Account branding is resolved from the current account row, not copied from the root APP identity.
+21. A non-root institution with a missing name does not silently inherit the main institution name.
+22. The account's own logo, header image, wallpaper and contact details are returned as branding fields.
+23. A custom institution's footer contact block is populated from its own saved account details.
+24. Printed document headers read the current branded footer values rather than hard-coded root contact text.
+25. Custom-account print headers do not reuse the root institution QR image.
+26. Media list operations always pass the authenticated token to the tenant-aware row reader.
+27. Media quotas are calculated from the current account's active media rows only.
+28. Every chunked media upload records the tenant key in its upload metadata.
+29. A chunk upload is rejected when its metadata owner differs from the current tenant key.
+30. A completed media upload writes the tenant key into the MEDIA sheet row.
+31. Media deletion first verifies that the target serial is visible to the authenticated account.
+32. A tenant cannot delete another account's media merely by guessing or submitting its serial number.
+33. Main institution media rows without the current tenant key are not returned to a new Madrasa account.
+34. The dashboard media player consumes the tenant-filtered media list.
+35. The custom header slideshow uses image entries from that same tenant-filtered media list.
+36. Header slideshow navigation controls do not read the root account's uploaded image collection.
+37. The main page's analog clocks are presentation elements and are hidden on the Madrasa home page.
+38. The main page's running news and protected sheet shortcut are not shown on the Madrasa home page.
+39. The Madrasa home page keeps its own slideshow, its own media player and its own introduction area.
+40. The Madrasa dashboard title is replaced with the institution's own name.
+41. Every open module window receives the authenticated institution name in its window heading.
+42. Dashboard income is calculated from payment rows visible to the current tenant.
+43. Dashboard expense is calculated from expense rows visible to the current tenant.
+44. Dashboard student totals are calculated from student rows visible to the current tenant.
+45. Dashboard examinee totals are calculated from examination registration rows visible to the current tenant.
+46. Dashboard attendance totals are calculated from attendance rows visible to the current tenant.
+47. Present and absent counts use the current Bangladesh-local date and the tenant-filtered attendance rows.
+48. Notices are treated as tenant-scoped data rather than a shared public dashboard feed.
+49. A tenant can read only notices carrying its own tenant key.
+50. Creating or editing a tenant notice requires that tenant's notice module permission.
+51. Notice edits are accepted only when the target notice is visible to the current tenant.
+52. Notice deletion is rejected when the target serial belongs to another tenant.
+53. Notice attachment folders are separated by tenant key for non-root accounts.
+54. Root-created notices remain visible to the root account and are not inherited by new Madrasa accounts.
+55. Generic record saves add the authenticated tenant key when the destination sheet is tenant-scoped.
+56. Generic record reads filter tenant-scoped rows before returning them to the browser.
+57. Student identity and admission workflow checks remain in the existing save pipeline.
+58. Payment ownership checks still verify that the linked student or admission belongs to the current tenant.
+59. Exam registration duplicate checks remain limited to the current tenant's visible registrations.
+60. The existing Super Admin account is excluded from ordinary account approval and permission lists.
+61. The account-control response continues to omit stored password and password-hash fields.
+62. The existing Super Admin approval flow remains responsible for selecting module permissions.
+63. The new Madrasa login path does not require a Super Admin approval flag after registration.
+64. A suspended or disabled account still cannot create a direct authenticated session.
+65. A module permission change does not grant access to another tenant's records.
+66. A tenant-specific profile or media row does not change the original root institution profile.
+67. Future module handlers must continue using the token-aware row helpers for every tenant-owned sheet.
+68. A new tenant feature must define its sheet ownership, write path, read filter and permission key before release.
+*/
