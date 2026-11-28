@@ -1001,6 +1001,7 @@ function approveAccount(token,type,id,status,permissions){
     if(permCol>=0) sh.getRange(rowIndex,permCol+1).setValue(safePermissions.join(','));
     if(byCol>=0) sh.getRange(rowIndex,byCol+1).setValue(actor);
     if(atCol>=0) sh.getRange(rowIndex,atCol+1).setValue(now_());
+    if(type==='madrasa'&&finalStatus==='ACTIVE'&&reviewCol>=0) sh.getRange(rowIndex,reviewCol+1).setValue(safePermissions.length?'MODULES_APPROVED':'MODULES_PENDING');
     SpreadsheetApp.flush();
     log_(actor,'approve',type,id+' | '+finalStatus+' | '+safePermissions.join(','));
     return {ok:true,message:'✅ অনুমোদন সফল হয়েছে। '+id+' এখন '+finalStatus+' এবং নির্বাচিত Permission সংরক্ষিত হয়েছে।',id:id,status:finalStatus,permissions:safePermissions};
@@ -1158,7 +1159,7 @@ function getDashboardLiveCounts(token) {
   if(!identity.root){
     const ownKey=identity.type+':'+identity.username;
     const ownDevices=Object.keys(all).filter(function(key){if(key.indexOf('ACTIVE_SESSION:')!==0)return false;try{const rec=JSON.parse(all[key]||'{}');return String(rec.accountType||'admin')+':'+String(rec.username||'')===ownKey && now-Number(rec.createdAt||0)<=21600000;}catch(e){return false;}}).length;
-    return {ok:true,registeredAccounts:registeredAdmins+registeredMadrasas,onlineAccounts:ownDevices?1:0,activeDevices:ownDevices};
+    return {ok:true,registeredAccounts:1,onlineAccounts:ownDevices?1:0,activeDevices:ownDevices};
   }
   return {ok:true,registeredAccounts:registeredAdmins+registeredMadrasas,onlineAccounts:Object.keys(online).length,activeDevices:activeDevices};
 }
