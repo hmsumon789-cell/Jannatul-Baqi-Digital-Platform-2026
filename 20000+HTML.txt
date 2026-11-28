@@ -1865,7 +1865,9 @@ function renderStats(x){
         '<div class="stat"><b>'+((x.income??0))+'</b>আয়</div>'+
         '<div class="stat"><b>'+((x.expense??0))+'</b>ব্যয়</div>'+
         '<div class="stat"><b>'+((x.students??0))+'</b>মোট ছাত্র-ছাত্রী সংখ্যা</div>'+
-        '<div class="stat"><b>'+((x.examinees??x.examCandidates??0))+'</b>মোট পরীক্ষার্থী সংখ্যা</div>';
+        '<div class="stat"><b>'+((x.examinees??x.examCandidates??0))+'</b>মোট পরীক্ষার্থী সংখ্যা</div>'+
+        '<div class="stat"><b>'+(((x.attendanceToday||{}).present)||0)+'</b>আজ উপস্থিত</div>'+
+        '<div class="stat"><b>'+(((x.attendanceToday||{}).absent)||0)+'</b>আজ অনুপস্থিত</div>';
     }else{
       sum.innerHTML='<div class="stat teacher-live-stat"><b>'+((x.staff??0))+'</b>মোট স্টাফ</div>'+
         '<div class="stat live-count-stat"><b id="dashboardRegisteredAccounts2026">—</b>নিবন্ধিত মাদ্রাসা + অ্যাডমিন সংখ্যা</div>'+
@@ -21257,3 +21259,199 @@ body.offwhite #app a.button:active{
 }
 </style>
 <!-- ===== END OFF-WHITE BUTTON FULL 3D DEPTH UPGRADE ===== -->
+
+<!-- ===== TENANT-SPECIFIC MADRASA PAGE SHELL — 2026-11-28 ===== -->
+<style id="jb-tenant-page-shell-20261128">
+body.jb-madrasa-tenant-2026 #jbDhakaAnalogClock,
+body.jb-madrasa-tenant-2026 #jbMakkahAnalogClock,
+body.jb-madrasa-tenant-2026 .header-datetime,
+body.jb-madrasa-tenant-2026 #appClock,
+body.jb-madrasa-tenant-2026 #appDate,
+body.jb-madrasa-tenant-2026 #headerBackgroundSlides,
+body.jb-madrasa-tenant-2026 #headerSlides,
+body.jb-madrasa-tenant-2026 .header-clock-row-v2,
+body.jb-madrasa-tenant-2026 .header-slider-controls,
+body.jb-madrasa-tenant-2026 .header-news-row-final,
+body.jb-madrasa-tenant-2026 .header-mainline,
+body.jb-madrasa-tenant-2026 .header-calendar,
+body.jb-madrasa-tenant-2026 #contactMainQR2026,
+body.jb-madrasa-tenant-2026 .contact-qr-side-2026,
+body.jb-madrasa-tenant-2026 .jb-sah-qr{display:none!important}
+body.jb-madrasa-tenant-2026 .header-photo-load{display:inline-flex!important;position:relative!important;z-index:100!important}
+body.jb-madrasa-tenant-2026 .jb-tenant-header-slides-2026{display:block!important;position:relative!important;width:min(100%,980px)!important;height:150px!important;margin:10px auto!important;border:2px solid var(--border,#c99a22)!important;border-radius:14px!important;overflow:hidden!important;background:var(--panel,#fff)!important}
+body.jb-madrasa-tenant-2026 .jb-tenant-header-slides-2026 img{width:100%!important;height:100%!important;object-fit:cover!important;display:block!important}
+body.jb-madrasa-tenant-2026 .jb-tenant-slide-controls-2026{display:flex!important;justify-content:center!important;align-items:center!important;gap:8px!important;margin:5px auto 10px!important}
+body.jb-madrasa-tenant-2026 .jb-tenant-slide-controls-2026 button{min-height:32px!important;padding:5px 12px!important;border-radius:20px!important}
+</style>
+<script id="jb-tenant-page-shell-js-20261128">
+(function(){
+ 'use strict';
+ var tenantSlides2026=[],tenantSlideIndex2026=0,tenantSlideTimer2026=null;
+ function isTenant(){var u=window.currentUser||currentUser||{};return String(u.accountType||u.AccountType||'').toLowerCase()==='madrasa';}
+ function user(){return window.currentUser||currentUser||{};}
+ function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+ function brand(){var u=user();return {name:String(u.Name||u.NameBN||''),nameEn:String(u.NameEN||''),nameAr:String(u.NameAR||''),address:String(u.Address||''),mobile:String(u.Mobile||''),email:String(u.Email||''),logo:String(u.Photo||u.Logo||''),headerPhoto:String(u.HeaderPhoto||''),wallpaper:String(u.Wallpaper||''),textColor:String(u.HeaderTextColor||''),background:String(u.HeaderBackgroundColor||'')};}
+ function setText(el,value){if(el&&el.textContent!==String(value==null?'':value))el.textContent=String(value==null?'':value);}
+ function applyDocumentBranding(root){
+  if(!isTenant())return;var b=brand(),scope=root||document;
+  if(scope.querySelectorAll){
+   scope.querySelectorAll('.jb-shared-application-header-20261017').forEach(function(head){
+    var logo=head.querySelector('.jb-sah-logo');if(logo&&b.logo&&logo.getAttribute('src')!==b.logo)logo.src=b.logo;
+    setText(head.querySelector('.jb-sah-bn'),b.name);setText(head.querySelector('.jb-sah-ar'),b.nameAr);setText(head.querySelector('.jb-sah-en'),b.nameEn);
+    var meta=head.querySelectorAll('.jb-sah-meta');setText(meta[0],'ঠিকানা: '+b.address);setText(meta[1],'মোবাইল: '+b.mobile+(b.email?' · ইমেইল: '+b.email:''));
+    var qr=head.querySelector('.jb-sah-qr');if(qr)qr.style.display='none';var ticker=head.querySelector('.jb-sah-newsrow');if(ticker)ticker.style.display='none';
+   });
+   scope.querySelectorAll('.jb-print-institution-header-20261010,.adm-receipt-header-20261010').forEach(function(head){
+    setText(head.querySelector('.jb-print-inst-name-20261010,.adm-rh-name'),b.name);
+    setText(head.querySelector('.jb-print-inst-address-20261010,.adm-rh-address'),b.address);
+    setText(head.querySelector('.jb-print-inst-hotline-20261010,.adm-rh-hotline'),'হটলাইন: '+b.mobile);
+    var img=head.querySelector('img');if(img&&b.logo&&img.getAttribute('src')!==b.logo)img.src=b.logo;
+    head.querySelectorAll('img[alt*="QR"],img[alt*="মূল"]').forEach(function(q){q.style.display='none';});
+   });
+   if(scope.nodeType===9||scope.nodeType===1){
+    var walker=document.createTreeWalker(scope,4,null,false),node;
+    while((node=walker.nextNode())){
+     var v=node.nodeValue||'',next=v;
+     next=next.replace(/জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা/g,b.name);
+     next=next.replace(/উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০/g,b.address);
+     next=next.replace(/01823316630/g,b.mobile);
+     next=next.replace(/hmsumon789@gmail.com/g,b.email);
+     if(b.nameEn)next=next.replace(/Jannatul Baky Mohila Madrasha & Eatimkhana/g,b.nameEn);
+     if(b.nameAr)next=next.replace(/المدرسة الجنة الباقية للبنات ودار الايتام/g,b.nameAr);
+     if(next!==v)node.nodeValue=next;
+    }
+   }
+  }
+ }
+ function applyShell(){
+  if(!isTenant())return;var b=brand();document.body.classList.add('jb-madrasa-tenant-2026');
+  var bn=document.querySelector('#app .header-content .title-bn'),ar=document.querySelector('#app .header-content .title-ar'),en=document.querySelector('#app .header-content .title-en');
+  setText(bn,b.name);setText(ar,b.nameAr);setText(en,b.nameEn);
+  setText(document.querySelector('#app .header-address-line'),'ঠিকানা: '+b.address);
+  setText(document.querySelector('#app .header-hotline-email-line'),'মোবাইল: '+b.mobile+(b.email?' · ইমেইল: '+b.email:''));
+  var logo=document.getElementById('headerLogo');if(logo&&b.logo){logo.src=b.logo;logo.alt=b.name+' লোগো';}
+  var header=document.querySelector('#app header.header'),loader=document.querySelector('#app .header-photo-load');
+  if(header&&loader&&loader.parentNode!==header)header.insertBefore(loader,header.firstChild);
+  var footer=document.getElementById('contactFooter');
+  if(footer){
+   setText(footer.querySelector('.contact-name'),b.name);setText(footer.querySelector('.contact-address'),b.address);
+   setText(footer.querySelector('.contact-info'),'📞 হটলাইন: '+b.mobile+(b.email?' · ✉️ '+b.email:''));
+   var fl=footer.querySelector('#contactLoginLogo2026');if(fl&&b.logo)fl.src=b.logo;
+   var qr=footer.querySelector('.contact-qr-side-2026');if(qr)qr.style.display='none';
+  }
+  setText(document.querySelector('#institutionDocumentary2026 .institution-documentary-kicker'),b.name);
+  setText(document.querySelector('#institutionDocumentary2026 .institution-documentary-heading h2'),'আমাদের মাদ্রাসার পরিচিতি');
+  setText(document.querySelector('#institutionDocumentary2026 .institution-documentary-heading p'),'আমাদের নিজস্ব পরিচিতি ও সম্মানিত ব্যক্তিবর্গ');
+  setText(document.querySelector('#institutionDocumentary2026 .institution-documentary-footnote'),b.name+' — আমাদের সম্মানিত ব্যক্তিবর্গের পরিচিতি');
+  var label=document.querySelector('label[for="headerPhotoLoader"]');if(label)label.textContent='⬆ নিজস্ব স্লাইড আপলোড';
+  var gallery=document.querySelector('#mediaStage .slider-action[onclick*="gallery"]');
+  if(gallery){gallery.textContent='⬆ মিডিয়া লোড';gallery.title='নিজস্ব মিডিয়া আপলোড';gallery.onclick=window.openTenantMediaPicker2026;}
+  var controls=document.querySelector('#institutionDocumentary2026 .institution-documentary-controls');
+  if(controls&&!document.getElementById('tenantIntroEditBtn2026')){
+   var btn=document.createElement('button');btn.type='button';btn.id='tenantIntroEditBtn2026';btn.className='primary';btn.textContent='✚ পরিচিতি যুক্ত করুন';btn.onclick=window.openTenantIntroductionEditor2026;controls.appendChild(btn);
+  }
+  ensureSlideHost();applyDocumentBranding(document);
+ }
+ function ensureSlideHost(){
+  var header=document.querySelector('#app header.header');if(!header)return;
+  var host=document.getElementById('jbTenantHeaderSlides2026');
+  if(!host){host=document.createElement('div');host.id='jbTenantHeaderSlides2026';host.className='jb-tenant-header-slides-2026';var top=header.querySelector('.header-top');if(top)top.insertAdjacentElement('afterend',host);else header.appendChild(host);}
+  var controls=document.getElementById('jbTenantHeaderSlideControls2026');
+  if(!controls){controls=document.createElement('div');controls.id='jbTenantHeaderSlideControls2026';controls.className='jb-tenant-slide-controls-2026';
+   controls.innerHTML='<button type="button" class="secondary" id="jbTenantSlidePrev2026">◀ পূর্ববর্তী</button><button type="button" class="secondary" id="jbTenantSlidePause2026">⏸ বিরতি</button><button type="button" class="secondary" id="jbTenantSlideNext2026">পরবর্তী ▶</button>';
+   host.insertAdjacentElement('afterend',controls);
+   document.getElementById('jbTenantSlidePrev2026').onclick=function(){renderSlide(tenantSlideIndex2026-1);};
+   document.getElementById('jbTenantSlideNext2026').onclick=function(){renderSlide(tenantSlideIndex2026+1);};
+   document.getElementById('jbTenantSlidePause2026').onclick=function(){if(tenantSlideTimer2026){clearInterval(tenantSlideTimer2026);tenantSlideTimer2026=null;this.textContent='▶ চালু';}else{startSlideTimer();this.textContent='⏸ বিরতি';}};
+  }
+ }
+ function renderSlide(index){
+  var host=document.getElementById('jbTenantHeaderSlides2026');if(!host)return;
+  if(!tenantSlides2026.length){host.innerHTML='<div style="height:100%;display:flex;align-items:center;justify-content:center;font-weight:800">নিজস্ব স্লাইড আপলোড করুন</div>';return;}
+  tenantSlideIndex2026=(index+tenantSlides2026.length)%tenantSlides2026.length;var s=tenantSlides2026[tenantSlideIndex2026];
+  host.innerHTML='<img src="'+esc(s.url)+'" alt="'+esc(s.name||'নিজস্ব স্লাইড')+'">';
+ }
+ function startSlideTimer(){if(tenantSlideTimer2026)clearInterval(tenantSlideTimer2026);if(tenantSlides2026.length>1)tenantSlideTimer2026=setInterval(function(){renderSlide(tenantSlideIndex2026+1);},6000);}
+ async function loadTenantSlides(){
+  if(!isTenant())return;
+  try{var r=await call('getTenantPageSlides2026',token);tenantSlides2026=r&&r.ok&&Array.isArray(r.slides)?r.slides:[];tenantSlideIndex2026=0;ensureSlideHost();renderSlide(0);startSlideTimer();}catch(e){console.warn('Tenant slides load failed',e);}
+ }
+ function readData(file){return new Promise(function(resolve,reject){var reader=new FileReader();reader.onload=function(){resolve(String(reader.result||''));};reader.onerror=function(){reject(new Error('ফাইল পড়া যায়নি।'));};reader.readAsDataURL(file);});}
+ window.loadHeaderPhotos=async function(files){
+  if(!isTenant())return toast('নিজস্ব স্লাইড আপলোডের জন্য মাদ্রাসা অ্যাকাউন্টে লগইন করুন।');
+  var list=Array.prototype.slice.call(files||[]).filter(function(f){return String(f.type||'').indexOf('image/')===0;});
+  if(!list.length)return toast('ছবির ফাইল নির্বাচন করুন।');
+  for(var i=0;i<list.length;i++){
+   if(list[i].size>5*1024*1024){toast(list[i].name+' 5 MB-এর বেশি; বাদ দেওয়া হয়েছে।');continue;}
+   try{var data=await readData(list[i]),saved=await call('saveTenantPageSlide2026',token,data,list[i].name);if(!saved||!saved.ok)throw new Error(saved&&saved.message||'স্লাইড সংরক্ষণ হয়নি');}
+   catch(e){toast(list[i].name+': '+(e.message||e));}
+  }
+  await loadTenantSlides();toast('নিজস্ব স্লাইড সংরক্ষণ হয়েছে।');var input=document.getElementById('headerPhotoLoader');if(input)input.value='';
+ };
+ window.openTenantMediaPicker2026=function(){
+  if(!isTenant())return;var input=document.getElementById('jbTenantMediaPicker2026');
+  if(!input){input=document.createElement('input');input.type='file';input.id='jbTenantMediaPicker2026';input.multiple=true;input.accept='image/*,video/*,audio/*';input.hidden=true;document.body.appendChild(input);
+   input.onchange=async function(){
+    var files=Array.prototype.slice.call(input.files||[]);
+    for(var i=0;i<files.length;i++){
+     var f=files[i];if(f.size>10*1024*1024){toast(f.name+' 10 MB-এর বেশি; বাদ দেওয়া হয়েছে।');continue;}
+     var type=f.type.indexOf('image/')===0?'image':(f.type.indexOf('video/')===0?'video':(f.type.indexOf('audio/')===0?'audio':''));if(!type)continue;
+     try{var data=await readData(f),r=await call('saveTenantPageMedia2026',token,{type:type,name:f.name,mimeType:f.type,size:f.size,dataUrl:data});if(!r||!r.ok)throw new Error(r&&r.message||'মিডিয়া সংরক্ষণ হয়নি');}
+     catch(e){toast(f.name+': '+(e.message||e));}
+    }
+    input.value='';try{var x=await call('getDashboardExtras',token);if(x&&x.ok){media=x.media||[];renderMedia();renderStats(x.stats||{});}}catch(e){}
+    toast('নিজস্ব মিডিয়া আপডেট হয়েছে।');
+   };
+  }
+  input.click();
+ };
+ window.openTenantIntroductionEditor2026=async function(){
+  if(!isTenant())return;var title=$('winTitle'),body=$('winBody'),win=$('formWin');if(!title||!body||!win)return;
+  title.textContent='নিজস্ব মাদ্রাসার পরিচিতি';
+  body.innerHTML='<div class="card" style="padding:14px"><h3>নিজস্ব পরিচিতি স্লাইড</h3><p>নাম, পদবী, অবদান ও ফটো সংরক্ষণ করলে আপনার মাদ্রাসার পরিচিতি স্লাইডে দেখাবে।</p><div id="tenantIntroExistingList2026"></div><div class="form-grid"><label>নাম<input id="tenantIntroName2026" class="field" maxlength="160"></label><label>পদবী<input id="tenantIntroRole2026" class="field" maxlength="100"></label><label class="full">ফটো<input id="tenantIntroPhoto2026" class="field" type="file" accept="image/*"></label><label class="full">অবদান<textarea id="tenantIntroContribution2026" class="field" rows="4" maxlength="1200"></textarea></label></div><div id="tenantIntroMessage2026" class="small"></div><button type="button" class="primary" onclick="saveTenantIntroduction2026()">💾 সংরক্ষণ করুন</button></div>';
+  if(typeof openWindow==='function')openWindow('formWin');else win.classList.add('show');await refreshTenantIntroductionEditor2026();
+ };
+ window.refreshTenantIntroductionEditor2026=async function(){
+  var box=$('tenantIntroExistingList2026');if(!box)return;
+  try{var r=await call('getInstitutionDocumentary2026',token),people=r&&r.people||[];
+   box.innerHTML=people.length?people.map(function(p){return '<div style="display:flex;align-items:center;gap:9px;padding:7px;border-bottom:1px solid #ddd"><img src="'+esc(p.photoUrl)+'" style="width:48px;height:48px;object-fit:cover;border-radius:50%"><div><b>'+esc(p.name)+'</b><div>'+esc(p.group)+'</div><small>'+esc(p.contribution)+'</small></div></div>';}).join(''):'<p>এখনও কোনো পরিচিতি যোগ করা হয়নি।</p>';
+  }catch(e){box.textContent='পরিচিতি লোড হয়নি।';}
+ };
+ window.saveTenantIntroduction2026=async function(){
+  var name=$('tenantIntroName2026'),role=$('tenantIntroRole2026'),photo=$('tenantIntroPhoto2026'),contribution=$('tenantIntroContribution2026'),msg=$('tenantIntroMessage2026');
+  if(!name.value.trim()||!role.value.trim()||!contribution.value.trim()||!photo.files||!photo.files[0]){if(msg)msg.textContent='নাম, পদবী, অবদান ও ফটো পূরণ করুন।';return;}
+  try{
+   var data=await readData(photo.files[0]),id='intro_'+Date.now(),savedPhoto=await call('saveInstitutionPhoto2026',token,id,data,photo.files[0].name,'image/jpeg');
+   if(!savedPhoto||!savedPhoto.ok)throw new Error(savedPhoto&&savedPhoto.message||'ফটো সংরক্ষণ হয়নি');
+   var saved=await call('saveInstitutionMember2026',token,{id:id,name:name.value.trim(),group:role.value.trim(),contribution:contribution.value.trim(),photoUrl:savedPhoto.url});
+   if(!saved||!saved.ok)throw new Error(saved&&saved.message||'পরিচিতি সংরক্ষণ হয়নি');
+   name.value='';role.value='';contribution.value='';photo.value='';if(msg)msg.textContent='পরিচিতি সংরক্ষণ হয়েছে।';
+   await refreshTenantIntroductionEditor2026();await loadInstitutionDocumentary2026();
+  }catch(e){if(msg)msg.textContent='সংরক্ষণ হয়নি: '+(e.message||e);}
+ };
+ var oldOpenModule=window.openModule;
+ window.openModule=function(key){if(isTenant()&&String(key||'')==='institution')return window.openTenantIntroductionEditor2026();return typeof oldOpenModule==='function'?oldOpenModule.apply(this,arguments):undefined;};
+ var oldLoadApp=window.loadApp;
+ if(typeof oldLoadApp==='function'){
+  window.loadApp=async function(){
+   await oldLoadApp.apply(this,arguments);if(!token)return;
+   try{var extras=await call('getDashboardExtras',token);if(extras&&extras.ok){renderStats(extras.stats||{});renderNotices(extras.notices||[]);media=extras.media||[];renderMedia();}}catch(e){console.warn('Dashboard tenant data load failed',e);}
+   try{await applyAccountBranding20261104();}catch(e){}
+   if(isTenant()){window.currentUser=currentUser;applyShell();await loadTenantSlides();await loadInstitutionDocumentary2026();}
+  };
+ }
+ if(typeof window.applyAccountBranding20261104==='function'){
+  var oldBranding=window.applyAccountBranding20261104;
+  window.applyAccountBranding20261104=async function(){
+   await oldBranding.apply(this,arguments);if(!isTenant())return;
+   try{var r=await call('getAccountBranding20261104',token);if(r&&r.ok&&!r.skip){
+    Object.assign(currentUser||{},{accountType:'madrasa',Name:r.name,NameBN:r.name,Photo:r.logo,HeaderPhoto:r.headerPhoto,Wallpaper:r.wallpaper,HeaderTextColor:r.headerTextColor,HeaderBackgroundColor:r.headerBackgroundColor,Address:r.address,Mobile:r.mobile,Email:r.email});
+    window.currentUser=currentUser;
+   }}catch(e){}
+   applyShell();
+  };
+ }
+ var observer=new MutationObserver(function(records){if(!isTenant())return;records.forEach(function(m){m.addedNodes&&Array.prototype.forEach.call(m.addedNodes,function(n){if(n.nodeType===1)applyDocumentBranding(n);});});});
+ if(document.body)observer.observe(document.body,{childList:true,subtree:true});
+})();
+</script>
