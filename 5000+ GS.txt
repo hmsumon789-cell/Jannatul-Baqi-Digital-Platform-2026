@@ -2730,7 +2730,7 @@ function findBy_(sheet,key,value){
   for(let i=1;i<v.length;i++) if(String(v[i][j]).trim()===String(value).trim()) return objectFrom_(h,v[i]);
   return null;
 }
-const TENANT_SCOPED_SHEETS_ = ['STUDENTS','TEACHERS','DONORS','ADMISSIONS','EXAM_REG','PAYMENTS','EXPENSES','INCOME','RESULTS','NOTICES','ATTENDANCE','MEDIA','FILES','SALARY','CERTIFICATES','ID_CARDS','ADMIT_CARDS','RECEIPTS','ONLINE_SERVICES','EXECUTIVES','ADVISERS','FOUNDERS'];
+const TENANT_SCOPED_SHEETS_ = ['STUDENTS','TEACHERS','DONORS','ADMISSIONS','EXAM_REG','PAYMENTS','EXPENSES','INCOME','RESULTS','NOTICES','CONTACTS','ATTENDANCE','MEDIA','FILES','SALARY','CERTIFICATES','ID_CARDS','ADMIT_CARDS','RECEIPTS','ONLINE_SERVICES','EXECUTIVES','ADVISERS','FOUNDERS'];
 function tenantIdentity_(token) {
   const session=auth_(token), type=String(session.accountType||'admin'), username=String(session.username||'').trim();
   const root=type!=='madrasa' && isSuperAdmin_(token);
@@ -3565,7 +3565,7 @@ function getDocumentBuilderRecord(token, docKey, recordId) {
   if(idx<0) return {ok:false,message:'Record ID field পাওয়া যায়নি।'};
   let row=null;
   for(let i=1;i<vals.length;i++){
-    if(String(vals[i][idx]).trim()===rid){row=objectFrom_(h,vals[i]);break;}
+    if(String(vals[i][idx]).trim()===rid){if(!tenantCanSeeRow_(sheet,h,vals[i],token))return {ok:false,message:'এই নথি আপনার মাদ্রাসার অ্যাকাউন্টের নয়।'};row=objectFrom_(h,vals[i]);break;}
   }
   if(!row) return {ok:false,message:'History record পাওয়া যায়নি।'};
   let payload=null;
