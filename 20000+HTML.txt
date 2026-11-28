@@ -15560,7 +15560,7 @@ window.jbRsBuild=async function(){
   };
   window.shareAdmissionReceipt2026=async function(){
     var r=window.__jbAdmissionReceiptData2026||{};
-    var message=['জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা — মানি রসিদ','রসিদ নম্বর: '+(r.ReceiptID||''),'শিক্ষার্থী আইডি: '+(r.StudentID||''),'নাম: '+(r.Name||''),'শ্রেণি: '+(r.Class||''),'ফি খাত: '+(r.Category||''),'পরিমাণ: '+(r.Amount||0)+' টাকা','পেমেন্ট মাধ্যম: '+(r.Method||''),'Transaction ID: '+(r.Reference||''),'তারিখ: '+(r.Date||''),'ভর্তি অনুমোদন: PENDING — Super Admin অনুমোদনের অপেক্ষায়','হটলাইন: '+(r.Hotline||'01823316630')].join('\n');
+    var shareBrand=window.currentInstitution||{},message=[(shareBrand.nameBn||'')+' — মানি রসিদ','রসিদ নম্বর: '+(r.ReceiptID||''),'শিক্ষার্থী আইডি: '+(r.StudentID||''),'নাম: '+(r.Name||''),'শ্রেণি: '+(r.Class||''),'ফি খাত: '+(r.Category||''),'পরিমাণ: '+(r.Amount||0)+' টাকা','পেমেন্ট মাধ্যম: '+(r.Method||''),'Transaction ID: '+(r.Reference||''),'তারিখ: '+(r.Date||''),'ভর্তি অনুমোদন: PENDING — Super Admin অনুমোদনের অপেক্ষায়','হটলাইন: '+(r.Hotline||'01823316630')].join('\n');
     try{
       if(navigator.share){await navigator.share({title:'ভর্তি ফি — মানি রসিদ',text:message});return;}
       if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(message);safeToast('রসিদের তথ্য কপি হয়েছে। এখন WhatsApp বা অন্য মাধ্যমে শেয়ার করুন।');return;}
@@ -16034,7 +16034,8 @@ window.jbRsBuild=async function(){
   window.jbPrintAllReports20261011=function(){
     var out=el('jbReportResults20261011');if(!out||!out.innerHTML.trim())return alert('আগে রিপোর্ট তৈরি করুন।');
     var w=window.open('','_blank','width=1100,height=850');if(!w){alert('প্রিন্ট উইন্ডো খুলতে ব্রাউজারের অনুমতি দিন।');return}
-    w.document.open();w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>অল রিপোর্ট</title><style>@page{size:A4 landscape;margin:10mm}body{font-family:Arial,"Noto Sans Bengali",sans-serif;color:#111}h2{text-align:center}h3{margin:12px 0 6px}table{border-collapse:collapse;width:100%;font-size:10px}th,td{border:1px solid #555;padding:4px;text-align:left;vertical-align:top;overflow-wrap:anywhere}section{margin-bottom:14px;break-inside:auto}tr{break-inside:avoid}button{display:none!important}</style></head><body><h2>জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা — অল রিপোর্ট</h2>'+out.innerHTML+'</body></html>');w.document.close();w.focus();setTimeout(function(){w.print()},350);
+    var rb=window.currentInstitution||{},safeReport=function(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');},reportName=safeReport(rb.nameBn||''),reportAddress=safeReport(rb.address||''),reportMobile=safeReport(rb.hotline1||'');
+    w.document.open();w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>অল রিপোর্ট</title><style>@page{size:A4 landscape;margin:10mm}body{font-family:Arial,"Noto Sans Bengali",sans-serif;color:#111}h2{text-align:center}h3{margin:12px 0 6px}table{border-collapse:collapse;width:100%;font-size:10px}th,td{border:1px solid #555;padding:4px;text-align:left;vertical-align:top;overflow-wrap:anywhere}section{margin-bottom:14px;break-inside:auto}tr{break-inside:avoid}button{display:none!important}</style></head><body><h2>'+reportName+' — অল রিপোর্ট</h2><p style="text-align:center">'+reportAddress+(reportMobile?' · মোবাইল: '+reportMobile:'')+'</p>'+out.innerHTML+'</body></html>');w.document.close();w.focus();setTimeout(function(){w.print()},350);
   };
   window.jbDownloadAllReports20261011=function(){
     var reports=window.__jbAllReportsData20261011||[];if(!reports.length)return alert('আগে রিপোর্ট তৈরি করুন।');
