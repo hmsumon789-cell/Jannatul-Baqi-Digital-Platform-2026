@@ -12854,7 +12854,7 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       k==='result'?'ফলাফল / মার্কশিট':'মার্কশিট';
   }
   function make(){
-    var k=key();
+    var k=key(),inst=window.currentInstitution||{},instName=String(inst.nameBn||''),instAddress=String(inst.address||''),instMobile=String(inst.hotline1||'');
     if(k==='marks'||k==='result')return oldCreate.apply(this,arguments);
 
     var wrap=document.getElementById('jbDocPreviewWrap');
@@ -12915,10 +12915,10 @@ window.jbCreatePreview=function(){var box=document.getElementById('jbMarksGrid20
       head='<div class="jb-doc-head"><h2>আইডি কার্ড</h2><p style="font-weight:900">'+e(name||'')+'</p></div>';
       p.innerHTML=photoHtml+head+
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:3px">'+rows.join('')+'</div>'+
-        '<div style="margin-top:8px;text-align:center;font-weight:900">জান্নাতুল বাক্বী মহিলা মাদ্রাসা ও এতিমখানা</div>';
+        '<div style="margin-top:8px;text-align:center;font-weight:900">'+e(instName)+'</div>';
     }else{
       p.innerHTML=photoHtml+head+
-        '<div style="text-align:center;font-size:11px;margin-bottom:7px">উপজেলা মডেল টাউন কোনাখোলা, কেরাণীগঞ্জ, ঢাকা-১৩১০</div>'+
+        '<div style="text-align:center;font-size:11px;margin-bottom:7px">'+e(instAddress)+(instMobile?' · মোবাইল: '+e(instMobile):'')+'</div>'+
         (k==='receipts'?receiptGridHtml:rows.join('')+extra);
     }
 
