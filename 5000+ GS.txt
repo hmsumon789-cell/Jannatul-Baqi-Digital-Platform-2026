@@ -5551,7 +5551,13 @@ function saveInstitutionMember2026(token,payload){
   sh.appendRow([identity.key,'INTRO',id,name,role,contribution,photoUrl,now_(),'']);return {ok:true,message:'নিজস্ব পরিচিতি সংরক্ষণ হয়েছে।'};
  }
  if(!isSuperAdmin_(token))return {ok:false,message:'শুধু Super Admin নতুন সদস্য যুক্ত করতে পারবেন।'};
- return {ok:false,message:'Super Admin পরিচিতি সংরক্ষণের মূল ফাংশন ব্যবহার করুন।'};
+ var rootId=String(payload.id||'').replace(/[^A-Za-z0-9_-]/g,''),rootName=String(payload.name||'').trim().slice(0,160),rootRole=String(payload.group||'').trim().slice(0,100),rootContribution=String(payload.contribution||'').trim().slice(0,1200),rootPhoto=String(payload.photoUrl||'').trim();
+ if(!/^member_[0-9]+$/.test(rootId)||!rootName||!rootRole||!rootContribution||!rootPhoto)return {ok:false,message:'নাম, পদবী, ফটো ও অবদান—সব তথ্য দিতে হবে।'};
+ var rootSheet=institutionProfileSheet2026_(),rootValues=rootSheet.getDataRange().getValues();
+ for(var j=0;j<rootValues.length;j++)if(String(rootValues[j][0]||'')===rootId)return {ok:false,message:'এই সদস্য আইডি আগে থেকেই রয়েছে।'};
+ rootSheet.appendRow([rootId,rootName,rootRole,rootPhoto,now_(),rootContribution]);
+ log_(sessionUser_(token),'create','INSTITUTION_PROFILE_2026',rootName+' — '+rootRole+' নতুন সদস্য যুক্ত');
+ return {ok:true,message:'নতুন সদস্য সংরক্ষণ হয়েছে।'};
 }
 function getTenantPageSlides2026(token){
  var identity=tenantIdentity_(token);if(identity.type!=='madrasa')return {ok:true,slides:[]};
@@ -5587,4 +5593,19 @@ function listMedia(token){
   if(String(x.DataURL||'').indexOf('DRIVE:')===0){var id=String(x.DataURL).slice(6),rk='';try{var f=DriveApp.getFileById(id);try{f.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}try{rk=String(f.getResourceKey()||'');}catch(e){}}catch(e){}x.DriveFileId=id;x.FileID=id;x.ResourceKey=rk;x.DataURL=mediaDriveUrl_(id,rk);x.DirectURL=x.DataURL;x.PreviewURL=mediaPreviewUrl_(id,rk);}
   return x;
  });
+}
+
+
+function deleteMedia(token,serial){
+ auth_(token);requireFeature_(token,'gallery');
+ var identity=tenantIdentity_(token),sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MEDIA);
+ if(!sh||sh.getLastRow()<2)return {ok:false,message:'মিডিয়া পাওয়া যায়নি।'};
+ var values=sh.getDataRange().getValues(),headers=values[0].map(String),tenantCol=headers.indexOf('TenantAccount'),serialCol=headers.indexOf('Serial'),dataCol=headers.indexOf('DataURL');
+ for(var i=1;i<values.length;i++){
+  if(String(values[i][serialCol]||'')!==String(serial||''))continue;
+  if(!identity.root&&(tenantCol<0||String(values[i][tenantCol]||'')!==identity.key))return {ok:false,message:'এই মিডিয়া আপনার মাদ্রাসার নয়।'};
+  var url=String(values[i][dataCol]||'');if(url.indexOf('DRIVE:')===0){try{DriveApp.getFileById(url.slice(6)).setTrashed(true);}catch(e){}}
+  sh.deleteRow(i+1);return {ok:true};
+ }
+ return {ok:false,message:'আপনার অ্যাকাউন্টের মিডিয়া পাওয়া যায়নি।'};
 }
