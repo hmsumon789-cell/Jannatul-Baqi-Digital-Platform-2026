@@ -5033,6 +5033,52 @@ function getInstitutionProfile2026(token){
   return {ok:true,history:history,people:people};
 }
 
+
+function uploadMadrasaProfilePhoto2026(token,dataUrl,fileName){
+  try{
+    const session=auth_(token);
+    if(String(session.accountType||'')!=='madrasa')return {ok:false,message:'এই সুবিধা শুধু মাদ্রাসা অ্যাকাউন্টের জন্য।'};
+    const match=String(dataUrl||'').match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,([A-Za-z0-9+/=]+)$/);
+    if(!match)return {ok:false,message:'ছবির ফাইল সঠিক নয়।'};
+    const bytes=Utilities.base64Decode(match[2]);
+    if(bytes.length>2*1024*1024)return {ok:false,message:'ছবি সর্বোচ্চ ২ MB হতে পারবে।'};
+    const safe=String(fileName||'member-photo').replace(/[^a-zA-Z0-9._-]/g,'_').slice(0,80);
+    const file=institutionPhotoFolder2026_().createFile(Utilities.newBlob(bytes,match[1],safe+'-'+Date.now()));
+    try{file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);}catch(e){}
+    return {ok:true,url:'https://drive.google.com/uc?export=view&id='+encodeURIComponent(file.getId())};
+  }catch(e){return {ok:false,message:'ছবি আপলোড হয়নি: '+String(e&&e.message||e)};}
+}
+function saveMadrasaProfileMember2026(token,payload){
+  try{
+    const session=auth_(token);
+    if(String(session.accountType||'')!=='madrasa')return {ok:false,message:'এই সুবিধা শুধু মাদ্রাসা অ্যাকাউন্টের জন্য।'};
+    payload=payload||{};
+    const name=String(payload.name||'').trim().slice(0,160),role=String(payload.role||'').trim().slice(0,100);
+    const contribution=String(payload.contribution||'').trim().slice(0,1200),photoUrl=String(payload.photoUrl||'').trim();
+    if(!name||!role||!contribution||!photoUrl)return {ok:false,message:'নাম, পদবী, অবদান ও ফটো দিতে হবে।'};
+    const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MADRASA_PROFILES);
+    ensureTenantSheetColumn_(sh);
+    const identity=tenantIdentity_(token),serial=nextSerial_(sh),memberId='MP-'+Utilities.getUuid().slice(0,8).toUpperCase();
+    sh.appendRow([serial,memberId,name,role,contribution,photoUrl,now_(),identity.key]);
+    log_(session.username,'create','MADRASA_PROFILE',memberId+' | '+name);
+    return {ok:true,memberId:memberId,message:'নিজস্ব পরিচিতি সংরক্ষণ হয়েছে।'};
+  }catch(e){return {ok:false,message:'পরিচিতি সংরক্ষণ হয়নি: '+String(e&&e.message||e)};}
+}
+function deleteMadrasaProfileMember2026(token,memberId){
+  try{
+    const session=auth_(token);
+    if(String(session.accountType||'')!=='madrasa')return {ok:false,message:'এই সুবিধা শুধু মাদ্রাসা অ্যাকাউন্টের জন্য।'};
+    const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.MADRASA_PROFILES);
+    const values=sh.getDataRange().getValues(),headers=values[0].map(String),idCol=headers.indexOf('MemberID');
+    for(let i=1;i<values.length;i++){
+      if(idCol>=0&&String(values[i][idCol])===String(memberId)&&tenantCanSeeRow_(SHEETS.MADRASA_PROFILES,headers,values[i],token)){
+        sh.deleteRow(i+1);return {ok:true,message:'নিজস্ব পরিচিতি মুছে ফেলা হয়েছে।'};
+      }
+    }
+    return {ok:false,message:'নিজস্ব পরিচিতি পাওয়া যায়নি।'};
+  }catch(e){return {ok:false,message:'পরিচিতি মুছতে সমস্যা হয়েছে: '+String(e&&e.message||e)};}
+}
+
 function getInstitutionDocumentary2026(token){
   const session=auth_(token);
   if(String(session.accountType||'')==='madrasa'){
